@@ -39,9 +39,7 @@
 #else
 #   include <errno.h>
 #endif
-#ifdef _WINDOWS
-#  define snprintf _snprintf
-#endif 
+
 
 #ifndef local
 #  define local static
@@ -53,7 +51,7 @@
 #endif
 
 #ifndef Z_BUFSIZE
-#define Z_BUFSIZE (64 * 1024) 
+#define Z_BUFSIZE (64*1024) //(16384)
 #endif
 
 #ifndef Z_MAXFILENAMEINZIP
@@ -481,7 +479,6 @@ local int zip64local_getLong64 (const zlib_filefunc64_32_def* pzlib_filefunc_def
 #ifndef BUFREADCOMMENT
 #define BUFREADCOMMENT (0x400)
 #endif
-
 local int zipGetDiskSizeAvailable(zipFile file, ZPOS64_T *size_available)
 {
     zip64_internal* zi;
@@ -1214,10 +1211,11 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     uInt i;
     int err = ZIP_OK;
 
-#    ifdef NOCRYPT
+#ifdef NOCRYPT
+    (crcForCrypting);
     if (password != NULL)
         return ZIP_PARAMERROR;
-#    endif
+#endif
 
     if (file == NULL)
         return ZIP_PARAMERROR;
@@ -1334,7 +1332,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     zi->ci.totalCompressedData = 0;
     zi->ci.totalUncompressedData = 0;
     zi->ci.pos_zip64extrainfo = 0;
-    
+
     err = Write_LocalFileHeader(zi, filename, size_extrafield_local, extrafield_local);
 
 #ifdef HAVE_BZIP2

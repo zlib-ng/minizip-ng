@@ -13,7 +13,7 @@
 */
 
 
-#ifndef _WIN32
+#if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
         #ifndef __USE_FILE_OFFSET64
                 #define __USE_FILE_OFFSET64
         #endif
@@ -28,6 +28,19 @@
         #endif
 #endif
 
+#ifdef __APPLE__
+// In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
+#define FOPEN_FUNC(filename, mode) fopen(filename, mode)
+#define FTELLO_FUNC(stream) ftello(stream)
+#define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
+#else
+#define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
+#define FTELLO_FUNC(stream) ftello64(stream)
+#define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
+#endif
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,14 +48,14 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#ifdef unix
+#ifdef _WIN32
+# include <direct.h>
+# include <io.h>
+#else
 # include <unistd.h>
 # include <utime.h>
 # include <sys/types.h>
 # include <sys/stat.h>
-#else
-# include <direct.h>
-# include <io.h>
 #endif
 
 #include "zip.h"
@@ -81,7 +94,7 @@ uLong filetime(f, tmzip, dt)
   return ret;
 }
 #else
-#ifdef unix
+#ifdef unix || __APPLE__
 uLong filetime(f, tmzip, dt)
     char *f;               /* name of file to get info on */
     tm_zip *tmzip;         /* return value: access, modific. and creation times */
@@ -142,7 +155,7 @@ int check_exist_file(filename)
 {
     FILE* ftestexist;
     int ret = 1;
-    ftestexist = fopen64(filename,"rb");
+    ftestexist = FOPEN_FUNC(filename,"rb");
     if (ftestexist==NULL)
         ret = 0;
     else
@@ -158,13 +171,12 @@ void do_banner()
 
 void do_help()
 {
-    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-d bytes] [-j] file.zip [files_to_add]\n\n" \
+    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n" \
            "  -o  Overwrite existing file.zip\n" \
            "  -a  Append to existing file.zip\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
-           "  -9  Compress better\n" \
-           "  -d  Disk size\n" \
+           "  -9  Compress better\n\n" \
            "  -j  exclude path. store only the file name.\n\n");
 }
 
@@ -174,7 +186,8 @@ int getFileCrc(const char* filenameinzip,void*buf,unsigned long size_buf,unsigne
 {
    unsigned long calculate_crc=0;
    int err=ZIP_OK;
-   FILE * fin = fopen64(filenameinzip,"rb");
+   FILE * fin = FOPEN_FUNC(filenameinzip,"rb");
+   
    unsigned long size_read = 0;
    unsigned long total_read = 0;
    if (fin==NULL)
@@ -212,20 +225,19 @@ int isLargeFile(const char* filename)
 {
   int largeFile = 0;
   ZPOS64_T pos = 0;
-  FILE* pFile = fopen64(filename, "rb");
+  FILE* pFile = FOPEN_FUNC(filename, "rb");
 
   if(pFile != NULL)
   {
-    int n = fseeko64(pFile, 0, SEEK_END);
+    int n = FSEEKO_FUNC(pFile, 0, SEEK_END);
+    pos = FTELLO_FUNC(pFile);
 
-    pos = ftello64(pFile);
-
-    printf("File : %s is %lld bytes\n", filename, pos);
+                printf("File : %s is %lld bytes\n", filename, pos);
 
     if(pos >= 0xffffffff)
      largeFile = 1;
 
-    fclose(pFile);
+                fclose(pFile);
   }
 
  return largeFile;
@@ -244,7 +256,6 @@ int main(argc,argv)
     int zipok;
     int err=0;
     int size_buf=0;
-    uLong disk_size = 0;
     void* buf=NULL;
     const char* password=NULL;
 
@@ -274,11 +285,7 @@ int main(argc,argv)
                         opt_compress_level = c-'0';
                     if ((c=='j') || (c=='J'))
                         opt_exclude_path = 1;
-                    if ((c=='d') && (i+1<argc))
-                    {
-                        disk_size = atoi(argv[i+1]);
-                        i++;
-                    }
+
                     if (((c=='p') || (c=='P')) && (i+1<argc))
                     {
                         password=argv[i+1];
@@ -366,7 +373,7 @@ int main(argc,argv)
 #        ifdef USEWIN32IOAPI
         zlib_filefunc64_def ffunc;
         fill_win32_filefunc64A(&ffunc);
-        zf = zipOpen3_64(filename_try,(opt_overwrite==2) ? 2 : 0,disk_size,NULL,&ffunc);
+        zf = zipOpen2_64(filename_try,(opt_overwrite==2) ? 2 : 0,NULL,&ffunc);
 #        else
         zf = zipOpen64(filename_try,(opt_overwrite==2) ? 2 : 0);
 #        endif
@@ -453,7 +460,7 @@ int main(argc,argv)
                     printf("error in opening %s in zipfile\n",filenameinzip);
                 else
                 {
-                    fin = fopen64(filenameinzip,"rb");
+                    fin = FOPEN_FUNC(filenameinzip,"rb");
                     if (fin==NULL)
                     {
                         err=ZIP_ERRNO;

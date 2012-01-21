@@ -86,9 +86,6 @@
 #else
 #   include <errno.h>
 #endif
-#ifdef _WINDOWS
-#  define snprintf _snprintf
-#endif 
 
 #ifndef local
 #  define local static
@@ -104,7 +101,7 @@
 
 
 #ifndef UNZ_BUFSIZE
-#define UNZ_BUFSIZE (64 * 1024) 
+#define UNZ_BUFSIZE (16384)
 #endif
 
 #ifndef UNZ_MAXFILENAMEINZIP
@@ -1154,7 +1151,7 @@ extern int ZEXPORT unzGetCurrentFileInfo (unzFile file,
                                                 szFileName,fileNameBufferSize,
                                                 extraField,extraFieldBufferSize,
                                                 szComment,commentBufferSize);
-    if (err==UNZ_OK)
+    if ((err==UNZ_OK) && (pfile_info != NULL))
     {
         pfile_info->version = file_info64.version;
         pfile_info->version_needed = file_info64.version_needed;
