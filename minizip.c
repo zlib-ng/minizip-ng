@@ -158,12 +158,13 @@ void do_banner()
 
 void do_help()
 {
-    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n" \
+    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-d bytes] [-j] file.zip [files_to_add]\n\n" \
            "  -o  Overwrite existing file.zip\n" \
            "  -a  Append to existing file.zip\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
-           "  -9  Compress better\n\n" \
+           "  -9  Compress better\n" \
+           "  -d  Disk size\n" \
            "  -j  exclude path. store only the file name.\n\n");
 }
 
@@ -219,12 +220,12 @@ int isLargeFile(const char* filename)
 
     pos = ftello64(pFile);
 
-                printf("File : %s is %lld bytes\n", filename, pos);
+    printf("File : %s is %lld bytes\n", filename, pos);
 
     if(pos >= 0xffffffff)
      largeFile = 1;
 
-                fclose(pFile);
+    fclose(pFile);
   }
 
  return largeFile;
@@ -243,6 +244,7 @@ int main(argc,argv)
     int zipok;
     int err=0;
     int size_buf=0;
+    uLong disk_size = 0;
     void* buf=NULL;
     const char* password=NULL;
 
@@ -272,7 +274,11 @@ int main(argc,argv)
                         opt_compress_level = c-'0';
                     if ((c=='j') || (c=='J'))
                         opt_exclude_path = 1;
-
+                    if ((c=='d') && (i+1<argc))
+                    {
+                        disk_size = atoi(argv[i+1]);
+                        i++;
+                    }
                     if (((c=='p') || (c=='P')) && (i+1<argc))
                     {
                         password=argv[i+1];
@@ -360,7 +366,7 @@ int main(argc,argv)
 #        ifdef USEWIN32IOAPI
         zlib_filefunc64_def ffunc;
         fill_win32_filefunc64A(&ffunc);
-        zf = zipOpen2_64(filename_try,(opt_overwrite==2) ? 2 : 0,NULL,&ffunc);
+        zf = zipOpen3_64(filename_try,(opt_overwrite==2) ? 2 : 0,disk_size,NULL,&ffunc);
 #        else
         zf = zipOpen64(filename_try,(opt_overwrite==2) ? 2 : 0);
 #        endif

@@ -296,11 +296,12 @@ int do_list(uf)
 }
 
 
-int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password)
+int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password,dirname)
     unzFile uf;
     const int* popt_extract_without_path;
     int* popt_overwrite;
     const char* password;
+    const char* dirname;
 {
     char filename_inzip[256];
     char* filename_withoutpath;
@@ -346,14 +347,18 @@ int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password)
     }
     else
     {
-        const char* write_filename;
-        int skip=0;
+        char write_filename[256];
+        int skip=0, i;
 
+
+        strncpy(write_filename,dirname, 256);
+        if (dirname[strlen(dirname) - 1] != '/' && dirname[strlen(dirname) - 1] != '\\')
+            strncat(write_filename, "\\", 256);
         if ((*popt_extract_without_path)==0)
-            write_filename = filename_inzip;
+            strncat(write_filename, filename_inzip, 256);
         else
-            write_filename = filename_withoutpath;
-
+            strncat(write_filename, filename_withoutpath, 256);
+        
         err = unzOpenCurrentFilePassword(uf,password);
         if (err!=UNZ_OK)
         {
@@ -398,14 +403,24 @@ int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password)
             fout=fopen64(write_filename,"wb");
 
             /* some zipfile don't contain directory alone before file */
-            if ((fout==NULL) && ((*popt_extract_without_path)==0) &&
-                                (filename_withoutpath!=(char*)filename_inzip))
+            if ((fout==NULL) && ((*popt_extract_without_path)==0))
             {
-                char c=*(filename_withoutpath-1);
-                *(filename_withoutpath-1)='\0';
-                makedir(write_filename);
-                *(filename_withoutpath-1)=c;
-                fout=fopen64(write_filename,"wb");
+                char write_path[256];
+                strncpy(write_path, write_filename, 256);
+                for (i = strlen(write_path) - 1; i >= 0; i -= 1)
+                {
+                    if (write_path[i] == '/' || write_path[i] == '\\')
+                    {
+                        write_path[i] = 0;
+                        break;
+                    }
+                }
+                if ((*write_path) != '\0')
+                {
+                    printf("creating directory: %s\n",write_path);
+                    makedir(write_path);
+                    fout=fopen64(write_filename,"wb");
+                }
             }
 
             if (fout==NULL)
@@ -460,11 +475,12 @@ int do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password)
 }
 
 
-int do_extract(uf,opt_extract_without_path,opt_overwrite,password)
+int do_extract(uf,opt_extract_without_path,opt_overwrite,password,dirname)
     unzFile uf;
     int opt_extract_without_path;
     int opt_overwrite;
     const char* password;
+    const char *dirname;
 {
     uLong i;
     unz_global_info64 gi;
@@ -479,7 +495,7 @@ int do_extract(uf,opt_extract_without_path,opt_overwrite,password)
     {
         if (do_extract_currentfile(uf,&opt_extract_without_path,
                                       &opt_overwrite,
-                                      password) != UNZ_OK)
+                                      password,dirname) != UNZ_OK)
             break;
 
         if ((i+1)<gi.number_entry)
@@ -496,12 +512,13 @@ int do_extract(uf,opt_extract_without_path,opt_overwrite,password)
     return 0;
 }
 
-int do_extract_onefile(uf,filename,opt_extract_without_path,opt_overwrite,password)
+int do_extract_onefile(uf,filename,opt_extract_without_path,opt_overwrite,password,dirname)
     unzFile uf;
     const char* filename;
     int opt_extract_without_path;
     int opt_overwrite;
     const char* password;
+    const char *dirname;
 {
     int err = UNZ_OK;
     if (unzLocateFile(uf,filename,CASESENSITIVITY)!=UNZ_OK)
@@ -512,7 +529,7 @@ int do_extract_onefile(uf,filename,opt_extract_without_path,opt_overwrite,passwo
 
     if (do_extract_currentfile(uf,&opt_extract_without_path,
                                       &opt_overwrite,
-                                      password) == UNZ_OK)
+                                      password,dirname) == UNZ_OK)
         return 0;
     else
         return 1;
@@ -626,20 +643,10 @@ int main(argc,argv)
         ret_value = do_list(uf);
     else if (opt_do_extract==1)
     {
-#ifdef _WIN32
-        if (opt_extractdir && _chdir(dirname))
-#else
-        if (opt_extractdir && chdir(dirname))
-#endif
-        {
-          printf("Error changing into %s, aborting\n", dirname);
-          exit(-1);
-        }
-
         if (filename_to_extract == NULL)
-            ret_value = do_extract(uf, opt_do_extract_withoutpath, opt_overwrite, password);
+            ret_value = do_extract(uf, opt_do_extract_withoutpath, opt_overwrite, password, dirname);
         else
-            ret_value = do_extract_onefile(uf, filename_to_extract, opt_do_extract_withoutpath, opt_overwrite, password);
+            ret_value = do_extract_onefile(uf, filename_to_extract, opt_do_extract_withoutpath, opt_overwrite, password, dirname);
     }
 
     unzClose(uf);

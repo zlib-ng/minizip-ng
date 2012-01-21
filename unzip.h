@@ -95,8 +95,10 @@ typedef struct tm_unz_s
    These data comes from the end of central dir */
 typedef struct unz_global_info64_s
 {
-    ZPOS64_T number_entry;         /* total number of entries in
+    ZPOS64_T number_entry;      /* total number of entries in
                                      the central dir on this disk */
+    uLong number_disk_with_CD;  /* number the the disk with central dir, used
+                                      for spanning ZIP*/
     uLong size_comment;         /* size of the global comment of the zipfile */
 } unz_global_info64;
 
@@ -104,6 +106,8 @@ typedef struct unz_global_info_s
 {
     uLong number_entry;         /* total number of entries in
                                      the central dir on this disk */
+    uLong number_disk_with_CD;  /* number the the disk with central dir, used
+                                      for spanning ZIP*/
     uLong size_comment;         /* size of the global comment of the zipfile */
 } unz_global_info;
 
@@ -127,6 +131,8 @@ typedef struct unz_file_info64_s
     uLong external_fa;          /* external file attributes        4 bytes */
 
     tm_unz tmu_date;
+    ZPOS64_T disk_offset;
+    uLong size_file_extra_internal;
 } unz_file_info64;
 
 typedef struct unz_file_info_s
@@ -146,8 +152,9 @@ typedef struct unz_file_info_s
     uLong disk_num_start;       /* disk number start               2 bytes */
     uLong internal_fa;          /* internal file attributes        2 bytes */
     uLong external_fa;          /* external file attributes        4 bytes */
-
+    
     tm_unz tmu_date;
+    uLong disk_offset;
 } unz_file_info;
 
 extern int ZEXPORT unzStringFileNameCompare OF ((const char* fileName1,
@@ -250,7 +257,6 @@ extern int ZEXPORT unzLocateFile OF((unzFile file,
   UNZ_OK if the file is found. It becomes the current file.
   UNZ_END_OF_LIST_OF_FILE if the file is not found
 */
-
 
 /* ****************************************** */
 /* Ryan supplied functions */
