@@ -1,4 +1,4 @@
-Minizip contrib from zlib 1.2.5 that supports pkware disk spanning. It also includes io_mem and fixes found on the minizip forum.
+Minizip contrib from zlib 1.2.6.1 that supports pkware disk spanning. It also includes io_mem and fixes found on the minizip forum.
 
 http://www.winimage.com/zLibDll/minizip.html
 http://zlib.net/
