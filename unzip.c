@@ -87,6 +87,7 @@
 #   include <errno.h>
 #endif
 
+
 #ifndef local
 #  define local static
 #endif
@@ -617,7 +618,6 @@ local unzFile unzOpenInternal (const void *path,
 
     us.filestream_with_CD = us.filestream;
     central_pos = unz64local_SearchCentralDir64(&us.z_filefunc,us.filestream);
-
     if (central_pos)
     {
         uLong uS;
@@ -677,7 +677,6 @@ local unzFile unzOpenInternal (const void *path,
     else
     {
         central_pos = unz64local_SearchCentralDir(&us.z_filefunc,us.filestream);
-
         if (central_pos==0)
             err=UNZ_ERRNO;
 
@@ -742,6 +741,7 @@ local unzFile unzOpenInternal (const void *path,
     us.central_pos = central_pos;
     us.pfile_in_zip_read = NULL;
     us.encrypted = 0;
+
 
     s=(unz64_s*)ALLOC(sizeof(unz64_s));
     if( s != NULL)
@@ -892,7 +892,6 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
     int err=UNZ_OK;
     uLong uMagic;
     long lSeek=0;
-    uLong consumedExtraSize = 0;
     uLong uL;
 
     if (file==NULL)
@@ -901,6 +900,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
 
     if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, s->pos_in_central_dir+s->byte_before_the_zipfile, ZLIB_FILEFUNC_SEEK_SET)!=0)
         err=UNZ_ERRNO;
+
 
     /* we check the magic */
     if (err==UNZ_OK)
@@ -1170,6 +1170,7 @@ extern int ZEXPORT unzGetCurrentFileInfo (unzFile file,
 
         pfile_info->tmu_date = file_info64.tmu_date,
 
+
         pfile_info->compressed_size = (uLong)file_info64.compressed_size;
         pfile_info->uncompressed_size = (uLong)file_info64.uncompressed_size;
 
@@ -1379,7 +1380,6 @@ local int unzGoToNextDisk(unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
-    int err = UNZ_OK;
     int number_disk_next;
 
 
@@ -1455,6 +1455,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
     if (ZSEEK64(s->z_filefunc, s->filestream,s->cur_file_info_internal.offset_curfile +
                                 s->cur_file_info_internal.byte_before_the_zipfile,ZLIB_FILEFUNC_SEEK_SET)!=0)
         return UNZ_ERRNO;
+
 
     if (err==UNZ_OK)
     {
@@ -1754,7 +1755,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
         return UNZ_PARAMERROR;
 
 
-    if ((pfile_in_zip_read_info->read_buffer == NULL))
+    if (pfile_in_zip_read_info->read_buffer == NULL)
         return UNZ_END_OF_LIST_OF_FILE;
     if (len==0)
         return 0;
@@ -2128,7 +2129,6 @@ extern int ZEXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong uS
 {
     unz64_s* s;
     uLong uReadThis ;
-
     if (file==NULL)
         return (int)UNZ_PARAMERROR;
     s=(unz64_s*)file;

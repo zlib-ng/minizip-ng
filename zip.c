@@ -1167,7 +1167,7 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
       err = ZIP_ERRNO;
   }
 
- 
+
   if ((err==ZIP_OK) && (zi->ci.zip64))
   {
       // write the Zip64 extended info
@@ -1580,6 +1580,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
       zi->ci.totalUncompressedData += zi->ci.stream.total_in;
       zi->ci.stream.total_in = 0;
     }
+
 
     zi->ci.pos_in_buffered_data = 0;
 
@@ -2136,7 +2137,7 @@ extern int ZEXPORT zipClose (zipFile file, const char* global_comment)
 
     if(err == ZIP_OK)
       err = Write_GlobalComment(zi, global_comment);
-    
+
     if (ZCLOSE64(zi->z_filefunc,zi->filestream) != 0)
         if (err == ZIP_OK)
             err = ZIP_ERRNO;

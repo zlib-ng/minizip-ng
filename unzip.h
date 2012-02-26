@@ -152,7 +152,7 @@ typedef struct unz_file_info_s
     uLong disk_num_start;       /* disk number start               2 bytes */
     uLong internal_fa;          /* internal file attributes        2 bytes */
     uLong external_fa;          /* external file attributes        4 bytes */
-    
+
     tm_unz tmu_date;
     uLong disk_offset;
 } unz_file_info;
@@ -257,6 +257,7 @@ extern int ZEXPORT unzLocateFile OF((unzFile file,
   UNZ_OK if the file is found. It becomes the current file.
   UNZ_END_OF_LIST_OF_FILE if the file is not found
 */
+
 
 /* ****************************************** */
 /* Ryan supplied functions */
