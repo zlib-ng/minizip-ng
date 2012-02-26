@@ -957,7 +957,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
     if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD,&file_info.external_fa) != UNZ_OK)
         err=UNZ_ERRNO;
 
-                // relative offset of local header
+    // relative offset of local header
     if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD,&uL) != UNZ_OK)
         err=UNZ_ERRNO;
     file_info.size_file_extra_internal = 0;
@@ -967,7 +967,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
     lSeek+=file_info.size_filename;
     if ((err==UNZ_OK) && (szFileName!=NULL))
     {
-        uLong uSizeRead ;
+        ZPOS64_T uSizeRead ;
         if (file_info.size_filename<fileNameBufferSize)
         {
             *(szFileName+file_info.size_filename)='\0';
@@ -977,9 +977,9 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
             uSizeRead = fileNameBufferSize;
 
         if ((file_info.size_filename>0) && (fileNameBufferSize>0))
-            if (ZREAD64(s->z_filefunc, s->filestream_with_CD,szFileName,uSizeRead)!=uSizeRead)
+            if (ZREAD64(s->z_filefunc, s->filestream_with_CD,szFileName,(uLong)uSizeRead)!=uSizeRead)
                 err=UNZ_ERRNO;
-        lSeek -= uSizeRead;
+        lSeek -= (uLong)uSizeRead;
     }
 
     // Read extrafield
@@ -1002,19 +1002,15 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
         if ((file_info.size_file_extra>0) && (extraFieldBufferSize>0))
             if (ZREAD64(s->z_filefunc, s->filestream_with_CD,extraField,(uLong)uSizeRead)!=uSizeRead)
                 err=UNZ_ERRNO;
-
         lSeek += file_info.size_file_extra - (uLong)uSizeRead;
     }
     else
         lSeek += file_info.size_file_extra;
 
-
     if ((err==UNZ_OK) && (file_info.size_file_extra != 0))
     {
+        ZPOS64_T curPos = 0;
         uLong acc = 0;
-
-        // since lSeek now points to after the extra field we need to move back
-        lSeek -= file_info.size_file_extra;
 
         if (lSeek!=0)
         {
@@ -1024,7 +1020,13 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
                 err=UNZ_ERRNO;
         }
 
-        while(acc < file_info.size_file_extra)
+        // we are going to parse the extra field so we need to move back
+        curPos = ZTELL64(s->z_filefunc, s->filestream_with_CD) - file_info.size_file_extra;
+
+        if ((curPos < 0) || (ZSEEK64(s->z_filefunc, s->filestream_with_CD,curPos,ZLIB_FILEFUNC_SEEK_SET)!=0))
+            err=UNZ_ERRNO;
+
+        while((err!=UNZ_ERRNO) && (acc < file_info.size_file_extra))
         {
             uLong headerId;
             uLong dataSize;
@@ -1085,7 +1087,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
 
     if ((err==UNZ_OK) && (szComment!=NULL))
     {
-        uLong uSizeRead ;
+        ZPOS64_T uSizeRead ;
         if (file_info.size_file_comment<commentBufferSize)
         {
             *(szComment+file_info.size_file_comment)='\0';
@@ -1103,9 +1105,9 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
         }
 
         if ((file_info.size_file_comment>0) && (commentBufferSize>0))
-            if (ZREAD64(s->z_filefunc, s->filestream_with_CD,szComment,uSizeRead)!=uSizeRead)
+            if (ZREAD64(s->z_filefunc, s->filestream_with_CD,szComment,(uLong)uSizeRead)!=uSizeRead)
                 err=UNZ_ERRNO;
-        lSeek+=file_info.size_file_comment - uSizeRead;
+        lSeek+=file_info.size_file_comment - (uLong)uSizeRead;
     }
     else
         lSeek+=file_info.size_file_comment;
