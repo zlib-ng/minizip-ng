@@ -88,6 +88,7 @@
 #endif
 
 #ifdef HAVE_AES
+#define AES_METHOD          (99)
 #define AES_PWVERIFYSIZE    (2)
 #define AES_MAXSALTLENGTH   (16)
 #define AES_AUTHCODESIZE    (10)
@@ -1533,7 +1534,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
 /* #endif */
                          (s->cur_file_info.compression_method!=Z_DEFLATED)
 #ifdef HAVE_AES 
-                      && (s->cur_file_info.compression_method!=Z_AES)
+                      && (s->cur_file_info.compression_method!=AES_METHOD)
 #endif
         )
         err=UNZ_BADZIPFILE;
@@ -1627,7 +1628,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
 
     compression_method = (int)s->cur_file_info.compression_method;
 #ifdef HAVE_AES
-    if (compression_method==Z_AES)
+    if (compression_method==AES_METHOD)
         compression_method = (int)s->cur_file_info_internal.aes_compression_method;
 #endif
 
@@ -1651,7 +1652,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
 /* #endif */
         (s->cur_file_info.compression_method!=Z_DEFLATED) 
 #ifdef HAVE_AES
-     && (s->cur_file_info.compression_method!=Z_AES)
+     && (s->cur_file_info.compression_method!=AES_METHOD)
 #endif
         )
         err=UNZ_BADZIPFILE;
@@ -1743,7 +1744,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
             return UNZ_INTERNALERROR;
         s->encrypted=1;
 #ifdef HAVE_AES
-        if (s->cur_file_info.compression_method == Z_AES)
+        if (s->cur_file_info.compression_method == AES_METHOD)
         {
             unsigned char passverify[AES_PWVERIFYSIZE];
             unsigned char saltvalue[AES_MAXSALTLENGTH];
@@ -1917,7 +1918,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
             if(s->encrypted)
             {
 #ifdef HAVE_AES 
-                if (s->cur_file_info.compression_method == Z_AES)
+                if (s->cur_file_info.compression_method == AES_METHOD)
                 {
                     fcrypt_decrypt(pfile_in_zip_read_info->read_buffer, uReadThis, &s->pfile_in_zip_read->aes_ctx);
                 }
@@ -2193,7 +2194,7 @@ extern int ZEXPORT unzCloseCurrentFile (unzFile file)
         return UNZ_PARAMERROR;
 
 #ifdef HAVE_AES
-    if (s->cur_file_info.compression_method == Z_AES)
+    if (s->cur_file_info.compression_method == AES_METHOD)
     {
         unsigned char authcode[AES_AUTHCODESIZE];
         unsigned char rauthcode[AES_AUTHCODESIZE];

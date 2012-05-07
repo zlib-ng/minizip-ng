@@ -42,11 +42,11 @@
 #endif
 
 #ifdef HAVE_AES
+#define AES_METHOD          (99)
 #define AES_PWVERIFYSIZE    (2)
 #define AES_AUTHCODESIZE    (10)
 #define AES_MAXSALTLENGTH   (16)
 #define AES_VERSION         (1)
-
 #define AES_ENCRYPTIONMODE  (0x03)
 
 #include "aes\\aes.h"
@@ -1182,10 +1182,12 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
     {
         size_extrafield += 20;
     }
-    if (zi->ci.method == Z_AES)
+#ifdef HAVE_AES
+    if (zi->ci.method == AES_METHOD)
     {
         size_extrafield += 11;
     }
+#endif
 
     if (err==ZIP_OK)
         err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)size_extrafield,2);
@@ -1220,7 +1222,7 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
         err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)CompressedSize,8);
     }
 #ifdef HAVE_AES
-    if ((err==ZIP_OK) && (zi->ci.method == Z_AES))
+    if ((err==ZIP_OK) && (zi->ci.method == AES_METHOD))
     {
         // write the AES extended info
         int HeaderID = 0x9901;
@@ -1326,7 +1328,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
 #ifdef HAVE_AES
         zi->ci.aes_encryption_mode = AES_ENCRYPTIONMODE;
         zi->ci.aes_compression_method = method;
-        zi->ci.method = Z_AES;
+        zi->ci.method = AES_METHOD;
 #endif
     }
 
@@ -1337,8 +1339,10 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     
     zi->ci.size_centralheader = SIZECENTRALHEADER + size_filename + size_extrafield_global + size_comment;
     zi->ci.size_centralExtraFree = 32; // Extra space we have reserved in case we need to add ZIP64 extra info data
-    if (zi->ci.method == Z_AES)
+#ifdef HAVE_AES
+    if (zi->ci.method == AES_METHOD)
         zi->ci.size_centralExtraFree += 11; // Extra space we have reserved for AES extra info data
+#endif
     zi->ci.central_header = (char*)ALLOC((uInt)zi->ci.size_centralheader + zi->ci.size_centralExtraFree);
     zi->ci.number_disk = zi->number_disk;
     zi->ci.size_centralExtra = size_extrafield_global;
@@ -1451,7 +1455,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     {
         zi->ci.encrypt = 1;
 #ifdef HAVE_AES
-        if (zi->ci.method == Z_AES)
+        if (zi->ci.method == AES_METHOD)
         {
             unsigned char passverify[AES_PWVERIFYSIZE];
             unsigned char saltvalue[AES_MAXSALTLENGTH];
@@ -1609,14 +1613,14 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
 
     compression_method = zi->ci.method;
 #ifdef HAVE_AES
-    if (zi->ci.method == Z_AES)
+    if (zi->ci.method == AES_METHOD)
         compression_method = zi->ci.aes_compression_method;
 #endif
     if (zi->ci.encrypt != 0)
     {
 #ifndef NOCRYPT
 #ifdef HAVE_AES
-        if (zi->ci.method == Z_AES)
+        if (zi->ci.method == AES_METHOD)
         {
             fcrypt_encrypt(zi->ci.buffered_data, zi->ci.pos_in_buffered_data, &zi->ci.aes_ctx);
         }
@@ -1706,7 +1710,7 @@ extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned in
     zi->ci.crc32 = crc32(zi->ci.crc32,buf,(uInt)len);
     compression_method = zi->ci.method;
 #ifdef HAVE_AES
-    if (zi->ci.method == Z_AES)
+    if (zi->ci.method == AES_METHOD)
         compression_method = zi->ci.aes_compression_method;
 #endif
 #ifdef HAVE_BZIP2
@@ -1826,7 +1830,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
 
     compression_method = zi->ci.method;
 #ifdef HAVE_AES
-    if (zi->ci.method == Z_AES)
+    if (zi->ci.method == AES_METHOD)
         compression_method = zi->ci.aes_compression_method;
 #endif
     if ((compression_method == Z_DEFLATED) && (!zi->ci.raw))
@@ -1899,7 +1903,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
     }
 #endif
 #ifdef HAVE_AES
-    if (zi->ci.method == Z_AES)
+    if (zi->ci.method == AES_METHOD)
     {
         unsigned char authcode[AES_AUTHCODESIZE];
 
@@ -2006,7 +2010,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
         zip64local_putValue_inmemory(zi->ci.central_header+30,(uLong)zi->ci.size_centralExtra,2);
     }
 #ifdef HAVE_AES
-    if (zi->ci.method == Z_AES)
+    if (zi->ci.method == AES_METHOD)
     {
         char* p = NULL;
 
