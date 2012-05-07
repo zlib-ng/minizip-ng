@@ -276,11 +276,15 @@ long ZCALLBACK fseek_buf_func (opaque, stream, offset, origin)
     }
     if (bufio->readBufferLength > 0)
     {
-        if ((origin == ZLIB_FILEFUNC_SEEK_CUR) && (offset < bufio->readBufferLength))
+        if (origin == ZLIB_FILEFUNC_SEEK_CUR)
         {
-            bufio->readBufferLength -= offset;
-            memcpy(bufio->readBuffer, bufio->readBuffer + offset, bufio->readBufferLength);
-            return 0;
+            if (offset <= bufio->readBufferLength)
+            {
+                bufio->readBufferLength -= offset;
+                memcpy(bufio->readBuffer, bufio->readBuffer + offset, bufio->readBufferLength);
+                return 0;
+            }
+            offset -= bufio->readBufferLength;
         }
         bufio->readBufferLength = 0;
     }
@@ -310,11 +314,15 @@ long ZCALLBACK fseek64_buf_func (opaque, stream, offset, origin)
     }
     if (bufio->readBufferLength > 0)
     {
-        if ((origin == ZLIB_FILEFUNC_SEEK_CUR) && (offset < bufio->readBufferLength))
+        if (origin == ZLIB_FILEFUNC_SEEK_CUR)
         {
-            bufio->readBufferLength -= (uLong)offset;
-            memcpy(bufio->readBuffer, bufio->readBuffer + (uLong)offset, bufio->readBufferLength);
-            return 0;
+            if (offset <= bufio->readBufferLength)
+            {
+                bufio->readBufferLength -= (uLong)offset;
+                memcpy(bufio->readBuffer, bufio->readBuffer + (uLong)offset, bufio->readBufferLength);
+                return 0;
+            }
+            offset -= bufio->readBufferLength;
         }
         bufio->readBufferLength = 0;
     }
