@@ -1672,44 +1672,44 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
     if ((compression_method==Z_BZIP2ED) && (!raw))
     {
 #ifdef HAVE_BZIP2
-      pfile_in_zip_read_info->bstream.bzalloc = (void *(*) (void *, int, int))0;
-      pfile_in_zip_read_info->bstream.bzfree = (free_func)0;
-      pfile_in_zip_read_info->bstream.opaque = (voidpf)0;
-      pfile_in_zip_read_info->bstream.state = (voidpf)0;
+        pfile_in_zip_read_info->bstream.bzalloc = (void *(*) (void *, int, int))0;
+        pfile_in_zip_read_info->bstream.bzfree = (free_func)0;
+        pfile_in_zip_read_info->bstream.opaque = (voidpf)0;
+        pfile_in_zip_read_info->bstream.state = (voidpf)0;
 
-      pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-      pfile_in_zip_read_info->stream.zfree = (free_func)0;
-      pfile_in_zip_read_info->stream.opaque = (voidpf)0;
-      pfile_in_zip_read_info->stream.next_in = (voidpf)0;
-      pfile_in_zip_read_info->stream.avail_in = 0;
+        pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
+        pfile_in_zip_read_info->stream.zfree = (free_func)0;
+        pfile_in_zip_read_info->stream.opaque = (voidpf)0;
+        pfile_in_zip_read_info->stream.next_in = (voidpf)0;
+        pfile_in_zip_read_info->stream.avail_in = 0;
 
-      err=BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
-      if (err == Z_OK)
-        pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
-      else
-      {
-        TRYFREE(pfile_in_zip_read_info);
-        return err;
-      }
+        err=BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
+        if (err == Z_OK)
+            pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
+        else
+        {
+            TRYFREE(pfile_in_zip_read_info);
+            return err;
+        }
 #else
-      pfile_in_zip_read_info->raw=1;
+        pfile_in_zip_read_info->raw=1;
 #endif
     }
     else if ((compression_method==Z_DEFLATED) && (!raw))
     {
-      pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-      pfile_in_zip_read_info->stream.zfree = (free_func)0;
-      pfile_in_zip_read_info->stream.opaque = (voidpf)0;
-      pfile_in_zip_read_info->stream.next_in = 0;
-      pfile_in_zip_read_info->stream.avail_in = 0;
+        pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
+        pfile_in_zip_read_info->stream.zfree = (free_func)0;
+        pfile_in_zip_read_info->stream.opaque = (voidpf)0;
+        pfile_in_zip_read_info->stream.next_in = 0;
+        pfile_in_zip_read_info->stream.avail_in = 0;
 
-      err=inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
-      if (err == Z_OK)
-        pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
-      else
+        err=inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
+        if (err == Z_OK)
+            pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
+        else
 		{
-        TRYFREE(pfile_in_zip_read_info);
-        return err;
+            TRYFREE(pfile_in_zip_read_info);
+            return err;
 		}
         /* windowBits is passed < 0 to tell that there is no zlib header.
          * Note that in this case inflate *requires* an extra "dummy" byte
@@ -1941,7 +1941,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
 
         if ((pfile_in_zip_read_info->compression_method==0) || (pfile_in_zip_read_info->raw))
         {
-            uInt uDoCopy,i ;
+            uInt uDoCopy,i;
 
             if ((pfile_in_zip_read_info->stream.avail_in == 0) &&
                 (pfile_in_zip_read_info->rest_read_compressed == 0))
@@ -2008,9 +2008,9 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
             pfile_in_zip_read_info->stream.total_out = pfile_in_zip_read_info->bstream.total_out_lo32;
 
             if (err==BZ_STREAM_END)
-              return (iRead==0) ? UNZ_EOF : iRead;
+                return (iRead==0) ? UNZ_EOF : iRead;
             if (err!=BZ_OK)
-              break;
+                break;
 #endif
         } // end Z_BZIP2ED
         else
@@ -2276,13 +2276,13 @@ extern ZPOS64_T ZEXPORT unzGetOffset64(unzFile file)
     unz64_s* s;
 
     if (file==NULL)
-          return 0; //UNZ_PARAMERROR;
+        return 0; //UNZ_PARAMERROR;
     s=(unz64_s*)file;
     if (!s->current_file_ok)
-      return 0;
+        return 0;
     if (s->gi.number_entry != 0 && s->gi.number_entry != 0xffff)
-      if (s->num_file==s->gi.number_entry)
-         return 0;
+        if (s->num_file==s->gi.number_entry)
+            return 0;
     return s->pos_in_central_dir;
 }
 
@@ -2291,7 +2291,7 @@ extern uLong ZEXPORT unzGetOffset (unzFile file)
     ZPOS64_T offset64;
 
     if (file==NULL)
-          return 0; //UNZ_PARAMERROR;
+        return 0; //UNZ_PARAMERROR;
     offset64 = unzGetOffset64(file);
     return (uLong)offset64;
 }
