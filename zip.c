@@ -18,7 +18,8 @@
                                  ZIP64 data is automaticly added to items that needs it, and existing ZIP64 data need to be removed.
    Oct-2009 - Mathias Svensson - Added support for BZIP2 as compression mode (bzip2 lib is required)
    Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
-   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support 
+   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support
+   May-2012 - Nathan Moinvaziri - Added AES encryption support
 */
 
 
@@ -40,6 +41,18 @@
 #   include <errno.h>
 #endif
 
+#ifdef HAVE_AES
+#define AES_PWVERIFYSIZE    (2)
+#define AES_AUTHCODESIZE    (10)
+#define AES_MAXSALTLENGTH   (16)
+#define AES_VERSION         (1)
+
+#define AES_ENCRYPTIONMODE  (0x03)
+
+#include "aes\\aes.h"
+#include "aes\\fileenc.h"
+#include "aes\\prng.h"
+#endif
 
 #ifndef local
 #  define local static
@@ -134,7 +147,12 @@ typedef struct
 #ifdef HAVE_BZIP2
     bz_stream bstream;          /* bzLib stream structure for bziped */
 #endif
-
+#ifdef HAVE_AES
+    uLong aes_compression_method;
+    uLong aes_encryption_mode;
+    fcrypt_ctx aes_ctx;
+    prng_ctx aes_rng[1];
+#endif
     int  stream_initialised;    /* 1 is stream is initialised */
     uInt pos_in_buffered_data;  /* last written byte in buffered_data */
 
@@ -192,6 +210,19 @@ typedef struct
 #ifndef NOCRYPT
 #define INCLUDECRYPTINGCODE_IFCRYPTALLOWED
 #include "crypt.h"
+#endif
+
+#ifdef _WIN32
+#include <windows.h>
+int entropy_fun(unsigned char buf[], unsigned int len)
+{   unsigned __int64    pentium_tsc[1];
+    unsigned int        i;
+
+    QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
+    for(i = 0; i < 8 && i < len; ++i)
+        buf[i] = ((unsigned char*)pentium_tsc)[i];
+    return i;
+}
 #endif
 
 local linkedlist_datablock_internal* allocate_new_datablock()
@@ -1089,104 +1120,123 @@ extern zipFile ZEXPORT zipOpen64 (const void* pathname, int append)
 
 int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_extrafield_local, const void* extrafield_local)
 {
-  /* write the local header */
-  int err;
-  uInt size_filename = (uInt)strlen(filename);
-  uInt size_extrafield = size_extrafield_local;
-  ZPOS64_T size_available;
-  ZPOS64_T size_needed;
+    /* write the local header */
+    int err;
+    uInt size_filename = (uInt)strlen(filename);
+    uInt size_extrafield = size_extrafield_local;
+    ZPOS64_T size_available;
+    ZPOS64_T size_needed;
 
-  if (zi->disk_size > 0)
+    if (zi->disk_size > 0)
     {
-    /* Make sure enough space available on current disk for local header */
-    zipGetDiskSizeAvailable((zipFile)zi, &size_available);
-    size_needed = 30 + size_filename + size_extrafield_local;
-    if (zi->ci.zip64)
-        size_needed += 20;
-    if (size_available < size_needed)
-        zipGoToNextDisk((zipFile)zi);
+        /* Make sure enough space available on current disk for local header */
+        zipGetDiskSizeAvailable((zipFile)zi, &size_available);
+        size_needed = 30 + size_filename + size_extrafield_local;
+        if (zi->ci.zip64)
+            size_needed += 20;
+        if (size_available < size_needed)
+            zipGoToNextDisk((zipFile)zi);
     }
 
-  err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)LOCALHEADERMAGIC, 4);
+    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)LOCALHEADERMAGIC, 4);
 
-  if (err==ZIP_OK)
-  {
+    if (err==ZIP_OK)
+    {
+        if(zi->ci.zip64)
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)45,2);/* version needed to extract */
+        else
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)20,2);/* version needed to extract */
+    }
+
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.flag,2);
+
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.method,2);
+
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.dosDate,4);
+
+    // CRC / Compressed size / Uncompressed size will be filled in later and rewritten later
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* crc 32, unknown */
+    if (err==ZIP_OK)
+    {
+        if(zi->ci.zip64)
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0xFFFFFFFF,4); /* compressed size, unknown */
+        else
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* compressed size, unknown */
+    }
+    if (err==ZIP_OK)
+    {
+        if(zi->ci.zip64)
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0xFFFFFFFF,4); /* uncompressed size, unknown */
+        else
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* uncompressed size, unknown */
+    }
+
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)size_filename,2);
+
     if(zi->ci.zip64)
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)45,2);/* version needed to extract */
-    else
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)20,2);/* version needed to extract */
-  }
+    {
+        size_extrafield += 20;
+    }
+    if (zi->ci.method == Z_AES)
+    {
+        size_extrafield += 11;
+    }
 
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.flag,2);
+    if (err==ZIP_OK)
+        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)size_extrafield,2);
 
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.method,2);
+    if ((err==ZIP_OK) && (size_filename > 0))
+    {
+        if (ZWRITE64(zi->z_filefunc,zi->filestream,filename,size_filename)!=size_filename)
+            err = ZIP_ERRNO;
+    }
 
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)zi->ci.dosDate,4);
+    if ((err==ZIP_OK) && (size_extrafield_local > 0))
+    {
+        if (ZWRITE64(zi->z_filefunc, zi->filestream, extrafield_local, size_extrafield_local) != size_extrafield_local)
+            err = ZIP_ERRNO;
+    }
 
-  // CRC / Compressed size / Uncompressed size will be filled in later and rewritten later
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* crc 32, unknown */
-  if (err==ZIP_OK)
-  {
-    if(zi->ci.zip64)
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0xFFFFFFFF,4); /* compressed size, unknown */
-    else
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* compressed size, unknown */
-  }
-  if (err==ZIP_OK)
-  {
-    if(zi->ci.zip64)
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0xFFFFFFFF,4); /* uncompressed size, unknown */
-    else
-      err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)0,4); /* uncompressed size, unknown */
-  }
+    if ((err==ZIP_OK) && (zi->ci.zip64))
+    {
+        // write the Zip64 extended info
+        short HeaderID = 1;
+        short DataSize = 16;
+        ZPOS64_T CompressedSize = 0;
+        ZPOS64_T UncompressedSize = 0;
 
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)size_filename,2);
+        // Remember position of Zip64 extended info for the local file header. (needed when we update size after done with file)
+        zi->ci.pos_zip64extrainfo = ZTELL64(zi->z_filefunc,zi->filestream);
 
-  if(zi->ci.zip64)
-  {
-    size_extrafield += 20;
-  }
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)HeaderID,2);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)DataSize,2);
 
-  if (err==ZIP_OK)
-    err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)size_extrafield,2);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)UncompressedSize,8);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)CompressedSize,8);
+    }
+#ifdef HAVE_AES
+    if ((err==ZIP_OK) && (zi->ci.method == Z_AES))
+    {
+        // write the AES extended info
+        int HeaderID = 0x9901;
+        short DataSize = 7;
 
-  if ((err==ZIP_OK) && (size_filename > 0))
-  {
-    if (ZWRITE64(zi->z_filefunc,zi->filestream,filename,size_filename)!=size_filename)
-      err = ZIP_ERRNO;
-  }
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, HeaderID,2);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)DataSize,2);
 
-  if ((err==ZIP_OK) && (size_extrafield_local > 0))
-  {
-    if (ZWRITE64(zi->z_filefunc, zi->filestream, extrafield_local, size_extrafield_local) != size_extrafield_local)
-      err = ZIP_ERRNO;
-  }
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)AES_VERSION,2);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)((short)'A' | ((short)'E' << 8)),2);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (char)zi->ci.aes_encryption_mode,1);
+        err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)zi->ci.aes_compression_method,2);
+    }
+#endif
 
-
-  if ((err==ZIP_OK) && (zi->ci.zip64))
-  {
-      // write the Zip64 extended info
-      short HeaderID = 1;
-      short DataSize = 16;
-      ZPOS64_T CompressedSize = 0;
-      ZPOS64_T UncompressedSize = 0;
-
-      // Remember position of Zip64 extended info for the local file header. (needed when we update size after done with file)
-      zi->ci.pos_zip64extrainfo = ZTELL64(zi->z_filefunc,zi->filestream);
-
-      err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)HeaderID,2);
-      err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)DataSize,2);
-
-      err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)UncompressedSize,8);
-      err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)CompressedSize,8);
-  }
-
-  return err;
+    return err;
 }
 
 /*
@@ -1257,22 +1307,28 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
           zi->ci.dosDate = zip64local_TmzDateToDosDate(&zipfi->tmz_date);
     }
 
-    zi->ci.flag = flagBase;
-    if ((level==8) || (level==9))
-      zi->ci.flag |= 2;
-    if (level==2)
-      zi->ci.flag |= 4;
-    if (level==1)
-      zi->ci.flag |= 6;
-    if (password != NULL)
-      zi->ci.flag |= 1;
-
-    zi->ci.crc32 = 0;
     zi->ci.method = method;
+    zi->ci.crc32 = 0;
     zi->ci.encrypt = 0;
     zi->ci.stream_initialised = 0;
     zi->ci.pos_in_buffered_data = 0;
     zi->ci.raw = raw;
+    zi->ci.flag = flagBase;
+    if ((level==8) || (level==9))
+        zi->ci.flag |= 2;
+    if (level==2)
+        zi->ci.flag |= 4;
+    if (level==1)
+        zi->ci.flag |= 6;
+    if (password != NULL)
+    {
+        zi->ci.flag |= 1;
+#ifdef HAVE_AES
+        zi->ci.aes_encryption_mode = AES_ENCRYPTIONMODE;
+        zi->ci.aes_compression_method = method;
+        zi->ci.method = Z_AES;
+#endif
+    }
 
     if ((zi->disk_size > 0) && (zi->number_disk == 0) && (zi->number_entry == 0))
         err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)DISKHEADERMAGIC, 4);
@@ -1281,7 +1337,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     
     zi->ci.size_centralheader = SIZECENTRALHEADER + size_filename + size_extrafield_global + size_comment;
     zi->ci.size_centralExtraFree = 32; // Extra space we have reserved in case we need to add ZIP64 extra info data
-
+    if (zi->ci.method == Z_AES)
+        zi->ci.size_centralExtraFree += 11; // Extra space we have reserved for AES extra info data
     zi->ci.central_header = (char*)ALLOC((uInt)zi->ci.size_centralheader + zi->ci.size_centralExtraFree);
     zi->ci.number_disk = zi->number_disk;
     zi->ci.size_centralExtra = size_extrafield_global;
@@ -1353,36 +1410,36 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     zi->ci.stream.data_type = Z_BINARY;
 
 #ifdef HAVE_BZIP2
-    if ((err==ZIP_OK) && (zi->ci.method == Z_DEFLATED || zi->ci.method == Z_BZIP2ED) && (!zi->ci.raw))
+    if ((err==ZIP_OK) && (method == Z_DEFLATED || method == Z_BZIP2ED) && (!zi->ci.raw))
 #else
-    if ((err==ZIP_OK) && (zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+    if ((err==ZIP_OK) && (method == Z_DEFLATED) && (!zi->ci.raw))
 #endif
     {
-        if(zi->ci.method == Z_DEFLATED)
+        if(method == Z_DEFLATED)
         {
-          zi->ci.stream.zalloc = (alloc_func)0;
-          zi->ci.stream.zfree = (free_func)0;
-          zi->ci.stream.opaque = (voidpf)0;
+            zi->ci.stream.zalloc = (alloc_func)0;
+            zi->ci.stream.zfree = (free_func)0;
+            zi->ci.stream.opaque = (voidpf)0;
 
-          if (windowBits>0)
-              windowBits = -windowBits;
+            if (windowBits>0)
+                windowBits = -windowBits;
 
-          err = deflateInit2(&zi->ci.stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
+            err = deflateInit2(&zi->ci.stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
 
-          if (err==Z_OK)
-              zi->ci.stream_initialised = Z_DEFLATED;
+            if (err==Z_OK)
+                zi->ci.stream_initialised = Z_DEFLATED;
         }
-        else if(zi->ci.method == Z_BZIP2ED)
+        else if(method == Z_BZIP2ED)
         {
 #ifdef HAVE_BZIP2
             // Init BZip stuff here
-          zi->ci.bstream.bzalloc = 0;
-          zi->ci.bstream.bzfree = 0;
-          zi->ci.bstream.opaque = (voidpf)0;
+            zi->ci.bstream.bzalloc = 0;
+            zi->ci.bstream.bzfree = 0;
+            zi->ci.bstream.opaque = (voidpf)0;
 
-          err = BZ2_bzCompressInit(&zi->ci.bstream, level, 0,35);
-          if(err == BZ_OK)
-            zi->ci.stream_initialised = Z_BZIP2ED;
+            err = BZ2_bzCompressInit(&zi->ci.bstream, level, 0,35);
+            if(err == BZ_OK)
+                zi->ci.stream_initialised = Z_BZIP2ED;
 #endif
         }
 
@@ -1392,17 +1449,47 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     zi->ci.crypt_header_size = 0;
     if ((err==Z_OK) && (password != NULL))
     {
-        unsigned char bufHead[RAND_HEAD_LEN];
-        unsigned int sizeHead;
         zi->ci.encrypt = 1;
-        zi->ci.pcrc_32_tab = get_crc_table();
-        /*init_keys(password,zi->ci.keys,zi->ci.pcrc_32_tab);*/
+#ifdef HAVE_AES
+        if (zi->ci.method == Z_AES)
+        {
+            unsigned char passverify[AES_PWVERIFYSIZE];
+            unsigned char saltvalue[AES_MAXSALTLENGTH];
+            uInt saltlength;
 
-        sizeHead=crypthead(password,bufHead,RAND_HEAD_LEN,zi->ci.keys,zi->ci.pcrc_32_tab,crcForCrypting);
-        zi->ci.crypt_header_size = sizeHead;
+            if ((zi->ci.aes_encryption_mode < 1) || (zi->ci.aes_encryption_mode > 3))
+                return Z_ERRNO;
 
-        if (ZWRITE64(zi->z_filefunc,zi->filestream,bufHead,sizeHead) != sizeHead)
-            err = ZIP_ERRNO;
+            saltlength = SALT_LENGTH(zi->ci.aes_encryption_mode);
+
+            prng_init(entropy_fun, zi->ci.aes_rng);
+            prng_rand(saltvalue, saltlength, zi->ci.aes_rng);
+            prng_end(zi->ci.aes_rng);
+
+            fcrypt_init(zi->ci.aes_encryption_mode, password, strlen(password), saltvalue, passverify, &zi->ci.aes_ctx);
+
+            if (ZWRITE64(zi->z_filefunc,zi->filestream,saltvalue,saltlength) != saltlength)
+                err = ZIP_ERRNO;
+            if (ZWRITE64(zi->z_filefunc,zi->filestream,passverify,AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+                err = ZIP_ERRNO;
+
+            zi->ci.crypt_header_size = saltlength + AES_PWVERIFYSIZE + AES_AUTHCODESIZE;
+        }
+        else
+#endif
+        {
+            unsigned char bufHead[RAND_HEAD_LEN];
+            unsigned int sizeHead;
+
+            zi->ci.pcrc_32_tab = get_crc_table();
+            /*init_keys(password,zi->ci.keys,zi->ci.pcrc_32_tab);*/
+
+            sizeHead=crypthead(password,bufHead,RAND_HEAD_LEN,zi->ci.keys,zi->ci.pcrc_32_tab,crcForCrypting);
+            zi->ci.crypt_header_size = sizeHead;
+
+            if (ZWRITE64(zi->z_filefunc,zi->filestream,bufHead,sizeHead) != sizeHead)
+                err = ZIP_ERRNO;
+        }
     }
 #endif
 
@@ -1516,15 +1603,31 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
     uInt uTotalBytesWritten = 0;
     uInt uBytesToWrite = 0;
     uInt uMaxBytesToWrite = 0;
+    uInt compression_method;
     ZPOS64_T size_available;
 
+
+    compression_method = zi->ci.method;
+#ifdef HAVE_AES
+    if (zi->ci.method == Z_AES)
+        compression_method = zi->ci.aes_compression_method;
+#endif
     if (zi->ci.encrypt != 0)
     {
 #ifndef NOCRYPT
-        uInt i;
-        int t;
-        for (i=0;i<zi->ci.pos_in_buffered_data;i++)
-            zi->ci.buffered_data[i] = zencode(zi->ci.keys, zi->ci.pcrc_32_tab, zi->ci.buffered_data[i],t);
+#ifdef HAVE_AES
+        if (zi->ci.method == Z_AES)
+        {
+            fcrypt_encrypt(zi->ci.buffered_data, zi->ci.pos_in_buffered_data, &zi->ci.aes_ctx);
+        }
+        else
+#endif
+        {
+            uInt i;
+            int t;
+            for (i=0;i<zi->ci.pos_in_buffered_data;i++)
+                zi->ci.buffered_data[i] = zencode(zi->ci.keys, zi->ci.pcrc_32_tab, zi->ci.buffered_data[i],t);
+        }
 #endif
     }
 
@@ -1568,7 +1671,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
     zi->ci.totalCompressedData += zi->ci.pos_in_buffered_data;
 
 #ifdef HAVE_BZIP2
-    if(zi->ci.method == Z_BZIP2ED)
+    if(compression_method == Z_BZIP2ED)
     {
       zi->ci.totalUncompressedData += zi->ci.bstream.total_in_lo32;
       zi->ci.bstream.total_in_lo32 = 0;
@@ -1590,6 +1693,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
 extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned int len)
 {
     zip64_internal* zi;
+    uInt compression_method;
     int err=ZIP_OK;
 
     if (file == NULL)
@@ -1600,9 +1704,13 @@ extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned in
         return ZIP_PARAMERROR;
 
     zi->ci.crc32 = crc32(zi->ci.crc32,buf,(uInt)len);
-
+    compression_method = zi->ci.method;
+#ifdef HAVE_AES
+    if (zi->ci.method == Z_AES)
+        compression_method = zi->ci.aes_compression_method;
+#endif
 #ifdef HAVE_BZIP2
-    if(zi->ci.method == Z_BZIP2ED && (!zi->ci.raw))
+    if(compression_method == Z_BZIP2ED && (!zi->ci.raw))
     {
       zi->ci.bstream.next_in = (void*)buf;
       zi->ci.bstream.avail_in = len;
@@ -1622,7 +1730,7 @@ extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned in
         if(err != BZ_RUN_OK)
           break;
 
-        if ((zi->ci.method == Z_BZIP2ED) && (!zi->ci.raw))
+        if ((compression_method == Z_BZIP2ED) && (!zi->ci.raw))
         {
           uLong uTotalOutBefore_lo = zi->ci.bstream.total_out_lo32;
 //          uLong uTotalOutBefore_hi = zi->ci.bstream.total_out_hi32;
@@ -1655,7 +1763,7 @@ extern int ZEXPORT zipWriteInFileInZip (zipFile file,const void* buf,unsigned in
           if(err != ZIP_OK)
               break;
 
-          if ((zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+          if ((compression_method == Z_DEFLATED) && (!zi->ci.raw))
           {
               uLong uTotalOutBefore = zi->ci.stream.total_out;
               err=deflate(&zi->ci.stream,  Z_NO_FLUSH);
@@ -1703,6 +1811,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
 {
     zip64_internal* zi;
     ZPOS64_T compressed_size;
+    uInt compression_method;
     uLong invalidValue = 0xffffffff;
     short datasize = 0;
     int err=ZIP_OK;
@@ -1715,7 +1824,12 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
         return ZIP_PARAMERROR;
     zi->ci.stream.avail_in = 0;
 
-    if ((zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+    compression_method = zi->ci.method;
+#ifdef HAVE_AES
+    if (zi->ci.method == Z_AES)
+        compression_method = zi->ci.aes_compression_method;
+#endif
+    if ((compression_method == Z_DEFLATED) && (!zi->ci.raw))
     {
         while (err==ZIP_OK)
         {
@@ -1732,7 +1846,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
             zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - uTotalOutBefore) ;
         }
     }
-    else if ((zi->ci.method == Z_BZIP2ED) && (!zi->ci.raw))
+    else if ((compression_method == Z_BZIP2ED) && (!zi->ci.raw))
     {
 #ifdef HAVE_BZIP2
       err = BZ_FINISH_OK;
@@ -1768,7 +1882,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
             err = ZIP_ERRNO;
     }
 
-    if ((zi->ci.method == Z_DEFLATED) && (!zi->ci.raw))
+    if ((compression_method == Z_DEFLATED) && (!zi->ci.raw))
     {
         int tmp_err = deflateEnd(&zi->ci.stream);
         if (err == ZIP_OK)
@@ -1776,12 +1890,23 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
         zi->ci.stream_initialised = 0;
     }
 #ifdef HAVE_BZIP2
-    else if((zi->ci.method == Z_BZIP2ED) && (!zi->ci.raw))
+    else if((compression_method == Z_BZIP2ED) && (!zi->ci.raw))
     {
       int tmperr = BZ2_bzCompressEnd(&zi->ci.bstream);
                         if (err==ZIP_OK)
                                 err = tmperr;
                         zi->ci.stream_initialised = 0;
+    }
+#endif
+#ifdef HAVE_AES
+    if (zi->ci.method == Z_AES)
+    {
+        unsigned char authcode[AES_AUTHCODESIZE];
+
+        fcrypt_end(authcode, &zi->ci.aes_ctx);
+
+        if (ZWRITE64(zi->z_filefunc,zi->filestream,authcode,AES_AUTHCODESIZE) != AES_AUTHCODESIZE)
+            err = ZIP_ERRNO;
     }
 #endif
 
@@ -1803,84 +1928,124 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
       zip64local_putValue_inmemory(zi->ci.central_header+4,(uLong)45,2);
       /*version needed*/
       zip64local_putValue_inmemory(zi->ci.central_header+6,(uLong)45,2);
-
     }
 
     zip64local_putValue_inmemory(zi->ci.central_header+16,crc32,4); /*crc*/
 
 
     if(compressed_size >= 0xffffffff)
-      zip64local_putValue_inmemory(zi->ci.central_header+20, invalidValue,4); /*compr size*/
+        zip64local_putValue_inmemory(zi->ci.central_header+20, invalidValue,4); /*compr size*/
     else
-      zip64local_putValue_inmemory(zi->ci.central_header+20, compressed_size,4); /*compr size*/
+        zip64local_putValue_inmemory(zi->ci.central_header+20, compressed_size,4); /*compr size*/
 
     /// set internal file attributes field
     if (zi->ci.stream.data_type == Z_ASCII)
         zip64local_putValue_inmemory(zi->ci.central_header+36,(uLong)Z_ASCII,2);
 
     if(uncompressed_size >= 0xffffffff)
-      zip64local_putValue_inmemory(zi->ci.central_header+24, invalidValue,4); /*uncompr size*/
+        zip64local_putValue_inmemory(zi->ci.central_header+24, invalidValue,4); /*uncompr size*/
     else
-      zip64local_putValue_inmemory(zi->ci.central_header+24, uncompressed_size,4); /*uncompr size*/
+        zip64local_putValue_inmemory(zi->ci.central_header+24, uncompressed_size,4); /*uncompr size*/
 
     // Add ZIP64 extra info field for uncompressed size
     if(uncompressed_size >= 0xffffffff)
-      datasize += 8;
+        datasize += 8;
 
     // Add ZIP64 extra info field for compressed size
     if(compressed_size >= 0xffffffff)
-      datasize += 8;
+        datasize += 8;
 
     // Add ZIP64 extra info field for relative offset to local file header of current file
     if(zi->ci.pos_local_header >= 0xffffffff)
-      datasize += 8;
+        datasize += 8;
 
     if(datasize > 0)
     {
-      char* p = NULL;
+        char* p = NULL;
 
-      if((uLong)(datasize + 4) > zi->ci.size_centralExtraFree)
-      {
-        // we can not write more data to the buffer that we have room for.
-        return ZIP_BADZIPFILE;
-      }
+        if((uLong)(datasize + 4) > zi->ci.size_centralExtraFree)
+        {
+            // we can not write more data to the buffer that we have room for.
+            return ZIP_BADZIPFILE;
+        }
 
-      p = zi->ci.central_header + zi->ci.size_centralheader;
+        p = zi->ci.central_header + zi->ci.size_centralheader;
 
-      // Add Extra Information Header for 'ZIP64 information'
-      zip64local_putValue_inmemory(p, 0x0001, 2); // HeaderID
-      p += 2;
-      zip64local_putValue_inmemory(p, datasize, 2); // DataSize
-      p += 2;
+        // Add Extra Information Header for 'ZIP64 information'
+        zip64local_putValue_inmemory(p, 0x0001, 2); // HeaderID
+        p += 2;
+        zip64local_putValue_inmemory(p, datasize, 2); // DataSize
+        p += 2;
 
-      if(uncompressed_size >= 0xffffffff)
-      {
-        zip64local_putValue_inmemory(p, uncompressed_size, 8);
-        p += 8;
-      }
+        if(uncompressed_size >= 0xffffffff)
+        {
+            zip64local_putValue_inmemory(p, uncompressed_size, 8);
+            p += 8;
+        }
 
-      if(compressed_size >= 0xffffffff)
-      {
-        zip64local_putValue_inmemory(p, compressed_size, 8);
-        p += 8;
-      }
+        if(compressed_size >= 0xffffffff)
+        {
+            zip64local_putValue_inmemory(p, compressed_size, 8);
+            p += 8;
+        }
 
-      if(zi->ci.pos_local_header >= 0xffffffff)
-      {
-        zip64local_putValue_inmemory(p, zi->ci.pos_local_header, 8);
-        p += 8;
-      }
+        if(zi->ci.pos_local_header >= 0xffffffff)
+        {
+            zip64local_putValue_inmemory(p, zi->ci.pos_local_header, 8);
+            p += 8;
+        }
 
-      // Update how much extra free space we got in the memory buffer
-      // and increase the centralheader size so the new ZIP64 fields are included
-      // ( 4 below is the size of HeaderID and DataSize field )
-      zi->ci.size_centralExtraFree -= datasize + 4;
-      zi->ci.size_centralheader += datasize + 4;
+        // Update how much extra free space we got in the memory buffer
+        // and increase the centralheader size so the new ZIP64 fields are included
+        // ( 4 below is the size of HeaderID and DataSize field )
+        zi->ci.size_centralExtraFree -= datasize + 4;
+        zi->ci.size_centralheader += datasize + 4;
 
-      // Update the extra info size field
-      zi->ci.size_centralExtra += datasize + 4;
-      zip64local_putValue_inmemory(zi->ci.central_header+30,(uLong)zi->ci.size_centralExtra,2);
+        // Update the extra info size field
+        zi->ci.size_centralExtra += datasize + 4;
+        zip64local_putValue_inmemory(zi->ci.central_header+30,(uLong)zi->ci.size_centralExtra,2);
     }
+#ifdef HAVE_AES
+    if (zi->ci.method == Z_AES)
+    {
+        char* p = NULL;
+
+        if((uLong)(datasize + 4) > zi->ci.size_centralExtraFree)
+        {
+            // we can not write more data to the buffer that we have room for.
+            return ZIP_BADZIPFILE;
+        }
+
+        p = zi->ci.central_header + zi->ci.size_centralheader;
+
+        datasize = 7;
+
+        // write the AES extended info
+        zip64local_putValue_inmemory(p, 0x9901,2); // HeaderID
+        p += 2;
+        zip64local_putValue_inmemory(p, (short)7,2); // DataSize
+        p += 2;
+
+        zip64local_putValue_inmemory(p, (short)AES_VERSION,2);
+        p += 2;
+        zip64local_putValue_inmemory(p, (short)((short)'A' | ((short)'E' << 8)),2);
+        p += 2;
+        zip64local_putValue_inmemory(p, (char)zi->ci.aes_encryption_mode,1);
+        p += 1;
+        zip64local_putValue_inmemory(p, (short)zi->ci.aes_compression_method,2);
+        p += 2;
+
+        // Update how much extra free space we got in the memory buffer
+        // and increase the centralheader size so the new ZIP64 fields are included
+        // ( 4 below is the size of HeaderID and DataSize field )
+        zi->ci.size_centralExtraFree -= datasize + 4;
+        zi->ci.size_centralheader += datasize + 4;
+
+        // Update the extra info size field
+        zi->ci.size_centralExtra += datasize + 4;
+        zip64local_putValue_inmemory(zi->ci.central_header+30,(uLong)zi->ci.size_centralExtra,2);
+    }
+#endif
 
     if (err==ZIP_OK)
         err = add_data_in_datablock(&zi->central_dir, zi->ci.central_header, (uLong)zi->ci.size_centralheader);
@@ -1905,20 +2070,20 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
 
         if(uncompressed_size >= 0xffffffff || compressed_size >= 0xffffffff)
         {
-          if(zi->ci.pos_zip64extrainfo > 0)
-          {
-            // Update the size in the ZIP64 extended field.
-            if (ZSEEK64(zi->z_filefunc,zi->filestream, zi->ci.pos_zip64extrainfo + 4,ZLIB_FILEFUNC_SEEK_SET)!=0)
-              err = ZIP_ERRNO;
+            if(zi->ci.pos_zip64extrainfo > 0)
+            {
+                // Update the size in the ZIP64 extended field.
+                if (ZSEEK64(zi->z_filefunc,zi->filestream, zi->ci.pos_zip64extrainfo + 4,ZLIB_FILEFUNC_SEEK_SET)!=0)
+                    err = ZIP_ERRNO;
 
-            if (err==ZIP_OK) /* compressed size, unknown */
-              err = zip64local_putValue(&zi->z_filefunc, zi->filestream, uncompressed_size, 8);
+                if (err==ZIP_OK) /* compressed size, unknown */
+                    err = zip64local_putValue(&zi->z_filefunc, zi->filestream, uncompressed_size, 8);
 
-            if (err==ZIP_OK) /* uncompressed size, unknown */
-              err = zip64local_putValue(&zi->z_filefunc, zi->filestream, compressed_size, 8);
-          }
-          else
-            err = ZIP_BADZIPFILE; // Caller passed zip64 = 0, so no room for zip64 info -> fatal
+                if (err==ZIP_OK) /* uncompressed size, unknown */
+                    err = zip64local_putValue(&zi->z_filefunc, zi->filestream, compressed_size, 8);
+            }
+            else
+                err = ZIP_BADZIPFILE; // Caller passed zip64 = 0, so no room for zip64 info -> fatal
         }
         else
         {
