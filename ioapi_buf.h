@@ -38,13 +38,13 @@ int ZCALLBACK ferror_buf_func OF((voidpf opaque,voidpf stream));
 
 typedef struct ourbuffer_s {
   char readBuffer[IOBUF_BUFFERSIZE];
-  uLong readBufferLength;
-  uLong readBufferHits;
-  uLong readBufferMisses;
+  uInt readBufferLength;
+  uInt readBufferHits;
+  uInt readBufferMisses;
   char writeBuffer[IOBUF_BUFFERSIZE];
-  uLong writeBufferLength;
-  uLong writeBufferHits;
-  uLong writeBufferMisses;
+  uInt writeBufferLength;
+  uInt writeBufferHits;
+  uInt writeBufferMisses;
   int verbose;
   zlib_filefunc_def filefunc;
   zlib_filefunc64_def filefunc64;

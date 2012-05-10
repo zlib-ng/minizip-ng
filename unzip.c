@@ -1042,9 +1042,11 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
         }
 
         // we are going to parse the extra field so we need to move back
-        curPos = ZTELL64(s->z_filefunc, s->filestream_with_CD) - file_info.size_file_extra;
-
-        if ((curPos < 0) || (ZSEEK64(s->z_filefunc, s->filestream_with_CD,curPos,ZLIB_FILEFUNC_SEEK_SET)!=0))
+        curPos = ZTELL64(s->z_filefunc, s->filestream_with_CD);
+        if (curPos < file_info.size_file_extra)
+            err=UNZ_ERRNO;
+        curPos -= file_info.size_file_extra;
+        if (ZSEEK64(s->z_filefunc, s->filestream_with_CD,curPos,ZLIB_FILEFUNC_SEEK_SET)!=0)
             err=UNZ_ERRNO;
 
         while((err!=UNZ_ERRNO) && (acc < file_info.size_file_extra))
@@ -1771,7 +1773,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
 #endif
         {
             int i;
-            s->pcrc_32_tab = get_crc_table();
+            s->pcrc_32_tab = (const unsigned long*)get_crc_table();
             init_keys(password,s->keys,s->pcrc_32_tab);
 
             if(ZREAD64(s->z_filefunc, s->filestream,source, 12)<12)
