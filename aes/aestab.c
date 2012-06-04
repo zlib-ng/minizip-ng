@@ -1,64 +1,31 @@
 /*
- ---------------------------------------------------------------------------
- Copyright (c) 2002, Dr Brian Gladman <                 >, Worcester, UK.
- All rights reserved.
+---------------------------------------------------------------------------
+Copyright (c) 1998-2010, Brian Gladman, Worcester, UK. All rights reserved.
 
- LICENSE TERMS
+The redistribution and use of this software (with or without changes)
+is allowed without the payment of fees or royalties provided that:
 
- The free distribution and use of this software in both source and binary
- form is allowed (with or without changes) provided that:
+  source code distributions include the above copyright notice, this
+  list of conditions and the following disclaimer;
 
-   1. distributions of this source code include the above copyright
-      notice, this list of conditions and the following disclaimer;
+  binary distributions include the above copyright notice, this list
+  of conditions and the following disclaimer in their documentation.
 
-   2. distributions in binary form include the above copyright
-      notice, this list of conditions and the following disclaimer
-      in the documentation and/or other associated materials;
-
-   3. the copyright holder's name is not used to endorse products
-      built using this software without specific written permission.
-
- ALTERNATIVELY, provided that this notice is retained in full, this product
- may be distributed under the terms of the GNU General Public License (GPL),
- in which case the provisions of the GPL apply INSTEAD OF those given above.
-
- DISCLAIMER
-
- This software is provided 'as is' with no explicit or implied warranties
- in respect of its properties, including, but not limited to, correctness
- and/or fitness for purpose.
- ---------------------------------------------------------------------------
- Issue Date: 24/01/2003
-
- This file contains the code for generating the fixed tables needed for AES
+This software is provided 'as is' with no explicit or implied warranties
+in respect of its operation, including, but not limited to, correctness
+and fitness for purpose.
+---------------------------------------------------------------------------
+Issue Date: 20/12/2007
 */
 
+#define DO_TABLES
+
+#include "aes.h"
 #include "aesopt.h"
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
-
-#if defined(FIXED_TABLES) || !defined(FF_TABLES)
-
-/*  finite field arithmetic operations */
-
-#define f2(x)   ((x<<1) ^ (((x>>7) & 1) * WPOLY))
-#define f4(x)   ((x<<2) ^ (((x>>6) & 1) * WPOLY) ^ (((x>>6) & 2) * WPOLY))
-#define f8(x)   ((x<<3) ^ (((x>>5) & 1) * WPOLY) ^ (((x>>5) & 2) * WPOLY) \
-                        ^ (((x>>5) & 4) * WPOLY))
-#define f3(x)   (f2(x) ^ x)
-#define f9(x)   (f8(x) ^ x)
-#define fb(x)   (f8(x) ^ f2(x) ^ x)
-#define fd(x)   (f8(x) ^ f4(x) ^ x)
-#define fe(x)   (f8(x) ^ f4(x) ^ f2(x))
-
-#endif
 
 #if defined(FIXED_TABLES)
 
-#define sb_data(w) \
+#define sb_data(w) {\
     w(0x63), w(0x7c), w(0x77), w(0x7b), w(0xf2), w(0x6b), w(0x6f), w(0xc5),\
     w(0x30), w(0x01), w(0x67), w(0x2b), w(0xfe), w(0xd7), w(0xab), w(0x76),\
     w(0xca), w(0x82), w(0xc9), w(0x7d), w(0xfa), w(0x59), w(0x47), w(0xf0),\
@@ -90,9 +57,9 @@ extern "C"
     w(0xe1), w(0xf8), w(0x98), w(0x11), w(0x69), w(0xd9), w(0x8e), w(0x94),\
     w(0x9b), w(0x1e), w(0x87), w(0xe9), w(0xce), w(0x55), w(0x28), w(0xdf),\
     w(0x8c), w(0xa1), w(0x89), w(0x0d), w(0xbf), w(0xe6), w(0x42), w(0x68),\
-    w(0x41), w(0x99), w(0x2d), w(0x0f), w(0xb0), w(0x54), w(0xbb), w(0x16)
+    w(0x41), w(0x99), w(0x2d), w(0x0f), w(0xb0), w(0x54), w(0xbb), w(0x16) }
 
-#define isb_data(w) \
+#define isb_data(w) {\
     w(0x52), w(0x09), w(0x6a), w(0xd5), w(0x30), w(0x36), w(0xa5), w(0x38),\
     w(0xbf), w(0x40), w(0xa3), w(0x9e), w(0x81), w(0xf3), w(0xd7), w(0xfb),\
     w(0x7c), w(0xe3), w(0x39), w(0x82), w(0x9b), w(0x2f), w(0xff), w(0x87),\
@@ -124,9 +91,9 @@ extern "C"
     w(0xa0), w(0xe0), w(0x3b), w(0x4d), w(0xae), w(0x2a), w(0xf5), w(0xb0),\
     w(0xc8), w(0xeb), w(0xbb), w(0x3c), w(0x83), w(0x53), w(0x99), w(0x61),\
     w(0x17), w(0x2b), w(0x04), w(0x7e), w(0xba), w(0x77), w(0xd6), w(0x26),\
-    w(0xe1), w(0x69), w(0x14), w(0x63), w(0x55), w(0x21), w(0x0c), w(0x7d),
+    w(0xe1), w(0x69), w(0x14), w(0x63), w(0x55), w(0x21), w(0x0c), w(0x7d) }
 
-#define mm_data(w) \
+#define mm_data(w) {\
     w(0x00), w(0x01), w(0x02), w(0x03), w(0x04), w(0x05), w(0x06), w(0x07),\
     w(0x08), w(0x09), w(0x0a), w(0x0b), w(0x0c), w(0x0d), w(0x0e), w(0x0f),\
     w(0x10), w(0x11), w(0x12), w(0x13), w(0x14), w(0x15), w(0x16), w(0x17),\
@@ -158,34 +125,18 @@ extern "C"
     w(0xe0), w(0xe1), w(0xe2), w(0xe3), w(0xe4), w(0xe5), w(0xe6), w(0xe7),\
     w(0xe8), w(0xe9), w(0xea), w(0xeb), w(0xec), w(0xed), w(0xee), w(0xef),\
     w(0xf0), w(0xf1), w(0xf2), w(0xf3), w(0xf4), w(0xf5), w(0xf6), w(0xf7),\
-    w(0xf8), w(0xf9), w(0xfa), w(0xfb), w(0xfc), w(0xfd), w(0xfe), w(0xff)
+    w(0xf8), w(0xf9), w(0xfa), w(0xfb), w(0xfc), w(0xfd), w(0xfe), w(0xff) }
+
+#define rc_data(w) {\
+    w(0x01), w(0x02), w(0x04), w(0x08), w(0x10),w(0x20), w(0x40), w(0x80),\
+    w(0x1b), w(0x36) }
 
 #define h0(x)   (x)
-
-/*  These defines are used to ensure tables are generated in the
-    right format depending on the internal byte order required
-*/
 
 #define w0(p)   bytes2word(p, 0, 0, 0)
 #define w1(p)   bytes2word(0, p, 0, 0)
 #define w2(p)   bytes2word(0, 0, p, 0)
 #define w3(p)   bytes2word(0, 0, 0, p)
-
-/*  Number of elements required in this table for different
-    block and key lengths is:
-
-    Rcon Table      key length (bytes)
-    Length          16  20  24  28  32
-                ---------------------
-    block     16 |  10   9   8   7   7
-    length    20 |  14  11  10   9   9
-    (bytes)   24 |  19  15  12  11  11
-              28 |  24  19  16  13  13
-              32 |  29  23  19  17  14
-
-    this table can be a table of bytes if the key schedule
-    code is adjusted accordingly
-*/
 
 #define u0(p)   bytes2word(f2(p), p, p, f3(p))
 #define u1(p)   bytes2word(f3(p), f2(p), p, p)
@@ -197,145 +148,56 @@ extern "C"
 #define v2(p)   bytes2word(fd(p), fb(p), fe(p), f9(p))
 #define v3(p)   bytes2word(f9(p), fd(p), fb(p), fe(p))
 
-const aes_32t t_dec(r,c)[RC_LENGTH] =
-{
-    w0(0x01), w0(0x02), w0(0x04), w0(0x08), w0(0x10),
-    w0(0x20), w0(0x40), w0(0x80), w0(0x1b), w0(0x36),
-#if RC_LENGTH > 10
-    w0(0x6c), w0(0xd8), w0(0xab), w0(0x4d),
-#endif
-#if RC_LENGTH > 14
-    w0(0x9a), w0(0x2f), w0(0x5e), w0(0xbc), w0(0x63),
-#endif
-#if RC_LENGTH > 19
-    w0(0xc6), w0(0x97), w0(0x35), w0(0x6a), w0(0xd4),
-#endif
-#if RC_LENGTH > 24
-    w0(0xb3), w0(0x7d), w0(0xfa), w0(0xef), w0(0xc5)
-#endif
-};
-
-#ifdef  SBX_SET
-const aes_08t t_dec(s,box)[256] = { sb_data(h0) };
-#endif
-#ifdef  ISB_SET
-const aes_08t t_dec(i,box)[256] = { isb_data(h0) };
 #endif
 
-#ifdef  FT1_SET
-const aes_32t t_dec(f,n)[256] = { sb_data(u0) };
-#endif
-#ifdef  FT4_SET
-const aes_32t t_dec(f,n)[4][256] =
-    { {  sb_data(u0) }, {  sb_data(u1) }, {  sb_data(u2) }, {  sb_data(u3) } };
-#endif
+#if defined(FIXED_TABLES) || !defined(FF_TABLES)
 
-#ifdef  FL1_SET
-const aes_32t t_dec(f,l)[256] = { sb_data(w0) };
-#endif
-#ifdef  FL4_SET
-const aes_32t t_dec(f,l)[4][256] =
-    { {  sb_data(w0) }, {  sb_data(w1) }, {  sb_data(w2) }, {  sb_data(w3) } };
-#endif
-
-#ifdef  IT1_SET
-const aes_32t t_dec(i,n)[256] = { isb_data(v0) };
-#endif
-#ifdef  IT4_SET
-const aes_32t t_dec(i,n)[4][256] =
-    { { isb_data(v0) }, { isb_data(v1) }, { isb_data(v2) }, { isb_data(v3) } };
-#endif
-
-#ifdef  IL1_SET
-const aes_32t t_dec(i,l)[256] = { isb_data(w0) };
-#endif
-#ifdef  IL4_SET
-const aes_32t t_dec(i,l)[4][256] =
-    { { isb_data(w0) }, { isb_data(w1) }, { isb_data(w2) }, { isb_data(w3) } };
-#endif
-
-#ifdef  LS1_SET
-const aes_32t t_dec(l,s)[256] = { sb_data(w0) };
-#endif
-#ifdef  LS4_SET
-const aes_32t t_dec(l,s)[4][256] =
-    { {  sb_data(w0) }, {  sb_data(w1) }, {  sb_data(w2) }, {  sb_data(w3) } };
-#endif
-
-#ifdef  IM1_SET
-const aes_32t t_dec(i,m)[256] = { mm_data(v0) };
-#endif
-#ifdef  IM4_SET
-const aes_32t t_dec(i,m)[4][256] =
-    { {  mm_data(v0) }, {  mm_data(v1) }, {  mm_data(v2) }, {  mm_data(v3) } };
-#endif
-
-#else   /* dynamic table generation */
-
-#ifdef  GLOBALS
-
-aes_08t t_dec(in,it) = 0;
-
-aes_32t  t_dec(r,c)[RC_LENGTH];
-
-#ifdef  SBX_SET
-aes_08t t_dec(s,box)[256];
-#endif
-#ifdef  ISB_SET
-aes_08t t_dec(i,box)[256];
-#endif
-
-#ifdef  FT1_SET
-aes_32t t_dec(f,n)[256];
-#endif
-#ifdef  FT4_SET
-aes_32t t_dec(f,n)[4][256];
-#endif
-
-#ifdef  FL1_SET
-aes_32t t_dec(f,l)[256];
-#endif
-#ifdef  FL4_SET
-aes_32t t_dec(f,l)[4][256];
-#endif
-
-#ifdef  IT1_SET
-aes_32t t_dec(i,n)[256];
-#endif
-#ifdef  IT4_SET
-aes_32t t_dec(i,n)[4][256];
-#endif
-
-#ifdef  IL1_SET
-aes_32t t_dec(i,l)[256];
-#endif
-#ifdef  IL4_SET
-aes_32t t_dec(i,l)[4][256];
-#endif
-
-#ifdef  LS1_SET
-aes_32t t_dec(l,s)[256];
-#endif
-#ifdef  LS4_SET
-aes_32t t_dec(l,s)[4][256];
-#endif
-
-#ifdef  IM1_SET
-aes_32t t_dec(i,m)[256];
-#endif
-#ifdef  IM4_SET
-aes_32t t_dec(i,m)[4][256];
-#endif
+#define f2(x)   ((x<<1) ^ (((x>>7) & 1) * WPOLY))
+#define f4(x)   ((x<<2) ^ (((x>>6) & 1) * WPOLY) ^ (((x>>6) & 2) * WPOLY))
+#define f8(x)   ((x<<3) ^ (((x>>5) & 1) * WPOLY) ^ (((x>>5) & 2) * WPOLY) \
+                        ^ (((x>>5) & 4) * WPOLY))
+#define f3(x)   (f2(x) ^ x)
+#define f9(x)   (f8(x) ^ x)
+#define fb(x)   (f8(x) ^ f2(x) ^ x)
+#define fd(x)   (f8(x) ^ f4(x) ^ x)
+#define fe(x)   (f8(x) ^ f4(x) ^ f2(x))
 
 #else
-s_ty s_t;
+
+#define f2(x) ((x) ? pow[log[x] + 0x19] : 0)
+#define f3(x) ((x) ? pow[log[x] + 0x01] : 0)
+#define f9(x) ((x) ? pow[log[x] + 0xc7] : 0)
+#define fb(x) ((x) ? pow[log[x] + 0x68] : 0)
+#define fd(x) ((x) ? pow[log[x] + 0xee] : 0)
+#define fe(x) ((x) ? pow[log[x] + 0xdf] : 0)
+
 #endif
 
-#if !defined(FF_TABLES)
+#include "aestab.h"
 
-/*  Generate the tables for the dynamic table option
+#if defined(__cplusplus)
+extern "C"
+{
+#endif
 
-    It will generally be sensible to use tables to compute finite
+#if defined(FIXED_TABLES)
+
+/* implemented in case of wrong call for fixed tables */
+
+AES_RETURN aes_init(void)
+{
+    return EXIT_SUCCESS;
+}
+
+#else   /*  Generate the tables for the dynamic table option */
+
+#if defined(FF_TABLES)
+
+#define gf_inv(x)   ((x) ? pow[ 255 - log[x]] : 0)
+
+#else 
+
+/*  It will generally be sensible to use tables to compute finite
     field multiplies and inverses but where memory is scarse this
     code might sometimes be better. But it only has effect during
     initialisation so its pretty unimportant in overall terms.
@@ -346,8 +208,8 @@ s_ty s_t;
     used so that locals within fi can be bytes rather than words
 */
 
-static aes_08t hibit(const aes_32t x)
-{   aes_08t r = (aes_08t)((x >> 1) | (x >> 2));
+static uint_8t hibit(const uint_32t x)
+{   uint_8t r = (uint_8t)((x >> 1) | (x >> 2));
 
     r |= (r >> 2);
     r |= (r >> 4);
@@ -356,62 +218,64 @@ static aes_08t hibit(const aes_32t x)
 
 /* return the inverse of the finite field element x */
 
-static aes_08t fi(const aes_08t x)
-{   aes_08t p1 = x, p2 = BPOLY, n1 = hibit(x), n2 = 0x80, v1 = 1, v2 = 0;
+static uint_8t gf_inv(const uint_8t x)
+{   uint_8t p1 = x, p2 = BPOLY, n1 = hibit(x), n2 = 0x80, v1 = 1, v2 = 0;
 
-    if(x < 2) return x;
+    if(x < 2) 
+        return x;
 
-    for(;;)
+    for( ; ; )
     {
-        if(!n1) return v1;
+        if(n1)
+            while(n2 >= n1)             /* divide polynomial p2 by p1    */
+            {
+                n2 /= n1;               /* shift smaller polynomial left */ 
+                p2 ^= (p1 * n2) & 0xff; /* and remove from larger one    */
+                v2 ^= v1 * n2;          /* shift accumulated value and   */ 
+                n2 = hibit(p2);         /* add into result               */
+            }
+        else
+            return v1;
 
-        while(n2 >= n1)
-        {
-            n2 /= n1; p2 ^= p1 * n2; v2 ^= v1 * n2; n2 = hibit(p2);
-        }
-
-        if(!n2) return v2;
-
-        while(n1 >= n2)
-        {
-            n1 /= n2; p1 ^= p2 * n1; v1 ^= v2 * n1; n1 = hibit(p1);
-        }
+        if(n2)                          /* repeat with values swapped    */ 
+            while(n1 >= n2)
+            {
+                n1 /= n2; 
+                p1 ^= p2 * n1; 
+                v1 ^= v2 * n1; 
+                n1 = hibit(p1);
+            }
+        else
+            return v2;
     }
 }
-
-#else
-
-/* define the finite field multiplies required for Rijndael */
-
-#define f2(x) ((x) ? pow[log[x] + 0x19] : 0)
-#define f3(x) ((x) ? pow[log[x] + 0x01] : 0)
-#define f9(x) ((x) ? pow[log[x] + 0xc7] : 0)
-#define fb(x) ((x) ? pow[log[x] + 0x68] : 0)
-#define fd(x) ((x) ? pow[log[x] + 0xee] : 0)
-#define fe(x) ((x) ? pow[log[x] + 0xdf] : 0)
-#define fi(x) ((x) ?   pow[255 - log[x]]: 0)
 
 #endif
 
 /* The forward and inverse affine transformations used in the S-box */
+uint_8t fwd_affine(const uint_8t x)
+{   uint_32t w = x;
+    w ^= (w << 1) ^ (w << 2) ^ (w << 3) ^ (w << 4);
+    return 0x63 ^ ((w ^ (w >> 8)) & 0xff);
+}
 
-#define fwd_affine(x) \
-    (w = (aes_32t)x, w ^= (w<<1)^(w<<2)^(w<<3)^(w<<4), 0x63^(aes_08t)(w^(w>>8)))
+uint_8t inv_affine(const uint_8t x)
+{   uint_32t w = x;
+    w = (w << 1) ^ (w << 3) ^ (w << 6);
+    return 0x05 ^ ((w ^ (w >> 8)) & 0xff);
+}
 
-#define inv_affine(x) \
-    (w = (aes_32t)x, w = (w<<1)^(w<<3)^(w<<6), 0x05^(aes_08t)(w^(w>>8)))
+static int init = 0;
 
-#ifdef GLOBALS
-void gen_tabs(void)
-#else
-void gen_tabs(aes_ctx cx[1])
-#endif
-{   aes_32t  i, w;
+AES_RETURN aes_init(void)
+{   uint_32t  i, w;
 
 #if defined(FF_TABLES)
 
-    aes_08t  pow[512], log[256];
+    uint_8t  pow[512], log[256];
 
+    if(init)
+        return EXIT_SUCCESS;
     /*  log and power tables for GF(2^8) finite field with
         WPOLY as modular polynomial - the simplest primitive
         root is 0x03, used here to generate the tables
@@ -420,18 +284,16 @@ void gen_tabs(aes_ctx cx[1])
     i = 0; w = 1;
     do
     {
-        pow[i] = (aes_08t)w;
-        pow[i + 255] = (aes_08t)w;
-        log[w] = (aes_08t)i++;
+        pow[i] = (uint_8t)w;
+        pow[i + 255] = (uint_8t)w;
+        log[w] = (uint_8t)i++;
         w ^=  (w << 1) ^ (w & 0x80 ? WPOLY : 0);
     }
     while (w != 1);
 
-#endif
-
-#ifndef GLOBALS
-    if(!cx->t_ptr)
-        cx->t_ptr = &s_t;
+#else
+    if(init)
+        return EXIT_SUCCESS;
 #endif
 
     for(i = 0, w = 1; i < RC_LENGTH; ++i)
@@ -441,19 +303,19 @@ void gen_tabs(aes_ctx cx[1])
     }
 
     for(i = 0; i < 256; ++i)
-    {   aes_08t    b;
+    {   uint_8t    b;
 
-        b = fwd_affine(fi((aes_08t)i));
+        b = fwd_affine(gf_inv((uint_8t)i));
         w = bytes2word(f2(b), b, b, f3(b));
 
-#ifdef  SBX_SET
+#if defined( SBX_SET )
         t_set(s,box)[i] = b;
 #endif
 
-#ifdef  FT1_SET                 /* tables for a normal encryption round */
+#if defined( FT1_SET )                 /* tables for a normal encryption round */
         t_set(f,n)[i] = w;
 #endif
-#ifdef  FT4_SET
+#if defined( FT4_SET )
         t_set(f,n)[0][i] = w;
         t_set(f,n)[1][i] = upr(w,1);
         t_set(f,n)[2][i] = upr(w,2);
@@ -461,64 +323,64 @@ void gen_tabs(aes_ctx cx[1])
 #endif
         w = bytes2word(b, 0, 0, 0);
 
-#ifdef  FL1_SET                 /* tables for last encryption round (may also   */
+#if defined( FL1_SET )            /* tables for last encryption round (may also   */
         t_set(f,l)[i] = w;        /* be used in the key schedule)                 */
 #endif
-#ifdef  FL4_SET
+#if defined( FL4_SET )
         t_set(f,l)[0][i] = w;
         t_set(f,l)[1][i] = upr(w,1);
         t_set(f,l)[2][i] = upr(w,2);
         t_set(f,l)[3][i] = upr(w,3);
 #endif
 
-#ifdef  LS1_SET                 /* table for key schedule if t_set(f,l) above is    */
+#if defined( LS1_SET )			/* table for key schedule if t_set(f,l) above is*/
         t_set(l,s)[i] = w;      /* not of the required form                     */
 #endif
-#ifdef  LS4_SET
+#if defined( LS4_SET )
         t_set(l,s)[0][i] = w;
         t_set(l,s)[1][i] = upr(w,1);
         t_set(l,s)[2][i] = upr(w,2);
         t_set(l,s)[3][i] = upr(w,3);
 #endif
 
-        b = fi(inv_affine((aes_08t)i));
+        b = gf_inv(inv_affine((uint_8t)i));
         w = bytes2word(fe(b), f9(b), fd(b), fb(b));
 
-#ifdef  IM1_SET                 /* tables for the inverse mix column operation  */
+#if defined( IM1_SET )			/* tables for the inverse mix column operation  */
         t_set(i,m)[b] = w;
 #endif
-#ifdef  IM4_SET
+#if defined( IM4_SET )
         t_set(i,m)[0][b] = w;
         t_set(i,m)[1][b] = upr(w,1);
         t_set(i,m)[2][b] = upr(w,2);
         t_set(i,m)[3][b] = upr(w,3);
 #endif
 
-#ifdef  ISB_SET
+#if defined( ISB_SET )
         t_set(i,box)[i] = b;
 #endif
-#ifdef  IT1_SET                 /* tables for a normal decryption round */
+#if defined( IT1_SET )			/* tables for a normal decryption round */
         t_set(i,n)[i] = w;
 #endif
-#ifdef  IT4_SET
+#if defined( IT4_SET )
         t_set(i,n)[0][i] = w;
         t_set(i,n)[1][i] = upr(w,1);
         t_set(i,n)[2][i] = upr(w,2);
         t_set(i,n)[3][i] = upr(w,3);
 #endif
         w = bytes2word(b, 0, 0, 0);
-#ifdef  IL1_SET                 /* tables for last decryption round */
+#if defined( IL1_SET )			/* tables for last decryption round */
         t_set(i,l)[i] = w;
 #endif
-#ifdef  IL4_SET
+#if defined( IL4_SET )
         t_set(i,l)[0][i] = w;
         t_set(i,l)[1][i] = upr(w,1);
         t_set(i,l)[2][i] = upr(w,2);
         t_set(i,l)[3][i] = upr(w,3);
 #endif
     }
-
-    t_set(in,it) = 1;
+    init = 1;
+    return EXIT_SUCCESS;
 }
 
 #endif
