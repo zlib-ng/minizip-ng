@@ -760,8 +760,8 @@ local unzFile unzOpenInternal (const void *path,
     us.encrypted = 0;
 
 
-    s=(unz64_s*)ALLOC(sizeof(unz64_s));
-    if( s != NULL)
+    s = (unz64_s*)ALLOC(sizeof(unz64_s));
+    if ( s != NULL)
     {
         *s=us;
         unzGoToFirstFile((unzFile)s);
@@ -1066,19 +1066,19 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
                 /* Subtract size of ZIP64 field, since ZIP64 is handled internally */
                 file_info.size_file_extra_internal += 2 + 2 + dataSize;
 
-                if(file_info.uncompressed_size == 0xffffffff)
+                if (file_info.uncompressed_size == 0xffffffff)
                 {
                     if (unz64local_getLong64(&s->z_filefunc, s->filestream_with_CD,&file_info.uncompressed_size) != UNZ_OK)
                         err=UNZ_ERRNO;
                 }
 
-                if(file_info.compressed_size == 0xffffffff)
+                if (file_info.compressed_size == 0xffffffff)
                 {
                     if (unz64local_getLong64(&s->z_filefunc, s->filestream_with_CD,&file_info.compressed_size) != UNZ_OK)
                         err=UNZ_ERRNO;
                 }
 
-                if(file_info_internal.offset_curfile == 0xffffffff)
+                if (file_info_internal.offset_curfile == 0xffffffff)
                 {
                     /* Relative Header offset */
                     if (unz64local_getLong64(&s->z_filefunc, s->filestream_with_CD,&file_info_internal.offset_curfile) != UNZ_OK)
@@ -1086,7 +1086,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
                     file_info.disk_offset = file_info_internal.offset_curfile;
                 }
 
-                if(file_info.disk_num_start == 0xffffffff)
+                if (file_info.disk_num_start == 0xffffffff)
                 {
                     /* Disk Start Number */
                     if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD,&file_info.disk_num_start) != UNZ_OK)
@@ -1591,12 +1591,12 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
     ZPOS64_T offset_local_extrafield;  /* offset of the local extra field */
     uInt  size_local_extrafield;    /* size of the local extra field */
-#    ifndef NOUNCRYPT
+#ifndef NOUNCRYPT
     char source[12];
-#    else
+#else
     if (password != NULL)
         return UNZ_PARAMERROR;
-#    endif
+#endif
 
     if (file==NULL)
         return UNZ_PARAMERROR;
@@ -1736,7 +1736,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
     s->pfile_in_zip_read = pfile_in_zip_read_info;
     s->encrypted = 0;
 
-#    ifndef NOUNCRYPT
+#ifndef NOUNCRYPT
     if (password != NULL)
     {
         if (ZSEEK64(s->z_filefunc, s->filestream,
@@ -1744,7 +1744,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
                      s->pfile_in_zip_read->byte_before_the_zipfile,
                   ZLIB_FILEFUNC_SEEK_SET)!=0)
             return UNZ_INTERNALERROR;
-        s->encrypted=1;
+        s->encrypted = 1;
 #ifdef HAVE_AES
         if (s->cur_file_info.compression_method == AES_METHOD)
         {
@@ -1776,7 +1776,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
             s->pcrc_32_tab = (const unsigned long*)get_crc_table();
             init_keys(password,s->keys,s->pcrc_32_tab);
 
-            if(ZREAD64(s->z_filefunc, s->filestream,source, 12)<12)
+            if (ZREAD64(s->z_filefunc, s->filestream,source, 12)<12)
                 return UNZ_INTERNALERROR;
 
             for (i = 0; i<12; i++)
@@ -1785,8 +1785,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
             s->pfile_in_zip_read->pos_in_zipfile+=12;
         }
     }
-#    endif
-
+#endif
 
     return UNZ_OK;
 }
@@ -1847,7 +1846,6 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
 
     if (pfile_in_zip_read_info==NULL)
         return UNZ_PARAMERROR;
-
 
     if (pfile_in_zip_read_info->read_buffer == NULL)
         return UNZ_END_OF_LIST_OF_FILE;
@@ -1916,8 +1914,8 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
                     }
                 }
 
-#            ifndef NOUNCRYPT
-            if(s->encrypted)
+#ifndef NOUNCRYPT
+            if (s->encrypted)
             {
 #ifdef HAVE_AES 
                 if (s->cur_file_info.compression_method == AES_METHOD)
@@ -1934,7 +1932,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
                                   pfile_in_zip_read_info->read_buffer[i]);
                 }
             }
-#            endif
+#endif
 
             pfile_in_zip_read_info->rest_read_compressed -= uTotalBytesRead;
             pfile_in_zip_read_info->stream.next_in = (Bytef*)pfile_in_zip_read_info->read_buffer;
@@ -2230,7 +2228,6 @@ extern int ZEXPORT unzCloseCurrentFile (unzFile file)
         BZ2_bzDecompressEnd(&pfile_in_zip_read_info->bstream);
 #endif
 
-
     pfile_in_zip_read_info->stream_initialised = 0;
     TRYFREE(pfile_in_zip_read_info);
 
@@ -2248,7 +2245,7 @@ extern int ZEXPORT unzCloseCurrentFile (unzFile file)
 extern int ZEXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong uSizeBuf)
 {
     unz64_s* s;
-    uLong uReadThis ;
+    uLong uReadThis;
     if (file==NULL)
         return (int)UNZ_PARAMERROR;
     s=(unz64_s*)file;
@@ -2262,9 +2259,9 @@ extern int ZEXPORT unzGetGlobalComment (unzFile file, char * szComment, uLong uS
 
     if (uReadThis>0)
     {
-      *szComment='\0';
-      if (ZREAD64(s->z_filefunc,s->filestream_with_CD,szComment,uReadThis)!=uReadThis)
-        return UNZ_ERRNO;
+        *szComment='\0';
+        if (ZREAD64(s->z_filefunc,s->filestream_with_CD,szComment,uReadThis)!=uReadThis)
+            return UNZ_ERRNO;
     }
 
     if ((szComment != NULL) && (uSizeBuf > s->gi.size_comment))
