@@ -104,8 +104,8 @@ int fcrypt_init(
     aes_encrypt_key(kbuf, KEY_LENGTH(mode), cx->encr_ctx);
 
     /* initialise for authentication using key 2        */
-    hmac_sha1_begin(cx->auth_ctx);
-    hmac_sha1_key(kbuf + KEY_LENGTH(mode), KEY_LENGTH(mode), cx->auth_ctx);
+    hmac_sha_begin(cx->auth_ctx);
+    hmac_sha_key(kbuf + KEY_LENGTH(mode), KEY_LENGTH(mode), cx->auth_ctx);
 
 #ifdef PASSWORD_VERIFIER
     memcpy(pwd_ver, kbuf + 2 * KEY_LENGTH(mode), PWD_VER_LENGTH);
@@ -119,14 +119,14 @@ int fcrypt_init(
 void fcrypt_encrypt(unsigned char data[], unsigned int data_len, fcrypt_ctx cx[1])
 {
     encr_data(data, data_len, cx);
-    hmac_sha1_data(data, data_len, cx->auth_ctx);
+    hmac_sha_data(data, data_len, cx->auth_ctx);
 }
 
 /* perform 'in place' authentication and decryption */
 
 void fcrypt_decrypt(unsigned char data[], unsigned int data_len, fcrypt_ctx cx[1])
 {
-    hmac_sha1_data(data, data_len, cx->auth_ctx);
+    hmac_sha_data(data, data_len, cx->auth_ctx);
     encr_data(data, data_len, cx);
 }
 
@@ -134,7 +134,7 @@ void fcrypt_decrypt(unsigned char data[], unsigned int data_len, fcrypt_ctx cx[1
 
 int fcrypt_end(unsigned char mac[], fcrypt_ctx cx[1])
 {
-    hmac_sha1_end(mac, MAC_LENGTH(cx->mode), cx->auth_ctx);
+    hmac_sha_end(mac, MAC_LENGTH(cx->mode), cx->auth_ctx);
     return MAC_LENGTH(cx->mode);    /* return MAC length in bytes   */
 }
 

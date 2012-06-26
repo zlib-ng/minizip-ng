@@ -1,7 +1,6 @@
 /*
  ---------------------------------------------------------------------------
- Copyright (c) 2002, Dr Brian Gladman <                 >, Worcester, UK.
- All rights reserved.
+ Copyright (c) 2002, Dr Brian Gladman, Worcester, UK.   All rights reserved.
 
  LICENSE TERMS
 
@@ -28,12 +27,13 @@
  in respect of its properties, including, but not limited to, correctness
  and/or fitness for purpose.
  ---------------------------------------------------------------------------
- Issue Date: 24/01/2003
+ Issue Date: 26/08/2003
 
  This is an implementation of HMAC, the FIPS standard keyed hash function
 */
 
 #include "hmac.h"
+#include "brg_types.h"
 
 #if defined(__cplusplus)
 extern "C"
@@ -41,26 +41,26 @@ extern "C"
 #endif
 
 /* initialise the HMAC context to zero */
-void hmac_sha1_begin(hmac_ctx cx[1])
+void hmac_sha_begin(hmac_ctx cx[1])
 {
     memset(cx, 0, sizeof(hmac_ctx));
 }
 
 /* input the HMAC key (can be called multiple times)    */
-int hmac_sha1_key(const unsigned char key[], unsigned long key_len, hmac_ctx cx[1])
+int hmac_sha_key(const unsigned char key[], unsigned long key_len, hmac_ctx cx[1])
 {
     if(cx->klen == HMAC_IN_DATA)                /* error if further key input   */
         return HMAC_BAD_MODE;                   /* is attempted in data mode    */
 
-    if(cx->klen + key_len > IN_BLOCK_LENGTH)    /* if the key has to be hashed  */
+    if(cx->klen + key_len > HASH_INPUT_SIZE)    /* if the key has to be hashed  */
     {
-        if(cx->klen <= IN_BLOCK_LENGTH)         /* if the hash has not yet been */
+        if(cx->klen <= HASH_INPUT_SIZE)         /* if the hash has not yet been */
         {                                       /* started, initialise it and   */
-            sha1_begin(cx->ctx);                /* hash stored key characters   */
-            sha1_hash(cx->key, cx->klen, cx->ctx);
+            sha_begin(cx->ctx);                 /* hash stored key characters   */
+            sha_hash(cx->key, cx->klen, cx->ctx);
         }
 
-        sha1_hash(key, key_len, cx->ctx);       /* hash long key data into hash */
+        sha_hash(key, key_len, cx->ctx);       /* hash long key data into hash */
     }
     else                                        /* otherwise store key data     */
         memcpy(cx->key + cx->klen, key, key_len);
@@ -71,27 +71,27 @@ int hmac_sha1_key(const unsigned char key[], unsigned long key_len, hmac_ctx cx[
 
 /* input the HMAC data (can be called multiple times) - */
 /* note that this call terminates the key input phase   */
-void hmac_sha1_data(const unsigned char data[], unsigned long data_len, hmac_ctx cx[1])
+void hmac_sha_data(const unsigned char data[], unsigned long data_len, hmac_ctx cx[1])
 {   unsigned int i;
 
     if(cx->klen != HMAC_IN_DATA)                /* if not yet in data phase */
     {
-        if(cx->klen > IN_BLOCK_LENGTH)          /* if key is being hashed   */
+        if(cx->klen > HASH_INPUT_SIZE)          /* if key is being hashed   */
         {                                       /* complete the hash and    */
-            sha1_end(cx->key, cx->ctx);         /* store the result as the  */
-            cx->klen = OUT_BLOCK_LENGTH;        /* key and set new length   */
+            sha_end(cx->key, cx->ctx);          /* store the result as the  */
+            cx->klen = HASH_OUTPUT_SIZE;        /* key and set new length   */
         }
 
         /* pad the key if necessary */
-        memset(cx->key + cx->klen, 0, IN_BLOCK_LENGTH - cx->klen);
+        memset(cx->key + cx->klen, 0, HASH_INPUT_SIZE - cx->klen);
 
         /* xor ipad into key value  */
-        for(i = 0; i < (IN_BLOCK_LENGTH >> 2); ++i)
-            ((unsigned long*)cx->key)[i] ^= 0x36363636;
+        for(i = 0; i < (HASH_INPUT_SIZE >> 2); ++i)
+            ((uint_32t*)cx->key)[i] ^= 0x36363636;
 
         /* and start hash operation */
-        sha1_begin(cx->ctx);
-        sha1_hash(cx->key, IN_BLOCK_LENGTH, cx->ctx);
+        sha_begin(cx->ctx);
+        sha_hash(cx->key, HASH_INPUT_SIZE, cx->ctx);
 
         /* mark as now in data mode */
         cx->klen = HMAC_IN_DATA;
@@ -99,29 +99,29 @@ void hmac_sha1_data(const unsigned char data[], unsigned long data_len, hmac_ctx
 
     /* hash the data (if any)       */
     if(data_len)
-        sha1_hash(data, data_len, cx->ctx);
+        sha_hash(data, data_len, cx->ctx);
 }
 
 /* compute and output the MAC value */
-void hmac_sha1_end(unsigned char mac[], unsigned long mac_len, hmac_ctx cx[1])
-{   unsigned char dig[OUT_BLOCK_LENGTH];
+void hmac_sha_end(unsigned char mac[], unsigned long mac_len, hmac_ctx cx[1])
+{   unsigned char dig[HASH_OUTPUT_SIZE];
     unsigned int i;
 
     /* if no data has been entered perform a null data phase        */
     if(cx->klen != HMAC_IN_DATA)
-        hmac_sha1_data((const unsigned char*)0, 0, cx);
+        hmac_sha_data((const unsigned char*)0, 0, cx);
 
-    sha1_end(dig, cx->ctx);         /* complete the inner hash      */
+    sha_end(dig, cx->ctx);         /* complete the inner hash       */
 
     /* set outer key value using opad and removing ipad */
-    for(i = 0; i < (IN_BLOCK_LENGTH >> 2); ++i)
-        ((unsigned long*)cx->key)[i] ^= 0x36363636 ^ 0x5c5c5c5c;
+    for(i = 0; i < (HASH_INPUT_SIZE >> 2); ++i)
+        ((uint_32t*)cx->key)[i] ^= 0x36363636 ^ 0x5c5c5c5c;
 
     /* perform the outer hash operation */
-    sha1_begin(cx->ctx);
-    sha1_hash(cx->key, IN_BLOCK_LENGTH, cx->ctx);
-    sha1_hash(dig, OUT_BLOCK_LENGTH, cx->ctx);
-    sha1_end(dig, cx->ctx);
+    sha_begin(cx->ctx);
+    sha_hash(cx->key, HASH_INPUT_SIZE, cx->ctx);
+    sha_hash(dig, HASH_OUTPUT_SIZE, cx->ctx);
+    sha_end(dig, cx->ctx);
 
     /* output the hash value            */
     for(i = 0; i < mac_len; ++i)
@@ -129,15 +129,15 @@ void hmac_sha1_end(unsigned char mac[], unsigned long mac_len, hmac_ctx cx[1])
 }
 
 /* 'do it all in one go' subroutine     */
-void hmac_sha1(const unsigned char key[], unsigned int key_len,
-          const unsigned char data[], unsigned int data_len,
-          unsigned char mac[], unsigned int mac_len)
+void hmac_sha(const unsigned char key[], unsigned long key_len,
+          const unsigned char data[], unsigned long data_len,
+          unsigned char mac[], unsigned long mac_len)
 {   hmac_ctx    cx[1];
 
-    hmac_sha1_begin(cx);
-    hmac_sha1_key(key, key_len, cx);
-    hmac_sha1_data(data, data_len, cx);
-    hmac_sha1_end(mac, mac_len, cx);
+    hmac_sha_begin(cx);
+    hmac_sha_key(key, key_len, cx);
+    hmac_sha_data(data, data_len, cx);
+    hmac_sha_end(mac, mac_len, cx);
 }
 
 #if defined(__cplusplus)

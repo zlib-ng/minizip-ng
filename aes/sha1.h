@@ -1,7 +1,6 @@
 /*
  ---------------------------------------------------------------------------
- Copyright (c) 2002, Dr Brian Gladman <                 >, Worcester, UK.
- All rights reserved.
+ Copyright (c) 2002, Dr Brian Gladman, Worcester, UK.   All rights reserved.
 
  LICENSE TERMS
 
@@ -28,15 +27,14 @@
  in respect of its properties, including, but not limited to, correctness
  and/or fitness for purpose.
  ---------------------------------------------------------------------------
- Issue Date: 24/01/2003
-
- This file contains the definitions needed for SHA1
+ Issue Date: 01/08/2005
 */
 
 #ifndef _SHA1_H
 #define _SHA1_H
 
-#include <limits.h>
+#include <stdlib.h>
+#include "brg_types.h"
 
 #define SHA1_BLOCK_SIZE  64
 #define SHA1_DIGEST_SIZE 20
@@ -46,30 +44,27 @@ extern "C"
 {
 #endif
 
-/* define an unsigned 32-bit type */
-
-#if UINT_MAX == 0xffffffff
-  typedef   unsigned int     sha1_32t;
-#elif ULONG_MAX == 0xffffffff
-  typedef   unsigned long    sha1_32t;
-#else
-#error Please define sha1_32t as an unsigned 32 bit type in sha2.h
-#endif
-
 /* type to hold the SHA256 context  */
 
 typedef struct
-{   sha1_32t count[2];
-    sha1_32t hash[5];
-    sha1_32t wbuf[16];
+{   uint_32t count[2];
+    uint_32t hash[5];
+    uint_32t wbuf[16];
 } sha1_ctx;
 
-void sha1_compile(sha1_ctx ctx[1]);
+/* Note that these prototypes are the same for both bit and */
+/* byte oriented implementations. However the length fields */
+/* are in bytes or bits as appropriate for the version used */
+/* and bit sequences are input as arrays of bytes in which  */
+/* bit sequences run from the most to the least significant */
+/* end of each byte                                         */
 
-void sha1_begin(sha1_ctx ctx[1]);
-void sha1_hash(const unsigned char data[], unsigned int len, sha1_ctx ctx[1]);
-void sha1_end(unsigned char hval[], sha1_ctx ctx[1]);
-void sha1(unsigned char hval[], const unsigned char data[], unsigned int len);
+VOID_RETURN sha1_compile(sha1_ctx ctx[1]);
+
+VOID_RETURN sha1_begin(sha1_ctx ctx[1]);
+VOID_RETURN sha1_hash(const unsigned char data[], unsigned long len, sha1_ctx ctx[1]);
+VOID_RETURN sha1_end(unsigned char hval[], sha1_ctx ctx[1]);
+VOID_RETURN sha1(unsigned char hval[], const unsigned char data[], unsigned long len);
 
 #if defined(__cplusplus)
 }

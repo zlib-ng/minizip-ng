@@ -1,7 +1,6 @@
 /*
  ---------------------------------------------------------------------------
- Copyright (c) 2002, Dr Brian Gladman <                 >, Worcester, UK.
- All rights reserved.
+ Copyright (c) 2002, Dr Brian Gladman, Worcester, UK.   All rights reserved.
 
  LICENSE TERMS
 
@@ -28,7 +27,7 @@
  in respect of its properties, including, but not limited to, correctness
  and/or fitness for purpose.
  ---------------------------------------------------------------------------
- Issue Date: 24/01/2003
+ Issue Date: 26/08/2003
 
  This is an implementation of RFC2898, which specifies key derivation from
  a password and a salt value.
@@ -51,24 +50,24 @@ void derive_key(const unsigned char pwd[],  /* the PASSWORD     */
                unsigned int key_len)/* and its required length  */
 {
     unsigned int    i, j, k, n_blk;
-    unsigned char uu[OUT_BLOCK_LENGTH], ux[OUT_BLOCK_LENGTH];
+    unsigned char uu[HASH_OUTPUT_SIZE], ux[HASH_OUTPUT_SIZE];
     hmac_ctx c1[1], c2[1], c3[1];
 
     /* set HMAC context (c1) for password               */
-    hmac_sha1_begin(c1);
-    hmac_sha1_key(pwd, pwd_len, c1);
+    hmac_sha_begin(c1);
+    hmac_sha_key(pwd, pwd_len, c1);
 
     /* set HMAC context (c2) for password and salt      */
     memcpy(c2, c1, sizeof(hmac_ctx));
-    hmac_sha1_data(salt, salt_len, c2);
+    hmac_sha_data(salt, salt_len, c2);
 
     /* find the number of SHA blocks in the key         */
-    n_blk = 1 + (key_len - 1) / OUT_BLOCK_LENGTH;
+    n_blk = 1 + (key_len - 1) / HASH_OUTPUT_SIZE;
 
     for(i = 0; i < n_blk; ++i) /* for each block in key */
     {
         /* ux[] holds the running xor value             */
-        memset(ux, 0, OUT_BLOCK_LENGTH);
+        memset(ux, 0, HASH_OUTPUT_SIZE);
 
         /* set HMAC context (c3) for password and salt  */
         memcpy(c3, c2, sizeof(hmac_ctx));
@@ -83,13 +82,13 @@ void derive_key(const unsigned char pwd[],  /* the PASSWORD     */
         for(j = 0, k = 4; j < iter; ++j)
         {
             /* add previous round data to HMAC      */
-            hmac_sha1_data(uu, k, c3);
+            hmac_sha_data(uu, k, c3);
 
             /* obtain HMAC for uu[]                 */
-            hmac_sha1_end(uu, OUT_BLOCK_LENGTH, c3);
+            hmac_sha_end(uu, HASH_OUTPUT_SIZE, c3);
 
             /* xor into the running xor block       */
-            for(k = 0; k < OUT_BLOCK_LENGTH; ++k)
+            for(k = 0; k < HASH_OUTPUT_SIZE; ++k)
                 ux[k] ^= uu[k];
 
             /* set HMAC context (c3) for password   */
@@ -97,8 +96,8 @@ void derive_key(const unsigned char pwd[],  /* the PASSWORD     */
         }
 
         /* compile key blocks into the key output   */
-        j = 0; k = i * OUT_BLOCK_LENGTH;
-        while(j < OUT_BLOCK_LENGTH && k < key_len)
+        j = 0; k = i * HASH_OUTPUT_SIZE;
+        while(j < HASH_OUTPUT_SIZE && k < key_len)
             key[k++] = ux[j++];
     }
 }
@@ -117,14 +116,49 @@ struct
 } tests[] =
 {
     {   8, 4, 5, (unsigned char*)"password",
-        {   0x12, 0x34, 0x56, 0x78 },
-        {   0x5c, 0x75, 0xce, 0xf0, 0x1a, 0x96, 0x0d, 0xf7,
-            0x4c, 0xb6, 0xb4, 0x9b, 0x9e, 0x38, 0xe6, 0xb5 } /* ... */
+        {   
+            0x12, 0x34, 0x56, 0x78 
+        },
+        {   
+            0x5c, 0x75, 0xce, 0xf0, 0x1a, 0x96, 0x0d, 0xf7,
+            0x4c, 0xb6, 0xb4, 0x9b, 0x9e, 0x38, 0xe6, 0xb5 
+        }
     },
     {   8, 8, 5, (unsigned char*)"password",
-        {   0x12, 0x34, 0x56, 0x78, 0x78, 0x56, 0x34, 0x12 },
-        {   0xd1, 0xda, 0xa7, 0x86, 0x15, 0xf2, 0x87, 0xe6,
-            0xa1, 0xc8, 0xb1, 0x20, 0xd7, 0x06, 0x2a, 0x49 } /* ... */
+        {   
+            0x12, 0x34, 0x56, 0x78, 0x78, 0x56, 0x34, 0x12 
+        },
+        {   
+            0xd1, 0xda, 0xa7, 0x86, 0x15, 0xf2, 0x87, 0xe6,
+            0xa1, 0xc8, 0xb1, 0x20, 0xd7, 0x06, 0x2a, 0x49 
+        }
+    },
+    {   8, 21, 1, (unsigned char*)"password",
+        {
+            "ATHENA.MIT.EDUraeburn"
+        },
+        {
+            0xcd, 0xed, 0xb5, 0x28, 0x1b, 0xb2, 0xf8, 0x01,
+            0x56, 0x5a, 0x11, 0x22, 0xb2, 0x56, 0x35, 0x15
+        }
+    },
+    {   8, 21, 2, (unsigned char*)"password",
+        {
+            "ATHENA.MIT.EDUraeburn"
+        },
+        {
+            0x01, 0xdb, 0xee, 0x7f, 0x4a, 0x9e, 0x24, 0x3e, 
+            0x98, 0x8b, 0x62, 0xc7, 0x3c, 0xda, 0x93, 0x5d
+        }
+    },
+    {   8, 21, 1200, (unsigned char*)"password",
+        {
+            "ATHENA.MIT.EDUraeburn"
+        },
+        {
+            0x5c, 0x08, 0xeb, 0x61, 0xfd, 0xf7, 0x1e, 0x4e, 
+            0x4e, 0xc3, 0xcf, 0x6b, 0xa1, 0xf5, 0x51, 0x2b
+        }
     }
 };
 
@@ -133,7 +167,7 @@ int main()
     unsigned char   key[256];
 
     printf("\nTest of RFC2898 Password Based Key Derivation");
-    for(i = 0; i < 2; ++i)
+    for(i = 0; i < 5; ++i)
     {
         derive_key(tests[i].pwd, tests[i].pwd_len, tests[i].salt,
                     tests[i].salt_len, tests[i].it_count, key, key_len);
