@@ -46,12 +46,27 @@ _x < _y ? _x : _y; })
 #endif
 #endif
 
+void freset_buf_func (opaque)
+   voidpf opaque;
+{
+    ourbuffer_t *bufio = (ourbuffer_t *)opaque;
+    bufio->position = 0;
+    bufio->readBufferHits = 0;
+    bufio->readBufferLength = 0;
+    bufio->readBufferMisses = 0;
+    bufio->writeBufferHits = 0;
+    bufio->writeBufferLength = 0;
+    bufio->writeBufferMisses = 0;
+    bufio->writeBufferPos = 0;
+}
+
 voidpf ZCALLBACK fopen_buf_func (opaque, filename, mode)
    voidpf opaque;
    const char* filename;
    int mode;
 {
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
+    freset_buf_func(opaque);
     return bufio->filefunc.zopen_file(bufio->filefunc.opaque, filename, mode);
 }
 
@@ -61,6 +76,7 @@ voidpf ZCALLBACK fopen64_buf_func (opaque, filename, mode)
    int mode;
 {
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
+    freset_buf_func(opaque);
     return bufio->filefunc64.zopen64_file(bufio->filefunc64.opaque, filename, mode);
 }
 
@@ -116,7 +132,8 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
             
             bufio->readBufferMisses += 1;
             bufio->readBufferLength += bytesRead;
-            
+            bufio->position += bytesRead;
+
             if (bytesRead == 0)
                 break;
         }
@@ -142,7 +159,7 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
     return size - bytesLeftToRead;
 }
 
-long ZCALLBACK fwriteflush_buf_func (opaque, stream)
+long fwriteflush_buf_func (opaque, stream)
    voidpf opaque;
    voidpf stream;
 {
@@ -169,8 +186,10 @@ long ZCALLBACK fwriteflush_buf_func (opaque, stream)
 
         totalBytesWritten += bytesWritten;
         bytesLeftToWrite -= bytesWritten;
+        bufio->position += bytesWritten;
     }
     bufio->writeBufferLength = 0;
+    bufio->writeBufferPos = 0;
     return totalBytesWritten;
 }
 
@@ -197,17 +216,19 @@ uLong ZCALLBACK fwrite_buf_func (opaque, stream, buf, size)
                 return 0;
         }
 
-        bytesToCopy = min(bytesLeftToWrite, (uInt)(IOBUF_BUFFERSIZE - bufio->writeBufferLength));
+        bytesToCopy = min(bytesLeftToWrite, (uInt)(IOBUF_BUFFERSIZE - min(bufio->writeBufferLength, bufio->writeBufferPos)));
 
-        memcpy(bufio->writeBuffer + bufio->writeBufferLength, (char *)buf + (bytesToWrite - bytesLeftToWrite), bytesToCopy);
+        memcpy(bufio->writeBuffer + bufio->writeBufferPos, (char *)buf + (bytesToWrite - bytesLeftToWrite), bytesToCopy);
 
         if (bufio->verbose)
-            printf("Buf write copy [bytesToCopy %d bytesToWrite %d bytesLeftToWrite %d len %d]\n", bytesToCopy, bytesToWrite, bytesLeftToWrite, bufio->writeBufferLength + bytesToCopy);
+            printf("Buf write copy [bytesToCopy %d bytesToWrite %d bytesLeftToWrite %d len %d]\n", bytesToCopy, bytesToWrite, bytesLeftToWrite, bufio->writeBufferLength);
 
         bytesLeftToWrite -= bytesToCopy;
 
+        bufio->writeBufferPos += bytesToCopy;
         bufio->writeBufferHits += 1;
-        bufio->writeBufferLength += bytesToCopy;
+        if (bufio->writeBufferPos > bufio->writeBufferLength)
+            bufio->writeBufferLength += bufio->writeBufferPos - bufio->writeBufferLength;
     }
 
     return size - bytesLeftToWrite;
@@ -220,8 +241,9 @@ long ZCALLBACK ftell_buf_func (opaque, stream)
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
     long position = 0;
     position = bufio->filefunc.ztell_file(bufio->filefunc.opaque, stream);
+    bufio->position = position;
     if (bufio->verbose)
-        printf("Buf tell [position %ld readLen %d writeLen %d]\n", position, bufio->readBufferLength, bufio->writeBufferLength);
+        printf("Buf tell [position %llu readLen %d writeLen %d]\n", position, bufio->readBufferLength, bufio->writeBufferLength);
     if (bufio->readBufferLength > 0)
         position -= bufio->readBufferLength;
     if (bufio->writeBufferLength > 0)
@@ -236,6 +258,7 @@ ZPOS64_T ZCALLBACK ftell64_buf_func (opaque, stream)
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
     ZPOS64_T position = 0;
     position = bufio->filefunc64.ztell64_file(bufio->filefunc64.opaque, stream);
+    bufio->position = position;
     if (bufio->verbose)
         printf("Buf tell64 [position %llu readLen %d writeLen %d]\n", position, bufio->readBufferLength, bufio->writeBufferLength);
     if (bufio->readBufferLength > 0)
@@ -259,11 +282,16 @@ long ZCALLBACK fseek_buf_func (opaque, stream, offset, origin)
             origins = "cur"; 
         else if (origin == ZLIB_FILEFUNC_SEEK_SET) 
             origins = "set";
-        printf("Buf seek64 [offset %ld origin %s]\n", offset, origins);
+        printf("Buf seek64 [offset %ld origin %s curpos %lld]\n", offset, origins, bufio->position);
     }
     if (bufio->writeBufferLength > 0)
     {
-        if (fwriteflush_buf_func(opaque, stream) < 0)
+        if ((origin == ZLIB_FILEFUNC_SEEK_SET) && (offset >= bufio->position) && (offset <= bufio->position + IOBUF_BUFFERSIZE))
+        {
+            bufio->writeBufferPos = offset - (uLong)bufio->position;
+            return 0;
+        }
+        else if (fwriteflush_buf_func(opaque, stream) < 0)
             return -1;
     }
     if (bufio->readBufferLength > 0)
@@ -297,11 +325,16 @@ long ZCALLBACK fseek64_buf_func (opaque, stream, offset, origin)
             origins = "cur"; 
         else if (origin == ZLIB_FILEFUNC_SEEK_SET) 
             origins = "set";
-        printf("Buf seek64 [offset %llu origin %s]\n", offset, origins);
+        printf("Buf seek64 [offset %llu origin %s curpos %lld]\n", offset, origins, bufio->position);
     }
     if (bufio->writeBufferLength > 0)
     {
-        if (fwriteflush_buf_func(opaque, stream) < 0)
+        if ((origin == ZLIB_FILEFUNC_SEEK_SET) && (offset >= bufio->position) && (offset <= bufio->position + IOBUF_BUFFERSIZE))
+        {
+            bufio->writeBufferPos = (uLong)(offset - bufio->position);
+            return 0;
+        }
+        else if (fwriteflush_buf_func(opaque, stream) < 0)
             return -1;
     }
     if (bufio->readBufferLength > 0)
@@ -335,6 +368,7 @@ int ZCALLBACK fclose_buf_func (opaque, stream)
         if (bufio->writeBufferHits + bufio->writeBufferMisses > 0)
             printf("Buf write efficency %.02f%%\n", (bufio->writeBufferHits / ((float)bufio->writeBufferHits + bufio->writeBufferMisses)) * 100);
     }
+    freset_buf_func(opaque);
     if (bufio->filefunc64.zclose_file != NULL)
         return bufio->filefunc64.zclose_file(bufio->filefunc64.opaque, stream);
     return bufio->filefunc.zclose_file(bufio->filefunc.opaque, stream);

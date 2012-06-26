@@ -45,7 +45,9 @@ typedef struct ourbuffer_s {
   uInt writeBufferLength;
   uInt writeBufferHits;
   uInt writeBufferMisses;
+  uInt writeBufferPos;
   int verbose;
+  ZPOS64_T position;
   zlib_filefunc_def filefunc;
   zlib_filefunc64_def filefunc64;
 } ourbuffer_t;
