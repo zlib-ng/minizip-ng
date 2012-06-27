@@ -104,6 +104,12 @@
 #endif
 /* compile with -Dlocal if your debugger can't find static symbols */
 
+#define DISKHEADERMAGIC          (0x08074b50)
+#define LOCALHEADERMAGIC         (0x04034b50)
+#define CENTRALHEADERMAGIC       (0x02014b50)
+#define ENDHEADERMAGIC           (0x06054b50)
+#define ZIP64ENDHEADERMAGIC      (0x06064b50)
+#define ZIP64ENDLOCHEADERMAGIC   (0x07064b50)
 
 #ifndef CASESENSITIVITYDEFAULT_NO
 #  if !defined(unix) && !defined(CASESENSITIVITYDEFAULT_YES)
@@ -223,7 +229,6 @@ typedef struct
    for end of file.
    IN assertion: the stream s has been sucessfully opened for reading.
 */
-
 
 local int unz64local_getByte OF((
     const zlib_filefunc64_32_def* pzlib_filefunc_def,
@@ -472,8 +477,10 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
             break;
 
         for (i=(int)uReadSize-3; (i--)>0;)
-            if (((*(buf+i))==0x50) && ((*(buf+i+1))==0x4b) &&
-                ((*(buf+i+2))==0x05) && ((*(buf+i+3))==0x06))
+            if (((*(buf+i))==(ENDHEADERMAGIC & 0xff)) && 
+                ((*(buf+i+1))==(ENDHEADERMAGIC >> 8 & 0xff)) &&
+                ((*(buf+i+2))==(ENDHEADERMAGIC >> 16 & 0xff)) && 
+                ((*(buf+i+3))==(ENDHEADERMAGIC >> 24 & 0xff)))
             {
                 uPosFound = uReadPos+i;
                 break;
@@ -502,27 +509,17 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
                                       const ZPOS64_T endcentraloffset)
 {
     ZPOS64_T relativeOffset;
-    ZPOS64_T uPosFound;
     uLong uL;
 
-    if (ZSEEK64(*pzlib_filefunc_def,filestream,0,ZLIB_FILEFUNC_SEEK_END) != 0)
-        return 0;
-
-    /* Given location of end of central offset record we can */
-    relativeOffset = endcentraloffset + SIZECENTRALHEADERLOCATOR;
-    uPosFound = ZTELL64(*pzlib_filefunc_def,filestream) - relativeOffset;
-
-    if (uPosFound <= 0)
-        return 0;
 
     /* Zip64 end of central directory locator */
-    if (ZSEEK64(*pzlib_filefunc_def,filestream, uPosFound,ZLIB_FILEFUNC_SEEK_SET)!=0)
+    if (ZSEEK64(*pzlib_filefunc_def,filestream,endcentraloffset - SIZECENTRALHEADERLOCATOR,ZLIB_FILEFUNC_SEEK_SET)!=0)
         return 0;
 
     /* read locator signature */
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
         return 0;
-    if (uL != 0x07064b50)
+    if (uL != ZIP64ENDLOCHEADERMAGIC)
         return 0;
 
     /* number of the disk with the start of the zip64 end of  central directory */
@@ -549,7 +546,7 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
     if (unz64local_getLong(pzlib_filefunc_def,filestream,&uL)!=UNZ_OK)
         return 0;
 
-    if (uL != 0x06064b50)
+    if (uL != ZIP64ENDHEADERMAGIC)
         return 0;
 
     return relativeOffset;
@@ -648,7 +645,7 @@ local unzFile unzOpenInternal (const void *path,
         if (unz64local_getShort(&us.z_filefunc, us.filestream,&us.gi.size_comment)!=UNZ_OK)
             err=UNZ_ERRNO;
 
-        if ((err==UNZ_OK) && ((us.size_central_dir==0xffff) || (us.offset_central_dir==0xffffffff)))
+        if ((err==UNZ_OK) && ((us.gi.number_entry==0xffff) || (us.size_central_dir==0xffff) || (us.offset_central_dir==0xffffffff)))
         {
             /* Format should be Zip64, as the central directory or file size is too large */
             central_pos = unz64local_SearchCentralDir64(&us.z_filefunc,us.filestream,central_pos);
@@ -892,7 +889,7 @@ local int unz64local_GetCurrentFileInfoInternal (unzFile file,
     {
         if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD,&uMagic) != UNZ_OK)
             err=UNZ_ERRNO;
-        else if (uMagic!=0x02014b50)
+        else if (uMagic!=CENTRALHEADERMAGIC)
             err=UNZ_BADZIPFILE;
     }
 
@@ -1480,7 +1477,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
     {
         if (unz64local_getLong(&s->z_filefunc, s->filestream,&uMagic) != UNZ_OK)
             err=UNZ_ERRNO;
-        else if (uMagic!=0x04034b50)
+        else if (uMagic!=LOCALHEADERMAGIC)
             err=UNZ_BADZIPFILE;
     }
 

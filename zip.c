@@ -113,12 +113,12 @@ const char zip_copyright[] =" zip 1.01 Copyright 1998-2004 Gilles Vollant - http
 
 #define SIZEDATA_INDATABLOCK (4096-(4*4))
 
-#define DISKHEADERMAGIC     (0x08074b50)
-#define LOCALHEADERMAGIC    (0x04034b50)
-#define CENTRALHEADERMAGIC  (0x02014b50)
-#define ENDHEADERMAGIC      (0x06054b50)
-#define ZIP64ENDHEADERMAGIC      (0x6064b50)
-#define ZIP64ENDLOCHEADERMAGIC   (0x7064b50)
+#define DISKHEADERMAGIC          (0x08074b50)
+#define LOCALHEADERMAGIC         (0x04034b50)
+#define CENTRALHEADERMAGIC       (0x02014b50)
+#define ENDHEADERMAGIC           (0x06054b50)
+#define ZIP64ENDHEADERMAGIC      (0x06064b50)
+#define ZIP64ENDLOCHEADERMAGIC   (0x07064b50)
 
 #define FLAG_LOCALHEADER_OFFSET (0x06)
 #define CRC_LOCALHEADER_OFFSET  (0x0e)
@@ -600,7 +600,13 @@ local int zipGoToNextDisk(zipFile file)
     return err;
 }
 
-local ZPOS64_T zip64local_SearchCentralDirInternal(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int magicCode)
+/*
+  Locate the Central directory of a zipfile (at the end, just before
+    the global comment)
+*/
+local ZPOS64_T zip64local_SearchCentralDir OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream));
+
+local ZPOS64_T zip64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream)
 {
     unsigned char* buf;
     ZPOS64_T uSizeFile;
@@ -642,10 +648,10 @@ local ZPOS64_T zip64local_SearchCentralDirInternal(const zlib_filefunc64_32_def*
             break;
         
         for (i=(int)uReadSize-3; (i--)>0;)
-            if ((*(buf+i))==(magicCode >> 24 & 0xff) && 
-                (*(buf+i+1))==(magicCode >> 16 & 0xff) &&
-                (*(buf+i+2))==(magicCode >> 8 & 0xff) &&
-                (*(buf+i+3))==(magicCode & 0xff))
+            if ((*(buf+i))==(ENDHEADERMAGIC & 0xff) && 
+                (*(buf+i+1))==(ENDHEADERMAGIC >> 8 & 0xff) &&
+                (*(buf+i+2))==(ENDHEADERMAGIC >> 16 & 0xff) &&
+                (*(buf+i+3))==(ENDHEADERMAGIC >> 24 & 0xff))
             {
                 uPosFound = uReadPos+i;
                 break;
@@ -656,17 +662,6 @@ local ZPOS64_T zip64local_SearchCentralDirInternal(const zlib_filefunc64_32_def*
     }
     TRYFREE(buf);
     return uPosFound;
-}
-
-/*
-  Locate the Central directory of a zipfile (at the end, just before
-    the global comment)
-*/
-local ZPOS64_T zip64local_SearchCentralDir OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream));
-
-local ZPOS64_T zip64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream)
-{
-    return zip64local_SearchCentralDirInternal(pzlib_filefunc_def, filestream, 0x504b0506);
 }
 
 #define SIZECENTRALHEADERLOCATOR (0x14) /* 20 */
@@ -860,8 +855,7 @@ int LoadCentralDirectoryRecord(zip64_internal* pziinit)
                 if (zip64local_getLong64(&pziinit->z_filefunc, pziinit->filestream,&size_central_dir)!=ZIP_OK)
                     err=ZIP_ERRNO;
 
-                /* offset of start of central directory with respect to the
-                starting disk number */
+                /* offset of start of central directory with respect to the starting disk number */
                 if (zip64local_getLong64(&pziinit->z_filefunc, pziinit->filestream,&offset_central_dir)!=ZIP_OK)
                     err=ZIP_ERRNO;
             }
