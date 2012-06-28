@@ -526,7 +526,7 @@ local int zipGoToSpecificDisk(zipFile file, int number_disk, int openExisting)
 
     
     zi=(zip64_internal*)file;
-    if (zi->disk_size == 0)
+    if ((zi->disk_size == 0) || ((zi->number_disk == number_disk) && (number_disk > 0)))
         return err;
 
     if ((zi->filestream != NULL) && (zi->filestream != zi->filestream_with_CD))
