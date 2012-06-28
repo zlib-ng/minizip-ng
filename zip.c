@@ -526,7 +526,7 @@ local int zipGoToSpecificDisk(zipFile file, int number_disk, int openExisting)
 
     
     zi=(zip64_internal*)file;
-    if ((zi->disk_size == 0) || ((zi->number_disk == number_disk) && (number_disk > 0)))
+    if (zi->disk_size == 0)
         return err;
 
     if ((zi->filestream != NULL) && (zi->filestream != zi->filestream_with_CD))
@@ -1073,19 +1073,7 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
     int err;
     uInt size_filename = (uInt)strlen(filename);
     uInt size_extrafield = size_extrafield_local;
-    ZPOS64_T size_available;
-    ZPOS64_T size_needed;
 
-    if (zi->disk_size > 0)
-    {
-        /* Make sure enough space available on current disk for local header */
-        zipGetDiskSizeAvailable((zipFile)zi, &size_available);
-        size_needed = 30 + size_filename + size_extrafield_local;
-        if (zi->ci.zip64)
-            size_needed += 20;
-        if (size_available < size_needed)
-            zipGoToNextDisk((zipFile)zi);
-    }
 
     err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)LOCALHEADERMAGIC, 4);
 
@@ -1198,6 +1186,7 @@ int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt size_ex
  It is not done here because then we need to realloc a new buffer since parameters are 'const' and I want to minimize
  unnecessary allocations.
  */
+
 extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, const zip_fileinfo* zipfi,
                                          const void* extrafield_local, uInt size_extrafield_local,
                                          const void* extrafield_global, uInt size_extrafield_global,
@@ -1211,6 +1200,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
     uInt size_comment;
     uInt i;
     int err = ZIP_OK;
+    ZPOS64_T size_available;
+    ZPOS64_T size_needed;
 
 #ifdef NOCRYPT
     (crcForCrypting);
@@ -1281,8 +1272,23 @@ extern int ZEXPORT zipOpenNewFileInZip4_64 (zipFile file, const char* filename, 
 #endif
     }
 
-    if ((zi->disk_size > 0) && (zi->number_disk == 0) && (zi->number_entry == 0))
-        err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)DISKHEADERMAGIC, 4);
+    if (zi->disk_size > 0)
+    {
+        if ((zi->number_disk == 0) && (zi->number_entry == 0))
+            err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)DISKHEADERMAGIC, 4);
+
+        /* Make sure enough space available on current disk for local header */
+        zipGetDiskSizeAvailable((zipFile)zi, &size_available);
+        size_needed = 30 + size_filename + size_extrafield_local;
+        if (zi->ci.zip64)
+            size_needed += 20;
+#ifdef HAVE_AES
+        if (zi->ci.method == AES_METHOD)
+            size_needed += 11;
+#endif
+        if (size_available < size_needed)
+            zipGoToNextDisk((zipFile)zi);
+    }
 
     zi->ci.pos_local_header = ZTELL64(zi->z_filefunc,zi->filestream);
     
@@ -1870,9 +1876,9 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
     }
     compressed_size = zi->ci.totalCompressedData;
 
-#    ifndef NOCRYPT
+#ifndef NOCRYPT
     compressed_size += zi->ci.crypt_header_size;
-#    endif
+#endif
 
     // update Current Item crc and sizes,
     if (compressed_size >= 0xffffffff || uncompressed_size >= 0xffffffff || zi->ci.pos_local_header >= 0xffffffff)
@@ -2007,12 +2013,12 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
     if (err==ZIP_OK)
     {
         // Update the LocalFileHeader with the new values.
-
         ZPOS64_T cur_pos_inzip = ZTELL64(zi->z_filefunc,zi->filestream);
         uLong cur_number_disk = zi->number_disk;
 
 
-        zipGoToSpecificDisk(file, zi->ci.number_disk, 1);
+        if (zi->ci.number_disk != cur_number_disk)
+            zipGoToSpecificDisk(file, zi->ci.number_disk, 1);
 
         if (ZSEEK64(zi->z_filefunc,zi->filestream, zi->ci.pos_local_header + 14,ZLIB_FILEFUNC_SEEK_SET)!=0)
             err = ZIP_ERRNO;
@@ -2046,7 +2052,8 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
               err = zip64local_putValue(&zi->z_filefunc,zi->filestream,uncompressed_size,4);
         }
 
-        zipGoToSpecificDisk(file, cur_number_disk, 1);
+        if (zi->ci.number_disk != cur_number_disk)
+            zipGoToSpecificDisk(file, cur_number_disk, 1);
 
         if (ZSEEK64(zi->z_filefunc,zi->filestream, cur_pos_inzip,ZLIB_FILEFUNC_SEEK_SET)!=0)
             err = ZIP_ERRNO;
