@@ -25,8 +25,8 @@
 
 voidpf ZCALLBACK fopen_buf_func OF((voidpf opaque,const char* filename,int mode));
 voidpf ZCALLBACK fopen64_buf_func OF((voidpf opaque,const char* filename,int mode));
-voidpf ZCALLBACK fopendisk_buf_func OF((voidpf opaque, voidpf stream, int number_disk, int mode));
-voidpf ZCALLBACK fopendisk64_buf_func OF((voidpf opaque, voidpf stream, int number_disk, int mode));
+voidpf ZCALLBACK fopendisk_buf_func OF((voidpf opaque, voidpf stream_cd, int number_disk, int mode));
+voidpf ZCALLBACK fopendisk64_buf_func OF((voidpf opaque, voidpf stream_cd, int number_disk, int mode));
 uLong ZCALLBACK fread_buf_func OF((voidpf opaque,voidpf stream,void* buf,uLong size));
 uLong ZCALLBACK fwrite_buf_func OF((voidpf opaque,voidpf stream,const void* buf,uLong size));
 long ZCALLBACK ftell_buf_func OF((voidpf opaque,voidpf stream));
@@ -37,17 +37,7 @@ int ZCALLBACK fclose_buf_func OF((voidpf opaque,voidpf stream));
 int ZCALLBACK ferror_buf_func OF((voidpf opaque,voidpf stream));
 
 typedef struct ourbuffer_s {
-  char readBuffer[IOBUF_BUFFERSIZE];
-  uInt readBufferLength;
-  uInt readBufferHits;
-  uInt readBufferMisses;
-  char writeBuffer[IOBUF_BUFFERSIZE];
-  uInt writeBufferLength;
-  uInt writeBufferHits;
-  uInt writeBufferMisses;
-  uInt writeBufferPos;
   int verbose;
-  ZPOS64_T position;
   zlib_filefunc_def filefunc;
   zlib_filefunc64_def filefunc64;
 } ourbuffer_t;
