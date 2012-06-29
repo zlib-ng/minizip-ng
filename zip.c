@@ -2017,6 +2017,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
         uLong cur_number_disk = zi->number_disk;
 
 
+        // Local file header is stored on previous disk, switch to make edits
         if (zi->ci.number_disk != cur_number_disk)
             zipGoToSpecificDisk(file, zi->ci.number_disk, 1);
 
@@ -2052,6 +2053,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64 (zipFile file, ZPOS64_T uncompressed_s
               err = zip64local_putValue(&zi->z_filefunc,zi->filestream,uncompressed_size,4);
         }
 
+        // Now switch back again to the disk we were on before
         if (zi->ci.number_disk != cur_number_disk)
             zipGoToSpecificDisk(file, cur_number_disk, 1);
 
