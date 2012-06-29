@@ -564,9 +564,9 @@ local unzFile unzOpenInternal (const void *path,
     unz64_s *s;
     ZPOS64_T central_pos;
     uLong uL;
+    voidpf filestream = NULL;
     ZPOS64_T number_entry_CD;      /* total number of entries in the central dir
                                    (same than number_entry on nospan) */
-
     int err=UNZ_OK;
 
     if (unz_copyright[0]!=' ')
@@ -712,6 +712,14 @@ local unzFile unzOpenInternal (const void *path,
     {
         ZCLOSE64(us.z_filefunc, us.filestream);
         return NULL;
+    }
+
+    if (us.gi.number_disk_with_CD == 0)
+    {
+        /* If there is only one disk open another stream so we don't have to seek between the CD and the file headers constantly */
+        filestream = ZOPEN64(us.z_filefunc, path, ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_EXISTING);
+        if (filestream != NULL)
+            us.filestream = filestream;
     }
 
     us.byte_before_the_zipfile = central_pos -
@@ -1188,11 +1196,20 @@ extern int ZEXPORT unzGetCurrentFileInfo (unzFile file,
     }
     return err;
 }
+
 /*
-  Set the current file of the zipfile to the first file.
+  Set the current file of the zipfile to the first file and returns the current
+  info on success.
   return UNZ_OK if there is no problem
 */
-extern int ZEXPORT unzGoToFirstFile (unzFile file)
+extern int ZEXPORT unzGoToFirstFile2 (unzFile file,
+                                            unz_file_info64 *pfile_info,
+                                            char *szFileName,
+                                            uLong fileNameBufferSize,
+                                            void *extraField,
+                                            uLong extraFieldBufferSize,
+                                            char *szComment,
+                                            uLong commentBufferSize)
 {
     int err=UNZ_OK;
     unz64_s* s;
@@ -1202,18 +1219,38 @@ extern int ZEXPORT unzGoToFirstFile (unzFile file)
     s->pos_in_central_dir=s->offset_central_dir;
     s->num_file=0;
     err=unz64local_GetCurrentFileInfoInternal(file,&s->cur_file_info,
-                                             &s->cur_file_info_internal,
-                                             NULL,0,NULL,0,NULL,0);
+                                                &s->cur_file_info_internal,
+                                                szFileName,fileNameBufferSize,
+                                                extraField,extraFieldBufferSize,
+                                                szComment,commentBufferSize);
     s->current_file_ok = (err == UNZ_OK);
+    if ((err == UNZ_OK) && (pfile_info != NULL))
+        memcpy(pfile_info, &s->cur_file_info, sizeof(unz_file_info64));
     return err;
 }
 
 /*
-  Set the current file of the zipfile to the next file.
+  Set the current file of the zipfile to the first file.
+  return UNZ_OK if there is no problem
+*/
+extern int ZEXPORT unzGoToFirstFile (unzFile file)
+{
+    return unzGoToFirstFile2(file, NULL, NULL, 0, NULL, 0, NULL, 0);
+}
+
+/*
+  Set the current file of the zipfile to the next file.and retrieve the current info on success
   return UNZ_OK if there is no problem
   return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest.
 */
-extern int ZEXPORT unzGoToNextFile (unzFile  file)
+extern int ZEXPORT unzGoToNextFile2 (unzFile file,
+                                            unz_file_info64 *pfile_info,
+                                            char *szFileName,
+                                            uLong fileNameBufferSize,
+                                            void *extraField,
+                                            uLong extraFieldBufferSize,
+                                            char *szComment,
+                                            uLong commentBufferSize)
 {
     unz64_s* s;
     int err;
@@ -1231,12 +1268,25 @@ extern int ZEXPORT unzGoToNextFile (unzFile  file)
             s->cur_file_info.size_file_extra + s->cur_file_info.size_file_comment ;
     s->num_file++;
     err = unz64local_GetCurrentFileInfoInternal(file,&s->cur_file_info,
-                                               &s->cur_file_info_internal,
-                                               NULL,0,NULL,0,NULL,0);
+                                                &s->cur_file_info_internal,
+                                                szFileName,fileNameBufferSize,
+                                                extraField,extraFieldBufferSize,
+                                                szComment,commentBufferSize);
     s->current_file_ok = (err == UNZ_OK);
+    if ((err == UNZ_OK) && (pfile_info != NULL))
+        memcpy(pfile_info, &s->cur_file_info, sizeof(unz_file_info64));
     return err;
 }
 
+/*
+  Set the current file of the zipfile to the next file.
+  return UNZ_OK if there is no problem
+  return UNZ_END_OF_LIST_OF_FILE if the actual file was the latest.
+*/
+extern int ZEXPORT unzGoToNextFile (unzFile file)
+{
+    return unzGoToNextFile2(file, NULL, NULL, 0, NULL, 0, NULL, 0);
+}
 
 /*
   Try locate the file szFileName in the zipfile.
@@ -1394,7 +1444,7 @@ local int unzGoToNextDisk(unzFile file)
     int number_disk_next;
 
 
-    s=(unz64_s*)file;     
+    s=(unz64_s*)file;
     pfile_in_zip_read_info=s->pfile_in_zip_read;
     number_disk_next = s->number_disk;
 
