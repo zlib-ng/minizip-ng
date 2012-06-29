@@ -30,7 +30,7 @@
 #define VPRINTF _vcprintf
 #endif
 
-#define IOBUF_VERBOSE (0)
+//#define IOBUF_VERBOSE
 
 #ifdef __GNUC__
 #ifndef max
@@ -65,8 +65,11 @@ typedef struct ourstream_s {
   voidpf stream;
 } ourstream_t;
 
-#define print_buf(o,s,f,...) \
-    do { ourbuffer_t *bufio = (ourbuffer_t *)opaque; if (bufio->verbose) print_buf_internal(o,s,f,__VA_ARGS__); } while (0);
+#if defined(IOBUF_VERBOSE)
+#define print_buf(o,s,f,...) print_buf_internal(o,s,f,__VA_ARGS__);
+#else
+#define print_buf(o,s,f,...)
+#endif 
 
 void print_buf_internal(voidpf opaque, voidpf stream, char *format, ...)
 {
@@ -77,7 +80,6 @@ void print_buf_internal(voidpf opaque, voidpf stream, char *format, ...)
     VPRINTF(format, arglist);
     va_end(arglist);
 }
-long fflush_buf (voidpf opaque, voidpf stream);
 
 voidpf fopen_buf_internal_func (opaque, stream, number_disk, mode)
    voidpf opaque;
@@ -153,12 +155,11 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
     uInt bytesLeftToRead = size;
     uInt bytesRead = -1;
 
-    if (bufio->verbose)
-        printf("Buf read [size %ld pos %lld]\n", size, streamio->position);
+    print_buf(opaque, stream, "read [size %ld pos %lld]\n", size, streamio->position);
 
     while (bytesLeftToRead > 0)
     {
-        if (streamio->readBufferPos == streamio->readBufferLength)
+        if ((streamio->readBufferLength == 0) || (streamio->readBufferPos == streamio->readBufferLength))
         {
             if (streamio->readBufferLength == IOBUF_BUFFERSIZE)
             {
@@ -182,8 +183,8 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
             if (bytesRead == 0)
                 break;
         }
-        
-        if (streamio->readBufferLength > 0)
+
+        if ((streamio->readBufferLength - streamio->readBufferPos) > 0)
         {
             bytesToCopy = min(bytesLeftToRead, (streamio->readBufferLength - streamio->readBufferPos));
             memcpy((char *)buf + bufLength, streamio->readBuffer + streamio->readBufferPos, bytesToCopy);
@@ -325,7 +326,7 @@ int fseek_buf_internal_func (opaque, stream, offset, origin)
 
             if (streamio->writeBufferLength > 0)
             {
-                if ((offset >= streamio->position) && (offset < streamio->position + streamio->writeBufferLength))
+                if ((offset >= streamio->position) && (offset <= streamio->position + streamio->writeBufferLength))
                 {
                     streamio->writeBufferPos = (uLong)(offset - streamio->position);
                     return 0;
@@ -459,7 +460,6 @@ void fill_buffer_filefunc (pzlib_filefunc_def, ourbuf)
     pzlib_filefunc_def->zclose_file = fclose_buf_func;
     pzlib_filefunc_def->zerror_file = ferror_buf_func;
     pzlib_filefunc_def->opaque = ourbuf;
-    ourbuf->verbose = IOBUF_VERBOSE;
 }
 
 void fill_buffer_filefunc64 (pzlib_filefunc_def, ourbuf)
@@ -475,5 +475,4 @@ void fill_buffer_filefunc64 (pzlib_filefunc_def, ourbuf)
     pzlib_filefunc_def->zclose_file = fclose_buf_func;
     pzlib_filefunc_def->zerror_file = ferror_buf_func;
     pzlib_filefunc_def->opaque = ourbuf;
-    ourbuf->verbose = IOBUF_VERBOSE;
 }

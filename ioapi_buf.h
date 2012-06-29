@@ -37,7 +37,6 @@ int ZCALLBACK fclose_buf_func OF((voidpf opaque,voidpf stream));
 int ZCALLBACK ferror_buf_func OF((voidpf opaque,voidpf stream));
 
 typedef struct ourbuffer_s {
-  int verbose;
   zlib_filefunc_def filefunc;
   zlib_filefunc64_def filefunc64;
 } ourbuffer_t;
