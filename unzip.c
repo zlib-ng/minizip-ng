@@ -1675,7 +1675,7 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
     pfile_in_zip_read_info->compression_method = compression_method;
     pfile_in_zip_read_info->filestream=s->filestream;
     pfile_in_zip_read_info->z_filefunc=s->z_filefunc;
-    if (s->filestream == s->filestream_with_CD)
+    if (s->number_disk == s->gi.number_disk_with_CD)
         pfile_in_zip_read_info->byte_before_the_zipfile=s->byte_before_the_zipfile;
     else
         pfile_in_zip_read_info->byte_before_the_zipfile=0;
@@ -1893,7 +1893,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
                 return UNZ_EOF;
 
             while (uTotalBytesRead != uReadThis)
-                {
+            {
                 if (ZSEEK64(pfile_in_zip_read_info->z_filefunc,
                           pfile_in_zip_read_info->filestream,
                           pfile_in_zip_read_info->pos_in_zipfile +
@@ -1910,7 +1910,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
                 pfile_in_zip_read_info->pos_in_zipfile += uBytesRead;
 
                 if (uBytesRead == 0)
-                    {
+                {
                     if (ZERROR64(pfile_in_zip_read_info->z_filefunc,pfile_in_zip_read_info->filestream))
                         return UNZ_ERRNO;
 
@@ -1921,8 +1921,8 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
 
                     pfile_in_zip_read_info->pos_in_zipfile = 0;
                     pfile_in_zip_read_info->filestream = s->filestream;
-                    }
                 }
+            }
 
 #ifndef NOUNCRYPT
             if (s->encrypted)
