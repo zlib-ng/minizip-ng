@@ -136,6 +136,10 @@
 #define SIZECENTRALDIRITEM (0x2e)
 #define SIZEZIPLOCALHEADER (0x1e)
 
+#ifndef BUFREADCOMMENT
+#define BUFREADCOMMENT (0x400)
+#endif
+
 const char unz_copyright[] =
    " unzip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
@@ -426,10 +430,6 @@ extern int ZEXPORT unzStringFileNameCompare (const char*  fileName1,
 
     return STRCMPCASENOSENTIVEFUNCTION(fileName1,fileName2);
 }
-
-#ifndef BUFREADCOMMENT
-#define BUFREADCOMMENT (0x400)
-#endif
 
 /*
   Locate the Central directory of a zipfile (at the end, just before
@@ -1504,6 +1504,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
     uLong size_filename;
     uLong size_extra_field;
     int err=UNZ_OK;
+    int compression_method = 0;
 
     *piSizeVar = 0;
     *poffset_local_extrafield = 0;
@@ -1540,15 +1541,17 @@ local int unz64local_CheckCurrentFileCoherencyHeader (unz64_s* s, uInt* piSizeVa
     else if ((err==UNZ_OK) && (uData!=s->cur_file_info.compression_method))
         err=UNZ_BADZIPFILE;
 
-    if ((err==UNZ_OK) && (s->cur_file_info.compression_method!=0) &&
-/* #ifdef HAVE_BZIP2 */
-                         (s->cur_file_info.compression_method!=Z_BZIP2ED) &&
-/* #endif */
-                         (s->cur_file_info.compression_method!=Z_DEFLATED)
-#ifdef HAVE_AES 
-                      && (s->cur_file_info.compression_method!=AES_METHOD)
+    compression_method = (int)s->cur_file_info.compression_method;
+#ifdef HAVE_AES
+    if (compression_method==AES_METHOD)
+        compression_method = (int)s->cur_file_info_internal.aes_compression_method;
 #endif
-        )
+
+    if ((err==UNZ_OK) && (compression_method!=0) &&
+#ifdef HAVE_BZIP2
+                         (compression_method!=Z_BZIP2ED) &&
+#endif
+                         (compression_method!=Z_DEFLATED))
         err=UNZ_BADZIPFILE;
 
     if (unz64local_getLong(&s->z_filefunc, s->filestream,&uData) != UNZ_OK) /* date/time */
@@ -1658,15 +1661,11 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
         }
     }
 
-    if ((s->cur_file_info.compression_method!=0) &&
-/* #ifdef HAVE_BZIP2 */
-        (s->cur_file_info.compression_method!=Z_BZIP2ED) &&
-/* #endif */
-        (s->cur_file_info.compression_method!=Z_DEFLATED) 
-#ifdef HAVE_AES
-     && (s->cur_file_info.compression_method!=AES_METHOD)
+    if ((compression_method!=0) &&
+#ifdef HAVE_BZIP2
+        (compression_method!=Z_BZIP2ED) &&
 #endif
-        )
+        (compression_method!=Z_DEFLATED))
         err=UNZ_BADZIPFILE;
 
     pfile_in_zip_read_info->crc32_wait=s->cur_file_info.crc;
@@ -1681,61 +1680,64 @@ extern int ZEXPORT unzOpenCurrentFile3 (unzFile file, int* method,
         pfile_in_zip_read_info->byte_before_the_zipfile=0;
     pfile_in_zip_read_info->stream.total_out = 0;
 
-    if ((compression_method==Z_BZIP2ED) && (!raw))
+    if (!raw)
     {
+        if (compression_method==Z_BZIP2ED)
+        {
 #ifdef HAVE_BZIP2
-        pfile_in_zip_read_info->bstream.bzalloc = (void *(*) (void *, int, int))0;
-        pfile_in_zip_read_info->bstream.bzfree = (free_func)0;
-        pfile_in_zip_read_info->bstream.opaque = (voidpf)0;
-        pfile_in_zip_read_info->bstream.state = (voidpf)0;
+            pfile_in_zip_read_info->bstream.bzalloc = (void *(*) (void *, int, int))0;
+            pfile_in_zip_read_info->bstream.bzfree = (free_func)0;
+            pfile_in_zip_read_info->bstream.opaque = (voidpf)0;
+            pfile_in_zip_read_info->bstream.state = (voidpf)0;
 
-        pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-        pfile_in_zip_read_info->stream.zfree = (free_func)0;
-        pfile_in_zip_read_info->stream.opaque = (voidpf)0;
-        pfile_in_zip_read_info->stream.next_in = (voidpf)0;
-        pfile_in_zip_read_info->stream.avail_in = 0;
+            pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
+            pfile_in_zip_read_info->stream.zfree = (free_func)0;
+            pfile_in_zip_read_info->stream.opaque = (voidpf)0;
+            pfile_in_zip_read_info->stream.next_in = (voidpf)0;
+            pfile_in_zip_read_info->stream.avail_in = 0;
 
-        err=BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
-        if (err == Z_OK)
-            pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
-        else
-        {
-            TRYFREE(pfile_in_zip_read_info);
-            return err;
-        }
+            err=BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
+            if (err == Z_OK)
+                pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
+            else
+            {
+                TRYFREE(pfile_in_zip_read_info);
+                return err;
+            }
 #else
-        pfile_in_zip_read_info->raw=1;
+            pfile_in_zip_read_info->raw=1;
 #endif
-    }
-    else if ((compression_method==Z_DEFLATED) && (!raw))
-    {
-        pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-        pfile_in_zip_read_info->stream.zfree = (free_func)0;
-        pfile_in_zip_read_info->stream.opaque = (voidpf)0;
-        pfile_in_zip_read_info->stream.next_in = 0;
-        pfile_in_zip_read_info->stream.avail_in = 0;
-
-        err=inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
-        if (err == Z_OK)
-            pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
-        else
-        {
-            TRYFREE(pfile_in_zip_read_info);
-            return err;
         }
-        /* windowBits is passed < 0 to tell that there is no zlib header.
-         * Note that in this case inflate *requires* an extra "dummy" byte
-         * after the compressed stream in order to complete decompression and
-         * return Z_STREAM_END.
-         * In unzip, i don't wait absolutely Z_STREAM_END because I known the
-         * size of both compressed and uncompressed data
-         */
+        else if (compression_method==Z_DEFLATED)
+        {
+            pfile_in_zip_read_info->stream.zalloc = (alloc_func)alloc_func_uzimpl;
+            pfile_in_zip_read_info->stream.zfree = (free_func)free_func_uzimpl;
+            pfile_in_zip_read_info->stream.opaque = (voidpf)s;
+            pfile_in_zip_read_info->stream.next_in = 0;
+            pfile_in_zip_read_info->stream.avail_in = 0;
+
+            err=inflateInit2(&pfile_in_zip_read_info->stream, -MAX_WBITS);
+            if (err == Z_OK)
+                pfile_in_zip_read_info->stream_initialised=Z_DEFLATED;
+            else
+            {
+                TRYFREE(pfile_in_zip_read_info);
+                return err;
+            }
+            /* windowBits is passed < 0 to tell that there is no zlib header.
+             * Note that in this case inflate *requires* an extra "dummy" byte
+             * after the compressed stream in order to complete decompression and
+             * return Z_STREAM_END.
+             * In unzip, i don't wait absolutely Z_STREAM_END because I known the
+             * size of both compressed and uncompressed data
+             */
+        }
     }
+
     pfile_in_zip_read_info->rest_read_compressed =
             s->cur_file_info.compressed_size ;
     pfile_in_zip_read_info->rest_read_uncompressed =
             s->cur_file_info.uncompressed_size ;
-
 
     pfile_in_zip_read_info->pos_in_zipfile =
             s->cur_file_info_internal.offset_curfile + SIZEZIPLOCALHEADER +
@@ -1957,22 +1959,20 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
                 (pfile_in_zip_read_info->rest_read_compressed == 0))
                 return (iRead==0) ? UNZ_EOF : iRead;
 
-            if (pfile_in_zip_read_info->stream.avail_out <
-                            pfile_in_zip_read_info->stream.avail_in)
-                uDoCopy = pfile_in_zip_read_info->stream.avail_out ;
+            if (pfile_in_zip_read_info->stream.avail_out < pfile_in_zip_read_info->stream.avail_in)
+                uDoCopy = pfile_in_zip_read_info->stream.avail_out;
             else
-                uDoCopy = pfile_in_zip_read_info->stream.avail_in ;
+                uDoCopy = pfile_in_zip_read_info->stream.avail_in;
 
             for (i=0;i<uDoCopy;i++)
                 *(pfile_in_zip_read_info->stream.next_out+i) =
                         *(pfile_in_zip_read_info->stream.next_in+i);
 
             pfile_in_zip_read_info->total_out_64 = pfile_in_zip_read_info->total_out_64 + uDoCopy;
-
-            pfile_in_zip_read_info->crc32 = crc32(pfile_in_zip_read_info->crc32,
-                                pfile_in_zip_read_info->stream.next_out,
-                                uDoCopy);
             pfile_in_zip_read_info->rest_read_uncompressed-=uDoCopy;
+            pfile_in_zip_read_info->crc32 = crc32(pfile_in_zip_read_info->crc32,
+                                pfile_in_zip_read_info->stream.next_out, uDoCopy);
+
             pfile_in_zip_read_info->stream.avail_in -= uDoCopy;
             pfile_in_zip_read_info->stream.avail_out -= uDoCopy;
             pfile_in_zip_read_info->stream.next_out += uDoCopy;
@@ -2005,9 +2005,9 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
             uOutThis = uTotalOutAfter-uTotalOutBefore;
 
             pfile_in_zip_read_info->total_out_64 = pfile_in_zip_read_info->total_out_64 + uOutThis;
-
-            pfile_in_zip_read_info->crc32 = crc32(pfile_in_zip_read_info->crc32,bufBefore, (uInt)(uOutThis));
             pfile_in_zip_read_info->rest_read_uncompressed -= uOutThis;
+            pfile_in_zip_read_info->crc32 = crc32(pfile_in_zip_read_info->crc32,bufBefore, (uInt)(uOutThis));
+
             iRead += (uInt)(uTotalOutAfter - uTotalOutBefore);
 
             pfile_in_zip_read_info->stream.next_in   = (Bytef*)pfile_in_zip_read_info->bstream.next_in;
@@ -2022,7 +2022,7 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
             if (err!=BZ_OK)
                 break;
 #endif
-        } // end Z_BZIP2ED
+        }
         else
         {
             ZPOS64_T uTotalOutBefore,uTotalOutAfter;
@@ -2047,14 +2047,11 @@ extern int ZEXPORT unzReadCurrentFile  (unzFile file, voidp buf, unsigned len)
             uTotalOutAfter = pfile_in_zip_read_info->stream.total_out;
             uOutThis = uTotalOutAfter-uTotalOutBefore;
 
-            pfile_in_zip_read_info->total_out_64 = pfile_in_zip_read_info->total_out_64 + uOutThis;
-
+            pfile_in_zip_read_info->total_out_64 += uOutThis;
+            pfile_in_zip_read_info->rest_read_uncompressed -= uOutThis;
             pfile_in_zip_read_info->crc32 =
                 crc32(pfile_in_zip_read_info->crc32,bufBefore,
                         (uInt)(uOutThis));
-
-            pfile_in_zip_read_info->rest_read_uncompressed -=
-                uOutThis;
 
             iRead += (uInt)(uTotalOutAfter - uTotalOutBefore);
 
@@ -2217,7 +2214,7 @@ extern int ZEXPORT unzCloseCurrentFile (unzFile file)
         if (memcmp(authcode, rauthcode, AES_AUTHCODESIZE) != 0)
             err = UNZ_CRCERROR;
     }
-	else
+    else
 #endif
     {
         if ((pfile_in_zip_read_info->rest_read_uncompressed == 0) &&
