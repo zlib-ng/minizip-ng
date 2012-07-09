@@ -88,7 +88,10 @@ voidpf fopen_buf_internal_func (opaque, stream, number_disk, mode)
    int mode;
 {
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
-    ourstream_t *streamio = (ourstream_t *)malloc(sizeof(ourstream_t));
+    ourstream_t *streamio = NULL;
+    if (stream == NULL)
+        return NULL;
+    streamio = (ourstream_t *)malloc(sizeof(ourstream_t));
     if (streamio == NULL)
         return NULL;
     memset(streamio, 0, sizeof(ourstream_t));
@@ -167,7 +170,7 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
                 streamio->readBufferLength = 0;
             }
 
-            bytesToRead = IOBUF_BUFFERSIZE - (streamio->readBufferLength - streamio->readBufferPos);
+            bytesToRead = IOBUF_BUFFERSIZE -(streamio->readBufferLength - streamio->readBufferPos);
 
             if (bufio->filefunc64.zread_file != NULL)
                 bytesRead = bufio->filefunc64.zread_file(bufio->filefunc64.opaque, streamio->stream, streamio->readBuffer + streamio->readBufferPos, bytesToRead);
