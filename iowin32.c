@@ -10,8 +10,15 @@
    For more info read MiniZip_info.txt
 */
 
+#if (defined(_WIN32))
+    #ifndef _CRT_SECURE_NO_WARNINGS
+        #define _CRT_SECURE_NO_WARNINGS
+    #endif
+    #include <tchar.h>
+    #define snprintf _snprintf
+#endif
+
 #include <stdlib.h>
-#include <tchar.h>
 
 #include "zlib.h"
 #include "ioapi.h"

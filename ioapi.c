@@ -9,18 +9,18 @@
    For more info read MiniZip_info.txt
 */
 
+#if (defined(_WIN32))
+    #ifndef _CRT_SECURE_NO_WARNINGS
+        #define _CRT_SECURE_NO_WARNINGS
+    #endif
+    #include <tchar.h>
+    #define snprintf _snprintf
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "ioapi.h"
-
-#if (defined(_WIN32))
-    #include <tchar.h>
-    #define snprintf _snprintf
-    #ifndef _CRT_SECURE_NO_WARNINGS
-        #define _CRT_SECURE_NO_WARNINGS
-    #endif
-#endif
 
 #if defined(__APPLE__) || defined(IOAPI_NO_64)
 // In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
