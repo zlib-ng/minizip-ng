@@ -41,5 +41,5 @@ typedef struct ourbuffer_s {
   zlib_filefunc64_def filefunc64;
 } ourbuffer_t;
 
-void fill_buffer_filefunc (zlib_filefunc_def* pzlib_filefunc_def, ourbuffer_t *ourbuf);
-void fill_buffer_filefunc64 (zlib_filefunc64_def* pzlib_filefunc_def, ourbuffer_t *ourbuf);
+void fill_buffer_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
+void fill_buffer_filefunc64 OF((zlib_filefunc64_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
