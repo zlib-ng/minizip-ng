@@ -1,14 +1,18 @@
 /* ioapi.h -- IO base function header for compress/uncompress .zip
    part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
 
-         Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
+   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
 
-         Modifications for Zip64 support
-         Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+   Modifications for Zip64 support
+   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 
-         For more info read MiniZip_info.txt
-
+   For more info read MiniZip_info.txt
 */
+
+#include <stdlib.h>
+#include <string.h>
+
+#include "ioapi.h"
 
 #if (defined(_WIN32))
     #include <tchar.h>
@@ -17,6 +21,7 @@
         #define _CRT_SECURE_NO_WARNINGS
     #endif
 #endif
+
 #if defined(__APPLE__) || defined(IOAPI_NO_64)
 // In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
 #define FOPEN_FUNC(filename, mode) fopen(filename, mode)
@@ -28,57 +33,51 @@
 #define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
 #endif
 
-#include <stdlib.h>
-#include <string.h>
-
-#include "ioapi.h"
+/* I've found an old Unix (a SunOS 4.1.3_U1) without all SEEK_* defined.... */
+#ifndef SEEK_CUR
+#define SEEK_CUR    1
+#endif
+#ifndef SEEK_END
+#define SEEK_END    2
+#endif
+#ifndef SEEK_SET
+#define SEEK_SET    0
+#endif
 
 voidpf call_zopen64 (const zlib_filefunc64_32_def* pfilefunc,const void*filename,int mode)
 {
     if (pfilefunc->zfile_func64.zopen64_file != NULL)
         return (*(pfilefunc->zfile_func64.zopen64_file)) (pfilefunc->zfile_func64.opaque,filename,mode);
-    else
-    {
-        return (*(pfilefunc->zopen32_file))(pfilefunc->zfile_func64.opaque,(const char*)filename,mode);
-    }
+    return (*(pfilefunc->zopen32_file))(pfilefunc->zfile_func64.opaque,(const char*)filename,mode);
 }
 
 voidpf call_zopendisk64 OF((const zlib_filefunc64_32_def* pfilefunc, voidpf filestream, int number_disk, int mode))
 {
     if (pfilefunc->zfile_func64.zopendisk64_file != NULL)
         return (*(pfilefunc->zfile_func64.zopendisk64_file)) (pfilefunc->zfile_func64.opaque,filestream,number_disk,mode);
-    else
-    {
-        return (*(pfilefunc->zopendisk32_file))(pfilefunc->zfile_func64.opaque,filestream,number_disk,mode);
-    }
+    return (*(pfilefunc->zopendisk32_file))(pfilefunc->zfile_func64.opaque,filestream,number_disk,mode);
 }
 
 long call_zseek64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream, ZPOS64_T offset, int origin)
 {
+    uLong offsetTruncated;
     if (pfilefunc->zfile_func64.zseek64_file != NULL)
         return (*(pfilefunc->zfile_func64.zseek64_file)) (pfilefunc->zfile_func64.opaque,filestream,offset,origin);
-    else
-    {
-        uLong offsetTruncated = (uLong)offset;
-        if (offsetTruncated != offset)
-            return -1;
-        else
-            return (*(pfilefunc->zseek32_file))(pfilefunc->zfile_func64.opaque,filestream,offsetTruncated,origin);
-    }
+    offsetTruncated = (uLong)offset;
+    if (offsetTruncated != offset)
+        return -1;
+    return (*(pfilefunc->zseek32_file))(pfilefunc->zfile_func64.opaque,filestream,offsetTruncated,origin);
 }
 
 ZPOS64_T call_ztell64 (const zlib_filefunc64_32_def* pfilefunc,voidpf filestream)
 {
+    uLong tell_uLong;
     if (pfilefunc->zfile_func64.zseek64_file != NULL)
         return (*(pfilefunc->zfile_func64.ztell64_file)) (pfilefunc->zfile_func64.opaque,filestream);
-    else
-    {
-        uLong tell_uLong = (*(pfilefunc->ztell32_file))(pfilefunc->zfile_func64.opaque,filestream);
-        if ((tell_uLong) == MAXU32)
-            return (ZPOS64_T)-1;
-        else
-            return tell_uLong;
-    }
+    tell_uLong = (*(pfilefunc->ztell32_file))(pfilefunc->zfile_func64.opaque,filestream);
+    if ((tell_uLong) == 0xffffffff)
+        return (ZPOS64_T)-1;
+    return tell_uLong;
 }
 
 void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filefunc64_32,const zlib_filefunc_def* p_filefunc32)
@@ -98,8 +97,6 @@ void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filef
     p_filefunc64_32->zseek32_file = p_filefunc32->zseek_file;
     p_filefunc64_32->ztell32_file = p_filefunc32->ztell_file;
 }
-
-
 
 static voidpf  ZCALLBACK fopen_file_func OF((voidpf opaque, const char* filename, int mode));
 static uLong   ZCALLBACK fread_file_func OF((voidpf opaque, voidpf stream, void* buf, uLong size));
@@ -254,7 +251,6 @@ static long ZCALLBACK ftell_file_func (voidpf opaque, voidpf stream)
     ret = ftell(ioposix->file);
     return ret;
 }
-
 
 static ZPOS64_T ZCALLBACK ftell64_file_func (voidpf opaque, voidpf stream)
 {
