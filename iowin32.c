@@ -1,14 +1,13 @@
 /* iowin32.c -- IO base function header for compress/uncompress .zip
-     Version 1.1, February 14h, 2010
-     part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+   Version 1.1, February 14h, 2010
+   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
 
-         Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
+   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
 
-         Modifications for Zip64 support
-         Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+   Modifications for Zip64 support
+   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 
-     For more info read MiniZip_info.txt
-
+   For more info read MiniZip_info.txt
 */
 
 #include <stdlib.h>
@@ -298,7 +297,6 @@ uLong ZCALLBACK win32_read_file_func (voidpf opaque, voidpf stream, void* buf,uL
     return ret;
 }
 
-
 uLong ZCALLBACK win32_write_file_func (voidpf opaque,voidpf stream,const void* buf,uLong size)
 {
     uLong ret=0;
@@ -498,7 +496,6 @@ void fill_win32_filefunc64(zlib_filefunc64_def* pzlib_filefunc_def)
     pzlib_filefunc_def->opaque = NULL;
 }
 
-
 void fill_win32_filefunc64A(zlib_filefunc64_def* pzlib_filefunc_def)
 {
     pzlib_filefunc_def->zopen64_file = win32_open64_file_funcA;
@@ -511,7 +508,6 @@ void fill_win32_filefunc64A(zlib_filefunc64_def* pzlib_filefunc_def)
     pzlib_filefunc_def->zerror_file = win32_error_file_func;
     pzlib_filefunc_def->opaque = NULL;
 }
-
 
 void fill_win32_filefunc64W(zlib_filefunc64_def* pzlib_filefunc_def)
 {
