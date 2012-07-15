@@ -1193,7 +1193,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
         ZPOS64_T compressed_size = 0;
         ZPOS64_T uncompressed_size = 0;
 
-        // Remember position of Zip64 extended info for the local file header. (needed when we update size after done with file)
+        /* Remember position of Zip64 extended info for the local file header. 
+           (needed when we update size after done with file) */
         zi->ci.pos_zip64extrainfo = ZTELL64(zi->z_filefunc,zi->filestream);
 
         err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (short)headerid,2);
