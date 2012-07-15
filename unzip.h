@@ -160,14 +160,14 @@ extern unzFile ZEXPORT unzOpen64 OF((const void *path));
    return NULL if zipfile cannot be opened or doesn't exist
    return unzFile handle if no error
 
-   NOTE: The "64" function take a const void* pointer, because  the path is just the value passed to the open64_file_func callback. 
-   Under Windows, if UNICODE is defined, using fill_fopen64_filefunc, the path is a pointer to a wide unicode string 
-   (LPCTSTR is LPCWSTR), so const char* does not describe the reality */
+   NOTE: The "64" function take a const void* pointer, because  the path is just the value passed to the
+   open64_file_func callback. Under Windows, if UNICODE is defined, using fill_fopen64_filefunc, the path 
+   is a pointer to a wide unicode string  (LPCTSTR is LPCWSTR), so const char* does not describe the reality */
 
 extern unzFile ZEXPORT unzOpen2 OF((const char *path, zlib_filefunc_def* pzlib_filefunc_def));
-/* Open a Zip file, like unzOpen, but provide a set of file low level API for read/write the zip file (see ioapi.h)*/
+/* Open a Zip file, like unzOpen, but provide a set of file low level API for read/write operations */
 extern unzFile ZEXPORT unzOpen2_64 OF((const void *path, zlib_filefunc64_def* pzlib_filefunc_def));
-/* Open a Zip file, like unz64Open, but provide a set of file low level API for read/write the zip64 file (see ioapi.h) */
+/* Open a Zip file, like unz64Open, but provide a set of file low level API for read/write 64-bit operations */
 
 extern int ZEXPORT unzClose OF((unzFile file));
 /* Close a ZipFile opened with unzipOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,
