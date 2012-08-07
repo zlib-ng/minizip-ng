@@ -1389,8 +1389,8 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             uInt total_bytes_read = 0;
 
             if (pfile_in_zip_read_info->stream.next_in != NULL)
-                bytes_not_read = UNZ_BUFSIZE - 
-                    (uInt)(pfile_in_zip_read_info->stream.next_in - pfile_in_zip_read_info->read_buffer);
+                bytes_not_read = pfile_in_zip_read_info->read_buffer + UNZ_BUFSIZE - 
+                    pfile_in_zip_read_info->stream.next_in;
             bytes_to_read -= bytes_not_read;
             if (bytes_not_read > 0)
                 memcpy(pfile_in_zip_read_info->read_buffer, pfile_in_zip_read_info->stream.next_in, bytes_not_read);
