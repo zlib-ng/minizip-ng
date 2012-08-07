@@ -151,7 +151,7 @@ typedef struct unz_file_info64_internal_s
 /* file_in_zip_read_info_s contain internal information about a file in zipfile */
 typedef struct
 {
-    char *read_buffer;                  /* internal buffer for compressed data */
+    Bytef *read_buffer;                 /* internal buffer for compressed data */
     z_stream stream;                    /* zLib stream structure for inflate */
 
 #ifdef HAVE_BZIP2
@@ -1152,7 +1152,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     if (pfile_in_zip_read_info==NULL)
         return UNZ_INTERNALERROR;
 
-    pfile_in_zip_read_info->read_buffer=(char*)ALLOC(UNZ_BUFSIZE);
+    pfile_in_zip_read_info->read_buffer=(Bytef*)ALLOC(UNZ_BUFSIZE);
     pfile_in_zip_read_info->offset_local_extrafield = offset_local_extrafield;
     pfile_in_zip_read_info->size_local_extrafield = size_local_extrafield;
     pfile_in_zip_read_info->pos_local_extrafield=0;
