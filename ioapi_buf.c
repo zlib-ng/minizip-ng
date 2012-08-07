@@ -28,6 +28,9 @@
 #include <conio.h>
 #define PRINTF  _cprintf
 #define VPRINTF _vcprintf
+#else
+#define PRINTF(x, ...)
+#define VPRINTF(x, ...)
 #endif
 
 //#define IOBUF_VERBOSE
@@ -87,7 +90,6 @@ voidpf fopen_buf_internal_func (opaque, stream, number_disk, mode)
    int number_disk;
    int mode;
 {
-    ourbuffer_t *bufio = (ourbuffer_t *)opaque;
     ourstream_t *streamio = NULL;
     if (stream == NULL)
         return NULL;
@@ -192,7 +194,6 @@ uLong ZCALLBACK fread_buf_func (opaque, stream, buf, size)
     uInt bytesToCopy = 0;
     uInt bytesLeftToRead = size;
     uInt bytesRead = -1;
-    int retVal = 0;
 
     print_buf(opaque, stream, "read [size %ld pos %lld]\n", size, streamio->position);
 
@@ -345,7 +346,6 @@ int fseek_buf_internal_func (opaque, stream, offset, origin)
    ZPOS64_T offset;
    int origin;
 {
-    ourbuffer_t *bufio = (ourbuffer_t *)opaque;
     ourstream_t *streamio = (ourstream_t *)stream;
 
     print_buf(opaque, stream, "seek [origin %d offset %llu pos %lld]\n", origin, offset, streamio->position);
