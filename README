@@ -6,7 +6,7 @@ Fork of minizip contrib in zlib that includes:
 
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 
-AES Encryption - Improved encryption
+AES Encryption - Stronger encryption
 
 + Requires all files in the aes folder
 + Requires #define HAVE_AES
