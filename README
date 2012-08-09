@@ -1,0 +1,26 @@
+Fork of minizip contrib in zlib that includes:
+
+- AES encryption
+- I/O buffering
+- PKWARE disk spanning
+
+It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
+
+AES Encryption
+
++ Requires all files in the aes folder
++ Requires #define HAVE_AES
+
+When using the zip library with password protection it will default to AES 256-bit encryption. 
+When using the unzip library it will automatically use AES when applicable. 
+
+I/O Buffering
+
+    ourbuffer_t buffered = {0};
+    zlib_filefunc64_def fileFunc64 = {0};
+    
+    fill_win32_filefunc64W(&buffered->filefunc64);
+    fill_buffer_filefunc64(&fileFunc64, buffered);
+    
+    unzOpen2_64(wFilename, &fileFunc64)
+    
