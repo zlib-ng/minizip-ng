@@ -29,8 +29,8 @@
 #define PRINTF  _cprintf
 #define VPRINTF _vcprintf
 #else
-#define PRINTF(x, ...)
-#define VPRINTF(x, ...)
+#define PRINTF  printf
+#define VPRINTF vprintf
 #endif
 
 //#define IOBUF_VERBOSE
@@ -78,7 +78,7 @@ void print_buf_internal(voidpf opaque, voidpf stream, char *format, ...)
 {
     ourstream_t *streamio = (ourstream_t *)stream;
     va_list arglist;
-    PRINTF("Buf stream %08x - ", streamio);
+    PRINTF("Buf stream %p - ", streamio);
     va_start(arglist, format);
     VPRINTF(format, arglist);
     va_end(arglist);
