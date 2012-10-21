@@ -7,7 +7,7 @@ Minizip zlib contribution that includes:
 
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 
-*AES Encryption - Stronger encryption*
+*AES Encryption*
 
 + Requires all files in the aes folder
 + Requires #define HAVE_AES
@@ -15,7 +15,7 @@ It also has the latest bug fixes that having been found all over the internet in
 When using the zip library with password protection it will use AES 256-bit encryption. 
 When using the unzip library it will automatically use AES when applicable. 
 
-*I/O Buffering - Reduces I/O bottlenecks*
+*I/O Buffering*
 
 ```
 ourbuffer_t buffered = {0};
