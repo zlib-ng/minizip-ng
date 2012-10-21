@@ -7,7 +7,7 @@ Minizip zlib contribution that includes:
 
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 
-AES Encryption - Stronger encryption
+*AES Encryption - Stronger encryption*
 
 + Requires all files in the aes folder
 + Requires #define HAVE_AES
@@ -15,7 +15,7 @@ AES Encryption - Stronger encryption
 When using the zip library with password protection it will use AES 256-bit encryption. 
 When using the unzip library it will automatically use AES when applicable. 
 
-I/O Buffering - Reduces I/O bottlenecks
+*I/O Buffering - Reduces I/O bottlenecks*
 
 ```
 ourbuffer_t buffered = {0};
@@ -27,7 +27,7 @@ fill_buffer_filefunc64(&fileFunc64, buffered);
 unzOpen2_64(wFilename, &fileFunc64)
 ```
 
-PKWARE disk spanning
+*PKWARE disk spanning*
 
 To create an archive with multiple disks use zipOpen3_64 supplying a disk_size value in bytes.
 
