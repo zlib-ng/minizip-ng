@@ -190,7 +190,7 @@ void display_zpos64(ZPOS64_T n, int size_char)
         if (number[offset] != '0')
             pos_string = offset;
         n /= 10;
-        if (offset==0)
+        if (offset == 0)
             break;
         offset--;
     }
