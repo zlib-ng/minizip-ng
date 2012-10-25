@@ -209,7 +209,7 @@
 			>
 		</Filter>
 		<Filter
-			Name="ZLIB"
+			Name="Zlib"
 			>
 			<File
 				RelativePath="..\..\adler32.c"
