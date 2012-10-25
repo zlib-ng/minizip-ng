@@ -72,10 +72,10 @@
 #define WRITEBUFFERSIZE (16384)
 #define MAXFILENAME     (256)
 
-#ifdef _WIN32
 uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
 {
     int ret = 0;
+#ifdef _WIN32
     FILETIME ftLocal;
     HANDLE hFind;
     WIN32_FIND_DATAA ff32;
@@ -88,14 +88,9 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
         FindClose(hFind);
         ret = 1;
     }
-    return ret;
-}
 #else
 #ifdef unix || __APPLE__
-uLong filetime(char *filename, tm_zip *tmzip, uLong *dostime)
-{
-    int ret = 0;
-    struct stat s;        /* results of stat() */
+    struct stat s = {0};
     struct tm* filedate;
     time_t tm_t = 0;
 
@@ -128,18 +123,12 @@ uLong filetime(char *filename, tm_zip *tmzip, uLong *dostime)
     tmzip->tm_mday = filedate->tm_mday;
     tmzip->tm_mon  = filedate->tm_mon ;
     tmzip->tm_year = filedate->tm_year;
-
+#endif
+#endif
     return ret;
 }
-#else
-uLong filetime(char *filename, tm_zip *tmzip, uLong *dostime)
-{
-    return 0;
-}
-#endif
-#endif
 
-int check_exist_file(const char* filename)
+int check_file_exists(const char* filename)
 {
     FILE* ftestexist = FOPEN_FUNC(filename,"rb");
     if (ftestexist == NULL)
@@ -148,7 +137,7 @@ int check_exist_file(const char* filename)
     return 1;
 }
 
-int isLargeFile(const char* filename)
+int is_large_file(const char* filename)
 {
     ZPOS64_T pos = 0;
     FILE* pFile = FOPEN_FUNC(filename, "rb");
@@ -166,16 +155,15 @@ int isLargeFile(const char* filename)
 }
 
 /* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
-int getFileCrc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
+int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
 {
-    unsigned long calculate_crc = 0;
-    int err = ZIP_OK;
     FILE *fin = NULL;
+    unsigned long calculate_crc = 0;
     unsigned long size_read = 0;
     unsigned long total_read = 0;
+    int err = ZIP_OK;
 
     fin = FOPEN_FUNC(filenameinzip,"rb");
-
     if (fin == NULL)
         err = ZIP_ERRNO;
     else
@@ -194,7 +182,6 @@ int getFileCrc(const char* filenameinzip, void *buf, unsigned long size_buf, uns
                 calculate_crc = crc32(calculate_crc,buf,size_read);
 
             total_read += size_read;
-
         }
         while ((err == ZIP_OK) && (size_read > 0));
     }
@@ -299,13 +286,13 @@ int main(int argc, char *argv[])
     if (opt_overwrite == 2)
     {
         /* If the file don't exist, we not append file */
-        if (check_exist_file(zipfilename) == 0)
+        if (check_file_exists(zipfilename) == 0)
             opt_overwrite = 1;
     }
     else if (opt_overwrite == 0)
     {
         /* If ask the user what to do because append and overwrite args not set */
-        if (check_exist_file(zipfilename) != 0)
+        if (check_file_exists(zipfilename) != 0)
         {
             char rep = 0;
             do
@@ -368,9 +355,9 @@ int main(int argc, char *argv[])
         filetime(filenameinzip, &zi.tmz_date, &zi.dosDate);
 
         if ((password != NULL) && (err == ZIP_OK))
-            err = getFileCrc(filenameinzip, buf, size_buf, &crcFile);
+            err = get_file_crc(filenameinzip, buf, size_buf, &crcFile);
 
-        zip64 = isLargeFile(filenameinzip);
+        zip64 = is_large_file(filenameinzip);
         
         /* Construct the filename that our file will be stored in the zip as. 
            The path name saved, should not include a leading slash. 
