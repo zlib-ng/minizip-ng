@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
     int err = 0;
     int len = 0;
     int i = 0;
-    int opt_overwrite = 0;
+    int opt_overwrite = APPEND_STATUS_CREATE;
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
 
@@ -260,9 +260,9 @@ int main(int argc, char *argv[])
             {
                 char c = *(p++);;
                 if ((c == 'o') || (c == 'O'))
-                    opt_overwrite = 1;
+                    opt_overwrite = APPEND_STATUS_CREATEAFTER;
                 if ((c == 'a') || (c == 'A'))
-                    opt_overwrite = 2;
+                    opt_overwrite = APPEND_STATUS_ADDINZIP;
                 if ((c >= '0') && (c <= '9'))
                     opt_compress_level = (c - '0');
                 if ((c == 'j') || (c == 'J'))
@@ -334,9 +334,9 @@ int main(int argc, char *argv[])
 
 #ifdef USEWIN32IOAPI
     fill_win32_filefunc64A(&ffunc);
-    zf = zipOpen2_64(zipfilename, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0, NULL, &ffunc);
+    zf = zipOpen2_64(zipfilename, opt_overwrite, NULL, &ffunc);
 #else
-    zf = zipOpen64(zipfilename, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0);
+    zf = zipOpen64(zipfilename, opt_overwrite);
 #endif
 
     if (zf == NULL)
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
         printf("creating %s\n", zipfilename);
 
     /* Go through command line args looking for files to add to zip */
-    for (i = zipfilenamearg+1; (i < argc) && (err == ZIP_OK); i++)
+    for (i = zipfilenamearg + 1; (i < argc) && (err == ZIP_OK); i++)
     {
         FILE *fin = NULL;
         int size_read = 0;
@@ -360,8 +360,8 @@ int main(int argc, char *argv[])
 
         /* Skip command line options */
         if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) && 
-               ((argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
-                (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9'))))
+            (argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
+            (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9')))
             continue;
 
         /* Get information about the file on disk so we can store it in zip */
