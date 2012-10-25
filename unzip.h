@@ -227,12 +227,12 @@ extern int ZEXPORT unzGetCurrentFileInfo64 OF((unzFile file, unz_file_info64 *pf
     uLong filename_size, void *extrafield, uLong extrafield_size, char *comment, uLong comment_size));
 /* Get Info about the current file
 
-   pfile_info if !=NULL, the *pfile_info structure will contain somes info about the current file
-   filename if !=NULL, the file name string will be copied in filename 
+   pfile_info if != NULL, the *pfile_info structure will contain somes info about the current file
+   filename if != NULL, the file name string will be copied in filename 
    filename_size is the size of the filename buffer
-   extrafield if !=NULL, the extra field information from the central header will be copied in to
+   extrafield if != NULL, the extra field information from the central header will be copied in to
    extrafield_size is the size of the extraField buffer 
-   comment if !=NULL, the comment string of the file will be copied in to
+   comment if != NULL, the comment string of the file will be copied in to
    comment_size is the size of the comment buffer */
 
 extern ZPOS64_T ZEXPORT unzGetCurrentFileZStreamPos64 OF((unzFile file));
