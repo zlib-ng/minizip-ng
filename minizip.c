@@ -94,7 +94,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
     struct tm* filedate;
     time_t tm_t = 0;
 
-    if (strcmp(filename,"-")!=0)
+    if (strcmp(filename,"-") != 0)
     {
         char name[MAXFILENAME+1];
         int len = strlen(filename);
@@ -410,7 +410,7 @@ int main(int argc, char *argv[])
             do
             {
                 size_read = (int)fread(buf, 1, size_buf, fin);
-                if ((size_read < size_buf) && (feof(fin)==0))
+                if ((size_read < size_buf) && (feof(fin) == 0))
                 {
                     printf("error in reading %s\n",filenameinzip);
                     err = ZIP_ERRNO;
