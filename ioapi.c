@@ -140,7 +140,7 @@ static voidpf ZCALLBACK fopen_file_func (voidpf opaque, const char* filename, in
     if (mode & ZLIB_FILEFUNC_MODE_CREATE)
         mode_fopen = "wb";
 
-    if ((filename!=NULL) && (mode_fopen != NULL))
+    if ((filename != NULL) && (mode_fopen != NULL))
     {
         file = fopen(filename, mode_fopen);
         return file_build_ioposix(file, filename);
@@ -161,7 +161,7 @@ static voidpf ZCALLBACK fopen64_file_func (voidpf opaque, const void* filename, 
     if (mode & ZLIB_FILEFUNC_MODE_CREATE)
         mode_fopen = "wb";
 
-    if ((filename!=NULL) && (mode_fopen != NULL))
+    if ((filename != NULL) && (mode_fopen != NULL))
     {
         file = FOPEN_FUNC((const char*)filename, mode_fopen);
         return file_build_ioposix(file, (const char*)filename);
@@ -266,7 +266,7 @@ static ZPOS64_T ZCALLBACK ftell64_file_func (voidpf opaque, voidpf stream)
 static long ZCALLBACK fseek_file_func (voidpf  opaque, voidpf stream, uLong offset, int origin)
 {
     FILE_IOPOSIX *ioposix = NULL;
-    int fseek_origin=0;
+    int fseek_origin = 0;
     long ret;
 
     if (stream == NULL)
@@ -275,13 +275,13 @@ static long ZCALLBACK fseek_file_func (voidpf  opaque, voidpf stream, uLong offs
 
     switch (origin)
     {
-    case ZLIB_FILEFUNC_SEEK_CUR :
+    case ZLIB_FILEFUNC_SEEK_CUR:
         fseek_origin = SEEK_CUR;
         break;
-    case ZLIB_FILEFUNC_SEEK_END :
+    case ZLIB_FILEFUNC_SEEK_END:
         fseek_origin = SEEK_END;
         break;
-    case ZLIB_FILEFUNC_SEEK_SET :
+    case ZLIB_FILEFUNC_SEEK_SET:
         fseek_origin = SEEK_SET;
         break;
     default: return -1;
@@ -295,7 +295,7 @@ static long ZCALLBACK fseek_file_func (voidpf  opaque, voidpf stream, uLong offs
 static long ZCALLBACK fseek64_file_func (voidpf  opaque, voidpf stream, ZPOS64_T offset, int origin)
 {
     FILE_IOPOSIX *ioposix = NULL;
-    int fseek_origin=0;
+    int fseek_origin = 0;
     long ret;
 
     if (stream == NULL)
@@ -304,13 +304,13 @@ static long ZCALLBACK fseek64_file_func (voidpf  opaque, voidpf stream, ZPOS64_T
 
     switch (origin)
     {
-    case ZLIB_FILEFUNC_SEEK_CUR :
+    case ZLIB_FILEFUNC_SEEK_CUR:
         fseek_origin = SEEK_CUR;
         break;
-    case ZLIB_FILEFUNC_SEEK_END :
+    case ZLIB_FILEFUNC_SEEK_END:
         fseek_origin = SEEK_END;
         break;
-    case ZLIB_FILEFUNC_SEEK_SET :
+    case ZLIB_FILEFUNC_SEEK_SET:
         fseek_origin = SEEK_SET;
         break;
     default: return -1;
