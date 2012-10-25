@@ -1080,9 +1080,9 @@ local int unz64local_CheckCurrentFileCoherencyHeader(unz64_s* s, uInt* piSizeVar
 
     if ((err == UNZ_OK) && (compression_method != 0) &&
 #ifdef HAVE_BZIP2
-        (compression_method!=Z_BZIP2ED) &&
+        (compression_method != Z_BZIP2ED) &&
 #endif
-        (compression_method!=Z_DEFLATED))
+        (compression_method != Z_DEFLATED))
         err = UNZ_BADZIPFILE;
 
     if (unz64local_getLong(&s->z_filefunc, s->filestream, &uL) != UNZ_OK) /* date/time */
