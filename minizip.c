@@ -178,11 +178,10 @@ int getFileCrc(const char* filenameinzip, void *buf, unsigned long size_buf, uns
 
     if (fin == NULL)
         err = ZIP_ERRNO;
-    if (err == ZIP_OK)
+    else
     {
         do
         {
-            err = ZIP_OK;
             size_read = (int)fread(buf,1,size_buf,fin);
 
             if ((size_read < size_buf) && (feof(fin) == 0))
@@ -203,8 +202,8 @@ int getFileCrc(const char* filenameinzip, void *buf, unsigned long size_buf, uns
     if (fin)
         fclose(fin);
 
-    *result_crc = calculate_crc;
     printf("file %s crc %lx\n", filenameinzip, calculate_crc);
+    *result_crc = calculate_crc;
     return err;
 }
 
@@ -225,19 +224,16 @@ void do_help()
            "  -j  exclude path. store only the file name.\n\n");
 }
 
-int main(argc,argv)
-    int argc;
-    char *argv[];
+int main(int argc, char *argv[])
 {
-    char filename_try[MAXFILENAME+16];
     zipFile zf = NULL;
     zlib_filefunc64_def ffunc = {0};
-    const char* password=NULL;
+    char *zipfilename = NULL;
+    const char* password = NULL;
     void* buf = NULL;
     int size_buf = WRITEBUFFERSIZE;
     int zipfilenamearg = 0;
     int errclose = 0;
-    int zipok = 1;
     int err = 0;
     int len = 0;
     int i = 0;
@@ -253,6 +249,7 @@ int main(argc,argv)
         return 0;
     }
 
+    /* Parse command line options */
     for (i = 1; i < argc; i++)
     {
         if ((*argv[i]) == '-')
@@ -290,6 +287,7 @@ int main(argc,argv)
         do_help();
         return 0;
     }
+    zipfilename = argv[zipfilenamearg];
 
     buf = (void*)malloc(size_buf);
     if (buf == NULL)
@@ -298,75 +296,56 @@ int main(argc,argv)
         return ZIP_INTERNALERROR;
     }
 
-    /* strncpy doesnt append the trailing NULL, of the string is too long. */
-    strncpy(filename_try, argv[zipfilenamearg], MAXFILENAME - 1);
-    filename_try[MAXFILENAME] = 0;
-
-    len = (int)strlen(filename_try);
-    for (i = 0; i < len; i++)
-        if (filename_try[i] == '.')
-            break;
-
-    if (i >= len)
-        strcat(filename_try, ".zip");
-
     if (opt_overwrite == 2)
     {
         /* If the file don't exist, we not append file */
-        if (check_exist_file(filename_try) == 0)
+        if (check_exist_file(zipfilename) == 0)
             opt_overwrite = 1;
     }
     else if (opt_overwrite == 0)
     {
         /* If ask the user what to do because append and overwrite args not set */
-        if (check_exist_file(filename_try) != 0)
+        if (check_exist_file(zipfilename) != 0)
         {
             char rep = 0;
             do
             {
                 char answer[128];
-                int ret = 0;
-
-                printf("The file %s exists. Overwrite ? [y]es, [n]o, [a]ppend : ",filename_try);
-                ret = scanf("%1s", answer);
-                if (ret != 1)
-                   exit(EXIT_FAILURE);
-
+                printf("The file %s exists. Overwrite ? [y]es, [n]o, [a]ppend : ", zipfilename);
+                if (scanf("%1s", answer) != 1)
+                    exit(EXIT_FAILURE);
                 rep = answer[0];
 
-                if ((rep>='a') && (rep<='z'))
+                if ((rep >= 'a') && (rep <= 'z'))
                     rep -= 0x20;
             }
-            while ((rep!='Y') && (rep!='N') && (rep!='A'));
+            while ((rep != 'Y') && (rep != 'N') && (rep != 'A'));
 
-            if (rep == 'N')
-                zipok = 0;
             if (rep == 'A')
                 opt_overwrite = 2;
+            else if (rep == 'N')
+            {
+                do_help();
+                free(buf);
+                return 0;
+            }
         }
-    }
-
-    if (zipok == 0)
-    {
-        do_help();
-        free(buf);
-        return 0;
     }
 
 #ifdef USEWIN32IOAPI
     fill_win32_filefunc64A(&ffunc);
-    zf = zipOpen2_64(filename_try, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0, NULL, &ffunc);
+    zf = zipOpen2_64(zipfilename, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0, NULL, &ffunc);
 #else
-    zf = zipOpen64(filename_try, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0);
+    zf = zipOpen64(zipfilename, (opt_overwrite == 2) ? APPEND_STATUS_ADDINZIP : 0);
 #endif
 
     if (zf == NULL)
     {
-        printf("error opening %s\n",filename_try);
+        printf("error opening %s\n", zipfilename);
         err = ZIP_ERRNO;
     }
     else
-        printf("creating %s\n",filename_try);
+        printf("creating %s\n", zipfilename);
 
     /* Go through command line args looking for files to add to zip */
     for (i = zipfilenamearg+1;(i < argc) && (err == ZIP_OK); i++)
@@ -392,7 +371,7 @@ int main(argc,argv)
         filetime(filenameinzip, &zi.tmz_date, &zi.dosDate);
 
         if ((password != NULL) && (err == ZIP_OK))
-            err = getFileCrc(filenameinzip,buf,size_buf,&crcFile);
+            err = getFileCrc(filenameinzip, buf, size_buf, &crcFile);
 
         zip64 = isLargeFile(filenameinzip);
         
@@ -480,7 +459,7 @@ int main(argc,argv)
 
     errclose = zipClose(zf, NULL);
     if (errclose != ZIP_OK)
-        printf("error in closing %s\n", filename_try);
+        printf("error in closing %s\n", zipfilename);
 
     free(buf);
     return 0;
