@@ -77,10 +77,6 @@
 #include "iowin32.h"
 #endif
 
-/* change_file_date: change the date/time of a file
-   filename: the filename of the file where date/time must be modified
-   dosdate: the new date at the MSDos format (4 bytes)
-   tmu_date: the SAME new date at the tm_unz format */
 void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
 {
 #ifdef _WIN32
@@ -254,7 +250,7 @@ int do_list(unzFile uf)
         if (file_info.uncompressed_size > 0)
             ratio = (uLong)((file_info.compressed_size*100) / file_info.uncompressed_size);
 
-        /* display a '*' if the file is encrypted */
+        /* Display a '*' if the file is encrypted */
         if ((file_info.flag & 1) != 0)
             charCrypt = '*';
 

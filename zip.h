@@ -116,9 +116,9 @@ extern zipFile ZEXPORT zipOpen64 OF((const void *pathname, int append));
    return NULL if zipfile cannot be opened
    return zipFile handle if no error
 
-   If the file pathname exist and append==APPEND_STATUS_CREATEAFTER, the zip
+   If the file pathname exist and append == APPEND_STATUS_CREATEAFTER, the zip
    will be created at the end of the file. (useful if the file contain a self extractor code)
-   If the file pathname exist and append==APPEND_STATUS_ADDINZIP, we will add files in existing 
+   If the file pathname exist and append == APPEND_STATUS_ADDINZIP, we will add files in existing 
    zip (be sure you don't add file that doesn't exist)
 
    NOTE: There is no delete function into a zipfile. If you want delete file into a zipfile, 
