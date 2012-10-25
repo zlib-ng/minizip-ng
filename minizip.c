@@ -348,23 +348,20 @@ int main(int argc, char *argv[])
         printf("creating %s\n", zipfilename);
 
     /* Go through command line args looking for files to add to zip */
-    for (i = zipfilenamearg+1;(i < argc) && (err == ZIP_OK); i++)
+    for (i = zipfilenamearg+1; (i < argc) && (err == ZIP_OK); i++)
     {
-        FILE * fin;
-        int size_read;
+        FILE *fin = NULL;
+        int size_read = 0;
         const char* filenameinzip = argv[i];
         const char *savefilenameinzip;
         zip_fileinfo zi = {0};
         unsigned long crcFile = 0;
         int zip64 = 0;
 
-        /* Skip options */
-        if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) &&
-              ((argv[i][1] == 'o') || (argv[i][1] == 'O') ||
-               (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
-               (argv[i][1] == 'p') || (argv[i][1] == 'P') ||
-               ((argv[i][1] >= '0') || (argv[i][1] <= '9'))) &&
-              (strlen(argv[i]) == 2))
+        /* Skip command line options */
+        if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) && 
+               ((argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
+                (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9'))))
             continue;
 
         /* Get information about the file on disk so we can store it in zip */
@@ -409,7 +406,7 @@ int main(int argc, char *argv[])
                     password, crcFile, zip64);
 
         if (err != ZIP_OK)
-            printf("error in opening %s in zipfile\n", filenameinzip);
+            printf("error in opening %s in zipfile (%d)\n", filenameinzip, err);
         else
         {
             fin = FOPEN_FUNC(filenameinzip, "rb");
@@ -425,9 +422,7 @@ int main(int argc, char *argv[])
             /* Read contents of file and write it to zip */
             do
             {
-                err = ZIP_OK;
                 size_read = (int)fread(buf, 1, size_buf, fin);
-
                 if ((size_read < size_buf) && (feof(fin)==0))
                 {
                     printf("error in reading %s\n",filenameinzip);
@@ -438,7 +433,7 @@ int main(int argc, char *argv[])
                 {
                     err = zipWriteInFileInZip(zf, buf, size_read);
                     if (err < 0)
-                        printf("error in writing %s in the zipfile\n", filenameinzip);
+                        printf("error in writing %s in the zipfile (%d)\n", filenameinzip, err);
                 }
             }
             while ((err == ZIP_OK) && (size_read > 0));
@@ -453,14 +448,14 @@ int main(int argc, char *argv[])
         {
             err = zipCloseFileInZip(zf);
             if (err != ZIP_OK)
-                printf("error in closing %s in the zipfile\n", filenameinzip);
+                printf("error in closing %s in the zipfile (%d)\n", filenameinzip, err);
         }
     }
 
     errclose = zipClose(zf, NULL);
     if (errclose != ZIP_OK)
-        printf("error in closing %s\n", zipfilename);
+        printf("error in closing %s (%d)\n", zipfilename, errclose);
 
     free(buf);
-    return 0;
+    return err;
 }
