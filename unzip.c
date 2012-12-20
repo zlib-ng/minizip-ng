@@ -1315,6 +1315,8 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
             for (i = 0; i<12; i++)
                 zdecode(s->keys, s->pcrc_32_tab, source[i]);
 
+            pfile_in_zip_read_info->rest_read_compressed -= 12;
+
             s->pfile_in_zip_read->pos_in_zipfile += 12;
         }
     }
