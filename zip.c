@@ -47,6 +47,10 @@
 #   include <errno.h>
 #endif
 
+#ifndef _WIN32
+#undef HAVE_AES
+#endif
+
 #ifdef HAVE_AES
 #define AES_METHOD          (99)
 #define AES_PWVERIFYSIZE    (2)
