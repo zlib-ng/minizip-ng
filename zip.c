@@ -47,6 +47,10 @@
 #   include <errno.h>
 #endif
 
+#ifndef _WIN32
+#undef HAVE_AES
+#endif
+
 #ifdef HAVE_AES
 #define AES_METHOD          (99)
 #define AES_PWVERIFYSIZE    (2)
@@ -55,9 +59,9 @@
 #define AES_VERSION         (0x0001)
 #define AES_ENCRYPTIONMODE  (0x03)
 
-#include "aes\\aes.h"
-#include "aes\\fileenc.h"
-#include "aes\\prng.h"
+#include "aes/aes.h"
+#include "aes/fileenc.h"
+#include "aes/prng.h"
 #endif
 
 #ifndef NOCRYPT
