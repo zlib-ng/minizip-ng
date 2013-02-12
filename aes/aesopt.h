@@ -165,7 +165,8 @@ Issue Date: 20/12/2007
 
 #if defined( __GNUC__ ) && defined( __i386__ ) \
  || defined( _WIN32   ) && defined( _M_IX86  ) \
- && !(defined( _WIN64 ) || defined( _WIN32_WCE ) || defined( _MSC_VER ) && ( _MSC_VER <= 800 ))
+ && !(defined( _WIN64 ) || defined( _WIN32_WCE ) || defined( _MSC_VER ) && ( _MSC_VER <= 800 )) \
+ && !defined(__APPLE__)
 #  define VIA_ACE_POSSIBLE
 #endif
 

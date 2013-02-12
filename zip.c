@@ -55,9 +55,10 @@
 #define AES_VERSION         (0x0001)
 #define AES_ENCRYPTIONMODE  (0x03)
 
-#include "aes\\aes.h"
-#include "aes\\fileenc.h"
-#include "aes\\prng.h"
+#include "aes/aes.h"
+#include "aes/fileenc.h"
+#include "aes/prng.h"
+#include "aes/entropy.h"
 #endif
 
 #ifndef NOCRYPT
@@ -195,21 +196,6 @@ typedef struct
     char *globalcomment;
 #endif
 } zip64_internal;
-
-#ifdef HAVE_AES
-#ifdef _WIN32
-#include <windows.h>
-int entropy_fun(unsigned char buf[], unsigned int len)
-{   unsigned __int64 pentium_tsc[1];
-    unsigned int i;
-
-    QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
-    for(i = 0; i < 8 && i < len; ++i)
-        buf[i] = ((unsigned char*)pentium_tsc)[i];
-    return i;
-}
-#endif
-#endif
 
 /* Allocate a new data block */
 local linkedlist_datablock_internal* allocate_new_datablock OF(());
