@@ -37,10 +37,11 @@ int ZCALLBACK fclose_mem_func OF((voidpf opaque,voidpf stream));
 int ZCALLBACK ferror_mem_func OF((voidpf opaque,voidpf stream));
 
 typedef struct ourmemory_s {
-  char *base;       /* Base of the region of memory we're using */
-  uLong size;       /* Size of the region of memory we're using */
-  uLong limit;      /* Furthest we've written */
-  uLong cur_offset; /* Current offset in the area */
+    char *base;       /* Base of the region of memory we're using */
+    uLong size;       /* Size of the region of memory we're using */
+    uLong limit;      /* Furthest we've written */
+    uLong cur_offset; /* Current offset in the area */
+    int grow;         /* Growable memory buffer */
 } ourmemory_t;
 
 void fill_memory_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourmemory_t *ourmem));
