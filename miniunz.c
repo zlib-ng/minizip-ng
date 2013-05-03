@@ -284,7 +284,7 @@ int do_list(unzFile uf)
 
         err = unzGoToNextFile(uf);
     }
-    while (err != UNZ_OK);
+    while (err == UNZ_OK);
 
     if (err != UNZ_END_OF_LIST_OF_FILE)
         printf("error %d with zipfile in unzGoToNextFile\n", err);
@@ -445,7 +445,7 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
             break;
         err = unzGoToNextFile(uf);
     }
-    while (err != UNZ_OK);
+    while (err == UNZ_OK);
 
     if (err != UNZ_END_OF_LIST_OF_FILE)
     {
