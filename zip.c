@@ -1510,7 +1510,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file,const void* buf,unsigned int
         zi->ci.stream.next_in = (Bytef*)buf;
         zi->ci.stream.avail_in = len;
 
-        while ((err == ZIP_OK) && (zi->ci.stream.avail_in>0))
+        while ((err == ZIP_OK) && (zi->ci.stream.avail_in > 0))
         {
             if (zi->ci.stream.avail_out == 0)
             {
@@ -1523,14 +1523,11 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file,const void* buf,unsigned int
             if (err != ZIP_OK)
                 break;
 
-            if (!zi->ci.raw)
+            if ((zi->ci.compression_method == Z_DEFLATED) && (!zi->ci.raw))
             {
-                if (zi->ci.compression_method == Z_DEFLATED)
-                {
-                    uLong total_out_before = zi->ci.stream.total_out;
-                    err = deflate(&zi->ci.stream, Z_NO_FLUSH);
-                    zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - total_out_before);
-                }
+                uLong total_out_before = zi->ci.stream.total_out;
+                err = deflate(&zi->ci.stream, Z_NO_FLUSH);
+                zi->ci.pos_in_buffered_data += (uInt)(zi->ci.stream.total_out - total_out_before);
             }
             else
             {
