@@ -796,7 +796,7 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
     if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD, &file_info.external_fa) != UNZ_OK)
         err = UNZ_ERRNO;
     /* Relative offset of local header */
-    if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD,&uL) != UNZ_OK)
+    if (unz64local_getLong(&s->z_filefunc, s->filestream_with_CD, &uL) != UNZ_OK)
         err = UNZ_ERRNO;
 
     file_info.size_file_extra_internal = 0;
@@ -1395,10 +1395,8 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             bytes_to_read -= bytes_not_read;
             if (bytes_not_read > 0)
                 memcpy(pfile_in_zip_read_info->read_buffer, pfile_in_zip_read_info->stream.next_in, bytes_not_read);
-            if (pfile_in_zip_read_info->rest_read_compressed<bytes_to_read)
+            if (pfile_in_zip_read_info->rest_read_compressed < bytes_to_read)
                 bytes_to_read = (uInt)pfile_in_zip_read_info->rest_read_compressed;
-            if (bytes_to_read == 0)
-                return UNZ_EOF;
 
             while (total_bytes_read != bytes_to_read)
             {
