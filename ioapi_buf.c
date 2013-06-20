@@ -283,13 +283,16 @@ uLong ZCALLBACK fwrite_buf_func (opaque, stream, buf, size)
 
     while (bytesLeftToWrite > 0)
     {
-        if (streamio->writeBufferLength == IOBUF_BUFFERSIZE)
+        bytesToCopy = min(bytesLeftToWrite, (IOBUF_BUFFERSIZE - min(streamio->writeBufferLength, streamio->writeBufferPos)));
+
+        if (bytesToCopy == 0)
         {
-            if (fflush_buf(opaque, stream) < 0)
+            if (fflush_buf(opaque, stream) <= 0)
                 return 0;
+
+            continue;
         }
         
-        bytesToCopy = min(bytesLeftToWrite, (IOBUF_BUFFERSIZE - min(streamio->writeBufferLength, streamio->writeBufferPos)));
         memcpy(streamio->writeBuffer + streamio->writeBufferPos, (char *)buf + (bytesToWrite - bytesLeftToWrite), bytesToCopy);
 
         print_buf(opaque, stream, "write copy [remaining %d write %d:%d len %d]\n", bytesToCopy, bytesToWrite, bytesLeftToWrite, streamio->writeBufferLength);
