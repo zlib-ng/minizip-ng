@@ -1,4 +1,4 @@
-/* crypt.h -- base code for crypt/uncrypt ZIPfile
+/* crypt.h -- base code for traditional PKWARE encryption
 
 
    Version 1.01e, February 12th, 2005
@@ -19,12 +19,6 @@
 
    If you don't need crypting in your application, just define symbols
    NOCRYPT and NOUNCRYPT.
-
-   This code support the "Traditional PKWARE Encryption".
-
-   The new AES encryption added on Zip format by Winzip (see the page
-   http://www.winzip.com/aes_info.htm ) and PKWare PKZip 5.x Strong
-   Encryption is not supported.
 */
 
 #define CRC32(c, b) ((*(pcrc_32_tab+(((int)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
@@ -67,7 +61,7 @@ static void init_keys(const char* passwd,unsigned long* pkeys,const unsigned lon
     *(pkeys+0) = 305419896L;
     *(pkeys+1) = 591751049L;
     *(pkeys+2) = 878082192L;
-    while (*passwd != '\0') {
+    while (*passwd != 0) {
         update_keys(pkeys,pcrc_32_tab,(int)*passwd);
         passwd++;
     }
@@ -94,11 +88,11 @@ static int crypthead(const char* passwd,      /* password string */
                      const unsigned long* pcrc_32_tab,
                      unsigned long crcForCrypting)
 {
-    int n;                       /* index in random header */
-    int t;                       /* temporary */
-    int c;                       /* random byte */
-    unsigned char header[RAND_HEAD_LEN-2]; /* random header */
-    static unsigned calls = 0;   /* ensure different random header each time */
+    int n;                                  /* index in random header */
+    int t;                                  /* temporary */
+    int c;                                  /* random byte */
+    unsigned char header[RAND_HEAD_LEN-2];  /* random header */
+    static unsigned calls = 0;              /* ensure different random header each time */
 
     if (bufSize<RAND_HEAD_LEN)
       return 0;
