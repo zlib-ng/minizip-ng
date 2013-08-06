@@ -163,10 +163,9 @@ Issue Date: 20/12/2007
 
 /*  2. VIA ACE SUPPORT */
 
-#if defined( __GNUC__ ) && defined( __i386__ ) \
+#if !defined(__APPLE__) && defined( __GNUC__ ) && defined( __i386__ ) \
  || defined( _WIN32   ) && defined( _M_IX86  ) \
- && !(defined( _WIN64 ) || defined( _WIN32_WCE ) || defined( _MSC_VER ) && ( _MSC_VER <= 800 )) \
- && !defined(__APPLE__)
+ && !(defined( _WIN64 ) || defined( _WIN32_WCE ) || defined( _MSC_VER ) && ( _MSC_VER <= 800 ))
 #  define VIA_ACE_POSSIBLE
 #endif
 
