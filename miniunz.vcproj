@@ -362,6 +362,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\aes\prng.c"
+				>
+			</File>
+			<File
+				RelativePath=".\aes\prng.h"
+				>
+			</File>
+			<File
 				RelativePath=".\aes\pwd2key.c"
 				>
 			</File>
