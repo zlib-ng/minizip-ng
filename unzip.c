@@ -223,6 +223,16 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
     ptm->tm_hour = (uInt)((ulDosDate &0xF800)/0x800);
     ptm->tm_min  = (uInt)((ulDosDate&0x7E0)/0x20);
     ptm->tm_sec  = (uInt)(2*(ulDosDate&0x1f));
+
+#define unz64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
+    if (!unz64local_in_range(0, 11, ptm->tm_mon) ||
+        !unz64local_in_range(1, 31, ptm->tm_mday) ||
+        !unz64local_in_range(0, 23, ptm->tm_hour) ||
+        !unz64local_in_range(0, 59, ptm->tm_min) ||
+        !unz64local_in_range(0, 59, ptm->tm_sec))
+      // Invalid date stored, so don't return it.
+      memset(ptm, 0, sizeof(tm_unz));
+#undef unz64local_in_range
 }
 
 /* Read a byte from a gz_stream; Return EOF for end of file. */
