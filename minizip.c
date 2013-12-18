@@ -88,7 +88,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
         ret = 1;
     }
 #else
-#ifdef unix || __APPLE__
+#if defined unix || defined __APPLE__
     struct stat s = {0};
     struct tm* filedate;
     time_t tm_t = 0;

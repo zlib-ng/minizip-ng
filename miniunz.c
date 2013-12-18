@@ -55,6 +55,7 @@
 # include <direct.h>
 # include <io.h>
 #else
+# include <sys/stat.h>
 # include <unistd.h>
 # include <utime.h>
 #endif
@@ -93,7 +94,7 @@ void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
         CloseHandle(hFile);
     }
 #else
-#ifdef unix || __APPLE__
+#if defined unix || defined __APPLE__
     struct utimbuf ut;
     struct tm newdate;
 
