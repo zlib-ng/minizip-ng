@@ -141,7 +141,7 @@ int makedir(const char *newdir)
 
     strcpy(buffer, newdir);
 
-    if (buffer[len-1] == '/') 
+    if (buffer[len-1] == '/')
         buffer[len-1] = 0;
 
     if (MKDIR(buffer) == 0)
@@ -455,7 +455,7 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
     return 0;
 }
 
-int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite, 
+int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite,
     const char* password)
 {
     int err = UNZ_OK;
