@@ -287,10 +287,12 @@ int do_list(unzFile uf)
     }
     while (err == UNZ_OK);
 
-    if (err != UNZ_END_OF_LIST_OF_FILE)
+    if (err != UNZ_END_OF_LIST_OF_FILE && err != UNZ_OK) {
         printf("error %d with zipfile in unzGoToNextFile\n", err);
+        return err;
+    }
 
-    return err;
+    return 0;
 }
 
 int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_overwrite, const char *password)
