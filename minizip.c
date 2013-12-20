@@ -12,7 +12,6 @@
    Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 */
 
-
 #if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
     #ifndef __USE_FILE_OFFSET64
         #define __USE_FILE_OFFSET64
@@ -89,7 +88,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
         ret = 1;
     }
 #else
-#ifdef unix || __APPLE__
+#if defined unix || defined __APPLE__
     struct stat s = {0};
     struct tm* filedate;
     time_t tm_t = 0;
@@ -228,7 +227,6 @@ int main(int argc, char *argv[])
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
 
-
     do_banner();
     if (argc == 1)
     {
@@ -346,7 +344,7 @@ int main(int argc, char *argv[])
         int zip64 = 0;
 
         /* Skip command line options */
-        if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) && 
+        if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) &&
             (argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
             (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9')))
             continue;
@@ -358,9 +356,9 @@ int main(int argc, char *argv[])
             err = get_file_crc(filenameinzip, buf, size_buf, &crcFile);
 
         zip64 = is_large_file(filenameinzip);
-        
-        /* Construct the filename that our file will be stored in the zip as. 
-           The path name saved, should not include a leading slash. 
+
+        /* Construct the filename that our file will be stored in the zip as.
+           The path name saved, should not include a leading slash.
            If it did, windows/xp and dynazip couldn't read the zip file. */
 
         savefilenameinzip = filenameinzip;
