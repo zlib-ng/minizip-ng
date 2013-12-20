@@ -460,7 +460,7 @@ int ZCALLBACK win32_close_file_func (voidpf opaque, voidpf stream)
     return ret;
 }
 
-int ZCALLBACK win32_error_file_func (voidpf opaque,voidpf stream)
+int ZCALLBACK win32_error_file_func (voidpf opaque, voidpf stream)
 {
     int ret = -1;
     if (stream == NULL)
