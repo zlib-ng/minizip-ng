@@ -364,25 +364,26 @@ ZPOS64_T ZCALLBACK win32_tell64_file_func (voidpf opaque, voidpf stream)
 
 long ZCALLBACK win32_seek_file_func (voidpf opaque,voidpf stream,uLong offset,int origin)
 {
-    DWORD dwMoveMethod=0xFFFFFFFF;
+    DWORD dwMoveMethod = 0xFFFFFFFF;
     HANDLE hFile = NULL;
-
     long ret = -1;
+
     if (stream != NULL)
         hFile = ((WIN32FILE_IOWIN*)stream)->hf;
+
     switch (origin)
     {
-    case ZLIB_FILEFUNC_SEEK_CUR:
-        dwMoveMethod = FILE_CURRENT;
-        break;
-    case ZLIB_FILEFUNC_SEEK_END:
-        dwMoveMethod = FILE_END;
-        break;
-    case ZLIB_FILEFUNC_SEEK_SET:
-        dwMoveMethod = FILE_BEGIN;
-        break;
-    default:
-        return -1;
+        case ZLIB_FILEFUNC_SEEK_CUR:
+            dwMoveMethod = FILE_CURRENT;
+            break;
+        case ZLIB_FILEFUNC_SEEK_END:
+            dwMoveMethod = FILE_END;
+            break;
+        case ZLIB_FILEFUNC_SEEK_SET:
+            dwMoveMethod = FILE_BEGIN;
+            break;
+        default:
+            return -1;
     }
 
     if (hFile != NULL)
@@ -395,14 +396,14 @@ long ZCALLBACK win32_seek_file_func (voidpf opaque,voidpf stream,uLong offset,in
             ret = -1;
         }
         else
-            ret=0;
+            ret = 0;
     }
     return ret;
 }
 
 long ZCALLBACK win32_seek64_file_func (voidpf opaque, voidpf stream,ZPOS64_T offset,int origin)
 {
-    DWORD dwMoveMethod=0xFFFFFFFF;
+    DWORD dwMoveMethod = 0xFFFFFFFF;
     HANDLE hFile = NULL;
     long ret = -1;
 
@@ -411,16 +412,17 @@ long ZCALLBACK win32_seek64_file_func (voidpf opaque, voidpf stream,ZPOS64_T off
 
     switch (origin)
     {
-        case ZLIB_FILEFUNC_SEEK_CUR :
+        case ZLIB_FILEFUNC_SEEK_CUR:
             dwMoveMethod = FILE_CURRENT;
             break;
-        case ZLIB_FILEFUNC_SEEK_END :
+        case ZLIB_FILEFUNC_SEEK_END:
             dwMoveMethod = FILE_END;
             break;
-        case ZLIB_FILEFUNC_SEEK_SET :
+        case ZLIB_FILEFUNC_SEEK_SET:
             dwMoveMethod = FILE_BEGIN;
             break;
-        default: return -1;
+        default:
+            return -1;
     }
 
     if (hFile)
@@ -434,7 +436,7 @@ long ZCALLBACK win32_seek64_file_func (voidpf opaque, voidpf stream,ZPOS64_T off
             ret = -1;
         }
         else
-            ret=0;
+            ret = 0;
     }
     return ret;
 }
@@ -460,7 +462,7 @@ int ZCALLBACK win32_close_file_func (voidpf opaque, voidpf stream)
 
 int ZCALLBACK win32_error_file_func (voidpf opaque,voidpf stream)
 {
-    int ret=-1;
+    int ret = -1;
     if (stream == NULL)
         return ret;
     ret = ((WIN32FILE_IOWIN*)stream)->error;
