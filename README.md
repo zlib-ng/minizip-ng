@@ -3,7 +3,7 @@ Minizip zlib contribution that includes:
 - AES encryption
 - I/O buffering
 - PKWARE disk spanning
-- Visual Studio project files
+- Visual Studio 2008 project files
 
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 
@@ -17,6 +17,7 @@ When using the unzip library it will automatically use AES when applicable.
 
 *I/O Buffering*
 
+Improves I/O performance by buffering read and write operations.
 ```
 ourbuffer_t buffered = {0};
 zlib_filefunc64_def fileFunc64 = {0};
