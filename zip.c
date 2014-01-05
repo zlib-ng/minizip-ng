@@ -297,6 +297,7 @@ local int add_data_in_datablock(linkedlist_data* ll, const void* buf, uLong len)
 local uLong zip64local_TmzDateToDosDate OF((const tm_zip* ptm));
 local uLong zip64local_TmzDateToDosDate(const tm_zip* ptm)
 {
+    uLong year;
 #define zip64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
     // Years supported:
     // * [00, 79] (assumed to be between 2000 and 2079)
@@ -313,7 +314,7 @@ local uLong zip64local_TmzDateToDosDate(const tm_zip* ptm)
       return 0;
 #undef zip64local_in_range
 
-    uLong year = (uLong)ptm->tm_year;
+    year = (uLong)ptm->tm_year;
     if (year >= 1980) // range [1980, 2107]
         year -= 1980;
     else if (year >= 80) // range [80, 99]
