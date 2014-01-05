@@ -48,7 +48,7 @@ Credits
 
 
 Notes.
- * To be able to use BZip compression method in zip64.c or unzip64.c the BZIP2 lib is needed and HAVE_BZIP2 need to be defined.
+ * To be able to use BZip compression method in zip.c or unzip.c the BZIP2 lib is needed and HAVE_BZIP2 need to be defined.
 
 License
 ----------------------------------------------------------
