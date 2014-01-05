@@ -369,7 +369,7 @@ static BOOL win32_setfilepointer_internal(HANDLE hFile, LARGE_INTEGER pos, LARGE
     LONG lHigh = pos.HighPart;
     BOOL ret = TRUE;
     DWORD dwNewPos = SetFilePointer(hFile, pos.LowPart, &lHigh, FILE_CURRENT);
-    if ((dwNewPos == 0xFFFFFFFF) && (GetLastError() != NO_ERROR))
+    if ((dwNewPos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
         ret = FALSE;
     if ((newPos != NULL) && (ret))
     {
