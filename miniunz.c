@@ -55,6 +55,7 @@
 # include <direct.h>
 # include <io.h>
 #else
+# include <sys/stat.h>
 # include <unistd.h>
 # include <utime.h>
 #endif
@@ -93,7 +94,7 @@ void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
         CloseHandle(hFile);
     }
 #else
-#ifdef unix || __APPLE__
+#if defined unix || defined __APPLE__
     struct utimbuf ut;
     struct tm newdate;
 
@@ -141,7 +142,7 @@ int makedir(const char *newdir)
 
     strcpy(buffer, newdir);
 
-    if (buffer[len-1] == '/') 
+    if (buffer[len-1] == '/')
         buffer[len-1] = 0;
 
     if (MKDIR(buffer) == 0)
@@ -286,10 +287,12 @@ int do_list(unzFile uf)
     }
     while (err == UNZ_OK);
 
-    if (err != UNZ_END_OF_LIST_OF_FILE)
+    if (err != UNZ_END_OF_LIST_OF_FILE && err != UNZ_OK) {
         printf("error %d with zipfile in unzGoToNextFile\n", err);
+        return err;
+    }
 
-    return err;
+    return 0;
 }
 
 int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_overwrite, const char *password)
@@ -455,7 +458,7 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
     return 0;
 }
 
-int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite, 
+int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite,
     const char* password)
 {
     int err = UNZ_OK;

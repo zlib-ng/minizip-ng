@@ -55,7 +55,7 @@
    Oct-2009 - Mathias Svensson - Applied support to unzip files with compression method BZIP2 (bzip2 lib is required)
                                  Patch created by Daniel Borca
    Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
-   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support 
+   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support
    May-2012 - Nathan Moinvaziri - Added AES encryption support
    Jul-2012 - Nathan Moinvaziri - Clean up & changed unzLocateFile to support custom comparison function
 
@@ -200,7 +200,7 @@ typedef struct
                                            respect to the starting disk number */
 
     unz_file_info64 cur_file_info;      /* public info about the current file in zip*/
-    unz_file_info64_internal cur_file_info_internal; 
+    unz_file_info64_internal cur_file_info_internal;
                                         /* private info about it*/
     file_in_zip64_read_info_s* pfile_in_zip_read;
                                         /* structure about the current file if we are decompressing it */
@@ -223,6 +223,16 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
     ptm->tm_hour = (uInt)((ulDosDate &0xF800)/0x800);
     ptm->tm_min  = (uInt)((ulDosDate&0x7E0)/0x20);
     ptm->tm_sec  = (uInt)(2*(ulDosDate&0x1f));
+
+#define unz64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
+    if (!unz64local_in_range(0, 11, ptm->tm_mon) ||
+        !unz64local_in_range(1, 31, ptm->tm_mday) ||
+        !unz64local_in_range(0, 23, ptm->tm_hour) ||
+        !unz64local_in_range(0, 59, ptm->tm_min) ||
+        !unz64local_in_range(0, 59, ptm->tm_sec))
+      // Invalid date stored, so don't return it.
+      memset(ptm, 0, sizeof(tm_unz));
+#undef unz64local_in_range
 }
 
 /* Read a byte from a gz_stream; Return EOF for end of file. */
@@ -366,9 +376,9 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
             break;
 
         for (i = (int)read_size-3; (i--) > 0;)
-            if (((*(buf+i)) == (ENDHEADERMAGIC & 0xff)) && 
+            if (((*(buf+i)) == (ENDHEADERMAGIC & 0xff)) &&
                 ((*(buf+i+1)) == (ENDHEADERMAGIC >> 8 & 0xff)) &&
-                ((*(buf+i+2)) == (ENDHEADERMAGIC >> 16 & 0xff)) && 
+                ((*(buf+i+2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
                 ((*(buf+i+3)) == (ENDHEADERMAGIC >> 24 & 0xff)))
             {
                 pos_found = read_pos+i;
@@ -383,14 +393,13 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
 }
 
 /* Locate the Central directory 64 of a zipfile (at the end, just before the global comment) */
-local ZPOS64_T unz64local_SearchCentralDir64 OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, 
+local ZPOS64_T unz64local_SearchCentralDir64 OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream,
     const ZPOS64_T endcentraloffset));
-local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, 
+local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream,
     const ZPOS64_T endcentraloffset)
 {
     ZPOS64_T offset;
     uLong uL;
-
 
     /* Zip64 end of central directory locator */
     if (ZSEEK64(*pzlib_filefunc_def, filestream, endcentraloffset - SIZECENTRALHEADERLOCATOR, ZLIB_FILEFUNC_SEEK_SET) != 0)
@@ -445,7 +454,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         us.z_filefunc = *pzlib_filefunc64_32_def;
 
     us.filestream = ZOPEN64(us.z_filefunc, path, ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_EXISTING);
-    
+
     if (us.filestream == NULL)
         return NULL;
 
@@ -558,7 +567,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
 
     if (us.gi.number_disk_with_CD == 0)
     {
-        /* If there is only one disk open another stream so we don't have to seek between the CD 
+        /* If there is only one disk open another stream so we don't have to seek between the CD
            and the file headers constantly */
         filestream = ZOPEN64(us.z_filefunc, path, ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_EXISTING);
         if (filestream != NULL)
@@ -671,7 +680,7 @@ local int unzGoToNextDisk(unzFile file)
         }
         else
         {
-            s->filestream = ZOPENDISK64(s->z_filefunc, s->filestream_with_CD, number_disk_next, 
+            s->filestream = ZOPENDISK64(s->z_filefunc, s->filestream_with_CD, number_disk_next,
                 ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_EXISTING);
         }
 
@@ -734,7 +743,7 @@ extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uLong commen
 }
 
 /* Get Info about the current file in the zipfile, with internal only info */
-local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_info, 
+local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_info,
     unz_file_info64_internal *pfile_info_internal, char *filename, uLong filename_size, void *extrafield,
     uLong extrafield_size, char *comment, uLong comment_size)
 {
@@ -754,7 +763,7 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
         return UNZ_PARAMERROR;
     s = (unz64_s*)file;
 
-    if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, 
+    if (ZSEEK64(s->z_filefunc, s->filestream_with_CD,
             s->pos_in_central_dir + s->byte_before_the_zipfile, ZLIB_FILEFUNC_SEEK_SET) != 0)
         err = UNZ_ERRNO;
 
@@ -809,7 +818,7 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
 #ifdef HAVE_AES
     file_info_internal.aes_compression_method = 0;
     file_info_internal.aes_encryption_mode = 0;
-#endif 
+#endif
 
     lSeek += file_info.size_filename;
 
@@ -982,7 +991,6 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
     else
         lSeek += file_info.size_file_comment;
 
-
     if ((err == UNZ_OK) && (pfile_info != NULL))
         *pfile_info = file_info;
 
@@ -992,7 +1000,7 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
     return err;
 }
 
-extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info * pfile_info, char *filename, 
+extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info * pfile_info, char *filename,
     uLong filename_size, void *extrafield, uLong extrafield_size, char* comment, uLong comment_size)
 {
     unz_file_info64 file_info64;
@@ -1027,17 +1035,17 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info * pfile_inf
     return err;
 }
 
-extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename, 
+extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
     uLong filename_size, void *extrafield, uLong extrafield_size, char* comment,  uLong comment_size)
 {
     return unz64local_GetCurrentFileInfoInternal(file, pfile_info, NULL, filename, filename_size,
         extrafield, extrafield_size, comment,comment_size);
 }
 
-/* Read the local header of the current zipfile. Check the coherency of the local header and info in the 
-   end of central directory about this file store in *piSizeVar the size of extra info in local header 
+/* Read the local header of the current zipfile. Check the coherency of the local header and info in the
+   end of central directory about this file store in *piSizeVar the size of extra info in local header
    (filename and size of extra field data) */
-local int unz64local_CheckCurrentFileCoherencyHeader(unz64_s* s, uInt* piSizeVar, ZPOS64_T *poffset_local_extrafield, 
+local int unz64local_CheckCurrentFileCoherencyHeader(unz64_s* s, uInt* piSizeVar, ZPOS64_T *poffset_local_extrafield,
     uInt *psize_local_extrafield)
 {
     uLong uMagic, uL, uFlags;
@@ -1286,7 +1294,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
             unsigned char saltvalue[AES_MAXSALTLENGTH];
             uInt saltlength;
 
-            if ((s->cur_file_info_internal.aes_encryption_mode < 1) || 
+            if ((s->cur_file_info_internal.aes_encryption_mode < 1) ||
                 (s->cur_file_info_internal.aes_encryption_mode > 3))
                 return UNZ_INTERNALERROR;
 
@@ -1297,7 +1305,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
             if (ZREAD64(s->z_filefunc, s->filestream, passverify, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
                 return UNZ_INTERNALERROR;
 
-            fcrypt_init(s->cur_file_info_internal.aes_encryption_mode, password, strlen(password), saltvalue, 
+            fcrypt_init(s->cur_file_info_internal.aes_encryption_mode, password, strlen(password), saltvalue,
                 passverify, &s->pfile_in_zip_read->aes_ctx);
 
             pfile_in_zip_read_info->rest_read_compressed -= saltlength + AES_PWVERIFYSIZE;
@@ -1374,7 +1382,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
     if (pfile_in_zip_read_info->raw)
     {
         if (len > pfile_in_zip_read_info->rest_read_compressed + pfile_in_zip_read_info->stream.avail_in)
-            pfile_in_zip_read_info->stream.avail_out = (uInt)pfile_in_zip_read_info->rest_read_compressed + 
+            pfile_in_zip_read_info->stream.avail_out = (uInt)pfile_in_zip_read_info->rest_read_compressed +
                 pfile_in_zip_read_info->stream.avail_in;
     }
     else
@@ -1393,7 +1401,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             uInt total_bytes_read = 0;
 
             if (pfile_in_zip_read_info->stream.next_in != NULL)
-                bytes_not_read = pfile_in_zip_read_info->read_buffer + UNZ_BUFSIZE - 
+                bytes_not_read = pfile_in_zip_read_info->read_buffer + UNZ_BUFSIZE -
                     pfile_in_zip_read_info->stream.next_in;
             bytes_to_read -= bytes_not_read;
             if (bytes_not_read > 0)
@@ -1432,7 +1440,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
 #ifndef NOUNCRYPT
             if (s->encrypted)
             {
-#ifdef HAVE_AES 
+#ifdef HAVE_AES
                 if (s->cur_file_info.compression_method == AES_METHOD)
                 {
                     fcrypt_decrypt(pfile_in_zip_read_info->read_buffer, bytes_to_read, &s->pfile_in_zip_read->aes_ctx);
@@ -1611,8 +1619,8 @@ extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len)
     if (read_now == 0)
         return 0;
 
-    if (ZSEEK64(pfile_in_zip_read_info->z_filefunc, pfile_in_zip_read_info->filestream, 
-        pfile_in_zip_read_info->offset_local_extrafield + pfile_in_zip_read_info->pos_local_extrafield, 
+    if (ZSEEK64(pfile_in_zip_read_info->z_filefunc, pfile_in_zip_read_info->filestream,
+        pfile_in_zip_read_info->offset_local_extrafield + pfile_in_zip_read_info->pos_local_extrafield,
         ZLIB_FILEFUNC_SEEK_SET) != 0)
         return UNZ_ERRNO;
 
@@ -1660,7 +1668,6 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
                 err = UNZ_CRCERROR;
         }
     }
-
 
     TRYFREE(pfile_in_zip_read_info->read_buffer);
     pfile_in_zip_read_info->read_buffer = NULL;
@@ -1741,7 +1748,6 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
     ZPOS64_T num_file_saved;
     ZPOS64_T pos_in_central_dir_saved;
     char current_filename[UNZ_MAXFILENAMEINZIP+1];
-
 
     if (file == NULL)
         return UNZ_PARAMERROR;
