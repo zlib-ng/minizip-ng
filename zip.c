@@ -1116,6 +1116,14 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
     for (i = 0; i < size_extrafield_global; i++)
         *(zi->ci.central_header+SIZECENTRALHEADER+size_filename+i) =
               *(((const char*)extrafield_global)+i);
+
+    /* 
+        Here is a bug. take a look at line #1728. 
+        In case we add a comment to a file and this file is bigger 4GB (use zip64), 
+        at line #1728 we add extra-fields for Zip64 after comments 
+        and this contradicts the ZIP archive standard.
+        Tried to fix but can create another bug, so decided to let you know.
+    */
     for (i = 0; i < size_comment; i++)
         *(zi->ci.central_header+SIZECENTRALHEADER+size_filename+
               size_extrafield_global+i) = *(comment+i);
