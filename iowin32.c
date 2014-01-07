@@ -368,7 +368,7 @@ static BOOL win32_setfilepointer_internal(HANDLE hFile, LARGE_INTEGER pos, LARGE
 #else
     LONG lHigh = pos.HighPart;
     BOOL ret = TRUE;
-    DWORD dwNewPos = SetFilePointer(hFile, pos.LowPart, &lHigh, FILE_CURRENT);
+    DWORD dwNewPos = SetFilePointer(hFile, pos.LowPart, &lHigh, dwMoveMethod);
     if ((dwNewPos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
         ret = FALSE;
     if ((newPos != NULL) && (ret))
