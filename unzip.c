@@ -10,8 +10,6 @@
    Modifications for Zip64 support on both zip and unzip
    Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
 
-   For more info read MiniZip_info.txt
-
    ------------------------------------------------------------------------------------
    Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
    compatibility with older software. The following is from the original crypt.c.
