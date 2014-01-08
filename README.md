@@ -19,13 +19,29 @@ When using the unzip library it will automatically use AES when applicable.
 
 Improves I/O performance by buffering read and write operations.
 ```
+zlib_filefunc64_def filefunc64 = {0};
 ourbuffer_t buffered = {0};
-zlib_filefunc64_def fileFunc64 = {0};
     
-fill_win32_filefunc64W(&buffered->filefunc64);
-fill_buffer_filefunc64(&fileFunc64, buffered);
+fill_win32_filefunc64(&buffered->filefunc64);
+fill_buffer_filefunc64(&filefunc64, buffered);
     
-unzOpen2_64(wFilename, &fileFunc64)
+unzOpen2_64(filename, &filefunc64)
+```
+
+*I/O Memory*
+
+To unzip from a zip file in memory use fill_memory_filefunc and supply a proper ourmemory_t structure.
+```
+zlib_filefunc_def filefunc32 = {0};
+ourmemory_t zipmem = {0};
+
+zipmem.size = bufsize;
+zipmem.base = (char *)malloc(zipmem.size);
+memcpy(zipmem.base, buffer, zipmem.size);
+    
+fill_memory_filefunc(&filefunc32, &zipmem);
+
+unzOpen2(filename, &filefunc32);
 ```
 
 *PKWARE disk spanning*
