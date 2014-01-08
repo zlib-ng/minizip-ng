@@ -26,7 +26,6 @@
    May-2012 - Nathan Moinvaziri - Added AES encryption support
    Jul-2012 - Nathan Moinvaziri - Clean up, removed zipRemoveExtraInfoBlock
 
-   ------------------------------------------------------------------------------------
 */
 
 #include <stdio.h>
@@ -48,22 +47,22 @@
 #endif
 
 #ifdef HAVE_AES
-#define AES_METHOD          (99)
-#define AES_PWVERIFYSIZE    (2)
-#define AES_AUTHCODESIZE    (10)
-#define AES_MAXSALTLENGTH   (16)
-#define AES_VERSION         (0x0001)
-#define AES_ENCRYPTIONMODE  (0x03)
+#  define AES_METHOD          (99)
+#  define AES_PWVERIFYSIZE    (2)
+#  define AES_AUTHCODESIZE    (10)
+#  define AES_MAXSALTLENGTH   (16)
+#  define AES_VERSION         (0x0001)
+#  define AES_ENCRYPTIONMODE  (0x03)
 
-#include "aes/aes.h"
-#include "aes/fileenc.h"
-#include "aes/prng.h"
-#include "aes/entropy.h"
+#  include "aes/aes.h"
+#  include "aes/fileenc.h"
+#  include "aes/prng.h"
+#  include "aes/entropy.h"
 #endif
 
 #ifndef NOCRYPT
-#define INCLUDECRYPTINGCODE_IFCRYPTALLOWED
-#include "crypt.h"
+#  define INCLUDECRYPTINGCODE_IFCRYPTALLOWED
+#  include "crypt.h"
 #endif
 
 #ifndef local
@@ -89,38 +88,38 @@
 #define SIZEZIPLOCALHEADER          (0x1e)
 
 #ifndef BUFREADCOMMENT
-#define BUFREADCOMMENT              (0x400)
+#  define BUFREADCOMMENT            (0x400)
 #endif
 #ifndef VERSIONMADEBY
-#define VERSIONMADEBY               (0x0) /* platform dependent */
+#  define VERSIONMADEBY             (0x0) /* platform dependent */
 #endif
 
 #ifndef Z_BUFSIZE
-#define Z_BUFSIZE (64*1024)
+#  define Z_BUFSIZE (64*1024)
 #endif
 #ifndef Z_MAXFILENAMEINZIP
-#define Z_MAXFILENAMEINZIP (256)
+#  define Z_MAXFILENAMEINZIP (256)
 #endif
 
 #ifndef ALLOC
-# define ALLOC(size) (malloc(size))
+#  define ALLOC(size) (malloc(size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) free(p);}
+#  define TRYFREE(p) {if (p) free(p);}
 #endif
 
 // NOT sure that this work on ALL platform
 #define MAKEULONG64(a, b) ((ZPOS64_T)(((unsigned long)(a)) | ((ZPOS64_T)((unsigned long)(b))) << 32))
 
 #ifndef DEF_MEM_LEVEL
-#if MAX_MEM_LEVEL >= 8
-#  define DEF_MEM_LEVEL 8
-#else
-#  define DEF_MEM_LEVEL  MAX_MEM_LEVEL
-#endif
+#  if MAX_MEM_LEVEL >= 8
+#    define DEF_MEM_LEVEL 8
+#  else
+#    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+#  endif
 #endif
 
-const char zip_copyright[] =" zip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
+const char zip_copyright[] = " zip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
 typedef struct linkedlist_datablock_internal_s
 {

@@ -66,7 +66,7 @@
 #include <string.h>
 
 /*#ifndef NOUNCRYPT
-        #define NOUNCRYPT
+#  define NOUNCRYPT
 #endif*/
 
 #include "zlib.h"
@@ -78,24 +78,24 @@
 #  include <stdlib.h>
 #endif
 #ifdef NO_ERRNO_H
-    extern int errno;
+   extern int errno;
 #else
-#   include <errno.h>
+#  include <errno.h>
 #endif
 
 #ifdef HAVE_AES
-#define AES_METHOD          (99)
-#define AES_PWVERIFYSIZE    (2)
-#define AES_MAXSALTLENGTH   (16)
-#define AES_AUTHCODESIZE    (10)
-#define AES_HEADERSIZE      (11)
-#define AES_KEYSIZE(mode)   (64 + (mode * 64))
+#  define AES_METHOD          (99)
+#  define AES_PWVERIFYSIZE    (2)
+#  define AES_MAXSALTLENGTH   (16)
+#  define AES_AUTHCODESIZE    (10)
+#  define AES_HEADERSIZE      (11)
+#  define AES_KEYSIZE(mode)   (64 + (mode * 64))
 
-#include "aes/aes.h"
-#include "aes/fileenc.h"
+#  include "aes/aes.h"
+#  include "aes/fileenc.h"
 #endif
 #ifndef NOUNCRYPT
-#include "crypt.h"
+#  include "crypt.h"
 #endif
 
 #ifndef local
@@ -115,21 +115,21 @@
 #define SIZEZIPLOCALHEADER       (0x1e)
 
 #ifndef BUFREADCOMMENT
-#define BUFREADCOMMENT (0x400)
+#  define BUFREADCOMMENT (0x400)
 #endif
 
 #ifndef UNZ_BUFSIZE
-#define UNZ_BUFSIZE (64 * 1024)
+#  define UNZ_BUFSIZE (64 * 1024)
 #endif
 #ifndef UNZ_MAXFILENAMEINZIP
-#define UNZ_MAXFILENAMEINZIP (256)
+#  define UNZ_MAXFILENAMEINZIP (256)
 #endif
 
 #ifndef ALLOC
-# define ALLOC(size) (malloc(size))
+#  define ALLOC(size) (malloc(size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) free(p);}
+#  define TRYFREE(p) {if (p) free(p);}
 #endif
 
 const char unz_copyright[] =
@@ -581,7 +581,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
     us.pfile_in_zip_read = NULL;
     us.encrypted = 0;
 
-    s =(unz64_s*)ALLOC(sizeof(unz64_s));
+    s = (unz64_s*)ALLOC(sizeof(unz64_s));
     if (s != NULL)
     {
         *s = us;

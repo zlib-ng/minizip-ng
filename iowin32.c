@@ -16,15 +16,15 @@
 #include "iowin32.h"
 
 #ifndef INVALID_HANDLE_VALUE
-#define INVALID_HANDLE_VALUE (0xFFFFFFFF)
+#  define INVALID_HANDLE_VALUE (0xFFFFFFFF)
 #endif
 
 #ifndef INVALID_SET_FILE_POINTER
-#define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#  define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
 /*#ifndef IOWIN32_USING_WINRT_API
-    #define IOWIN32_USING_WINRT_API
+#  define IOWIN32_USING_WINRT_API
 #endif*/
 
 voidpf  ZCALLBACK win32_open_file_func  OF((voidpf opaque, const char* filename, int mode));

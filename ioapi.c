@@ -13,29 +13,29 @@
 #include "ioapi.h"
 
 #if defined(_WIN32)
-    #define snprintf _snprintf
+#  define snprintf _snprintf
 #endif
 
-#if defined(__APPLE__) || defined(IOAPI_NO_64)
+#ifdef __APPLE__
 /* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
-#define FOPEN_FUNC(filename, mode) fopen(filename, mode)
-#define FTELLO_FUNC(stream) ftello(stream)
-#define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
+#  define FOPEN_FUNC(filename, mode) fopen(filename, mode)
+#  define FTELLO_FUNC(stream) ftello(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
 #else
-#define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
-#define FTELLO_FUNC(stream) ftello64(stream)
-#define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
+#  define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
+#  define FTELLO_FUNC(stream) ftello64(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
 #endif
 
 /* I've found an old Unix (a SunOS 4.1.3_U1) without all SEEK_* defined.... */
 #ifndef SEEK_CUR
-#define SEEK_CUR    1
+#  define SEEK_CUR    1
 #endif
 #ifndef SEEK_END
-#define SEEK_END    2
+#  define SEEK_END    2
 #endif
 #ifndef SEEK_SET
-#define SEEK_SET    0
+#  define SEEK_SET    0
 #endif
 
 voidpf call_zopen64 (const zlib_filefunc64_32_def* pfilefunc,const void*filename,int mode)

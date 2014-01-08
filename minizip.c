@@ -13,35 +13,29 @@
 */
 
 #if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
-    #ifndef __USE_FILE_OFFSET64
-        #define __USE_FILE_OFFSET64
-    #endif
-    #ifndef __USE_LARGEFILE64
-        #define __USE_LARGEFILE64
-    #endif
-    #ifndef _LARGEFILE64_SOURCE
-        #define _LARGEFILE64_SOURCE
-    #endif
-    #ifndef _FILE_OFFSET_BIT
-        #define _FILE_OFFSET_BIT 64
-    #endif
-#endif
-
-#if (defined(_WIN32))
-    #ifndef _CRT_SECURE_NO_WARNINGS
-        #define _CRT_SECURE_NO_WARNINGS
-    #endif
+#  ifndef __USE_FILE_OFFSET64
+#    define __USE_FILE_OFFSET64
+#  endif
+#  ifndef __USE_LARGEFILE64
+#    define __USE_LARGEFILE64
+#  endif
+#  ifndef _LARGEFILE64_SOURCE
+#    define _LARGEFILE64_SOURCE
+#  endif
+#  ifndef _FILE_OFFSET_BIT
+#    define _FILE_OFFSET_BIT 64
+#  endif
 #endif
 
 #ifdef __APPLE__
-// In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
-#define FOPEN_FUNC(filename, mode) fopen(filename, mode)
-#define FTELLO_FUNC(stream) ftello(stream)
-#define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
+/* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
+#  define FOPEN_FUNC(filename, mode) fopen(filename, mode)
+#  define FTELLO_FUNC(stream) ftello(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
 #else
-#define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
-#define FTELLO_FUNC(stream) ftello64(stream)
-#define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
+#  define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
+#  define FTELLO_FUNC(stream) ftello64(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
 #endif
 
 #include <stdio.h>
@@ -52,20 +46,20 @@
 #include <fcntl.h>
 
 #ifdef _WIN32
-# include <direct.h>
-# include <io.h>
+#  include <direct.h>
+#  include <io.h>
 #else
-# include <unistd.h>
-# include <utime.h>
-# include <sys/types.h>
-# include <sys/stat.h>
+#  include <unistd.h>
+#  include <utime.h>
+#  include <sys/types.h>
+#  include <sys/stat.h>
 #endif
 
 #include "zip.h"
 
 #ifdef _WIN32
-    #define USEWIN32IOAPI
-    #include "iowin32.h"
+#  define USEWIN32IOAPI
+#  include "iowin32.h"
 #endif
 
 #define WRITEBUFFERSIZE (16384)
