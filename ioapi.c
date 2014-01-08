@@ -12,16 +12,12 @@
 
 #include "ioapi.h"
 
-#if (defined(_WIN32))
-    #include <tchar.h>
+#if defined(_WIN32)
     #define snprintf _snprintf
-    #ifndef _CRT_SECURE_NO_WARNINGS
-        #define _CRT_SECURE_NO_WARNINGS
-    #endif
 #endif
 
 #if defined(__APPLE__) || defined(IOAPI_NO_64)
-// In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions
+/* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
 #define FOPEN_FUNC(filename, mode) fopen(filename, mode)
 #define FTELLO_FUNC(stream) ftello(stream)
 #define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
@@ -110,7 +106,6 @@ typedef struct
     int filenameLength;
     void *filename;
 } FILE_IOPOSIX;
-
 
 static voidpf file_build_ioposix(FILE *file, const char *filename)
 {
@@ -298,16 +293,17 @@ static long ZCALLBACK fseek64_file_func (voidpf  opaque, voidpf stream, ZPOS64_T
 
     switch (origin)
     {
-    case ZLIB_FILEFUNC_SEEK_CUR:
-        fseek_origin = SEEK_CUR;
-        break;
-    case ZLIB_FILEFUNC_SEEK_END:
-        fseek_origin = SEEK_END;
-        break;
-    case ZLIB_FILEFUNC_SEEK_SET:
-        fseek_origin = SEEK_SET;
-        break;
-    default: return -1;
+        case ZLIB_FILEFUNC_SEEK_CUR:
+            fseek_origin = SEEK_CUR;
+            break;
+        case ZLIB_FILEFUNC_SEEK_END:
+            fseek_origin = SEEK_END;
+            break;
+        case ZLIB_FILEFUNC_SEEK_SET:
+            fseek_origin = SEEK_SET;
+            break;
+        default:
+            return -1;
     }
 
     if(FSEEKO_FUNC(ioposix->file, offset, fseek_origin) != 0)
