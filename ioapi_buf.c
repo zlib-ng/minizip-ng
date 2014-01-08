@@ -25,12 +25,12 @@
 #include "ioapi_buf.h"
 
 #if defined(_WIN32)
-#include <conio.h>
-#define PRINTF  _cprintf
-#define VPRINTF _vcprintf
+#  include <conio.h>
+#  define PRINTF  _cprintf
+#  define VPRINTF _vcprintf
 #else
-#define PRINTF  printf
-#define VPRINTF vprintf
+#  define PRINTF  printf
+#  define VPRINTF vprintf
 #endif
 
 //#define IOBUF_VERBOSE
@@ -69,9 +69,9 @@ typedef struct ourstream_s {
 } ourstream_t;
 
 #if defined(IOBUF_VERBOSE)
-#define print_buf(o,s,f,...) print_buf_internal(o,s,f,__VA_ARGS__);
+#  define print_buf(o,s,f,...) print_buf_internal(o,s,f,__VA_ARGS__);
 #else
-#define print_buf(o,s,f,...)
+#  define print_buf(o,s,f,...)
 #endif 
 
 void print_buf_internal(voidpf opaque, voidpf stream, char *format, ...)
@@ -487,8 +487,8 @@ int ZCALLBACK ferror_buf_func (opaque, stream)
 
 
 void fill_buffer_filefunc (pzlib_filefunc_def, ourbuf)
-  zlib_filefunc_def* pzlib_filefunc_def;
-  ourbuffer_t *ourbuf;
+   zlib_filefunc_def* pzlib_filefunc_def;
+   ourbuffer_t *ourbuf;
 {
     pzlib_filefunc_def->zopen_file = fopen_buf_func;
     pzlib_filefunc_def->zopendisk_file = fopendisk_buf_func;
@@ -502,8 +502,8 @@ void fill_buffer_filefunc (pzlib_filefunc_def, ourbuf)
 }
 
 void fill_buffer_filefunc64 (pzlib_filefunc_def, ourbuf)
-  zlib_filefunc64_def* pzlib_filefunc_def;
-  ourbuffer_t *ourbuf;
+   zlib_filefunc64_def* pzlib_filefunc_def;
+   ourbuffer_t *ourbuf;
 {
     pzlib_filefunc_def->zopen64_file = fopen64_buf_func;
     pzlib_filefunc_def->zopendisk64_file = fopendisk64_buf_func;
