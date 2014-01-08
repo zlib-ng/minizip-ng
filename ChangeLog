@@ -1,3 +1,21 @@
+Change in 1.1
+
+- Added ZIP64 support for unzip ( by Even Rouault )
+- Added ZIP64 support for zip ( by Mathias Svensson )
+- Reverted some changed that Even Rouault did.
+- Bunch of patches received from Gulles Vollant that he received for MiniZip from various users.
+- Added unzip patch for BZIP Compression method (patch create by Daniel Borca)
+- Added BZIP Compress method for zip
+- Did some refactoring and code cleanup
+
+ Credits
+ 
+  Gilles Vollant    - Original MiniZip author
+  Even Rouault      - ZIP64 unzip Support
+  Daniel Borca      - BZip Compression method support in unzip
+  Mathias Svensson  - ZIP64 zip support
+  Mathias Svensson  - BZip Compression method support in zip
+
 Change in 1.01e (12 feb 05)
 - Fix in zipOpen2 for globalcomment (Rolf Kalbermatter)
 - Fix possible memory leak in unzip.c (Zoran Stevanovic)
@@ -65,3 +83,5 @@ Change in 0.4: (25 Feb 98)
   Only on file in the zipfile can be open at the same time
 - fix somes typo in code
 - added tm_unz structure in unzip_file_info (date/time in readable format)
+
+
