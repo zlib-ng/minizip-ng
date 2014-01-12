@@ -58,7 +58,7 @@ unzOpen2("__notused__", &filefunc32);
 
 To create a zip file in memory use fill_memory_filefunc and supply a proper ourmemory_t structure. It is important
 not to forget to free zipmem->base when finished. If grow is set, zipmem->base will expand to fit the size of the zip. 
-If grow is not set be sure to pass fill out zipmem.base and zipmem.size.
+If grow is not set be sure to fill out zipmem.base and zipmem.size.
 
 ```
 zlib_filefunc_def filefunc32 = {0};
