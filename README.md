@@ -45,15 +45,29 @@ When using the unzip library it will automatically determine when in needs to sp
 To unzip from a zip file in memory use fill_memory_filefunc and supply a proper ourmemory_t structure.
 ```
 zlib_filefunc_def filefunc32 = {0};
+ourmemory_t unzmem = {0};
+
+unzmem.size = bufsize;
+unzmem.base = (char *)malloc(unzmem.size);
+memcpy(unzmem.base, buffer, unzmem.size);
+    
+fill_memory_filefunc(&filefunc32, &unzmem);
+
+unzOpen2("__notused__", &filefunc32);
+```
+
+To create a zip file in memory use fill_memory_filefunc and supply a proper ourmemory_t structure. It is important
+not to forget to free zipmem->base when finished. If grow is set, zipmem->base will expand to fit the size of the zip.
+
+```
+zlib_filefunc_def filefunc32 = {0};
 ourmemory_t zipmem = {0};
 
-zipmem.size = bufsize;
-zipmem.base = (char *)malloc(zipmem.size);
-memcpy(zipmem.base, buffer, zipmem.size);
-    
+zipmem.grow = 1;
+
 fill_memory_filefunc(&filefunc32, &zipmem);
 
-unzOpen2(filename, &filefunc32);
+zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 ```
 
 *BZIP2*
