@@ -1,64 +1,19 @@
 /* unzip.c -- IO for uncompress .zip files using zlib
    Version 1.1, February 14h, 2010
-   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+   part of the MiniZip project
 
-   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
-
+   Copyright (C) 1998-2010 Gilles Vollant
+     http://www.winimage.com/zLibDll/minizip.html
    Modifications of Unzip for Zip64
-   Copyright (C) 2007-2008 Even Rouault
-
+     Copyright (C) 2007-2008 Even Rouault
    Modifications for Zip64 support on both zip and unzip
-   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+     Copyright (C) 2009-2010 Mathias Svensson
+     http://result42.com
+   Modifications for AES, PKWARE disk spanning
+     Copyright (C) 2010-2014 Nathan Moinvaziri
 
-   ------------------------------------------------------------------------------------
-   Decryption code comes from crypt.c by Info-ZIP but has been greatly reduced in terms of
-   compatibility with older software. The following is from the original crypt.c.
-   Code woven in by Terry Thorsen 1/2003.
-
-   Copyright (c) 1990-2000 Info-ZIP.  All rights reserved.
-
-   See the accompanying file LICENSE, version 2000-Apr-09 or later
-   (the contents of which are also included in zip.h) for terms of use.
-   If, for some reason, all these files are missing, the Info-ZIP license
-   also may be found at:  ftp://ftp.info-zip.org/pub/infozip/license.html
-
-        crypt.c (full version) by Info-ZIP.      Last revised:  [see crypt.h]
-
-   The encryption/decryption parts of this source code (as opposed to the
-   non-echoing password parts) were originally written in Europe.  The
-   whole source package can be freely distributed, including from the USA.
-   (Prior to January 2000, re-export from the US was a violation of US law.)
-
-   This encryption code is a direct transcription of the algorithm from
-   Roger Schlafly, described by Phil Katz in the file appnote.txt.  This
-   file (appnote.txt) is distributed with the PKZIP program (even in the
-   version without encryption capabilities).
-
-   ------------------------------------------------------------------------------------
-
-   Changes in unzip.c
-
-   2007-2008 - Even Rouault - Addition of cpl_unzGetCurrentFileZStreamPos
-   2007-2008 - Even Rouault - Decoration of symbol names unz* -> cpl_unz*
-   2007-2008 - Even Rouault - Remove old C style function prototypes
-   2007-2008 - Even Rouault - Add unzip support for ZIP64
-
-   Copyright (C) 2007-2008 Even Rouault
-
-   Oct-2009 - Mathias Svensson - Removed cpl_* from symbol names
-   Oct-2009 - Mathias Svensson - Fixed problem if uncompressed size was > 4G and compressed size was <4G
-                                 should only read the compressed/uncompressed size from the Zip64 format if
-                                 the size from normal header was 0xffffffff
-   Oct-2009 - Mathias Svensson - Applied some bug fixes from patches received from Gilles Vollant
-   Oct-2009 - Mathias Svensson - Applied support to unzip files with compression method BZIP2 (bzip2 lib is required)
-                                 Patch created by Daniel Borca
-   Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
-   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support
-   May-2012 - Nathan Moinvaziri - Added AES encryption support
-   Jul-2012 - Nathan Moinvaziri - Clean up & changed unzLocateFile to support custom comparison function
-
-   Copyright (C) 1998 - 2010 Gilles Vollant, Even Rouault, Mathias Svensson
-
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 #include <stdio.h>

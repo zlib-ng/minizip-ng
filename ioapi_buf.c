@@ -3,14 +3,11 @@
 
    This version of ioapi is designed to buffer IO.
 
-   Based on Unzip ioapi.c version 0.22, May 19th, 2003
-
    Copyright (C) 1998-2003 Gilles Vollant
-             (C) 2003 Justin Fletcher
-             (C) 2012 Nathan Moinvaziri
+             (C) 2012-2014 Nathan Moinvaziri
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 

@@ -1,39 +1,32 @@
 /* ioapi.h -- IO base function header for compress/uncompress .zip
-   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+   part of the MiniZip project
 
-   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
-
+   Copyright (C) 1998-2010 Gilles Vollant
+     http://www.winimage.com/zLibDll/minizip.html
    Modifications for Zip64 support
-   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+     Copyright (C) 2009-2010 Mathias Svensson
+     http://result42.com
 
-   Changes
-
-   Oct-2009 - Defined ZPOS64_T to fpos_t on windows and u_int64_t on linux. (might need to find a better why for this)
-   Oct-2009 - Change to fseeko64, ftello64 and fopen64 so large files would work on linux.
-              More if/def section may be needed to support other platforms
-   Oct-2009 - Defined fxxxx64 calls to normal fopen/ftell/fseek so they would compile on windows.
-              (but you should use iowin32.c for windows instead)
-
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 #ifndef _ZLIBIOAPI64_H
 #define _ZLIBIOAPI64_H
 
 #if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
-    /* Linux needs this to support file operation on files larger then 4+GB
-       But might need better if/def to select just the platforms that needs them. */
-    #ifndef __USE_FILE_OFFSET64
-        #define __USE_FILE_OFFSET64
-    #endif
-    #ifndef __USE_LARGEFILE64
-        #define __USE_LARGEFILE64
-    #endif
-    #ifndef _LARGEFILE64_SOURCE
-        #define _LARGEFILE64_SOURCE
-    #endif
-    #ifndef _FILE_OFFSET_BIT
-        #define _FILE_OFFSET_BIT 64
-    #endif
+#  ifndef __USE_FILE_OFFSET64
+#    define __USE_FILE_OFFSET64
+#  endif
+#  ifndef __USE_LARGEFILE64
+#    define __USE_LARGEFILE64
+#  endif
+#  ifndef _LARGEFILE64_SOURCE
+#    define _LARGEFILE64_SOURCE
+#  endif
+#  ifndef _FILE_OFFSET_BIT
+#    define _FILE_OFFSET_BIT 64
+#  endif
 #endif
 
 #include <stdio.h>
@@ -41,42 +34,41 @@
 #include "zlib.h"
 
 #if defined(USE_FILE32API)
-#define fopen64 fopen
-#define ftello64 ftell
-#define fseeko64 fseek
+#  define fopen64 fopen
+#  define ftello64 ftell
+#  define fseeko64 fseek
 #else
-#ifdef __FreeBSD__
-#define fopen64 fopen
-#define ftello64 ftello
-#define fseeko64 fseeko
-#endif
-#ifdef _MSC_VER
-    #define fopen64 fopen
-    #if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
-        #define ftello64 _ftelli64
-        #define fseeko64 _fseeki64
-    #else // old MSC
-        #define ftello64 ftell
-        #define fseeko64 fseek
-    #endif
-#endif
+#  ifdef __FreeBSD__
+#    define fopen64 fopen
+#    define ftello64 ftello
+#    define fseeko64 fseeko
+#  endif
+#  ifdef _MSC_VER
+#    define fopen64 fopen
+#    if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
+#      define ftello64 _ftelli64
+#      define fseeko64 _fseeki64
+#    else // old MSC
+#      define ftello64 ftell
+#      define fseeko64 fseek
+#    endif
+#  endif
 #endif
 
 /* a type choosen by DEFINE */
 #ifdef HAVE_64BIT_INT_CUSTOM
-typedef  64BIT_INT_CUSTOM_TYPE ZPOS64_T;
+typedef 64BIT_INT_CUSTOM_TYPE ZPOS64_T;
 #else
-#ifdef HAS_STDINT_H
-#include "stdint.h"
-typedef uint64_t ZPOS64_T;
-#else
-
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-typedef unsigned __int64 ZPOS64_T;
-#else
-typedef unsigned long long int ZPOS64_T;
-#endif
-#endif
+#  ifdef HAS_STDINT_H
+#    include "stdint.h"
+     typedef uint64_t ZPOS64_T;
+#  else
+#    if defined(_MSC_VER) || defined(__BORLANDC__)
+       typedef unsigned __int64 ZPOS64_T;
+#    else
+       typedef unsigned long long int ZPOS64_T;
+#    endif
+#  endif
 #endif
 
 #ifdef __cplusplus
@@ -87,20 +79,20 @@ extern "C" {
 #define ZLIB_FILEFUNC_SEEK_END (2)
 #define ZLIB_FILEFUNC_SEEK_SET (0)
 
-#define ZLIB_FILEFUNC_MODE_READ      (1)
-#define ZLIB_FILEFUNC_MODE_WRITE     (2)
-#define ZLIB_FILEFUNC_MODE_READWRITEFILTER (3)
+#define ZLIB_FILEFUNC_MODE_READ             (1)
+#define ZLIB_FILEFUNC_MODE_WRITE            (2)
+#define ZLIB_FILEFUNC_MODE_READWRITEFILTER  (3)
 
 #define ZLIB_FILEFUNC_MODE_EXISTING (4)
 #define ZLIB_FILEFUNC_MODE_CREATE   (8)
 
 #ifndef ZCALLBACK
-    #if (defined(WIN32) || defined(_WIN32) || defined (WINDOWS) || \
-         defined (_WINDOWS)) && defined(CALLBACK) && defined (USEWINDOWS_CALLBACK)
-        #define ZCALLBACK CALLBACK
-    #else
-        #define ZCALLBACK
-    #endif
+#  if (defined(WIN32) || defined(_WIN32) || defined (WINDOWS) || \
+       defined (_WINDOWS)) && defined(CALLBACK) && defined (USEWINDOWS_CALLBACK)
+#    define ZCALLBACK CALLBACK
+#  else
+#    define ZCALLBACK
+#  endif
 #endif
 
 typedef voidpf   (ZCALLBACK *open_file_func)      OF((voidpf opaque, const char* filename, int mode));

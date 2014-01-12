@@ -9,8 +9,8 @@ It also has the latest bug fixes that having been found all over the internet in
 
 *AES Encryption*
 
-+ Requires all files in the aes folder
 + Requires #define HAVE_AES
++ Requires AES library files
 
 When using the zip library with password protection it will use AES 256-bit encryption. 
 When using the unzip library it will automatically use AES when applicable. 
@@ -59,6 +59,7 @@ unzOpen2(filename, &filefunc32);
 *BZIP2*
 
 + Requires #define HAVE_BZIP2
++ Requires BZIP2 library
 
 *Windows RT*
 

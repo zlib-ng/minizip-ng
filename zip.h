@@ -1,37 +1,19 @@
 /* zip.h -- IO on .zip files using zlib
    Version 1.1, February 14h, 2010
-   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+   part of the MiniZip project
 
-   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
-
+   Copyright (C) 1998-2010 Gilles Vollant
+     http://www.winimage.com/zLibDll/minizip.html
    Modifications for Zip64 support
-   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+     Copyright (C) 2009-2010 Mathias Svensson
+     http://result42.com
 
-   ---------------------------------------------------------------------------
-
-   Condition of use and distribution are the same than zlib :
-
-   This software is provided 'as-is', without any express or implied
-   warranty.  In no event will the authors be held liable for any damages
-   arising from the use of this software.
-
-   Permission is granted to anyone to use this software for any purpose,
-   including commercial applications, and to alter it and redistribute it
-   freely, subject to the following restrictions:
-
-   1. The origin of this software must not be misrepresented; you must not
-      claim that you wrote the original software. If you use this software
-      in a product, an acknowledgment in the product documentation would be
-      appreciated but is not required.
-   2. Altered source versions must be plainly marked as such, and must not be
-      misrepresented as being the original software.
-   3. This notice may not be removed or altered from any source distribution.
-
-   ---------------------------------------------------------------------------
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _zip12_H
-#define _zip12_H
+#ifndef _ZIP_H
+#define _ZIP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -215,4 +197,4 @@ extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment));
 }
 #endif
 
-#endif /* _zip64_H */
+#endif /* _ZIP_H */

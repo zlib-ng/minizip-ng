@@ -1,31 +1,17 @@
 /* zip.c -- IO on .zip files using zlib
    Version 1.1, February 14h, 2010
-   part of the MiniZip project - ( http://www.winimage.com/zLibDll/minizip.html )
+   part of the MiniZip project
 
-   Copyright (C) 1998-2010 Gilles Vollant (minizip) ( http://www.winimage.com/zLibDll/minizip.html )
-
+   Copyright (C) 1998-2010 Gilles Vollant
+     http://www.winimage.com/zLibDll/minizip.html
    Modifications for Zip64 support
-   Copyright (C) 2009-2010 Mathias Svensson ( http://result42.com )
+     Copyright (C) 2009-2010 Mathias Svensson
+     http://result42.com
+   Modifications for AES, PKWARE disk spanning
+     Copyright (C) 2010-2014 Nathan Moinvaziri
 
-   For more info read MiniZip_info.txt
-
-   ------------------------------------------------------------------------------------
-
-   Changes in zip.c
-
-   Oct-2009 - Mathias Svensson - Remove old C style function prototypes
-   Oct-2009 - Mathias Svensson - Added Zip64 Support when creating new file archives
-   Oct-2009 - Mathias Svensson - Did some code cleanup and refactoring to get better overview of some functions.
-   Oct-2009 - Mathias Svensson - Added zipRemoveExtraInfoBlock to strip extra field data from its ZIP64 data
-                                 It is used when recreting zip archive with RAW when deleting items from a zip.
-                                 ZIP64 data is automaticly added to items that needs it, and existing ZIP64
-                                 data need to be removed.
-   Oct-2009 - Mathias Svensson - Added support for BZIP2 as compression mode (bzip2 lib is required)
-   Jan-2010 - back to unzip and minizip 1.0 name scheme, with compatibility layer
-   Aug-2010 - Nathan Moinvaziri - Added PKZIP spanning support
-   May-2012 - Nathan Moinvaziri - Added AES encryption support
-   Jul-2012 - Nathan Moinvaziri - Clean up, removed zipRemoveExtraInfoBlock
-
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 #include <stdio.h>

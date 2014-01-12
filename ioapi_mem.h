@@ -6,16 +6,13 @@
    not have auto-extending buffers and do not inform anyone else that the
    data has been written. It is really intended for accessing a zip archive
    embedded in an application such that I can write an installer with no
-   external files. Creation of archives has not been attempted, although
-   parts of the framework are present.
-
-   Based on Unzip ioapi.c version 0.22, May 19th, 2003
+   external files.
 
    Copyright (C) 1998-2003 Gilles Vollant
              (C) 2003 Justin Fletcher
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 

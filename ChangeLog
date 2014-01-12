@@ -1,3 +1,13 @@
+Changes since 1.1
+- Added PKZIP spanning support
+- Added AES encryption support
+- Clean up & changed unzLocateFile to support custom comparison function
+- Clean up, removed zipRemoveExtraInfoBlock
+
+  Credits
+
+    Nathan Moinvaziri
+
 Change in 1.1
 - Added ZIP64 support for unzip ( by Even Rouault )
 - Added ZIP64 support for zip ( by Mathias Svensson )
@@ -6,15 +16,47 @@ Change in 1.1
 - Added unzip patch for BZIP Compression method (patch create by Daniel Borca)
 - Added BZIP Compress method for zip
 - Did some refactoring and code cleanup
-
+   
  Credits
  
   Gilles Vollant    - Original MiniZip author
   Even Rouault      - ZIP64 unzip Support
-  Daniel Borca      - BZip Compression method support in unzip
-  Mathias Svensson  - ZIP64 zip support
-  Mathias Svensson  - BZip Compression method support in zip
 
+   2007-2008
+    - Addition of cpl_unzGetCurrentFileZStreamPos
+    - Decoration of symbol names unz* -> cpl_unz*
+    - Remove old C style function prototypes
+    - Add unzip support for ZIP64
+   
+  Daniel Borca      - BZip Compression method support in unzip
+  Mathias Svensson  - ZIP64 zip support ( http://result42.com )
+
+   Oct-2009 unzip.c
+    - Removed cpl_* from symbol names
+    - Fixed problem if uncompressed size was > 4G and compressed size was <4G
+      should only read the compressed/uncompressed size from the Zip64 format if
+      the size from normal header was 0xffffffff
+    - Applied some bug fixes from patches received from Gilles Vollant
+    - Applied support to unzip files with compression method BZIP2 (bzip2 lib is required)
+      Patch created by Daniel Borca
+
+   Oct-2009 zip.c
+    - Remove old C style function prototypes
+    - Added Zip64 Support when creating new file archives
+    - Did some code cleanup and refactoring to get better overview of some functions.
+    - Added zipRemoveExtraInfoBlock to strip extra field data from its ZIP64 data
+      It is used when recreting zip archive with RAW when deleting items from a zip.
+      ZIP64 data is automaticly added to items that needs it, and existing ZIP64
+      data need to be removed.
+    - Added support for BZIP2 as compression mode (bzip2 lib is required)
+   
+   Oct-2009 ioapi.x
+    - Defined ZPOS64_T to fpos_t on windows and u_int64_t on linux. 
+    - Change to fseeko64, ftello64 and fopen64 so large files would work on linux.
+      More if/def section may be needed to support other platforms
+    - Defined fxxxx64 calls to normal fopen/ftell/fseek so they would compile on windows.
+     (but you should use iowin32.c for windows instead)
+              
 Change in 1.01e (12 feb 05)
 - Fix in zipOpen2 for globalcomment (Rolf Kalbermatter)
 - Fix possible memory leak in unzip.c (Zoran Stevanovic)
