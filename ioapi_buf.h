@@ -10,6 +10,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+#ifndef _IOAPI_BUF_H
+#define _IOAPI_BUF_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,3 +42,5 @@ typedef struct ourbuffer_s {
 
 void fill_buffer_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
 void fill_buffer_filefunc64 OF((zlib_filefunc64_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
+
+#endif
