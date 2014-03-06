@@ -183,7 +183,7 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
         !unz64local_in_range(0, 23, ptm->tm_hour) ||
         !unz64local_in_range(0, 59, ptm->tm_min) ||
         !unz64local_in_range(0, 59, ptm->tm_sec))
-      // Invalid date stored, so don't return it.
+      /* Invalid date stored, so don't return it. */
       memset(ptm, 0, sizeof(tm_unz));
 #undef unz64local_in_range
 }
@@ -1536,10 +1536,10 @@ extern ZPOS64_T ZEXPORT unzGetCurrentFileZStreamPos64( unzFile file)
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
     s = (unz64_s*)file;
     if (file == NULL)
-        return 0; //UNZ_PARAMERROR;
+        return 0; /* UNZ_PARAMERROR; */
     pfile_in_zip_read_info= s->pfile_in_zip_read;
     if (pfile_in_zip_read_info == NULL)
-        return 0; //UNZ_PARAMERROR;
+        return 0; /* UNZ_PARAMERROR; */
     return pfile_in_zip_read_info->pos_in_zipfile + pfile_in_zip_read_info->byte_before_the_zipfile;
 }
 /* Addition for GDAL : END */
@@ -1803,7 +1803,7 @@ extern uLong ZEXPORT unzGetOffset(unzFile file)
     ZPOS64_T offset64;
 
     if (file == NULL)
-        return 0; //UNZ_PARAMERROR;
+        return 0; /* UNZ_PARAMERROR; */
     offset64 = unzGetOffset64(file);
     return (uLong)offset64;
 }
@@ -1813,7 +1813,7 @@ extern ZPOS64_T ZEXPORT unzGetOffset64(unzFile file)
     unz64_s* s;
 
     if (file == NULL)
-        return 0; //UNZ_PARAMERROR;
+        return 0; /* UNZ_PARAMERROR; */
     s = (unz64_s*)file;
     if (!s->current_file_ok)
         return 0;
