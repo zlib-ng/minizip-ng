@@ -1,3 +1,11 @@
+More changes since 1.1
+- Added support for AE-2 zip files
+- Fixed error in AE-1 not testing CRC32
+
+  Credits
+  
+    Steven Christy
+
 Changes since 1.1
 - Added PKZIP spanning support
 - Added AES encryption support
