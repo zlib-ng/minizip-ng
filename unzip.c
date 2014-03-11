@@ -98,6 +98,7 @@ typedef struct unz_file_info64_internal_s
 #ifdef HAVE_AES
     uLong aes_encryption_mode;
     uLong aes_compression_method;
+    uLong aes_version;
 #endif
 } unz_file_info64_internal;
 
@@ -771,6 +772,7 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
 #ifdef HAVE_AES
     file_info_internal.aes_compression_method = 0;
     file_info_internal.aes_encryption_mode = 0;
+    file_info_internal.aes_version = 0;
 #endif
 
     lSeek += file_info.size_filename;
@@ -884,8 +886,10 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
                 /* Verify version info */
                 if (unz64local_getShort(&s->z_filefunc, s->filestream_with_CD, &uL) != UNZ_OK)
                     err = UNZ_ERRNO;
-                if (uL != 1)
+                /* Support AE-1 and AE-2 */
+                if (uL != 1 && uL != 2)
                     err = UNZ_ERRNO;
+                file_info_internal.aes_version = uL;
                 if (unz64local_getByte(&s->z_filefunc, s->filestream_with_CD, &uL) != UNZ_OK)
                     err = UNZ_ERRNO;
                 if ((char)uL != 'A')
@@ -1610,6 +1614,17 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
             err = UNZ_CRCERROR;
         if (memcmp(authcode, rauthcode, AES_AUTHCODESIZE) != 0)
             err = UNZ_CRCERROR;
+            
+        /* AES zip version AE-1 will expect a valid crc as well */
+        if ( s->cur_file_info_internal.aes_version == 0x0001 )
+        {
+            if ((pfile_in_zip_read_info->rest_read_uncompressed == 0) && 
+                (!pfile_in_zip_read_info->raw))
+            {
+                if (pfile_in_zip_read_info->crc32 != pfile_in_zip_read_info->crc32_wait)
+                    err = UNZ_CRCERROR;
+            }
+        }
     }
     else
 #endif
