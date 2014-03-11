@@ -193,7 +193,7 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
 local int unz64local_getByte(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int *pi)
 {
     unsigned char c;
-    int err = (int)ZREAD64(*pzlib_filefunc_def, filestream, &c,1);
+    int err = (int)ZREAD64(*pzlib_filefunc_def, filestream, &c, 1);
     if (err == 1)
     {
         *pi = (int)c;
@@ -1095,8 +1095,8 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     uInt iSizeVar;
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
-    ZPOS64_T offset_local_extrafield;  /* offset of the local extra field */
-    uInt  size_local_extrafield;    /* size of the local extra field */
+    ZPOS64_T offset_local_extrafield;
+    uInt  size_local_extrafield;
 #ifndef NOUNCRYPT
     char source[12];
 #else
@@ -1533,20 +1533,18 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
     return err;
 }
 
-/* Addition for GDAL : START */
-extern ZPOS64_T ZEXPORT unzGetCurrentFileZStreamPos64( unzFile file)
+extern ZPOS64_T ZEXPORT unzGetCurrentFileZStreamPos64(unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
     s = (unz64_s*)file;
     if (file == NULL)
-        return 0; /* UNZ_PARAMERROR; */
+        return 0; /* UNZ_PARAMERROR */
     pfile_in_zip_read_info= s->pfile_in_zip_read;
     if (pfile_in_zip_read_info == NULL)
-        return 0; /* UNZ_PARAMERROR; */
+        return 0; /* UNZ_PARAMERROR */
     return pfile_in_zip_read_info->pos_in_zipfile + pfile_in_zip_read_info->byte_before_the_zipfile;
 }
-/* Addition for GDAL : END */
 
 extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len)
 {
@@ -1614,19 +1612,10 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
             err = UNZ_CRCERROR;
         if (memcmp(authcode, rauthcode, AES_AUTHCODESIZE) != 0)
             err = UNZ_CRCERROR;
-            
-        /* AES zip version AE-1 will expect a valid crc as well */
-        if ( s->cur_file_info_internal.aes_version == 0x0001 )
-        {
-            if ((pfile_in_zip_read_info->rest_read_uncompressed == 0) && 
-                (!pfile_in_zip_read_info->raw))
-            {
-                if (pfile_in_zip_read_info->crc32 != pfile_in_zip_read_info->crc32_wait)
-                    err = UNZ_CRCERROR;
-            }
-        }
     }
-    else
+    /* AES zip version AE-1 will expect a valid crc as well */
+    if ((s->cur_file_info.compression_method != AES_METHOD) ||
+        (s->cur_file_info_internal.aes_version == 0x0001))
 #endif
     {
         if ((pfile_in_zip_read_info->rest_read_uncompressed == 0) &&
@@ -1752,7 +1741,6 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
     return err;
 }
 
-/* Additions by Ryan Haksi (mailto://cryogen@infoserve.net) for random access */
 extern int ZEXPORT unzGetFilePos(unzFile file, unz_file_pos* file_pos)
 {
     unz64_file_pos file_pos64;
@@ -1812,7 +1800,6 @@ extern int ZEXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos* file_pos
     return err;
 }
 
-/* Additions by RX '2004 */
 extern uLong ZEXPORT unzGetOffset(unzFile file)
 {
     ZPOS64_T offset64;
