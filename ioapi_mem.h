@@ -15,6 +15,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+#ifndef _IOAPI_MEM_H
+#define _IOAPI_MEM_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,3 +44,5 @@ typedef struct ourmemory_s {
 } ourmemory_t;
 
 void fill_memory_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourmemory_t *ourmem));
+
+#endif

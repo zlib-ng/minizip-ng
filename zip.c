@@ -94,7 +94,7 @@
 #  define TRYFREE(p) {if (p) free(p);}
 #endif
 
-// NOT sure that this work on ALL platform
+/* NOT sure that this work on ALL platform */
 #define MAKEULONG64(a, b) ((ZPOS64_T)(((unsigned long)(a)) | ((ZPOS64_T)((unsigned long)(b))) << 32))
 
 #ifndef DEF_MEM_LEVEL
@@ -285,12 +285,13 @@ local uLong zip64local_TmzDateToDosDate(const tm_zip* ptm)
 {
     uLong year;
 #define zip64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
-    // Years supported:
-    // * [00, 79] (assumed to be between 2000 and 2079)
-    // * [80, 207] (assumed to be between 1980 and 2107, typical output of old
-    //   software that does 'year-1900' to get a double digit year)
-    // * [1980, 2107]
-    // Due to the date format limitations, only years between 1980 and 2107 can be stored.
+    /* Years supported:
+       * [00, 79] (assumed to be between 2000 and 2079)
+       * [80, 207] (assumed to be between 1980 and 2107, typical output of old
+         software that does 'year-1900' to get a double digit year)
+       * [1980, 2107]
+       Due to the date format limitations, only years between 1980 and 2107 can be stored.
+    */
     if (!(zip64local_in_range(1980, 2107, ptm->tm_year) || zip64local_in_range(0, 207, ptm->tm_year)) ||
         !zip64local_in_range(0, 11, ptm->tm_mon) ||
         !zip64local_in_range(1, 31, ptm->tm_mday) ||
@@ -301,11 +302,11 @@ local uLong zip64local_TmzDateToDosDate(const tm_zip* ptm)
 #undef zip64local_in_range
 
     year = (uLong)ptm->tm_year;
-    if (year >= 1980) // range [1980, 2107]
+    if (year >= 1980) /* range [1980, 2107] */
         year -= 1980;
-    else if (year >= 80) // range [80, 99]
+    else if (year >= 80) /* range [80, 99] */
         year -= 80;
-    else // range [00, 79]
+    else /* range [00, 79] */
         year += 20;
 
     return
@@ -1802,7 +1803,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, ZPOS64_T uncompressed_si
         {
             if (zi->ci.pos_zip64extrainfo > 0)
             {
-                // Update the size in the ZIP64 extended field.
+                /* Update the size in the ZIP64 extended field. */
                 if (ZSEEK64(zi->z_filefunc, zi->filestream, zi->ci.pos_zip64extrainfo + 4, ZLIB_FILEFUNC_SEEK_SET) != 0)
                     err = ZIP_ERRNO;
 
@@ -1812,7 +1813,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, ZPOS64_T uncompressed_si
                     err = zip64local_putValue(&zi->z_filefunc, zi->filestream, compressed_size, 8);
             }
             else
-                err = ZIP_BADZIPFILE; // Caller passed zip64 = 0, so no room for zip64 info -> fatal
+                err = ZIP_BADZIPFILE; /* Caller passed zip64 = 0, so no room for zip64 info -> fatal */
         }
         else
         {
@@ -1968,7 +1969,7 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
     if (err == ZIP_OK)
     {
         if (zi->number_entry >= 0xffff)
-            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)0xffff, 2); // use value in ZIP64 record
+            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)0xffff, 2); /* use value in ZIP64 record */
         else
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)zi->number_entry, 2);
     }
@@ -1976,7 +1977,7 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
     if (err == ZIP_OK)
     {
         if (zi->number_entry >= 0xffff)
-            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)0xffff, 2); // use value in ZIP64 record
+            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)0xffff, 2); /* use value in ZIP64 record */
         else
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)zi->number_entry, 2);
     }
