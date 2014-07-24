@@ -22,6 +22,10 @@
 
 #define IOBUF_BUFFERSIZE (64 * 1024)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 voidpf ZCALLBACK fopen_buf_func OF((voidpf opaque,const char* filename,int mode));
 voidpf ZCALLBACK fopen64_buf_func OF((voidpf opaque,const char* filename,int mode));
 voidpf ZCALLBACK fopendisk_buf_func OF((voidpf opaque, voidpf stream_cd, int number_disk, int mode));
@@ -42,5 +46,9 @@ typedef struct ourbuffer_s {
 
 void fill_buffer_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
 void fill_buffer_filefunc64 OF((zlib_filefunc64_def* pzlib_filefunc_def, ourbuffer_t *ourbuf));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -25,6 +25,9 @@
 #include "zlib.h"
 #include "ioapi.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 voidpf ZCALLBACK fopen_mem_func OF((voidpf opaque,const char* filename,int mode));
 voidpf ZCALLBACK fopendisk_mem_func OF((voidpf opaque, voidpf stream, int number_disk, int mode));
@@ -44,5 +47,9 @@ typedef struct ourmemory_s {
 } ourmemory_t;
 
 void fill_memory_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def, ourmemory_t *ourmem));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
