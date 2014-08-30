@@ -306,8 +306,11 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
         return 0;
 
     if (ZSEEK64(*pzlib_filefunc_def, filestream, 0, ZLIB_FILEFUNC_SEEK_END) != 0)
+    {
+        TRYFREE(buf);
         return 0;
-
+    }
+    
     file_size = ZTELL64(*pzlib_filefunc_def, filestream);
 
     if (max_back > file_size)
@@ -934,19 +937,14 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
 
         if (lSeek != 0)
         {
-            if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, lSeek, ZLIB_FILEFUNC_SEEK_CUR) == 0)
-                lSeek = 0;
-            else
+            if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, lSeek, ZLIB_FILEFUNC_SEEK_CUR) != 0)
                 err = UNZ_ERRNO;
         }
 
         if ((file_info.size_file_comment > 0) && (comment_size > 0))
             if (ZREAD64(s->z_filefunc, s->filestream_with_CD, comment, (uLong)bytes_to_read) != bytes_to_read)
                 err = UNZ_ERRNO;
-        lSeek += file_info.size_file_comment - (uLong)bytes_to_read;
     }
-    else
-        lSeek += file_info.size_file_comment;
 
     if ((err == UNZ_OK) && (pfile_info != NULL))
         *pfile_info = file_info;
