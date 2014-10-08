@@ -391,6 +391,7 @@ int fseek_buf_internal_func (opaque, stream, offset, origin)
                     streamio->writeBufferPos += (uLong)offset;
                     return 0;
                 }
+                offset -= (streamio->writeBufferLength - streamio->writeBufferPos);
             }
 
             if (fflush_buf(opaque, stream) < 0)

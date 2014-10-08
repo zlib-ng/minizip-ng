@@ -1503,7 +1503,9 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file,const void* buf,unsigned int
             else
             {
                 uLong uTotalOutBefore_lo = zi->ci.bstream.total_out_lo32;
-                err = BZ2_bzCompress(&zi->ci.bstream,  BZ_RUN);
+                uLong uTotalOutBefore_hi = zi->ci.bstream.total_out_hi32;
+                
+                err = BZ2_bzCompress(&zi->ci.bstream, BZ_RUN);
 
                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.bstream.total_out_lo32 - uTotalOutBefore_lo);
             }

@@ -944,7 +944,10 @@ local int unz64local_GetCurrentFileInfoInternal(unzFile file, unz_file_info64 *p
         if ((file_info.size_file_comment > 0) && (comment_size > 0))
             if (ZREAD64(s->z_filefunc, s->filestream_with_CD, comment, (uLong)bytes_to_read) != bytes_to_read)
                 err = UNZ_ERRNO;
+        lSeek += file_info.size_file_comment - (uLong)bytes_to_read;
     }
+    else
+        lSeek += file_info.size_file_comment;
 
     if ((err == UNZ_OK) && (pfile_info != NULL))
         *pfile_info = file_info;
