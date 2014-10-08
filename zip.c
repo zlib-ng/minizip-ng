@@ -578,7 +578,10 @@ local ZPOS64_T zip64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
         return 0;
 
     if (ZSEEK64(*pzlib_filefunc_def, filestream, 0, ZLIB_FILEFUNC_SEEK_END) != 0)
+    {
+        TRYFREE(buf);
         return 0;
+    }
 
     file_size = ZTELL64(*pzlib_filefunc_def, filestream);
 
@@ -662,6 +665,7 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
 {
     zip64_internal ziinit;
     zip64_internal* zi;
+#ifndef NO_ADDFILEINEXISTINGZIP
     ZPOS64_T byte_before_the_zipfile;   /* byte before the zipfile, (>0 for sfx)*/
     ZPOS64_T size_central_dir;          /* size of the central directory  */
     ZPOS64_T offset_central_dir;        /* offset of start of central directory */
@@ -673,6 +677,7 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
     uLong size_comment;
     size_t buf_size = SIZEDATA_INDATABLOCK;
     void* buf_read;
+#endif
     int err = ZIP_OK;
     int mode;
 
@@ -1498,7 +1503,6 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file,const void* buf,unsigned int
             else
             {
                 uLong uTotalOutBefore_lo = zi->ci.bstream.total_out_lo32;
-                uLong uTotalOutBefore_hi = zi->ci.bstream.total_out_hi32;
                 err = BZ2_bzCompress(&zi->ci.bstream,  BZ_RUN);
 
                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.bstream.total_out_lo32 - uTotalOutBefore_lo);

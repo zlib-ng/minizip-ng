@@ -155,7 +155,6 @@ int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, u
     FILE *fin = NULL;
     unsigned long calculate_crc = 0;
     unsigned long size_read = 0;
-    unsigned long total_read = 0;
     int err = ZIP_OK;
 
     fin = FOPEN_FUNC(filenameinzip,"rb");
@@ -175,8 +174,6 @@ int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, u
 
             if (size_read > 0)
                 calculate_crc = crc32(calculate_crc,buf,size_read);
-
-            total_read += size_read;
         }
         while ((err == ZIP_OK) && (size_read > 0));
     }
@@ -209,7 +206,9 @@ void do_help()
 int main(int argc, char *argv[])
 {
     zipFile zf = NULL;
+#ifdef USEWIN32IOAPI
     zlib_filefunc64_def ffunc = {0};
+#endif
     char *zipfilename = NULL;
     const char* password = NULL;
     void* buf = NULL;
@@ -217,7 +216,6 @@ int main(int argc, char *argv[])
     int zipfilenamearg = 0;
     int errclose = 0;
     int err = 0;
-    int len = 0;
     int i = 0;
     int opt_overwrite = APPEND_STATUS_CREATE;
     int opt_compress_level = Z_DEFAULT_COMPRESSION;

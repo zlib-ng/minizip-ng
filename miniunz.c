@@ -218,7 +218,6 @@ void do_help()
 
 int do_list(unzFile uf)
 {
-    uLong i = 0;
     int err = unzGoToFirstFile(uf);
     if (err != UNZ_OK)
     {
@@ -300,7 +299,6 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_o
     int err = UNZ_OK;
     int errclose = UNZ_OK;
     int skip = 0;
-    uLong ratio = 0;
     char filename_inzip[256] = {0};
     char* filename_withoutpath = NULL;
     const char* write_filename = NULL;
@@ -457,7 +455,6 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
 int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite,
     const char* password)
 {
-    int err = UNZ_OK;
     if (unzLocateFile(uf, filename, NULL) != UNZ_OK)
     {
         printf("file %s not found in the zipfile\n", filename);
