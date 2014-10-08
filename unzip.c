@@ -158,7 +158,6 @@ typedef struct
                                         /* private info about it*/
     file_in_zip64_read_info_s* pfile_in_zip_read;
                                         /* structure about the current file if we are decompressing it */
-    int encrypted;                      /* is the current file encrypted */
     int isZip64;                        /* is the current file zip64 */
 #ifndef NOUNCRYPT
     unsigned long keys[3];              /* keys defining the pseudo-random sequence */
@@ -538,7 +537,6 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
     us.byte_before_the_zipfile = central_pos - (us.offset_central_dir + us.size_central_dir);
     us.central_pos = central_pos;
     us.pfile_in_zip_read = NULL;
-    us.encrypted = 0;
 
     s = (unz64_s*)ALLOC(sizeof(unz64_s));
     if (s != NULL)
@@ -1235,16 +1233,14 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     pfile_in_zip_read_info->stream.avail_in = (uInt)0;
 
     s->pfile_in_zip_read = pfile_in_zip_read_info;
-    s->encrypted = 0;
 
 #ifndef NOUNCRYPT
-    if (password != NULL)
+    if ((password != NULL) && ((s->cur_file_info.flag & 1) != 0))
     {
         if (ZSEEK64(s->z_filefunc, s->filestream,
                   s->pfile_in_zip_read->pos_in_zipfile + s->pfile_in_zip_read->byte_before_the_zipfile,
                   ZLIB_FILEFUNC_SEEK_SET) != 0)
             return UNZ_INTERNALERROR;
-        s->encrypted = 1;
 #ifdef HAVE_AES
         if (s->cur_file_info.compression_method == AES_METHOD)
         {
@@ -1278,10 +1274,10 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
             s->pcrc_32_tab = (const unsigned long*)get_crc_table();
             init_keys(password, s->keys, s->pcrc_32_tab);
 
-            if (ZREAD64(s->z_filefunc, s->filestream, source, 12)<12)
+            if (ZREAD64(s->z_filefunc, s->filestream, source, 12) < 12)
                 return UNZ_INTERNALERROR;
 
-            for (i = 0; i<12; i++)
+            for (i = 0; i < 12; i++)
                 zdecode(s->keys, s->pcrc_32_tab, source[i]);
 
             pfile_in_zip_read_info->rest_read_compressed -= 12;
@@ -1396,7 +1392,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             }
 
 #ifndef NOUNCRYPT
-            if (s->encrypted)
+            if ((s->cur_file_info.flag & 1) != 0)
             {
 #ifdef HAVE_AES
                 if (s->cur_file_info.compression_method == AES_METHOD)

@@ -149,7 +149,6 @@ typedef struct
     Byte buffered_data[Z_BUFSIZE];  /* buffer contain compressed data to be writ*/
     uLong dosDate;
     uLong crc32;
-    int  encrypt;
     int  zip64;                     /* Add ZIP64 extended information in the extra field */
     uLong number_disk;              /* number of current disk used for spanning ZIP */
     ZPOS64_T pos_zip64extrainfo;
@@ -1026,7 +1025,6 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
     zi->ci.method = method;
     zi->ci.compression_method = method;
     zi->ci.crc32 = 0;
-    zi->ci.encrypt = 0;
     zi->ci.stream_initialised = 0;
     zi->ci.pos_in_buffered_data = 0;
     zi->ci.raw = raw;
@@ -1042,6 +1040,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
         zi->ci.flag |= 1;
 #ifdef HAVE_AES
         zi->ci.method = AES_METHOD;
+#else
+        zi->ci.flag |= 0x40;
 #endif
     }
 
@@ -1268,7 +1268,6 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
     zi->ci.crypt_header_size = 0;
     if ((err == Z_OK) && (password != NULL))
     {
-        zi->ci.encrypt = 1;
 #ifdef HAVE_AES
         if (zi->ci.method == AES_METHOD)
         {
@@ -1287,9 +1286,9 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
 
             fcrypt_init(AES_ENCRYPTIONMODE, password, strlen(password), saltvalue, passverify, &zi->ci.aes_ctx);
 
-            if (ZWRITE64(zi->z_filefunc, zi->filestream,saltvalue,saltlength) != saltlength)
+            if (ZWRITE64(zi->z_filefunc, zi->filestream, saltvalue, saltlength) != saltlength)
                 err = ZIP_ERRNO;
-            if (ZWRITE64(zi->z_filefunc, zi->filestream,passverify,AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+            if (ZWRITE64(zi->z_filefunc, zi->filestream, passverify, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
                 err = ZIP_ERRNO;
 
             zi->ci.crypt_header_size = saltlength + AES_PWVERIFYSIZE + AES_AUTHCODESIZE;
@@ -1394,7 +1393,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
     uInt max_write = 0;
     ZPOS64_T size_available = 0;
 
-    if (zi->ci.encrypt != 0)
+    if ((zi->ci.flag & 1) != 0)
     {
 #ifndef NOCRYPT
 #ifdef HAVE_AES
