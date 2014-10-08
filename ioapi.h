@@ -82,9 +82,8 @@ extern "C" {
 #define ZLIB_FILEFUNC_MODE_READ             (1)
 #define ZLIB_FILEFUNC_MODE_WRITE            (2)
 #define ZLIB_FILEFUNC_MODE_READWRITEFILTER  (3)
-
-#define ZLIB_FILEFUNC_MODE_EXISTING (4)
-#define ZLIB_FILEFUNC_MODE_CREATE   (8)
+#define ZLIB_FILEFUNC_MODE_EXISTING         (4)
+#define ZLIB_FILEFUNC_MODE_CREATE           (8)
 
 #ifndef ZCALLBACK
 #  if (defined(WIN32) || defined(_WIN32) || defined (WINDOWS) || \
