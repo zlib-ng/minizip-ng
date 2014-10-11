@@ -143,6 +143,8 @@ extern unzFile ZEXPORT unzOpen64 OF((const void *path));
    open64_file_func callback. Under Windows, if UNICODE is defined, using fill_fopen64_filefunc, the path 
    is a pointer to a wide unicode string  (LPCTSTR is LPCWSTR), so const char* does not describe the reality */
 
+extern unzFile ZEXPORT unzOpenBuffer OF((const void* buffer, uLong size));
+/* Open a Zip file, like unzOpen, but from a buffer */
 extern unzFile ZEXPORT unzOpen2 OF((const char *path, zlib_filefunc_def* pzlib_filefunc_def));
 /* Open a Zip file, like unzOpen, but provide a set of file low level API for read/write operations */
 extern unzFile ZEXPORT unzOpen2_64 OF((const void *path, zlib_filefunc64_def* pzlib_filefunc_def));
