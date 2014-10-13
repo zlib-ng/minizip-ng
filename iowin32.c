@@ -27,9 +27,11 @@
 #  define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
-/*#ifndef IOWIN32_USING_WINRT_API
-#  define IOWIN32_USING_WINRT_API
-#endif*/
+#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(IOWIN32_USING_WINRT_API)))
+#  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define IOWIN32_USING_WINRT_API 1
+#  endif
+#endif
 
 voidpf  ZCALLBACK win32_open_file_func  OF((voidpf opaque, const char* filename, int mode));
 uLong   ZCALLBACK win32_read_file_func  OF((voidpf opaque, voidpf stream, void* buf, uLong size));
