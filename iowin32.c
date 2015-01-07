@@ -451,11 +451,11 @@ long ZCALLBACK win32_seek_file_func (voidpf opaque,voidpf stream,uLong offset,in
     if (hFile != NULL)
     {
         LARGE_INTEGER pos;
-        pos.QuadPart = 0;
+        pos.QuadPart = offset;
         if (!win32_setfilepointer_internal(hFile, pos, NULL, dwMoveMethod))
         {
             DWORD dwErr = GetLastError();
-            ((WIN32FILE_IOWIN*)stream)->error=(int)dwErr;
+            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
             ret = -1;
         }
         else
