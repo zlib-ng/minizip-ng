@@ -309,7 +309,7 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
         TRYFREE(buf);
         return 0;
     }
-    
+
     file_size = ZTELL64(*pzlib_filefunc_def, filestream);
 
     if (max_back > file_size)
@@ -1870,6 +1870,66 @@ extern ZPOS64_T ZEXPORT unztell64(unzFile file)
         return (ZPOS64_T)-1;
 
     return pfile_in_zip_read_info->total_out_64;
+}
+
+extern int ZEXPORT unzseek(unzFile file, z_off_t position)
+{
+    return unzseek64(file, (ZPOS64_T)position);
+}
+
+extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T position)
+{
+    unz64_s* s;
+    file_in_zip64_read_info_s* pfile_in_zip_read_info;
+    ZPOS64_T stream_pos_begin;
+    ZPOS64_T stream_pos_end;
+    int isWithinBuffer;
+
+    if (file == NULL)
+        return UNZ_PARAMERROR;
+
+    s = (unz64_s*)file;
+    pfile_in_zip_read_info = s->pfile_in_zip_read;
+
+    if (pfile_in_zip_read_info == NULL)
+        return UNZ_ERRNO;
+
+    if (pfile_in_zip_read_info->compression_method != 0)
+        return UNZ_ERRNO;
+
+    if (position > s->cur_file_info.compressed_size)
+        return UNZ_PARAMERROR;
+
+    stream_pos_end = pfile_in_zip_read_info->pos_in_zipfile;
+    stream_pos_begin = stream_pos_end;
+    if (stream_pos_begin > UNZ_BUFSIZE)
+        stream_pos_begin -= UNZ_BUFSIZE;
+    else
+        stream_pos_begin = 0;
+
+    isWithinBuffer = pfile_in_zip_read_info->stream.avail_in != 0 &&
+        (pfile_in_zip_read_info->rest_read_compressed != 0 || s->cur_file_info.compressed_size < UNZ_BUFSIZE) &&
+        position >= stream_pos_begin && position < stream_pos_end;
+
+    if (isWithinBuffer)
+    {
+        pfile_in_zip_read_info->stream.next_in += position - pfile_in_zip_read_info->total_out_64;
+        pfile_in_zip_read_info->stream.avail_in = (uInt)(stream_pos_end - position);
+    }
+    else
+    {
+        pfile_in_zip_read_info->stream.avail_in = 0;
+        pfile_in_zip_read_info->stream.next_in = 0;
+
+        pfile_in_zip_read_info->pos_in_zipfile = pfile_in_zip_read_info->offset_local_extrafield + position;
+        pfile_in_zip_read_info->rest_read_compressed = s->cur_file_info.compressed_size - position;
+    }
+
+    pfile_in_zip_read_info->rest_read_uncompressed -= (position - pfile_in_zip_read_info->total_out_64);
+    pfile_in_zip_read_info->stream.total_out = (uLong)position;
+    pfile_in_zip_read_info->total_out_64 = position;
+
+    return UNZ_OK;
 }
 
 extern int ZEXPORT unzeof(unzFile file)
