@@ -201,7 +201,7 @@ void display_zpos64(ZPOS64_T n, int size_char)
 void do_banner()
 {
     printf("MiniUnz 1.01b, demo of zLib + Unz package written by Gilles Vollant\n");
-    printf("more info at http://www.winimage.com/zLibDll/unzip.html\n\n");
+    printf("more info at http://www.winimage.com/zLibDll/index.html\n\n");
 }
 
 void do_help()
