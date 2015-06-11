@@ -201,6 +201,11 @@ void do_help()
            "  -1  Compress faster\n" \
            "  -9  Compress better\n\n" \
            "  -j  exclude path. store only the file name.\n\n");
+#ifdef CONST_SALT
+#define STR(x) #x
+#define STRINGIFY(x) STR(x)
+    printf("Compiled with constant salt: '%s'\n\n", STRINGIFY(CONST_SALT));
+#endif
 }
 
 int main(int argc, char *argv[])
@@ -338,9 +343,14 @@ int main(int argc, char *argv[])
         int zip64 = 0;
 
         /* Skip command line options */
-        if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) &&
-            (argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
-            (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9')))
+        if (
+                (
+                 ((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) &&
+                (
+                 (argv[i][1] == 'o') || (argv[i][1] == 'O') || (argv[i][1] == 'a') || (argv[i][1] == 'A') ||
+                 (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9'))
+                )
+           )
             continue;
 
         /* Get information about the file on disk so we can store it in zip */

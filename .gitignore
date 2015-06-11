@@ -1,0 +1,10 @@
+*.o
+libaes.a
+libz.a
+minizip
+miniunz
+tags
+cscope.files
+cscope.out
+*.swp
+*.swo
