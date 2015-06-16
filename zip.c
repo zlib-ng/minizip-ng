@@ -1277,10 +1277,23 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
                 return Z_ERRNO;
 
             saltlength = SALT_LENGTH(AES_ENCRYPTIONMODE);
-
+#ifdef CONST_SALT
+#define STR(x) #x
+#define STRINGIFY(x) STR(x)
+            const char * csalt = STRINGIFY(CONST_SALT);
+            int clen = strlen(csalt);
+            for (int i = 0; i < saltlength; i++)
+            {
+                if (i < clen)
+                    saltvalue[i] = csalt[i];
+                else
+                    saltvalue[i] = 0;
+            }
+#else
             prng_init(entropy_fun, zi->ci.aes_rng);
             prng_rand(saltvalue, saltlength, zi->ci.aes_rng);
             prng_end(zi->ci.aes_rng);
+#endif
 
             fcrypt_init(AES_ENCRYPTIONMODE, password, strlen(password), saltvalue, passverify, &zi->ci.aes_ctx);
 

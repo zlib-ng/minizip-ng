@@ -1,8 +1,10 @@
 CC=cc
-CFLAGS=-O -I../..
+CFLAGS=-O -I../.. -DHAVE_AES #-DCONST_SALT=constant_salt
 
-UNZ_OBJS = miniunz.o unzip.o ioapi.o ../../libz.a
-ZIP_OBJS = minizip.o zip.o   ioapi.o ../../libz.a
+# use CONST_SALT to save unzip time
+
+UNZ_OBJS = miniunz.o unzip.o ioapi.o libz.a libaes.a
+ZIP_OBJS = minizip.o zip.o   ioapi.o libz.a libaes.a
 TEST_FILES = test.zip readme.old readme.txt
 
 .c.o:
@@ -10,10 +12,13 @@ TEST_FILES = test.zip readme.old readme.txt
 
 all: miniunz minizip
 
-miniunz:  $(UNZ_OBJS)
+libaes.a:
+	cd aes; $(MAKE) $(MFLAGS)
+
+miniunz:  $(UNZ_OBJS) libaes.a
 	$(CC) $(CFLAGS) -o $@ $(UNZ_OBJS)
 
-minizip:  $(ZIP_OBJS)
+minizip:  $(ZIP_OBJS) libaes.a
 	$(CC) $(CFLAGS) -o $@ $(ZIP_OBJS)
 
 .PHONY: test clean
