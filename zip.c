@@ -1501,7 +1501,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file,const void* buf,unsigned int
             {
                 uLong uTotalOutBefore_lo = zi->ci.bstream.total_out_lo32;
                 uLong uTotalOutBefore_hi = zi->ci.bstream.total_out_hi32;
-                
+
                 err = BZ2_bzCompress(&zi->ci.bstream, BZ_RUN);
 
                 zi->ci.pos_in_buffered_data += (uInt)(zi->ci.bstream.total_out_lo32 - uTotalOutBefore_lo);
@@ -1778,7 +1778,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, ZPOS64_T uncompressed_si
 #endif
     /* Restore comment to correct position */
     for (i = 0; i < zi->ci.size_comment; i++)
-        zi->ci.central_header[zi->ci.size_centralheader+i] = 
+        zi->ci.central_header[zi->ci.size_centralheader+i] =
             zi->ci.central_header[zi->ci.size_centralheader+zi->ci.size_centralextrafree+i];
     zi->ci.size_centralheader += zi->ci.size_comment;
 
@@ -2003,7 +2003,7 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
         size_global_comment = (uInt)strlen(global_comment);
     if (err == ZIP_OK)
         err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)size_global_comment, 2);
-    if (err == ZIP_OK && global_comment > 0)
+    if (err == ZIP_OK && size_global_comment > 0)
     {
         if (ZWRITE64(zi->z_filefunc, zi->filestream, global_comment, size_global_comment) != size_global_comment)
             err = ZIP_ERRNO;
