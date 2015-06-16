@@ -608,7 +608,7 @@ local int unzGoToNextDisk(unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
-    int number_disk_next;
+    uLong number_disk_next = 0;
 
     s = (unz64_s*)file;
     if (s == NULL)

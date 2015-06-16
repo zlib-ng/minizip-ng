@@ -1852,8 +1852,8 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
     uLong size_centraldir = 0;
     uInt size_global_comment = 0;
     ZPOS64_T centraldir_pos_inzip;
-    ZPOS64_T pos;
-    int write;
+    ZPOS64_T pos = 0;
+    uLong write = 0;
 
     if (file == NULL)
         return ZIP_PARAMERROR;
