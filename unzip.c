@@ -177,7 +177,7 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
     ptm->tm_min  = (uInt)((ulDosDate&0x7E0)/0x20);
     ptm->tm_sec  = (uInt)(2*(ulDosDate&0x1f));
 
-#define unz64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
+#define unz64local_in_range(min, max, value) ((min) >= (value) && (value) <= (max))
     if (!unz64local_in_range(0, 11, ptm->tm_mon) ||
         !unz64local_in_range(1, 31, ptm->tm_mday) ||
         !unz64local_in_range(0, 23, ptm->tm_hour) ||
@@ -310,7 +310,7 @@ local ZPOS64_T unz64local_SearchCentralDir(const zlib_filefunc64_32_def* pzlib_f
         TRYFREE(buf);
         return 0;
     }
-    
+
     file_size = ZTELL64(*pzlib_filefunc_def, filestream);
 
     if (max_back > file_size)
@@ -388,7 +388,7 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
     return offset;
 }
 
-local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_filefunc64_32_def, int is64bitOpenFunction)
+local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_filefunc64_32_def)
 {
     unz64_s us;
     unz64_s *s;
@@ -554,9 +554,9 @@ extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def* pzlib_filef
     {
         zlib_filefunc64_32_def zlib_filefunc64_32_def_fill;
         fill_zlib_filefunc64_32_def_from_filefunc32(&zlib_filefunc64_32_def_fill, pzlib_filefunc32_def);
-        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 0);
+        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill);
     }
-    return unzOpenInternal(path, NULL, 0);
+    return unzOpenInternal(path, NULL);
 }
 
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def* pzlib_filefunc_def)
@@ -567,19 +567,19 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def* pzlib_
         zlib_filefunc64_32_def_fill.zfile_func64 = *pzlib_filefunc_def;
         zlib_filefunc64_32_def_fill.ztell32_file = NULL;
         zlib_filefunc64_32_def_fill.zseek32_file = NULL;
-        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 1);
+        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill);
     }
-    return unzOpenInternal(path, NULL, 1);
+    return unzOpenInternal(path, NULL);
 }
 
 extern unzFile ZEXPORT unzOpen(const char *path)
 {
-    return unzOpenInternal(path, NULL, 0);
+    return unzOpenInternal(path, NULL);
 }
 
 extern unzFile ZEXPORT unzOpen64(const void *path)
 {
-    return unzOpenInternal(path, NULL, 1);
+    return unzOpenInternal(path, NULL);
 }
 
 extern int ZEXPORT unzClose(unzFile file)
@@ -609,7 +609,7 @@ local int unzGoToNextDisk(unzFile file)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
-    int number_disk_next;
+    uLong number_disk_next = 0;
 
     s = (unz64_s*)file;
     if (s == NULL)
