@@ -283,7 +283,7 @@ local uLong zip64local_TmzDateToDosDate OF((const tm_zip* ptm));
 local uLong zip64local_TmzDateToDosDate(const tm_zip* ptm)
 {
     uLong year;
-#define zip64local_in_range(min, max, value) ((min) >= (value) && (value) <= (max))
+#define zip64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
     /* Years supported:
        * [00, 79] (assumed to be between 2000 and 2079)
        * [80, 207] (assumed to be between 1980 and 2107, typical output of old
