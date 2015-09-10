@@ -1863,6 +1863,16 @@ extern int ZEXPORT zipCloseFileInZip(zipFile file)
 
 extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
 {
+    return zipClose_64(file, global_comment);
+}
+
+extern int ZEXPORT zipClose_64(zipFile file, const char* global_comment)
+{
+    return zipClose2_64(file, global_comment, VERSIONMADEBY);
+}
+
+extern int ZEXPORT zipClose2_64(zipFile file, const char* global_comment, uLong versionMadeBy)
+{
     zip64_internal* zi;
     int err = 0;
     uLong size_centraldir = 0;
@@ -1930,7 +1940,7 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)zip64datasize, 8);
         /* version made by */
         if (err == ZIP_OK)
-            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)45, 2);
+            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)versionMadeBy, 2);
         /* version needed */
         if (err == ZIP_OK)
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)45, 2);
