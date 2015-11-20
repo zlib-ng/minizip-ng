@@ -95,7 +95,7 @@ uLong ZCALLBACK fwrite_mem_func (opaque, stream, buf, size)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;
     char *newbase = NULL;
-    int newmemsize = 0;
+    uLong newmemsize = 0;
 
     if (size > mem->size - mem->cur_offset)
     {
