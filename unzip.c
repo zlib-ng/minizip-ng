@@ -1198,7 +1198,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
                 return err;
             }
 #else
-            pfile_in_zip_read_info->raw=1;
+            pfile_in_zip_read_info->raw = 1;
 #endif
         }
         else if (compression_method == Z_DEFLATED)
@@ -1233,6 +1233,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     pfile_in_zip_read_info->stream.avail_in = (uInt)0;
 
     s->pfile_in_zip_read = pfile_in_zip_read_info;
+    s->pcrc_32_tab = NULL;
 
 #ifndef NOUNCRYPT
     if ((password != NULL) && ((s->cur_file_info.flag & 1) != 0))
@@ -1345,7 +1346,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             pfile_in_zip_read_info->stream.avail_out = (uInt)pfile_in_zip_read_info->rest_read_uncompressed;
     }
 
-    while (pfile_in_zip_read_info->stream.avail_out>0)
+    while (pfile_in_zip_read_info->stream.avail_out > 0)
     {
         if (pfile_in_zip_read_info->stream.avail_in == 0)
         {
@@ -1401,6 +1402,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
                 }
                 else
 #endif
+                if (s->pcrc_32_tab != NULL)
                 {
                     uInt i;
                     for(i = 0; i < total_bytes_read; i++)
