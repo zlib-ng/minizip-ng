@@ -198,6 +198,7 @@ local int unz64local_getByte(const zlib_filefunc64_32_def* pzlib_filefunc_def, v
         *pi = (int)c;
         return UNZ_OK;
     }
+    *pi = 0;
     if (ZERROR64(*pzlib_filefunc_def, filestream))
         return UNZ_ERRNO;
     return UNZ_EOF;
