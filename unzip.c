@@ -1471,7 +1471,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
             err = BZ2_bzDecompress(&pfile_in_zip_read_info->bstream);
 
             total_out_after = pfile_in_zip_read_info->bstream.total_out_lo32 + 
-                (((uLong)pfile_in_zip_read_info->bstream.total_out_hi32) << 32)
+                (((uLong)pfile_in_zip_read_info->bstream.total_out_hi32) << 32);
 
             out_bytes = total_out_after-total_out_before;
 
