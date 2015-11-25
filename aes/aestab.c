@@ -333,7 +333,7 @@ AES_RETURN aes_init(void)
         t_set(f,l)[3][i] = upr(w,3);
 #endif
 
-#if defined( LS1_SET )			/* table for key schedule if t_set(f,l) above is*/
+#if defined( LS1_SET )          /* table for key schedule if t_set(f,l) above is*/
         t_set(l,s)[i] = w;      /* not of the required form                     */
 #endif
 #if defined( LS4_SET )
@@ -346,7 +346,7 @@ AES_RETURN aes_init(void)
         b = gf_inv(inv_affine((uint_8t)i));
         w = bytes2word(fe(b), f9(b), fd(b), fb(b));
 
-#if defined( IM1_SET )			/* tables for the inverse mix column operation  */
+#if defined( IM1_SET )          /* tables for the inverse mix column operation  */
         t_set(i,m)[b] = w;
 #endif
 #if defined( IM4_SET )
@@ -359,7 +359,7 @@ AES_RETURN aes_init(void)
 #if defined( ISB_SET )
         t_set(i,box)[i] = b;
 #endif
-#if defined( IT1_SET )			/* tables for a normal decryption round */
+#if defined( IT1_SET )              /* tables for a normal decryption round */
         t_set(i,n)[i] = w;
 #endif
 #if defined( IT4_SET )
@@ -369,7 +369,7 @@ AES_RETURN aes_init(void)
         t_set(i,n)[3][i] = upr(w,3);
 #endif
         w = bytes2word(b, 0, 0, 0);
-#if defined( IL1_SET )			/* tables for last decryption round */
+#if defined( IL1_SET )              /* tables for last decryption round */
         t_set(i,l)[i] = w;
 #endif
 #if defined( IL4_SET )

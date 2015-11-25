@@ -246,7 +246,7 @@ local int add_data_in_datablock(linkedlist_data* ll, const void* buf, uLong len)
     ldi = ll->last_block;
     from_copy = (unsigned char*)buf;
 
-    while (len>0)
+    while (len > 0)
     {
         uInt copy_this;
         uInt i;
@@ -268,8 +268,8 @@ local int add_data_in_datablock(linkedlist_data* ll, const void* buf, uLong len)
 
         to_copy = &(ldi->data[ldi->filled_in_this_block]);
 
-        for (i=0;i<copy_this;i++)
-            *(to_copy+i)=*(from_copy+i);
+        for (i = 0; i < copy_this; i++)
+            *(to_copy+i) = *(from_copy+i);
 
         ldi->filled_in_this_block += copy_this;
         ldi->avail_in_this_block -= copy_this;
