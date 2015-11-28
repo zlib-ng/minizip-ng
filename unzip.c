@@ -1872,18 +1872,19 @@ extern ZPOS64_T ZEXPORT unztell64(unzFile file)
     return pfile_in_zip_read_info->total_out_64;
 }
 
-extern int ZEXPORT unzseek(unzFile file, z_off_t position)
+extern int ZEXPORT unzseek(unzFile file, z_off_t offset, int origin)
 {
-    return unzseek64(file, (ZPOS64_T)position);
+    return unzseek64(file, (ZPOS64_T)offset, origin);
 }
 
-extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T position)
+extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T offset, int origin)
 {
     unz64_s* s;
     file_in_zip64_read_info_s* pfile_in_zip_read_info;
     ZPOS64_T stream_pos_begin;
     ZPOS64_T stream_pos_end;
     int isWithinBuffer;
+    ZPOS64_T position;
 
     if (file == NULL)
         return UNZ_PARAMERROR;
@@ -1896,6 +1897,15 @@ extern int ZEXPORT unzseek64(unzFile file, ZPOS64_T position)
 
     if (pfile_in_zip_read_info->compression_method != 0)
         return UNZ_ERRNO;
+
+    if (origin == SEEK_SET)
+        position = offset;
+    else if (origin == SEEK_CUR)
+        position = pfile_in_zip_read_info->total_out_64 + offset;
+    else if (origin == SEEK_END)
+        position = s->cur_file_info.compressed_size + offset;
+    else
+        return UNZ_PARAMERROR;
 
     if (position > s->cur_file_info.compressed_size)
         return UNZ_PARAMERROR;
