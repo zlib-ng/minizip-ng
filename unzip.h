@@ -25,7 +25,7 @@ extern "C" {
 #include "zlib.h"
 #endif
 
-#ifndef  _ZLIBIOAPI_H
+#ifndef _ZLIBIOAPI_H
 #include "ioapi.h"
 #endif
 
