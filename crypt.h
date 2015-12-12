@@ -66,7 +66,8 @@ static void init_keys(const char* passwd,unsigned long* pkeys,const unsigned lon
     *(pkeys+0) = 305419896L;
     *(pkeys+1) = 591751049L;
     *(pkeys+2) = 878082192L;
-    while (*passwd != 0) {
+    while (*passwd != 0)
+    {
         update_keys(pkeys,pcrc_32_tab,(int)*passwd);
         passwd++;
     }
@@ -99,8 +100,8 @@ static int crypthead(const char* passwd,      /* password string */
     unsigned char header[RAND_HEAD_LEN-2];  /* random header */
     static unsigned calls = 0;              /* ensure different random header each time */
 
-    if (bufSize<RAND_HEAD_LEN)
-      return 0;
+    if (bufSize < RAND_HEAD_LEN)
+        return 0;
 
     /* First generate RAND_HEAD_LEN-2 random bytes. We encrypt the
      * output of rand() to get less predictability, since rand() is
