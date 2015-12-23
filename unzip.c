@@ -189,6 +189,7 @@ local void unz64local_DosDateToTmuDate (ZPOS64_T ulDosDate, tm_unz* ptm)
 }
 
 /* Read a byte from a gz_stream; Return EOF for end of file. */
+local int unz64local_getByte OF((const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int *pi));
 local int unz64local_getByte(const zlib_filefunc64_32_def* pzlib_filefunc_def, voidpf filestream, int *pi)
 {
     unsigned char c;
