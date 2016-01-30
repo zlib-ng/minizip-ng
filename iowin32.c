@@ -211,9 +211,9 @@ voidpf ZCALLBACK win32_open_file_func (voidpf opaque,const char* filename,int mo
     iowin = win32_build_iowin(hFile);
     if (iowin == NULL)
         return NULL;
-    iowin->filenameLength = _tcslen(filename) + 1;
+    iowin->filenameLength = _tcslen((TCHAR*)filename) + 1;
     iowin->filename = (void*)malloc(iowin->filenameLength * sizeof(TCHAR));
-    _tcsncpy(iowin->filename, filename, iowin->filenameLength);
+    _tcsncpy(iowin->filename, (TCHAR*)filename, iowin->filenameLength);
     return iowin; 
 }
 
@@ -237,7 +237,7 @@ voidpf ZCALLBACK win32_opendisk64_file_func (voidpf opaque, voidpf stream, int n
         break;
     }
     if (i >= 0)
-        ret = win32_open64_file_func(opaque, diskFilename, mode);
+        ret = win32_open64_file_func(opaque, (char*)diskFilename, mode);
     free(diskFilename);
     return ret;
 }
@@ -312,7 +312,7 @@ voidpf ZCALLBACK win32_opendisk_file_func (voidpf opaque, voidpf stream, int num
         break;
     }
     if (i >= 0)
-        ret = win32_open_file_func(opaque, diskFilename, mode);
+        ret = win32_open_file_func(opaque, (char*)diskFilename, mode);
     free(diskFilename);
     return ret;
 }

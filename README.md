@@ -12,12 +12,12 @@ It also has the latest bug fixes that having been found all over the internet in
 + Requires #define HAVE_AES
 + Requires AES library files
 
-When using the zip library with password protection it will use AES 256-bit encryption. 
-When using the unzip library it will automatically use AES when applicable. 
+When zipping with a password it will always use AES 256-bit encryption. 
+When unzipping it will use AES decryption only if necessary.
 
 *I/O Buffering*
 
-Improves I/O performance by buffering read and write operations.
+Improves I/O performance by buffering read and write operations. 
 ```
 zlib_filefunc64_def filefunc64 = {0};
 ourbuffer_t buffered = {0};
@@ -38,7 +38,7 @@ extern zipFile ZEXPORT zipOpen3_64 OF((const void *pathname, int append,
 ```
 The central directory is the only data stored in the .zip and doesn't follow disk_size restrictions.
 
-When using the unzip library it will automatically determine when in needs to span disks.
+When unzipping it will automatically determine when in needs to span disks.
 
 *I/O Memory*
 

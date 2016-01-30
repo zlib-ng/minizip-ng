@@ -9,6 +9,7 @@ More changes since 1.1
 Changes since 1.1
 - Added PKZIP spanning support
 - Added AES encryption support
+- Added I/O buffering
 - Clean up & changed unzLocateFile to support custom comparison function
 - Clean up, removed zipRemoveExtraInfoBlock
 

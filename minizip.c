@@ -125,7 +125,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
 
 int check_file_exists(const char* filename)
 {
-    FILE* ftestexist = FOPEN_FUNC(filename,"rb");
+    FILE* ftestexist = FOPEN_FUNC(filename, "rb");
     if (ftestexist == NULL)
         return 0;
     fclose(ftestexist);
@@ -380,7 +380,6 @@ int main(int argc, char *argv[])
                     NULL, 0, NULL, 0, NULL /* comment*/,
                     (opt_compress_level != 0) ? Z_DEFLATED : 0,
                     opt_compress_level,0,
-                    /* -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, */
                     -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
                     password, crcFile, zip64);
 
