@@ -394,7 +394,9 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
     unz64_s us;
     unz64_s *s;
     ZPOS64_T central_pos;
+    ZPOS64_T central_pos64;
     uLong uL;
+    ZPOS64_T uL64;
     voidpf filestream = NULL;
     ZPOS64_T number_entry_CD;
     int err = UNZ_OK;
@@ -419,8 +421,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
     us.filestream_with_CD = us.filestream;
     us.isZip64 = 0;
 
-    /* Use unz64local_SearchCentralDir first. Only based on the result
-       is it necessary to locate the unz64local_SearchCentralDir64 */
+    /* Search for end of central directory header */
     central_pos = unz64local_SearchCentralDir(&us.z_filefunc, us.filestream);
     if (central_pos)
     {
@@ -460,15 +461,13 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         if (unz64local_getShort(&us.z_filefunc, us.filestream, &us.gi.size_comment) != UNZ_OK)
             err = UNZ_ERRNO;
 
-        if ((err == UNZ_OK) &&
-            ((us.gi.number_entry == 0xffff) || (us.size_central_dir == 0xffff) || (us.offset_central_dir == 0xffffffff)))
+        if (err == UNZ_OK)
         {
-            /* Format should be Zip64, as the central directory or file size is too large */
-            central_pos = unz64local_SearchCentralDir64(&us.z_filefunc, us.filestream, central_pos);
-            if (central_pos)
+            /* Search for Zip64 end of central directory header */
+            central_pos64 = unz64local_SearchCentralDir64(&us.z_filefunc, us.filestream, central_pos);
+            if (central_pos64)
             {
-                ZPOS64_T uL64;
-
+                central_pos = central_pos64;
                 us.isZip64 = 1;
 
                 if (ZSEEK64(us.z_filefunc, us.filestream, central_pos, ZLIB_FILEFUNC_SEEK_SET) != 0)
@@ -507,7 +506,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
                 if (unz64local_getLong64(&us.z_filefunc, us.filestream, &us.offset_central_dir) != UNZ_OK)
                     err = UNZ_ERRNO;
             }
-            else
+            else if ((us.gi.number_entry == 0xffff) || (us.size_central_dir == 0xffff) || (us.offset_central_dir == 0xffffffff))
                 err = UNZ_BADZIPFILE;
         }
     }
