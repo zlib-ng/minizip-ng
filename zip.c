@@ -340,6 +340,19 @@ local int zip64local_putValue (const zlib_filefunc64_32_def* pzlib_filefunc_def,
     return ZIP_OK;
 }
 
+local ZPOS64_T zip64local_getValue_frommemory OF((void* src, int nbByte));
+local ZPOS64_T zip64local_getValue_frommemory (void* src, int nbByte)
+{
+    ZPOS64_T x = 0;
+    unsigned char* buf =(unsigned char*)src;
+    int n;
+    for (n = 0; n < nbByte; n++) {
+        x <<= 8;
+        x |= buf[nbByte - n - 1];
+    }
+    return x;
+}
+
 local void zip64local_putValue_inmemory OF((void* dest, ZPOS64_T x, int nbByte));
 local void zip64local_putValue_inmemory (void* dest, ZPOS64_T x, int nbByte)
 {
@@ -1681,7 +1694,10 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, ZPOS64_T uncompressed_si
     /* Update current item crc and sizes */
     if (compressed_size >= 0xffffffff || uncompressed_size >= 0xffffffff || zi->ci.pos_local_header >= 0xffffffff)
     {
-        zip64local_putValue_inmemory(zi->ci.central_header+4, (uLong)45, 2); /* version made by */
+        /* Do not change "version made by" upper byte since it might have been set by the user */
+        uLong versionMadeBy = (uLong)zip64local_getValue_frommemory(zi->ci.central_header+4, 2); /* version made by */
+        if ((versionMadeBy & 0xff) < 45)
+            zip64local_putValue_inmemory(zi->ci.central_header+4, (uLong)((versionMadeBy & 0xff00) | (uLong)45), 2); /* version made by */
         zip64local_putValue_inmemory(zi->ci.central_header+6, (uLong)45, 2); /* version needed */
     }
     zip64local_putValue_inmemory(zi->ci.central_header+16, crc32, 4); /* crc */
@@ -1846,6 +1862,16 @@ extern int ZEXPORT zipCloseFileInZip(zipFile file)
 
 extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
 {
+    return zipClose_64(file, global_comment);
+}
+
+extern int ZEXPORT zipClose_64(zipFile file, const char* global_comment)
+{
+    return zipClose2_64(file, global_comment, VERSIONMADEBY);
+}
+
+extern int ZEXPORT zipClose2_64(zipFile file, const char* global_comment, uLong versionMadeBy)
+{
     zip64_internal* zi;
     int err = 0;
     uLong size_centraldir = 0;
@@ -1913,8 +1939,8 @@ extern int ZEXPORT zipClose(zipFile file, const char* global_comment)
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (ZPOS64_T)zip64datasize, 8);
         /* Version made by */
         if (err == ZIP_OK)
-            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)45, 2);
-        /* Version needed */
+            err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)versionMadeBy, 2);
+        /* version needed */
         if (err == ZIP_OK)
             err = zip64local_putValue(&zi->z_filefunc, zi->filestream, (uLong)45, 2);
         /* Number of this disk */

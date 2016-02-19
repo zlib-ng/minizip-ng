@@ -189,6 +189,11 @@ extern int ZEXPORT zipCloseFileInZipRaw64 OF((zipFile file, ZPOS64_T uncompresse
 extern int ZEXPORT zipClose OF((zipFile file, const char* global_comment));
 /* Close the zipfile */
 
+extern int ZEXPORT zipClose_64 OF((zipFile file, const char* global_comment));
+
+extern int ZEXPORT zipClose2_64 OF((zipFile file, const char* global_comment, uLong versionMadeBy));
+/* Same as zipClose_64 except versionMadeBy field */
+
 /***************************************************************************/
 
 #ifdef __cplusplus
