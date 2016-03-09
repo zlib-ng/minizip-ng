@@ -24,34 +24,40 @@
 
    If you don't need crypting in your application, just define symbols
    NOCRYPT and NOUNCRYPT.
+   
+   Mar 8th, 2016 - Lucio Cosmo 
+   Fixed support for 64bit builds for archives with "PKWARE" password.
+   Changed long, unsigned long, unsigned to unsigned int in 
+   access functions to crctables and pkeys
+
 */
 
-#define CRC32(c, b) ((*(pcrc_32_tab+(((int)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
+#define CRC32(c, b) ((*(pcrc_32_tab+(((unsigned int)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
 /***********************************************************************
  * Return the next byte in the pseudo-random sequence
  */
-static int decrypt_byte(unsigned long* pkeys)
+static int decrypt_byte(unsigned int* pkeys, const unsigned int* pcrc_32_tab)
 {
     unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
                      * unpredictable manner on 16-bit systems; not a problem
                      * with any known compiler so far, though */
 
-    temp = ((unsigned)(*(pkeys+2)) & 0xffff) | 2;
-    return (int)(((temp * (temp ^ 1)) >> 8) & 0xff);
+    temp = ((unsigned int)(*(pkeys+2)) & 0xffff) | 2;
+    return (unsigned int)(((temp * (temp ^ 1)) >> 8) & 0xff);
 }
 
 /***********************************************************************
  * Update the encryption keys with the next byte of plain text
  */
-static int update_keys(unsigned long* pkeys, const unsigned long* pcrc_32_tab, int c)
+static int update_keys(unsigned int* pkeys,const unsigned int* pcrc_32_tab,int c)
 {
     (*(pkeys+0)) = CRC32((*(pkeys+0)), c);
     (*(pkeys+1)) += (*(pkeys+0)) & 0xff;
     (*(pkeys+1)) = (*(pkeys+1)) * 134775813L + 1;
     {
-        register int keyshift = (int)((*(pkeys+1)) >> 24);
-        (*(pkeys+2)) = CRC32((*(pkeys+2)), keyshift);
+      register int keyshift = (int)((*(pkeys+1)) >> 24);
+      (*(pkeys+2)) = CRC32((*(pkeys+2)), keyshift);
     }
     return c;
 }
@@ -61,7 +67,7 @@ static int update_keys(unsigned long* pkeys, const unsigned long* pcrc_32_tab, i
  * Initialize the encryption keys and the random header according to
  * the given password.
  */
-static void init_keys(const char* passwd, unsigned long* pkeys, const unsigned long* pcrc_32_tab)
+static void init_keys(const char* passwd,unsigned int* pkeys,const unsigned int* pcrc_32_tab)
 {
     *(pkeys+0) = 305419896L;
     *(pkeys+1) = 591751049L;
@@ -90,9 +96,9 @@ static void init_keys(const char* passwd, unsigned long* pkeys, const unsigned l
 static int crypthead(const char* passwd,      /* password string */
                      unsigned char* buf,      /* where to write header */
                      int bufSize,
-                     unsigned long* pkeys,
-                     const unsigned long* pcrc_32_tab,
-                     unsigned long crcForCrypting)
+                     unsigned int* pkeys,
+                     const unsigned int* pcrc_32_tab,
+                     unsigned int crcForCrypting)
 {
     int n;                                  /* index in random header */
     int t;                                  /* temporary */
