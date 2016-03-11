@@ -14,6 +14,11 @@
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
+   
+   Mar 8th, 2016 - Lucio Cosmo 
+   Fixed support for 64bit builds for archives with "PKWARE" password.
+   Changed long, unsigned long, unsigned to unsigned int in 
+   access functions to crctables and pkeys
 */
 
 #include <stdio.h>
@@ -160,8 +165,8 @@ typedef struct
                                         /* structure about the current file if we are decompressing it */
     int isZip64;                        /* is the current file zip64 */
 #ifndef NOUNCRYPT
-    unsigned long keys[3];              /* keys defining the pseudo-random sequence */
-    const unsigned long* pcrc_32_tab;
+    unsigned int keys[3];     /* keys defining the pseudo-random sequence */
+    const unsigned int* pcrc_32_tab;
 #endif
 } unz64_s;
 
