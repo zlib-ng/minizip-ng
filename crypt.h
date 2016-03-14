@@ -37,7 +37,7 @@
 /***********************************************************************
  * Return the next byte in the pseudo-random sequence
  */
-static int decrypt_byte(unsigned int* pkeys, const unsigned int* pcrc_32_tab)
+static int decrypt_byte(unsigned int* pkeys)
 {
     unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
                      * unpredictable manner on 16-bit systems; not a problem
