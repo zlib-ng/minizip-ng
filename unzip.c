@@ -1276,7 +1276,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
 #endif
         {
             int i;
-            s->pcrc_32_tab = (const unsigned long*)get_crc_table();
+            s->pcrc_32_tab = (const unsigned int*)get_crc_table();
             init_keys(password, s->keys, s->pcrc_32_tab);
 
             if (ZREAD64(s->z_filefunc, s->filestream, source, 12) < 12)
