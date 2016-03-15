@@ -1312,7 +1312,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
             zi->ci.pcrc_32_tab = (const unsigned long *)get_crc_table();
             /*init_keys(password, zi->ci.keys, zi->ci.pcrc_32_tab);*/
 
-            sizeHead = crypthead(password, bufHead, RAND_HEAD_LEN, zi->ci.keys, zi->ci.pcrc_32_tab, crcForCrypting);
+            sizeHead = crypthead(password, bufHead, RAND_HEAD_LEN, (unsigned int*)zi->ci.keys, (const unsigned int*)zi->ci.pcrc_32_tab, crcForCrypting);
             zi->ci.crypt_header_size = sizeHead;
 
             if (ZWRITE64(zi->z_filefunc, zi->filestream, bufHead, sizeHead) != sizeHead)
@@ -1417,7 +1417,7 @@ local int zip64FlushWriteBuffer(zip64_internal* zi)
             uInt i;
             int t;
             for (i = 0;i < zi->ci.pos_in_buffered_data; i++)
-                zi->ci.buffered_data[i] = zencode(zi->ci.keys, zi->ci.pcrc_32_tab, zi->ci.buffered_data[i],t);
+                zi->ci.buffered_data[i] = zencode((unsigned int*)zi->ci.keys, (const unsigned int*)zi->ci.pcrc_32_tab, zi->ci.buffered_data[i],t);
         }
 #endif
     }
