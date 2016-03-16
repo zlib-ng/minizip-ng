@@ -155,8 +155,8 @@ typedef struct
     ZPOS64_T total_compressed;
     ZPOS64_T total_uncompressed;
 #ifndef NOCRYPT
-    unsigned long keys[3];          /* keys defining the pseudo-random sequence */
-    const unsigned long* pcrc_32_tab;
+    unsigned int keys[3];          /* keys defining the pseudo-random sequence */
+    const unsigned int* pcrc_32_tab;
     int crypt_header_size;
 #endif
 } curfile64_info;
@@ -1309,7 +1309,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
             unsigned char bufHead[RAND_HEAD_LEN];
             unsigned int sizeHead;
 
-            zi->ci.pcrc_32_tab = (const unsigned long *)get_crc_table();
+            zi->ci.pcrc_32_tab = (const unsigned int*)get_crc_table();
             /*init_keys(password, zi->ci.keys, zi->ci.pcrc_32_tab);*/
 
             sizeHead = crypthead(password, bufHead, RAND_HEAD_LEN, zi->ci.keys, zi->ci.pcrc_32_tab, crcForCrypting);
