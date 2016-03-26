@@ -1239,7 +1239,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     s->pfile_in_zip_read = pfile_in_zip_read_info;
 
 #ifndef NOUNCRYPT
-	s->pcrc_32_tab = NULL;
+    s->pcrc_32_tab = NULL;
 
     if ((password != NULL) && ((s->cur_file_info.flag & 1) != 0))
     {
