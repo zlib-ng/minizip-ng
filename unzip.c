@@ -1237,9 +1237,10 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
     pfile_in_zip_read_info->stream.avail_in = (uInt)0;
 
     s->pfile_in_zip_read = pfile_in_zip_read_info;
-    s->pcrc_32_tab = NULL;
 
 #ifndef NOUNCRYPT
+    s->pcrc_32_tab = NULL;
+
     if ((password != NULL) && ((s->cur_file_info.flag & 1) != 0))
     {
         if (ZSEEK64(s->z_filefunc, s->filestream,
