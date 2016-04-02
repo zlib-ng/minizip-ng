@@ -18,6 +18,9 @@ project("minizip")
 # set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
 
+if(BUILD_TEST OR BUILD_SHARED_LIBS)
+   find_package(ZLIB REQUIRED)
+endif()
 
 set(MINIZIP_SRC "ioapi.c"
   "ioapi_buf.c"
@@ -37,9 +40,11 @@ if(WIN32)
   list(APPEND MINIZIP_PUBLIC_HEADERS "iowin32.h")
 endif()
 
+# create minizip library
+add_library(minizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
+
 option(USE_AES "enables building of aes library" ON)
 if(USE_AES)
-  add_definitions(-O -DHAVE_AES)
   set(AES_SRC 
     aes/aescrypt.c
     aes/aeskey.c
@@ -67,41 +72,44 @@ if(USE_AES)
 
   add_library(aes ${AES_SRC} ${AES_PUBLIC_HEADERS})
 
-  install(TARGETS aes
-    RUNTIME DESTINATION "bin"
-    LIBRARY DESTINATION "lib"
-    ARCHIVE DESTINATION "lib")
+  set_target_properties(aes minizip
+     PROPERTIES
+     COMPILE_DEFINITIONS "O -DHAVE_AES")
+
+  target_link_libraries(minizip aes)
+
+  install(TARGETS aes EXPORT zlib-exports
+    INCLUDES DESTINATION "include"
+    RUNTIME DESTINATION  "bin"
+    LIBRARY DESTINATION  "lib"
+    ARCHIVE DESTINATION  "lib")
 
   install(FILES ${AES_PUBLIC_HEADERS}
-    DESTINATION "includes/minizip/aes")
+    DESTINATION "include/minizip/aes")
 endif()
 
-# create minizip library
-add_library(minzip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
-
-if(TARGET aes)
-  target_link_libraries(minzip aes)
-endif()
-
-install(TARGETS minzip 
-  INCLUDES DESTINATION "include/minzip/"
+install(TARGETS minizip EXPORT zlib-exports
+  INCLUDES DESTINATION "include"
   RUNTIME DESTINATION "bin"
   LIBRARY DESTINATION "lib"
   ARCHIVE DESTINATION "lib")
 
+install(EXPORT zlib-exports
+        DESTINATION "cmake"
+        NAMESPACE "MINIZIP::")
+
 install(FILES ${MINIZIP_PUBLIC_HEADERS}
-  DESTINATION "includes/minizip")
+  DESTINATION "include/minizip")
 
 option (BUILD_TEST "enabled building of executables minizip and miniunz. Requires ZLIB!" OFF)
 if(BUILD_TEST)
-  find_package(ZLIB REQUIRED)
   add_executable(miniunz_exec miniunz.c)
-  target_link_libraries(miniunz_exec minzip ZLIB::ZLIB)
+  target_link_libraries(miniunz_exec minizip ZLIB::ZLIB)
 
   add_executable(minizip_exec minizip.c)
-  target_link_libraries(minizip_exec minzip ZLIB::ZLIB)
+  target_link_libraries(minizip_exec minizip ZLIB::ZLIB)
 
   install(TARGETS miniunz_exec minizip_exec
-    RUNTIME DESTINATION "bin")
+          RUNTIME DESTINATION "bin")
 endif()
 
