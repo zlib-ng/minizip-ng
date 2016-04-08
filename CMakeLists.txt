@@ -18,8 +18,9 @@ project("minizip")
 # set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
 
-if(BUILD_TEST OR BUILD_SHARED_LIBS)
-   find_package(ZLIB REQUIRED)
+find_package(ZLIB REQUIRED)
+if(ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
 set(MINIZIP_SRC "ioapi.c"
