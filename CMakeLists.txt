@@ -20,10 +20,9 @@ set(CMAKE_DEBUG_POSTFIX "d")
 
 # Ensure correct version of zlib is referenced
 set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
-include_directories(${ZLIB_ROOT}/include)
-
-if(BUILD_TEST OR BUILD_SHARED_LIBS)
-   find_package(ZLIB REQUIRED)
+find_package(ZLIB REQUIRED)
+if(ZLIB_FOUND)
+    include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
 set(MINIZIP_SRC "ioapi.c"
