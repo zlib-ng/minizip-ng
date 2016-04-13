@@ -18,6 +18,8 @@ project("minizip")
 # set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
 
+# Ensure correct version of zlib is referenced
+set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
 find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
