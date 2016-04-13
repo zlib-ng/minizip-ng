@@ -196,6 +196,7 @@ extern int ZEXPORT zipClose2_64 OF((zipFile file, const char* global_comment, uL
 
 /***************************************************************************/
 
+
 #ifdef __cplusplus
 }
 #endif
