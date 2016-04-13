@@ -2053,6 +2053,11 @@ local int makedir(const char *newdir)
     return 1;
 }
 
+extern int ZEXPORT minizip_get_writebuffersize()
+{
+    return WRITEBUFFERSIZE;
+}
+
 extern int ZEXPORT do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_overwrite, const char *password)
 {
     unz_file_info64 file_info = {0};

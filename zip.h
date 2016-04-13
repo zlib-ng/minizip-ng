@@ -33,6 +33,22 @@ extern "C" {
 
 #define Z_BZIP2ED 12
 
+#ifdef _WIN32
+#  define USEWIN32IOAPI
+#  include "iowin32.h"
+#endif
+
+#ifdef __APPLE__
+/* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
+#  define FOPEN_FUNC(filename, mode) fopen(filename, mode)
+#  define FTELLO_FUNC(stream) ftello(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
+#else
+#  define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
+#  define FTELLO_FUNC(stream) ftello64(stream)
+#  define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
+#endif
+
 #if defined(STRICTZIP) || defined(STRICTZIPUNZIP)
 /* like the STRICT of WIN32, we define a pointer that cannot be converted
     from (void*) without cast */
@@ -196,6 +212,13 @@ extern int ZEXPORT zipClose2_64 OF((zipFile file, const char* global_comment, uL
 
 /***************************************************************************/
 
+extern int ZEXPORT minizip_get_writebuffersize();
+extern int ZEXPORT check_file_exists(const char* filename);
+extern uLong ZEXPORT filetime(const char *filename, tm_zip *tmzip, uLong *dostime);
+extern int ZEXPORT is_large_file(const char* filename);
+
+/* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
+extern int ZEXPORT get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc);
 
 #ifdef __cplusplus
 }
