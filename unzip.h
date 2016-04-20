@@ -148,7 +148,7 @@ extern unzFile ZEXPORT unzOpen2_64 OF((const void *path, zlib_filefunc64_def* pz
 /* Open a Zip file, like unz64Open, but provide a set of file low level API for read/write 64-bit operations */
 
 extern int ZEXPORT unzClose OF((unzFile file));
-/* Close a ZipFile opened with unzipOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,
+/* Close a ZipFile opened with unzOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,
    these files MUST be closed with unzipCloseCurrentFile before call unzipClose.
 
    return UNZ_OK if there is no error */
