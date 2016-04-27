@@ -18,11 +18,10 @@ DESC
 
   s.subspec 'Core' do |sp|
     sp.source_files = '{ioapi,ioapi_mem,ioapi_buf,unzip,zip}.{c,h}', 'crypt.h'
-    sp.public_header_files = '{ioapi,unzip,zip}.h'
   end
 
   s.subspec 'AES' do |sp|
-    sp.source_files = 'aes/*.{c,h}', '{ioapi,ioapi_mem,ioapi_buf,unzip,zip}.{c,h}', 'crypt.h'
-    sp.public_header_files = '{ioapi,unzip,zip}.h'
+    sp.dependency 'Minizip/Core'
+    sp.source_files = 'aes/*.{c,h}'
   end
 end
