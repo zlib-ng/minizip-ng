@@ -45,6 +45,7 @@ endif()
 
 # create minizip library
 add_library(minizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
+target_link_libraries(minizip ZLIB::ZLIB)
 
 option(USE_AES "enables building of aes library" ON)
 if(USE_AES)
@@ -81,7 +82,7 @@ if(USE_AES)
 
   target_link_libraries(minizip aes)
 
-  install(TARGETS aes EXPORT zlib-exports
+  install(TARGETS aes EXPORT minizip-exports
     INCLUDES DESTINATION "include"
     RUNTIME DESTINATION  "bin"
     LIBRARY DESTINATION  "lib"
@@ -91,13 +92,13 @@ if(USE_AES)
     DESTINATION "include/minizip/aes")
 endif()
 
-install(TARGETS minizip EXPORT zlib-exports
+install(TARGETS minizip EXPORT minizip-exports
   INCLUDES DESTINATION "include"
   RUNTIME DESTINATION "bin"
   LIBRARY DESTINATION "lib"
   ARCHIVE DESTINATION "lib")
 
-install(EXPORT zlib-exports
+install(EXPORT minizip-exports
         DESTINATION "cmake"
         NAMESPACE "MINIZIP::")
 
@@ -107,10 +108,10 @@ install(FILES ${MINIZIP_PUBLIC_HEADERS}
 option (BUILD_TEST "enabled building of executables minizip and miniunz. Requires ZLIB!" OFF)
 if(BUILD_TEST)
   add_executable(miniunz_exec miniunz.c)
-  target_link_libraries(miniunz_exec minizip ZLIB::ZLIB)
+  target_link_libraries(miniunz_exec minizip)
 
   add_executable(minizip_exec minizip.c)
-  target_link_libraries(minizip_exec minizip ZLIB::ZLIB)
+  target_link_libraries(minizip_exec minizip)
 
   install(TARGETS miniunz_exec minizip_exec
           RUNTIME DESTINATION "bin")
