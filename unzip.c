@@ -1250,7 +1250,8 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
 #ifdef HAVE_AES
         if (s->cur_file_info.compression_method == AES_METHOD)
         {
-            unsigned char passverify[AES_PWVERIFYSIZE];
+            unsigned char passverify_archive[AES_PWVERIFYSIZE];
+            unsigned char passverify_password[AES_PWVERIFYSIZE];
             unsigned char saltvalue[AES_MAXSALTLENGTH];
             uInt saltlength;
 
@@ -1262,11 +1263,14 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
 
             if (ZREAD64(s->z_filefunc, s->filestream, saltvalue, saltlength) != saltlength)
                 return UNZ_INTERNALERROR;
-            if (ZREAD64(s->z_filefunc, s->filestream, passverify, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+            if (ZREAD64(s->z_filefunc, s->filestream, passverify_archive, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
                 return UNZ_INTERNALERROR;
 
             fcrypt_init(s->cur_file_info_internal.aes_encryption_mode, password, strlen(password), saltvalue,
-                passverify, &s->pfile_in_zip_read->aes_ctx);
+                passverify_password, &s->pfile_in_zip_read->aes_ctx);
+
+            if (memcmp(passverify_archive, passverify_password, AES_PWVERIFYSIZE) != 0)
+                return UNZ_BADPASSWORD;
 
             s->pfile_in_zip_read->rest_read_compressed -= saltlength + AES_PWVERIFYSIZE;
             s->pfile_in_zip_read->rest_read_compressed -= AES_AUTHCODESIZE;
