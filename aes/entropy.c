@@ -38,7 +38,7 @@ int entropy_fun(unsigned char buf[], unsigned int len)
 #else
 int entropy_fun(unsigned char buf[], unsigned int len)
 {
-    int frand = open("/dev/random", O_RDONLY);
+    int frand = open("/dev/urandom", O_RDONLY);
     int rlen = 0;
     if (frand != -1)
     {
