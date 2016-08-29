@@ -107,7 +107,7 @@ static int     ZCALLBACK ferror_file_func OF((voidpf opaque, voidpf stream));
 typedef struct 
 {
     FILE *file;
-    int filenameLength;
+    long filenameLength;
     void *filename;
 } FILE_IOPOSIX;
 
@@ -167,7 +167,7 @@ static voidpf ZCALLBACK fopendisk64_file_func (voidpf opaque, voidpf stream, int
     FILE_IOPOSIX *ioposix = NULL;
     char *diskFilename = NULL;
     voidpf ret = NULL;
-    int i = 0;
+    long i = 0;
 
     if (stream == NULL)
         return NULL;
@@ -192,7 +192,7 @@ static voidpf ZCALLBACK fopendisk_file_func (voidpf opaque, voidpf stream, int n
     FILE_IOPOSIX *ioposix = NULL;
     char *diskFilename = NULL;
     voidpf ret = NULL;
-    int i = 0;
+    long i = 0;
 
     if (stream == NULL)
         return NULL;
