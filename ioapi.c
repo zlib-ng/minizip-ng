@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/file.h>		// For flock()ing
+
 #include "ioapi.h"
 
 #if defined(_WIN32)
@@ -91,6 +93,7 @@ void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def* p_filef
     p_filefunc64_32->zfile_func64.zseek64_file = NULL;
     p_filefunc64_32->zfile_func64.zclose_file = p_filefunc32->zclose_file;
     p_filefunc64_32->zfile_func64.zerror_file = p_filefunc32->zerror_file;
+    p_filefunc64_32->zfile_func64.zlock_file = p_filefunc32->zlock_file;
     p_filefunc64_32->zfile_func64.opaque = p_filefunc32->opaque;
     p_filefunc64_32->zseek32_file = p_filefunc32->zseek_file;
     p_filefunc64_32->ztell32_file = p_filefunc32->ztell_file;
@@ -103,6 +106,7 @@ static ZPOS64_T ZCALLBACK ftell64_file_func OF((voidpf opaque, voidpf stream));
 static long    ZCALLBACK fseek64_file_func OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin));
 static int     ZCALLBACK fclose_file_func OF((voidpf opaque, voidpf stream));
 static int     ZCALLBACK ferror_file_func OF((voidpf opaque, voidpf stream));
+static int     ZCALLBACK flock_file_func OF((voidpf opaque, voidpf stream, int operation));
 
 typedef struct 
 {
@@ -342,6 +346,17 @@ static int ZCALLBACK ferror_file_func (voidpf opaque, voidpf stream)
     return ret;
 }
 
+static int ZCALLBACK flock_file_func (voidpf opaque, voidpf stream, int operation)
+{
+    FILE_IOPOSIX *ioposix = NULL;
+    int ret = -1;
+    if (stream == NULL)
+        return ret;
+    ioposix = (FILE_IOPOSIX*)stream;
+    ret = flock(fileno(ioposix->file), operation);
+    return ret;
+}
+
 void fill_fopen_filefunc (zlib_filefunc_def* pzlib_filefunc_def)
 {
     pzlib_filefunc_def->zopen_file = fopen_file_func;
@@ -352,6 +367,7 @@ void fill_fopen_filefunc (zlib_filefunc_def* pzlib_filefunc_def)
     pzlib_filefunc_def->zseek_file = fseek_file_func;
     pzlib_filefunc_def->zclose_file = fclose_file_func;
     pzlib_filefunc_def->zerror_file = ferror_file_func;
+	pzlib_filefunc_def->zlock_file = flock_file_func;
     pzlib_filefunc_def->opaque = NULL;
 }
 
@@ -365,5 +381,6 @@ void fill_fopen64_filefunc (zlib_filefunc64_def* pzlib_filefunc_def)
     pzlib_filefunc_def->zseek64_file = fseek64_file_func;
     pzlib_filefunc_def->zclose_file = fclose_file_func;
     pzlib_filefunc_def->zerror_file = ferror_file_func;
+    pzlib_filefunc_def->zlock_file = flock_file_func;
     pzlib_filefunc_def->opaque = NULL;
 }

@@ -105,6 +105,12 @@
 #  endif
 #endif
 
+#define USE_LOCKING
+
+#ifdef USE_LOCKING
+#include <sys/file.h>		// For flock()ing
+#endif
+
 const char zip_copyright[] = " zip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
 typedef struct linkedlist_datablock_internal_s
@@ -707,6 +713,13 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
     ziinit.filestream = ZOPEN64(ziinit.z_filefunc, pathname, mode);
     if (ziinit.filestream == NULL)
         return NULL;
+
+#ifdef USE_LOCKING
+    if (ZLOCK64(ziinit.z_filefunc, ziinit.filestream, LOCK_EX | LOCK_NB)) {
+        // Failed to lock. Let the caller figure out what happened.
+        return NULL;
+    }
+#endif
 
     if (append == APPEND_STATUS_CREATEAFTER)
     {
@@ -2033,6 +2046,13 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char* global_comment, uLong 
         if (ZWRITE64(zi->z_filefunc, zi->filestream, global_comment, size_global_comment) != size_global_comment)
             err = ZIP_ERRNO;
     }
+
+#ifdef USE_LOCKING
+    if (ZLOCK64(zi->z_filefunc, zi->filestream, LOCK_UN)) {
+        // Failed to unlock. Let the caller figure out what happened.
+        return ZIP_INTERNALERROR;
+    }
+#endif
 
     if ((ZCLOSE64(zi->z_filefunc, zi->filestream) != 0) && (err == ZIP_OK))
         err = ZIP_ERRNO;

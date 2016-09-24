@@ -104,6 +104,8 @@ typedef int      (ZCALLBACK *testerror_file_func) OF((voidpf opaque, voidpf stre
 typedef long     (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
 typedef long     (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
 
+typedef int      (ZCALLBACK *lock_file_func)      OF((voidpf opaqure, voidpf stream, int operation));
+
 /* here is the "old" 32 bits structure structure */
 typedef struct zlib_filefunc_def_s
 {
@@ -115,6 +117,7 @@ typedef struct zlib_filefunc_def_s
     seek_file_func      zseek_file;
     close_file_func     zclose_file;
     testerror_file_func zerror_file;
+    lock_file_func      zlock_file;
     voidpf              opaque;
 } zlib_filefunc_def;
 
@@ -133,6 +136,7 @@ typedef struct zlib_filefunc64_def_s
     seek64_file_func     zseek64_file;
     close_file_func      zclose_file;
     testerror_file_func  zerror_file;
+    lock_file_func       zlock_file;
     voidpf               opaque;
 } zlib_filefunc64_def;
 
@@ -167,6 +171,8 @@ void fill_zlib_filefunc64_32_def_from_filefunc32 OF((zlib_filefunc64_32_def* p_f
 #define ZOPENDISK64(filefunc,filestream,diskn,mode) (call_zopendisk64((&(filefunc)),(filestream),(diskn),(mode)))
 #define ZTELL64(filefunc,filestream)                (call_ztell64((&(filefunc)),(filestream)))
 #define ZSEEK64(filefunc,filestream,pos,mode)       (call_zseek64((&(filefunc)),(filestream),(pos),(mode)))
+
+#define ZLOCK64(filefunc,filestream,operation)      ((*((filefunc).zfile_func64.zlock_file))       ((filefunc).zfile_func64.opaque,(filestream),(operation)))
 
 #ifdef __cplusplus
 }

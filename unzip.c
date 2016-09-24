@@ -92,6 +92,13 @@
 #  define TRYFREE(p) {if (p) free(p);}
 #endif
 
+#define USE_LOCKING
+
+#ifdef USE_LOCKING
+#include <sys/file.h>		// For flock()ing
+#endif
+
+
 const char unz_copyright[] =
    " unzip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
@@ -423,6 +430,13 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
     if (us.filestream == NULL)
         return NULL;
 
+#ifdef USE_LOCKING
+    if (ZLOCK64(us.z_filefunc, us.filestream, LOCK_SH | LOCK_NB)) {
+        // Failed to lock. Let the caller figure out what happened.
+        return NULL;
+    }
+#endif
+
     us.filestream_with_CD = us.filestream;
     us.isZip64 = 0;
 
@@ -523,17 +537,33 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
 
     if (err != UNZ_OK)
     {
+#ifdef USE_LOCKING
+        ZLOCK64(us.z_filefunc, us.filestream, LOCK_UN);
+#endif
         ZCLOSE64(us.z_filefunc, us.filestream);
         return NULL;
     }
 
     if (us.gi.number_disk_with_CD == 0)
     {
+		/* TODO try to unlock/close? This seems messy and bad as-is. */
+
         /* If there is only one disk open another stream so we don't have to seek between the CD
            and the file headers constantly */
         filestream = ZOPEN64(us.z_filefunc, path, ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_EXISTING);
         if (filestream != NULL)
+        {
+#ifdef USE_LOCKING
+            if (ZLOCK64(us.z_filefunc, filestream, LOCK_SH | LOCK_NB)) {
+                // Failed to lock. Let the caller figure out what happened.
+				ZCLOSE64(us.z_filefunc, filestream);
+                return NULL;
+            }
+#endif
+
             us.filestream = filestream;
+        }
+
     }
 
     /* Hack for zip files that have no respect for zip64
@@ -598,9 +628,18 @@ extern int ZEXPORT unzClose(unzFile file)
         unzCloseCurrentFile(file);
 
     if ((s->filestream != NULL) && (s->filestream != s->filestream_with_CD))
+    {
+#ifdef USE_LOCKING
+        ZLOCK64(s->z_filefunc, s->filestream, LOCK_UN);	// Ignore errors
+#endif
         ZCLOSE64(s->z_filefunc, s->filestream);
-    if (s->filestream_with_CD != NULL)
+    }
+    if (s->filestream_with_CD != NULL) {
+#ifdef USE_LOCKING
+        ZLOCK64(s->z_filefunc, s->filestream_with_CD, LOCK_UN);	// Ignore errors
+#endif
         ZCLOSE64(s->z_filefunc, s->filestream_with_CD);
+    }
 
     s->filestream = NULL;
     s->filestream_with_CD = NULL;
@@ -609,6 +648,7 @@ extern int ZEXPORT unzClose(unzFile file)
 }
 
 /* Goto to the next available disk for spanned archives */
+/* TODO: Do not currently handle proper locking for spanned archives, even with USE_LOCKING */
 local int unzGoToNextDisk OF((unzFile file));
 local int unzGoToNextDisk(unzFile file)
 {
