@@ -433,6 +433,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
 #ifdef USE_LOCKING
     if (ZLOCK64(us.z_filefunc, us.filestream, LOCK_SH | LOCK_NB)) {
         // Failed to lock. Let the caller figure out what happened.
+        ZCLOSE64(us.z_filefunc, us.filestream);
         return NULL;
     }
 #endif

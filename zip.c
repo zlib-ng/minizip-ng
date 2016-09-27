@@ -717,6 +717,7 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
 #ifdef USE_LOCKING
     if (ZLOCK64(ziinit.z_filefunc, ziinit.filestream, LOCK_EX | LOCK_NB)) {
         // Failed to lock. Let the caller figure out what happened.
+        ZCLOSE64(ziinit.z_filefunc,ziinit.filestream);
         return NULL;
     }
 #endif
