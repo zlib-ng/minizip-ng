@@ -92,7 +92,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
     if (strcmp(filename,"-") != 0)
     {
         char name[MAXFILENAME+1];
-        int len = strlen(filename);
+        size_t len = strlen(filename);
         if (len > MAXFILENAME)
             len = MAXFILENAME;
 
@@ -154,7 +154,7 @@ int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, u
 {
     FILE *fin = NULL;
     unsigned long calculate_crc = 0;
-    unsigned long size_read = 0;
+    unsigned int size_read = 0;
     int err = ZIP_OK;
 
     fin = FOPEN_FUNC(filenameinzip,"rb");
