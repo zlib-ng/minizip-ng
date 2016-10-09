@@ -256,11 +256,13 @@ int do_list(unzFile uf)
         {
             uInt iLevel = (uInt)((file_info.flag & 0x6) / 2);
             if (iLevel == 0)
-              string_method = "Defl:N";
+                string_method = "Defl:N";
             else if (iLevel == 1)
-              string_method = "Defl:X";
+                string_method = "Defl:X";
             else if ((iLevel == 2) || (iLevel == 3))
-              string_method = "Defl:F"; /* 2:fast , 3 : extra fast*/
+                string_method = "Defl:F"; /* 2:fast , 3 : extra fast*/
+            else
+                string_method = "Unkn. ";
         }
         else if (file_info.compression_method == Z_BZIP2ED)
         {
