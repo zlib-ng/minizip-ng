@@ -1161,7 +1161,10 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
         (compression_method != Z_BZIP2ED) &&
 #endif
         (compression_method != Z_DEFLATED))
-        err = UNZ_BADZIPFILE;
+    {
+        TRYFREE(pfile_in_zip_read_info);
+        return UNZ_BADZIPFILE;
+    }
 
     pfile_in_zip_read_info->crc32_wait = s->cur_file_info.crc;
     pfile_in_zip_read_info->crc32 = 0;
@@ -1195,7 +1198,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
 
             err = BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
             if (err == Z_OK)
-                pfile_in_zip_read_info->stream_initialised=Z_BZIP2ED;
+                pfile_in_zip_read_info->stream_initialised = Z_BZIP2ED;
             else
             {
                 TRYFREE(pfile_in_zip_read_info);
