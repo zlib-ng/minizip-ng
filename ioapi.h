@@ -95,7 +95,7 @@ extern "C" {
 #endif
 
 typedef voidpf   (ZCALLBACK *open_file_func)      OF((voidpf opaque, const char* filename, int mode));
-typedef voidpf   (ZCALLBACK *opendisk_file_func)  OF((voidpf opaque, voidpf stream, int number_disk, int mode));
+typedef voidpf   (ZCALLBACK *opendisk_file_func)  OF((voidpf opaque, voidpf stream, unsigned long number_disk, int mode));
 typedef uLong    (ZCALLBACK *read_file_func)      OF((voidpf opaque, voidpf stream, void* buf, uLong size));
 typedef uLong    (ZCALLBACK *write_file_func)     OF((voidpf opaque, voidpf stream, const void* buf, uLong size));
 typedef int      (ZCALLBACK *close_file_func)     OF((voidpf opaque, voidpf stream));
@@ -121,7 +121,7 @@ typedef struct zlib_filefunc_def_s
 typedef ZPOS64_T (ZCALLBACK *tell64_file_func)    OF((voidpf opaque, voidpf stream));
 typedef long     (ZCALLBACK *seek64_file_func)    OF((voidpf opaque, voidpf stream, ZPOS64_T offset, int origin));
 typedef voidpf   (ZCALLBACK *open64_file_func)    OF((voidpf opaque, const void* filename, int mode));
-typedef voidpf   (ZCALLBACK *opendisk64_file_func)OF((voidpf opaque, voidpf stream, int number_disk, int mode));
+typedef voidpf   (ZCALLBACK *opendisk64_file_func)OF((voidpf opaque, voidpf stream, unsigned long number_disk, int mode));
 
 typedef struct zlib_filefunc64_def_s
 {
@@ -157,7 +157,7 @@ typedef struct zlib_filefunc64_32_def_s
 #define ZERROR64(filefunc,filestream)               ((*((filefunc).zfile_func64.zerror_file))       ((filefunc).zfile_func64.opaque,filestream))
 
 voidpf   call_zopen64 OF((const zlib_filefunc64_32_def* pfilefunc,const void*filename,int mode));
-voidpf   call_zopendisk64 OF((const zlib_filefunc64_32_def* pfilefunc, voidpf filestream, int number_disk, int mode));
+voidpf   call_zopendisk64 OF((const zlib_filefunc64_32_def* pfilefunc, voidpf filestream, unsigned long number_disk, int mode));
 long     call_zseek64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf filestream, ZPOS64_T offset, int origin));
 ZPOS64_T call_ztell64 OF((const zlib_filefunc64_32_def* pfilefunc,voidpf filestream));
 

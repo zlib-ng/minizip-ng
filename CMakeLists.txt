@@ -41,6 +41,11 @@ set(MINIZIP_PUBLIC_HEADERS "crypt.h"
 if(WIN32)
   list(APPEND MINIZIP_SRC "iowin32.c")
   list(APPEND MINIZIP_PUBLIC_HEADERS "iowin32.h")
+  add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+endif()
+
+if(UNIX)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
 endif()
 
 # create minizip library
@@ -76,9 +81,7 @@ if(USE_AES)
 
   add_library(aes ${AES_SRC} ${AES_PUBLIC_HEADERS})
 
-  set_target_properties(aes minizip
-     PROPERTIES
-     COMPILE_DEFINITIONS "O -DHAVE_AES")
+  add_definitions(-DHAVE_AES)
 
   target_link_libraries(minizip aes)
 

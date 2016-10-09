@@ -488,8 +488,8 @@ local int zipGetDiskSizeAvailable(zipFile file, ZPOS64_T *size_available)
 }
 
 /* Goes to a specific disk number for spanning archives */
-local int zipGoToSpecificDisk OF((zipFile file, int number_disk, int open_existing));
-local int zipGoToSpecificDisk(zipFile file, int number_disk, int open_existing)
+local int zipGoToSpecificDisk OF((zipFile file, unsigned long number_disk, int open_existing));
+local int zipGoToSpecificDisk(zipFile file, unsigned long number_disk, int open_existing)
 {
     zip64_internal* zi;
     int err = ZIP_OK;
@@ -516,7 +516,7 @@ local int zipGoToFirstDisk OF((zipFile file));
 local int zipGoToFirstDisk(zipFile file)
 {
     zip64_internal* zi;
-    int number_disk_next;
+    uLong number_disk_next;
     int err = ZIP_OK;
 
     zi = (zip64_internal*)file;
@@ -542,7 +542,7 @@ local int zipGoToNextDisk(zipFile file)
     zip64_internal* zi;
     ZPOS64_T size_available_in_disk;
     int err = ZIP_OK;
-    int number_disk_next;
+    uLong number_disk_next;
 
     zi = (zip64_internal*)file;
 
@@ -1312,7 +1312,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char* filename, c
             zi->ci.pcrc_32_tab = (const unsigned int*)get_crc_table();
             /*init_keys(password, zi->ci.keys, zi->ci.pcrc_32_tab);*/
 
-            sizeHead = crypthead(password, bufHead, RAND_HEAD_LEN, zi->ci.keys, zi->ci.pcrc_32_tab, crcForCrypting);
+            sizeHead = crypthead(password, bufHead, RAND_HEAD_LEN, zi->ci.keys, zi->ci.pcrc_32_tab, (unsigned int)crcForCrypting);
             zi->ci.crypt_header_size = sizeHead;
 
             if (ZWRITE64(zi->z_filefunc, zi->filestream, bufHead, sizeHead) != sizeHead)
@@ -1397,10 +1397,10 @@ local int zip64FlushWriteBuffer OF((zip64_internal* zi));
 local int zip64FlushWriteBuffer(zip64_internal* zi)
 {
     int err = ZIP_OK;
-    uInt written = 0;
-    uInt total_written = 0;
-    uInt write = 0;
-    uInt max_write = 0;
+    uLong written = 0;
+    uLong total_written = 0;
+    uLong write = 0;
+    uLong max_write = 0;
     ZPOS64_T size_available = 0;
 
     if ((zi->ci.flag & 1) != 0)
