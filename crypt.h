@@ -129,8 +129,8 @@ static int crypthead(const char *passwd,      /* password string */
     {
         buf[n] = (uint8_t)zencode(pkeys, pcrc_32_tab, header[n], t);
     }
-    buf[n++] = (uint8_t)zencode(pkeys, pcrc_32_tab, (uint32_t)(crc_for_crypting >> 16) & 0xff, t);
-    buf[n++] = (uint8_t)zencode(pkeys, pcrc_32_tab, (uint32_t)(crc_for_crypting >> 24) & 0xff, t);
+    buf[n++] = (uint8_t)zencode(pkeys, pcrc_32_tab, (uint8_t)((crc_for_crypting >> 16) & 0xff), t);
+    buf[n++] = (uint8_t)zencode(pkeys, pcrc_32_tab, (uint8_t)((crc_for_crypting >> 24) & 0xff), t);
     return n;
 }
 
