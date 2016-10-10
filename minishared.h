@@ -24,6 +24,8 @@ extern "C" {
 #  define CHDIR(d) chdir(d)
 #endif
 
+#define MAXFILENAME     (256)
+
 /***************************************************************************/
 
 /* Get a file's date and time in dos format */
@@ -33,7 +35,7 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date);
 void change_file_date(const char *path, uint32_t dos_date);
 
 /* Convert dos date/time format to struct tm */
-int dosdate_to_tm(uint64_t dos_date, struct tm* ptm);
+int dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
 
 /* Convert struct tm to dos date/time format */
 uint32_t tm_to_dosdate(const struct tm *ptm);

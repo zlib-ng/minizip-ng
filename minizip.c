@@ -40,9 +40,6 @@
 
 #include "minishared.h"
 
-#define WRITEBUFFERSIZE (16384)
-#define MAXFILENAME     (256)
-
 void do_banner()
 {
     printf("MiniZip 1.1, demo of zLib + MiniZip64 package, written by Gilles Vollant\n");
@@ -69,7 +66,7 @@ int main(int argc, char *argv[])
     char *zipfilename = NULL;
     const char *password = NULL;
     void* buf = NULL;
-    int size_buf = WRITEBUFFERSIZE;
+    int size_buf = 16384;
     int zipfilenamearg = 0;
     int errclose = 0;
     int err = 0;

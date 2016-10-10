@@ -32,9 +32,6 @@
 
 #include "unzip.h"
 
-#define WRITEBUFFERSIZE (8192)
-#define MAXFILENAME     (256)
-
 #ifdef _WIN32
 #  define USEWIN32IOAPI
 #  include "iowin32.h"
@@ -170,7 +167,7 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_o
     unz_file_info64 file_info = {0};
     FILE* fout = NULL;
     void* buf = NULL;
-    uint16_t size_buf = WRITEBUFFERSIZE;
+    uint16_t size_buf = 8192;
     int err = UNZ_OK;
     int errclose = UNZ_OK;
     int skip = 0;
