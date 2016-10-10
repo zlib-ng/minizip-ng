@@ -257,14 +257,14 @@ int is_large_file(const char *path)
     return (pos >= UINT32_MAX);
 }
 
-int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
+int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *result_crc)
 {
     FILE *fin = NULL;
-    unsigned long calculate_crc = 0;
-    unsigned int size_read = 0;
+    uint32_t calculate_crc = 0;
+    uint32_t size_read = 0;
     int err = 0;
 
-    fin = FOPEN_FUNC(filenameinzip, "rb");
+    fin = FOPEN_FUNC(path, "rb");
     if (fin == NULL)
         err = -1;
     else
@@ -275,7 +275,7 @@ int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, u
 
             if ((size_read < size_buf) && (feof(fin) == 0))
             {
-                printf("error in reading %s\n", filenameinzip);
+                printf("error in reading %s\n", path);
                 err = -1;
             }
 
@@ -288,7 +288,7 @@ int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, u
     if (fin)
         fclose(fin);
 
-    printf("file %s crc %lx\n", filenameinzip, calculate_crc);
+    printf("file %s crc %lx\n", path, calculate_crc);
     *result_crc = calculate_crc;
     return err;
 }

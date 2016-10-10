@@ -48,7 +48,7 @@ int check_file_exists(const char *path);
 int is_large_file(const char *path);
 
 /* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
-int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc);
+int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *result_crc);
 
 /***************************************************************************/
 

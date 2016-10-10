@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
         const char *filenameinzip = argv[i];
         const char *savefilenameinzip;
         zip_fileinfo zi = {0};
-        unsigned long crc_for_crypting = 0;
+        uint32_t crc_for_crypting = 0;
         int zip64 = 0;
 
         /* Skip command line options */
