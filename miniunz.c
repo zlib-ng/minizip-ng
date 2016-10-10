@@ -121,12 +121,12 @@ int do_list(unzFile uf)
             string_method = "Stored";
         else if (file_info.compression_method == Z_DEFLATED)
         {
-            uint16_t iLevel = (uint16_t)((file_info.flag & 0x6) / 2);
-            if (iLevel == 0)
+            uint16_t level = (uint16_t)((file_info.flag & 0x6) / 2);
+            if (level == 0)
                 string_method = "Defl:N";
-            else if (iLevel == 1)
+            else if (level == 1)
                 string_method = "Defl:X";
-            else if ((iLevel == 2) || (iLevel == 3))
+            else if ((level == 2) || (level == 3))
                 string_method = "Defl:F"; /* 2:fast , 3 : extra fast*/
             else
                 string_method = "Unkn. ";

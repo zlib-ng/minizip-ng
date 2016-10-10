@@ -27,10 +27,6 @@
 #include <string.h>
 #include <errno.h>
 
-/*#ifndef NOUNCRYPT
-#  define NOUNCRYPT
-#endif*/
-
 #include "zlib.h"
 #include "unzip.h"
 
@@ -54,26 +50,26 @@
 #endif
 /* compile with -Dlocal if your debugger can't find static symbols */
 
-#define DISKHEADERMAGIC          (0x08074b50)
-#define LOCALHEADERMAGIC         (0x04034b50)
-#define CENTRALHEADERMAGIC       (0x02014b50)
-#define ENDHEADERMAGIC           (0x06054b50)
-#define ZIP64ENDHEADERMAGIC      (0x06064b50)
-#define ZIP64ENDLOCHEADERMAGIC   (0x07064b50)
+#define DISKHEADERMAGIC             (0x08074b50)
+#define LOCALHEADERMAGIC            (0x04034b50)
+#define CENTRALHEADERMAGIC          (0x02014b50)
+#define ENDHEADERMAGIC              (0x06054b50)
+#define ZIP64ENDHEADERMAGIC         (0x06064b50)
+#define ZIP64ENDLOCHEADERMAGIC      (0x07064b50)
 
-#define SIZECENTRALDIRITEM       (0x2e)
-#define SIZECENTRALHEADERLOCATOR (0x14) /* 20 */
-#define SIZEZIPLOCALHEADER       (0x1e)
+#define SIZECENTRALDIRITEM          (0x2e)
+#define SIZECENTRALHEADERLOCATOR    (0x14) /* 20 */
+#define SIZEZIPLOCALHEADER          (0x1e)
 
 #ifndef BUFREADCOMMENT
-#  define BUFREADCOMMENT (0x400)
+#  define BUFREADCOMMENT            (0x400)
 #endif
 
 #ifndef UNZ_BUFSIZE
-#  define UNZ_BUFSIZE (64 * 1024)
+#  define UNZ_BUFSIZE               (64 * 1024)
 #endif
 #ifndef UNZ_MAXFILENAMEINZIP
-#  define UNZ_MAXFILENAMEINZIP (256)
+#  define UNZ_MAXFILENAMEINZIP      (256)
 #endif
 
 #ifndef ALLOC
@@ -1654,7 +1650,7 @@ extern int ZEXPORT unzGoToFirstFile2(unzFile file, unz_file_info64 *pfile_info, 
     s->num_file = 0;
 
     err = unzGetCurrentFileInfoInternal(file, &s->cur_file_info, &s->cur_file_info_internal,
-            filename,filename_size, extrafield,extrafield_size, comment,comment_size);
+            filename, filename_size, extrafield, extrafield_size, comment,comment_size);
 
     s->current_file_ok = (err == UNZ_OK);
     if ((err == UNZ_OK) && (pfile_info != NULL))

@@ -74,9 +74,6 @@
 #ifndef Z_BUFSIZE
 #  define Z_BUFSIZE (64*1024)
 #endif
-#ifndef Z_MAXFILENAMEINZIP
-#  define Z_MAXFILENAMEINZIP (256)
-#endif
 
 #ifndef ALLOC
 #  define ALLOC(size) (malloc(size))

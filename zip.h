@@ -56,9 +56,6 @@ typedef voidp zipFile;
 #    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #  endif
 #endif
-/* default memLevel */
-
-#include <time.h>
 
 typedef struct
 {
