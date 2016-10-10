@@ -24,8 +24,6 @@ extern "C" {
 #  define CHDIR(d) chdir(d)
 #endif
 
-#define MAXFILENAME     (256)
-
 /***************************************************************************/
 
 /* Get a file's date and time in dos format */

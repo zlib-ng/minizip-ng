@@ -65,14 +65,10 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date)
 
     if (strcmp(path, "-") != 0)
     {
-        char name[MAXFILENAME + 1];
         size_t len = strlen(path);
-        if (len > MAXFILENAME)
-            len = MAXFILENAME;
-
-        strncpy(name, path, MAXFILENAME - 1);
-        name[MAXFILENAME] = 0;
-
+        char *name = (char *)malloc(len + 1);
+        strncpy(name, path, len + 1);
+        name[len] = 0;
         if (name[len - 1] == '/')
             name[len - 1] = 0;
 
@@ -82,6 +78,7 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date)
             tm_t = s.st_mtime;
             ret = 1;
         }
+        free(name);
     }
 
     filedate = localtime(&tm_t);
