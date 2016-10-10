@@ -67,7 +67,7 @@
 #define WRITEBUFFERSIZE (16384)
 #define MAXFILENAME     (256)
 
-uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
+uint32_t filetime(const char *filename, tm_zip *tmzip, uint32_t *dostime)
 {
     int ret = 0;
 #ifdef _WIN32
@@ -79,7 +79,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
     if (hFind != INVALID_HANDLE_VALUE)
     {
         FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
-        FileTimeToDosDateTime(&ftLocal,((LPWORD)dostime)+1,((LPWORD)dostime)+0);
+        FileTimeToDosDateTime(&ftLocal, ((LPWORD)dostime)+1, ((LPWORD)dostime)+0);
         FindClose(hFind);
         ret = 1;
     }
@@ -123,7 +123,7 @@ uLong filetime(const char *filename, tm_zip *tmzip, uLong *dostime)
     return ret;
 }
 
-int check_file_exists(const char* filename)
+int check_file_exists(const char *filename)
 {
     FILE* ftestexist = FOPEN_FUNC(filename, "rb");
     if (ftestexist == NULL)
@@ -132,9 +132,9 @@ int check_file_exists(const char* filename)
     return 1;
 }
 
-int is_large_file(const char* filename)
+int is_large_file(const char *filename)
 {
-    ZPOS64_T pos = 0;
+    uint64_t pos = 0;
     FILE* pFile = FOPEN_FUNC(filename, "rb");
 
     if (pFile == NULL)
@@ -150,7 +150,7 @@ int is_large_file(const char* filename)
 }
 
 /* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
-int get_file_crc(const char* filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
+int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
 {
     FILE *fin = NULL;
     unsigned long calculate_crc = 0;
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
     zlib_filefunc64_def ffunc = {0};
 #endif
     char *zipfilename = NULL;
-    const char* password = NULL;
+    const char *password = NULL;
     void* buf = NULL;
     int size_buf = WRITEBUFFERSIZE;
     int zipfilenamearg = 0;
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
     {
         FILE *fin = NULL;
         int size_read = 0;
-        const char* filenameinzip = argv[i];
+        const char *filenameinzip = argv[i];
         const char *savefilenameinzip;
         zip_fileinfo zi = {0};
         unsigned long crcFile = 0;
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
             continue;
 
         /* Get information about the file on disk so we can store it in zip */
-        filetime(filenameinzip, &zi.tmz_date, &zi.dosDate);
+        filetime(filenameinzip, &zi.tmz_date, &zi.dos_date);
 
         if ((password != NULL) && (err == ZIP_OK))
             err = get_file_crc(filenameinzip, buf, size_buf, &crcFile);

@@ -74,7 +74,7 @@
 #  include "iowin32.h"
 #endif
 
-void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
+void change_file_date(const char *filename, uint32_t dosdate, tm_unz tmu_date)
 {
 #ifdef _WIN32
     HANDLE hFile;
@@ -84,7 +84,7 @@ void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
     if (hFile != INVALID_HANDLE_VALUE)
     {
         GetFileTime(hFile, &ftCreate, &ftLastAcc, &ftLastWrite);
-        DosDateTimeToFileTime((WORD)(dosdate>>16),(WORD)dosdate, &ftLocal);
+        DosDateTimeToFileTime((WORD)(dosdate>>16), (WORD)dosdate, &ftLocal);
         LocalFileTimeToFileTime(&ftLocal, &ftm);
         SetFileTime(hFile, &ftm, &ftLastAcc, &ftm);
         CloseHandle(hFile);
@@ -111,7 +111,7 @@ void change_file_date(const char *filename, uLong dosdate, tm_unz tmu_date)
 #endif
 }
 
-int check_file_exists(const char* filename)
+int check_file_exists(const char *filename)
 {
     FILE* ftestexist = FOPEN_FUNC(filename,"rb");
     if (ftestexist == NULL)
@@ -173,7 +173,7 @@ int makedir(const char *newdir)
     return 1;
 }
 
-void display_zpos64(ZPOS64_T n, int size_char)
+void display_zpos64(uint64_t n, int size_char)
 {
     /* To avoid compatibility problem we do here the conversion */
     char number[21] = {0};
@@ -207,8 +207,8 @@ void do_banner()
 void do_help()
 {
     printf("Usage : miniunz [-e] [-x] [-v] [-l] [-o] [-p password] file.zip [file_to_extr.] [-d extractdir]\n\n" \
-           "  -e  Extract without pathname (junk paths)\n" \
-           "  -x  Extract with pathname\n" \
+           "  -e  Extract without path (junk paths)\n" \
+           "  -x  Extract with path\n" \
            "  -v  list files\n" \
            "  -l  list files\n" \
            "  -d  directory to extract into\n" \
@@ -232,9 +232,9 @@ int do_list(unzFile uf)
     {
         char filename_inzip[256] = {0};
         unz_file_info64 file_info = {0};
-        uLong ratio = 0;
+        uint32_t ratio = 0;
         const char *string_method = NULL;
-        char charCrypt = ' ';
+        char char_crypt = ' ';
 
         err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
         if (err != UNZ_OK)
@@ -244,17 +244,17 @@ int do_list(unzFile uf)
         }
 
         if (file_info.uncompressed_size > 0)
-            ratio = (uLong)((file_info.compressed_size*100) / file_info.uncompressed_size);
+            ratio = (uint32_t)((file_info.compressed_size * 100) / file_info.uncompressed_size);
 
         /* Display a '*' if the file is encrypted */
         if ((file_info.flag & 1) != 0)
-            charCrypt = '*';
+            char_crypt = '*';
 
         if (file_info.compression_method == 0)
             string_method = "Stored";
         else if (file_info.compression_method == Z_DEFLATED)
         {
-            uInt iLevel = (uInt)((file_info.flag & 0x6) / 2);
+            uint16_t iLevel = (uint16_t)((file_info.flag & 0x6) / 2);
             if (iLevel == 0)
                 string_method = "Defl:N";
             else if (iLevel == 1)
@@ -272,19 +272,20 @@ int do_list(unzFile uf)
             string_method = "Unkn. ";
 
         display_zpos64(file_info.uncompressed_size, 7);
-        printf("  %6s%c", string_method, charCrypt);
+        printf("  %6s%c", string_method, char_crypt);
         display_zpos64(file_info.compressed_size, 7);
         printf(" %3lu%%  %2.2lu-%2.2lu-%2.2lu  %2.2lu:%2.2lu  %8.8lx   %s\n", ratio,
-                (uLong)file_info.tmu_date.tm_mon + 1, (uLong)file_info.tmu_date.tm_mday,
-                (uLong)file_info.tmu_date.tm_year % 100,
-                (uLong)file_info.tmu_date.tm_hour, (uLong)file_info.tmu_date.tm_min,
-                (uLong)file_info.crc, filename_inzip);
+            (uint32_t)file_info.tmu_date.tm_mon + 1, (uint32_t)file_info.tmu_date.tm_mday,
+            (uint32_t)file_info.tmu_date.tm_year % 100,
+            (uint32_t)file_info.tmu_date.tm_hour, (uint32_t)file_info.tmu_date.tm_min,
+            (uint32_t)file_info.crc, filename_inzip);
 
         err = unzGoToNextFile(uf);
     }
     while (err == UNZ_OK);
 
-    if (err != UNZ_END_OF_LIST_OF_FILE && err != UNZ_OK) {
+    if (err != UNZ_END_OF_LIST_OF_FILE && err != UNZ_OK)
+    {
         printf("error %d with zipfile in unzGoToNextFile\n", err);
         return err;
     }
@@ -292,19 +293,19 @@ int do_list(unzFile uf)
     return 0;
 }
 
-int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_overwrite, const char *password)
+int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_overwrite, const char *password)
 {
     unz_file_info64 file_info = {0};
     FILE* fout = NULL;
     void* buf = NULL;
-    uInt size_buf = WRITEBUFFERSIZE;
+    uint16_t size_buf = WRITEBUFFERSIZE;
     int err = UNZ_OK;
     int errclose = UNZ_OK;
     int skip = 0;
     char filename_inzip[256] = {0};
-    char* filename_withoutpath = NULL;
-    const char* write_filename = NULL;
-    char* p = NULL;
+    char *filename_withoutpath = NULL;
+    const char *write_filename = NULL;
+    char *p = NULL;
 
     err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
     if (err != UNZ_OK)
@@ -417,7 +418,7 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int* popt_o
 
         /* Set the time of the file that has been unzipped */
         if (err == 0)
-            change_file_date(write_filename,file_info.dosDate, file_info.tmu_date);
+            change_file_date(write_filename,file_info.dos_date, file_info.tmu_date);
     }
 
     errclose = unzCloseCurrentFile(uf);
@@ -454,8 +455,8 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
     return 0;
 }
 
-int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_without_path, int opt_overwrite,
-    const char* password)
+int do_extract_onefile(unzFile uf, const char *filename, int opt_extract_without_path, int opt_overwrite,
+    const char *password)
 {
     if (unzLocateFile(uf, filename, NULL) != UNZ_OK)
     {
