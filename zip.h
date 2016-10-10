@@ -58,21 +58,11 @@ typedef voidp zipFile;
 #endif
 /* default memLevel */
 
-/* tm_zip contain date/time info */
-typedef struct tm_zip_s
-{
-    uint16_t tm_sec;                /* seconds after the minute - [0,59] */
-    uint16_t tm_min;                /* minutes after the hour - [0,59] */
-    uint16_t tm_hour;               /* hours since midnight - [0,23] */
-    uint16_t tm_mday;               /* day of the month - [1,31] */
-    uint16_t tm_mon;                /* months since January - [0,11] */
-    uint16_t tm_year;               /* years - [1980..2044] */
-} tm_zip;
+#include <time.h>
 
 typedef struct
 {
-    tm_zip      tmz_date;           /* date in understandable format           */
-    uint32_t    dos_date;           /* if dos_date == 0, tmu_date is used      */
+    uint32_t    dos_date;
     uint16_t    internal_fa;        /* internal file attributes        2 bytes */
     uint32_t    external_fa;        /* external file attributes        4 bytes */
 } zip_fileinfo;

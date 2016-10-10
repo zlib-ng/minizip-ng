@@ -14,32 +14,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#if (!defined(_WIN32)) && (!defined(WIN32)) && (!defined(__APPLE__))
-#  ifndef __USE_FILE_OFFSET64
-#    define __USE_FILE_OFFSET64
-#  endif
-#  ifndef __USE_LARGEFILE64
-#    define __USE_LARGEFILE64
-#  endif
-#  ifndef _LARGEFILE64_SOURCE
-#    define _LARGEFILE64_SOURCE
-#  endif
-#  ifndef _FILE_OFFSET_BIT
-#    define _FILE_OFFSET_BIT 64
-#  endif
-#endif
-
-#ifdef __APPLE__
-/* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
-#  define FOPEN_FUNC(filename, mode) fopen(filename, mode)
-#  define FTELLO_FUNC(stream) ftello(stream)
-#  define FSEEKO_FUNC(stream, offset, origin) fseeko(stream, offset, origin)
-#else
-#  define FOPEN_FUNC(filename, mode) fopen64(filename, mode)
-#  define FTELLO_FUNC(stream) ftello64(stream)
-#  define FSEEKO_FUNC(stream, offset, origin) fseeko64(stream, offset, origin)
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -64,127 +38,10 @@
 #  include "iowin32.h"
 #endif
 
+#include "minishared.h"
+
 #define WRITEBUFFERSIZE (16384)
 #define MAXFILENAME     (256)
-
-uint32_t filetime(const char *filename, tm_zip *tmzip, uint32_t *dostime)
-{
-    int ret = 0;
-#ifdef _WIN32
-    FILETIME ftLocal;
-    HANDLE hFind;
-    WIN32_FIND_DATAA ff32;
-
-    hFind = FindFirstFileA(filename, &ff32);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
-        FileTimeToDosDateTime(&ftLocal, ((LPWORD)dostime)+1, ((LPWORD)dostime)+0);
-        FindClose(hFind);
-        ret = 1;
-    }
-#else
-#if defined unix || defined __APPLE__
-    struct stat s = {0};
-    struct tm* filedate;
-    time_t tm_t = 0;
-
-    if (strcmp(filename,"-") != 0)
-    {
-        char name[MAXFILENAME+1];
-        size_t len = strlen(filename);
-        if (len > MAXFILENAME)
-            len = MAXFILENAME;
-
-        strncpy(name, filename, MAXFILENAME - 1);
-        name[MAXFILENAME] = 0;
-
-        if (name[len - 1] == '/')
-            name[len - 1] = 0;
-
-        /* not all systems allow stat'ing a file with / appended */
-        if (stat(name,&s) == 0)
-        {
-            tm_t = s.st_mtime;
-            ret = 1;
-        }
-    }
-
-    filedate = localtime(&tm_t);
-
-    tmzip->tm_sec  = filedate->tm_sec;
-    tmzip->tm_min  = filedate->tm_min;
-    tmzip->tm_hour = filedate->tm_hour;
-    tmzip->tm_mday = filedate->tm_mday;
-    tmzip->tm_mon  = filedate->tm_mon ;
-    tmzip->tm_year = filedate->tm_year;
-#endif
-#endif
-    return ret;
-}
-
-int check_file_exists(const char *filename)
-{
-    FILE* ftestexist = FOPEN_FUNC(filename, "rb");
-    if (ftestexist == NULL)
-        return 0;
-    fclose(ftestexist);
-    return 1;
-}
-
-int is_large_file(const char *filename)
-{
-    uint64_t pos = 0;
-    FILE* pFile = FOPEN_FUNC(filename, "rb");
-
-    if (pFile == NULL)
-        return 0;
-
-    FSEEKO_FUNC(pFile, 0, SEEK_END);
-    pos = FTELLO_FUNC(pFile);
-    fclose(pFile);
-
-    printf("File : %s is %lld bytes\n", filename, pos);
-
-    return (pos >= 0xffffffff);
-}
-
-/* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
-int get_file_crc(const char *filenameinzip, void *buf, unsigned long size_buf, unsigned long* result_crc)
-{
-    FILE *fin = NULL;
-    unsigned long calculate_crc = 0;
-    unsigned int size_read = 0;
-    int err = ZIP_OK;
-
-    fin = FOPEN_FUNC(filenameinzip,"rb");
-    if (fin == NULL)
-        err = ZIP_ERRNO;
-    else
-    {
-        do
-        {
-            size_read = (int)fread(buf,1,size_buf,fin);
-
-            if ((size_read < size_buf) && (feof(fin) == 0))
-            {
-                printf("error in reading %s\n",filenameinzip);
-                err = ZIP_ERRNO;
-            }
-
-            if (size_read > 0)
-                calculate_crc = crc32(calculate_crc,buf,size_read);
-        }
-        while ((err == ZIP_OK) && (size_read > 0));
-    }
-
-    if (fin)
-        fclose(fin);
-
-    printf("file %s crc %lx\n", filenameinzip, calculate_crc);
-    *result_crc = calculate_crc;
-    return err;
-}
 
 void do_banner()
 {
@@ -334,7 +191,7 @@ int main(int argc, char *argv[])
         const char *filenameinzip = argv[i];
         const char *savefilenameinzip;
         zip_fileinfo zi = {0};
-        unsigned long crcFile = 0;
+        unsigned long crc_for_crypting = 0;
         int zip64 = 0;
 
         /* Skip command line options */
@@ -344,10 +201,10 @@ int main(int argc, char *argv[])
             continue;
 
         /* Get information about the file on disk so we can store it in zip */
-        filetime(filenameinzip, &zi.tmz_date, &zi.dos_date);
+        get_file_date(filenameinzip, &zi.dos_date);
 
         if ((password != NULL) && (err == ZIP_OK))
-            err = get_file_crc(filenameinzip, buf, size_buf, &crcFile);
+            err = get_file_crc(filenameinzip, buf, size_buf, &crc_for_crypting);
 
         zip64 = is_large_file(filenameinzip);
 
@@ -379,9 +236,9 @@ int main(int argc, char *argv[])
         err = zipOpenNewFileInZip3_64(zf, savefilenameinzip, &zi,
                     NULL, 0, NULL, 0, NULL /* comment*/,
                     (opt_compress_level != 0) ? Z_DEFLATED : 0,
-                    opt_compress_level,0,
+                    opt_compress_level, 0,
                     -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-                    password, crcFile, zip64);
+                    password, crc_for_crypting, zip64);
 
         if (err != ZIP_OK)
             printf("error in opening %s in zipfile (%d)\n", filenameinzip, err);

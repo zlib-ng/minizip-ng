@@ -18,20 +18,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <time.h>
+#include <errno.h>
+
 #include "zlib.h"
 #include "zip.h"
-
-#ifdef STDC
-#  include <stddef.h>
-#  include <string.h>
-#  include <stdlib.h>
-#endif
-#ifdef NO_ERRNO_H
-    extern int errno;
-#else
-#   include <errno.h>
-#endif
 
 #ifdef HAVE_AES
 #  define AES_METHOD          (99)
@@ -273,38 +263,6 @@ local int add_data_in_datablock(linkedlist_data *ll, const void *buf, uint32_t l
         len -= copy_this;
     }
     return ZIP_OK;
-}
-
-local uint32_t zipTmzDateToDosDate(const tm_zip *ptm)
-{
-    uint32_t year;
-#define zip64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
-    /* Years supported:
-       * [00, 79] (assumed to be between 2000 and 2079)
-       * [80, 207] (assumed to be between 1980 and 2107, typical output of old
-         software that does 'year-1900' to get a double digit year)
-       * [1980, 2107]
-       Due to the date format limitations, only years between 1980 and 2107 can be stored.
-    */
-    if (!(zip64local_in_range(1980, 2107, ptm->tm_year) || zip64local_in_range(0, 207, ptm->tm_year)) ||
-        !zip64local_in_range(0, 11, ptm->tm_mon) ||
-        !zip64local_in_range(1, 31, ptm->tm_mday) ||
-        !zip64local_in_range(0, 23, ptm->tm_hour) ||
-        !zip64local_in_range(0, 59, ptm->tm_min) ||
-        !zip64local_in_range(0, 59, ptm->tm_sec))
-      return 0;
-#undef zip64local_in_range
-
-    year = (uint32_t)ptm->tm_year;
-    if (year >= 1980) /* range [1980, 2107] */
-        year -= 1980;
-    else if (year >= 80) /* range [80, 99] */
-        year -= 80;
-    else /* range [00, 79] */
-        year += 20;
-
-    return (uint32_t)(((ptm->tm_mday) + (32 * (ptm->tm_mon + 1)) + (512 * year)) << 16) |
-        ((ptm->tm_sec / 2) + (32 * ptm->tm_min) + (2048 * (uint32_t)ptm->tm_hour));
 }
 
 /* Inputs a long in LSB order to the given file: nbByte == 1, 2 ,4 or 8 (byte, short or long, uint64_t) */
@@ -1021,8 +979,6 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
     {
         if (zipfi->dos_date != 0)
             zi->ci.dos_date = zipfi->dos_date;
-        else
-            zi->ci.dos_date = zipTmzDateToDosDate(&zipfi->tmz_date);
     }
 
     zi->ci.method = method;

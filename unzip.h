@@ -54,17 +54,6 @@ typedef voidp unzFile;
 #define UNZ_CRCERROR                    (-105)
 #define UNZ_BADPASSWORD                 (-106)
 
-/* tm_unz contain date/time info */
-typedef struct tm_unz_s
-{
-    uint16_t tm_sec;                /* seconds after the minute - [0,59] */
-    uint16_t tm_min;                /* minutes after the hour - [0,59] */
-    uint16_t tm_hour;               /* hours since midnight - [0,23] */
-    uint16_t tm_mday;               /* day of the month - [1,31] */
-    uint16_t tm_mon;                /* months since January - [0,11] */
-    uint16_t tm_year;               /* years - [1980..2044] */
-} tm_unz;
-
 /* unz_global_info structure contain global data about the ZIPfile
    These data comes from the end of central dir */
 typedef struct unz_global_info64_s
@@ -100,8 +89,6 @@ typedef struct unz_file_info64_s
     uint16_t internal_fa;           /* internal file attributes        2 bytes */
     uint32_t external_fa;           /* external file attributes        4 bytes */
 
-    tm_unz   tmu_date;
-
     uint64_t disk_offset;
 
     uint16_t size_file_extra_internal;
@@ -124,8 +111,6 @@ typedef struct unz_file_info_s
     uint16_t disk_num_start;        /* disk number start               2 bytes */
     uint16_t internal_fa;           /* internal file attributes        2 bytes */
     uint32_t external_fa;           /* external file attributes        4 bytes */
-
-    tm_unz   tmu_date;
 
     uint64_t disk_offset;
 } unz_file_info;

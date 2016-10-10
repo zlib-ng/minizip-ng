@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <errno.h>
 
 /*#ifndef NOUNCRYPT
 #  define NOUNCRYPT
@@ -32,17 +33,6 @@
 
 #include "zlib.h"
 #include "unzip.h"
-
-#ifdef STDC
-#  include <stddef.h>
-#  include <string.h>
-#  include <stdlib.h>
-#endif
-#ifdef NO_ERRNO_H
-   extern int errno;
-#else
-#  include <errno.h>
-#endif
 
 #ifdef HAVE_AES
 #  define AES_METHOD          (99)
@@ -173,29 +163,6 @@ typedef struct
     const uint32_t *pcrc_32_tab;
 #endif
 } unz64_s;
-
-/* Translate date/time from Dos format to tm_unz (readable more easily) */
-local void unzDosDateToTmuDate(uint64_t dos_date, tm_unz* ptm)
-{
-    uint64_t date = (uint64_t)(dos_date >> 16);
-
-    ptm->tm_mday = (uint16_t)(date & 0x1f);
-    ptm->tm_mon  = (uint16_t)(((date & 0x1E0) / 0x20) - 1);
-    ptm->tm_year = (uint16_t)(((date & 0x0FE00) / 0x0200) + 1980);
-    ptm->tm_hour = (uint16_t)((dos_date & 0xF800) / 0x800);
-    ptm->tm_min  = (uint16_t)((dos_date & 0x7E0) / 0x20);
-    ptm->tm_sec  = (uint16_t)(2 * (dos_date & 0x1f));
-
-#define unz64local_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
-    if (!unz64local_in_range(0, 11, ptm->tm_mon) ||
-        !unz64local_in_range(1, 31, ptm->tm_mday) ||
-        !unz64local_in_range(0, 23, ptm->tm_hour) ||
-        !unz64local_in_range(0, 59, ptm->tm_min) ||
-        !unz64local_in_range(0, 59, ptm->tm_sec))
-      /* Invalid date stored, so don't return it. */
-      memset(ptm, 0, sizeof(tm_unz));
-#undef unz64local_in_range
-}
 
 /* Read a byte from a gz_stream; Return EOF for end of file. */
 local int unzReadUInt8(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint8_t *value)
@@ -748,7 +715,6 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
         err = UNZ_ERRNO;
     if (unzReadUInt32(&s->z_filefunc, s->filestream_with_CD, &file_info.dos_date) != UNZ_OK)
         err = UNZ_ERRNO;
-    unzDosDateToTmuDate(file_info.dos_date, &file_info.tmu_date);
     if (unzReadUInt32(&s->z_filefunc, s->filestream_with_CD, &file_info.crc) != UNZ_OK)
         err = UNZ_ERRNO;
     if (unzReadUInt32(&s->z_filefunc, s->filestream_with_CD, &value32) != UNZ_OK)
@@ -993,8 +959,6 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
         pfile_info->disk_num_start = (uint16_t)file_info64.disk_num_start;
         pfile_info->internal_fa = file_info64.internal_fa;
         pfile_info->external_fa = file_info64.external_fa;
-
-        pfile_info->tmu_date = file_info64.tmu_date,
 
         pfile_info->compressed_size = (uint32_t)file_info64.compressed_size;
         pfile_info->uncompressed_size = (uint32_t)file_info64.uncompressed_size;
