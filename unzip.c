@@ -58,6 +58,10 @@
 #  include "crypt.h"
 #endif
 
+#ifdef HAVE_APPLE_COMPRESSION
+#   include <compression.h>
+#endif
+
 #ifndef local
 #  define local static
 #endif
@@ -113,6 +117,9 @@ typedef struct
     Bytef *read_buffer;                 /* internal buffer for compressed data */
     z_stream stream;                    /* zLib stream structure for inflate */
 
+#ifdef HAVE_APPLE_COMPRESSION
+    compression_stream astream;         /* libcompression stream structure */
+#endif
 #ifdef HAVE_BZIP2
     bz_stream bstream;                  /* bzLib stream structure for bziped */
 #endif
@@ -1231,6 +1238,13 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int* method, int* level, in
              * In unzip, i don't wait absolutely Z_STREAM_END because I known the
              * size of both compressed and uncompressed data
              */
+            
+#ifdef HAVE_APPLE_COMPRESSION
+            if (compression_stream_init)
+            {
+                compression_stream_init(&pfile_in_zip_read_info->astream, COMPRESSION_STREAM_DECODE, COMPRESSION_ZLIB);
+            }
+#endif
         }
     }
 
@@ -1505,6 +1519,53 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, unsigned len)
         }
         else
         {
+#ifdef HAVE_APPLE_COMPRESSION
+            if (compression_stream_process)
+            {
+                ZPOS64_T total_out_before, total_out_after;
+                const Bytef *buf_before;
+                ZPOS64_T out_bytes;
+                
+                s->pfile_in_zip_read->astream.src_ptr = s->pfile_in_zip_read->stream.next_in;
+                s->pfile_in_zip_read->astream.src_size = s->pfile_in_zip_read->stream.avail_in;
+                s->pfile_in_zip_read->astream.dst_ptr = s->pfile_in_zip_read->stream.next_out;
+                s->pfile_in_zip_read->astream.dst_size = len;
+                
+                total_out_before = s->pfile_in_zip_read->stream.total_out;
+                buf_before = s->pfile_in_zip_read->stream.next_out;
+                
+                compression_status status;
+                compression_stream_flags flags;
+                
+                if (s->pfile_in_zip_read->stream.avail_in == 0)
+                {
+                    flags = COMPRESSION_STREAM_FINALIZE;
+                }
+                
+                status = compression_stream_process(&s->pfile_in_zip_read->astream, flags);
+                
+                total_out_after = len - s->pfile_in_zip_read->astream.dst_size;
+                out_bytes = total_out_after-total_out_before;
+                
+                s->pfile_in_zip_read->total_out_64 += out_bytes;
+                s->pfile_in_zip_read->rest_read_uncompressed -= out_bytes;
+                s->pfile_in_zip_read->crc32 =
+                    crc32(s->pfile_in_zip_read->crc32,buf_before, (uInt)(out_bytes));
+                
+                read += (uInt)(total_out_after - total_out_before);
+                
+                s->pfile_in_zip_read->stream.next_in   = s->pfile_in_zip_read->astream.src_ptr;
+                s->pfile_in_zip_read->stream.avail_in  = s->pfile_in_zip_read->astream.src_size;
+                s->pfile_in_zip_read->stream.next_out  = s->pfile_in_zip_read->astream.dst_ptr;
+                s->pfile_in_zip_read->stream.avail_out = s->pfile_in_zip_read->astream.dst_size;
+                
+                if (status == COMPRESSION_STATUS_END)
+                    return (read == 0) ? UNZ_EOF : read;
+                if (status == COMPRESSION_STATUS_ERROR)
+                    return Z_DATA_ERROR;
+                return read;
+            }
+#endif
             ZPOS64_T total_out_before, total_out_after;
             const Bytef *buf_before;
             ZPOS64_T out_bytes;
@@ -1637,7 +1698,15 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
     TRYFREE(pfile_in_zip_read_info->read_buffer);
     pfile_in_zip_read_info->read_buffer = NULL;
     if (pfile_in_zip_read_info->stream_initialised == Z_DEFLATED)
+    {
+#ifdef HAVE_APPLE_COMPRESSION
+        if (compression_stream_destroy)
+        {
+            compression_stream_destroy(&pfile_in_zip_read_info->astream);
+        }
+#endif
         inflateEnd(&pfile_in_zip_read_info->stream);
+    }
 #ifdef HAVE_BZIP2
     else if (pfile_in_zip_read_info->stream_initialised == Z_BZIP2ED)
         BZ2_bzDecompressEnd(&pfile_in_zip_read_info->bstream);
