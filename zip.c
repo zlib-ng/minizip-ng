@@ -678,14 +678,14 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
     zip64_internal* zi;
 #ifndef NO_ADDFILEINEXISTINGZIP
     ZPOS64_T byte_before_the_zipfile;   /* byte before the zipfile, (>0 for sfx)*/
-    ZPOS64_T size_central_dir;          /* size of the central directory  */
-    ZPOS64_T offset_central_dir;        /* offset of start of central directory */
-    ZPOS64_T number_entry_CD;           /* total number of entries in the central dir */
+    ZPOS64_T size_central_dir = 0;          /* size of the central directory  */
+    ZPOS64_T offset_central_dir = 0;        /* offset of start of central directory */
+    ZPOS64_T number_entry_CD = 0;           /* total number of entries in the central dir */
     ZPOS64_T number_entry;
     ZPOS64_T central_pos;
     ZPOS64_T size_central_dir_to_read;
     uLong uL;
-    uLong size_comment;
+    uLong size_comment = 0;
     size_t buf_size = SIZEDATA_INDATABLOCK;
     void* buf_read;
 #endif
