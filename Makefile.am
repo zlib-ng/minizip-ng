@@ -19,6 +19,7 @@ libminizip_la_SOURCES = \
 	ioapi.c \
 	unzip.c \
 	zip.c \
+	ioapi_mem.c \
 	${iowin32_src}
 
 libminizip_la_LDFLAGS = $(AM_LDFLAGS) -version-info 1:0:0 -lz

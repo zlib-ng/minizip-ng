@@ -31,6 +31,7 @@
 
 #include "zlib.h"
 #include "unzip.h"
+#include "ioapi_mem.h"
 
 #ifdef STDC
 #  include <stddef.h>
@@ -585,6 +586,16 @@ extern unzFile ZEXPORT unzOpen(const char *path)
 extern unzFile ZEXPORT unzOpen64(const void *path)
 {
     return unzOpenInternal(path, NULL);
+}
+
+extern unzFile ZEXPORT unzOpenBuffer(const  void* buffer, uLong size)
+{
+    char path[48] = {0};
+    ourmemory_t FileMemory;
+    zlib_filefunc64_32_def memory_file;
+    sprintf(path, "%llx %lx", (unsigned long long)buffer, (unsigned long)size);
+    fill_memory_filefunc(&memory_file, &FileMemory);
+    return unzOpenInternal(path, &memory_file, 0);
 }
 
 extern int ZEXPORT unzClose(unzFile file)
