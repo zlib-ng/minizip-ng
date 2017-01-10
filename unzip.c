@@ -1012,7 +1012,7 @@ local int unz64local_CheckCurrentFileCoherencyHeader(unz64_s* s, uInt* piSizeVar
     uLong size_filename;
     uLong size_extra_field;
     int err = UNZ_OK;
-    int compression_method = 0;
+    int compression_method = 0, check_compression_method;
 
     *piSizeVar = 0;
     *poffset_local_extrafield = 0;
@@ -1048,12 +1048,11 @@ local int unz64local_CheckCurrentFileCoherencyHeader(unz64_s* s, uInt* piSizeVar
     if (compression_method == AES_METHOD)
         compression_method = (int)s->cur_file_info_internal.aes_compression_method;
 #endif
-
-    if ((err == UNZ_OK) && (compression_method != 0) &&
+    check_compression_method = (err == UNZ_OK) && (compression_method != 0) && (compression_method != Z_DEFLATED);    
 #ifdef HAVE_BZIP2
-        (compression_method != Z_BZIP2ED) &&
+    check_compression_method = check_compression_method && (compression_method != Z_BZIP2ED);
 #endif
-        (compression_method != Z_DEFLATED))
+    if (check_compression_method)
         err = UNZ_BADZIPFILE;
 
     if (unz64local_getLong(&s->z_filefunc, s->filestream, &uL) != UNZ_OK) /* date/time */
