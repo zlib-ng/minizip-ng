@@ -401,7 +401,8 @@ local ZPOS64_T unz64local_SearchCentralDir64(const zlib_filefunc64_32_def* pzlib
     return offset;
 }
 
-local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_filefunc64_32_def)
+local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_filefunc64_32_def,
+                              const int exclusive)
 {
     unz64_s us;
     unz64_s *s;
@@ -431,7 +432,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         return NULL;
 
 #ifdef USE_LOCKING
-    if (ZLOCK64(us.z_filefunc, us.filestream, LOCK_SH | LOCK_NB)) {
+    if (ZLOCK64(us.z_filefunc, us.filestream, (exclusive ? LOCK_EX : LOCK_SH) | LOCK_NB)) {
         // Failed to lock. Let the caller figure out what happened.
         ZCLOSE64(us.z_filefunc, us.filestream);
         return NULL;
@@ -545,7 +546,7 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         return NULL;
     }
 
-    if (us.gi.number_disk_with_CD == 0)
+    if (us.gi.number_disk_with_CD == 0 && !exclusive)
     {
 		/* TODO try to unlock/close? This seems messy and bad as-is. */
 
@@ -555,7 +556,8 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         if (filestream != NULL)
         {
 #ifdef USE_LOCKING
-            if (ZLOCK64(us.z_filefunc, filestream, LOCK_SH | LOCK_NB)) {
+			printf("Disk number thing\n");
+			if (ZLOCK64(us.z_filefunc, filestream, LOCK_SH | LOCK_NB)) {
                 // Failed to lock. Let the caller figure out what happened.
 				ZCLOSE64(us.z_filefunc, filestream);
                 return NULL;
@@ -590,9 +592,9 @@ extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def* pzlib_filef
     {
         zlib_filefunc64_32_def zlib_filefunc64_32_def_fill;
         fill_zlib_filefunc64_32_def_from_filefunc32(&zlib_filefunc64_32_def_fill, pzlib_filefunc32_def);
-        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill);
+        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 0);
     }
-    return unzOpenInternal(path, NULL);
+    return unzOpenInternal(path, NULL, 0);
 }
 
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def* pzlib_filefunc_def)
@@ -603,19 +605,29 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def* pzlib_
         zlib_filefunc64_32_def_fill.zfile_func64 = *pzlib_filefunc_def;
         zlib_filefunc64_32_def_fill.ztell32_file = NULL;
         zlib_filefunc64_32_def_fill.zseek32_file = NULL;
-        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill);
+        return unzOpenInternal(path, &zlib_filefunc64_32_def_fill, 0);
     }
-    return unzOpenInternal(path, NULL);
+    return unzOpenInternal(path, NULL, 0);
 }
 
 extern unzFile ZEXPORT unzOpen(const char *path)
 {
-    return unzOpenInternal(path, NULL);
+    return unzOpenInternal(path, NULL, 0);
+}
+
+extern unzFile ZEXPORT unzOpenExclusive(const char *path)
+{
+    return unzOpenInternal(path, NULL, 1);
 }
 
 extern unzFile ZEXPORT unzOpen64(const void *path)
 {
-    return unzOpenInternal(path, NULL);
+    return unzOpenInternal(path, NULL, 0);
+}
+
+extern unzFile ZEXPORT unzOpenExclusive64(const void *path)
+{
+    return unzOpenInternal(path, NULL, 1);
 }
 
 extern int ZEXPORT unzClose(unzFile file)
