@@ -556,7 +556,6 @@ local unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def* pzlib_fi
         if (filestream != NULL)
         {
 #ifdef USE_LOCKING
-			printf("Disk number thing\n");
 			if (ZLOCK64(us.z_filefunc, filestream, LOCK_SH | LOCK_NB)) {
                 // Failed to lock. Let the caller figure out what happened.
 				ZCLOSE64(us.z_filefunc, filestream);
