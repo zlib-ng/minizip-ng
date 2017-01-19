@@ -131,7 +131,9 @@ typedef struct unz_file_info_s
 /* Opening and close a zip file */
 
 extern unzFile ZEXPORT unzOpen OF((const char *path));
+extern unzFile ZEXPORT unzOpenExclusive OF((const char *path));
 extern unzFile ZEXPORT unzOpen64 OF((const void *path));
+extern unzFile ZEXPORT unzOpenExclusive64 OF((const void *path));
 /* Open a Zip file.
 
    path should contain the full pathname (by example, on a Windows XP computer 

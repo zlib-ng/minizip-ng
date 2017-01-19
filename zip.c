@@ -105,6 +105,12 @@
 #  endif
 #endif
 
+#define USE_LOCKING
+
+#ifdef USE_LOCKING
+#include <sys/file.h>		// For flock()ing
+#endif
+
 const char zip_copyright[] = " zip 1.01 Copyright 1998-2004 Gilles Vollant - http://www.winimage.com/zLibDll";
 
 typedef struct linkedlist_datablock_internal_s
@@ -690,7 +696,7 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
     void* buf_read;
 #endif
     int err = ZIP_OK;
-    int mode;
+    int mode, create_mode;
 
     ziinit.z_filefunc.zseek32_file = NULL;
     ziinit.z_filefunc.ztell32_file = NULL;
@@ -699,14 +705,44 @@ extern zipFile ZEXPORT zipOpen4(const void *pathname, int append, ZPOS64_T disk_
     else
         ziinit.z_filefunc = *pzlib_filefunc64_32_def;
 
-    if (append == APPEND_STATUS_CREATE)
-        mode = (ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_CREATE);
-    else
-        mode = (ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_EXISTING);
+    mode = (ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_EXISTING);
+    create_mode = (ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE | ZLIB_FILEFUNC_MODE_APPEND);
 
-    ziinit.filestream = ZOPEN64(ziinit.z_filefunc, pathname, mode);
-    if (ziinit.filestream == NULL)
+    while(1) {
+        if (append == APPEND_STATUS_CREATE) {
+            // Make sure that file exists
+            voidpf temp_stream;
+            temp_stream = ZOPEN64(ziinit.z_filefunc, pathname, create_mode);
+            if (temp_stream == NULL) {
+                return NULL;
+            }
+            ZCLOSE64(ziinit.z_filefunc, temp_stream);
+        }
+        ziinit.filestream = ZOPEN64(ziinit.z_filefunc, pathname, mode);
+        if (ziinit.filestream == NULL) {
+            if (errno == ENOENT && append == APPEND_STATUS_CREATE) {
+                // Someone deleted our file out from under us. Try again.
+                continue;
+            }
+            return NULL;
+        } else {
+            // Success!
+            break;
+        }
+    }
+
+#ifdef USE_LOCKING
+    if (ZLOCK64(ziinit.z_filefunc, ziinit.filestream, LOCK_EX | LOCK_NB)) {
+        // Failed to lock. Let the caller figure out what happened.
+        ZCLOSE64(ziinit.z_filefunc,ziinit.filestream);
         return NULL;
+    }
+#endif
+
+    if (append == APPEND_STATUS_CREATE) {
+        // Truncate the file
+        ZTRUNCATE64(ziinit.z_filefunc,ziinit.filestream, 0);
+    }
 
     if (append == APPEND_STATUS_CREATEAFTER)
     {
@@ -2033,6 +2069,13 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char* global_comment, uLong 
         if (ZWRITE64(zi->z_filefunc, zi->filestream, global_comment, size_global_comment) != size_global_comment)
             err = ZIP_ERRNO;
     }
+
+#ifdef USE_LOCKING
+    if (ZLOCK64(zi->z_filefunc, zi->filestream, LOCK_UN)) {
+        // Failed to unlock. Let the caller figure out what happened.
+        return ZIP_INTERNALERROR;
+    }
+#endif
 
     if ((ZCLOSE64(zi->z_filefunc, zi->filestream) != 0) && (err == ZIP_OK))
         err = ZIP_ERRNO;

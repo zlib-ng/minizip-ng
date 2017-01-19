@@ -81,9 +81,10 @@ extern "C" {
 
 #define ZLIB_FILEFUNC_MODE_READ             (1)
 #define ZLIB_FILEFUNC_MODE_WRITE            (2)
-#define ZLIB_FILEFUNC_MODE_READWRITEFILTER  (3)
+#define ZLIB_FILEFUNC_MODE_READWRITEFILTER  (ZLIB_FILEFUNC_MODE_READ | ZLIB_FILEFUNC_MODE_WRITE)
 #define ZLIB_FILEFUNC_MODE_EXISTING         (4)
 #define ZLIB_FILEFUNC_MODE_CREATE           (8)
+#define ZLIB_FILEFUNC_MODE_APPEND           (16)
 
 #ifndef ZCALLBACK
 #  if (defined(WIN32) || defined(_WIN32) || defined (WINDOWS) || \
@@ -104,6 +105,9 @@ typedef int      (ZCALLBACK *testerror_file_func) OF((voidpf opaque, voidpf stre
 typedef long     (ZCALLBACK *tell_file_func)      OF((voidpf opaque, voidpf stream));
 typedef long     (ZCALLBACK *seek_file_func)      OF((voidpf opaque, voidpf stream, uLong offset, int origin));
 
+typedef int      (ZCALLBACK *lock_file_func)      OF((voidpf opaque, voidpf stream, int operation));
+typedef int      (ZCALLBACK *truncate_file_func)  OF((voidpf opaque, voidpf stream, int len));
+
 /* here is the "old" 32 bits structure structure */
 typedef struct zlib_filefunc_def_s
 {
@@ -115,6 +119,8 @@ typedef struct zlib_filefunc_def_s
     seek_file_func      zseek_file;
     close_file_func     zclose_file;
     testerror_file_func zerror_file;
+    lock_file_func      zlock_file;
+    truncate_file_func  ztruncate_file;
     voidpf              opaque;
 } zlib_filefunc_def;
 
@@ -133,6 +139,8 @@ typedef struct zlib_filefunc64_def_s
     seek64_file_func     zseek64_file;
     close_file_func      zclose_file;
     testerror_file_func  zerror_file;
+    lock_file_func       zlock_file;
+    truncate_file_func   ztruncate_file;
     voidpf               opaque;
 } zlib_filefunc64_def;
 
@@ -167,6 +175,9 @@ void fill_zlib_filefunc64_32_def_from_filefunc32 OF((zlib_filefunc64_32_def* p_f
 #define ZOPENDISK64(filefunc,filestream,diskn,mode) (call_zopendisk64((&(filefunc)),(filestream),(diskn),(mode)))
 #define ZTELL64(filefunc,filestream)                (call_ztell64((&(filefunc)),(filestream)))
 #define ZSEEK64(filefunc,filestream,pos,mode)       (call_zseek64((&(filefunc)),(filestream),(pos),(mode)))
+
+#define ZLOCK64(filefunc,filestream,operation)      ((*((filefunc).zfile_func64.zlock_file))       ((filefunc).zfile_func64.opaque,(filestream),(operation)))
+#define ZTRUNCATE64(filefunc,filestream,len)        ((*((filefunc).zfile_func64.ztruncate_file))   ((filefunc).zfile_func64.opaque,(filestream),(len)))
 
 #ifdef __cplusplus
 }
