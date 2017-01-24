@@ -178,7 +178,7 @@ static voidpf ZCALLBACK fopendisk64_file_func(voidpf opaque, voidpf stream, uint
     {
         if (diskFilename[i] != '.')
             continue;
-        snprintf(&diskFilename[i], ioposix->filenameLength - i, ".z%02lu", number_disk + 1);
+        snprintf(&diskFilename[i], ioposix->filenameLength - i, ".z%02u", number_disk + 1);
         break;
     }
     if (i >= 0)
@@ -203,7 +203,7 @@ static voidpf ZCALLBACK fopendisk_file_func(voidpf opaque, voidpf stream, uint32
     {
         if (diskFilename[i] != '.')
             continue;
-        snprintf(&diskFilename[i], ioposix->filenameLength - i, ".z%02lu", number_disk + 1);
+        snprintf(&diskFilename[i], ioposix->filenameLength - i, ".z%02u", number_disk + 1);
         break;
     }
     if (i >= 0)
