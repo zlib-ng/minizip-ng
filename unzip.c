@@ -1006,7 +1006,7 @@ local int unzCheckCurrentFileCoherencyHeader(unz64_s *s, uint32_t *psize_variabl
         return err;
 
     if (ZSEEK64(s->z_filefunc, s->filestream, s->cur_file_info_internal.offset_curfile +
-            s->cur_file_info_internal.byte_before_the_zipfile, ZLIB_FILEFUNC_SEEK_SET) != 0)
+        s->cur_file_info_internal.byte_before_the_zipfile, ZLIB_FILEFUNC_SEEK_SET) != 0)
         return UNZ_ERRNO;
 
     if (err == UNZ_OK)
@@ -1033,12 +1033,13 @@ local int unzCheckCurrentFileCoherencyHeader(unz64_s *s, uint32_t *psize_variabl
         compression_method = s->cur_file_info_internal.aes_compression_method;
 #endif
 
-    if ((err == UNZ_OK) && (compression_method != 0) &&
+    if ((err == UNZ_OK) && (compression_method != 0) && (compression_method != Z_DEFLATED))
+    {
 #ifdef HAVE_BZIP2
-        (compression_method != Z_BZIP2ED) &&
+        if (compression_method != Z_BZIP2ED)
 #endif
-        (compression_method != Z_DEFLATED))
-        err = UNZ_BADZIPFILE;
+            err = UNZ_BADZIPFILE;
+    }
 
     if (unzReadUInt32(&s->z_filefunc, s->filestream, &value32) != UNZ_OK) /* date/time */
         err = UNZ_ERRNO;
