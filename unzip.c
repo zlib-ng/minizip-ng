@@ -1118,7 +1118,11 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
     compression_method = s->cur_file_info.compression_method;
 #ifdef HAVE_AES
     if (compression_method == AES_METHOD)
+    {
         compression_method = s->cur_file_info_internal.aes_compression_method;
+        if (password == NULL)
+            return UNZ_PARAMERROR;
+    }
 #endif
 
     if (method != NULL)
