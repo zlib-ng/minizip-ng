@@ -102,7 +102,7 @@ voidpf ZCALLBACK fopen_buf_func(voidpf opaque, const char *filename, int mode)
     return fopen_buf_internal_func(opaque, stream, 0, mode);
 }
 
-voidpf ZCALLBACK fopen64_buf_func(voidpf opaque, const char *filename, int mode)
+voidpf ZCALLBACK fopen64_buf_func(voidpf opaque, const void *filename, int mode)
 {
     ourbuffer_t *bufio = (ourbuffer_t *)opaque;
     voidpf stream = bufio->filefunc64.zopen64_file(bufio->filefunc64.opaque, filename, mode);

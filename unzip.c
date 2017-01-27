@@ -677,7 +677,6 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
     uint32_t extra_pos = 0;
     uint16_t extra_header_id = 0;
     uint16_t extra_data_size = 0;
-    uint8_t value8 = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
     uint64_t value64 = 0;
@@ -853,6 +852,8 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
             /* AES header */
             else if (extra_header_id == 0x9901)
             {
+                uint8_t value8 = 0;
+
                 /* Subtract size of AES field, since AES is handled internally */
                 file_info.size_file_extra_internal += 2 + 2 + extra_data_size;
 
@@ -1018,7 +1019,7 @@ local int unzCheckCurrentFileCoherencyHeader(unz64_s *s, uint32_t *psize_variabl
     flags = value16;
     if (unzReadUInt16(&s->z_filefunc, s->filestream, &value16) != UNZ_OK)
         err = UNZ_ERRNO;
-    else if ((err == UNZ_OK) && (value32 != s->cur_file_info.compression_method))
+    else if ((err == UNZ_OK) && (value16 != s->cur_file_info.compression_method))
         err = UNZ_BADZIPFILE;
 
     compression_method = s->cur_file_info.compression_method;

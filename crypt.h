@@ -32,6 +32,16 @@
 
 */
 
+#ifdef INCLUDECRYPTINGCODE_IFCRYPTALLOWED
+#include <time.h>
+
+#define RAND_HEAD_LEN  12
+   /* "last resort" source for second part of crypt seed pattern */
+#  ifndef ZCR_SEED2
+#    define ZCR_SEED2 3141592654UL     /* use PI as default pattern */
+#  endif
+#endif 
+
 #define CRC32(c, b) ((*(pcrc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
 /***********************************************************************
@@ -86,13 +96,6 @@ static void init_keys(const char *passwd, uint32_t *pkeys, const uint32_t *pcrc_
     (t=decrypt_byte(pkeys), update_keys(pkeys,pcrc_32_tab,c), t^(c))
 
 #ifdef INCLUDECRYPTINGCODE_IFCRYPTALLOWED
-
-#define RAND_HEAD_LEN  12
-   /* "last resort" source for second part of crypt seed pattern */
-#  ifndef ZCR_SEED2
-#    define ZCR_SEED2 3141592654UL     /* use PI as default pattern */
-#  endif
-
 static int crypthead(const char *passwd,      /* password string */
                      uint8_t *buf,      /* where to write header */
                      int buf_size,
@@ -133,5 +136,4 @@ static int crypthead(const char *passwd,      /* password string */
     buf[n++] = (uint8_t)zencode(pkeys, pcrc_32_tab, (uint8_t)((crc_for_crypting >> 24) & 0xff), t);
     return n;
 }
-
 #endif
