@@ -36,6 +36,9 @@
 #  include "aes/prng.h"
 #  include "aes/entropy.h"
 #endif
+#ifdef HAVE_APPLE_COMPRESSION
+#  include <compression.h>
+#endif
 
 #ifndef NOCRYPT
 #  define INCLUDECRYPTINGCODE_IFCRYPTALLOWED
@@ -115,6 +118,9 @@ typedef struct
     z_stream stream;                /* zLib stream structure for inflate */
 #ifdef HAVE_BZIP2
     bz_stream bstream;              /* bzLib stream structure for bziped */
+#endif
+#ifdef HAVE_APPLE_COMPRESSION
+    compression_stream astream;     /* libcompression stream structure */
 #endif
 #ifdef HAVE_AES
     fcrypt_ctx aes_ctx;
@@ -1200,8 +1206,15 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             if (windowBits > 0)
                 windowBits = -windowBits;
 
+#ifdef HAVE_APPLE_COMPRESSION
+            err = compression_stream_init(&zi->ci.astream, COMPRESSION_STREAM_ENCODE, COMPRESSION_ZLIB);
+            if (err == COMPRESSION_STATUS_ERROR)
+                err = Z_ERRNO;
+            else
+                err = Z_OK;
+#else
             err = deflateInit2(&zi->ci.stream, level, Z_DEFLATED, windowBits, memLevel, strategy);
-
+#endif
             if (err == Z_OK)
                 zi->ci.stream_initialised = Z_DEFLATED;
         }
@@ -1486,9 +1499,36 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
 
             if ((zi->ci.compression_method == Z_DEFLATED) && (!zi->ci.raw))
             {
+#ifdef HAVE_APPLE_COMPRESSION
+                uLong total_out_before = zi->ci.stream.total_out;
+
+                zi->ci.astream.src_ptr = zi->ci.stream.next_in;
+                zi->ci.astream.src_size = zi->ci.stream.avail_in;
+                zi->ci.astream.dst_ptr = zi->ci.stream.next_out;
+                zi->ci.astream.dst_size = zi->ci.stream.avail_out;
+
+                compression_status status = 0;
+                compression_stream_flags flags = 0;
+
+                status = compression_stream_process(&zi->ci.astream, flags);
+
+                uLong total_out_after = len - zi->ci.astream.src_size;
+
+                zi->ci.stream.next_in = zi->ci.astream.src_ptr;
+                zi->ci.stream.avail_in = zi->ci.astream.src_size;
+                zi->ci.stream.next_out = zi->ci.astream.dst_ptr;
+                zi->ci.stream.avail_out = zi->ci.astream.dst_size;
+                zi->ci.stream.total_in += total_out_after;
+                //zi->ci.stream.total_out += copy_this;
+                zi->ci.pos_in_buffered_data += total_out_after;
+
+                if (status == COMPRESSION_STATUS_ERROR)
+                    err = ZIP_INTERNALERROR;
+#else
                 uint32_t total_out_before = zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_NO_FLUSH);
                 zi->ci.pos_in_buffered_data += (uint32_t)(zi->ci.stream.total_out - total_out_before);
+#endif
             }
             else
             {
@@ -1553,9 +1593,41 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                     zi->ci.stream.avail_out = Z_BUFSIZE;
                     zi->ci.stream.next_out = zi->ci.buffered_data;
                 }
+
+#ifdef HAVE_APPLE_COMPRESSION
+                total_out_before = zi->ci.stream.total_out;
+
+                zi->ci.astream.src_ptr = zi->ci.stream.next_in;
+                zi->ci.astream.src_size = zi->ci.stream.avail_in;
+                zi->ci.astream.dst_ptr = zi->ci.stream.next_out;
+                zi->ci.astream.dst_size = zi->ci.stream.avail_out;
+
+                compression_status status = 0;
+                status = compression_stream_process(&zi->ci.astream, COMPRESSION_STREAM_FINALIZE);
+
+                uLong total_out_after = Z_BUFSIZE - zi->ci.astream.dst_size;
+
+                zi->ci.stream.next_in = zi->ci.astream.src_ptr;
+                zi->ci.stream.avail_in = zi->ci.astream.src_size;
+                zi->ci.stream.next_out = zi->ci.astream.dst_ptr;
+                zi->ci.stream.avail_out = zi->ci.astream.dst_size;
+                //zi->ci.stream.total_in += total_out_after;
+                //zi->ci.stream.total_out += copy_this;
+                zi->ci.pos_in_buffered_data += total_out_after;
+
+                if (status == COMPRESSION_STATUS_ERROR)
+                {
+                    err = ZIP_INTERNALERROR;
+                }
+                else if (status == COMPRESSION_STATUS_END)
+                {
+                    err = Z_STREAM_END;
+                }
+#else
                 total_out_before = zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_FINISH);
                 zi->ci.pos_in_buffered_data += (uint16_t)(zi->ci.stream.total_out - total_out_before);
+#endif
             }
         }
         else if (zi->ci.compression_method == Z_BZIP2ED)
@@ -1610,7 +1682,12 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
     {
         if (zi->ci.compression_method == Z_DEFLATED)
         {
-            int tmp_err = deflateEnd(&zi->ci.stream);
+            int tmp_err = 0;
+#ifdef HAVE_APPLE_COMPRESSION
+            tmp_err = compression_stream_destroy(&zi->ci.astream);
+#else
+            tmp_err = deflateEnd(&zi->ci.stream);
+#endif
             if (err == ZIP_OK)
                 err = tmp_err;
             zi->ci.stream_initialised = 0;
@@ -1820,6 +1897,7 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     uint16_t size_global_comment = 0;
     uint64_t centraldir_pos_inzip = 0;
     uint64_t pos = 0;
+    uint64_t cd_pos = 0;
     uint32_t write = 0;
     int err = ZIP_OK;
 
@@ -1904,8 +1982,8 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
         if (err == ZIP_OK)
         {
             /* Offset of start of central directory with respect to the starting disk number */
-            uint64_t pos = centraldir_pos_inzip - zi->add_position_when_writting_offset;
-            err = zipWriteValue(&zi->z_filefunc, zi->filestream, pos, 8);
+            cd_pos = centraldir_pos_inzip - zi->add_position_when_writting_offset;
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, cd_pos, 8);
         }
         if (err == ZIP_OK)
             err = zipWriteValue(&zi->z_filefunc, zi->filestream, (uint32_t)ZIP64ENDLOCHEADERMAGIC, 4);
@@ -1916,8 +1994,8 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
         /* Relative offset to the Zip64EndOfCentralDirectory */
         if (err == ZIP_OK)
         {
-            uint64_t pos = zip64_eocd_pos_inzip - zi->add_position_when_writting_offset;
-            err = zipWriteValue(&zi->z_filefunc, zi->filestream, pos, 8);
+            cd_pos = zip64_eocd_pos_inzip - zi->add_position_when_writting_offset;
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, cd_pos, 8);
         }
         /* Number of the disk with the start of the central directory */
         if (err == ZIP_OK)
@@ -1957,11 +2035,11 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     /* Offset of start of central directory with respect to the starting disk number */
     if (err == ZIP_OK)
     {
-        uint64_t pos = centraldir_pos_inzip - zi->add_position_when_writting_offset;
+        cd_pos = centraldir_pos_inzip - zi->add_position_when_writting_offset;
         if (pos >= UINT32_MAX)
             err = zipWriteValue(&zi->z_filefunc, zi->filestream, UINT32_MAX, 4);
         else
-            err = zipWriteValue(&zi->z_filefunc, zi->filestream, (uint32_t)pos, 4);
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, (uint32_t)cd_pos, 4);
     }
 
     /* Write global comment */

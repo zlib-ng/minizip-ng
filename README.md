@@ -76,6 +76,10 @@ zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 + Requires #define HAVE_BZIP2
 + Requires BZIP2 library
 
+*Apple libcompression*
+
++ Requires #define HAVE_APPLE_COMPRESSION
+
 *Windows RT*
 
 + Requires #define IOWIN32_USING_WINRT_API
