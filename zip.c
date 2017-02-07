@@ -1402,7 +1402,8 @@ local int zipFlushWriteBuffer(zip64_internal *zi)
                 max_write = (uint32_t)size_available;
         }
 
-        if (ZWRITE64(zi->z_filefunc, zi->filestream, zi->ci.buffered_data + total_written, max_write) != max_write)
+        written = ZWRITE64(zi->z_filefunc, zi->filestream, zi->ci.buffered_data + total_written, max_write);
+        if (written != max_write)
         {
             err = ZIP_ERRNO;
             break;
