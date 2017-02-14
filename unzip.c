@@ -667,6 +667,45 @@ extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t com
     return (int)bytes_to_read;
 }
 
+local
+#if defined( __GNUC__ )
+inline
+#endif
+void unz_local_ReadField(int *err, uint32_t *lSeek,
+                          void *field, uint16_t field_size, uint16_t size_file_field, int null_terminated_field,
+                          unz64_s *s)
+{
+    uint32_t bytes_to_read;
+    
+    /* Read field */
+    if ((*err == UNZ_OK) && (field != NULL))
+    {
+        if (size_file_field < field_size)
+        {
+            if (null_terminated_field)
+                *((char *)field+size_file_field) = 0;
+            bytes_to_read = size_file_field;
+        }
+        else
+            bytes_to_read = field_size;
+        
+        if (*lSeek != 0)
+        {
+            if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, *lSeek, ZLIB_FILEFUNC_SEEK_CUR) == 0)
+                *lSeek = 0;
+            else
+                *err = UNZ_ERRNO;
+        }
+        
+        if ((size_file_field > 0) && (field_size > 0))
+            if (ZREAD64(s->z_filefunc, s->filestream_with_CD, field, bytes_to_read) != bytes_to_read)
+                *err = UNZ_ERRNO;
+        *lSeek += size_file_field - bytes_to_read;
+    }
+    else
+        *lSeek += size_file_field;
+}
+
 /* Get info about the current file in the zipfile, with internal only info */
 local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_info,
     unz_file_info64_internal *pfile_info_internal, char *filename, uint16_t filename_size, void *extrafield,
@@ -675,7 +714,6 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
     unz64_s *s = NULL;
     unz_file_info64 file_info;
     unz_file_info64_internal file_info_internal;
-    uint32_t bytes_to_read = 0;
     uint32_t magic = 0;
     uint64_t current_pos = 0;
     uint32_t seek = 0;
@@ -749,53 +787,10 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
     file_info_internal.aes_version = 0;
 #endif
 
-    seek += file_info.size_filename;
-
-    if ((err == UNZ_OK) && (filename != NULL))
-    {
-        if (file_info.size_filename < filename_size)
-        {
-            *(filename+file_info.size_filename) = 0;
-            bytes_to_read = file_info.size_filename;
-        }
-        else
-            bytes_to_read = filename_size;
-
-        if ((file_info.size_filename > 0) && (filename_size > 0))
-        {
-            if (ZREAD64(s->z_filefunc, s->filestream_with_CD, filename, bytes_to_read) != bytes_to_read)
-                err = UNZ_ERRNO;
-        }
-
-        seek -= bytes_to_read;
-    }
+    unz_local_ReadField(&err, &seek, filename, filename_size, file_info.size_filename, 1, s);
 
     /* Read extrafield */
-    if ((err == UNZ_OK) && (extrafield != NULL))
-    {
-        if (file_info.size_file_extra < extrafield_size)
-            bytes_to_read = file_info.size_file_extra;
-        else
-            bytes_to_read = extrafield_size;
-
-        if (seek != 0)
-        {
-            if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, seek, ZLIB_FILEFUNC_SEEK_CUR) == 0)
-                seek = 0;
-            else
-                err = UNZ_ERRNO;
-        }
-
-        if ((file_info.size_file_extra > 0) && (extrafield_size > 0))
-        {
-            if (ZREAD64(s->z_filefunc, s->filestream_with_CD, extrafield, bytes_to_read) != bytes_to_read)
-                err = UNZ_ERRNO;
-        }
-
-        seek += file_info.size_file_extra - (uint16_t)bytes_to_read;
-    }
-    else
-        seek += file_info.size_file_extra;
+    unz_local_ReadField(&err, &seek, extrafield, extrafield_size, file_info.size_file_extra, 0, s);
 
     if ((err == UNZ_OK) && (file_info.size_file_extra != 0))
     {
@@ -901,32 +896,7 @@ local int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_inf
     else
         file_info_internal.byte_before_the_zipfile = 0;
 
-    if ((err == UNZ_OK) && (comment != NULL))
-    {
-        if (file_info.size_file_comment < comment_size)
-        {
-            *(comment + file_info.size_file_comment) = 0;
-            bytes_to_read = file_info.size_file_comment;
-        }
-        else
-            bytes_to_read = comment_size;
-
-        if (seek != 0)
-        {
-            if (ZSEEK64(s->z_filefunc, s->filestream_with_CD, seek, ZLIB_FILEFUNC_SEEK_CUR) != 0)
-                err = UNZ_ERRNO;
-        }
-
-        if ((file_info.size_file_comment > 0) && (comment_size > 0))
-        {
-            if (ZREAD64(s->z_filefunc, s->filestream_with_CD, comment, bytes_to_read) != bytes_to_read)
-                err = UNZ_ERRNO;
-        }
-
-        seek += file_info.size_file_comment - (uint16_t)bytes_to_read;
-    }
-    else
-        seek += file_info.size_file_comment;
+    unz_local_ReadField(&err, &seek, comment, comment_size, file_info.size_file_comment, 1, s);
 
     if ((err == UNZ_OK) && (pfile_info != NULL))
         *pfile_info = file_info;
