@@ -82,7 +82,7 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date)
     }
 
     filedate = localtime(&tm_t);
-    *dosdate = tm_to_dosdate(filedate);
+    *dos_date = tm_to_dosdate(filedate);
 #endif
 #endif
     return ret;
