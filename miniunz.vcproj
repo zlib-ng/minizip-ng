@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\minishared.c"
+				>
+			</File>
+			<File
 				RelativePath=".\unzip.c"
 				>
 			</File>
