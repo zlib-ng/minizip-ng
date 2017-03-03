@@ -70,7 +70,7 @@
 #endif
 
 #ifndef UNZ_BUFSIZE
-#  define UNZ_BUFSIZE               (64 * 1024)
+#  define UNZ_BUFSIZE               (UINT16_MAX)
 #endif
 #ifndef UNZ_MAXFILENAMEINZIP
 #  define UNZ_MAXFILENAMEINZIP      (256)
@@ -1321,6 +1321,8 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
         return UNZ_END_OF_LIST_OF_FILE;
     if (len == 0)
         return 0;
+    if (len > UINT16_MAX)
+        return UNZ_PARAMERROR;
 
     s->pfile_in_zip_read->stream.next_out = (uint8_t*)buf;
     s->pfile_in_zip_read->stream.avail_out = (uint16_t)len;
@@ -1345,7 +1347,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
             uint32_t bytes_not_read = 0;
             uint32_t bytes_read = 0;
             uint32_t total_bytes_read = 0;
-            uint16_t i = 0;
+            uint32_t i = 0;
 
             if (s->pfile_in_zip_read->stream.next_in != NULL)
                 bytes_not_read = s->pfile_in_zip_read->read_buffer + UNZ_BUFSIZE -
