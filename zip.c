@@ -75,7 +75,7 @@
 #endif
 
 #ifndef Z_BUFSIZE
-#  define Z_BUFSIZE (64*1024)
+#  define Z_BUFSIZE                 (UINT16_MAX)
 #endif
 
 #ifndef ALLOC
@@ -1003,6 +1003,10 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
 #ifdef HAVE_AES
         zi->ci.method = AES_METHOD;
 #endif
+    }
+    else
+    {
+        zi->ci.flag &= ~1;
     }
 
     if (zi->disk_size > 0)
