@@ -29,7 +29,7 @@
 #include "ioapi_mem.h"
 
 #ifndef IOMEM_BUFFERSIZE
-#  define IOMEM_BUFFERSIZE (64 * 1024)
+#  define IOMEM_BUFFERSIZE (UINT16_MAX)
 #endif 
 
 voidpf ZCALLBACK fopen_mem_func(voidpf opaque, const char *filename, int mode)

@@ -21,6 +21,10 @@
 
 #include "ioapi_buf.h"
 
+#ifndef IOBUF_BUFFERSIZE
+#  define IOBUF_BUFFERSIZE (UINT16_MAX)
+#endif 
+
 #if defined(_WIN32)
 #  include <conio.h>
 #  define PRINTF  _cprintf

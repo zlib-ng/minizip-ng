@@ -20,8 +20,6 @@
 #include "zlib.h"
 #include "ioapi.h"
 
-#define IOBUF_BUFFERSIZE (64 * 1024)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
