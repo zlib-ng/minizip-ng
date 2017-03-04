@@ -14,32 +14,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined unix || defined __APPLE__
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 #include "ioapi.h"
 
 #if defined(_WIN32)
 #  define snprintf _snprintf
-#endif
-
-#ifdef __APPLE__
-/* In darwin and perhaps other BSD variants off_t is a 64 bit value, hence no need for specific 64 bit functions */
-#  define FOPEN_FUNC(filename, mode)            fopen(filename, mode)
-#  define FTELLO_FUNC(stream)                   ftello(stream)
-#  define FSEEKO_FUNC(stream, offset, origin)   fseeko(stream, offset, origin)
-#else
-#  define FOPEN_FUNC(filename, mode)            fopen64(filename, mode)
-#  define FTELLO_FUNC(stream)                   ftello64(stream)
-#  define FSEEKO_FUNC(stream, offset, origin)   fseeko64(stream, offset, origin)
-#endif
-
-/* I've found an old Unix (a SunOS 4.1.3_U1) without all SEEK_* defined.... */
-#ifndef SEEK_CUR
-#  define SEEK_CUR    1
-#endif
-#ifndef SEEK_END
-#  define SEEK_END    2
-#endif
-#ifndef SEEK_SET
-#  define SEEK_SET    0
 #endif
 
 voidpf call_zopen64(const zlib_filefunc64_32_def *pfilefunc, const void *filename, int mode)
@@ -156,7 +139,7 @@ static voidpf ZCALLBACK fopen64_file_func(voidpf opaque, const void *filename, i
 
     if ((filename != NULL) && (mode_fopen != NULL))
     {
-        file = FOPEN_FUNC((const char*)filename, mode_fopen);
+        file = fopen64((const char*)filename, mode_fopen);
         return file_build_ioposix(file, (const char*)filename);
     }
     return file;
@@ -252,7 +235,7 @@ static uint64_t ZCALLBACK ftell64_file_func(voidpf opaque, voidpf stream)
     if (stream == NULL)
         return ret;
     ioposix = (FILE_IOPOSIX*)stream;
-    ret = FTELLO_FUNC(ioposix->file);
+    ret = ftello64(ioposix->file);
     return ret;
 }
 
@@ -310,7 +293,7 @@ static long ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream, uint64_t o
             return -1;
     }
 
-    if (FSEEKO_FUNC(ioposix->file, offset, fseek_origin) != 0)
+    if (fseeko64(ioposix->file, offset, fseek_origin) != 0)
         ret = -1;
 
     return ret;

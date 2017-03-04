@@ -218,7 +218,7 @@ int makedir(const char *newdir)
 
 int check_file_exists(const char *path)
 {
-    FILE* ftestexist = FOPEN_FUNC(path, "rb");
+    FILE* ftestexist = fopen64(path, "rb");
     if (ftestexist == NULL)
         return 0;
     fclose(ftestexist);
@@ -228,13 +228,13 @@ int check_file_exists(const char *path)
 int is_large_file(const char *path)
 {
     uint64_t pos = 0;
-    FILE* pFile = FOPEN_FUNC(path, "rb");
+    FILE* pFile = fopen64(path, "rb");
 
     if (pFile == NULL)
         return 0;
 
-    FSEEKO_FUNC(pFile, 0, SEEK_END);
-    pos = FTELLO_FUNC(pFile);
+    fseeko64(pFile, 0, SEEK_END);
+    pos = ftello64(pFile);
     fclose(pFile);
 
     printf("file : %s is %lld bytes\n", path, pos);
@@ -249,7 +249,7 @@ int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *resul
     uint32_t size_read = 0;
     int err = 0;
 
-    fin = FOPEN_FUNC(path, "rb");
+    fin = fopen64(path, "rb");
     if (fin == NULL)
         err = -1;
     else

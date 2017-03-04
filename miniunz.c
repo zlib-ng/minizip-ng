@@ -243,7 +243,7 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_o
     /* Create the file on disk so we can unzip to it */
     if ((skip == 0) && (err == UNZ_OK))
     {
-        fout = FOPEN_FUNC(write_filename, "wb");
+        fout = fopen64(write_filename, "wb");
         /* Some zips don't contain directory alone before file */
         if ((fout == NULL) && (opt_extract_without_path == 0) &&
             (filename_withoutpath != (char*)filename_inzip))
@@ -252,7 +252,7 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_o
             *(filename_withoutpath-1) = 0;
             makedir(write_filename);
             *(filename_withoutpath-1) = c;
-            fout = FOPEN_FUNC(write_filename, "wb");
+            fout = fopen64(write_filename, "wb");
         }
         if (fout == NULL)
             printf("error opening %s\n", write_filename);

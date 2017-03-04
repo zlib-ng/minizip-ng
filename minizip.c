@@ -241,7 +241,7 @@ int main(int argc, char *argv[])
             printf("error in opening %s in zipfile (%d)\n", filenameinzip, err);
         else
         {
-            fin = FOPEN_FUNC(filenameinzip, "rb");
+            fin = fopen64(filenameinzip, "rb");
             if (fin == NULL)
             {
                 err = ZIP_ERRNO;
