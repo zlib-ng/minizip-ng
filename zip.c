@@ -1238,7 +1238,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
 
 #ifndef NOCRYPT
     zi->ci.crypt_header_size = 0;
-    if ((err == Z_OK) && ((zi->ci.flag & 1) != 0))
+    if ((err == Z_OK) && (password != NULL))
     {
 #ifdef HAVE_AES
         if (zi->ci.method == AES_METHOD)
