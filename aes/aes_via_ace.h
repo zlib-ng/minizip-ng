@@ -1,5 +1,5 @@
 /*
-Copyright (c) 1998-2010, Brian Gladman, Worcester, UK. All rights reserved.
+Copyright (c) 1998-2013, Brian Gladman, Worcester, UK. All rights reserved.
 
 The redistribution and use of this software (with or without changes)
 is allowed without the payment of fees or royalties provided that:
@@ -350,7 +350,10 @@ INLINE int has_cpuid(void)
 
 INLINE int is_via_cpu(void)
 {   int val;
+    asm("pushl %eax\n\t");
     asm("pushl %ebx\n\t");
+    asm("pushl %ecx\n\t");
+    asm("pushl %edx\n\t");
     asm("xorl %eax,%eax\n\t");
     asm("cpuid\n\t");
     asm("xorl %eax,%eax\n\t");
@@ -361,7 +364,10 @@ INLINE int is_via_cpu(void)
     asm("subl $0x736c7561,%ecx\n\t");
     asm("orl  %ecx,%eax\n\t");
     asm("movl %%eax,%0\n\t" : "=m" (val));
+    asm("popl %edx\n\t");
+    asm("popl %ecx\n\t");
     asm("popl %ebx\n\t");
+    asm("popl %eax\n\t");
     val = (val ? 0 : 1);
     via_flags = (val | NEH_CPU_READ);
     return val;

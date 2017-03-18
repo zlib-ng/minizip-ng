@@ -106,7 +106,7 @@ int fcrypt_init(
     aes_encrypt_key(kbuf, KEY_LENGTH(mode), cx->encr_ctx);
 
     /* initialise for authentication using key 2        */
-    hmac_sha_begin(cx->auth_ctx);
+    hmac_sha_begin(HMAC_SHA1, cx->auth_ctx);
     hmac_sha_key(kbuf + KEY_LENGTH(mode), KEY_LENGTH(mode), cx->auth_ctx);
 
 #ifdef PASSWORD_VERIFIER
