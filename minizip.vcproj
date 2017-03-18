@@ -168,6 +168,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\crypt.c"
+				>
+			</File>
+			<File
 				RelativePath=".\iowin32.c"
 				>
 			</File>
@@ -341,14 +345,6 @@
 			</File>
 			<File
 				RelativePath=".\aes\brg_types.h"
-				>
-			</File>
-			<File
-				RelativePath=".\aes\entropy.c"
-				>
-			</File>
-			<File
-				RelativePath=".\aes\entropy.h"
 				>
 			</File>
 			<File
