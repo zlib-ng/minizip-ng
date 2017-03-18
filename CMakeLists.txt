@@ -25,7 +25,8 @@ if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
-set(MINIZIP_SRC "ioapi.c"
+set(MINIZIP_SRC "crypt.c"
+  "ioapi.c"
   "ioapi_buf.c"
   "ioapi_mem.c"
   "unzip.c"
@@ -58,7 +59,6 @@ if(USE_AES)
     aes/aescrypt.c
     aes/aeskey.c
     aes/aestab.c
-    aes/entropy.c
     aes/fileenc.c
     aes/hmac.c
     aes/prng.c
@@ -72,7 +72,6 @@ if(USE_AES)
     aes/aestab.h
     aes/brg_endian.h
     aes/brg_types.h
-    aes/entropy.h
     aes/fileenc.h
     aes/hmac.h
     aes/prng.h

@@ -1,6 +1,6 @@
 CC=cc
 CFLAGS=-O -DHAVE_AES
-OBJS=aescrypt.o aeskey.o aestab.o entropy.o fileenc.o hmac.o prng.o pwd2key.o sha1.o
+OBJS=aescrypt.o aeskey.o aestab.o fileenc.o hmac.o prng.o pwd2key.o sha1.o
 ARFLAGS=rv
 
 .c.o:

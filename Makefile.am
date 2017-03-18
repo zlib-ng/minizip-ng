@@ -16,6 +16,7 @@ iowin32_h = iowin32.h
 endif
 
 libminizip_la_SOURCES = \
+	crypt.c \
 	ioapi.c \
 	unzip.c \
 	zip.c \

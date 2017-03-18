@@ -1,8 +1,8 @@
 CC=cc
 CFLAGS=-O -I../.. -DHAVE_AES
 
-UNZ_OBJS = miniunz.o unzip.o ioapi.o ../../libz.a libaes.a
-ZIP_OBJS = minizip.o zip.o   ioapi.o ../../libz.a libaes.a
+UNZ_OBJS = miniunz.o crypt.o   unzip.o ioapi.o ../../libz.a libaes.a
+ZIP_OBJS = minizip.o crypt.o   zip.o   ioapi.o ../../libz.a libaes.a
 TEST_FILES = test.zip readme.old readme.txt
 
 .c.o:

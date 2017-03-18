@@ -34,14 +34,12 @@
 #  include "aes/aes.h"
 #  include "aes/fileenc.h"
 #  include "aes/prng.h"
-#  include "aes/entropy.h"
 #endif
 #ifdef HAVE_APPLE_COMPRESSION
 #  include <compression.h>
 #endif
 
 #ifndef NOCRYPT
-#  define INCLUDECRYPTINGCODE_IFCRYPTALLOWED
 #  include "crypt.h"
 #endif
 
@@ -1252,7 +1250,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
 
             saltlength = SALT_LENGTH(AES_ENCRYPTIONMODE);
 
-            prng_init(entropy_fun, zi->ci.aes_rng);
+            prng_init(cryptrand, zi->ci.aes_rng);
             prng_rand(saltvalue, saltlength, zi->ci.aes_rng);
             prng_end(zi->ci.aes_rng);
 
