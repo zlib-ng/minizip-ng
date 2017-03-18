@@ -75,7 +75,6 @@ uint32_t ZCALLBACK fread_mem_func(voidpf opaque, voidpf stream, void *buf, uint3
     return size;
 }
 
-
 uint32_t ZCALLBACK fwrite_mem_func(voidpf opaque, voidpf stream, const void *buf, uint32_t size)
 {
     ourmemory_t *mem = (ourmemory_t *)stream;

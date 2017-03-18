@@ -129,7 +129,6 @@ voidpf ZCALLBACK win32_open64_file_func(voidpf opaque, const void *filename, int
     return iowin; 
 }
 
-
 voidpf ZCALLBACK win32_open64_file_funcA(voidpf opaque, const void *filename, int mode)
 {
     DWORD dwDesiredAccess, dwCreationDisposition, dwShareMode, dwFlagsAndAttributes ;
@@ -157,7 +156,6 @@ voidpf ZCALLBACK win32_open64_file_funcA(voidpf opaque, const void *filename, in
     strncpy(iowin->filename, filename, iowin->filenameLength);
     return iowin;
 }
-
 
 voidpf ZCALLBACK win32_open64_file_funcW(voidpf opaque, const void *filename, int mode)
 {
@@ -425,7 +423,6 @@ uint64_t ZCALLBACK win32_tell64_file_func(voidpf opaque, voidpf stream)
     }
     return ret;
 }
-
 
 long ZCALLBACK win32_seek_file_func(voidpf opaque, voidpf stream, uint32_t offset, int origin)
 {

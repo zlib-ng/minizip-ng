@@ -299,7 +299,6 @@ static long ZCALLBACK fseek64_file_func(voidpf opaque, voidpf stream, uint64_t o
     return ret;
 }
 
-
 static int ZCALLBACK fclose_file_func(voidpf opaque, voidpf stream)
 {
     FILE_IOPOSIX *ioposix = NULL;

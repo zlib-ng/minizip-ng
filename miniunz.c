@@ -312,7 +312,7 @@ int miniunz_extract_onefile(unzFile uf, const char *filename, int opt_extract_wi
     return 1;
 }
 
-#ifndef MINISHARED
+#ifndef NOMAIN
 int main(int argc, const char *argv[])
 {
     const char *zipfilename = NULL;

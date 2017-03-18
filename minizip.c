@@ -57,7 +57,7 @@ void minizip_help()
            "  -j  exclude path. store only the file name.\n\n");
 }
 
-#ifndef MINISHARED
+#ifndef NOMAIN
 int main(int argc, char *argv[])
 {
     zipFile zf = NULL;

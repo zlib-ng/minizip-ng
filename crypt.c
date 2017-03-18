@@ -136,7 +136,7 @@ int crypthead(const char *passwd, uint8_t *buf, int buf_size,
 
     init_keys(passwd, pkeys, pcrc_32_tab);
 
-    /* First try to generate RAND_HEAD_LEN-2 random bytes. */
+    /* First generate RAND_HEAD_LEN-2 random bytes. */
     cryptrand(header, RAND_HEAD_LEN-2);
 
     /* Encrypt random header (last two bytes is high word of crc) */
