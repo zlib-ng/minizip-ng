@@ -13,7 +13,7 @@ It also has the latest bug fixes that having been found all over the internet in
 + Requires AES library files
 
 When zipping with a password it will always use AES 256-bit encryption. 
-When unzipping it will use AES decryption only if necessary.
+When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption.
 
 *I/O Buffering*
 
