@@ -40,13 +40,13 @@
 
 #include "minishared.h"
 
-void do_banner()
+void minizip_banner()
 {
     printf("MiniZip 1.1, demo of zLib + MiniZip64 package, written by Gilles Vollant\n");
     printf("more info on MiniZip at http://www.winimage.com/zLibDll/minizip.html\n\n");
 }
 
-void do_help()
+void minizip_help()
 {
     printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n" \
            "  -o  Overwrite existing file.zip\n" \
@@ -57,6 +57,7 @@ void do_help()
            "  -j  exclude path. store only the file name.\n\n");
 }
 
+#ifndef MINISHARED
 int main(int argc, char *argv[])
 {
     zipFile zf = NULL;
@@ -75,10 +76,10 @@ int main(int argc, char *argv[])
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
 
-    do_banner();
+    minizip_banner();
     if (argc == 1)
     {
-        do_help();
+        minizip_help();
         return 0;
     }
 
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
 
     if (zipfilenamearg == 0)
     {
-        do_help();
+        minizip_help();
         return 0;
     }
     zipfilename = argv[zipfilenamearg];
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
                 opt_overwrite = 2;
             else if (rep == 'N')
             {
-                do_help();
+                minizip_help();
                 free(buf);
                 return 0;
             }
@@ -291,3 +292,4 @@ int main(int argc, char *argv[])
     free(buf);
     return err;
 }
+#endif

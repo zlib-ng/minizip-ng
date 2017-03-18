@@ -88,12 +88,12 @@ void init_keys(const char *passwd, uint32_t *pkeys, const uint32_t *pcrc_32_tab)
 
 /***************************************************************************/
 
-#ifdef _WIN32
 int cryptrand(unsigned char *buf, unsigned int len)
 {
+    int rlen = 0;
+#ifdef _WIN32
     HCRYPTPROV provider;
     unsigned __int64 pentium_tsc[1];
-    int i;
     int result = 0;
 
 
@@ -105,36 +105,26 @@ int cryptrand(unsigned char *buf, unsigned int len)
             return len;
     }
 
-    for (i = 0; i < (int)len; ++i)
+    for (rlen = 0; rlen < (int)len; ++rlen)
     {
-        if (i % 8 == 0)
+        if (rlen % 8 == 0)
             QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
-        buf[i] = ((unsigned char*)pentium_tsc)[i % 8];
+        buf[rlen] = ((unsigned char*)pentium_tsc)[rlen % 8];
     }
-    return i;
-}
 #else
-int cryptrand(unsigned char *buf, unsigned int len)
-{
     int frand = open("/dev/urandom", O_RDONLY);
-    int rlen = 0;
     if (frand != -1)
     {
         rlen = (int)read(frand, buf, len);
         close(frand);
     }
-    return rlen;
-}
 #endif
 
-/***************************************************************************/
+    return rlen;
+}
 
-int crypthead(const char *passwd,      /* password string */
-                    uint8_t *buf,      /* where to write header */
-                    int buf_size,
-                    uint32_t *pkeys,
-                    const uint32_t *pcrc_32_tab,
-                    uint32_t crc_for_crypting)
+int crypthead(const char *passwd, uint8_t *buf, int buf_size,
+              uint32_t *pkeys, const uint32_t *pcrc_32_tab, uint32_t crc_for_crypting)
 {
     uint8_t n = 0;                      /* index in random header */
     uint8_t c = 0;                      /* random byte */

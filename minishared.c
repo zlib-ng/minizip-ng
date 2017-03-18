@@ -43,7 +43,6 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date)
         ret = 1;
     }
 #else
-#if defined unix || defined __APPLE__
     struct stat s = { 0 };
     struct tm *filedate = NULL;
     time_t tm_t = 0;
@@ -69,7 +68,6 @@ uint32_t get_file_date(const char *path, uint32_t *dos_date)
     filedate = localtime(&tm_t);
     *dos_date = tm_to_dosdate(filedate);
 #endif
-#endif
     return ret;
 }
 
@@ -89,7 +87,6 @@ void change_file_date(const char *path, uint32_t dos_date)
         CloseHandle(handle);
     }
 #else
-#if defined unix || defined __APPLE__
     struct utimbuf ut;
     struct tm newdate;
 
@@ -97,7 +94,6 @@ void change_file_date(const char *path, uint32_t dos_date)
 
     ut.actime = ut.modtime = mktime(&newdate);
     utime(path, &ut);
-#endif
 #endif
 }
 
@@ -276,4 +272,29 @@ int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *resul
     printf("file %s crc %lx\n", path, calculate_crc);
     *result_crc = calculate_crc;
     return err;
+}
+
+void display_zpos64(uint64_t n, int size_char)
+{
+    /* To avoid compatibility problem we do here the conversion */
+    char number[21] = { 0 };
+    int offset = 19;
+    int pos_string = 19;
+    int size_display_string = 19;
+
+    while (1)
+    {
+        number[offset] = (char)((n % 10) + '0');
+        if (number[offset] != '0')
+            pos_string = offset;
+        n /= 10;
+        if (offset == 0)
+            break;
+        offset--;
+    }
+
+    size_display_string -= pos_string;
+    while (size_char-- > size_display_string)
+        printf(" ");
+    printf("%s", &number[pos_string]);
 }

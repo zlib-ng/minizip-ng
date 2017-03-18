@@ -39,6 +39,9 @@ int is_large_file(const char *path);
 /* Calculate the CRC32 of a file, because to encrypt a file, we need known the CRC32 of the file before */
 int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *result_crc);
 
+/* Print a 64-bit number for compatibility */
+void display_zpos64(uint64_t n, int size_char);
+
 /***************************************************************************/
 
 #ifdef __cplusplus

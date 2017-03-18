@@ -39,38 +39,13 @@
 
 #include "minishared.h"
 
-void display_zpos64(uint64_t n, int size_char)
-{
-    /* To avoid compatibility problem we do here the conversion */
-    char number[21] = {0};
-    int offset = 19;
-    int pos_string = 19;
-    int size_display_string = 19;
-
-    while (1)
-    {
-        number[offset] = (char)((n%10) + '0');
-        if (number[offset] != '0')
-            pos_string = offset;
-        n /= 10;
-        if (offset == 0)
-            break;
-        offset--;
-    }
-
-    size_display_string -= pos_string;
-    while (size_char-- > size_display_string)
-        printf(" ");
-    printf("%s",&number[pos_string]);
-}
-
-void do_banner()
+void miniunz_banner()
 {
     printf("MiniUnz 1.01b, demo of zLib + Unz package written by Gilles Vollant\n");
     printf("more info at http://www.winimage.com/zLibDll/minizip.html\n\n");
 }
 
-void do_help()
+void miniunz_help()
 {
     printf("Usage : miniunz [-e] [-x] [-v] [-l] [-o] [-p password] file.zip [file_to_extr.] [-d extractdir]\n\n" \
            "  -e  Extract without path (junk paths)\n" \
@@ -82,7 +57,7 @@ void do_help()
            "  -p  extract crypted file using password\n\n");
 }
 
-int do_list(unzFile uf)
+int miniunz_list(unzFile uf)
 {
     int err = unzGoToFirstFile(uf);
     if (err != UNZ_OK)
@@ -162,7 +137,7 @@ int do_list(unzFile uf)
     return 0;
 }
 
-int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_overwrite, const char *password)
+int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_overwrite, const char *password)
 {
     unz_file_info64 file_info = {0};
     FILE* fout = NULL;
@@ -298,7 +273,7 @@ int do_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_o
     return err;
 }
 
-int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, const char *password)
+int miniunz_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, const char *password)
 {
     int err = unzGoToFirstFile(uf);
     if (err != UNZ_OK)
@@ -309,7 +284,7 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
 
     do
     {
-        err = do_extract_currentfile(uf, opt_extract_without_path, &opt_overwrite, password);
+        err = miniunz_extract_currentfile(uf, opt_extract_without_path, &opt_overwrite, password);
         if (err != UNZ_OK)
             break;
         err = unzGoToNextFile(uf);
@@ -324,7 +299,7 @@ int do_extract_all(unzFile uf, int opt_extract_without_path, int opt_overwrite, 
     return 0;
 }
 
-int do_extract_onefile(unzFile uf, const char *filename, int opt_extract_without_path, int opt_overwrite,
+int miniunz_extract_onefile(unzFile uf, const char *filename, int opt_extract_without_path, int opt_overwrite,
     const char *password)
 {
     if (unzLocateFile(uf, filename, NULL) != UNZ_OK)
@@ -332,11 +307,12 @@ int do_extract_onefile(unzFile uf, const char *filename, int opt_extract_without
         printf("file %s not found in the zipfile\n", filename);
         return 2;
     }
-    if (do_extract_currentfile(uf, opt_extract_without_path, &opt_overwrite, password) == UNZ_OK)
+    if (miniunz_extract_currentfile(uf, opt_extract_without_path, &opt_overwrite, password) == UNZ_OK)
         return 0;
     return 1;
 }
 
+#ifndef MINISHARED
 int main(int argc, const char *argv[])
 {
     const char *zipfilename = NULL;
@@ -352,10 +328,10 @@ int main(int argc, const char *argv[])
     const char *dirname = NULL;
     unzFile uf = NULL;
 
-    do_banner();
+    miniunz_banner();
     if (argc == 1)
     {
-        do_help();
+        miniunz_help();
         return 0;
     }
 
@@ -424,7 +400,7 @@ int main(int argc, const char *argv[])
     /* Process command line options */
     if (opt_do_list == 1)
     {
-        ret = do_list(uf);
+        ret = miniunz_list(uf);
     }
     else if (opt_do_extract == 1)
     {
@@ -435,11 +411,12 @@ int main(int argc, const char *argv[])
         }
 
         if (filename_to_extract == NULL)
-            ret = do_extract_all(uf, opt_do_extract_withoutpath, opt_overwrite, password);
+            ret = miniunz_extract_all(uf, opt_do_extract_withoutpath, opt_overwrite, password);
         else
-            ret = do_extract_onefile(uf, filename_to_extract, opt_do_extract_withoutpath, opt_overwrite, password);
+            ret = miniunz_extract_onefile(uf, filename_to_extract, opt_do_extract_withoutpath, opt_overwrite, password);
     }
 
     unzClose(uf);
     return ret;
 }
+#endif
