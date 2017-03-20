@@ -50,6 +50,10 @@
 
 #define CRC32(c, b) ((*(pcrc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
+#ifndef ZCR_SEED2
+#  define ZCR_SEED2 3141592654UL     /* use PI as default pattern */
+#endif
+
 /***************************************************************************/
 
 uint8_t decrypt_byte(uint32_t *pkeys)
@@ -90,6 +94,7 @@ void init_keys(const char *passwd, uint32_t *pkeys, const uint32_t *pcrc_32_tab)
 
 int cryptrand(unsigned char *buf, unsigned int len)
 {
+    static unsigned calls = 0;
     int rlen = 0;
 #ifdef _WIN32
     HCRYPTPROV provider;
@@ -119,7 +124,15 @@ int cryptrand(unsigned char *buf, unsigned int len)
         close(frand);
     }
 #endif
+    if (rlen == 0)
+    {
+        /* Ensure different random header each time */
+        if (++calls == 1)
+            srand((unsigned)(time(NULL) ^ ZCR_SEED2));
 
+        while (rlen < (int)len)
+            buf[rlen++] = (rand() >> 7) & 0xff;
+    }
     return rlen;
 }
 
