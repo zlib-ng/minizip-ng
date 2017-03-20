@@ -25,6 +25,12 @@
 #  define snprintf _snprintf
 #endif
 
+#ifdef __APPLE__
+#  define fopen64 fopen
+#  define ftello64 ftello
+#  define fseeko64 fseeko
+#endif
+
 voidpf call_zopen64(const zlib_filefunc64_32_def *pfilefunc, const void *filename, int mode)
 {
     if (pfilefunc->zfile_func64.zopen64_file != NULL)
