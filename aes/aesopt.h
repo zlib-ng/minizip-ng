@@ -170,7 +170,7 @@ Issue Date: 20/12/2007
 #endif
 
 #if (defined( _WIN64 ) && defined( _MSC_VER )) \
- || (defined( __GNUC__ ) && defined( __x86_64__ )) \
+ || (defined( __GNUC__ ) && defined( __x86_64__ )) && !(defined( __APPLE__ ))\
  && !(defined( INTEL_AES_POSSIBLE ))
 #  define INTEL_AES_POSSIBLE
 #endif
