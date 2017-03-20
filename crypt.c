@@ -127,7 +127,6 @@ int crypthead(const char *passwd, uint8_t *buf, int buf_size,
               uint32_t *pkeys, const uint32_t *pcrc_32_tab, uint32_t crc_for_crypting)
 {
     uint8_t n = 0;                      /* index in random header */
-    uint8_t c = 0;                      /* random byte */
     uint8_t header[RAND_HEAD_LEN-2];    /* random header */
     uint16_t t = 0;                     /* temporary */
 
