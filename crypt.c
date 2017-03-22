@@ -124,7 +124,7 @@ int cryptrand(unsigned char *buf, unsigned int len)
         close(frand);
     }
 #endif
-    if (rlen == 0)
+    if (rlen < (int)len)
     {
         /* Ensure different random header each time */
         if (++calls == 1)
