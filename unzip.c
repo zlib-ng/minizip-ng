@@ -1492,9 +1492,9 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
 #ifdef HAVE_APPLE_COMPRESSION
         else
         {
-            ZPOS64_T total_out_before, total_out_after;
+            uint64_t total_out_before, total_out_after;
             const Bytef *buf_before;
-            ZPOS64_T out_bytes;
+            uint64_t out_bytes;
 
             s->pfile_in_zip_read->astream.src_ptr = s->pfile_in_zip_read->stream.next_in;
             s->pfile_in_zip_read->astream.src_size = s->pfile_in_zip_read->stream.avail_in;
