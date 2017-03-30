@@ -83,7 +83,3 @@ zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 *Windows RT*
 
 + Requires #define IOWIN32_USING_WINRT_API
-
-*Apple libcompression*
-
-+ Requires #define HAVE_APPLE_COMPRESSION
