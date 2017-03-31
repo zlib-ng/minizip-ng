@@ -65,7 +65,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     int size_read = 0;
     int zip64 = 0;
     int err = ZIP_OK;
-    char buf[4096];
+    char buf[UINT16_MAX];
 
 
     /* Get information about the file on disk so we can store it in zip */
