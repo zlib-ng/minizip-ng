@@ -1582,17 +1582,6 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
     return err;
 }
 
-extern uint64_t ZEXPORT unzGetCurrentFileZStreamPos64(unzFile file)
-{
-    unz64_s *s = NULL;
-    if (file == NULL)
-        return 0; /* UNZ_PARAMERROR */
-    s = (unz64_s*)file;
-    if (s->pfile_in_zip_read == NULL)
-        return 0;  /* UNZ_PARAMERROR */
-    return s->pfile_in_zip_read->pos_in_zipfile + s->pfile_in_zip_read->byte_before_the_zipfile;
-}
-
 extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, uint32_t len)
 {
     unz64_s *s = NULL;

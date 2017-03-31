@@ -202,8 +202,6 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 *pfile_
    comment if != NULL, the comment string of the file will be copied in to
    comment_size is the size of the comment buffer */
 
-extern uint64_t ZEXPORT unzGetCurrentFileZStreamPos64(unzFile file);
-
 extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, uint32_t len);
 /* Read extra field from the current file (opened by unzOpenCurrentFile)
    This is the local-header version of the extra field (sometimes, there is
