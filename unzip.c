@@ -1350,8 +1350,8 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
             uint32_t i = 0;
 
             if (s->pfile_in_zip_read->stream.next_in != NULL)
-                bytes_not_read = s->pfile_in_zip_read->read_buffer + UNZ_BUFSIZE -
-                    s->pfile_in_zip_read->stream.next_in;
+                bytes_not_read = (uint32_t)(s->pfile_in_zip_read->read_buffer + UNZ_BUFSIZE -
+                    s->pfile_in_zip_read->stream.next_in);
             bytes_to_read -= bytes_not_read;
             if (bytes_not_read > 0)
                 memcpy(s->pfile_in_zip_read->read_buffer, s->pfile_in_zip_read->stream.next_in, bytes_not_read);
@@ -1413,7 +1413,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
         if ((s->pfile_in_zip_read->compression_method == 0) || (s->pfile_in_zip_read->raw))
         {
             uint32_t i = 0;
-            uint32_t copy = 0;
+            uInt copy = 0;
 
             if ((s->pfile_in_zip_read->stream.avail_in == 0) &&
                 (s->pfile_in_zip_read->rest_read_compressed == 0))
@@ -1430,7 +1430,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
 
             s->pfile_in_zip_read->total_out_64 = s->pfile_in_zip_read->total_out_64 + copy;
             s->pfile_in_zip_read->rest_read_uncompressed -= copy;
-            s->pfile_in_zip_read->crc32 = crc32(s->pfile_in_zip_read->crc32,
+            s->pfile_in_zip_read->crc32 = (uint32_t)crc32(s->pfile_in_zip_read->crc32,
                                 s->pfile_in_zip_read->stream.next_out, copy);
 
             s->pfile_in_zip_read->stream.avail_in -= copy;
@@ -1565,7 +1565,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
             s->pfile_in_zip_read->total_out_64 += out_bytes;
             s->pfile_in_zip_read->rest_read_uncompressed -= out_bytes;
             s->pfile_in_zip_read->crc32 =
-                crc32(s->pfile_in_zip_read->crc32,buf_before, (uint32_t)(out_bytes));
+                (uint32_t)crc32(s->pfile_in_zip_read->crc32,buf_before, (uInt)(out_bytes));
 
             read += (uint32_t)(total_out_after - total_out_before);
 
