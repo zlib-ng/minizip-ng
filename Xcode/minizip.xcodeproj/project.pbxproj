@@ -532,6 +532,7 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				GCC_WARN_UNUSED_FUNCTION = NO;
+				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -541,6 +542,7 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				GCC_WARN_UNUSED_FUNCTION = NO;
+				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
