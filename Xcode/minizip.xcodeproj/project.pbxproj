@@ -123,12 +123,12 @@
 		6938181C1E90DFB20045C821 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = unzip.h; path = ../unzip.h; sourceTree = "<group>"; };
 		6938181E1E90DFBC0045C821 /* zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zip.c; path = ../zip.c; sourceTree = "<group>"; };
 		6938181F1E90DFBC0045C821 /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zip.h; path = ../zip.h; sourceTree = "<group>"; };
-		693818211E90E0000045C821 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minishared.c; path = ../../minishared.c; sourceTree = "<group>"; };
-		693818221E90E0000045C821 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minishared.h; path = ../../minishared.h; sourceTree = "<group>"; };
-		693818251E90E00E0045C821 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minishared.c; path = ../../minishared.c; sourceTree = "<group>"; };
-		693818261E90E00E0045C821 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minishared.h; path = ../../minishared.h; sourceTree = "<group>"; };
-		693818291E90E04A0045C821 /* miniunz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = miniunz.c; path = ../../miniunz.c; sourceTree = "<group>"; };
-		6938182B1E90E0560045C821 /* minizip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip.c; path = ../../minizip.c; sourceTree = "<group>"; };
+		693818211E90E0000045C821 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minishared.c; path = ../minishared.c; sourceTree = SOURCE_ROOT; };
+		693818221E90E0000045C821 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minishared.h; path = ../minishared.h; sourceTree = SOURCE_ROOT; };
+		693818251E90E00E0045C821 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minishared.c; path = ../minishared.c; sourceTree = SOURCE_ROOT; };
+		693818261E90E00E0045C821 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minishared.h; path = ../minishared.h; sourceTree = SOURCE_ROOT; };
+		693818291E90E04A0045C821 /* miniunz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = miniunz.c; path = ../miniunz.c; sourceTree = SOURCE_ROOT; };
+		6938182B1E90E0560045C821 /* minizip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip.c; path = ../minizip.c; sourceTree = SOURCE_ROOT; };
 		6938182E1E90E0F70045C821 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
