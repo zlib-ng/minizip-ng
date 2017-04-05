@@ -88,8 +88,8 @@
 
 /* Begin PBXFileReference section */
 		693817A21E90DEA40045C821 /* libminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		693817B01E90DF490045C821 /* mini-zip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "mini-zip"; sourceTree = BUILT_PRODUCTS_DIR; };
-		693817BB1E90DF550045C821 /* mini-unzip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "mini-unzip"; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "minizip"; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817BB1E90DF550045C821 /* miniunzip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "miniunzip"; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817C31E90DF6C0045C821 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		693817C41E90DF6C0045C821 /* aes_ni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_ni.c; sourceTree = "<group>"; };
 		693817C51E90DF6C0045C821 /* aes_ni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_ni.h; sourceTree = "<group>"; };
@@ -166,8 +166,8 @@
 			children = (
 				693817C21E90DF6C0045C821 /* aes */,
 				693817A91E90DEC90045C821 /* lib */,
-				693817BC1E90DF560045C821 /* mini-unzip */,
-				693817B11E90DF490045C821 /* mini-zip */,
+				693817BC1E90DF560045C821 /* miniunzip */,
+				693817B11E90DF490045C821 /* minizip */,
 				693817A31E90DEA40045C821 /* Products */,
 				6938182D1E90E0F70045C821 /* Frameworks */,
 			);
@@ -177,8 +177,8 @@
 			isa = PBXGroup;
 			children = (
 				693817A21E90DEA40045C821 /* libminizip.a */,
-				693817B01E90DF490045C821 /* mini-zip */,
-				693817BB1E90DF550045C821 /* mini-unzip */,
+				693817B01E90DF490045C821 /* minizip */,
+				693817BB1E90DF550045C821 /* miniunzip */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -202,24 +202,24 @@
 			name = lib;
 			sourceTree = "<group>";
 		};
-		693817B11E90DF490045C821 /* mini-zip */ = {
+		693817B11E90DF490045C821 /* minizip */ = {
 			isa = PBXGroup;
 			children = (
 				693818251E90E00E0045C821 /* minishared.c */,
 				693818261E90E00E0045C821 /* minishared.h */,
 				6938182B1E90E0560045C821 /* minizip.c */,
 			);
-			path = "mini-zip";
+			path = "minizip";
 			sourceTree = "<group>";
 		};
-		693817BC1E90DF560045C821 /* mini-unzip */ = {
+		693817BC1E90DF560045C821 /* miniunzip */ = {
 			isa = PBXGroup;
 			children = (
 				693818211E90E0000045C821 /* minishared.c */,
 				693818221E90E0000045C821 /* minishared.h */,
 				693818291E90E04A0045C821 /* miniunz.c */,
 			);
-			path = "mini-unzip";
+			path = "miniunzip";
 			sourceTree = "<group>";
 		};
 		693817C21E90DF6C0045C821 /* aes */ = {
@@ -305,9 +305,9 @@
 			productReference = 693817A21E90DEA40045C821 /* libminizip.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		693817AF1E90DF490045C821 /* mini-zip */ = {
+		693817AF1E90DF490045C821 /* minizip */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 693817B41E90DF490045C821 /* Build configuration list for PBXNativeTarget "mini-zip" */;
+			buildConfigurationList = 693817B41E90DF490045C821 /* Build configuration list for PBXNativeTarget "minizip" */;
 			buildPhases = (
 				693817AC1E90DF490045C821 /* Sources */,
 				693817AD1E90DF490045C821 /* Frameworks */,
@@ -318,14 +318,14 @@
 			dependencies = (
 				693818371E90E19D0045C821 /* PBXTargetDependency */,
 			);
-			name = "mini-zip";
-			productName = "mini-zip";
-			productReference = 693817B01E90DF490045C821 /* mini-zip */;
+			name = "minizip";
+			productName = "minizip";
+			productReference = 693817B01E90DF490045C821 /* minizip */;
 			productType = "com.apple.product-type.tool";
 		};
-		693817BA1E90DF550045C821 /* mini-unzip */ = {
+		693817BA1E90DF550045C821 /* miniunzip */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "mini-unzip" */;
+			buildConfigurationList = 693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunzip" */;
 			buildPhases = (
 				693817B71E90DF550045C821 /* Sources */,
 				693817B81E90DF550045C821 /* Frameworks */,
@@ -336,9 +336,9 @@
 			dependencies = (
 				693818341E90E18F0045C821 /* PBXTargetDependency */,
 			);
-			name = "mini-unzip";
-			productName = "mini-unzip";
-			productReference = 693817BB1E90DF550045C821 /* mini-unzip */;
+			name = "miniunzip";
+			productName = "miniunzip";
+			productReference = 693817BB1E90DF550045C821 /* miniunzip */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -377,8 +377,8 @@
 			projectRoot = "";
 			targets = (
 				693817A11E90DEA40045C821 /* minizip */,
-				693817BA1E90DF550045C821 /* mini-unzip */,
-				693817AF1E90DF490045C821 /* mini-zip */,
+				693817BA1E90DF550045C821 /* miniunzip */,
+				693817AF1E90DF490045C821 /* minizip */,
 			);
 		};
 /* End PBXProject section */
@@ -596,7 +596,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		693817B41E90DF490045C821 /* Build configuration list for PBXNativeTarget "mini-zip" */ = {
+		693817B41E90DF490045C821 /* Build configuration list for PBXNativeTarget "minizip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				693817B51E90DF490045C821 /* Debug */,
@@ -605,7 +605,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "mini-unzip" */ = {
+		693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunzip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				693817C01E90DF560045C821 /* Debug */,
