@@ -88,8 +88,8 @@
 
 /* Begin PBXFileReference section */
 		693817A21E90DEA40045C821 /* libminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "minizip"; sourceTree = BUILT_PRODUCTS_DIR; };
-		693817BB1E90DF550045C821 /* miniunz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "miniunz"; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minizip; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817BB1E90DF550045C821 /* miniunz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = miniunz; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817C31E90DF6C0045C821 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		693817C41E90DF6C0045C821 /* aes_ni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_ni.c; sourceTree = "<group>"; };
 		693817C51E90DF6C0045C821 /* aes_ni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_ni.h; sourceTree = "<group>"; };
@@ -165,7 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				693817C21E90DF6C0045C821 /* aes */,
-				693817A91E90DEC90045C821 /* lib */,
+				693817A91E90DEC90045C821 /* libminizip */,
 				693817BC1E90DF560045C821 /* miniunz */,
 				693817B11E90DF490045C821 /* minizip */,
 				693817A31E90DEA40045C821 /* Products */,
@@ -183,7 +183,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		693817A91E90DEC90045C821 /* lib */ = {
+		693817A91E90DEC90045C821 /* libminizip */ = {
 			isa = PBXGroup;
 			children = (
 				693818031E90DF8B0045C821 /* crypt.c */,
@@ -199,7 +199,7 @@
 				6938181E1E90DFBC0045C821 /* zip.c */,
 				6938181F1E90DFBC0045C821 /* zip.h */,
 			);
-			name = lib;
+			name = libminizip;
 			sourceTree = "<group>";
 		};
 		693817B11E90DF490045C821 /* minizip */ = {
@@ -209,7 +209,7 @@
 				693818261E90E00E0045C821 /* minishared.h */,
 				6938182B1E90E0560045C821 /* minizip.c */,
 			);
-			path = "minizip";
+			path = minizip;
 			sourceTree = "<group>";
 		};
 		693817BC1E90DF560045C821 /* miniunz */ = {
@@ -219,7 +219,7 @@
 				693818221E90E0000045C821 /* minishared.h */,
 				693818291E90E04A0045C821 /* miniunz.c */,
 			);
-			path = "miniunz";
+			path = miniunz;
 			sourceTree = "<group>";
 		};
 		693817C21E90DF6C0045C821 /* aes */ = {
@@ -318,8 +318,8 @@
 			dependencies = (
 				693818371E90E19D0045C821 /* PBXTargetDependency */,
 			);
-			name = "minizip";
-			productName = "minizip";
+			name = minizip;
+			productName = minizip;
 			productReference = 693817B01E90DF490045C821 /* minizip */;
 			productType = "com.apple.product-type.tool";
 		};
@@ -336,8 +336,8 @@
 			dependencies = (
 				693818341E90E18F0045C821 /* PBXTargetDependency */,
 			);
-			name = "miniunz";
-			productName = "miniunz";
+			name = miniunz;
+			productName = miniunz;
 			productReference = 693817BB1E90DF550045C821 /* miniunz */;
 			productType = "com.apple.product-type.tool";
 		};
