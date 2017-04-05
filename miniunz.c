@@ -118,11 +118,11 @@ int miniunz_list(unzFile uf)
         display_zpos64(file_info.compressed_size, 7);
 
         dosdate_to_tm(file_info.dos_date, &tmu_date);
-        printf(" %3lu%%  %2.2lu-%2.2lu-%2.2lu  %2.2lu:%2.2lu  %8.8lx   %s\n", ratio,
-            (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
-            (uint32_t)tmu_date.tm_year % 100,
-            (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
-            file_info.crc, filename_inzip);
+        printf(" %3lu%%  %2.2lu-%2.2lu-%2.2lu  %2.2lu:%2.2lu  %8.8lx   %s\n", (unsigned long)ratio,
+            (unsigned long)tmu_date.tm_mon + 1, (unsigned long)tmu_date.tm_mday,
+            (unsigned long)tmu_date.tm_year % 100,
+            (unsigned long)tmu_date.tm_hour, (unsigned long)tmu_date.tm_min,
+            (unsigned long)file_info.crc, filename_inzip);
 
         err = unzGoToNextFile(uf);
     }

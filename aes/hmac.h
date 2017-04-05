@@ -94,13 +94,13 @@ typedef struct
 #endif
     } sha_ctx[1];
     unsigned long   input_len;
-    unsigned long   output_len;
+    unsigned int   output_len;
     unsigned long   klen;
 } hmac_ctx;
 
 /* returns the length of hash digest for the hash used  */
 /* mac_len must not be greater than this                */
-int hmac_sha_begin(enum hmac_hash hash, hmac_ctx cx[1]);
+unsigned int hmac_sha_begin(enum hmac_hash hash, hmac_ctx cx[1]);
 
 int  hmac_sha_key(const unsigned char key[], unsigned long key_len, hmac_ctx cx[1]);
 

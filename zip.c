@@ -1426,7 +1426,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
     if (zi->in_opened_file_inzip == 0)
         return ZIP_PARAMERROR;
 
-    zi->ci.crc32 = crc32(zi->ci.crc32, buf, len);
+    zi->ci.crc32 = (uint32_t)crc32(zi->ci.crc32, buf, len);
 
 #ifdef HAVE_BZIP2
     if ((zi->ci.compression_method == Z_BZIP2ED) && (!zi->ci.raw))
@@ -1505,7 +1505,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
                 if (status == COMPRESSION_STATUS_ERROR)
                     err = ZIP_INTERNALERROR;
 #else
-                uint32_t total_out_before = zi->ci.stream.total_out;
+                uint32_t total_out_before = (uint32_t)zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_NO_FLUSH);
                 zi->ci.pos_in_buffered_data += (uint32_t)(zi->ci.stream.total_out - total_out_before);
 #endif
@@ -1598,7 +1598,7 @@ extern int ZEXPORT zipCloseFileInZip(zipFile file)
                     err = Z_STREAM_END;
                 }
 #else
-                total_out_before = zi->ci.stream.total_out;
+                total_out_before = (uint32_t)zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_FINISH);
                 zi->ci.pos_in_buffered_data += (uint16_t)(zi->ci.stream.total_out - total_out_before);
 #endif
