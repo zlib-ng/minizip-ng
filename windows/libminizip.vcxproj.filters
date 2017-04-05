@@ -89,6 +89,12 @@
     <ClCompile Include="..\zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\ioapi_buf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ioapi_mem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inffixed.h">
@@ -167,6 +173,12 @@
       <Filter>AES</Filter>
     </ClInclude>
     <ClInclude Include="..\zip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ioapi_buf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ioapi_mem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -131,6 +131,8 @@
     <ClCompile Include="..\..\..\zutil.c" />
     <ClCompile Include="..\crypt.c" />
     <ClCompile Include="..\ioapi.c" />
+    <ClCompile Include="..\ioapi_buf.c" />
+    <ClCompile Include="..\ioapi_mem.c" />
     <ClCompile Include="..\iowin32.c" />
     <ClCompile Include="..\unzip.c" />
     <ClCompile Include="..\aes\aescrypt.c" />
@@ -156,6 +158,8 @@
     <ClInclude Include="..\..\..\zutil.h" />
     <ClInclude Include="..\crypt.h" />
     <ClInclude Include="..\ioapi.h" />
+    <ClInclude Include="..\ioapi_buf.h" />
+    <ClInclude Include="..\ioapi_mem.h" />
     <ClInclude Include="..\iowin32.h" />
     <ClInclude Include="..\unzip.h" />
     <ClInclude Include="..\aes\aes.h" />
