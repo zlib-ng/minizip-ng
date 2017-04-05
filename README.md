@@ -3,7 +3,7 @@ Minizip zlib contribution that includes:
 - AES encryption
 - I/O buffering
 - PKWARE disk spanning
-- Visual Studio project files
+- Visual Studio and Xcode project files
 
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 
