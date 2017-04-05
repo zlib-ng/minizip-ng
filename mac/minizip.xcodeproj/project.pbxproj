@@ -89,7 +89,7 @@
 /* Begin PBXFileReference section */
 		693817A21E90DEA40045C821 /* libminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "minizip"; sourceTree = BUILT_PRODUCTS_DIR; };
-		693817BB1E90DF550045C821 /* miniunzip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "miniunzip"; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817BB1E90DF550045C821 /* miniunz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "miniunz"; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817C31E90DF6C0045C821 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		693817C41E90DF6C0045C821 /* aes_ni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_ni.c; sourceTree = "<group>"; };
 		693817C51E90DF6C0045C821 /* aes_ni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_ni.h; sourceTree = "<group>"; };
@@ -166,7 +166,7 @@
 			children = (
 				693817C21E90DF6C0045C821 /* aes */,
 				693817A91E90DEC90045C821 /* lib */,
-				693817BC1E90DF560045C821 /* miniunzip */,
+				693817BC1E90DF560045C821 /* miniunz */,
 				693817B11E90DF490045C821 /* minizip */,
 				693817A31E90DEA40045C821 /* Products */,
 				6938182D1E90E0F70045C821 /* Frameworks */,
@@ -178,7 +178,7 @@
 			children = (
 				693817A21E90DEA40045C821 /* libminizip.a */,
 				693817B01E90DF490045C821 /* minizip */,
-				693817BB1E90DF550045C821 /* miniunzip */,
+				693817BB1E90DF550045C821 /* miniunz */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -212,14 +212,14 @@
 			path = "minizip";
 			sourceTree = "<group>";
 		};
-		693817BC1E90DF560045C821 /* miniunzip */ = {
+		693817BC1E90DF560045C821 /* miniunz */ = {
 			isa = PBXGroup;
 			children = (
 				693818211E90E0000045C821 /* minishared.c */,
 				693818221E90E0000045C821 /* minishared.h */,
 				693818291E90E04A0045C821 /* miniunz.c */,
 			);
-			path = "miniunzip";
+			path = "miniunz";
 			sourceTree = "<group>";
 		};
 		693817C21E90DF6C0045C821 /* aes */ = {
@@ -323,9 +323,9 @@
 			productReference = 693817B01E90DF490045C821 /* minizip */;
 			productType = "com.apple.product-type.tool";
 		};
-		693817BA1E90DF550045C821 /* miniunzip */ = {
+		693817BA1E90DF550045C821 /* miniunz */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunzip" */;
+			buildConfigurationList = 693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunz" */;
 			buildPhases = (
 				693817B71E90DF550045C821 /* Sources */,
 				693817B81E90DF550045C821 /* Frameworks */,
@@ -336,9 +336,9 @@
 			dependencies = (
 				693818341E90E18F0045C821 /* PBXTargetDependency */,
 			);
-			name = "miniunzip";
-			productName = "miniunzip";
-			productReference = 693817BB1E90DF550045C821 /* miniunzip */;
+			name = "miniunz";
+			productName = "miniunz";
+			productReference = 693817BB1E90DF550045C821 /* miniunz */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -377,7 +377,7 @@
 			projectRoot = "";
 			targets = (
 				693817A11E90DEA40045C821 /* minizip */,
-				693817BA1E90DF550045C821 /* miniunzip */,
+				693817BA1E90DF550045C821 /* miniunz */,
 				693817AF1E90DF490045C821 /* minizip */,
 			);
 		};
@@ -605,7 +605,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunzip" */ = {
+		693817BF1E90DF560045C821 /* Build configuration list for PBXNativeTarget "miniunz" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				693817C01E90DF560045C821 /* Debug */,
