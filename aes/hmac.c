@@ -35,79 +35,79 @@ int hmac_sha_begin(enum hmac_hash hash, hmac_ctx cx[1])
     {
 #ifdef SHA_1
     case HMAC_SHA1:
-        cx->f_begin = sha1_begin;
-        cx->f_hash  = sha1_hash;
-        cx->f_end   = sha1_end;
+        cx->f_begin = (hf_begin *)sha1_begin;
+        cx->f_hash  = (hf_hash *)sha1_hash;
+        cx->f_end   = (hf_end *)sha1_end;
         cx->input_len = SHA1_BLOCK_SIZE;
         cx->output_len = SHA1_DIGEST_SIZE;
         break;
 #endif
 #ifdef SHA_224
     case HMAC_SHA224:
-        cx->f_begin = sha224_begin;
-        cx->f_hash  = sha224_hash;
-        cx->f_end   = sha224_end;
+        cx->f_begin = (hf_begin *)sha224_begin;
+        cx->f_hash  = (hf_hash *)sha224_hash;
+        cx->f_end   = (hf_end *)sha224_end;
         cx->input_len = SHA224_BLOCK_SIZE;
         cx->output_len = SHA224_DIGEST_SIZE;
         break;
 #endif
 #ifdef SHA_256
     case HMAC_SHA256:
-        cx->f_begin = sha256_begin;
-        cx->f_hash  = sha256_hash;
-        cx->f_end   = sha256_end;
+        cx->f_begin = (hf_begin *)sha256_begin;
+        cx->f_hash  = (hf_hash *)sha256_hash;
+        cx->f_end   = (hf_end *)sha256_end;
         cx->input_len = SHA256_BLOCK_SIZE;
         cx->output_len = SHA256_DIGEST_SIZE;
         break;
 #endif
 #ifdef SHA_384
     case HMAC_SHA384:
-        cx->f_begin = sha384_begin;
-        cx->f_hash  = sha384_hash;
-        cx->f_end   = sha384_end;
+        cx->f_begin = (hf_begin *)sha384_begin;
+        cx->f_hash  = (hf_hash *)sha384_hash;
+        cx->f_end   = (hf_end *)sha384_end;
         cx->input_len = SHA384_BLOCK_SIZE;
         cx->output_len = SHA384_DIGEST_SIZE;
         break;
 #endif
 #ifdef SHA_512
     case HMAC_SHA512:
-        cx->f_begin = sha512_begin;
-        cx->f_hash  = sha512_hash;
-        cx->f_end   = sha512_end;
+        cx->f_begin = (hf_begin *)sha512_begin;
+        cx->f_hash  = (hf_hash *)sha512_hash;
+        cx->f_end   = (hf_end *)sha512_end;
         cx->input_len = SHA512_BLOCK_SIZE;
         cx->output_len = SHA512_DIGEST_SIZE;
         break;
     case HMAC_SHA512_256:
-        cx->f_begin = sha512_256_begin;
-        cx->f_hash  = sha512_256_hash;
-        cx->f_end   = sha512_256_end;
+        cx->f_begin = (hf_begin *)sha512_256_begin;
+        cx->f_hash  = (hf_hash *)sha512_256_hash;
+        cx->f_end   = (hf_end *)sha512_256_end;
         cx->input_len = SHA512_256_BLOCK_SIZE;
         cx->output_len = SHA512_256_DIGEST_SIZE;
         break;
     case HMAC_SHA512_224:
-        cx->f_begin = sha512_224_begin;
-        cx->f_hash  = sha512_224_hash;
-        cx->f_end   = sha512_224_end;
+        cx->f_begin = (hf_begin *)sha512_224_begin;
+        cx->f_hash  = (hf_hash *)sha512_224_hash;
+        cx->f_end   = (hf_end *)sha512_224_end;
         cx->input_len = SHA512_224_BLOCK_SIZE;
         cx->output_len = SHA512_224_DIGEST_SIZE;
         break;
     case HMAC_SHA512_192:
-        cx->f_begin = sha512_192_begin;
-        cx->f_hash  = sha512_192_hash;
-        cx->f_end   = sha512_192_end;
+        cx->f_begin = (hf_begin *)sha512_192_begin;
+        cx->f_hash  = (hf_hash *)sha512_192_hash;
+        cx->f_end   = (hf_end *)sha512_192_end;
         cx->input_len = SHA512_192_BLOCK_SIZE;
         cx->output_len = SHA512_192_DIGEST_SIZE;
         break;
     case HMAC_SHA512_128:
-        cx->f_begin = sha512_128_begin;
-        cx->f_hash  = sha512_128_hash;
-        cx->f_end   = sha512_128_end;
+        cx->f_begin = (hf_begin *)sha512_128_begin;
+        cx->f_hash  = (hf_hash *)sha512_128_hash;
+        cx->f_end   = (hf_begin *)sha512_128_end;
         cx->input_len = SHA512_128_BLOCK_SIZE;
         cx->output_len = SHA512_128_DIGEST_SIZE;
         break;
 #endif
     }
-    return cx->output_len;
+    return (int)cx->output_len;
 }
 
 /* input the HMAC key (can be called multiple times)    */

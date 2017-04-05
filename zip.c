@@ -1231,7 +1231,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             prng_rand(saltvalue, saltlength, zi->ci.aes_rng);
             prng_end(zi->ci.aes_rng);
 
-            fcrypt_init(AES_ENCRYPTIONMODE, password, strlen(password), saltvalue, passverify, &zi->ci.aes_ctx);
+            fcrypt_init(AES_ENCRYPTIONMODE, (uint8_t *)password, (uint32_t)strlen(password), saltvalue, passverify, &zi->ci.aes_ctx);
 
             if (ZWRITE64(zi->z_filefunc, zi->filestream, saltvalue, saltlength) != saltlength)
                 err = ZIP_ERRNO;
@@ -1426,7 +1426,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
     if (zi->in_opened_file_inzip == 0)
         return ZIP_PARAMERROR;
 
-    zi->ci.crc32 = crc32(zi->ci.crc32, buf, len);
+    zi->ci.crc32 = (uint32_t)crc32(zi->ci.crc32, buf, len);
 
 #ifdef HAVE_BZIP2
     if ((zi->ci.compression_method == Z_BZIP2ED) && (!zi->ci.raw))
@@ -1579,7 +1579,7 @@ extern int ZEXPORT zipCloseFileInZip(zipFile file)
                 compression_status status = 0;
                 status = compression_stream_process(&zi->ci.astream, COMPRESSION_STREAM_FINALIZE);
 
-                uLong total_out_after = Z_BUFSIZE - zi->ci.astream.dst_size;
+                uint32_t total_out_after = Z_BUFSIZE - zi->ci.astream.dst_size;
 
                 zi->ci.stream.next_in = zi->ci.astream.src_ptr;
                 zi->ci.stream.avail_in = zi->ci.astream.src_size;
@@ -1598,7 +1598,7 @@ extern int ZEXPORT zipCloseFileInZip(zipFile file)
                     err = Z_STREAM_END;
                 }
 #else
-                total_out_before = zi->ci.stream.total_out;
+                total_out_before = (uint32_t)zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_FINISH);
                 zi->ci.pos_in_buffered_data += (uint16_t)(zi->ci.stream.total_out - total_out_before);
 #endif

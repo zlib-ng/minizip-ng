@@ -230,7 +230,7 @@ uint32_t ZCALLBACK fwrite_buf_func(voidpf opaque, voidpf stream, const void *buf
     uint32_t bytes_to_write = size;
     uint32_t bytes_left_to_write = size;
     uint32_t bytes_to_copy = 0;
-    uint32_t ret = 0;
+    int64_t ret = 0;
 
     print_buf(opaque, stream, "write [size %ld len %d pos %lld]\n", size, streamio->writebuf_len, streamio->position);
 

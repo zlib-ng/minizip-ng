@@ -261,7 +261,7 @@ int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *resul
             }
 
             if (size_read > 0)
-                calculate_crc = crc32(calculate_crc, buf, size_read);
+                calculate_crc = (uint32_t)crc32(calculate_crc, buf, size_read);
         }
         while ((err == Z_OK) && (size_read > 0));
     }
@@ -269,7 +269,7 @@ int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *resul
     if (fin)
         fclose(fin);
 
-    printf("file %s crc %lx\n", path, calculate_crc);
+    printf("file %s crc %x\n", path, calculate_crc);
     *result_crc = calculate_crc;
     return err;
 }
