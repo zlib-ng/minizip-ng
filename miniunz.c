@@ -354,7 +354,7 @@ int main(int argc, const char *argv[])
                 if ((c == 'e') || (c == 'E'))
                     opt_do_extract = opt_do_extract_withoutpath = 1;
                 if ((c == 'o') || (c == 'O'))
-                    opt_overwrite=1;
+                    opt_overwrite = 1;
                 if ((c == 'd') || (c == 'D'))
                 {
                     opt_extractdir = 1;

@@ -1505,7 +1505,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
                 if (status == COMPRESSION_STATUS_ERROR)
                     err = ZIP_INTERNALERROR;
 #else
-                uint32_t total_out_before = zi->ci.stream.total_out;
+                uint32_t total_out_before = (uint32_t)zi->ci.stream.total_out;
                 err = deflate(&zi->ci.stream, Z_NO_FLUSH);
                 zi->ci.pos_in_buffered_data += (uint32_t)(zi->ci.stream.total_out - total_out_before);
 #endif

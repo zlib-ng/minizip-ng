@@ -161,7 +161,7 @@ typedef struct
     int is_zip64;                       /* is the current file zip64 */
 #ifndef NOUNCRYPT
     uint32_t keys[3];                   /* keys defining the pseudo-random sequence */
-    const uint32_t *pcrc_32_tab;
+    const z_crc_t *pcrc_32_tab;
 #endif
 } unz64_s;
 
@@ -1125,14 +1125,15 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
         }
     }
 
-    if ((compression_method != 0) &&
-#ifdef HAVE_BZIP2
-        (compression_method != Z_BZIP2ED) &&
-#endif
-        (compression_method != Z_DEFLATED))
+    if ((compression_method != 0) && (compression_method != Z_DEFLATED))
     {
-        TRYFREE(pfile_in_zip_read_info);
-        return UNZ_BADZIPFILE;
+#ifdef HAVE_BZIP2
+        if (compression_method != Z_BZIP2ED)
+#endif
+        {
+            TRYFREE(pfile_in_zip_read_info);
+            return UNZ_BADZIPFILE;
+        }
     }
 
     pfile_in_zip_read_info->crc32_wait = s->cur_file_info.crc;
@@ -1265,7 +1266,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
 #endif
         {
             int i;
-            s->pcrc_32_tab = (const uint32_t*)get_crc_table();
+            s->pcrc_32_tab = (const z_crc_t*)get_crc_table();
             init_keys(password, s->keys, s->pcrc_32_tab);
 
             if (ZREAD64(s->z_filefunc, s->filestream, source, 12) < 12)
@@ -1444,9 +1445,9 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
         else if (s->pfile_in_zip_read->compression_method == Z_BZIP2ED)
         {
 #ifdef HAVE_BZIP2
-            uint32_t total_out_before = 0;
-            uint32_t total_out_after = 0;
-            uint32_t out_bytes = 0;
+            uint64_t total_out_before = 0;
+            uint64_t total_out_after = 0;
+            uint64_t out_bytes = 0;
             const uint8_t *buf_before = NULL;
 
             s->pfile_in_zip_read->bstream.next_in        = (char*)s->pfile_in_zip_read->stream.next_in;
@@ -1472,9 +1473,9 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
 
             s->pfile_in_zip_read->total_out_64 = s->pfile_in_zip_read->total_out_64 + out_bytes;
             s->pfile_in_zip_read->rest_read_uncompressed -= out_bytes;
-            s->pfile_in_zip_read->crc32 = crc32(s->pfile_in_zip_read->crc32,buf_before, out_bytes);
+            s->pfile_in_zip_read->crc32 = crc32(s->pfile_in_zip_read->crc32, buf_before, (uint32_t)out_bytes);
 
-            read += out_bytes;
+            read += (uint32_t)out_bytes;
 
             s->pfile_in_zip_read->stream.next_in   = (uint8_t*)s->pfile_in_zip_read->bstream.next_in;
             s->pfile_in_zip_read->stream.avail_in  = s->pfile_in_zip_read->bstream.avail_in;
@@ -1492,9 +1493,10 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
 #ifdef HAVE_APPLE_COMPRESSION
         else
         {
-            uint64_t total_out_before, total_out_after;
-            const Bytef *buf_before;
-            uint64_t out_bytes;
+            uint64_t total_out_before = 0;
+            uint64_t total_out_after = 0;
+            uint64_t out_bytes = 0;
+            const uint8_t *buf_before = NULL;
 
             s->pfile_in_zip_read->astream.src_ptr = s->pfile_in_zip_read->stream.next_in;
             s->pfile_in_zip_read->astream.src_size = s->pfile_in_zip_read->stream.avail_in;
@@ -1520,9 +1522,9 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
             s->pfile_in_zip_read->total_out_64 += out_bytes;
             s->pfile_in_zip_read->rest_read_uncompressed -= out_bytes;
             s->pfile_in_zip_read->crc32 =
-                crc32(s->pfile_in_zip_read->crc32, buf_before, (uInt)(out_bytes));
+                crc32(s->pfile_in_zip_read->crc32, buf_before, (uint32_t)out_bytes);
 
-            read += (uInt)(total_out_after - total_out_before);
+            read += (uint32_t)out_bytes;
 
             s->pfile_in_zip_read->stream.next_in = s->pfile_in_zip_read->astream.src_ptr;
             s->pfile_in_zip_read->stream.avail_in = s->pfile_in_zip_read->astream.src_size;
@@ -1554,20 +1556,20 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
                 (pfile_in_zip_read_info->rest_read_compressed == 0))
                 flush = Z_FINISH;
             */
-            err = inflate(&s->pfile_in_zip_read->stream,flush);
+            err = inflate(&s->pfile_in_zip_read->stream, flush);
 
             if ((err >= 0) && (s->pfile_in_zip_read->stream.msg != NULL))
                 err = Z_DATA_ERROR;
 
             total_out_after = s->pfile_in_zip_read->stream.total_out;
-            out_bytes = total_out_after-total_out_before;
+            out_bytes = total_out_after - total_out_before;
 
             s->pfile_in_zip_read->total_out_64 += out_bytes;
             s->pfile_in_zip_read->rest_read_uncompressed -= out_bytes;
             s->pfile_in_zip_read->crc32 =
-                (uint32_t)crc32(s->pfile_in_zip_read->crc32,buf_before, (uint32_t)(out_bytes));
+                (uint32_t)crc32(s->pfile_in_zip_read->crc32,buf_before, (uint32_t)out_bytes);
 
-            read += (uint32_t)(total_out_after - total_out_before);
+            read += (uint32_t)out_bytes;
 
             if (err == Z_STREAM_END)
                 return (read == 0) ? UNZ_EOF : read;
