@@ -59,8 +59,8 @@ When unzipping it will use AES decryption only if necessary. Does not support ce
 To create an archive with multiple disks use zipOpen3_64 supplying a disk_size value in bytes.
 
 ```
-extern zipFile ZEXPORT zipOpen3_64 OF((const void *pathname, int append, 
-  ZPOS64_T disk_size, zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def));
+extern zipFile ZEXPORT zipOpen3_64(const void *pathname, int append, 
+  ZPOS64_T disk_size, zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def);
 ```
 The central directory is the only data stored in the .zip and doesn't follow disk_size restrictions.
 
