@@ -434,7 +434,6 @@ int ZCALLBACK ferror_buf_func(voidpf opaque, voidpf stream)
     return bufio->filefunc.zerror_file(bufio->filefunc.opaque, streamio->stream);
 }
 
-
 void fill_buffer_filefunc(zlib_filefunc_def *pzlib_filefunc_def, ourbuffer_t *ourbuf)
 {
     pzlib_filefunc_def->zopen_file = fopen_buf_func;
