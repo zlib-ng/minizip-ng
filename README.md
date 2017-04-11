@@ -1,13 +1,8 @@
-Minizip zlib contribution that includes:
+# Minizip zlib contribution
 
-- AES encryption
-- I/O buffering
-- PKWARE disk spanning
-- Visual Studio and Xcode project files
+## Additional Features
 
-It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
-
-*AES Encryption*
+### AES Encryption
 
 + Requires #define HAVE_AES
 + Requires AES library files
@@ -15,7 +10,7 @@ It also has the latest bug fixes that having been found all over the internet in
 When zipping with a password it will always use AES 256-bit encryption. 
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption.
 
-*I/O Buffering*
+### I/O Buffering
 
 Improves I/O performance by buffering read and write operations. 
 ```
@@ -28,7 +23,7 @@ fill_buffer_filefunc64(&filefunc64, buffered);
 unzOpen2_64(filename, &filefunc64)
 ```
 
-*PKWARE disk spanning*
+### PKWARE disk spanning
 
 To create an archive with multiple disks use zipOpen3_64 supplying a disk_size value in bytes.
 
@@ -40,7 +35,7 @@ The central directory is the only data stored in the .zip and doesn't follow dis
 
 When unzipping it will automatically determine when in needs to span disks.
 
-*I/O Memory*
+### I/O Memory
 
 To unzip from a zip file in memory use fill_memory_filefunc and supply a proper ourmemory_t structure.
 ```
@@ -71,15 +66,15 @@ fill_memory_filefunc(&filefunc32, &zipmem);
 zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 ```
 
-*BZIP2*
+### BZIP2
 
 + Requires #define HAVE_BZIP2
 + Requires BZIP2 library
 
-*Apple libcompression*
+### Apple libcompression
 
 + Requires #define HAVE_APPLE_COMPRESSION
 
-*Windows RT*
+### Windows RT
 
 + Requires #define IOWIN32_USING_WINRT_API
