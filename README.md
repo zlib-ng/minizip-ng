@@ -1,6 +1,8 @@
-# Minizip zlib contribution
+# Minizip zlib contribution fork
 
-## Additional Features
+Contains the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
+
+## Features
 
 ### AES Encryption
 
