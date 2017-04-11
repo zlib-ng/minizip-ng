@@ -43,11 +43,6 @@
 #  include "crypt.h"
 #endif
 
-#ifndef local
-#  define local static
-#endif
-/* compile with -Dlocal if your debugger can't find static symbols */
-
 #define SIZEDATA_INDATABLOCK        (4096-(4*4))
 
 #define DISKHEADERMAGIC             (0x08074b50)
@@ -173,7 +168,7 @@ typedef struct
 } zip64_internal;
 
 /* Allocate a new data block */
-local linkedlist_datablock_internal *allocate_new_datablock(void)
+static linkedlist_datablock_internal *allocate_new_datablock(void)
 {
     linkedlist_datablock_internal *ldi = NULL;
 
@@ -188,8 +183,7 @@ local linkedlist_datablock_internal *allocate_new_datablock(void)
     return ldi;
 }
 
-/* Free data block in linked list */
-local void free_datablock(linkedlist_datablock_internal *ldi)
+/* Free data block in linked list */static void free_datablock(linkedlist_datablock_internal *ldi)
 {
     while (ldi != NULL)
     {
@@ -200,20 +194,20 @@ local void free_datablock(linkedlist_datablock_internal *ldi)
 }
 
 /* Initialize linked list */
-local void init_linkedlist(linkedlist_data *ll)
+static void init_linkedlist(linkedlist_data *ll)
 {
     ll->first_block = ll->last_block = NULL;
 }
 
 /* Free entire linked list and all data blocks */
-local void free_linkedlist(linkedlist_data *ll)
+static void free_linkedlist(linkedlist_data *ll)
 {
     free_datablock(ll->first_block);
     ll->first_block = ll->last_block = NULL;
 }
 
 /* Add data to linked list data block */
-local int add_data_in_datablock(linkedlist_data *ll, const void *buf, uint32_t len)
+static int add_data_in_datablock(linkedlist_data *ll, const void *buf, uint32_t len)
 {
     linkedlist_datablock_internal *ldi = NULL;
     const unsigned char *from_copy = NULL;
@@ -265,7 +259,7 @@ local int add_data_in_datablock(linkedlist_data *ll, const void *buf, uint32_t l
 }
 
 /* Inputs a long in LSB order to the given file: nbByte == 1, 2 ,4 or 8 (byte, short or long, uint64_t) */
-local int zipWriteValue(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream,
+static int zipWriteValue(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream,
     uint64_t x, uint32_t len)
 {
     unsigned char buf[8];
@@ -292,7 +286,7 @@ local int zipWriteValue(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf
     return ZIP_OK;
 }
 
-local uint64_t zipReadValueFromMemory(void* src, uint32_t len)
+static uint64_t zipReadValueFromMemory(void* src, uint32_t len)
 {
     unsigned char *buf = (unsigned char*)src;
     uint64_t x = 0;
@@ -306,7 +300,7 @@ local uint64_t zipReadValueFromMemory(void* src, uint32_t len)
     return x;
 }
 
-local void zipWriteValueToMemory(void* dest, uint64_t x, uint32_t len)
+static void zipWriteValueToMemory(void* dest, uint64_t x, uint32_t len)
 {
     unsigned char *buf = (unsigned char*)dest;
     uint32_t n = 0;
@@ -327,13 +321,13 @@ local void zipWriteValueToMemory(void* dest, uint64_t x, uint32_t len)
     }
 }
 
-local void zipWriteValueToMemoryAndMove(unsigned char **dest_ptr, uint64_t x, uint32_t len)
+static void zipWriteValueToMemoryAndMove(unsigned char **dest_ptr, uint64_t x, uint32_t len)
 {
     zipWriteValueToMemory(*dest_ptr, x, len);
     *dest_ptr += len;
 }
 
-local int zipReadUInt8(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint8_t *value)
+static int zipReadUInt8(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint8_t *value)
 {
     uint8_t c = 0;
     if (ZREAD64(*pzlib_filefunc_def, filestream, &c, 1) == 1)
@@ -346,7 +340,7 @@ local int zipReadUInt8(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf 
     return ZIP_EOF;
 }
 
-local int zipReadUInt16(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint16_t *value)
+static int zipReadUInt16(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint16_t *value)
 {
     uint16_t x = 0;
     uint8_t c = 0;
@@ -365,7 +359,7 @@ local int zipReadUInt16(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf
     return err;
 }
 
-local int zipReadUInt32(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint32_t *value)
+static int zipReadUInt32(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint32_t *value)
 {
     uint32_t x = 0;
     uint8_t c = 0;
@@ -390,7 +384,7 @@ local int zipReadUInt32(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf
     return err;
 }
 
-local int zipReadUInt64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint64_t *value)
+static int zipReadUInt64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream, uint64_t *value)
 {
     uint64_t x = 0;
     uint8_t c = 0;
@@ -429,7 +423,7 @@ local int zipReadUInt64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf
 }
 
 /* Gets the amount of bytes left to write to the current disk for spanning archives */
-local int zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
+static int zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
 {
     zip64_internal *zi = NULL;
     uint64_t current_disk_size = 0;
@@ -442,7 +436,7 @@ local int zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
 }
 
 /* Goes to a specific disk number for spanning archives */
-local int zipGoToSpecificDisk(zipFile file, uint32_t number_disk, int open_existing)
+static int zipGoToSpecificDisk(zipFile file, uint32_t number_disk, int open_existing)
 {
     zip64_internal *zi = NULL;
     int err = ZIP_OK;
@@ -465,7 +459,7 @@ local int zipGoToSpecificDisk(zipFile file, uint32_t number_disk, int open_exist
 }
 
 /* Goes to the first disk in a spanned archive */
-local int zipGoToFirstDisk(zipFile file)
+static int zipGoToFirstDisk(zipFile file)
 {
     zip64_internal *zi = NULL;
     uint32_t number_disk_next = 0;
@@ -488,7 +482,7 @@ local int zipGoToFirstDisk(zipFile file)
 }
 
 /* Goes to the next disk in a spanned archive */
-local int zipGoToNextDisk(zipFile file)
+static int zipGoToNextDisk(zipFile file)
 {
     zip64_internal *zi = NULL;
     uint64_t size_available_in_disk = 0;
@@ -522,7 +516,7 @@ local int zipGoToNextDisk(zipFile file)
 }
 
 /* Locate the Central directory of a zipfile (at the end, just before the global comment) */
-local uint64_t zipSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream)
+static uint64_t zipSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream)
 {
     unsigned char *buf = NULL;
     uint64_t file_size = 0;
@@ -582,7 +576,7 @@ local uint64_t zipSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_
 }
 
 /* Locate the Central directory 64 of a zipfile (at the end, just before the global comment) */
-local uint64_t zipSearchCentralDir64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream,
+static uint64_t zipSearchCentralDir64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream,
     const uint64_t endcentraloffset)
 {
     uint64_t offset = 0;
@@ -1089,7 +1083,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
         return ZIP_INTERNALERROR;
 
     /* Write the local header */
-    err = zipWriteValue(&zi->z_filefunc, zi->filestream, (uint32_t)LOCALHEADERMAGIC, 4);
+    if (err == ZIP_OK)
+        err = zipWriteValue(&zi->z_filefunc, zi->filestream, (uint32_t)LOCALHEADERMAGIC, 4);
 
     if (err == ZIP_OK)
     {
@@ -1330,7 +1325,7 @@ extern int ZEXPORT zipOpenNewFileInZip(zipFile file, const char *filename, const
 }
 
 /* Flushes the write buffer to disk */
-local int zipFlushWriteBuffer(zip64_internal *zi)
+static int zipFlushWriteBuffer(zip64_internal *zi)
 {
     uint64_t size_available = 0;
     uint32_t written = 0;

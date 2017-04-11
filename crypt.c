@@ -12,11 +12,6 @@
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
 
-   The encryption/decryption parts of this source code (as opposed to the
-   non-echoing password parts) were originally written in Europe. The
-   whole source package can be freely distributed, including from the USA.
-   (Prior to January 2000, re-export from the US was a violation of US law.)
-
    This encryption code is a direct transcription of the algorithm from
    Roger Schlafly, described by Phil Katz in the file appnote.txt. This
    file (appnote.txt) is distributed with the PKZIP program (even in the
@@ -24,11 +19,6 @@
 
    If you don't need crypting in your application, just define symbols
    NOCRYPT and NOUNCRYPT.
-   
-   Mar 8th, 2016 - Lucio Cosmo 
-   Fixed support for 64bit builds for archives with "PKWARE" password.
-   Changed long, unsigned long, unsigned to unsigned int in 
-   access functions to crctables and pkeys
 */
 
 #include <stdio.h>

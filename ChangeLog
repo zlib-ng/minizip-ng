@@ -1,11 +1,19 @@
 More changes since 1.1
+- Fixed support for 64bit builds for archives with "PKWARE" password.
+- Changed long, unsigned long, unsigned to unsigned int in 
+  access functions to crctables and pkeys
+  
+  Credits 
+  
+    Lucio Cosmo
+    
 - Added support for AE-2 zip files
 - Fixed error in AE-1 not testing CRC32
 
   Credits
   
     Steven Christy
-
+      
 Changes since 1.1
 - Added PKZIP spanning support
 - Added AES encryption support
