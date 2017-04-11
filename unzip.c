@@ -113,7 +113,7 @@ typedef struct
     fcrypt_ctx aes_ctx;
 #endif
     uint64_t pos_in_zipfile;            /* position in byte on the zipfile, for fseek */
-    uint8_t  stream_initialised;           /* flag set if stream structure is initialised */
+    uint8_t  stream_initialised;        /* flag set if stream structure is initialised */
 
     uint64_t offset_local_extrafield;   /* offset of the local extra field */
     uint16_t size_local_extrafield;     /* size of the local extra field */
@@ -264,7 +264,7 @@ local int unzReadUInt64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf
 /* Locate the Central directory of a zip file (at the end, just before the global comment) */
 local uint64_t unzSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidpf filestream)
 {
-    unsigned char *buf = NULL;
+    unsigned char buf[BUFREADCOMMENT + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
     uint64_t max_back = UINT16_MAX; /* maximum size of global comment */
@@ -273,15 +273,8 @@ local uint64_t unzSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_
     uint64_t read_pos = 0;
     uint32_t i = 0;
 
-    buf = (unsigned char*)ALLOC(BUFREADCOMMENT + 4);
-    if (buf == NULL)
-        return 0;
-
     if (ZSEEK64(*pzlib_filefunc_def, filestream, 0, ZLIB_FILEFUNC_SEEK_END) != 0)
-    {
-        TRYFREE(buf);
         return 0;
-    }
 
     file_size = ZTELL64(*pzlib_filefunc_def, filestream);
 
@@ -304,7 +297,7 @@ local uint64_t unzSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_
         if (ZREAD64(*pzlib_filefunc_def, filestream, buf, read_size) != read_size)
             break;
 
-        for (i = read_size-3; (i--) > 0;)
+        for (i = read_size - 3; (i--) > 0;)
             if (((*(buf+i)) == (ENDHEADERMAGIC & 0xff)) &&
                 ((*(buf+i+1)) == (ENDHEADERMAGIC >> 8 & 0xff)) &&
                 ((*(buf+i+2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
@@ -317,7 +310,7 @@ local uint64_t unzSearchCentralDir(const zlib_filefunc64_32_def *pzlib_filefunc_
         if (pos_found != 0)
             break;
     }
-    TRYFREE(buf);
+
     return pos_found;
 }
 
