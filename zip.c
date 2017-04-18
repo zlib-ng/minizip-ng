@@ -1624,9 +1624,6 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                 err = ZIP_OK;
 #endif
         }
-
-        crc32 = zi->ci.crc32;
-        uncompressed_size = zi->ci.total_uncompressed;
     }
 
     if (err == Z_STREAM_END)
@@ -1673,6 +1670,9 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
             zi->ci.stream_initialised = 0;
         }
 #endif
+
+        crc32 = zi->ci.crc32;
+        uncompressed_size = zi->ci.total_uncompressed;
     }
 
     /* Write data descriptor */
