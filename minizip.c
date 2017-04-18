@@ -103,7 +103,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         do
         {
             size_read = (int)fread(buf, 1, sizeof(buf), fin);
-            if ((size_read < sizeof(buf)) && (feof(fin) == 0))
+            if ((size_read < (int)sizeof(buf)) && (feof(fin) == 0))
             {
                 printf("error in reading %s\n", filenameinzip);
                 err = ZIP_ERRNO;
