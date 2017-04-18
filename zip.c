@@ -1701,7 +1701,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
         zipWriteValueToMemory(zi->ci.central_header + 20, UINT32_MAX, 4); /* compr size */
     else
         zipWriteValueToMemory(zi->ci.central_header + 20, zi->ci.total_compressed, 4); /* compr size */
-    if (zi->ci.total_uncompressed >= UINT32_MAX)
+    if (uncompressed_size >= UINT32_MAX)
         zipWriteValueToMemory(zi->ci.central_header + 24, UINT32_MAX, 4); /* uncompr size */
     else
         zipWriteValueToMemory(zi->ci.central_header + 24, uncompressed_size, 4); /* uncompr size */
@@ -1709,7 +1709,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
         zipWriteValueToMemory(zi->ci.central_header + 36, (uint16_t)Z_ASCII, 2); /* internal file attrib */
 
     /* Add ZIP64 extra info field for uncompressed size */
-    if (zi->ci.total_uncompressed >= UINT32_MAX)
+    if (uncompressed_size >= UINT32_MAX)
         extra_data_size += 8;
     /* Add ZIP64 extra info field for compressed size */
     if (zi->ci.total_compressed >= UINT32_MAX)
