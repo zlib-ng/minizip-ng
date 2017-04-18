@@ -29,7 +29,8 @@ Project {
             ])
             cpp.defines: [
                 "__USE_LARGEFILE64",
-                "_LARGEFILE64_SOURCE"
+                "_LARGEFILE64_SOURCE",
+                "HAVE_AES"
             ]
             cpp.dynamicLibraries: [
                 "z"

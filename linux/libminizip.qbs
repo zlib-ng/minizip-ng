@@ -10,7 +10,8 @@ Product {
     cpp.commonCompilerFlags: [
         "-Wno-unused-parameter",
         "-Wno-unused-function",
-        "-Wno-empty-body"
+        "-Wno-empty-body",
+        "-Wno-sequence-point"
     ]
 
     Properties {
@@ -20,7 +21,8 @@ Product {
         ])
         cpp.defines: [
             "__USE_LARGEFILE64",
-            "_LARGEFILE64_SOURCE"
+            "_LARGEFILE64_SOURCE",
+            "HAVE_AES"
         ]
         cpp.dynamicLibraries: [
             "z"
@@ -41,6 +43,22 @@ Product {
     }
 
     Group {
+        name: "aes sources"
+        prefix: "../aes/"
+        files: [
+            "aescrypt.c",
+            "aeskey.c",
+            "aes_ni.c",
+            "aestab.c",
+            "fileenc.c",
+            "hmac.c",
+            "prng.c",
+            "pwd2key.c",
+            "sha1.c"
+        ]
+    }
+
+    Group {
         name: "headers"
         prefix: "../"
         files: [
@@ -50,6 +68,25 @@ Product {
             "ioapi_mem.h",
             "unzip.h",
             "zip.h"
+        ]
+    }
+
+    Group {
+        name: "aes headers"
+        prefix: "../aes/"
+        files: [
+            "aes.h",
+            "aes_ni.h",
+            "aesopt.h",
+            "aestab.h",
+            "aes_via_ace.h",
+            "brg_endian.h",
+            "brg_types.h",
+            "fileenc.h",
+            "hmac.h",
+            "prng.h",
+            "pwd2key.h",
+            "sha1.h"
         ]
     }
 }
