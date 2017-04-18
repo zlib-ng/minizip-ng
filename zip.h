@@ -168,6 +168,11 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
 extern int ZEXPORT zipCloseFileInZip(zipFile file);
 /* Close the current file in the zipfile */
 
+extern int ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32);
+extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32);
+/* Close the current file in the zipfile, for file opened with parameter raw=1 in zipOpenNewFileInZip2
+   where raw is compressed data. Parameters uncompressed_size and crc32 are value for the uncompressed data. */
+
 extern int ZEXPORT zipClose(zipFile file, const char *global_comment);
 /* Close the zipfile */
 
