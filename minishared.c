@@ -214,24 +214,24 @@ int makedir(const char *newdir)
 
 int check_file_exists(const char *path)
 {
-    FILE* ftestexist = fopen64(path, "rb");
-    if (ftestexist == NULL)
+    FILE* handle = fopen64(path, "rb");
+    if (handle == NULL)
         return 0;
-    fclose(ftestexist);
+    fclose(handle);
     return 1;
 }
 
 int is_large_file(const char *path)
 {
     uint64_t pos = 0;
-    FILE* pFile = fopen64(path, "rb");
+    FILE* handle = fopen64(path, "rb");
 
-    if (pFile == NULL)
+    if (handle == NULL)
         return 0;
 
-    fseeko64(pFile, 0, SEEK_END);
-    pos = ftello64(pFile);
-    fclose(pFile);
+    fseeko64(handle, 0, SEEK_END);
+    pos = ftello64(handle);
+    fclose(handle);
 
     printf("file : %s is %lld bytes\n", path, pos);
 
@@ -240,21 +240,23 @@ int is_large_file(const char *path)
 
 int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *result_crc)
 {
-    FILE *fin = NULL;
+    FILE *handle = NULL;
     uint32_t calculate_crc = 0;
     uint32_t size_read = 0;
     int err = 0;
 
-    fin = fopen64(path, "rb");
-    if (fin == NULL)
+    handle = fopen64(path, "rb");
+    if (handle == NULL)
+    {
         err = -1;
+    }
     else
     {
         do
         {
-            size_read = (int)fread(buf, 1, size_buf, fin);
+            size_read = (int)fread(buf, 1, size_buf, handle);
 
-            if ((size_read < size_buf) && (feof(fin) == 0))
+            if ((size_read < size_buf) && (feof(handle) == 0))
             {
                 printf("error in reading %s\n", path);
                 err = -1;
@@ -264,10 +266,8 @@ int get_file_crc(const char *path, void *buf, uint32_t size_buf, uint32_t *resul
                 calculate_crc = (uint32_t)crc32(calculate_crc, buf, size_read);
         }
         while ((err == Z_OK) && (size_read > 0));
+        fclose(handle);
     }
-
-    if (fin)
-        fclose(fin);
 
     printf("file %s crc %x\n", path, calculate_crc);
     *result_crc = calculate_crc;

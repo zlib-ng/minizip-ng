@@ -47,6 +47,8 @@ endif()
 
 if(UNIX)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
+  add_definitions(-D__USE_LARGEFILE64)
+  add_definitions(-D_LARGEFILE64_SOURCE)
 endif()
 
 # create minizip library
@@ -59,6 +61,7 @@ if(USE_AES)
     aes/aescrypt.c
     aes/aeskey.c
     aes/aestab.c
+    aes/aes_ni.c
     aes/fileenc.c
     aes/hmac.c
     aes/prng.c
@@ -68,6 +71,7 @@ if(USE_AES)
   set(AES_PUBLIC_HEADERS 
     aes/aes.h
     aes/aes_via_ace.h
+    aes/aes_ni.h
     aes/aesopt.h
     aes/aestab.h
     aes/brg_endian.h
@@ -109,10 +113,10 @@ install(FILES ${MINIZIP_PUBLIC_HEADERS}
 
 option (BUILD_TEST "enabled building of executables minizip and miniunz. Requires ZLIB!" OFF)
 if(BUILD_TEST)
-  add_executable(miniunz_exec miniunz.c)
+  add_executable(miniunz_exec miniunz.c minishared.c)
   target_link_libraries(miniunz_exec minizip)
 
-  add_executable(minizip_exec minizip.c)
+  add_executable(minizip_exec minizip.c minishared.c)
   target_link_libraries(minizip_exec minizip)
 
   install(TARGETS miniunz_exec minizip_exec
