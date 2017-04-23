@@ -20,8 +20,10 @@ Product {
             "/usr/include/"
         ])
         cpp.defines: [
+            "__USE_FILE_OFFSET64",
             "__USE_LARGEFILE64",
             "_LARGEFILE64_SOURCE",
+            "_FILE_OFFSET_BIT=64",
             "HAVE_AES"
         ]
         cpp.dynamicLibraries: [
