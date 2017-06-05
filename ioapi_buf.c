@@ -1,4 +1,4 @@
-/* ioapi_buf.h -- IO base function header for compress/uncompress .zip
+/* ioapi_buf.c -- IO base function header for compress/uncompress .zip
    files using zlib + zip or unzip API
 
    This version of ioapi is designed to buffer IO.
