@@ -1089,7 +1089,10 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
     {
         compression_method = s->cur_file_info_internal.aes_compression_method;
         if (password == NULL)
+        {
+            TRYFREE(pfile_in_zip_read_info);
             return UNZ_PARAMERROR;
+        }
     }
 #endif
 
