@@ -1,4 +1,4 @@
-/* ioapi.h -- IO base function header for compress/uncompress .zip
+/* ioapi.c -- IO base function header for compress/uncompress .zip
    part of the MiniZip project
 
    Copyright (C) 1998-2010 Gilles Vollant
