@@ -183,7 +183,8 @@ static linkedlist_datablock_internal *allocate_new_datablock(void)
     return ldi;
 }
 
-/* Free data block in linked list */static void free_datablock(linkedlist_datablock_internal *ldi)
+/* Free data block in linked list */
+static void free_datablock(linkedlist_datablock_internal *ldi)
 {
     while (ldi != NULL)
     {
@@ -1137,13 +1138,18 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
         short datasize = 7;
 
         err = zipWriteValue(&zi->z_filefunc, zi->filestream, headerid, 2);
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, datasize, 2);
-
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, AES_VERSION, 2);
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, 'A', 1);
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, 'E', 1);
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, AES_ENCRYPTIONMODE, 1);
-        err = zipWriteValue(&zi->z_filefunc, zi->filestream, zi->ci.compression_method, 2);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, datasize, 2);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, AES_VERSION, 2);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, 'A', 1);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, 'E', 1);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, AES_ENCRYPTIONMODE, 1);
+        if (err == ZIP_OK)
+            err = zipWriteValue(&zi->z_filefunc, zi->filestream, zi->ci.compression_method, 2);
     }
 #endif
 
@@ -1557,8 +1563,9 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                 uint32_t total_out_before = 0;
                 if (zi->ci.stream.avail_out == 0)
                 {
-                    if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-                        err = ZIP_ERRNO;
+                    //if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
+                    //    err = ZIP_ERRNO;
+                    zipFlushWriteBuffer(zi);
                     zi->ci.stream.avail_out = Z_BUFSIZE;
                     zi->ci.stream.next_out = zi->ci.buffered_data;
                 }
