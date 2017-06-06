@@ -355,7 +355,7 @@ int fseek_buf_internal_func(voidpf opaque, voidpf stream, uint64_t offset, int o
                     streamio->writebuf_pos += (uint32_t)offset;
                     return 0;
                 }
-                offset -= (streamio->writebuf_len - streamio->writebuf_pos);
+                //offset -= (streamio->writebuf_len - streamio->writebuf_pos);
             }
 
             if (fflush_buf(opaque, stream) < 0)
