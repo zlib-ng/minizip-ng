@@ -1563,9 +1563,8 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                 uint32_t total_out_before = 0;
                 if (zi->ci.stream.avail_out == 0)
                 {
-                    //if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-                    //    err = ZIP_ERRNO;
-                    zipFlushWriteBuffer(zi);
+                    err = zipFlushWriteBuffer(zi);
+
                     zi->ci.stream.avail_out = Z_BUFSIZE;
                     zi->ci.stream.next_out = zi->ci.buffered_data;
                 }
