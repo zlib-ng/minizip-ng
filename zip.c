@@ -424,7 +424,7 @@ static int zipReadUInt64(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidp
 }
 
 /* Gets the amount of bytes left to write to the current disk for spanning archives */
-static int zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
+static void zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
 {
     zip64_internal *zi = NULL;
     uint64_t current_disk_size = 0;
@@ -433,7 +433,6 @@ static int zipGetDiskSizeAvailable(zipFile file, uint64_t *size_available)
     ZSEEK64(zi->z_filefunc, zi->filestream, 0, ZLIB_FILEFUNC_SEEK_END);
     current_disk_size = ZTELL64(zi->z_filefunc, zi->filestream);
     *size_available = zi->disk_size - current_disk_size;
-    return ZIP_OK;
 }
 
 /* Goes to a specific disk number for spanning archives */
@@ -503,9 +502,7 @@ static int zipGoToNextDisk(zipFile file)
             err = zipGoToSpecificDisk(file, number_disk_next, 0);
         if (err != ZIP_OK)
             break;
-        err = zipGetDiskSizeAvailable(file, &size_available_in_disk);
-        if (err != ZIP_OK)
-            break;
+        zipGetDiskSizeAvailable(file, &size_available_in_disk);
         zi->number_disk = number_disk_next;
         zi->number_disk_with_CD = zi->number_disk + 1;
 
@@ -1367,9 +1364,7 @@ static int zipFlushWriteBuffer(zip64_internal *zi)
 
         if (zi->disk_size > 0)
         {
-            err = zipGetDiskSizeAvailable((zipFile)zi, &size_available);
-            if (err != ZIP_OK)
-                return err;
+            zipGetDiskSizeAvailable((zipFile)zi, &size_available);
 
             if (size_available == 0)
             {
@@ -1440,8 +1435,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
         {
             if (zi->ci.bstream.avail_out == 0)
             {
-                if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-                    err = ZIP_ERRNO;
+                err = zipFlushWriteBuffer(zi);
                 zi->ci.bstream.avail_out = (uint16_t)Z_BUFSIZE;
                 zi->ci.bstream.next_out = (char*)zi->ci.buffered_data;
             }
@@ -1469,8 +1463,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
         {
             if (zi->ci.stream.avail_out == 0)
             {
-                if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-                    err = ZIP_ERRNO;
+                err = zipFlushWriteBuffer(zi);
                 zi->ci.stream.avail_out = Z_BUFSIZE;
                 zi->ci.stream.next_out = zi->ci.buffered_data;
             }
@@ -1614,8 +1607,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                 uint32_t total_out_before;
                 if (zi->ci.bstream.avail_out == 0)
                 {
-                    if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-                        err = ZIP_ERRNO;
+                    err = zipFlushWriteBuffer(zi);
                     zi->ci.bstream.avail_out = (uint16_t)Z_BUFSIZE;
                     zi->ci.bstream.next_out = (char*)zi->ci.buffered_data;
                 }
