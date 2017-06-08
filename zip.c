@@ -1436,6 +1436,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
             if (zi->ci.bstream.avail_out == 0)
             {
                 err = zipFlushWriteBuffer(zi);
+                
                 zi->ci.bstream.avail_out = (uint16_t)Z_BUFSIZE;
                 zi->ci.bstream.next_out = (char*)zi->ci.buffered_data;
             }
@@ -1464,6 +1465,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
             if (zi->ci.stream.avail_out == 0)
             {
                 err = zipFlushWriteBuffer(zi);
+                
                 zi->ci.stream.avail_out = Z_BUFSIZE;
                 zi->ci.stream.next_out = zi->ci.buffered_data;
             }
@@ -1554,6 +1556,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
             while (err == ZIP_OK)
             {
                 uint32_t total_out_before = 0;
+                
                 if (zi->ci.stream.avail_out == 0)
                 {
                     err = zipFlushWriteBuffer(zi);
@@ -1561,7 +1564,10 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
                     zi->ci.stream.avail_out = Z_BUFSIZE;
                     zi->ci.stream.next_out = zi->ci.buffered_data;
                 }
-
+                
+                if (err != ZIP_OK)
+                    break;
+                
 #ifdef HAVE_APPLE_COMPRESSION
                 total_out_before = zi->ci.stream.total_out;
 
@@ -1604,13 +1610,16 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
             err = BZ_FINISH_OK;
             while (err == BZ_FINISH_OK)
             {
-                uint32_t total_out_before;
+                uint32_t total_out_before = 0;
+                
                 if (zi->ci.bstream.avail_out == 0)
                 {
                     err = zipFlushWriteBuffer(zi);
+                    
                     zi->ci.bstream.avail_out = (uint16_t)Z_BUFSIZE;
                     zi->ci.bstream.next_out = (char*)zi->ci.buffered_data;
                 }
+                
                 total_out_before = zi->ci.bstream.total_out_lo32;
                 err = BZ2_bzCompress(&zi->ci.bstream, BZ_FINISH);
                 if (err == BZ_STREAM_END)
@@ -1629,8 +1638,7 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
 
     if ((zi->ci.pos_in_buffered_data > 0) && (err == ZIP_OK))
     {
-        if (zipFlushWriteBuffer(zi) == ZIP_ERRNO)
-            err = ZIP_ERRNO;
+        err = zipFlushWriteBuffer(zi);
     }
 
 #ifdef HAVE_AES
