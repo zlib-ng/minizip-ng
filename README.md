@@ -1,6 +1,7 @@
 # Minizip zlib contribution fork
 
-Contains the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list along with some additional features.
+[Nathan Moinvaziri's minizip](https://github.com/nmoinvaz/minizip) is the popular evolution of [Gilles Vollant's minizip](http://www.winimage.com/zLibDll/minizip.html).
+Contains the latest bug fixes that having been found all over the internet including the [old minizip forum](https://web.archive.org/web/20121015065401/http://www.winimage.info/forum/) and zlib developer's mailing list along with some additional features.
 
 ## Features
 
