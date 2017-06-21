@@ -209,7 +209,7 @@ Issue Date: 20/12/2007
 	AES_REV_DKS must be set for assembler code used with a VIA ACE build
 */
 
-#if 1 && defined( VIA_ACE_POSSIBLE ) && !defined( USE_VIA_ACE_IF_PRESENT )
+#if 0 && defined( VIA_ACE_POSSIBLE ) && !defined( USE_VIA_ACE_IF_PRESENT )
 #  define USE_VIA_ACE_IF_PRESENT
 #endif
 
