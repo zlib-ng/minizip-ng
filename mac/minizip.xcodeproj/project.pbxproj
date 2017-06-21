@@ -10,7 +10,6 @@
 		693817D91E90DF6C0045C821 /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = 693817C31E90DF6C0045C821 /* aes.h */; };
 		693817DA1E90DF6C0045C821 /* aes_ni.c in Sources */ = {isa = PBXBuildFile; fileRef = 693817C41E90DF6C0045C821 /* aes_ni.c */; };
 		693817DD1E90DF6C0045C821 /* aes_ni.h in Headers */ = {isa = PBXBuildFile; fileRef = 693817C51E90DF6C0045C821 /* aes_ni.h */; };
-		693817DE1E90DF6C0045C821 /* aes_via_ace.h in Headers */ = {isa = PBXBuildFile; fileRef = 693817C61E90DF6C0045C821 /* aes_via_ace.h */; };
 		693817DF1E90DF6C0045C821 /* aescrypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 693817C71E90DF6C0045C821 /* aescrypt.c */; };
 		693817E21E90DF6C0045C821 /* aeskey.c in Sources */ = {isa = PBXBuildFile; fileRef = 693817C81E90DF6C0045C821 /* aeskey.c */; };
 		693817E51E90DF6C0045C821 /* aesopt.h in Headers */ = {isa = PBXBuildFile; fileRef = 693817C91E90DF6C0045C821 /* aesopt.h */; };
@@ -93,7 +92,6 @@
 		693817C31E90DF6C0045C821 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
 		693817C41E90DF6C0045C821 /* aes_ni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_ni.c; sourceTree = "<group>"; };
 		693817C51E90DF6C0045C821 /* aes_ni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_ni.h; sourceTree = "<group>"; };
-		693817C61E90DF6C0045C821 /* aes_via_ace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_via_ace.h; sourceTree = "<group>"; };
 		693817C71E90DF6C0045C821 /* aescrypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aescrypt.c; sourceTree = "<group>"; };
 		693817C81E90DF6C0045C821 /* aeskey.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aeskey.c; sourceTree = "<group>"; };
 		693817C91E90DF6C0045C821 /* aesopt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aesopt.h; sourceTree = "<group>"; };
@@ -228,7 +226,6 @@
 				693817C31E90DF6C0045C821 /* aes.h */,
 				693817C41E90DF6C0045C821 /* aes_ni.c */,
 				693817C51E90DF6C0045C821 /* aes_ni.h */,
-				693817C61E90DF6C0045C821 /* aes_via_ace.h */,
 				693817C71E90DF6C0045C821 /* aescrypt.c */,
 				693817C81E90DF6C0045C821 /* aeskey.c */,
 				693817C91E90DF6C0045C821 /* aesopt.h */,
@@ -270,7 +267,6 @@
 				6938180E1E90DF8B0045C821 /* crypt.h in Headers */,
 				693818021E90DF6C0045C821 /* sha1.h in Headers */,
 				693817E91E90DF6C0045C821 /* aestab.h in Headers */,
-				693817DE1E90DF6C0045C821 /* aes_via_ace.h in Headers */,
 				693817FE1E90DF6C0045C821 /* pwd2key.h in Headers */,
 				693817E51E90DF6C0045C821 /* aesopt.h in Headers */,
 				693817DD1E90DF6C0045C821 /* aes_ni.h in Headers */,

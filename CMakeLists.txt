@@ -72,7 +72,6 @@ if(USE_AES)
 
   set(AES_PUBLIC_HEADERS 
     aes/aes.h
-    aes/aes_via_ace.h
     aes/aes_ni.h
     aes/aesopt.h
     aes/aestab.h
