@@ -287,20 +287,6 @@ static int zipWriteValue(const zlib_filefunc64_32_def *pzlib_filefunc_def, voidp
     return ZIP_OK;
 }
 
-static uint64_t zipReadValueFromMemory(void* src, uint32_t len)
-{
-    unsigned char *buf = (unsigned char*)src;
-    uint64_t x = 0;
-    uint32_t n = 0;
-
-    for (n = 0; n < len; n++)
-    {
-        x <<= 8;
-        x |= buf[len - n - 1];
-    }
-    return x;
-}
-
 static void zipWriteValueToMemory(void* dest, uint64_t x, uint32_t len)
 {
     unsigned char *buf = (unsigned char*)dest;
