@@ -81,7 +81,6 @@ Product {
             "aes_ni.h",
             "aesopt.h",
             "aestab.h",
-            "aes_via_ace.h",
             "brg_endian.h",
             "brg_types.h",
             "fileenc.h",
