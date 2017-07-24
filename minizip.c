@@ -61,7 +61,6 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
 {
     zip_fileinfo zi = { 0 };
     FILE *fin = NULL;
-    uint32_t crc_for_crypting = 0;
     int size_read = 0;
     int zip64 = 0;
     int err = ZIP_OK;
@@ -71,9 +70,6 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     /* Get information about the file on disk so we can store it in zip */
     get_file_date(path, &zi.dos_date);
 
-    if ((password != NULL) && (err == ZIP_OK))
-        err = get_file_crc(path, buf, sizeof(buf), &crc_for_crypting);
-
     zip64 = is_large_file(path);
 
     /* Add to zip file */
@@ -81,7 +77,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         NULL, 0, NULL, 0, NULL /* comment*/,
         (level != 0) ? Z_DEFLATED : 0, level, 0,
         -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-        password, crc_for_crypting, zip64);
+        password, 0, zip64);
 
     if (err != ZIP_OK)
     {
