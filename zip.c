@@ -1232,7 +1232,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             uint8_t verify1 = 0;
             uint8_t verify2 = 0;
 
-            zi->ci.pcrc_32_tab = (const unsigned int*)get_crc_table();
+            zi->ci.pcrc_32_tab = get_crc_table();
 
             /*
             Info-ZIP modification to ZipCrypto format:
