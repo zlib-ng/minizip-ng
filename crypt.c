@@ -130,7 +130,7 @@ int cryptrand(unsigned char *buf, unsigned int len)
 }
 
 int crypthead(const char *passwd, uint8_t *buf, int buf_size, uint32_t *pkeys, 
-              const uint32_t *pcrc_32_tab, uint8_t verify1, uint8_t verify2)
+              const z_crc_t *pcrc_32_tab, uint8_t verify1, uint8_t verify2)
 {
     uint8_t n = 0;                      /* index in random header */
     uint8_t header[RAND_HEAD_LEN-2];    /* random header */
