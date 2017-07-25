@@ -42,7 +42,7 @@
 void miniunz_banner()
 {
     printf("MiniUnz 1.01b, demo of zLib + Unz package written by Gilles Vollant\n");
-    printf("more info at http://www.winimage.com/zLibDll/minizip.html\n\n");
+    printf("more info at https://github.com/nmoinvaz/minizip\n\n");
 }
 
 void miniunz_help()
