@@ -947,7 +947,7 @@ static int unzCheckCurrentFileCoherencyHeader(unz64_s *s, uint32_t *psize_variab
     uint32_t magic = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
-    uint32_t flags = 0;;
+    uint32_t flags = 0;
     uint16_t size_filename = 0;
     uint16_t size_extra_field = 0;
     uint16_t compression_method = 0;
