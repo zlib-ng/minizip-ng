@@ -29,6 +29,15 @@
 #    define fopen64 fopen
 #    define ftello64 ftello
 #    define fseeko64 fseeko
+#  elif defined(__ANDROID__)
+#    define fopen64 fopen
+#    ifdef __USE_FILE_OFFSET64
+#      define ftello64 ftello
+#      define fseeko64 fseeko
+#    else
+#      define ftello64 ftell
+#      define fseeko64 fseek
+#    endif
 #  endif
 #  ifdef _MSC_VER
 #    define fopen64 fopen
