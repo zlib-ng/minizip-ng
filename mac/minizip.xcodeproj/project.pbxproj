@@ -207,7 +207,7 @@
 				693818261E90E00E0045C821 /* minishared.h */,
 				6938182B1E90E0560045C821 /* minizip.c */,
 			);
-			path = minizip;
+			name = minizip;
 			sourceTree = "<group>";
 		};
 		693817BC1E90DF560045C821 /* miniunz */ = {
@@ -217,7 +217,7 @@
 				693818221E90E0000045C821 /* minishared.h */,
 				693818291E90E04A0045C821 /* miniunz.c */,
 			);
-			path = miniunz;
+			name = miniunz;
 			sourceTree = "<group>";
 		};
 		693817C21E90DF6C0045C821 /* aes */ = {
