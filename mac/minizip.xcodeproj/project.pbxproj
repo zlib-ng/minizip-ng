@@ -86,6 +86,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3753D62F1F6CE7E900F946A2 /* Minizip.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Minizip.podspec; path = ../Minizip.podspec; sourceTree = "<group>"; };
 		693817A21E90DEA40045C821 /* libminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minizip; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817BB1E90DF550045C821 /* miniunz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = miniunz; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,6 +163,7 @@
 		693817991E90DEA40045C821 = {
 			isa = PBXGroup;
 			children = (
+				3753D62F1F6CE7E900F946A2 /* Minizip.podspec */,
 				693817C21E90DF6C0045C821 /* aes */,
 				693817A91E90DEC90045C821 /* libminizip */,
 				693817BC1E90DF560045C821 /* miniunz */,

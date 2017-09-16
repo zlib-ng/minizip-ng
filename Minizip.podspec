@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'Minizip'
-  s.version  = '1.1.0.2017.06.25'
+  s.version  = '1.2.0'
   s.license  = 'zlib'
   s.summary  = 'Minizip contrib in zlib with latest bug fixes that supports PKWARE disk spanning, AES encryption, and IO buffering'
   s.description = <<-DESC
@@ -10,7 +10,7 @@ Minizip zlib contribution that includes:
 * PKWARE disk spanning
 It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
 DESC
-  s.homepage = 'http://www.winimage.com/zLibDll/minizip.html'
+  s.homepage = 'https://github.com/nmoinvaz/minizip'
   s.authors = 'Gilles Vollant', 'Nathan Moinvaziri'
 
   s.source   = { :git => 'https://github.com/nmoinvaz/minizip.git' }
