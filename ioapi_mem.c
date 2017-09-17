@@ -11,8 +11,9 @@
 
    Based on Unzip ioapi.c version 0.22, May 19th, 2003
 
-   Copyright (C) 1998-2003 Gilles Vollant
+   Copyright (C) 2012-2017 Nathan Moinvaziri (https://github.com/nmoinvaz/minizip)
              (C) 2003 Justin Fletcher
+             (C) 1998-2003 Gilles Vollant
 
    This file is under the same license as the Unzip tool it is distributed
    with.

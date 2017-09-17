@@ -1,5 +1,7 @@
 /* crypt.c -- base code for traditional PKWARE encryption
-   Version 1.01e, February 12th, 2005
+   Version 1.2.0, September 16th, 2017
+
+   Copyright (C) 2012-2017 Minizip. https://github.com/nmoinvaz/minizip
 
    Copyright (C) 1998-2005 Gilles Vollant
    Modifications for Info-ZIP crypting
