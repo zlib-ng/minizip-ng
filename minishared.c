@@ -90,11 +90,7 @@ void change_file_date(const char *path, uint32_t dos_date)
     }
 #else
     struct utimbuf ut;
-    struct tm newdate;
-
-    dosdate_to_tm(dos_date, &newdate);
-
-    ut.actime = ut.modtime = mktime(&newdate);
+    ut.actime = ut.modtime = dosdate_to_time_t(dos_date);
     utime(path, &ut);
 #endif
 }
