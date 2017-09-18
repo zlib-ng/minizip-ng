@@ -913,7 +913,7 @@ extern zipFile ZEXPORT zipOpen64(const void *path, int append)
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
+    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
 {
     zip64_internal *zi = NULL;
     uint64_t size_available = 0;
@@ -925,7 +925,6 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
     int err = ZIP_OK;
 
 #ifdef NOCRYPT
-    (crc_for_crypting);
     if (password != NULL)
         return ZIP_PARAMERROR;
 #endif
@@ -1238,10 +1237,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             /*
             Info-ZIP modification to ZipCrypto format:
             If bit 3 of the general purpose bit flag is set, it uses high byte of 16-bit File Time. 
-
-            verify1 = (uint8_t)((crc_for_crypting >> 16) & 0xff);
-            verify2 = (uint8_t)((crc_for_crypting >> 24) & 0xff); */
-
+            */
             verify1 = (uint8_t)((zi->ci.dos_date >> 16) & 0xff);
             verify2 = (uint8_t)((zi->ci.dos_date >> 8) & 0xff);
 
@@ -1262,7 +1258,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
 extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits,
-    int memLevel, int strategy, const char *password, uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base)
+    int memLevel, int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
         extrafield_global, size_extrafield_global, comment, method, level, raw, windowBits, memLevel,
@@ -1272,7 +1268,7 @@ extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, cons
 extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits,
-    int memLevel, int strategy, const char *password, uint32_t crc_for_crypting)
+    int memLevel, int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
         extrafield_global, size_extrafield_global, comment, method, level, raw, windowBits, memLevel,
@@ -1282,7 +1278,7 @@ extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, cons
 extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits,
-    int memLevel, int strategy, const char *password, uint32_t crc_for_crypting, int zip64)
+    int memLevel, int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, int zip64)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
         extrafield_global, size_extrafield_global, comment, method, level, raw, windowBits, memLevel, strategy,
