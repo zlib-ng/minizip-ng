@@ -51,6 +51,12 @@ typedef voidp zipFile;
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
 
+#ifdef __GNUC__
+#  define ZIP_UNUSED __attribute__((__unused__))
+#else
+#  define ZIP_UNUSED
+#endif
+
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
@@ -69,14 +75,6 @@ typedef struct
 #define APPEND_STATUS_CREATE        (0)
 #define APPEND_STATUS_CREATEAFTER   (1)
 #define APPEND_STATUS_ADDINZIP      (2)
-
-
-#ifdef __GNUC__
-#  define ZIP_UNUSED __attribute__((__unused__))
-#else
-#  define ZIP_UNUSED
-#endif
-
 
 /***************************************************************************/
 /* Writing a zip file */
