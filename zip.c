@@ -911,9 +911,23 @@ extern zipFile ZEXPORT zipOpen64(const void *path, int append)
 }
 
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+                                           const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+                                           uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
+                                           int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
+{
+    uint16_t compression_method = method;
+    
+#ifdef HAVE_AES
+    method = AES_METHOD;
+#endif
+    
+    return zipOpenNewFileInZip5_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global, size_extrafield_global, comment, method, compression_method, level, raw, windowBits, memLevel, strategy, password, version_madeby, flag_base, zip64);
+}
+
+extern int ZEXPORT zipOpenNewFileInZip5_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
+    uint16_t size_extrafield_global, const char *comment, uint16_t method, uint16_t compression_method, int level, int raw, int windowBits, int memLevel,
+    int strategy, const char *password, uint16_t version_madeby, uint16_t flag_base, int zip64)
 {
     zip64_internal *zi = NULL;
     uint64_t size_available = 0;
@@ -932,11 +946,11 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
     if (file == NULL)
         return ZIP_PARAMERROR;
 
-    if ((method != 0) &&
+    if ((compression_method != 0) &&
 #ifdef HAVE_BZIP2
-        (method != Z_BZIP2ED) &&
+        (compression_method != Z_BZIP2ED) &&
 #endif
-        (method != Z_DEFLATED))
+        (compression_method != Z_DEFLATED))
         return ZIP_PARAMERROR;
 
     zi = (zip64_internal*)file;
@@ -963,8 +977,8 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             zi->ci.dos_date = zipfi->dos_date;
     }
 
-    zi->ci.method = method;
-    zi->ci.compression_method = method;
+    zi->ci.method = compression_method;
+    zi->ci.compression_method = compression_method;
     zi->ci.raw = raw;
     zi->ci.flag = flag_base | 8;
     if ((level == 8) || (level == 9))
@@ -977,9 +991,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
     if (password != NULL)
     {
         zi->ci.flag |= 1;
-#ifdef HAVE_AES
-        zi->ci.method = AES_METHOD;
-#endif
+        zi->ci.method = method;
     }
     else
     {
@@ -1161,7 +1173,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
 
     if ((err == ZIP_OK) && (!zi->ci.raw))
     {
-        if (method == Z_DEFLATED)
+        if (compression_method == Z_DEFLATED)
         {
             zi->ci.stream.zalloc = (alloc_func)0;
             zi->ci.stream.zfree = (free_func)0;
@@ -1182,7 +1194,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
             if (err == Z_OK)
                 zi->ci.stream_initialised = Z_DEFLATED;
         }
-        else if (method == Z_BZIP2ED)
+        else if (compression_method == Z_BZIP2ED)
         {
 #ifdef HAVE_BZIP2
             zi->ci.bstream.bzalloc = 0;

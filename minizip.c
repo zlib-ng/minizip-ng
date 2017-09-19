@@ -50,16 +50,17 @@ void minizip_banner()
 
 void minizip_help()
 {
-    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n" \
+    printf("Usage : minizip [-o] [-a] [-0 to -9] [-N] [-p password] [-j] file.zip [files_to_add]\n\n" \
            "  -o  Overwrite existing file.zip\n" \
            "  -a  Append to existing file.zip\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
-           "  -9  Compress better\n\n" \
+           "  -9  Compress better\n" \
+           "  -N  No AES\n\n" \
            "  -j  exclude path. store only the file name.\n\n");
 }
 
-int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int level, const char *password)
+int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int level, const char *password, int no_aes)
 {
     zip_fileinfo zi = { 0 };
     FILE *fin = NULL;
@@ -75,11 +76,19 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     zip64 = is_large_file(path);
 
     /* Add to zip file */
-    err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
-        NULL, 0, NULL, 0, NULL /* comment*/,
-        (level != 0) ? Z_DEFLATED : 0, level, 0,
-        -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-        password, 0, zip64);
+    uint16_t method = (level != 0) ? Z_DEFLATED : 0;
+    if (no_aes)
+        err = zipOpenNewFileInZip5_64(zf, filenameinzip, &zi,
+                                      NULL, 0, NULL, 0, NULL /* comment*/,
+                                      method, method, level, 0,
+                                      -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
+                                      password, 0, 0, zip64);
+    else
+        err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
+                                      NULL, 0, NULL, 0, NULL /* comment*/,
+                                      method, level, 0,
+                                      -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
+                                      password, 0, zip64);
 
     if (err != ZIP_OK)
     {
@@ -149,6 +158,7 @@ int main(int argc, char *argv[])
     int opt_overwrite = APPEND_STATUS_CREATE;
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
+    int opt_no_aes = 0;
 
     minizip_banner();
     if (argc == 1)
@@ -173,6 +183,8 @@ int main(int argc, char *argv[])
                     opt_overwrite = APPEND_STATUS_ADDINZIP;
                 if ((c >= '0') && (c <= '9'))
                     opt_compress_level = (c - '0');
+                if (c == 'N')
+                    opt_no_aes = 1;
                 if ((c == 'j') || (c == 'J'))
                     opt_exclude_path = 1;
 
@@ -285,7 +297,7 @@ int main(int argc, char *argv[])
                 filenameinzip = lastslash + 1; /* base filename follows last slash. */
         }
 
-        err = minizip_addfile(zf, filename, filenameinzip, opt_compress_level, password);
+        err = minizip_addfile(zf, filename, filenameinzip, opt_compress_level, password, opt_no_aes);
     }
 
     errclose = zipClose(zf, NULL);
