@@ -53,9 +53,9 @@ if(UNIX)
   add_definitions(-D_FILE_OFFSET_BIT=64)
 endif()
 
-if (CMAKE_C_COMPILER MATCHES ".*clang")
+if(CMAKE_C_COMPILER MATCHES ".*clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
-endif ()
+endif()
 
 # create minizip library
 add_library(minizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
