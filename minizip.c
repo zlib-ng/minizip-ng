@@ -76,19 +76,21 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     zip64 = is_large_file(path);
 
     /* Add to zip file */
-    uint16_t method = (level != 0) ? Z_DEFLATED : 0;
+    uint16_t compression_method = (level != 0) ? Z_DEFLATED : 0;
+    uint16_t method;
     if (no_aes)
-        err = zipOpenNewFileInZip5_64(zf, filenameinzip, &zi,
-                                      NULL, 0, NULL, 0, NULL /* comment*/,
-                                      method, method, level, 0,
-                                      -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-                                      password, 0, 0, zip64);
+        method = compression_method;
     else
-        err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
-                                      NULL, 0, NULL, 0, NULL /* comment*/,
-                                      method, level, 0,
-                                      -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
-                                      password, 0, zip64);
+#ifdef HAVE_AES
+        method = AES_METHOD;
+#else
+        method = compression_method;
+#endif
+    err = zipOpenNewFileInZip5_64(zf, filenameinzip, &zi,
+                                  NULL, 0, NULL, 0, NULL /* comment*/,
+                                  method, compression_method, level, 0,
+                                  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
+                                  password, 0, 0, zip64);
 
     if (err != ZIP_OK)
     {
