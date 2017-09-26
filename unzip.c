@@ -111,7 +111,7 @@ typedef struct
     uint64_t total_out_64;
 
     uint32_t crc32;                     /* crc32 of all data uncompressed */
-    uint32_t crc32_wait;                /* crc32 we must obtain after decompress all */
+    uint32_t crc32_expected;            /* crc32 we must obtain after decompress all */
     uint64_t rest_read_compressed;      /* number of byte to be decompressed */
     uint64_t rest_read_uncompressed;    /* number of byte to be obtained after decomp */
 
@@ -1061,25 +1061,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
 
     if (unzCheckCurrentFileCoherencyHeader(s, &size_variable, &offset_local_extrafield, &size_local_extrafield) != UNZ_OK)
         return UNZ_BADZIPFILE;
-
-    pfile_in_zip_read_info = (file_in_zip64_read_info_s*)ALLOC(sizeof(file_in_zip64_read_info_s));
-    if (pfile_in_zip_read_info == NULL)
-        return UNZ_INTERNALERROR;
-
-    pfile_in_zip_read_info->read_buffer = (uint8_t*)ALLOC(UNZ_BUFSIZE);
-    pfile_in_zip_read_info->offset_local_extrafield = offset_local_extrafield;
-    pfile_in_zip_read_info->size_local_extrafield = size_local_extrafield;
-    pfile_in_zip_read_info->pos_local_extrafield = 0;
-    pfile_in_zip_read_info->raw = raw;
-
-    if (pfile_in_zip_read_info->read_buffer == NULL)
-    {
-        TRYFREE(pfile_in_zip_read_info);
-        return UNZ_INTERNALERROR;
-    }
-
-    pfile_in_zip_read_info->stream_initialised = 0;
-
+    
     compression_method = s->cur_file_info.compression_method;
 #ifdef HAVE_AES
     if (compression_method == AES_METHOD)
@@ -1087,7 +1069,6 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
         compression_method = s->cur_file_info_internal.aes_compression_method;
         if (password == NULL)
         {
-            TRYFREE(pfile_in_zip_read_info);
             return UNZ_PARAMERROR;
         }
     }
@@ -1113,24 +1094,52 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
         if (compression_method != Z_BZIP2ED)
 #endif
         {
-            TRYFREE(pfile_in_zip_read_info);
             return UNZ_BADZIPFILE;
         }
     }
+    
+    pfile_in_zip_read_info = (file_in_zip64_read_info_s*)ALLOC(sizeof(file_in_zip64_read_info_s));
+    if (pfile_in_zip_read_info == NULL)
+        return UNZ_INTERNALERROR;
 
-    pfile_in_zip_read_info->crc32_wait = s->cur_file_info.crc;
-    pfile_in_zip_read_info->crc32 = 0;
-    pfile_in_zip_read_info->total_out_64 = 0;
-    pfile_in_zip_read_info->compression_method = compression_method;
+    pfile_in_zip_read_info->read_buffer = (uint8_t*)ALLOC(UNZ_BUFSIZE);
+    if (pfile_in_zip_read_info->read_buffer == NULL)
+    {
+        TRYFREE(pfile_in_zip_read_info);
+        return UNZ_INTERNALERROR;
+    }
+    
+    pfile_in_zip_read_info->stream_initialised = 0;
+
     pfile_in_zip_read_info->filestream = s->filestream;
     pfile_in_zip_read_info->z_filefunc = s->z_filefunc;
+
+    pfile_in_zip_read_info->raw = raw;
+    pfile_in_zip_read_info->crc32 = 0;
+    pfile_in_zip_read_info->crc32_expected = s->cur_file_info.crc;
+    pfile_in_zip_read_info->total_out_64 = 0;
+    pfile_in_zip_read_info->compression_method = compression_method;
+    
+    pfile_in_zip_read_info->offset_local_extrafield = offset_local_extrafield;
+    pfile_in_zip_read_info->size_local_extrafield = size_local_extrafield;
+    pfile_in_zip_read_info->pos_local_extrafield = 0;
+
+    pfile_in_zip_read_info->rest_read_compressed = s->cur_file_info.compressed_size;
+    pfile_in_zip_read_info->rest_read_uncompressed = s->cur_file_info.uncompressed_size;
+    pfile_in_zip_read_info->byte_before_the_zipfile = 0;
+
     if (s->number_disk == s->gi.number_disk_with_CD)
         pfile_in_zip_read_info->byte_before_the_zipfile = s->byte_before_the_zipfile;
-    else
-        pfile_in_zip_read_info->byte_before_the_zipfile = 0;
+        
+    pfile_in_zip_read_info->pos_in_zipfile = s->cur_file_info_internal.offset_curfile + SIZEZIPLOCALHEADER + size_variable;
+
+    pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
+    pfile_in_zip_read_info->stream.zfree = (free_func)0;
+    pfile_in_zip_read_info->stream.opaque = (voidpf)s;
     pfile_in_zip_read_info->stream.total_out = 0;
     pfile_in_zip_read_info->stream.total_in = 0;
     pfile_in_zip_read_info->stream.next_in = NULL;
+    pfile_in_zip_read_info->stream.avail_in = 0;
 
     if (!raw)
     {
@@ -1141,12 +1150,6 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
             pfile_in_zip_read_info->bstream.bzfree = (free_func)0;
             pfile_in_zip_read_info->bstream.opaque = (voidpf)0;
             pfile_in_zip_read_info->bstream.state = (voidpf)0;
-
-            pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-            pfile_in_zip_read_info->stream.zfree = (free_func)0;
-            pfile_in_zip_read_info->stream.opaque = (voidpf)0;
-            pfile_in_zip_read_info->stream.next_in = (voidpf)0;
-            pfile_in_zip_read_info->stream.avail_in = 0;
 
             err = BZ2_bzDecompressInit(&pfile_in_zip_read_info->bstream, 0, 0);
             if (err == Z_OK)
@@ -1164,12 +1167,6 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
         }
         else if (compression_method == Z_DEFLATED)
         {
-            pfile_in_zip_read_info->stream.zalloc = (alloc_func)0;
-            pfile_in_zip_read_info->stream.zfree = (free_func)0;
-            pfile_in_zip_read_info->stream.opaque = (voidpf)s;
-            pfile_in_zip_read_info->stream.next_in = 0;
-            pfile_in_zip_read_info->stream.avail_in = 0;
-
 #ifdef HAVE_APPLE_COMPRESSION
             err = compression_stream_init(&pfile_in_zip_read_info->astream, COMPRESSION_STREAM_DECODE, COMPRESSION_ZLIB);
             if (err == COMPRESSION_STATUS_ERROR)
@@ -1197,11 +1194,6 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
              */
         }
     }
-
-    pfile_in_zip_read_info->rest_read_compressed = s->cur_file_info.compressed_size;
-    pfile_in_zip_read_info->rest_read_uncompressed = s->cur_file_info.uncompressed_size;
-    pfile_in_zip_read_info->pos_in_zipfile = s->cur_file_info_internal.offset_curfile + SIZEZIPLOCALHEADER + size_variable;
-    pfile_in_zip_read_info->stream.avail_in = 0;
 
     s->pfile_in_zip_read = pfile_in_zip_read_info;
 
@@ -1638,7 +1630,7 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
         if ((pfile_in_zip_read_info->rest_read_uncompressed == 0) &&
             (!pfile_in_zip_read_info->raw))
         {
-            if (pfile_in_zip_read_info->crc32 != pfile_in_zip_read_info->crc32_wait)
+            if (pfile_in_zip_read_info->crc32 != pfile_in_zip_read_info->crc32_expected)
                 err = UNZ_CRCERROR;
         }
     }
