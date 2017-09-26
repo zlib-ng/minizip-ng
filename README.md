@@ -46,7 +46,7 @@ zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 
 ## Additional Features
 
-### AES Encryption
+### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
 
 + Requires #define HAVE_AES
 + Requires AES library files
