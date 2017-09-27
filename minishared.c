@@ -143,7 +143,7 @@ time_t dosdate_to_time_t(uint64_t dos_date)
 
 uint32_t tm_to_dosdate(const struct tm *ptm)
 {
-    struct tm fixed_tm = { };
+    struct tm fixed_tm;
 
     /* Years supported:
     * [00, 79]      (assumed to be between 2000 and 2079)
