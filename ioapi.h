@@ -33,7 +33,12 @@
 #    define fseeko64 fseeko
 #  endif
 #  ifdef _MSC_VER
-#    define fopen64 fopen
+#    define WINDOWS_SUPPORT_UNICODE_PATH // If defined, paths containing unicode are supported
+#    if defined(WINDOWS_SUPPORT_UNICODE_PATH)
+#      define fopen64 _wfopen
+#    else
+#      define fopen64 fopen
+#    endif
 #    if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
 #      define ftello64 _ftelli64
 #      define fseeko64 _fseeki64
