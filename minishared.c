@@ -220,24 +220,9 @@ int makedir(const char *newdir)
     return 1;
 }
 
-FILE* get_file_handle(const char *path)
-{
-#if defined(WINDOWS_SUPPORT_UNICODE_PATH)
-	int pathLength = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-	wchar_t* newName = (wchar_t*)calloc(pathLength, sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, path, -1, newName, _ARRAYSIZE(newName));
-	FILE* handle = fopen64((const wchar_t*)newName, L"rb");
-	free(newName);
-#else
-	FILE* handle = fopen64(path, "rb");
-#endif
-	
-    return handle;
-}
-
 int check_file_exists(const char *path)
 {
-	FILE* handle = get_file_handle(path);
+    FILE* handle = fopen64(path, "rb");
     if (handle == NULL)
         return 0;
     fclose(handle);
@@ -247,8 +232,8 @@ int check_file_exists(const char *path)
 int is_large_file(const char *path)
 {
     uint64_t pos = 0;
-	
-	FILE* handle = get_file_handle(path);
+    FILE* handle = fopen64(path, "rb");
+
     if (handle == NULL)
         return 0;
 
