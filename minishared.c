@@ -220,24 +220,28 @@ int makedir(const char *newdir)
     return 1;
 }
 
-FILE* get_file_handle(const char *path)
+FILE *get_file_handle(const char *path)
 {
-#if defined(WINDOWS_SUPPORT_UNICODE_PATH)
-	int pathLength = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-	wchar_t* newName = (wchar_t*)calloc(pathLength, sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, path, -1, newName, _ARRAYSIZE(newName));
-	FILE* handle = fopen64((const wchar_t*)newName, L"rb");
-	free(newName);
+    FILE *handle = NULL;
+#if defined(WIN32)
+    wchar_t *pathWide = NULL;
+    int pathLength = 0;
+
+    pathLength = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0) + 1;
+    pathWide = (wchar_t*)calloc(pathLength, sizeof(wchar_t));
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, pathWide, pathLength);
+    handle = _wfopen((const wchar_t*)pathWide, L"rb");
+    free(pathWide);
 #else
-	FILE* handle = fopen64(path, "rb");
+    handle = fopen64(path, "rb");
 #endif
-	
+
     return handle;
 }
 
 int check_file_exists(const char *path)
 {
-	FILE* handle = get_file_handle(path);
+    FILE *handle = get_file_handle(path);
     if (handle == NULL)
         return 0;
     fclose(handle);
@@ -246,9 +250,10 @@ int check_file_exists(const char *path)
 
 int is_large_file(const char *path)
 {
+    FILE* handle = NULL;
     uint64_t pos = 0;
-	
-	FILE* handle = get_file_handle(path);
+
+    handle = get_file_handle(path);
     if (handle == NULL)
         return 0;
 
