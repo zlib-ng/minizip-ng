@@ -33,9 +33,6 @@ uint32_t tm_to_dosdate(const struct tm *ptm);
 /* Create a directory and all subdirectories */
 int makedir(const char *newdir);
 
-/* Get the file handle */
-FILE* get_file_handle(const char *path);
-
 /* Check to see if a file exists */
 int check_file_exists(const char *path);
 
