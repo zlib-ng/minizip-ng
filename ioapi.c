@@ -27,10 +27,6 @@
 #  define snprintf _snprintf
 #endif
 
-#ifdef _MSC_VER
-#include <Windows.h>
-#endif
-
 voidpf call_zopen64(const zlib_filefunc64_32_def *pfilefunc, const void *filename, int mode)
 {
     if (pfilefunc->zfile_func64.zopen64_file != NULL)
@@ -145,17 +141,7 @@ static voidpf ZCALLBACK fopen64_file_func(voidpf opaque, const void *filename, i
 
     if ((filename != NULL) && (mode_fopen != NULL))
     {
-#ifdef _MSC_VER
-		int pathLength = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-		wchar_t* newName = (wchar_t*)calloc(pathLength, sizeof(wchar_t));
-		wchar_t newMode[16];
-		MultiByteToWideChar(CP_UTF8, 0, filename, -1, newName, pathLength);
-		mbstowcs(newMode, (const char*)mode_fopen, 16);
-        file = fopen64((const wchar_t*)newName, newMode);
-		free(newName);
-#else
-		file = fopen64((const char*)filename, mode_fopen);
-#endif
+        file = fopen64((const char*)filename, mode_fopen);
         return file_build_ioposix(file, (const char*)filename);
     }
     return file;
