@@ -45,6 +45,11 @@
 #  include "crypt.h"
 #endif
 
+#ifdef _WIN32
+#  define USEWIN32IOAPI
+#  include "iowin32.h"
+#endif
+
 #define DISKHEADERMAGIC             (0x08074b50)
 #define LOCALHEADERMAGIC            (0x04034b50)
 #define CENTRALHEADERMAGIC          (0x02014b50)
@@ -360,7 +365,11 @@ static unzFile unzOpenInternal(const void *path, zlib_filefunc64_32_def *pzlib_f
     us.z_filefunc.ztell32_file = NULL;
 
     if (pzlib_filefunc64_32_def == NULL)
-        fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
+#ifdef USEWIN32IOAPI
+		fill_win32_filefunc(&us.z_filefunc.zfile_func64);
+#else
+		fill_fopen64_filefunc(&us.z_filefunc.zfile_func64);
+#endif
     else
         us.z_filefunc = *pzlib_filefunc64_32_def;
 
