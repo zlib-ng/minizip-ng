@@ -1016,8 +1016,6 @@ static int unzCheckCurrentFileCoherencyHeader(unz64_internal *s, uint32_t *psize
         err = UNZ_BADZIPFILE;
     if (unzReadUInt16(&s->z_filefunc, s->filestream, &size_filename) != UNZ_OK)
         err = UNZ_ERRNO;
-    else if ((err == UNZ_OK) && (size_filename != s->cur_file_info.size_filename))
-        err = UNZ_BADZIPFILE;
 
     *psize_variable += size_filename;
 
