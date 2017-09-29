@@ -29,11 +29,10 @@
 #  define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
-#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(IOWIN32_USING_WINRT_API)))
-#  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define IOWIN32_USING_WINRT_API 1
-#  endif
-#endif
+
+#define IOWIN32_USING_WINRT_API 	1
+//#define IOWIN32_USE_UNICODE		0
+
 
 voidpf   ZCALLBACK win32_open_file_func     (voidpf opaque, const char *filename, int mode);
 uint32_t ZCALLBACK win32_read_file_func     (voidpf opaque, voidpf stream, void* buf, uint32_t size);
@@ -110,7 +109,7 @@ voidpf ZCALLBACK win32_open64_file_func(voidpf opaque, const void *filename, int
     if ((filename != NULL) && (dwDesiredAccess != 0))
     {
 #ifdef IOWIN32_USING_WINRT_API
-#ifdef UNICODE
+#ifdef IOWIN32_USE_UNICODE
         hFile = CreateFile2((LPCTSTR)filename, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
 #else
         WCHAR filenameW[FILENAME_MAX + 0x200 + 1];
@@ -199,7 +198,7 @@ voidpf ZCALLBACK win32_open_file_func(voidpf opaque, const char *filename, int m
     if ((filename != NULL) && (dwDesiredAccess != 0))
     {
 #ifdef IOWIN32_USING_WINRT_API
-#ifdef UNICODE
+#ifdef IOWIN32_USE_UNICODE
         hFile = CreateFile2((LPCTSTR)filename, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
 #else
         WCHAR filenameW[FILENAME_MAX + 0x200 + 1];
