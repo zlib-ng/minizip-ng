@@ -347,14 +347,12 @@ int32_t ZCALLBACK mzstream_crc32_open(voidpf stream, const char *filename, int m
     mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
     crc32->initialized = 1;
     crc32->value = 0;
-    return mzstream_open(crc32->stream.base, filename, mode);
+    return MZSTREAM_OK;
 }
 
 int32_t ZCALLBACK mzstream_crc32_is_open(voidpf stream)
 {
     mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    if (mzstream_is_open(crc32->stream.base) == MZSTREAM_ERR)
-        return MZSTREAM_ERR;
     if (crc32->initialized != 1)
         return MZSTREAM_ERR;
     return MZSTREAM_OK;
@@ -385,14 +383,14 @@ int64_t ZCALLBACK mzstream_crc32_tell(voidpf stream)
 int32_t ZCALLBACK mzstream_crc32_seek(voidpf stream, uint64_t offset, int origin)
 {
     mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    return mzstream_seek(crc32->stream.base, offset, origin);
+    return MZSTREAM_ERR;
 }
 
 int32_t ZCALLBACK mzstream_crc32_close(voidpf stream)
 {
     mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
     crc32->initialized = 0;
-    return mzstream_close(crc32->stream.base);
+    return MZSTREAM_OK;
 }
 
 int32_t ZCALLBACK mzstream_crc32_error(voidpf stream)

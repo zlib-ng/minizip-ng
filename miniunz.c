@@ -142,7 +142,6 @@ int miniunz_list(unzFile uf)
 int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *popt_overwrite, const char *password)
 {
     unz_file_info64 file_info = {0};
-    FILE* fout = NULL;
     void* buf = NULL;
     uint16_t size_buf = 8192;
     int err = UNZ_OK;
@@ -222,10 +221,9 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
     /* Create the file on disk so we can unzip to it */
     if ((skip == 0) && (err == UNZ_OK))
     {
-        fout = mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE);
-
         /* Some zips don't contain directory alone before file */
-        if ((fout == NULL) && (opt_extract_without_path == 0) &&
+        if ((mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE) == MZSTREAM_ERR) &&
+            (opt_extract_without_path == 0) &&
             (filename_withoutpath != (char*)filename_inzip))
         {
             char c = *(filename_withoutpath-1);
@@ -233,12 +231,12 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
             makedir(write_filename);
             *(filename_withoutpath-1) = c;
 
-            fout = mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE);
+            mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE);
         }
     }
 
     /* Read from the zip, unzip to buffer, and write to disk */
-    if (fout != NULL)
+    if (mzstream_os_is_open(stream_entry))
     {
         printf(" extracting: %s\n", write_filename);
 

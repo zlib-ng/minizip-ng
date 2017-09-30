@@ -153,20 +153,17 @@ void test_inflate()
 
         mzstream_set_base(inflate_stream, in_stream);
 
-        if (mzstream_zlib_open(inflate_stream, "LICENSE.deflate", MZSTREAM_MODE_READ) == MZSTREAM_OK)
-        {
-            read = mzstream_zlib_read(inflate_stream, buf, UINT16_MAX);
-            mzstream_zlib_close(inflate_stream);
+        read = mzstream_zlib_read(inflate_stream, buf, UINT16_MAX);
+        mzstream_zlib_close(inflate_stream);
 
-            total_in = mzstream_zlib_get_total_in(inflate_stream);
-            total_out = mzstream_zlib_get_total_out(inflate_stream);
+        total_in = mzstream_zlib_get_total_in(inflate_stream);
+        total_out = mzstream_zlib_get_total_out(inflate_stream);
 
-            mzstream_zlib_free(inflate_stream);
-
-            printf("LICENSE uncompressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
-        }
+        mzstream_zlib_free(inflate_stream);
 
         mzstream_os_close(in_stream);
+
+        printf("LICENSE uncompressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
     }
 
     mzstream_os_free(in_stream);
@@ -181,6 +178,8 @@ void test_inflate()
         uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
         mzstream_close(crc_in_stream);
         mzstream_crc32_free(crc_in_stream);
+
+        mzstream_os_close(out_stream);
 
         printf("LICENSE crc 0x%08x\n", crc32);
     }
@@ -202,6 +201,8 @@ void test_deflate()
         uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
         mzstream_close(crc_in_stream);
         mzstream_crc32_free(crc_in_stream);
+
+        mzstream_os_close(in_stream);
 
         printf("LICENSE crc 0x%08x\n", crc32);
     }
