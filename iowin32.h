@@ -23,10 +23,17 @@
 extern "C" {
 #endif
 
-void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
-void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def);
-void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def);
-void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
+int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int mode);
+int32_t ZCALLBACK mzstream_win32_is_open(voidpf stream);
+int32_t ZCALLBACK mzstream_win32_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mzstream_win32_write(voidpf stream, const void *buf, uint32_t size);
+int64_t ZCALLBACK mzstream_win32_tell(voidpf stream);
+int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mzstream_win32_close(voidpf stream);
+int32_t ZCALLBACK mzstream_win32_error(voidpf stream);
+
+voidpf             mzstream_win32_alloc(void);
+void               mzstream_win32_free(voidpf stream);
 
 #ifdef __cplusplus
 }

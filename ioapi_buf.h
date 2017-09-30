@@ -10,8 +10,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _IOAPI_BUF_H
-#define _IOAPI_BUF_H
+#ifndef _IOAPI_BUFFERED_H
+#define _IOAPI_BUFFERED_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,26 +24,16 @@
 extern "C" {
 #endif
 
-voidpf   ZCALLBACK fopen_buf_func(voidpf opaque, const char* filename, int mode);
-voidpf   ZCALLBACK fopen64_buf_func(voidpf opaque, const void* filename, int mode);
-voidpf   ZCALLBACK fopendisk_buf_func(voidpf opaque, voidpf stream_cd, uint32_t number_disk, int mode);
-voidpf   ZCALLBACK fopendisk64_buf_func(voidpf opaque, voidpf stream_cd, uint32_t number_disk, int mode);
-uint32_t ZCALLBACK fread_buf_func(voidpf opaque, voidpf stream, void* buf, uint32_t size);
-uint32_t ZCALLBACK fwrite_buf_func(voidpf opaque, voidpf stream, const void* buf, uint32_t size);
-long     ZCALLBACK ftell_buf_func(voidpf opaque, voidpf stream);
-uint64_t ZCALLBACK ftell64_buf_func(voidpf opaque, voidpf stream);
-long     ZCALLBACK fseek_buf_func(voidpf opaque, voidpf stream, uint32_t offset, int origin);
-long     ZCALLBACK fseek64_buf_func(voidpf opaque, voidpf stream, uint64_t offset, int origin);
-int      ZCALLBACK fclose_buf_func(voidpf opaque,voidpf stream);
-int      ZCALLBACK ferror_buf_func(voidpf opaque,voidpf stream);
+int32_t ZCALLBACK mzstream_buffered_open(voidpf stream, const char *filename, int mode);
+int32_t ZCALLBACK mzstream_buffered_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mzstream_buffered_write(voidpf stream, const void *buf, uint32_t size);
+int64_t ZCALLBACK mzstream_buffered_tell(voidpf stream);
+int32_t ZCALLBACK mzstream_buffered_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mzstream_buffered_close(voidpf stream);
+int32_t ZCALLBACK mzstream_buffered_error(voidpf stream);
 
-typedef struct ourbuffer_s {
-  zlib_filefunc_def   filefunc;
-  zlib_filefunc64_def filefunc64;
-} ourbuffer_t;
-
-void fill_buffer_filefunc(zlib_filefunc_def* pzlib_filefunc_def, ourbuffer_t *ourbuf);
-void fill_buffer_filefunc64(zlib_filefunc64_def* pzlib_filefunc_def, ourbuffer_t *ourbuf);
+voidpf             mzstream_buffered_alloc(void);
+void               mzstream_buffered_free(voidpf stream);
 
 #ifdef __cplusplus
 }

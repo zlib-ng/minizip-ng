@@ -120,8 +120,7 @@ typedef struct unz_file_info_s
 /***************************************************************************/
 /* Opening and close a zip file */
 
-extern unzFile ZEXPORT unzOpen(const char *path);
-extern unzFile ZEXPORT unzOpen64(const void *path);
+extern unzFile ZEXPORT unzOpen(const char *path, voidpf stream);
 /* Open a Zip file.
 
    path should contain the full path (by example, on a Windows XP computer 
@@ -132,11 +131,6 @@ extern unzFile ZEXPORT unzOpen64(const void *path);
    NOTE: The "64" function take a const void *pointer, because  the path is just the value passed to the
    open64_file_func callback. Under Windows, if UNICODE is defined, using fill_fopen64_filefunc, the path 
    is a pointer to a wide unicode string  (LPCTSTR is LPCWSTR), so const char *does not describe the reality */
-
-extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
-/* Open a Zip file, like unzOpen, but provide a set of file low level API for read/write operations */
-extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
-/* Open a Zip file, like unz64Open, but provide a set of file low level API for read/write 64-bit operations */
 
 extern int ZEXPORT unzClose(unzFile file);
 /* Close a ZipFile opened with unzOpen. If there is files inside the .Zip opened with unzOpenCurrentFile,

@@ -35,553 +35,250 @@
 #  endif
 #endif
 
-voidpf   ZCALLBACK win32_open_file_func     (voidpf opaque, const char *filename, int mode);
-uint32_t ZCALLBACK win32_read_file_func     (voidpf opaque, voidpf stream, void* buf, uint32_t size);
-uint32_t ZCALLBACK win32_write_file_func    (voidpf opaque, voidpf stream, const void *buf, uint32_t size);
-uint64_t ZCALLBACK win32_tell64_file_func   (voidpf opaque, voidpf stream);
-long     ZCALLBACK win32_seek64_file_func   (voidpf opaque, voidpf stream, uint64_t offset, int origin);
-int      ZCALLBACK win32_close_file_func    (voidpf opaque, voidpf stream);
-int      ZCALLBACK win32_error_file_func    (voidpf opaque, voidpf stream);
-
-typedef struct
+typedef struct mzstream_win32_s
 {
-    HANDLE hf;
-    int error;
-    void *filename;
-    int filenameLength;
-} WIN32FILE_IOWIN;
+    mzstream   stream;
+    HANDLE      handle;
+    int         error;
+    char        *filename;
+    int         filename_size;
+} mzstream_win32;
 
-
-static void win32_translate_open_mode(int mode,
-                                      DWORD* lpdwDesiredAccess,
-                                      DWORD* lpdwCreationDisposition,
-                                      DWORD* lpdwShareMode,
-                                      DWORD* lpdwFlagsAndAttributes)
+int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int mode)
 {
-    *lpdwDesiredAccess = 0;
-    *lpdwShareMode = 0;
-    *lpdwCreationDisposition = 0;
-    *lpdwFlagsAndAttributes = FILE_ATTRIBUTE_NORMAL;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    uint32_t desired_access = 0;
+    uint32_t creation_disposition = 0;
+    uint32_t share_mode = 0;
+    uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
+    wchar_t *filename_wide = NULL;
+    uint32_t filename_wide_size = 0;
+    HANDLE handle = NULL;
 
-    if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
+    if (filename == NULL)
+        return MZSTREAM_ERR;
+
+    if ((mode & MZSTREAM_MODE_READWRITEFILTER) == MZSTREAM_MODE_READ)
     {
-        *lpdwDesiredAccess = GENERIC_READ;
-        *lpdwCreationDisposition = OPEN_EXISTING;
-        *lpdwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+        desired_access = GENERIC_READ;
+        creation_disposition = OPEN_EXISTING;
+        share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE;
     }
-    else if (mode & ZLIB_FILEFUNC_MODE_EXISTING)
+    else if (mode & MZSTREAM_MODE_EXISTING)
     {
-        *lpdwDesiredAccess = GENERIC_WRITE | GENERIC_READ;
-        *lpdwCreationDisposition = OPEN_EXISTING;
+        desired_access = GENERIC_WRITE | GENERIC_READ;
+        creation_disposition = OPEN_EXISTING;
     }
-    else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
+    else if (mode & MZSTREAM_MODE_CREATE)
     {
-        *lpdwDesiredAccess = GENERIC_WRITE | GENERIC_READ;
-        *lpdwCreationDisposition = CREATE_ALWAYS;
+        desired_access = GENERIC_WRITE | GENERIC_READ;
+        creation_disposition = CREATE_ALWAYS;
     }
-}
-
-static voidpf win32_build_iowin(HANDLE hFile)
-{
-    WIN32FILE_IOWIN *iowin = NULL;
-
-    if ((hFile != NULL) && (hFile != INVALID_HANDLE_VALUE))
+    else
     {
-        iowin = (WIN32FILE_IOWIN *)malloc(sizeof(WIN32FILE_IOWIN));
-        if (iowin == NULL)
-        {
-            CloseHandle(hFile);
-            return NULL;
-        }
-        memset(iowin, 0, sizeof(WIN32FILE_IOWIN));
-        iowin->hf = hFile;
+        return MZSTREAM_ERR;
     }
-    return (voidpf)iowin;
-}
 
-voidpf ZCALLBACK win32_open64_file_func(voidpf opaque, const void *filename, int mode)
-{
-    DWORD dwDesiredAccess,dwCreationDisposition,dwShareMode,dwFlagsAndAttributes;
-    HANDLE hFile = NULL;
-    WIN32FILE_IOWIN *iowin = NULL;
+    filename_wide_size = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+    filename_wide = (wchar_t *)malloc((filename_wide_size + 1) * sizeof(wchar_t));
+    memset(filename_wide, 0, sizeof(wchar_t) * (filename_wide_size + 1));
 
-    win32_translate_open_mode(mode, &dwDesiredAccess, &dwCreationDisposition, &dwShareMode, &dwFlagsAndAttributes);
+    MultiByteToWideChar(CP_UTF8, 0, filename, -1, filename_wide, filename_wide_size);
 
-    if ((filename != NULL) && (dwDesiredAccess != 0))
-    {
 #ifdef IOWIN32_USING_WINRT_API
-#ifdef UNICODE
-        hFile = CreateFile2((LPCTSTR)filename, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
+    win32->handle = CreateFile2W(filename_wide, desired_access, share_mode, creation_disposition, NULL);
 #else
-        WCHAR filenameW[FILENAME_MAX + 0x200 + 1];
-        MultiByteToWideChar(CP_ACP, 0, (const char*)filename, -1, filenameW, FILENAME_MAX + 0x200);
-        hFile = CreateFile2(filenameW, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
+    win32->handle = CreateFileW(filename_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
 #endif
-#else
-        hFile = CreateFile((LPCTSTR)filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-#endif
-    }
 
-    iowin = win32_build_iowin(hFile);
-    if (iowin == NULL)
-        return NULL;
-    iowin->filenameLength = _tcslen(filename) + 1;
-    iowin->filename = (void*)malloc(iowin->filenameLength * sizeof(TCHAR));
-    _tcsncpy(iowin->filename, filename, iowin->filenameLength);
-    return iowin; 
+    free(filename_wide);
+
+    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+        return MZSTREAM_ERR;
+
+    win32->filename_size = strlen(filename) + 1;
+    win32->filename = (char *)malloc(win32->filename_size);
+
+    strncpy(win32->filename, filename, win32->filename_size);
+
+    return MZSTREAM_OK; 
 }
 
-voidpf ZCALLBACK win32_open64_file_funcA(voidpf opaque, const void *filename, int mode)
+int32_t ZCALLBACK mzstream_win32_is_open(voidpf stream)
 {
-    DWORD dwDesiredAccess, dwCreationDisposition, dwShareMode, dwFlagsAndAttributes ;
-    HANDLE hFile = NULL;
-    WIN32FILE_IOWIN *iowin = NULL;
-
-    win32_translate_open_mode(mode, &dwDesiredAccess, &dwCreationDisposition, &dwShareMode, &dwFlagsAndAttributes);
-
-    if ((filename != NULL) && (dwDesiredAccess != 0))
-    {
-#ifdef IOWIN32_USING_WINRT_API
-        WCHAR filenameW[FILENAME_MAX + 0x200 + 1];
-        MultiByteToWideChar(CP_ACP, 0, (const char*)filename, -1, filenameW, FILENAME_MAX + 0x200);
-        hFile = CreateFile2(filenameW, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
-#else
-        hFile = CreateFileA((LPCSTR)filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-#endif
-    }
-
-    iowin = win32_build_iowin(hFile);
-    if (iowin == NULL)
-        return NULL;
-    iowin->filenameLength = strlen(filename) + 1;
-    iowin->filename = (void*)malloc(iowin->filenameLength * sizeof(char));
-    strncpy(iowin->filename, filename, iowin->filenameLength);
-    return iowin;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    if (win32->handle == NULL || win32->handle == INVALID_HANDLE_VALUE)
+        return MZSTREAM_ERR;
+    return MZSTREAM_OK;
 }
 
-voidpf ZCALLBACK win32_open64_file_funcW(voidpf opaque, const void *filename, int mode)
+int32_t ZCALLBACK mzstream_win32_read(voidpf stream, void* buf, uint32_t size)
 {
-    DWORD dwDesiredAccess, dwCreationDisposition, dwShareMode, dwFlagsAndAttributes;
-    HANDLE hFile = NULL;
-    WIN32FILE_IOWIN *iowin = NULL;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    uint32_t read = 0;
+    HANDLE handle = NULL;
 
-    win32_translate_open_mode(mode, &dwDesiredAccess, &dwCreationDisposition, &dwShareMode, &dwFlagsAndAttributes);
+    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+        return MZSTREAM_ERR;
 
-    if ((filename != NULL) && (dwDesiredAccess != 0))
+    if (!ReadFile(win32->handle, buf, size, &read, NULL))
     {
-#ifdef IOWIN32_USING_WINRT_API
-        hFile = CreateFile2((LPCWSTR)filename, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
-#else
-        hFile = CreateFileW((LPCWSTR)filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-#endif
+        win32->error = GetLastError();
+        if (win32->error == ERROR_HANDLE_EOF)
+            win32->error = 0;
     }
 
-    iowin = win32_build_iowin(hFile);
-    if (iowin == NULL)
-        return NULL;
-    if (iowin->filename == NULL)
-    {
-        iowin->filenameLength = wcslen(filename) + 1;
-        iowin->filename = (void*)malloc(iowin->filenameLength * sizeof(WCHAR));
-        wcsncpy(iowin->filename, filename, iowin->filenameLength);
-    }
-    return iowin;
+    return read;
 }
 
-voidpf ZCALLBACK win32_open_file_func(voidpf opaque, const char *filename, int mode)
+int32_t ZCALLBACK mzstream_win32_write(voidpf stream, const void *buf, uint32_t size)
 {
-    DWORD dwDesiredAccess, dwCreationDisposition, dwShareMode, dwFlagsAndAttributes ;
-    HANDLE hFile = NULL;
-    WIN32FILE_IOWIN *iowin = NULL;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    uint32_t written = 0;
+    uint32_t error = 0;
+    HANDLE handle = NULL;
 
-    win32_translate_open_mode(mode, &dwDesiredAccess, &dwCreationDisposition, &dwShareMode, &dwFlagsAndAttributes);
+    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+        return MZSTREAM_ERR;
 
-    if ((filename != NULL) && (dwDesiredAccess != 0))
+    if (!WriteFile(win32->handle, buf, size, &written, NULL))
     {
-#ifdef IOWIN32_USING_WINRT_API
-#ifdef UNICODE
-        hFile = CreateFile2((LPCTSTR)filename, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
-#else
-        WCHAR filenameW[FILENAME_MAX + 0x200 + 1];
-        MultiByteToWideChar(CP_ACP, 0, (const char*)filename, -1, filenameW, FILENAME_MAX + 0x200);
-        hFile = CreateFile2(filenameW, dwDesiredAccess, dwShareMode, dwCreationDisposition, NULL);
-#endif
-#else
-        hFile = CreateFile((LPCTSTR)filename, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, dwFlagsAndAttributes, NULL);
-#endif
+        win32->error = GetLastError();
+        if (win32->error == ERROR_HANDLE_EOF)
+            win32->error = 0;
     }
 
-    iowin = win32_build_iowin(hFile);
-    if (iowin == NULL)
-        return NULL;
-    iowin->filenameLength = _tcslen((TCHAR*)filename) + 1;
-    iowin->filename = (void*)malloc(iowin->filenameLength * sizeof(TCHAR));
-    _tcsncpy(iowin->filename, (TCHAR*)filename, iowin->filenameLength);
-    return iowin; 
+    return written;
 }
 
-voidpf ZCALLBACK win32_opendisk64_file_func(voidpf opaque, voidpf stream, uint32_t number_disk, int mode)
-{
-    WIN32FILE_IOWIN *iowin = NULL;
-    TCHAR *diskFilename = NULL;
-    voidpf ret = NULL;
-    int i = 0;
-
-    if (stream == NULL)
-        return NULL;
-    iowin = (WIN32FILE_IOWIN*)stream;
-    diskFilename = (TCHAR*)malloc(iowin->filenameLength * sizeof(TCHAR));
-    _tcsncpy(diskFilename, iowin->filename, iowin->filenameLength);
-    for (i = iowin->filenameLength - 1; i >= 0; i -= 1)
-    {
-        if (diskFilename[i] != _T('.')) 
-            continue;
-        _sntprintf(&diskFilename[i], iowin->filenameLength - i, _T(".z%02d"), number_disk + 1);
-        break;
-    }
-    if (i >= 0)
-        ret = win32_open64_file_func(opaque, (char*)diskFilename, mode);
-    free(diskFilename);
-    return ret;
-}
-
-voidpf ZCALLBACK win32_opendisk64_file_funcW(voidpf opaque, voidpf stream, uint32_t number_disk, int mode)
-{
-    WIN32FILE_IOWIN *iowin = NULL;
-    WCHAR *diskFilename = NULL;
-    voidpf ret = NULL;
-    int i = 0;
-
-    if (stream == NULL)
-        return NULL;
-    iowin = (WIN32FILE_IOWIN*)stream;
-    diskFilename = (WCHAR*)malloc((iowin->filenameLength + 10) * sizeof(WCHAR));
-    wcsncpy(diskFilename, iowin->filename, iowin->filenameLength);
-    for (i = iowin->filenameLength - 1; i >= 0; i -= 1)
-    {
-        if (diskFilename[i] != L'.') 
-            continue;
-        _snwprintf(&diskFilename[i], (iowin->filenameLength + 10) - i, L".z%02d", number_disk + 1);
-        break;
-    }
-    if (i >= 0)
-        ret = win32_open64_file_funcW(opaque, diskFilename, mode);
-    free(diskFilename);
-    return ret;
-}
-
-voidpf ZCALLBACK win32_opendisk64_file_funcA(voidpf opaque, voidpf stream, uint32_t number_disk, int mode)
-{
-    WIN32FILE_IOWIN *iowin = NULL;
-    char *diskFilename = NULL;
-    voidpf ret = NULL;
-    int i = 0;
-
-    if (stream == NULL)
-        return NULL;
-    iowin = (WIN32FILE_IOWIN*)stream;
-    diskFilename = (char*)malloc(iowin->filenameLength * sizeof(char));
-    strncpy(diskFilename, iowin->filename, iowin->filenameLength);
-    for (i = iowin->filenameLength - 1; i >= 0; i -= 1)
-    {
-        if (diskFilename[i] != '.') 
-            continue;
-        _snprintf(&diskFilename[i], iowin->filenameLength - i, ".z%02d", number_disk + 1);
-        break;
-    }
-    if (i >= 0)
-        ret = win32_open64_file_funcA(opaque, diskFilename, mode);
-    free(diskFilename);
-    return ret;
-}
-
-voidpf ZCALLBACK win32_opendisk_file_func(voidpf opaque, voidpf stream, uint32_t number_disk, int mode)
-{
-    WIN32FILE_IOWIN *iowin = NULL;
-    TCHAR *diskFilename = NULL;
-    voidpf ret = NULL;
-    int i = 0;
-
-    if (stream == NULL)
-        return NULL;
-    iowin = (WIN32FILE_IOWIN*)stream;
-    diskFilename = (TCHAR*)malloc(iowin->filenameLength * sizeof(TCHAR));
-    _tcsncpy(diskFilename, iowin->filename, iowin->filenameLength);
-    for (i = iowin->filenameLength - 1; i >= 0; i -= 1)
-    {
-        if (diskFilename[i] != _T('.')) 
-            continue;
-        _sntprintf(&diskFilename[i], iowin->filenameLength - i, _T(".z%02d"), number_disk + 1);
-        break;
-    }
-    if (i >= 0)
-        ret = win32_open_file_func(opaque, (char*)diskFilename, mode);
-    free(diskFilename);
-    return ret;
-}
-
-uint32_t ZCALLBACK win32_read_file_func(voidpf opaque, voidpf stream, void* buf, uint32_t size)
-{
-    DWORD ret = 0;
-    HANDLE hFile = NULL;
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
-
-    if (hFile != NULL)
-    {
-        if (!ReadFile(hFile, buf, size, &ret, NULL))
-        {
-            DWORD dwErr = GetLastError();
-            if (dwErr == ERROR_HANDLE_EOF)
-                dwErr = 0;
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-        }
-    }
-
-    return (uint32_t)ret;
-}
-
-uint32_t ZCALLBACK win32_write_file_func(voidpf opaque, voidpf stream, const void *buf, uint32_t size)
-{
-    DWORD ret = 0;
-    HANDLE hFile = NULL;
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
-
-    if (hFile != NULL)
-    {
-        if (!WriteFile(hFile, buf, size, &ret, NULL))
-        {
-            DWORD dwErr = GetLastError();
-            if (dwErr == ERROR_HANDLE_EOF)
-                dwErr = 0;
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-        }
-    }
-
-    return (uint32_t)ret;
-}
-
-static BOOL win32_setfilepointer_internal(HANDLE hFile, LARGE_INTEGER pos, LARGE_INTEGER *newPos, DWORD dwMoveMethod)
+static int32_t mzstream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos, uint32_t move_method)
 {
 #ifdef IOWIN32_USING_WINRT_API
-    return SetFilePointerEx(hFile, pos, newPos, dwMoveMethod);
+    return SetFilePointerEx(handle, pos, newPos, dwMoveMethod);
 #else
-    LONG lHigh = pos.HighPart;
-    BOOL ret = TRUE;
-    DWORD dwNewPos = SetFilePointer(hFile, pos.LowPart, &lHigh, dwMoveMethod);
-    if ((dwNewPos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
-        ret = FALSE;
-    if ((newPos != NULL) && (ret))
+    LONG high_part = large_pos.HighPart;
+    uint32_t pos = SetFilePointer(handle, large_pos.LowPart, &high_part, move_method);
+
+    if ((pos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
+        return MZSTREAM_ERR;
+
+    if (new_pos != NULL)
     {
-        newPos->LowPart = dwNewPos;
-        newPos->HighPart = lHigh;
+        new_pos->LowPart = pos;
+        new_pos->HighPart = high_part;
     }
-    return ret;
+
+    return MZSTREAM_OK;
 #endif
 }
 
-long ZCALLBACK win32_tell_file_func(voidpf opaque, voidpf stream)
+int64_t ZCALLBACK mzstream_win32_tell(voidpf stream)
 {
-    long ret = -1;
-    HANDLE hFile = NULL;
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
-    if (hFile != NULL)
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    uint32_t written = 0;
+    uint32_t error = 0;
+    HANDLE handle = NULL;
+    LARGE_INTEGER large_pos;
+
+    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+        return MZSTREAM_ERR;
+
+    large_pos.QuadPart = 0;
+
+    if (mzstream_win32_seekinternal(win32->handle, large_pos, &large_pos, FILE_CURRENT) == MZSTREAM_ERR)
     {
-        LARGE_INTEGER pos;
-        pos.QuadPart = 0;
-        if (!win32_setfilepointer_internal(hFile, pos, &pos, FILE_CURRENT))
-        {
-            DWORD dwErr = GetLastError();
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-            ret = -1;
-        }
-        else
-            ret = (long)pos.LowPart;
+        error = GetLastError();
+        win32->error = error;
     }
-    return ret;
+
+    return large_pos.LowPart;
 }
 
-uint64_t ZCALLBACK win32_tell64_file_func(voidpf opaque, voidpf stream)
+int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin)
 {
-    uint64_t ret = (uint64_t)-1;
-    HANDLE hFile = NULL;
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    uint32_t move_method = 0xFFFFFFFF;
+    uint32_t error = 0;
+    HANDLE handle = NULL;
+    int64_t position = -1;
+    LARGE_INTEGER large_pos;
 
-    if (hFile)
-    {
-        LARGE_INTEGER pos;
-        pos.QuadPart = 0;
-        if (!win32_setfilepointer_internal(hFile, pos, &pos, FILE_CURRENT))
-        {
-            DWORD dwErr = GetLastError();
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-            ret = (uint64_t)-1;
-        }
-        else
-            ret = pos.QuadPart;
-    }
-    return ret;
-}
 
-long ZCALLBACK win32_seek_file_func(voidpf opaque, voidpf stream, uint32_t offset, int origin)
-{
-    DWORD dwMoveMethod = 0xFFFFFFFF;
-    HANDLE hFile = NULL;
-    long ret = -1;
-
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
+    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+        return MZSTREAM_ERR;
 
     switch (origin)
     {
-        case ZLIB_FILEFUNC_SEEK_CUR:
-            dwMoveMethod = FILE_CURRENT;
+        case MZSTREAM_SEEK_CUR:
+            move_method = FILE_CURRENT;
             break;
-        case ZLIB_FILEFUNC_SEEK_END:
-            dwMoveMethod = FILE_END;
+        case MZSTREAM_SEEK_END:
+            move_method = FILE_END;
             break;
-        case ZLIB_FILEFUNC_SEEK_SET:
-            dwMoveMethod = FILE_BEGIN;
-            break;
-        default:
-            return -1;
-    }
-
-    if (hFile != NULL)
-    {
-        LARGE_INTEGER pos;
-        pos.QuadPart = offset;
-        if (!win32_setfilepointer_internal(hFile, pos, NULL, dwMoveMethod))
-        {
-            DWORD dwErr = GetLastError();
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-            ret = -1;
-        }
-        else
-            ret = 0;
-    }
-    return ret;
-}
-
-long ZCALLBACK win32_seek64_file_func(voidpf opaque, voidpf stream, uint64_t offset, int origin)
-{
-    DWORD dwMoveMethod = 0xFFFFFFFF;
-    HANDLE hFile = NULL;
-    long ret = -1;
-
-    if (stream != NULL)
-        hFile = ((WIN32FILE_IOWIN*)stream)->hf;
-
-    switch (origin)
-    {
-        case ZLIB_FILEFUNC_SEEK_CUR:
-            dwMoveMethod = FILE_CURRENT;
-            break;
-        case ZLIB_FILEFUNC_SEEK_END:
-            dwMoveMethod = FILE_END;
-            break;
-        case ZLIB_FILEFUNC_SEEK_SET:
-            dwMoveMethod = FILE_BEGIN;
+        case MZSTREAM_SEEK_SET:
+            move_method = FILE_BEGIN;
             break;
         default:
-            return -1;
+            return MZSTREAM_ERR;
     }
 
-    if (hFile)
+    large_pos.QuadPart = offset;
+
+    if (mzstream_win32_seekinternal(win32->handle, large_pos, NULL, move_method) == MZSTREAM_ERR)
     {
-        LARGE_INTEGER pos;
-        pos.QuadPart = offset;
-        if (!win32_setfilepointer_internal(hFile, pos, NULL, dwMoveMethod))
-        {
-            DWORD dwErr = GetLastError();
-            ((WIN32FILE_IOWIN*)stream)->error = (int)dwErr;
-            ret = -1;
-        }
-        else
-            ret = 0;
+        error = GetLastError();
+        win32->error = error;
+        return MZSTREAM_ERR;
     }
-    return ret;
+
+    return MZSTREAM_OK;
 }
 
-int ZCALLBACK win32_close_file_func(voidpf opaque, voidpf stream)
+int ZCALLBACK mzstream_win32_close(voidpf stream)
 {
-    WIN32FILE_IOWIN* iowin = NULL;
-    int ret = -1;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
 
-    if (stream == NULL)
-        return ret;
-    iowin = ((WIN32FILE_IOWIN*)stream);
-    if (iowin->filename != NULL)
-        free(iowin->filename);
-    if (iowin->hf != NULL)
-    {
-        CloseHandle(iowin->hf);
-        ret=0;
-    }
-    free(stream);
-    return ret;
+    if (win32->filename != NULL)
+        free(win32->filename);
+    if (win32->handle != NULL)
+        CloseHandle(win32->handle);
+    win32->handle = NULL;
+    return MZSTREAM_OK;
 }
 
-int ZCALLBACK win32_error_file_func(voidpf opaque, voidpf stream)
+int ZCALLBACK mzstream_win32_error(voidpf stream)
 {
-    int ret = -1;
-    if (stream == NULL)
-        return ret;
-    ret = ((WIN32FILE_IOWIN*)stream)->error;
-    return ret;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    return win32->error;
 }
 
-void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
+voidpf mzstream_win32_alloc(void)
 {
-    pzlib_filefunc_def->zopen_file = win32_open_file_func;
-    pzlib_filefunc_def->zopendisk_file = win32_opendisk_file_func;
-    pzlib_filefunc_def->zread_file = win32_read_file_func;
-    pzlib_filefunc_def->zwrite_file = win32_write_file_func;
-    pzlib_filefunc_def->ztell_file = win32_tell_file_func;
-    pzlib_filefunc_def->zseek_file = win32_seek_file_func;
-    pzlib_filefunc_def->zclose_file = win32_close_file_func;
-    pzlib_filefunc_def->zerror_file = win32_error_file_func;
-    pzlib_filefunc_def->opaque = NULL;
+    mzstream_win32 *win32 = NULL;
+
+    win32 = (mzstream_win32 *)malloc(sizeof(mzstream_win32));
+    if (win32 == NULL)
+        return NULL;
+
+    memset(win32, 0, sizeof(mzstream_win32));
+
+    win32->stream.open = mzstream_win32_open;
+    win32->stream.is_open = mzstream_win32_is_open;
+    win32->stream.read = mzstream_win32_read;
+    win32->stream.write = mzstream_win32_write;
+    win32->stream.tell = mzstream_win32_tell;
+    win32->stream.seek = mzstream_win32_seek;
+    win32->stream.close = mzstream_win32_close;
+    win32->stream.error = mzstream_win32_error;
+    win32->stream.alloc = mzstream_win32_alloc;
+    win32->stream.free = mzstream_win32_free;
+
+    return (voidpf)win32;
 }
 
-void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def)
+void mzstream_win32_free(voidpf stream)
 {
-    pzlib_filefunc_def->zopen64_file = win32_open64_file_func;
-    pzlib_filefunc_def->zopendisk64_file = win32_opendisk64_file_func;
-    pzlib_filefunc_def->zread_file = win32_read_file_func;
-    pzlib_filefunc_def->zwrite_file = win32_write_file_func;
-    pzlib_filefunc_def->ztell64_file = win32_tell64_file_func;
-    pzlib_filefunc_def->zseek64_file = win32_seek64_file_func;
-    pzlib_filefunc_def->zclose_file = win32_close_file_func;
-    pzlib_filefunc_def->zerror_file = win32_error_file_func;
-    pzlib_filefunc_def->opaque = NULL;
-}
-
-void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def)
-{
-    pzlib_filefunc_def->zopen64_file = win32_open64_file_funcA;
-    pzlib_filefunc_def->zopendisk64_file = win32_opendisk64_file_funcA;
-    pzlib_filefunc_def->zread_file = win32_read_file_func;
-    pzlib_filefunc_def->zwrite_file = win32_write_file_func;
-    pzlib_filefunc_def->ztell64_file = win32_tell64_file_func;
-    pzlib_filefunc_def->zseek64_file = win32_seek64_file_func;
-    pzlib_filefunc_def->zclose_file = win32_close_file_func;
-    pzlib_filefunc_def->zerror_file = win32_error_file_func;
-    pzlib_filefunc_def->opaque = NULL;
-}
-
-void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
-{
-    pzlib_filefunc_def->zopen64_file = win32_open64_file_funcW;
-    pzlib_filefunc_def->zopendisk64_file = win32_opendisk64_file_funcW;
-    pzlib_filefunc_def->zread_file = win32_read_file_func;
-    pzlib_filefunc_def->zwrite_file = win32_write_file_func;
-    pzlib_filefunc_def->ztell64_file = win32_tell64_file_func;
-    pzlib_filefunc_def->zseek64_file = win32_seek64_file_func;
-    pzlib_filefunc_def->zclose_file = win32_close_file_func;
-    pzlib_filefunc_def->zerror_file = win32_error_file_func;
-    pzlib_filefunc_def->opaque = NULL;
+    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    if (win32 != NULL)
+        free(win32);
 }

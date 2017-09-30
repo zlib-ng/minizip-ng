@@ -31,137 +31,189 @@
 
 #include "ioapi_mem.h"
 
-#ifndef IOMEM_BUFFERSIZE
-#  define IOMEM_BUFFERSIZE (UINT16_MAX)
-#endif
+typedef struct mzstream_mem_s {
+    mzstream           stream;
+    char                *buffer;    // Memory buffer pointer 
+    uint32_t            size;       // Size of the memory buffer
+    uint32_t            limit;      // Furthest we've written
+    uint32_t            position;   // Current positoin in the memory
+    int                 growable;   // Growable memory buffer
+} mzstream_mem;
 
-voidpf ZCALLBACK fopen_mem_func(voidpf opaque, const char *filename, int mode)
+int32_t ZCALLBACK mzstream_mem_open(voidpf stream, const char *filename, int mode)
 {
-    ourmemory_t *mem = (ourmemory_t *)opaque;
-    if (mem == NULL)
-        return NULL; /* Mem structure passed in was null */
+    mzstream_mem *mem = (mzstream_mem *)stream;
 
-    if (mode & ZLIB_FILEFUNC_MODE_CREATE)
+    if (mode & MZSTREAM_MODE_CREATE)
     {
-        if (mem->grow)
+        if (mem->growable)
         {
-            mem->size = IOMEM_BUFFERSIZE;
-            mem->base = (char *)malloc(mem->size);
+            mem->size = UINT16_MAX;
+            mem->buffer = (char *)malloc(mem->size);
         }
 
-        mem->limit = 0; /* When writing we start with 0 bytes written */
+        // When writing we start with 0 bytes written
+        mem->limit = 0;
     }
     else
+    {
         mem->limit = mem->size;
+    }
 
-    mem->cur_offset = 0;
+    mem->position = 0;
 
-    return mem;
+    return MZSTREAM_OK;
 }
 
-voidpf ZCALLBACK fopendisk_mem_func(voidpf opaque, voidpf stream, uint32_t number_disk, int mode)
+int32_t ZCALLBACK mzstream_mem_is_open(voidpf stream)
 {
-    /* Not used */
-    return NULL;
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    if (mem->buffer == NULL)
+        return MZSTREAM_ERR;
+    return MZSTREAM_OK;
 }
 
-uint32_t ZCALLBACK fread_mem_func(voidpf opaque, voidpf stream, void *buf, uint32_t size)
+int32_t ZCALLBACK mzstream_mem_read(voidpf stream, void *buf, uint32_t size)
 {
-    ourmemory_t *mem = (ourmemory_t *)stream;
+    mzstream_mem *mem = (mzstream_mem *)stream;
 
-    if (size > mem->size - mem->cur_offset)
-        size = mem->size - mem->cur_offset;
+    if (size > mem->size - mem->position)
+        size = mem->size - mem->position;
 
-    memcpy(buf, mem->base + mem->cur_offset, size);
-    mem->cur_offset += size;
+    memcpy(buf, mem->buffer + mem->position, size);
+    mem->position += size;
 
     return size;
 }
 
-uint32_t ZCALLBACK fwrite_mem_func(voidpf opaque, voidpf stream, const void *buf, uint32_t size)
+int32_t ZCALLBACK mzstream_mem_write(voidpf stream, const void *buf, uint32_t size)
 {
-    ourmemory_t *mem = (ourmemory_t *)stream;
-    uint32_t newmemsize = 0;
-    char *newbase = NULL;
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    uint32_t new_size = 0;
+    char *new_buf = NULL;
 
-    if (size > mem->size - mem->cur_offset)
+    if (size > mem->size - mem->position)
     {
-        if (mem->grow)
+        if (mem->growable)
         {
-            newmemsize = mem->size;
-            if (size < IOMEM_BUFFERSIZE)
-                newmemsize += IOMEM_BUFFERSIZE;
+            new_size = mem->size;
+            if (size < UINT16_MAX)
+                new_size += UINT16_MAX;
             else
-                newmemsize += size;
-            newbase = (char *)malloc(newmemsize);
-            memcpy(newbase, mem->base, mem->size);
-            free(mem->base);
-            mem->base = newbase;
-            mem->size = newmemsize;
+                new_size += size;
+
+            new_buf = (char *)malloc(new_size);
+
+            memcpy(new_buf, mem->buffer, mem->size);
+            free(mem->buffer);
+
+            mem->buffer = new_buf;
+            mem->size = new_size;
         }
         else
-            size = mem->size - mem->cur_offset;
+        {
+            size = mem->size - mem->position;
+        }
     }
-    memcpy(mem->base + mem->cur_offset, buf, size);
-    mem->cur_offset += size;
-    if (mem->cur_offset > mem->limit)
-        mem->limit = mem->cur_offset;
+
+    memcpy(mem->buffer + mem->position, buf, size);
+
+    mem->position += size;
+    if (mem->position > mem->limit)
+        mem->limit = mem->position;
 
     return size;
 }
 
-long ZCALLBACK ftell_mem_func(voidpf opaque, voidpf stream)
+int64_t ZCALLBACK mzstream_mem_tell(voidpf stream)
 {
-    ourmemory_t *mem = (ourmemory_t *)stream;
-    return mem->cur_offset;
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    return mem->position;
 }
 
-long ZCALLBACK fseek_mem_func(voidpf opaque, voidpf stream, uint32_t offset, int origin)
+int32_t ZCALLBACK mzstream_mem_seek(voidpf stream, uint64_t offset, int origin)
 {
-    ourmemory_t *mem = (ourmemory_t *)stream;
-    uint32_t new_pos = 0;
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    uint64_t new_pos = 0;
+
     switch (origin)
     {
-        case ZLIB_FILEFUNC_SEEK_CUR:
-            new_pos = mem->cur_offset + offset;
+        case MZSTREAM_SEEK_CUR:
+            new_pos = mem->position + offset;
             break;
-        case ZLIB_FILEFUNC_SEEK_END:
+        case MZSTREAM_SEEK_END:
             new_pos = mem->limit + offset;
             break;
-        case ZLIB_FILEFUNC_SEEK_SET:
+        case MZSTREAM_SEEK_SET:
             new_pos = offset;
             break;
         default:
-            return -1;
+            return MZSTREAM_ERR;
     }
 
     if (new_pos > mem->size)
-        return 1; /* Failed to seek that far */
-    mem->cur_offset = new_pos;
-    return 0;
+        return MZSTREAM_ERR;
+
+    mem->position = (uint32_t)new_pos;
+    return MZSTREAM_OK;
 }
 
-int ZCALLBACK fclose_mem_func(voidpf opaque, voidpf stream)
+int32_t ZCALLBACK mzstream_mem_close(voidpf stream)
 {
-    /* Even with grow = 1, caller must always free() memory */
-    return 0;
+    // We never return errors
+    return MZSTREAM_OK;
 }
 
-int ZCALLBACK ferror_mem_func(voidpf opaque, voidpf stream)
+int32_t ZCALLBACK mzstream_mem_error(voidpf stream)
 {
-    /* We never return errors */
-    return 0;
+    // We never return errors
+    return MZSTREAM_OK;
 }
 
-void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def, ourmemory_t *ourmem)
+void mzstream_mem_set_buffer(voidpf stream, void *buf, uint32_t size)
 {
-    pzlib_filefunc_def->zopen_file = fopen_mem_func;
-    pzlib_filefunc_def->zopendisk_file = fopendisk_mem_func;
-    pzlib_filefunc_def->zread_file = fread_mem_func;
-    pzlib_filefunc_def->zwrite_file = fwrite_mem_func;
-    pzlib_filefunc_def->ztell_file = ftell_mem_func;
-    pzlib_filefunc_def->zseek_file = fseek_mem_func;
-    pzlib_filefunc_def->zclose_file = fclose_mem_func;
-    pzlib_filefunc_def->zerror_file = ferror_mem_func;
-    pzlib_filefunc_def->opaque = ourmem;
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    mem->buffer = buf;
+    mem->size = size;
+}
+
+void mzstream_mem_set_growable(voidpf stream, int growable)
+{
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    mem->growable = growable;
+}
+
+voidpf mzstream_mem_alloc(void)
+{
+    mzstream_mem *mem = NULL;
+
+    mem = (mzstream_mem *)malloc(sizeof(mzstream_mem));
+    if (mem == NULL)
+        return NULL;
+
+    memset(mem, 0, sizeof(mzstream_mem));
+
+    mem->stream.open = mzstream_mem_open;
+    mem->stream.is_open = mzstream_mem_is_open;
+    mem->stream.read = mzstream_mem_read;
+    mem->stream.write = mzstream_mem_write;
+    mem->stream.tell = mzstream_mem_tell;
+    mem->stream.seek = mzstream_mem_seek;
+    mem->stream.close = mzstream_mem_close;
+    mem->stream.error = mzstream_mem_error;
+    mem->stream.alloc = mzstream_mem_alloc;
+    mem->stream.free = mzstream_mem_free;
+
+    return (voidpf)mem;
+}
+
+void mzstream_mem_free(voidpf stream)
+{
+    mzstream_mem *mem = (mzstream_mem *)stream;
+    if (mem != NULL)
+    {
+        if (mem->growable && mem->buffer != NULL)
+            free(mem->buffer);
+        free(mem);
+    }
 }

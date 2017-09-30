@@ -26,24 +26,18 @@
 extern "C" {
 #endif
 
-voidpf   ZCALLBACK fopen_mem_func(voidpf opaque, const char* filename, int mode);
-voidpf   ZCALLBACK fopendisk_mem_func(voidpf opaque, voidpf stream, uint32_t number_disk, int mode);
-uint32_t ZCALLBACK fread_mem_func(voidpf opaque, voidpf stream, void* buf, uint32_t size);
-uint32_t ZCALLBACK fwrite_mem_func(voidpf opaque, voidpf stream, const void* buf, uint32_t size);
-long     ZCALLBACK ftell_mem_func(voidpf opaque, voidpf stream);
-long     ZCALLBACK fseek_mem_func(voidpf opaque, voidpf stream, uint32_t offset, int origin);
-int      ZCALLBACK fclose_mem_func(voidpf opaque, voidpf stream);
-int      ZCALLBACK ferror_mem_func(voidpf opaque, voidpf stream);
+int32_t ZCALLBACK mzstream_mem_open(voidpf stream, const char* filename, int mode);
+int32_t ZCALLBACK mzstream_mem_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mzstream_mem_write(voidpf stream, const void* buf, uint32_t size);
+int64_t ZCALLBACK mzstream_mem_tell(voidpf stream);
+int32_t ZCALLBACK mzstream_mem_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mzstream_mem_close(voidpf stream);
+int32_t ZCALLBACK mzstream_mem_error(voidpf stream);
 
-typedef struct ourmemory_s {
-    char *base;          /* Base of the region of memory we're using */
-    uint32_t size;       /* Size of the region of memory we're using */
-    uint32_t limit;      /* Furthest we've written */
-    uint32_t cur_offset; /* Current offset in the area */
-    int grow;            /* Growable memory buffer */
-} ourmemory_t;
-
-void fill_memory_filefunc(zlib_filefunc_def* pzlib_filefunc_def, ourmemory_t *ourmem);
+void              mzstream_mem_set_buffer(voidpf stream, void *buf, uint32_t size);
+void              mzstream_mem_set_growable(voidpf stream, int growable);
+voidpf            mzstream_mem_alloc(void);
+void              mzstream_mem_free(voidpf stream);
 
 #ifdef __cplusplus
 }

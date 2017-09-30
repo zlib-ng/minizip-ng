@@ -62,7 +62,7 @@ void minizip_help()
 int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int level, const char *password)
 {
     zip_fileinfo zi = { 0 };
-    FILE *fin = NULL;
+    voidpf stream_entry = NULL;
     int size_read = 0;
     int zip64 = 0;
     int err = ZIP_OK;
@@ -73,7 +73,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     get_file_date(path, &zi.dos_date);
 
     zip64 = is_large_file(path);
-
+#define DEF_MEM_LEVEL 8
     /* Add to zip file */
     err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
         NULL, 0, NULL, 0, NULL /* comment*/,
@@ -81,14 +81,15 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
         password, 0, zip64);
 
+    stream_entry = mzstream_os_alloc();
+
     if (err != ZIP_OK)
     {
         printf("error in opening %s in zipfile (%d)\n", filenameinzip, err);
     }
     else
     {
-        fin = fopen64(path, "rb");
-        if (fin == NULL)
+        if (mzstream_os_open(stream_entry, path, MZSTREAM_MODE_READ) == MZSTREAM_ERR)
         {
             err = ZIP_ERRNO;
             printf("error in opening %s for reading\n", path);
@@ -100,8 +101,9 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         /* Read contents of file and write it to zip */
         do
         {
-            size_read = (int)fread(buf, 1, sizeof(buf), fin);
-            if ((size_read < (int)sizeof(buf)) && (feof(fin) == 0))
+
+            size_read = mzstream_os_read(stream_entry, buf, sizeof(buf));
+            if ((size_read < (int)sizeof(buf)) && mzstream_os_error(stream_entry))
             {
                 printf("error in reading %s\n", filenameinzip);
                 err = ZIP_ERRNO;
@@ -113,11 +115,14 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
                 if (err < 0)
                     printf("error in writing %s in the zipfile (%d)\n", filenameinzip, err);
             }
-        } while ((err == ZIP_OK) && (size_read > 0));
+        }
+        while ((err == ZIP_OK) && (size_read > 0));
     }
 
-    if (fin)
-        fclose(fin);
+    if (mzstream_os_is_open(stream_entry))
+        mzstream_os_close(stream_entry);
+
+    mzstream_os_free(stream_entry);
 
     if (err < 0)
     {
@@ -132,14 +137,108 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
 
     return err;
 }
+#include "ioapi_zlib.h"
+void test_inflate()
+{
+    char buf[UINT16_MAX];
+    int16_t read = 0;
 
+    voidpf in_stream = mzstream_os_alloc();
+
+    if (mzstream_os_open(in_stream, "LICENSE.deflate", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    {
+        voidpf inflate_stream = mzstream_zlib_alloc();
+        uint64_t total_in = 0;
+        uint64_t total_out = 0;
+
+        mzstream_set_base(inflate_stream, in_stream);
+
+        if (mzstream_zlib_open(inflate_stream, "LICENSE.deflate", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+        {
+            read = mzstream_zlib_read(inflate_stream, buf, UINT16_MAX);
+            mzstream_zlib_close(inflate_stream);
+
+            total_in = mzstream_zlib_get_total_in(inflate_stream);
+            total_out = mzstream_zlib_get_total_out(inflate_stream);
+
+            mzstream_zlib_free(inflate_stream);
+
+            printf("LICENSE uncompressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
+        }
+
+        mzstream_os_close(in_stream);
+    }
+
+    mzstream_os_free(in_stream);
+
+    voidpf out_stream = mzstream_os_alloc();
+
+    if (mzstream_os_open(out_stream, "LICENSE.inflate", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    {
+        voidpf crc_in_stream = mzstream_crc32_alloc();
+        mzstream_set_base(crc_in_stream, in_stream);
+        mzstream_write(crc_in_stream, buf, read);
+        uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
+        mzstream_close(crc_in_stream);
+        mzstream_crc32_free(crc_in_stream);
+
+        printf("LICENSE crc 0x%08x\n", crc32);
+    }
+    
+    mzstream_os_free(out_stream);
+}
+void test_deflate()
+{
+    char buf[UINT16_MAX];
+    int16_t read = 0;
+
+    voidpf in_stream = mzstream_os_alloc();
+
+    if (mzstream_os_open(in_stream, "LICENSE", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    {
+        voidpf crc_in_stream = mzstream_crc32_alloc();
+        mzstream_set_base(crc_in_stream, in_stream);
+        read = mzstream_read(crc_in_stream, buf, UINT16_MAX);
+        uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
+        mzstream_close(crc_in_stream);
+        mzstream_crc32_free(crc_in_stream);
+
+        printf("LICENSE crc 0x%08x\n", crc32);
+    }
+
+    mzstream_os_free(in_stream);
+
+    voidpf out_stream = mzstream_os_alloc();
+
+    if (mzstream_os_open(out_stream, "LICENSE.deflate", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    {
+        voidpf deflate_stream = mzstream_zlib_alloc();
+        uint64_t total_in = 0;
+        uint64_t total_out = 0;
+
+        mzstream_set_base(deflate_stream, out_stream);
+
+        mzstream_zlib_open(deflate_stream, NULL, MZSTREAM_MODE_WRITE);
+        mzstream_zlib_write(deflate_stream, buf, read);
+        mzstream_zlib_close(deflate_stream);
+
+        total_in = mzstream_zlib_get_total_in(deflate_stream);
+        total_out = mzstream_zlib_get_total_out(deflate_stream);
+
+        mzstream_zlib_free(deflate_stream);
+
+        printf("LICENSE compressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
+
+        mzstream_os_close(out_stream);
+    }
+    
+    mzstream_os_free(out_stream);
+}
 #ifndef NOMAIN
 int main(int argc, char *argv[])
 {
     zipFile zf = NULL;
-#ifdef USEWIN32IOAPI
-    zlib_filefunc64_def ffunc = {0};
-#endif
+    voidpf stream = NULL;
     char *zipfilename = NULL;
     const char *password = NULL;
     int zipfilenamearg = 0;
@@ -149,7 +248,8 @@ int main(int argc, char *argv[])
     int opt_overwrite = APPEND_STATUS_CREATE;
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
-
+    test_deflate();
+    test_inflate();
     minizip_banner();
     if (argc == 1)
     {
@@ -234,12 +334,9 @@ int main(int argc, char *argv[])
         }
     }
 
-#ifdef USEWIN32IOAPI
-    fill_win32_filefunc64A(&ffunc);
-    zf = zipOpen2_64(zipfilename, opt_overwrite, NULL, &ffunc);
-#else
-    zf = zipOpen64(zipfilename, opt_overwrite);
-#endif
+    stream = mzstream_os_alloc();
+
+    zf = zipOpen2(zipfilename, opt_overwrite, NULL, stream);
 
     if (zf == NULL)
     {
@@ -291,6 +388,8 @@ int main(int argc, char *argv[])
     errclose = zipClose(zf, NULL);
     if (errclose != ZIP_OK)
         printf("error in closing %s (%d)\n", zipfilename, errclose);
+
+    mzstream_os_free(stream);
 
     return err;
 }

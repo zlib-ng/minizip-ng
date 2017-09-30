@@ -220,50 +220,36 @@ int makedir(const char *newdir)
     return 1;
 }
 
-FILE *get_file_handle(const char *path)
-{
-    FILE *handle = NULL;
-#if defined(WIN32)
-    wchar_t *pathWide = NULL;
-    int pathLength = 0;
-
-    pathLength = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0) + 1;
-    pathWide = (wchar_t*)calloc(pathLength, sizeof(wchar_t));
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, pathWide, pathLength);
-    handle = _wfopen((const wchar_t*)pathWide, L"rb");
-    free(pathWide);
-#else
-    handle = fopen64(path, "rb");
-#endif
-
-    return handle;
-}
-
 int check_file_exists(const char *path)
 {
-    FILE *handle = get_file_handle(path);
-    if (handle == NULL)
-        return 0;
-    fclose(handle);
-    return 1;
+    int opened = 0;
+    voidpf stream = mzstream_os_alloc();
+    if (mzstream_os_open(stream, path, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    {
+        mzstream_os_close(stream);
+        opened = 1;
+    }
+    mzstream_os_free(stream);
+    return opened;
 }
 
 int is_large_file(const char *path)
 {
-    FILE* handle = NULL;
-    uint64_t pos = 0;
+    int64_t size = 0;
+    voidpf stream = mzstream_os_alloc();
 
-    handle = get_file_handle(path);
-    if (handle == NULL)
-        return 0;
+    if (mzstream_os_open(stream, path, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    {
+        mzstream_os_seek(stream, 0, MZSTREAM_SEEK_END);
+        size = mzstream_os_tell(stream);
+        mzstream_os_close(stream);
+    }
 
-    fseeko64(handle, 0, SEEK_END);
-    pos = ftello64(handle);
-    fclose(handle);
+    mzstream_os_free(stream);
 
-    printf("file : %s is %lld bytes\n", path, pos);
+    printf("file : %s is %lld bytes\n", path, size);
 
-    return (pos >= UINT32_MAX);
+    return (size >= UINT32_MAX);
 }
 
 void display_zpos64(uint64_t n, int size_char)

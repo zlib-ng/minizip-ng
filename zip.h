@@ -57,14 +57,6 @@ typedef voidp zipFile;
 #  define ZIP_UNUSED
 #endif
 
-#ifndef DEF_MEM_LEVEL
-#  if MAX_MEM_LEVEL >= 8
-#    define DEF_MEM_LEVEL 8
-#  else
-#    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
-#  endif
-#endif
-
 typedef struct
 {
     uint32_t    dos_date;
@@ -79,8 +71,7 @@ typedef struct
 /***************************************************************************/
 /* Writing a zip file */
 
-extern zipFile ZEXPORT zipOpen(const char *path, int append);
-extern zipFile ZEXPORT zipOpen64(const void *path, int append);
+extern zipFile ZEXPORT zipOpen(const char *path, int append, voidpf stream);
 /* Create a zipfile.
 
    path should contain the full path (by example, on a Windows XP computer 
@@ -99,17 +90,11 @@ extern zipFile ZEXPORT zipOpen64(const void *path, int append);
    the file you did not want delete. */
 
 extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment, 
-    zlib_filefunc_def *pzlib_filefunc_def);
-
-extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment, 
-    zlib_filefunc64_def *pzlib_filefunc_def);
+    voidpf stream);
 
 extern zipFile ZEXPORT zipOpen3(const char *path, int append, uint64_t disk_size, 
-    const char **globalcomment, zlib_filefunc_def *pzlib_filefunc_def);
+    const char **globalcomment,  voidpf stream);
 /* Same as zipOpen2 but allows specification of spanned zip size */
-
-extern zipFile ZEXPORT zipOpen3_64(const void *path, int append, uint64_t disk_size, 
-    const char **globalcomment, zlib_filefunc64_def *pzlib_filefunc_def);
 
 extern int ZEXPORT zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global, 

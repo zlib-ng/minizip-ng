@@ -22,41 +22,9 @@
 
 #include "zlib.h"
 
-#if defined(USE_FILE32API)
-#  define fopen64 fopen
-#  define ftello64 ftell
-#  define fseeko64 fseek
-#else
-#  if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__ANDROID__)
-#    define fopen64 fopen
-#    define ftello64 ftello
-#    define fseeko64 fseeko
-#  endif
-#  ifdef _MSC_VER
-#    define fopen64 fopen
-#    if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
-#      define ftello64 _ftelli64
-#      define fseeko64 _fseeki64
-#    else /* old MSC */
-#      define ftello64 ftell
-#      define fseeko64 fseek
-#    endif
-#  endif
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define ZLIB_FILEFUNC_SEEK_CUR (1)
-#define ZLIB_FILEFUNC_SEEK_END (2)
-#define ZLIB_FILEFUNC_SEEK_SET (0)
-
-#define ZLIB_FILEFUNC_MODE_READ             (1)
-#define ZLIB_FILEFUNC_MODE_WRITE            (2)
-#define ZLIB_FILEFUNC_MODE_READWRITEFILTER  (3)
-#define ZLIB_FILEFUNC_MODE_EXISTING         (4)
-#define ZLIB_FILEFUNC_MODE_CREATE           (8)
 
 #ifndef ZCALLBACK
 #  if (defined(WIN32) || defined(_WIN32) || defined (WINDOWS) || \
@@ -66,80 +34,94 @@ extern "C" {
 #    define ZCALLBACK
 #  endif
 #endif
+    
+#define MZSTREAM_SEEK_CUR             (1)
+#define MZSTREAM_SEEK_END             (2)
+#define MZSTREAM_SEEK_SET             (0)
 
-typedef voidpf   (ZCALLBACK *open_file_func)     (voidpf opaque, const char *filename, int mode);
-typedef voidpf   (ZCALLBACK *opendisk_file_func) (voidpf opaque, voidpf stream, uint32_t number_disk, int mode);
-typedef uint32_t (ZCALLBACK *read_file_func)     (voidpf opaque, voidpf stream, void* buf, uint32_t size);
-typedef uint32_t (ZCALLBACK *write_file_func)    (voidpf opaque, voidpf stream, const void *buf, uint32_t size);
-typedef int      (ZCALLBACK *close_file_func)    (voidpf opaque, voidpf stream);
-typedef int      (ZCALLBACK *error_file_func)    (voidpf opaque, voidpf stream);
+#define MZSTREAM_MODE_READ            (1)
+#define MZSTREAM_MODE_WRITE           (2)
+#define MZSTREAM_MODE_READWRITEFILTER (3)
+#define MZSTREAM_MODE_EXISTING        (4)
+#define MZSTREAM_MODE_CREATE          (8)
 
-typedef long     (ZCALLBACK *tell_file_func)     (voidpf opaque, voidpf stream);
-typedef long     (ZCALLBACK *seek_file_func)     (voidpf opaque, voidpf stream, uint32_t offset, int origin);
+#define MZSTREAM_ERR                  (-1)
+#define MZSTREAM_OK                   (0)
 
-/* here is the "old" 32 bits structure structure */
-typedef struct zlib_filefunc_def_s
+typedef int32_t (ZCALLBACK *mzstream_open_cb)     (voidpf stream, const char *filename, int mode);
+typedef int32_t (ZCALLBACK *mzstream_is_open_cb)  (voidpf stream);
+typedef int32_t (ZCALLBACK *mzstream_read_cb)     (voidpf stream, void* buf, uint32_t size);
+typedef int32_t (ZCALLBACK *mzstream_write_cb)    (voidpf stream, const void *buf, uint32_t size);
+typedef int64_t (ZCALLBACK *mzstream_tell_cb)     (voidpf stream);
+typedef int32_t (ZCALLBACK *mzstream_seek_cb)     (voidpf stream, uint64_t offset, int origin);
+typedef int32_t (ZCALLBACK *mzstream_close_cb)    (voidpf stream);
+typedef int32_t (ZCALLBACK *mzstream_error_cb)    (voidpf stream);
+typedef voidpf  (ZCALLBACK *mzstream_alloc_cb)    (void);
+typedef void    (ZCALLBACK *mzstream_free_cb)     (voidpf stream);
+
+typedef struct mzstream_s
 {
-    open_file_func      zopen_file;
-    opendisk_file_func  zopendisk_file;
-    read_file_func      zread_file;
-    write_file_func     zwrite_file;
-    tell_file_func      ztell_file;
-    seek_file_func      zseek_file;
-    close_file_func     zclose_file;
-    error_file_func     zerror_file;
-    voidpf              opaque;
-} zlib_filefunc_def;
+    mzstream_open_cb      open;
+    mzstream_is_open_cb   is_open;
+    mzstream_read_cb      read;
+    mzstream_write_cb     write;
+    mzstream_tell_cb      tell;
+    mzstream_seek_cb      seek;
+    mzstream_close_cb     close;
+    mzstream_error_cb     error;
+    mzstream_alloc_cb     alloc;
+    mzstream_free_cb      free;
+    struct mzstream       *base;
+} mzstream;
 
-typedef uint64_t (ZCALLBACK *tell64_file_func)    (voidpf opaque, voidpf stream);
-typedef long     (ZCALLBACK *seek64_file_func)    (voidpf opaque, voidpf stream, uint64_t offset, int origin);
-typedef voidpf   (ZCALLBACK *open64_file_func)    (voidpf opaque, const void *filename, int mode);
-typedef voidpf   (ZCALLBACK *opendisk64_file_func)(voidpf opaque, voidpf stream, uint32_t number_disk, int mode);
+int32_t mzstream_open(voidpf stream, const char *filename, int mode);
+int32_t mzstream_is_open(voidpf stream);
+int32_t mzstream_read(voidpf stream, void* buf, uint32_t size);
+int32_t mzstream_write(voidpf stream, const void *buf, uint32_t size);
+int64_t mzstream_tell(voidpf stream);
+int32_t mzstream_seek(voidpf stream, uint64_t offset, int origin);
+int32_t mzstream_close(voidpf stream);
+int32_t mzstream_error(voidpf stream);
 
-typedef struct zlib_filefunc64_def_s
-{
-    open64_file_func     zopen64_file;
-    opendisk64_file_func zopendisk64_file;
-    read_file_func       zread_file;
-    write_file_func      zwrite_file;
-    tell64_file_func     ztell64_file;
-    seek64_file_func     zseek64_file;
-    close_file_func      zclose_file;
-    error_file_func      zerror_file;
-    voidpf               opaque;
-} zlib_filefunc64_def;
+int32_t mzstream_set_base(voidpf stream, voidpf base);
 
-void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
-void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def);
+int32_t ZCALLBACK mzstream_posix_open(voidpf stream, const char *filename, int mode);
+int32_t ZCALLBACK mzstream_posix_is_open(voidpf stream);
+int32_t ZCALLBACK mzstream_posix_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mzstream_posix_write(voidpf stream, const void *buf, uint32_t size);
+int64_t ZCALLBACK mzstream_posix_tell(voidpf stream);
+int32_t ZCALLBACK mzstream_posix_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mzstream_posix_close(voidpf stream);
+int32_t ZCALLBACK mzstream_posix_error(voidpf stream);
 
-/* now internal definition, only for zip.c and unzip.h */
-typedef struct zlib_filefunc64_32_def_s
-{
-    zlib_filefunc64_def zfile_func64;
-    open_file_func      zopen32_file;
-    opendisk_file_func  zopendisk32_file;
-    tell_file_func      ztell32_file;
-    seek_file_func      zseek32_file;
-} zlib_filefunc64_32_def;
+voidpf             mzstream_posix_alloc(void);
+void               mzstream_posix_free(voidpf stream);
 
-#define ZREAD64(filefunc,filestream,buf,size)       ((*((filefunc).zfile_func64.zread_file))        ((filefunc).zfile_func64.opaque,filestream,buf,size))
-#define ZWRITE64(filefunc,filestream,buf,size)      ((*((filefunc).zfile_func64.zwrite_file))       ((filefunc).zfile_func64.opaque,filestream,buf,size))
-/*#define ZTELL64(filefunc,filestream)                ((*((filefunc).ztell64_file))                   ((filefunc).opaque,filestream))*/
-/*#define ZSEEK64(filefunc,filestream,pos,mode)       ((*((filefunc).zseek64_file))                   ((filefunc).opaque,filestream,pos,mode))*/
-#define ZCLOSE64(filefunc,filestream)               ((*((filefunc).zfile_func64.zclose_file))       ((filefunc).zfile_func64.opaque,filestream))
-#define ZERROR64(filefunc,filestream)               ((*((filefunc).zfile_func64.zerror_file))       ((filefunc).zfile_func64.opaque,filestream))
+#ifndef _WIN32
+#define mzstream_os_open    mzstream_posix_open
+#define mzstream_os_is_open mzstream_posix_is_open
+#define mzstream_os_read    mzstream_posix_read
+#define mzstream_os_write   mzstream_posix_write
+#define mzstream_os_tell    mzstream_posix_tell
+#define mzstream_os_seek    mzstream_posix_seek
+#define mzstream_os_close   mzstream_posix_close
+#define mzstream_os_error   mzstream_posix_error
 
-voidpf   call_zopen64(const zlib_filefunc64_32_def *pfilefunc,const void*filename, int mode);
-voidpf   call_zopendisk64(const zlib_filefunc64_32_def *pfilefunc, voidpf filestream, uint32_t number_disk, int mode);
-long     call_zseek64(const zlib_filefunc64_32_def *pfilefunc, voidpf filestream, uint64_t offset, int origin);
-uint64_t call_ztell64(const zlib_filefunc64_32_def *pfilefunc, voidpf filestream);
+#define mzstream_os_alloc   mzstream_posix_alloc
+#define mzstream_os_free    mzstream_posix_free
+#else
+#define mzstream_os_open    mzstream_win32_open
+#define mzstream_os_is_open mzstream_win32_is_open
+#define mzstream_os_read    mzstream_win32_read
+#define mzstream_os_write   mzstream_win32_write
+#define mzstream_os_tell    mzstream_win32_tell
+#define mzstream_os_seek    mzstream_win32_seek
+#define mzstream_os_close   mzstream_win32_close
+#define mzstream_os_error   mzstream_win32_error
 
-void fill_zlib_filefunc64_32_def_from_filefunc32(zlib_filefunc64_32_def *p_filefunc64_32, const zlib_filefunc_def *p_filefunc32);
-
-#define ZOPEN64(filefunc,filename,mode)             (call_zopen64((&(filefunc)),(filename),(mode)))
-#define ZOPENDISK64(filefunc,filestream,diskn,mode) (call_zopendisk64((&(filefunc)),(filestream),(diskn),(mode)))
-#define ZTELL64(filefunc,filestream)                (call_ztell64((&(filefunc)),(filestream)))
-#define ZSEEK64(filefunc,filestream,pos,mode)       (call_zseek64((&(filefunc)),(filestream),(pos),(mode)))
+#define mzstream_os_alloc   mzstream_win32_alloc
+#define mzstream_os_free    mzstream_win32_free
+#endif
 
 #ifdef __cplusplus
 }
