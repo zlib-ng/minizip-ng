@@ -58,9 +58,15 @@ typedef voidp zipFile;
 #endif
 
 #ifdef __GNUC__
-#  define ZIP_DEPRECATED __attribute__((__deprecated__))
+#if __has_extension(attribute_deprecated_with_message)
+#  define ZIP_DEPRECATED(message) __attribute__((deprecated(message)))
 #else
-#  define ZIP_DEPRECATED
+#  define ZIP_DEPRECATED(...) __attribute__((__deprecated__))
+#endif
+#elif defined(_MSC_VER)
+#  define ZIP_DEPRECATED(...) __declspec(deprecated)
+#else
+#  define ZIP_DEPRECATED(...)
 #endif
 
 #ifndef DEF_MEM_LEVEL
@@ -73,10 +79,36 @@ typedef voidp zipFile;
 
 typedef struct
 {
-    uint32_t    dos_date;
-    uint16_t    internal_fa;        /* internal file attributes        2 bytes */
-    uint32_t    external_fa;        /* external file attributes        4 bytes */
+    uint32_t    dos_date;               /* ms-dos date and time */
+    uint16_t    internal_fa;            /* internal file attributes */
+    uint32_t    external_fa;            /* external file attributes */
+    const void  *extrafield_local;      /* extra fields in local header*/
+    uint16_t    size_extrafield_local;  /* size of additional extra fields in local header */
+    const void  *extrafield_global;     /* extra fields in global header */
+    uint16_t    size_extrafield_global; /* size of extra fields in global header */
+    const char  *comment;               /* file comment */
+    uint8_t     zip64;                  /* enable zip64 extensions */
+    uint16_t    flag_base;
 } zip_fileinfo;
+
+typedef struct
+{
+    uint16_t    compression_method;
+    int         level;
+    uint8_t     raw;                    /* no compression method */
+    int         windowBits;
+    int         memLevel;
+    int         strategy;
+} zip_compressioninfo;
+
+typedef struct
+{
+#if defined(HAVE_AES)
+    uint8_t     aes;                    /* enable winzip aes encryption */
+#endif
+    //uint32_t    crc_for_crypting;       /* crc to use for traditional encryption */
+    const char *password;
+} zip_cryptinfo;
 
 #define APPEND_STATUS_CREATE        (0)
 #define APPEND_STATUS_CREATEAFTER   (1)
@@ -144,47 +176,52 @@ extern int ZEXPORT zipOpenNewFileInZip2(zipFile file, const char *filename, cons
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw);
 /* Same as zipOpenNewFileInZip, except if raw=1, we write raw file */
 
-extern int ZEXPORT zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+extern int ZEXPORT ZIP_DEPRECATED("use zipOpenNewFileInZip5") zipOpenNewFileInZip2_64(zipFile file, const char *filename,
+    const zip_fileinfo *zipfi, const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int zip64);
 /* Same as zipOpenNewFileInZip3 with zip64 support */
 
-extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+extern int ZEXPORT ZIP_DEPRECATED("use zipOpenNewFileInZip5") zipOpenNewFileInZip3(zipFile file, const char *filename,
+    const zip_fileinfo *zipfi, const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting)
-    ZIP_DEPRECATED;
+    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting);
 /* Same as zipOpenNewFileInZip2, except
     windowBits, memLevel, strategy : see parameter strategy in deflateInit2
     password : crypting password (NULL for no crypting)
     crc_for_crypting : crc of file to compress (needed for crypting) */
 
-extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+extern int ZEXPORT ZIP_DEPRECATED("use zipOpenNewFileInZip5") zipOpenNewFileInZip3_64(zipFile file, const char *filename,
+    const zip_fileinfo *zipfi, const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, int zip64)
-    ZIP_DEPRECATED;
+    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, int zip64);
 /* Same as zipOpenNewFileInZip3 with zip64 support */
 
-extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+extern int ZEXPORT ZIP_DEPRECATED("use zipOpenNewFileInZip6") zipOpenNewFileInZip4(zipFile file, const char *filename,
+    const zip_fileinfo *zipfi, const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base)
-    ZIP_DEPRECATED;
+    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base);
 /* Same as zipOpenNewFileInZip3 except versionMadeBy & flag fields */
 
-extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+extern int ZEXPORT ZIP_DEPRECATED("use zipOpenNewFileInZip6") zipOpenNewFileInZip4_64(zipFile file, const char *filename,
+    const zip_fileinfo *zipfi, const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
-    ZIP_DEPRECATED;
+    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base,
+    int zip64);
 /* Same as zipOpenNewFileInZip4 with zip64 support */
 
-extern int ZEXPORT zipOpenNewFileInZip5_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, uint16_t compression_method, int level, int raw,
-    int windowBits, int memLevel, int strategy, const char *password, uint16_t version_madeby, uint16_t flag_base, int zip64);
-/* Same as zipOpenNewFileInZip4_64 with compression_method support */
+extern int ZEXPORT zipOpenNewFileInZip5(zipFile file,
+                                        const char *filename,
+                                        const zip_fileinfo *zipfi,
+                                        const zip_compressioninfo *zipcomp,
+                                        const zip_cryptinfo *zipcrypt);
+
+extern int ZEXPORT zipOpenNewFileInZip6(zipFile file,
+                                        const char *filename,
+                                        const zip_fileinfo *zipfi,
+                                        const zip_compressioninfo *zipcomp,
+                                        const zip_cryptinfo *zipcrypt,
+                                        uint16_t version_madeby);
+/* Same as zipOpenNewFileInZip5 with version_madeby support */
 
 extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
 /* Write data in the zipfile */
