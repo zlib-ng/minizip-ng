@@ -39,16 +39,16 @@
 #ifdef __GNUC__
 #ifndef max
 #define max(x,y) ({ \
-const typeof(x) _x = (x);	\
-const typeof(y) _y = (y);	\
+const __typeof__(x) _x = (x);	\
+const __typeof__(y) _y = (y);	\
 (void) (&_x == &_y);		\
 _x > _y ? _x : _y; })
 #endif /* __GNUC__ */
 
 #ifndef min
 #define min(x,y) ({ \
-const typeof(x) _x = (x);	\
-const typeof(y) _y = (y);	\
+const __typeof__(x) _x = (x);	\
+const __typeof__(y) _y = (y);	\
 (void) (&_x == &_y);		\
 _x < _y ? _x : _y; })
 #endif
