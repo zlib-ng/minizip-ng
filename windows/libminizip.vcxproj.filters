@@ -15,34 +15,16 @@
     <Filter Include="AES">
       <UniqueIdentifier>{a41d606c-337c-4c8f-aa15-65aafd88063d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="BZip2">
+      <UniqueIdentifier>{fa8c9130-e0d5-4563-a4dc-bb3b0668d94c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\crypt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ioapi.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\iowin32.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\unzip.c">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\aescrypt.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\aeskey.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\aestab.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\pwd2key.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\sha1.c">
-      <Filter>AES</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\zutil.c">
       <Filter>Zlib</Filter>
@@ -62,15 +44,6 @@
     <ClCompile Include="..\..\..\infback.c">
       <Filter>Zlib</Filter>
     </ClCompile>
-    <ClCompile Include="..\aes\hmac.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\fileenc.c">
-      <Filter>AES</Filter>
-    </ClCompile>
-    <ClCompile Include="..\aes\prng.c">
-      <Filter>AES</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\adler32.c">
       <Filter>Zlib</Filter>
     </ClCompile>
@@ -89,11 +62,83 @@
     <ClCompile Include="..\zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ioapi_buf.c">
+    <ClCompile Include="..\lib\aes\aes_ni.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\aescrypt.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\aeskey.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\aestab.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\fileenc.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\hmac.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\prng.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\pwd2key.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\aes\sha1.c">
+      <Filter>AES</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\blocksort.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\compress.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\crctable.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\decompress.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\huffman.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\mk251.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\randtable.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\unzcrash.c">
+      <Filter>BZip2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\ioapi_mem.c">
+    <ClCompile Include="..\mzstrm_aes.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_buf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_crypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_mem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_posix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_zlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\bzlib.c">
+      <Filter>BZip2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,41 +148,8 @@
     <ClInclude Include="..\crypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ioapi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\iowin32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\unzip.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\aes.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\aes_via_ace.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\aesopt.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\aestab.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\brg_endian.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\brg_types.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\pwd2key.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\sha1.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\prng.h">
-      <Filter>AES</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\trees.h">
       <Filter>Zlib</Filter>
@@ -166,19 +178,67 @@
     <ClInclude Include="..\..\..\crc32.h">
       <Filter>Zlib</Filter>
     </ClInclude>
-    <ClInclude Include="..\aes\hmac.h">
-      <Filter>AES</Filter>
-    </ClInclude>
-    <ClInclude Include="..\aes\fileenc.h">
-      <Filter>AES</Filter>
-    </ClInclude>
     <ClInclude Include="..\zip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ioapi_buf.h">
+    <ClInclude Include="..\lib\aes\aes.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\aes_ni.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\aesopt.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\aestab.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\brg_endian.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\brg_types.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\fileenc.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\hmac.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\prng.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\pwd2key.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\aes\sha1.h">
+      <Filter>AES</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\bzip2\bzlib.h">
+      <Filter>BZip2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\ioapi_mem.h">
+    <ClInclude Include="..\mzstrm_aes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_buf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_crypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_mem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_posix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_zlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_win32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

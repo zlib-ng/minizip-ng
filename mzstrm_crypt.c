@@ -1,24 +1,27 @@
-/* ioapi_crypt.c -- IO base function header for compress/uncompress .zip
-   files using zlib + zip or unzip API
-
-   This version of ioapi is designed to access memory rather than files.
-   We do use a region of memory to put data in to and take it out of. We do
-   not have auto-extending buffers and do not inform anyone else that the
-   data has been written. It is really intended for accessing a zip archive
-   embedded in an application such that I can write an installer with no
-   external files. Creation of archives has not been attempted, although
-   parts of the framework are present.
-
-   Based on Unzip ioapi.c version 0.22, May 19th, 2003
+/* mzstrm_crypt.c -- Code for traditional PKWARE encryption
+   Version 1.2.0, September 16th, 2017
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Copyright (C) 2003 Justin Fletcher
-   Copyright (C) 1998-2003 Gilles Vollant
+   Copyright (C) 1998-2005 Gilles Vollant
+     Modifications for Info-ZIP crypting
      http://www.winimage.com/zLibDll/minizip.html
+   Copyright (C) 2003 Terry Thorsen
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This code is a modified version of crypting code in Info-ZIP distribution
+
+   Copyright (C) 1990-2000 Info-ZIP.  All rights reserved.
+
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
+
+   This encryption code is a direct transcription of the algorithm from
+   Roger Schlafly, described by Phil Katz in the file appnote.txt. This
+   file (appnote.txt) is distributed with the PKZIP program (even in the
+   version without encryption capabilities).
+
+   If you don't need crypting in your application, just define symbols
+   NOCRYPT and NOUNCRYPT.
 */
 
 
@@ -27,9 +30,9 @@
 #include <string.h>
 
 #include "zlib.h"
-#include "ioapi.h"
 
-#include "ioapi_crypt.h"
+#include "mzstrm.h"
+#include "mzstrm_crypt.h"
 
 #define RAND_HEAD_LEN  12
 
@@ -88,7 +91,7 @@ void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc
     }
 }
 
-int32_t ZCALLBACK mz_stream_crypt_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_crypt_open(voidpf stream, const char *path, int mode)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint16_t t = 0;
@@ -147,7 +150,7 @@ int32_t ZCALLBACK mz_stream_crypt_open(voidpf stream, const char *filename, int 
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_crypt_is_open(voidpf stream)
+int32_t mz_stream_crypt_is_open(voidpf stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     if (crypt->initialized == 0)
@@ -155,7 +158,7 @@ int32_t ZCALLBACK mz_stream_crypt_is_open(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_crypt_read(voidpf stream, void *buf, uint32_t size)
+int32_t mz_stream_crypt_read(voidpf stream, void *buf, uint32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -169,7 +172,7 @@ int32_t ZCALLBACK mz_stream_crypt_read(voidpf stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t ZCALLBACK mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -186,26 +189,26 @@ int32_t ZCALLBACK mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t
     return written;
 }
 
-int64_t ZCALLBACK mz_stream_crypt_tell(voidpf stream)
+int64_t mz_stream_crypt_tell(voidpf stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return mz_stream_tell(crypt->stream.base);
 }
 
-int32_t ZCALLBACK mz_stream_crypt_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_crypt_seek(voidpf stream, uint64_t offset, int origin)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return mz_stream_seek(crypt->stream.base, offset, origin);
 }
 
-int32_t ZCALLBACK mz_stream_crypt_close(voidpf stream)
+int32_t mz_stream_crypt_close(voidpf stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->initialized = 0;
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_crypt_error(voidpf stream)
+int32_t mz_stream_crypt_error(voidpf stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return crypt->error;

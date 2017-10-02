@@ -34,10 +34,7 @@
 
 #include "unzip.h"
 
-#ifdef _WIN32
-#  define USEWIN32IOAPI
-#  include "iowin32.h"
-#endif
+#include "mzstrm.h"
 
 #include "minishared.h"
 

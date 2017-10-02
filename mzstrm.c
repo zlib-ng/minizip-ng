@@ -1,4 +1,4 @@
-/* ioapi.c -- IO base function header for compress/uncompress .zip
+/* mzstrm.c -- Stream interface
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -14,19 +14,19 @@
 */
 
 #include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
-#include "ioapi.h"
+#include "mzstrm.h"
 
-int32_t mz_stream_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_open(void *stream, const char *path, int mode)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->open == NULL)
         return MZ_STREAM_ERR;
-    return strm->open(strm, filename, mode);
+    return strm->open(strm, path, mode);
 }
 
-int32_t mz_stream_is_open(voidpf stream)
+int32_t mz_stream_is_open(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->is_open == NULL)
@@ -34,7 +34,7 @@ int32_t mz_stream_is_open(voidpf stream)
     return strm->is_open(strm);
 }
 
-int32_t mz_stream_read(voidpf stream, void* buf, uint32_t size)
+int32_t mz_stream_read(void *stream, void* buf, uint32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->read == NULL)
@@ -42,7 +42,7 @@ int32_t mz_stream_read(voidpf stream, void* buf, uint32_t size)
     return strm->read(strm, buf, size);
 }
 
-int32_t mz_stream_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->write == NULL)
@@ -50,7 +50,7 @@ int32_t mz_stream_write(voidpf stream, const void *buf, uint32_t size)
     return strm->write(strm, buf, size);
 }
 
-int64_t mz_stream_tell(voidpf stream)
+int64_t mz_stream_tell(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->tell == NULL)
@@ -58,7 +58,7 @@ int64_t mz_stream_tell(voidpf stream)
     return strm->tell(strm);
 }
 
-int32_t mz_stream_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->seek == NULL)
@@ -66,7 +66,7 @@ int32_t mz_stream_seek(voidpf stream, uint64_t offset, int origin)
     return strm->seek(strm, offset, origin);
 }
 
-int32_t mz_stream_close(voidpf stream)
+int32_t mz_stream_close(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->close == NULL)
@@ -74,7 +74,7 @@ int32_t mz_stream_close(voidpf stream)
     return strm->close(strm);
 }
 
-int32_t mz_stream_error(voidpf stream)
+int32_t mz_stream_error(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->error == NULL)
@@ -82,9 +82,46 @@ int32_t mz_stream_error(voidpf stream)
     return strm->error(strm);
 }
 
-int32_t mz_stream_set_base(voidpf stream, voidpf base)
+int32_t mz_stream_set_base(void *stream, void *base)
 {
     mz_stream *strm = (mz_stream *)stream;
     strm->base = (mz_stream *)base;
     return MZ_STREAM_OK;
+}
+
+int32_t mz_os_file_exists(const char *path)
+{
+    void *stream = NULL;
+    int opened = 0;
+
+    mz_stream_os_create(&stream);
+
+    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    {
+        mz_stream_os_close(stream);
+        opened = 1;
+    }
+
+    mz_stream_os_delete(&stream);
+
+    return opened;
+}
+
+int32_t mz_os_file_is_large(const char *path)
+{
+    void *stream = NULL;
+    int64_t size = 0;
+    
+    mz_stream_os_create(&stream);
+
+    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    {
+        mz_stream_os_seek(stream, 0, MZ_STREAM_SEEK_END);
+        size = mz_stream_os_tell(stream);
+        mz_stream_os_close(stream);
+    }
+
+    mz_stream_os_delete(&stream);
+
+    return (size >= UINT32_MAX);
 }

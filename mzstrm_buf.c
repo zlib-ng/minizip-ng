@@ -1,5 +1,5 @@
-/* ioapi_buf.c -- IO base function header for compress/uncompress .zip
-   files using zlib + zip or unzip API
+/* mzstrm_buf.c -- Stream for buffering reads/writes
+   part of MiniZip project
 
    This version of ioapi is designed to buffer IO.
 
@@ -16,10 +16,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "zlib.h"
-#include "ioapi.h"
-
-#include "ioapi_buf.h"
+#include "mzstrm.h"
+#include "mzstrm_buf.h"
 
 #ifndef IOBUF_BUFFERSIZE
 #  define IOBUF_BUFFERSIZE (UINT16_MAX)
@@ -76,7 +74,7 @@ typedef struct mz_stream_buffered_s {
 #  define mz_stream_buffered_print(o,s,f,...)
 #endif
 
-void mz_stream_buffered_printinternal(voidpf stream, char *format, ...)
+void mz_stream_buffered_printinternal(void *stream, char *format, ...)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     va_list arglist;
@@ -86,14 +84,14 @@ void mz_stream_buffered_printinternal(voidpf stream, char *format, ...)
     va_end(arglist);
 }
 
-int32_t ZCALLBACK mz_stream_buffered_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_buffered_open(void *stream, const char *path, int mode)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     mz_stream_buffered_print(opaque, buffered, "open [num %d mode %d]\n", number_disk, mode);
-    return mz_stream_open(stream, filename, mode);
+    return mz_stream_open(stream, path, mode);
 }
 
-int32_t mz_stream_buffered_flush(voidpf stream, uint32_t *written)
+int32_t mz_stream_buffered_flush(void *stream, uint32_t *written)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t total_bytes_written = 0;
@@ -125,7 +123,7 @@ int32_t mz_stream_buffered_flush(voidpf stream, uint32_t *written)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_buffered_read(voidpf stream, void *buf, uint32_t size)
+int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t buf_len = 0;
@@ -182,7 +180,7 @@ int32_t ZCALLBACK mz_stream_buffered_read(voidpf stream, void *buf, uint32_t siz
     return size - bytes_left_to_read;
 }
 
-int32_t ZCALLBACK mz_stream_buffered_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_to_write = size;
@@ -237,7 +235,7 @@ int32_t ZCALLBACK mz_stream_buffered_write(voidpf stream, const void *buf, uint3
     return size - bytes_left_to_write;
 }
 
-int64_t mz_stream_buffered_tellinternal(voidpf stream, uint64_t position)
+int64_t mz_stream_buffered_tellinternal(void *stream, uint64_t position)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     buffered->position = position;
@@ -249,14 +247,14 @@ int64_t mz_stream_buffered_tellinternal(voidpf stream, uint64_t position)
     return position;
 }
 
-int64_t ZCALLBACK mz_stream_buffered_tell(voidpf stream)
+int64_t mz_stream_buffered_tell(void *stream)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int64_t position = mz_stream_tell(buffered->stream.base);
     return mz_stream_buffered_tellinternal(stream, position);
 }
 
-int mz_stream_buffered_seekinternal(voidpf stream, uint64_t offset, int origin)
+int mz_stream_buffered_seekinternal(void *stream, uint64_t offset, int origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_flushed = 0;
@@ -331,7 +329,7 @@ int mz_stream_buffered_seekinternal(voidpf stream, uint64_t offset, int origin)
     return MZ_STREAM_ERR;
 }
 
-int32_t ZCALLBACK mz_stream_buffered_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_buffered_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     if (mz_stream_buffered_seekinternal(stream, offset, origin) == MZ_STREAM_ERR)
@@ -339,7 +337,7 @@ int32_t ZCALLBACK mz_stream_buffered_seek(voidpf stream, uint64_t offset, int or
     return mz_stream_seek(buffered->stream.base, offset, origin);
 }
 
-int32_t ZCALLBACK mz_stream_buffered_close(voidpf stream)
+int32_t mz_stream_buffered_close(void *stream)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_flushed = 0;
@@ -352,13 +350,13 @@ int32_t ZCALLBACK mz_stream_buffered_close(voidpf stream)
     return mz_stream_close(&buffered->stream.base);
 }
 
-int32_t ZCALLBACK mz_stream_buffered_error(voidpf stream)
+int32_t mz_stream_buffered_error(void *stream)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     return mz_stream_error(&buffered->stream.base);
 }
 
-voidpf mz_stream_buffered_create(voidpf *stream)
+void *mz_stream_buffered_create(void **stream)
 {
     mz_stream_buffered *buffered = NULL;
 
@@ -380,10 +378,10 @@ voidpf mz_stream_buffered_create(voidpf *stream)
     if (stream == NULL)
         *stream = buffered;
 
-    return (voidpf)buffered;
+    return buffered;
 }
 
-void mz_stream_buffered_delete(voidpf *stream)
+void mz_stream_buffered_delete(void **stream)
 {
     mz_stream_buffered *buffered = NULL;
     if (stream == NULL)

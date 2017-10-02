@@ -74,8 +74,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\aes\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;HAVE_AES;HAVE_AES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,8 +83,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\aes\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;HAVE_AES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,8 +94,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\aes\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -109,8 +109,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\aes\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -130,19 +130,33 @@
     <ClCompile Include="..\..\..\uncompr.c" />
     <ClCompile Include="..\..\..\zutil.c" />
     <ClCompile Include="..\crypt.c" />
-    <ClCompile Include="..\ioapi.c" />
-    <ClCompile Include="..\ioapi_buf.c" />
-    <ClCompile Include="..\ioapi_mem.c" />
-    <ClCompile Include="..\iowin32.c" />
+    <ClCompile Include="..\lib\bzip2\bzlib.c" />
+    <ClCompile Include="..\mzstrm.c" />
+    <ClCompile Include="..\mzstrm_aes.c" />
+    <ClCompile Include="..\mzstrm_buf.c" />
+    <ClCompile Include="..\mzstrm_crypt.c" />
+    <ClCompile Include="..\mzstrm_mem.c" />
+    <ClCompile Include="..\mzstrm_posix.c" />
+    <ClCompile Include="..\mzstrm_zlib.c" />
+    <ClCompile Include="..\mzstrm_win32.c" />
+    <ClCompile Include="..\lib\aes\aescrypt.c" />
+    <ClCompile Include="..\lib\aes\aeskey.c" />
+    <ClCompile Include="..\lib\aes\aestab.c" />
+    <ClCompile Include="..\lib\aes\aes_ni.c" />
+    <ClCompile Include="..\lib\aes\fileenc.c" />
+    <ClCompile Include="..\lib\aes\hmac.c" />
+    <ClCompile Include="..\lib\aes\prng.c" />
+    <ClCompile Include="..\lib\aes\pwd2key.c" />
+    <ClCompile Include="..\lib\aes\sha1.c" />
+    <ClCompile Include="..\lib\bzip2\blocksort.c" />
+    <ClCompile Include="..\lib\bzip2\compress.c" />
+    <ClCompile Include="..\lib\bzip2\crctable.c" />
+    <ClCompile Include="..\lib\bzip2\decompress.c" />
+    <ClCompile Include="..\lib\bzip2\huffman.c" />
+    <ClCompile Include="..\lib\bzip2\mk251.c" />
+    <ClCompile Include="..\lib\bzip2\randtable.c" />
+    <ClCompile Include="..\lib\bzip2\unzcrash.c" />
     <ClCompile Include="..\unzip.c" />
-    <ClCompile Include="..\aes\aescrypt.c" />
-    <ClCompile Include="..\aes\aeskey.c" />
-    <ClCompile Include="..\aes\aestab.c" />
-    <ClCompile Include="..\aes\fileenc.c" />
-    <ClCompile Include="..\aes\hmac.c" />
-    <ClCompile Include="..\aes\prng.c" />
-    <ClCompile Include="..\aes\pwd2key.c" />
-    <ClCompile Include="..\aes\sha1.c" />
     <ClCompile Include="..\zip.c" />
   </ItemGroup>
   <ItemGroup>
@@ -157,22 +171,27 @@
     <ClInclude Include="..\..\..\zlib.h" />
     <ClInclude Include="..\..\..\zutil.h" />
     <ClInclude Include="..\crypt.h" />
-    <ClInclude Include="..\ioapi.h" />
-    <ClInclude Include="..\ioapi_buf.h" />
-    <ClInclude Include="..\ioapi_mem.h" />
-    <ClInclude Include="..\iowin32.h" />
+    <ClInclude Include="..\mzstrm.h" />
+    <ClInclude Include="..\mzstrm_aes.h" />
+    <ClInclude Include="..\mzstrm_buf.h" />
+    <ClInclude Include="..\mzstrm_crypt.h" />
+    <ClInclude Include="..\mzstrm_mem.h" />
+    <ClInclude Include="..\mzstrm_posix.h" />
+    <ClInclude Include="..\mzstrm_zlib.h" />
+    <ClInclude Include="..\mzstrm_win32.h" />
+    <ClInclude Include="..\lib\aes\aes.h" />
+    <ClInclude Include="..\lib\aes\aesopt.h" />
+    <ClInclude Include="..\lib\aes\aestab.h" />
+    <ClInclude Include="..\lib\aes\aes_ni.h" />
+    <ClInclude Include="..\lib\aes\brg_endian.h" />
+    <ClInclude Include="..\lib\aes\brg_types.h" />
+    <ClInclude Include="..\lib\aes\fileenc.h" />
+    <ClInclude Include="..\lib\aes\hmac.h" />
+    <ClInclude Include="..\lib\aes\prng.h" />
+    <ClInclude Include="..\lib\aes\pwd2key.h" />
+    <ClInclude Include="..\lib\aes\sha1.h" />
+    <ClInclude Include="..\lib\bzip2\bzlib.h" />
     <ClInclude Include="..\unzip.h" />
-    <ClInclude Include="..\aes\aes.h" />
-    <ClInclude Include="..\aes\aesopt.h" />
-    <ClInclude Include="..\aes\aestab.h" />
-    <ClInclude Include="..\aes\aes_via_ace.h" />
-    <ClInclude Include="..\aes\brg_endian.h" />
-    <ClInclude Include="..\aes\brg_types.h" />
-    <ClInclude Include="..\aes\fileenc.h" />
-    <ClInclude Include="..\aes\hmac.h" />
-    <ClInclude Include="..\aes\prng.h" />
-    <ClInclude Include="..\aes\pwd2key.h" />
-    <ClInclude Include="..\aes\sha1.h" />
     <ClInclude Include="..\zip.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

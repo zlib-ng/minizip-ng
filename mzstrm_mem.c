@@ -1,13 +1,7 @@
-/* ioapi_mem.c -- IO base function header for compress/uncompress .zip
-   files using zlib + zip or unzip API
+/* mzstrm_mem.c -- Stream for memory access
 
-   This version of ioapi is designed to access memory rather than files.
-   We do use a region of memory to put data in to and take it out of. We do
-   not have auto-extending buffers and do not inform anyone else that the
-   data has been written. It is really intended for accessing a zip archive
-   embedded in an application such that I can write an installer with no
-   external files. Creation of archives has not been attempted, although
-   parts of the framework are present.
+   This interface is designed to access memory rather than files.
+   We do use a region of memory to put data in to and take it out of. 
 
    Based on Unzip ioapi.c version 0.22, May 19th, 2003
 
@@ -26,10 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "zlib.h"
-#include "ioapi.h"
-
-#include "ioapi_mem.h"
+#include "mzstrm.h"
+#include "mzstrm_mem.h"
 
 typedef struct mz_stream_mem_s {
     mz_stream           stream;
@@ -40,7 +32,7 @@ typedef struct mz_stream_mem_s {
     int16_t             growable;   // Growable memory buffer
 } mz_stream_mem;
 
-int32_t ZCALLBACK mz_stream_mem_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_mem_open(void *stream, const char *path, int mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
@@ -65,7 +57,7 @@ int32_t ZCALLBACK mz_stream_mem_open(voidpf stream, const char *filename, int mo
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_mem_is_open(voidpf stream)
+int32_t mz_stream_mem_is_open(void *stream)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     if (mem->buffer == NULL)
@@ -73,7 +65,7 @@ int32_t ZCALLBACK mz_stream_mem_is_open(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_mem_read(voidpf stream, void *buf, uint32_t size)
+int32_t mz_stream_mem_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
@@ -86,7 +78,7 @@ int32_t ZCALLBACK mz_stream_mem_read(voidpf stream, void *buf, uint32_t size)
     return size;
 }
 
-int32_t ZCALLBACK mz_stream_mem_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_mem_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     uint32_t new_size = 0;
@@ -125,13 +117,13 @@ int32_t ZCALLBACK mz_stream_mem_write(voidpf stream, const void *buf, uint32_t s
     return size;
 }
 
-int64_t ZCALLBACK mz_stream_mem_tell(voidpf stream)
+int64_t mz_stream_mem_tell(void *stream)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     return mem->position;
 }
 
-int32_t ZCALLBACK mz_stream_mem_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_mem_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     uint64_t new_pos = 0;
@@ -158,32 +150,32 @@ int32_t ZCALLBACK mz_stream_mem_seek(voidpf stream, uint64_t offset, int origin)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_mem_close(voidpf stream)
+int32_t mz_stream_mem_close(void *stream)
 {
     // We never return errors
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_mem_error(voidpf stream)
+int32_t mz_stream_mem_error(void *stream)
 {
     // We never return errors
     return MZ_STREAM_OK;
 }
 
-void mz_stream_mem_set_buffer(voidpf stream, void *buf, uint32_t size)
+void mz_stream_mem_set_buffer(void *stream, void *buf, uint32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->buffer = buf;
     mem->size = size;
 }
 
-void mz_stream_mem_set_growable(voidpf stream, int growable)
+void mz_stream_mem_set_growable(void *stream, int growable)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->growable = growable;
 }
 
-voidpf mz_stream_mem_create(voidpf *stream)
+void *mz_stream_mem_create(void **stream)
 {
     mz_stream_mem *mem = NULL;
 
@@ -206,10 +198,10 @@ voidpf mz_stream_mem_create(voidpf *stream)
     if (stream == NULL)
         *stream = mem;
 
-    return (voidpf)mem;
+    return mem;
 }
 
-void mz_stream_mem_delete(voidpf *stream)
+void mz_stream_mem_delete(void **stream)
 {
     mz_stream_mem *mem = NULL;
     if (stream == NULL)

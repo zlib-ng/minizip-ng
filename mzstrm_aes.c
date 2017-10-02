@@ -1,24 +1,10 @@
-/* ioapi_aes.c -- IO base function header for compress/uncompress .zip
-   files using zlib + zip or unzip API
-
-   This version of ioapi is designed to access memory rather than files.
-   We do use a region of memory to put data in to and take it out of. We do
-   not have auto-extending buffers and do not inform anyone else that the
-   data has been written. It is really intended for accessing a zip archive
-   embedded in an application such that I can write an installer with no
-   external files. Creation of archives has not been attempted, although
-   parts of the framework are present.
-
-   Based on Unzip ioapi.c version 0.22, May 19th, 2003
+/* mzstrm_aes.c -- Stream for WinZip AES encryption
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
-     https://github.com/nmoinvaz/minizip
-   Copyright (C) 2003 Justin Fletcher
-   Copyright (C) 1998-2003 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+      https://github.com/nmoinvaz/minizip
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 
@@ -26,23 +12,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "zlib.h"
-#include "ioapi.h"
+#include "mzstrm.h"
+#include "mzstrm_aes.h"
 
-#include "ioapi_aes.h"
+#include "aes/aes.h"
+#include "aes/fileenc.h"
+#include "aes/prng.h"
 
-#include "crypt.h"
-
-#define AES_METHOD          (99)
 #define AES_PWVERIFYSIZE    (2)
 #define AES_AUTHCODESIZE    (10)
 #define AES_MAXSALTLENGTH   (16)
 #define AES_VERSION         (0x0001)
 #define AES_ENCRYPTIONMODE  (0x03)
-
-#include "aes/aes.h"
-#include "aes/fileenc.h"
-#include "aes/prng.h"
 
 typedef struct mz_stream_aes_s {
     mz_stream        stream;
@@ -56,7 +37,7 @@ typedef struct mz_stream_aes_s {
     uint64_t        total_out;
 } mz_stream_aes;
 
-int32_t ZCALLBACK mz_stream_aes_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     uint16_t salt_length = 0;
@@ -78,7 +59,7 @@ int32_t ZCALLBACK mz_stream_aes_open(voidpf stream, const char *filename, int mo
 
     if (mode & MZ_STREAM_MODE_WRITE)
     {
-        prng_init(cryptrand, rng_ctx);
+        prng_init(mz_os_rand, rng_ctx);
         prng_rand(salt_value, salt_length, rng_ctx);
         prng_end(rng_ctx);
 
@@ -122,7 +103,7 @@ int32_t ZCALLBACK mz_stream_aes_open(voidpf stream, const char *filename, int mo
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_aes_is_open(voidpf stream)
+int32_t mz_stream_aes_is_open(void *stream)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     if (aes->initialized == 0)
@@ -130,7 +111,7 @@ int32_t ZCALLBACK mz_stream_aes_is_open(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_aes_read(voidpf stream, void *buf, uint32_t size)
+int32_t mz_stream_aes_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     uint32_t read = 0;
@@ -141,7 +122,7 @@ int32_t ZCALLBACK mz_stream_aes_read(voidpf stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t ZCALLBACK mz_stream_aes_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_aes_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     uint32_t written = 0;
@@ -152,19 +133,19 @@ int32_t ZCALLBACK mz_stream_aes_write(voidpf stream, const void *buf, uint32_t s
     return written;
 }
 
-int64_t ZCALLBACK mz_stream_aes_tell(voidpf stream)
+int64_t mz_stream_aes_tell(void *stream)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     return mz_stream_tell(aes->stream.base);
 }
 
-int32_t ZCALLBACK mz_stream_aes_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_aes_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     return mz_stream_seek(aes->stream.base, offset, origin);
 }
 
-int32_t ZCALLBACK mz_stream_aes_close(voidpf stream)
+int32_t mz_stream_aes_close(void *stream)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     unsigned char authcode[AES_AUTHCODESIZE];
@@ -196,25 +177,25 @@ int32_t ZCALLBACK mz_stream_aes_close(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_aes_error(voidpf stream)
+int32_t mz_stream_aes_error(void *stream)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     return aes->error;
 }
 
-void mz_stream_aes_set_password(voidpf stream, char *password)
+void mz_stream_aes_set_password(void *stream, char *password)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     aes->password = password;
 }
 
-void mz_stream_aes_set_encryption_mode(voidpf stream, int16_t encryption_mode)
+void mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     aes->encryption_mode = encryption_mode;
 }
 
-voidpf mz_stream_aes_create(voidpf *stream)
+void *mz_stream_aes_create(void **stream)
 {
     mz_stream_aes *aes = NULL;
 
@@ -238,10 +219,10 @@ voidpf mz_stream_aes_create(voidpf *stream)
     if (stream != NULL)
         *stream = aes;
 
-    return (voidpf)aes;
+    return aes;
 }
 
-void mz_stream_aes_delete(voidpf *stream)
+void mz_stream_aes_delete(void **stream)
 {
     mz_stream_aes *aes = NULL;
     if (stream == NULL)

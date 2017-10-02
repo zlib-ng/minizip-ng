@@ -1,5 +1,4 @@
-/* iowin32.c -- IO base function header for compress/uncompress .zip
-   Version 1.2.0, September 16th, 2017
+/* mzstrm_win32.c -- Stream for filesystem access for windows
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -19,9 +18,8 @@
 #include <windows.h>
 #include <wincrypt.h>
 
-#include "zlib.h"
-#include "ioapi.h"
-#include "iowin32.h"
+#include "mzstrm.h"
+#include "mzstrm_win32.h"
 
 #ifndef INVALID_HANDLE_VALUE
 #  define INVALID_HANDLE_VALUE (0xFFFFFFFF)
@@ -42,22 +40,22 @@ typedef struct mz_stream_win32_s
     mz_stream   stream;
     HANDLE      handle;
     int         error;
-    char        *filename;
-    int         filename_size;
+    char        *path;
+    int         path_size;
 } mz_stream_win32;
 
-int32_t ZCALLBACK mz_stream_win32_open(voidpf stream, const char *filename, int mode)
+int32_t mz_stream_win32_open(void *stream, const char *path, int mode)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t desired_access = 0;
     uint32_t creation_disposition = 0;
     uint32_t share_mode = FILE_SHARE_READ;
     uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
-    wchar_t *filename_wide = NULL;
-    uint32_t filename_wide_size = 0;
+    wchar_t *path_wide = NULL;
+    uint32_t path_wide_size = 0;
     HANDLE handle = NULL;
 
-    if (filename == NULL)
+    if (path == NULL)
         return MZ_STREAM_ERR;
 
     if ((mode & MZ_STREAM_MODE_READWRITEFILTER) == MZ_STREAM_MODE_READ)
@@ -81,19 +79,19 @@ int32_t ZCALLBACK mz_stream_win32_open(voidpf stream, const char *filename, int 
         return MZ_STREAM_ERR;
     }
 
-    filename_wide_size = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-    filename_wide = (wchar_t *)malloc((filename_wide_size + 1) * sizeof(wchar_t));
-    memset(filename_wide, 0, sizeof(wchar_t) * (filename_wide_size + 1));
+    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
 
-    MultiByteToWideChar(CP_UTF8, 0, filename, -1, filename_wide, filename_wide_size);
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
 
 #ifdef IOWIN32_USING_WINRT_API
     win32->handle = CreateFile2W(filename_wide, desired_access, share_mode, creation_disposition, NULL);
 #else
-    win32->handle = CreateFileW(filename_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
+    win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
 #endif
 
-    free(filename_wide);
+    free(path_wide);
 
     if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
     {
@@ -101,15 +99,15 @@ int32_t ZCALLBACK mz_stream_win32_open(voidpf stream, const char *filename, int 
         return MZ_STREAM_ERR;
     }
 
-    win32->filename_size = strlen(filename) + 1;
-    win32->filename = (char *)malloc(win32->filename_size);
+    win32->path_size = strlen(path) + 1;
+    win32->path = (char *)malloc(win32->path_size);
 
-    strncpy(win32->filename, filename, win32->filename_size);
+    strncpy(win32->path, path, win32->path_size);
 
     return MZ_STREAM_OK; 
 }
 
-int32_t ZCALLBACK mz_stream_win32_is_open(voidpf stream)
+int32_t mz_stream_win32_is_open(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     if (win32->handle == NULL || win32->handle == INVALID_HANDLE_VALUE)
@@ -117,7 +115,7 @@ int32_t ZCALLBACK mz_stream_win32_is_open(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mz_stream_win32_read(voidpf stream, void* buf, uint32_t size)
+int32_t mz_stream_win32_read(void *stream, void* buf, uint32_t size)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t read = 0;
@@ -136,7 +134,7 @@ int32_t ZCALLBACK mz_stream_win32_read(voidpf stream, void* buf, uint32_t size)
     return read;
 }
 
-int32_t ZCALLBACK mz_stream_win32_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_win32_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t written = 0;
@@ -177,7 +175,7 @@ static int32_t mz_stream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_p
 #endif
 }
 
-int64_t ZCALLBACK mz_stream_win32_tell(voidpf stream)
+int64_t mz_stream_win32_tell(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t written = 0;
@@ -199,7 +197,7 @@ int64_t ZCALLBACK mz_stream_win32_tell(voidpf stream)
     return large_pos.LowPart;
 }
 
-int32_t ZCALLBACK mz_stream_win32_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_win32_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t move_method = 0xFFFFFFFF;
@@ -239,25 +237,25 @@ int32_t ZCALLBACK mz_stream_win32_seek(voidpf stream, uint64_t offset, int origi
     return MZ_STREAM_OK;
 }
 
-int ZCALLBACK mz_stream_win32_close(voidpf stream)
+int mz_stream_win32_close(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
 
-    if (win32->filename != NULL)
-        free(win32->filename);
+    if (win32->path != NULL)
+        free(win32->path);
     if (win32->handle != NULL)
         CloseHandle(win32->handle);
     win32->handle = NULL;
     return MZ_STREAM_OK;
 }
 
-int ZCALLBACK mz_stream_win32_error(voidpf stream)
+int mz_stream_win32_error(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     return win32->error;
 }
 
-voidpf mz_stream_win32_create(voidpf *stream)
+void *mz_stream_win32_create(void **stream)
 {
     mz_stream_win32 *win32 = NULL;
 
@@ -280,10 +278,10 @@ voidpf mz_stream_win32_create(voidpf *stream)
     if (stream != NULL)
         *stream = win32;
 
-    return (voidpf)win32;
+    return win32;
 }
 
-void mz_stream_win32_delete(voidpf *stream)
+void mz_stream_win32_delete(void **stream)
 {
     mz_stream_win32 *win32 = NULL;
     if (stream == NULL)
@@ -309,7 +307,7 @@ int32_t mz_win32_rand(uint8_t *buf, uint32_t size)
             return size;
     }
 
-    for (len = 0; len < (int)size; ++len)
+    for (len = 0; len < (int)size; len += 1)
     {
         if (len % 8 == 0)
             QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);

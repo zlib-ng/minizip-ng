@@ -7,7 +7,7 @@
 #include <fcntl.h>
 
 #include "zlib.h"
-#include "ioapi.h"
+#include "mzstrm.h"
 
 #ifdef _WIN32
 #  include <direct.h>
@@ -20,11 +20,6 @@
 #endif
 
 #include "minishared.h"
-
-#ifdef _WIN32
-#  define USEWIN32IOAPI
-#  include "iowin32.h"
-#endif
 
 uint32_t get_file_date(const char *path, uint32_t *dos_date)
 {
