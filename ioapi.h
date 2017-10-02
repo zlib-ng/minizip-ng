@@ -13,8 +13,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _ZLIBIOAPI64_H
-#define _ZLIBIOAPI64_H
+#ifndef _MZSTREAM_H
+#define _MZSTREAM_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,7 +71,7 @@ typedef struct mzstream_s
     mzstream_error_cb     error;
     mzstream_alloc_cb     alloc;
     mzstream_free_cb      free;
-    struct mzstream       *base;
+    struct mzstream_s     *base;
 } mzstream;
 
 int32_t mzstream_open(voidpf stream, const char *filename, int mode);
@@ -97,6 +97,8 @@ int32_t ZCALLBACK mzstream_posix_error(voidpf stream);
 voidpf             mzstream_posix_alloc(void);
 void               mzstream_posix_free(voidpf stream);
 
+int32_t            mzstream_posix_rand(uint8_t *buf, uint16_t size);
+
 #ifndef _WIN32
 #define mzstream_os_open    mzstream_posix_open
 #define mzstream_os_is_open mzstream_posix_is_open
@@ -109,7 +111,11 @@ void               mzstream_posix_free(voidpf stream);
 
 #define mzstream_os_alloc   mzstream_posix_alloc
 #define mzstream_os_free    mzstream_posix_free
+
+#define mzstream_os_rand    mzstream_posix_rand
 #else
+#include "iowin32.h"
+
 #define mzstream_os_open    mzstream_win32_open
 #define mzstream_os_is_open mzstream_win32_is_open
 #define mzstream_os_read    mzstream_win32_read
@@ -121,6 +127,8 @@ void               mzstream_posix_free(voidpf stream);
 
 #define mzstream_os_alloc   mzstream_win32_alloc
 #define mzstream_os_free    mzstream_win32_free
+
+#define mzstream_os_rand    mzstream_win32_rand
 #endif
 
 #ifdef __cplusplus

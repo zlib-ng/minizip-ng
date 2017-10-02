@@ -15,7 +15,9 @@
 */
 
 #include <stdlib.h>
-#include <tchar.h>
+
+#include <windows.h>
+#include <wincrypt.h>
 
 #include "zlib.h"
 #include "ioapi.h"
@@ -49,7 +51,7 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
     mzstream_win32 *win32 = (mzstream_win32 *)stream;
     uint32_t desired_access = 0;
     uint32_t creation_disposition = 0;
-    uint32_t share_mode = 0;
+    uint32_t share_mode = FILE_SHARE_READ;
     uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
     wchar_t *filename_wide = NULL;
     uint32_t filename_wide_size = 0;
@@ -62,7 +64,7 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
     {
         desired_access = GENERIC_READ;
         creation_disposition = OPEN_EXISTING;
-        share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE;
+        share_mode &= FILE_SHARE_WRITE;
     }
     else if (mode & MZSTREAM_MODE_EXISTING)
     {
@@ -94,7 +96,10 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
     free(filename_wide);
 
     if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+    {
+        win32->error = GetLastError();
         return MZSTREAM_ERR;
+    }
 
     win32->filename_size = strlen(filename) + 1;
     win32->filename = (char *)malloc(win32->filename_size);
@@ -281,4 +286,30 @@ void mzstream_win32_free(voidpf stream)
     mzstream_win32 *win32 = (mzstream_win32 *)stream;
     if (win32 != NULL)
         free(win32);
+}
+
+int32_t mzstream_win32_rand(uint8_t *buf, uint16_t size)
+{
+    HCRYPTPROV provider;
+    unsigned __int64 pentium_tsc[1];
+    int32_t len = 0;
+    int32_t result = 0;
+
+
+    if (CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+    {
+        result = CryptGenRandom(provider, size, buf);
+        CryptReleaseContext(provider, 0);
+        if (result)
+            return size;
+    }
+
+    for (len = 0; len < (int)size; ++len)
+    {
+        if (len % 8 == 0)
+            QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
+        buf[len] = ((unsigned char*)pentium_tsc)[len % 8];
+    }
+
+    return len;
 }

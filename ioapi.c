@@ -15,10 +15,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #if defined unix || defined __APPLE__
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 
 #include "ioapi.h"
@@ -43,6 +46,10 @@
 #      define fseeko64 fseek
 #    endif
 #  endif
+#endif
+
+#ifndef ZCR_SEED2
+#  define ZCR_SEED2 3141592654UL     // use PI as default pattern
 #endif
 
 int32_t mzstream_open(voidpf stream, const char *filename, int mode)
@@ -243,4 +250,33 @@ void mzstream_posix_free(voidpf stream)
     mzstream_posix *posix = (mzstream_posix *)stream;
     if (posix != NULL)
         free(posix);
+}
+
+int32_t mzstream_posix_rand(uint8_t *buf, uint16_t size)
+{
+    static unsigned calls = 0;
+    voidpf rand_stream = NULL;
+    int32_t len = 0;
+
+
+    rand_stream = mzstream_posix_alloc();
+    
+    if (mzstream_posix_open(rand_stream, "/dev/urandom", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    {
+        len = mzstream_posix_read(rand_stream, buf, size);
+        mzstream_posix_close(rand_stream);
+    }
+
+    mzstream_posix_free(rand_stream);
+
+    if (len < (int)size)
+    {
+        // Ensure different random header each time
+        if (++calls == 1)
+            srand((unsigned)(time(NULL) ^ ZCR_SEED2));
+
+        while (len < (int)size)
+            buf[len++] = (rand() >> 7) & 0xff;
+    }
+    return len;
 }

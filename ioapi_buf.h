@@ -10,8 +10,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _IOAPI_BUFFERED_H
-#define _IOAPI_BUFFERED_H
+#ifndef _MZSTREAM_BUFFERED_H
+#define _MZSTREAM_BUFFERED_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +32,8 @@ int32_t ZCALLBACK mzstream_buffered_seek(voidpf stream, uint64_t offset, int ori
 int32_t ZCALLBACK mzstream_buffered_close(voidpf stream);
 int32_t ZCALLBACK mzstream_buffered_error(voidpf stream);
 
-voidpf             mzstream_buffered_alloc(void);
-void               mzstream_buffered_free(voidpf stream);
+voidpf            mzstream_buffered_alloc(void);
+void              mzstream_buffered_free(voidpf stream);
 
 #ifdef __cplusplus
 }

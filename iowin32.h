@@ -14,8 +14,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _IOWIN32_H
-#define _IOWIN32_H
+#ifndef _MZSTREAM_WIN32_H
+#define _MZSTREAM_WIN32_H
 
 #include <windows.h>
 
@@ -32,8 +32,10 @@ int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin
 int32_t ZCALLBACK mzstream_win32_close(voidpf stream);
 int32_t ZCALLBACK mzstream_win32_error(voidpf stream);
 
-voidpf             mzstream_win32_alloc(void);
-void               mzstream_win32_free(voidpf stream);
+voidpf            mzstream_win32_alloc(void);
+void              mzstream_win32_free(voidpf stream);
+
+int32_t           mzstream_win32_rand(uint8_t *buf, uint16_t size);
 
 #ifdef __cplusplus
 }

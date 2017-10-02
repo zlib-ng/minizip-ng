@@ -4,16 +4,15 @@
    This version of ioapi is designed to access memory rather than files.
    We do use a region of memory to put data in to and take it out of.
 
-   Copyright (C) 2012-2017 Nathan Moinvaziri (https://github.com/nmoinvaz/minizip)
-             (C) 2003 Justin Fletcher
-             (C) 1998-2003 Gilles Vollant
+   Copyright (C) 2012-2017 Nathan Moinvaziri
+      https://github.com/nmoinvaz/minizip
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _IOAPI_ZLIB_H
-#define _IOAPI_ZLIB_H
+#ifndef _MZSTREAM_ZLIB_H
+#define _MZSTREAM_ZLIB_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +55,7 @@ uint32_t          mzstream_crc32_get_value(voidpf stream);
 
 voidpf            mzstream_crc32_alloc(void);
 void              mzstream_crc32_free(voidpf stream);
+
 #ifdef __cplusplus
 }
 #endif

@@ -37,7 +37,7 @@ typedef struct mzstream_mem_s {
     uint32_t            size;       // Size of the memory buffer
     uint32_t            limit;      // Furthest we've written
     uint32_t            position;   // Current positoin in the memory
-    int                 growable;   // Growable memory buffer
+    int16_t             growable;   // Growable memory buffer
 } mzstream_mem;
 
 int32_t ZCALLBACK mzstream_mem_open(voidpf stream, const char *filename, int mode)

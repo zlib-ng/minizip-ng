@@ -71,14 +71,14 @@ int32_t ZCALLBACK mzstream_zlib_open(voidpf stream, const char *filename, int mo
     zlib->total_in = 0;
     zlib->total_out = 0;
 
-    if (mode == MZSTREAM_MODE_READ)
+    if (mode & MZSTREAM_MODE_READ)
     {
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
 
         zlib->error = inflateInit2(&zlib->zstream, -MAX_WBITS);
     }
-    else if (mode == MZSTREAM_MODE_WRITE)
+    else if (mode & MZSTREAM_MODE_WRITE)
     {
         window_bits = zlib->window_bits;
         if (window_bits > 0)
@@ -237,11 +237,11 @@ int32_t ZCALLBACK mzstream_zlib_close(voidpf stream)
     mzstream_zlib *zlib = (mzstream_zlib *)stream;
     uint32_t out_bytes = 0;
 
-    if (zlib->mode == MZSTREAM_MODE_READ)
+    if (zlib->mode & MZSTREAM_MODE_READ)
     {
         inflateEnd(&zlib->zstream);
     }
-    else if (zlib->mode == MZSTREAM_MODE_WRITE)
+    else if (zlib->mode & MZSTREAM_MODE_WRITE)
     {
         out_bytes = mzstream_zlib_deflate(stream, Z_FINISH);
 
@@ -383,7 +383,7 @@ int64_t ZCALLBACK mzstream_crc32_tell(voidpf stream)
 int32_t ZCALLBACK mzstream_crc32_seek(voidpf stream, uint64_t offset, int origin)
 {
     mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    return MZSTREAM_ERR;
+    return mzstream_seek(crc32->stream.base, offset, origin);
 }
 
 int32_t ZCALLBACK mzstream_crc32_close(voidpf stream)
