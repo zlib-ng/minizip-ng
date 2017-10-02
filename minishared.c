@@ -10,6 +10,7 @@
 #include "mzstrm.h"
 
 #ifdef _WIN32
+#  include <windows.h>
 #  include <direct.h>
 #  include <io.h>
 #else
@@ -213,41 +214,6 @@ int makedir(const char *newdir)
 
     free(buffer);
     return 1;
-}
-
-int check_file_exists(const char *path)
-{
-    int opened = 0;
-    voidpf stream = NULL;
-    mz_stream_os_create(&stream);
-    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
-    {
-        mz_stream_os_close(stream);
-        opened = 1;
-    }
-    mz_stream_os_delete(&stream);
-    return opened;
-}
-
-int is_large_file(const char *path)
-{
-    int64_t size = 0;
-    voidpf stream = NULL;
-    
-    mz_stream_os_create(&stream);
-
-    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
-    {
-        mz_stream_os_seek(stream, 0, MZ_STREAM_SEEK_END);
-        size = mz_stream_os_tell(stream);
-        mz_stream_os_close(stream);
-    }
-
-    mz_stream_os_delete(&stream);
-
-    printf("file : %s is %lld bytes\n", path, size);
-
-    return (size >= UINT32_MAX);
 }
 
 void display_zpos64(uint64_t n, int size_char)

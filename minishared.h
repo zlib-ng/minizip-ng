@@ -33,12 +33,6 @@ uint32_t tm_to_dosdate(const struct tm *ptm);
 /* Create a directory and all subdirectories */
 int makedir(const char *newdir);
 
-/* Check to see if a file exists */
-int check_file_exists(const char *path);
-
-/* Check to see if a file is over 4GB and needs ZIP64 extension */
-int is_large_file(const char *path);
-
 /* Print a 64-bit number for compatibility */
 void display_zpos64(uint64_t n, int size_char);
 

@@ -69,7 +69,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     /* Get information about the file on disk so we can store it in zip */
     get_file_date(path, &zi.dos_date);
 
-    zip64 = is_large_file(path);
+    zip64 = mz_os_file_is_large(path);
 #define DEF_MEM_LEVEL 8
     /* Add to zip file */
     err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
@@ -291,6 +291,7 @@ void test_inflate()
     voidpf in_stream = NULL;
     voidpf inflate_stream = NULL;
     voidpf crc_in_stream = NULL;
+    uint32_t crc32 = 0;
 
     mz_stream_os_create(&in_stream);
 
@@ -302,6 +303,7 @@ void test_inflate()
         mz_stream_zlib_create(&inflate_stream);
         mz_stream_set_base(inflate_stream, in_stream);
 
+        mz_stream_zlib_open(inflate_stream, NULL, MZ_STREAM_MODE_READ);
         read = mz_stream_read(inflate_stream, buf, UINT16_MAX);
         mz_stream_close(inflate_stream);
 
@@ -321,9 +323,11 @@ void test_inflate()
     if (mz_stream_os_open(out_stream, "LICENSE.inflate", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
         mz_stream_crc32_create(&crc_in_stream);
+        mz_stream_crc32_open(crc_in_stream, NULL, MZ_STREAM_MODE_WRITE);
         mz_stream_set_base(crc_in_stream, in_stream);
-        mz_stream_write(crc_in_stream, buf, read);
-        uint32_t crc32 = mz_stream_crc32_get_value(crc_in_stream);
+        if (mz_stream_write(crc_in_stream, buf, read) != read)
+            printf("Failed to write LICENSE\n");
+        crc32 = mz_stream_crc32_get_value(crc_in_stream);
         mz_stream_close(crc_in_stream);
         mz_stream_crc32_delete(&crc_in_stream);
 
@@ -342,24 +346,33 @@ void test_deflate()
     voidpf in_stream = NULL;
     voidpf out_stream = NULL;
     voidpf deflate_stream = NULL;
-    
+    uint32_t crc32 = 0;
+
     mz_stream_os_create(&in_stream);
 
     if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
         mz_stream_crc32_create(&crc_in_stream);
         mz_stream_set_base(crc_in_stream, in_stream);
+        mz_stream_crc32_open(crc_in_stream, NULL, MZ_STREAM_MODE_READ);
         read = mz_stream_read(crc_in_stream, buf, UINT16_MAX);
-        uint32_t crc32 = mz_stream_crc32_get_value(crc_in_stream);
+        crc32 = mz_stream_crc32_get_value(crc_in_stream);
         mz_stream_close(crc_in_stream);
         mz_stream_crc32_delete(&crc_in_stream);
 
         mz_stream_os_close(in_stream);
-
-        printf("LICENSE crc 0x%08x\n", crc32);
     }
 
     mz_stream_os_delete(&in_stream);
+
+    if (read == MZ_STREAM_ERR)
+    {
+        printf("Failed to read LICENSE\n");
+        return;
+    }
+
+    printf("LICENSE crc 0x%08x\n", crc32);
+
     mz_stream_os_create(&out_stream);
 
     if (mz_stream_os_open(out_stream, "LICENSE.deflate", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
@@ -400,10 +413,10 @@ int main(int argc, char *argv[])
     int opt_overwrite = APPEND_STATUS_CREATE;
     int opt_compress_level = Z_DEFAULT_COMPRESSION;
     int opt_exclude_path = 0;
-    test_crypt();
-    test_aes();
-    test_deflate();
-    test_inflate();
+    //test_crypt();
+    //test_aes();
+    //test_deflate();
+    //test_inflate();
     minizip_banner();
     if (argc == 1)
     {
@@ -454,13 +467,13 @@ int main(int argc, char *argv[])
     if (opt_overwrite == 2)
     {
         /* If the file don't exist, we not append file */
-        if (check_file_exists(zipfilename) == 0)
+        if (mz_os_file_exists(zipfilename) == 0)
             opt_overwrite = 1;
     }
     else if (opt_overwrite == 0)
     {
         /* If ask the user what to do because append and overwrite args not set */
-        if (check_file_exists(zipfilename) != 0)
+        if (mz_os_file_exists(zipfilename) != 0)
         {
             char rep = 0;
             do
@@ -488,7 +501,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    stream = mz_stream_os_alloc();
+    mz_stream_os_create(&stream);
 
     zf = zipOpen2(zipfilename, opt_overwrite, NULL, stream);
 
@@ -543,7 +556,7 @@ int main(int argc, char *argv[])
     if (errclose != ZIP_OK)
         printf("error in closing %s (%d)\n", zipfilename, errclose);
 
-    mz_stream_os_free(stream);
+    mz_stream_os_delete(&stream);
 
     return err;
 }

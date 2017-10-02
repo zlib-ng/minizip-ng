@@ -28,7 +28,7 @@
 #endif
 
 typedef struct mz_stream_zlib_s {
-    mz_stream    stream;
+    mz_stream   stream;
     z_stream    zstream;
     uint8_t     buffer[UINT16_MAX];
     int32_t     buffer_len;
@@ -101,7 +101,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, uint32_t size)
     uint32_t total_out_after = 0;
     uint32_t out_bytes = 0;
     uint32_t total_out = 0;
-    int32_t bytes_read = 0;
+    int32_t read = 0;
+    int16_t err = Z_OK;
 
     zlib->zstream.next_out = (uint8_t*)buf;
     zlib->zstream.avail_out = (uint16_t)size;
@@ -110,25 +111,25 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, uint32_t size)
     {
         if (zlib->zstream.avail_in == 0)
         {
-            bytes_read = mz_stream_read(zlib->stream.base, zlib->buffer, UINT16_MAX);
+            read = mz_stream_read(zlib->stream.base, zlib->buffer, UINT16_MAX);
             if (mz_stream_error(zlib->stream.base))
             {
                 zlib->error = Z_STREAM_ERROR;
                 break;
             }
-            if (bytes_read == 0)
+            if (read == 0)
                 break;
 
-            zlib->total_in += bytes_read;
+            zlib->total_in += read;
 
             zlib->zstream.next_in = zlib->buffer;
-            zlib->zstream.avail_in = bytes_read;
+            zlib->zstream.avail_in = read;
         }
 
         total_out_before = zlib->zstream.total_out;
 
-        zlib->error = inflate(&zlib->zstream, Z_SYNC_FLUSH);
-        if ((zlib->error >= Z_OK) && (zlib->zstream.msg != NULL))
+        err = inflate(&zlib->zstream, Z_SYNC_FLUSH);
+        if ((err >= Z_OK) && (zlib->zstream.msg != NULL))
         {
             zlib->error = Z_DATA_ERROR;
             break;
@@ -138,6 +139,14 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, uint32_t size)
 
         out_bytes = total_out_after - total_out_before;
         total_out += out_bytes;
+
+        if (err == Z_STREAM_END)
+            break;
+        if (err != Z_OK)
+        {
+            zlib->error = err;
+            break;
+        }
     }
     while (zlib->zstream.avail_out > 0);
 
@@ -160,12 +169,19 @@ uint32_t mz_stream_zlib_deflate(void *stream, int flush)
     uint32_t total_out_before = 0;
     uint32_t total_out_after = 0;
     uint32_t out_bytes = 0;
+    int16_t err = Z_OK;
 
     total_out_before = zlib->zstream.total_out;
-    zlib->error = deflate(&zlib->zstream, flush);
+    err = deflate(&zlib->zstream, flush);
     total_out_after = zlib->zstream.total_out;
 
     out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+    if (err != Z_OK && err != Z_STREAM_END)
+    {
+        zlib->error = err;
+        return MZ_STREAM_ERR;
+    }
 
     return out_bytes;
 }
@@ -242,6 +258,7 @@ int32_t mz_stream_zlib_close(void *stream)
     }
 
     zlib->initialized = 0;
+
     if (zlib->error != Z_OK)
         return MZ_STREAM_ERR;
     return MZ_STREAM_OK;
@@ -330,9 +347,11 @@ void mz_stream_zlib_delete(void **stream)
 }
 
 typedef struct mz_stream_crc32_s {
-    mz_stream    stream;
+    mz_stream   stream;
     int8_t      initialized;
     uint32_t    value;
+    uint64_t    total_in;
+    uint64_t    total_out;
 } mz_stream_crc32;
 
 int32_t mz_stream_crc32_open(void *stream, const char *path, int mode)
@@ -357,14 +376,18 @@ int32_t mz_stream_crc32_read(void *stream, void *buf, uint32_t size)
     int32_t read = mz_stream_read(crc32x->stream.base, buf, size);
     if (read > 0)
         crc32x->value = crc32(crc32x->value, buf, read);
+    crc32x->total_in += read;
     return read;
 }
 
 int32_t mz_stream_crc32_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
+    int32_t written = 0;
     crc32x->value = crc32(crc32x->value, buf, size);
-    return mz_stream_write(crc32x->stream.base, buf, size);
+    written = mz_stream_write(crc32x->stream.base, buf, size);
+    crc32x->total_out += written;
+    return written;
 }
 
 int64_t mz_stream_crc32_tell(void *stream)
@@ -396,6 +419,18 @@ uint32_t mz_stream_crc32_get_value(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return crc32->value;
+}
+
+uint64_t mz_stream_crc32_get_total_in(void *stream)
+{
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+    return crc32->total_in;
+}
+
+uint64_t mz_stream_crc32_get_total_out(void *stream)
+{
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+    return crc32->total_out;
 }
 
 void *mz_stream_crc32_create(void **stream)

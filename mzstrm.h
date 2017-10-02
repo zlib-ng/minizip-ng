@@ -64,6 +64,10 @@ typedef struct mz_stream_s
 int32_t mz_stream_open(void *stream, const char *path, int mode);
 int32_t mz_stream_is_open(void *stream);
 int32_t mz_stream_read(void *stream, void* buf, uint32_t size);
+int32_t mz_stream_read_uint8(void *stream, uint8_t *value);
+int32_t mz_stream_read_uint16(void *stream, uint16_t *value);
+int32_t mz_stream_read_uint32(void *stream, uint32_t *value);
+int32_t mz_stream_read_uint64(void *stream, uint64_t *value);
 int32_t mz_stream_write(void *stream, const void *buf, uint32_t size);
 int64_t mz_stream_tell(void *stream);
 int32_t mz_stream_seek(void *stream, uint64_t offset, int origin);
@@ -71,6 +75,12 @@ int32_t mz_stream_close(void *stream);
 int32_t mz_stream_error(void *stream);
 
 int32_t mz_stream_set_base(void *stream, void *base);
+
+void*   mz_stream_create(void **stream);
+void    mz_stream_delete(void **stream);
+
+void*   mz_stream_passthru_create(void **stream);
+void    mz_stream_passthru_delete(void **stream);
 
 #if !defined(_WIN32) && !defined(USEWIN32IOAPI)
 #include "mzstrm_posix.h"

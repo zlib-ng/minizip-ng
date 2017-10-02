@@ -192,7 +192,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
         write_filename = filename_inzip;
 
     /* Determine if the file should be overwritten or not and ask the user if needed */
-    if ((err == UNZ_OK) && (*popt_overwrite == 0) && (check_file_exists(write_filename)))
+    if ((err == UNZ_OK) && (*popt_overwrite == 0) && (mz_os_file_exists(write_filename)))
     {
         char rep = 0;
         do

@@ -44,7 +44,7 @@ typedef struct mz_stream_crypt_s {
     int16_t         error;
     uint8_t         verify1;
     uint8_t         verify2;
-    char            *password;
+    const char      *password;
     uint64_t        total_in;
     uint64_t        total_out;
 } mz_stream_crypt;
@@ -184,8 +184,6 @@ int32_t mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t size)
     written = mz_stream_write(crypt->stream.base, buf, size);
     if (written > 0)
         crypt->total_out += written;
-    if (written != size)
-        return MZ_STREAM_ERR;
     return written;
 }
 
@@ -214,7 +212,7 @@ int32_t mz_stream_crypt_error(voidpf stream)
     return crypt->error;
 }
 
-void mz_stream_crypt_set_password(voidpf stream, char *password)
+void mz_stream_crypt_set_password(voidpf stream, const char *password)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->password = password;

@@ -33,7 +33,7 @@ int32_t mz_stream_crypt_seek(void *stream, uint64_t offset, int origin);
 int32_t mz_stream_crypt_close(void *stream);
 int32_t mz_stream_crypt_error(void *stream);
 
-void    mz_stream_crypt_set_password(void *stream, char *password);
+void    mz_stream_crypt_set_password(void *stream, const char *password);
 void    mz_stream_crypt_set_verify(void *stream, uint8_t verify1, uint8_t verify2);
 void    mz_stream_crypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2);
 

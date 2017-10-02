@@ -53,7 +53,7 @@ _x < _y ? _x : _y; })
 #endif
 
 typedef struct mz_stream_buffered_s {
-  mz_stream  stream;
+  mz_stream stream;
   char      readbuf[IOBUF_BUFFERSIZE];
   uint32_t  readbuf_len;
   uint32_t  readbuf_pos;

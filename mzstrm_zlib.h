@@ -44,6 +44,8 @@ int32_t  mz_stream_crc32_close(void *stream);
 int32_t  mz_stream_crc32_error(void *stream);
 
 uint32_t mz_stream_crc32_get_value(void *stream);
+uint64_t mz_stream_crc32_get_total_in(void *stream);
+uint64_t mz_stream_crc32_get_total_out(void *stream);
 
 void*    mz_stream_crc32_create(void **stream);
 void     mz_stream_crc32_delete(void **stream);

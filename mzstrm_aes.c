@@ -32,7 +32,7 @@ typedef struct mz_stream_aes_s {
     int16_t         initialized;
     int16_t         error;
     int16_t         encryption_mode;
-    char            *password;
+    const char      *password;
     uint64_t        total_in;
     uint64_t        total_out;
 } mz_stream_aes;
@@ -183,7 +183,7 @@ int32_t mz_stream_aes_error(void *stream)
     return aes->error;
 }
 
-void mz_stream_aes_set_password(void *stream, char *password)
+void mz_stream_aes_set_password(void *stream, const char *password)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     aes->password = password;

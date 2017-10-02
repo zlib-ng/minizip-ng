@@ -151,103 +151,6 @@ typedef struct
 #endif
 } unz64_internal;
 
-/* Read a byte from a gz_stream; Return EOF for end of file. */
-static int unzReadUInt8(voidpf stream, uint8_t *value)
-{
-    uint8_t c = 0;
-
-    if (mz_stream_read(stream, &c, 1)  == 1)
-    {
-        *value = (uint8_t)c;
-        return UNZ_OK;
-    }
-    *value = 0;
-    if (mz_stream_error(stream))
-        return UNZ_ERRNO;
-    return UNZ_EOF;
-}
-
-static int unzReadUInt16(voidpf stream, uint16_t *value)
-{
-    uint16_t x;
-    uint8_t c = 0;
-    int err = UNZ_OK;
-
-    err = unzReadUInt8(stream, &c);
-    x = (uint16_t)c;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &c);
-    x |= ((uint16_t)c) << 8;
-
-    if (err == UNZ_OK)
-        *value = x;
-    else
-        *value = 0;
-    return err;
-}
-
-static int unzReadUInt32(voidpf stream, uint32_t *value)
-{
-    uint32_t x = 0;
-    uint8_t c = 0;
-    int err = UNZ_OK;
-
-    err = unzReadUInt8(stream, &c);
-    x = (uint32_t)c;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &c);
-    x |= ((uint32_t)c) << 8;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &c);
-    x |= ((uint32_t)c) << 16;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &c);
-    x += ((uint32_t)c) << 24;
-
-    if (err == UNZ_OK)
-        *value = x;
-    else
-        *value = 0;
-    return err;
-}
-
-static int unzReadUInt64(voidpf stream, uint64_t *value)
-{
-    uint64_t x = 0;
-    uint8_t i = 0;
-    int err = UNZ_OK;
-
-    err = unzReadUInt8(stream, &i);
-    x = (uint64_t)i;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 8;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 16;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 24;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 32;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 40;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 48;
-    if (err == UNZ_OK)
-        err = unzReadUInt8(stream, &i);
-    x |= ((uint64_t)i) << 56;
-
-    if (err == UNZ_OK)
-        *value = x;
-    else
-        *value = 0;
-    return err;
-}
-
 /* Locate the Central directory of a zip file (at the end, just before the global comment) */
 static uint64_t unzSearchCentralDir(voidpf stream)
 {
@@ -313,24 +216,24 @@ static uint64_t unzSearchCentralDir64(voidpf stream, const uint64_t endcentralof
         return 0;
 
     /* Read locator signature */
-    if (unzReadUInt32(stream, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(stream, &value32) != UNZ_OK)
         return 0;
     if (value32 != ZIP64ENDLOCHEADERMAGIC)
         return 0;
     /* Number of the disk with the start of the zip64 end of  central directory */
-    if (unzReadUInt32(stream, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(stream, &value32) != UNZ_OK)
         return 0;
     /* Relative offset of the zip64 end of central directory record */
-    if (unzReadUInt64(stream, &offset) != UNZ_OK)
+    if (mz_stream_read_uint64(stream, &offset) != UNZ_OK)
         return 0;
     /* Total number of disks */
-    if (unzReadUInt32(stream, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(stream, &value32) != UNZ_OK)
         return 0;
     /* Goto end of central directory record */
     if (mz_stream_seek(stream, offset, MZ_STREAM_SEEK_SET) != 0)
         return 0;
      /* The signature */
-    if (unzReadUInt32(stream, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(stream, &value32) != UNZ_OK)
         return 0;
     if (value32 != ZIP64ENDHEADERMAGIC)
         return 0;
@@ -367,36 +270,36 @@ extern unzFile ZEXPORT unzOpen(const char *path, voidpf stream)
             err = UNZ_ERRNO;
 
         /* The signature, already checked */
-        if (unzReadUInt32(us.stream, &value32) != UNZ_OK)
+        if (mz_stream_read_uint32(us.stream, &value32) != UNZ_OK)
             err = UNZ_ERRNO;
         /* Number of this disk */
-        if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+        if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
             err = UNZ_ERRNO;
         us.number_disk = value16;
         /* Number of the disk with the start of the central directory */
-        if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+        if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
             err = UNZ_ERRNO;
         us.gi.number_disk_with_CD = value16;
         /* Total number of entries in the central directory on this disk */
-        if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+        if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
             err = UNZ_ERRNO;
         us.gi.number_entry = value16;
         /* Total number of entries in the central directory */
-        if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+        if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
             err = UNZ_ERRNO;
         number_entry_CD = value16;
         if (number_entry_CD != us.gi.number_entry)
             err = UNZ_BADZIPFILE;
         /* Size of the central directory */
-        if (unzReadUInt32(us.stream, &value32) != UNZ_OK)
+        if (mz_stream_read_uint32(us.stream, &value32) != UNZ_OK)
             err = UNZ_ERRNO;
         us.size_central_dir = value32;
         /* Offset of start of central directory with respect to the starting disk number */
-        if (unzReadUInt32(us.stream, &value32) != UNZ_OK)
+        if (mz_stream_read_uint32(us.stream, &value32) != UNZ_OK)
             err = UNZ_ERRNO;
         us.offset_central_dir = value32;
         /* Zipfile comment length */
-        if (unzReadUInt16(us.stream, &us.gi.size_comment) != UNZ_OK)
+        if (mz_stream_read_uint16(us.stream, &us.gi.size_comment) != UNZ_OK)
             err = UNZ_ERRNO;
 
         if (err == UNZ_OK)
@@ -412,36 +315,36 @@ extern unzFile ZEXPORT unzOpen(const char *path, voidpf stream)
                     err = UNZ_ERRNO;
 
                 /* the signature, already checked */
-                if (unzReadUInt32(us.stream, &value32) != UNZ_OK)
+                if (mz_stream_read_uint32(us.stream, &value32) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* size of zip64 end of central directory record */
-                if (unzReadUInt64(us.stream, &value64) != UNZ_OK)
+                if (mz_stream_read_uint64(us.stream, &value64) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* version made by */
-                if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+                if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* version needed to extract */
-                if (unzReadUInt16(us.stream, &value16) != UNZ_OK)
+                if (mz_stream_read_uint16(us.stream, &value16) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* number of this disk */
-                if (unzReadUInt32(us.stream, &us.number_disk) != UNZ_OK)
+                if (mz_stream_read_uint32(us.stream, &us.number_disk) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* number of the disk with the start of the central directory */
-                if (unzReadUInt32(us.stream, &us.gi.number_disk_with_CD) != UNZ_OK)
+                if (mz_stream_read_uint32(us.stream, &us.gi.number_disk_with_CD) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* total number of entries in the central directory on this disk */
-                if (unzReadUInt64(us.stream, &us.gi.number_entry) != UNZ_OK)
+                if (mz_stream_read_uint64(us.stream, &us.gi.number_entry) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* total number of entries in the central directory */
-                if (unzReadUInt64(us.stream, &number_entry_CD) != UNZ_OK)
+                if (mz_stream_read_uint64(us.stream, &number_entry_CD) != UNZ_OK)
                     err = UNZ_ERRNO;
                 if (number_entry_CD != us.gi.number_entry)
                     err = UNZ_BADZIPFILE;
                 /* size of the central directory */
-                if (unzReadUInt64(us.stream, &us.size_central_dir) != UNZ_OK)
+                if (mz_stream_read_uint64(us.stream, &us.size_central_dir) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* offset of start of central directory with respect to the starting disk number */
-                if (unzReadUInt64(us.stream, &us.offset_central_dir) != UNZ_OK)
+                if (mz_stream_read_uint64(us.stream, &us.offset_central_dir) != UNZ_OK)
                     err = UNZ_ERRNO;
             }
             else if ((us.gi.number_entry == UINT16_MAX) || (us.size_central_dir == UINT16_MAX) || (us.offset_central_dir == UINT32_MAX))
@@ -679,46 +582,46 @@ static int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_in
     /* Check the magic */
     if (err == UNZ_OK)
     {
-        if (unzReadUInt32(s->stream_cd, &magic) != UNZ_OK)
+        if (mz_stream_read_uint32(s->stream_cd, &magic) != UNZ_OK)
             err = UNZ_ERRNO;
         else if (magic != CENTRALHEADERMAGIC)
             err = UNZ_BADZIPFILE;
     }
 
     /* Read central directory header */
-    if (unzReadUInt16(s->stream_cd, &file_info.version) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.version) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &file_info.version_needed) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.version_needed) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &file_info.flag) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.flag) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &file_info.compression_method) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.compression_method) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt32(s->stream_cd, &file_info.dos_date) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &file_info.dos_date) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt32(s->stream_cd, &file_info.crc) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &file_info.crc) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt32(s->stream_cd, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &value32) != UNZ_OK)
         err = UNZ_ERRNO;
     file_info.compressed_size = value32;
-    if (unzReadUInt32(s->stream_cd, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &value32) != UNZ_OK)
         err = UNZ_ERRNO;
     file_info.uncompressed_size = value32;
-    if (unzReadUInt16(s->stream_cd, &file_info.size_filename) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.size_filename) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &file_info.size_file_extra) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.size_file_extra) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &file_info.size_file_comment) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.size_file_comment) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream_cd, &value16) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &value16) != UNZ_OK)
         err = UNZ_ERRNO;
     file_info.disk_num_start = value16;
-    if (unzReadUInt16(s->stream_cd, &file_info.internal_fa) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream_cd, &file_info.internal_fa) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt32(s->stream_cd, &file_info.external_fa) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &file_info.external_fa) != UNZ_OK)
         err = UNZ_ERRNO;
     /* Relative offset of local header */
-    if (unzReadUInt32(s->stream_cd, &value32) != UNZ_OK)
+    if (mz_stream_read_uint32(s->stream_cd, &value32) != UNZ_OK)
         err = UNZ_ERRNO;
 
     file_info.size_file_extra_internal = 0;
@@ -757,9 +660,9 @@ static int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_in
 
         while ((err != UNZ_ERRNO) && (extra_pos < file_info.size_file_extra))
         {
-            if (unzReadUInt16(s->stream_cd, &extra_header_id) != UNZ_OK)
+            if (mz_stream_read_uint16(s->stream_cd, &extra_header_id) != UNZ_OK)
                 err = UNZ_ERRNO;
-            if (unzReadUInt16(s->stream_cd, &extra_data_size) != UNZ_OK)
+            if (mz_stream_read_uint16(s->stream_cd, &extra_data_size) != UNZ_OK)
                 err = UNZ_ERRNO;
 
             /* ZIP64 extra fields */
@@ -770,18 +673,18 @@ static int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_in
 
                 if (file_info.uncompressed_size == UINT32_MAX)
                 {
-                    if (unzReadUInt64(s->stream_cd, &file_info.uncompressed_size) != UNZ_OK)
+                    if (mz_stream_read_uint64(s->stream_cd, &file_info.uncompressed_size) != UNZ_OK)
                         err = UNZ_ERRNO;
                 }
                 if (file_info.compressed_size == UINT32_MAX)
                 {
-                    if (unzReadUInt64(s->stream_cd, &file_info.compressed_size) != UNZ_OK)
+                    if (mz_stream_read_uint64(s->stream_cd, &file_info.compressed_size) != UNZ_OK)
                         err = UNZ_ERRNO;
                 }
                 if (file_info_internal.offset_curfile == UINT32_MAX)
                 {
                     /* Relative Header offset */
-                    if (unzReadUInt64(s->stream_cd, &value64) != UNZ_OK)
+                    if (mz_stream_read_uint64(s->stream_cd, &value64) != UNZ_OK)
                         err = UNZ_ERRNO;
                     file_info_internal.offset_curfile = value64;
                     file_info.disk_offset = value64;
@@ -789,7 +692,7 @@ static int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_in
                 if (file_info.disk_num_start == UINT32_MAX)
                 {
                     /* Disk Start Number */
-                    if (unzReadUInt32(s->stream_cd, &file_info.disk_num_start) != UNZ_OK)
+                    if (mz_stream_read_uint32(s->stream_cd, &file_info.disk_num_start) != UNZ_OK)
                         err = UNZ_ERRNO;
                 }
             }
@@ -803,25 +706,25 @@ static int unzGetCurrentFileInfoInternal(unzFile file, unz_file_info64 *pfile_in
                 file_info.size_file_extra_internal += 2 + 2 + extra_data_size;
 
                 /* Verify version info */
-                if (unzReadUInt16(s->stream_cd, &value16) != UNZ_OK)
+                if (mz_stream_read_uint16(s->stream_cd, &value16) != UNZ_OK)
                     err = UNZ_ERRNO;
                 /* Support AE-1 and AE-2 */
                 if (value16 != 1 && value16 != 2)
                     err = UNZ_ERRNO;
                 file_info_internal.aes_version = value16;
-                if (unzReadUInt8(s->stream_cd, &value8) != UNZ_OK)
+                if (mz_stream_read_uint8(s->stream_cd, &value8) != UNZ_OK)
                     err = UNZ_ERRNO;
                 if ((char)value8 != 'A')
                     err = UNZ_ERRNO;
-                if (unzReadUInt8(s->stream_cd, &value8) != UNZ_OK)
+                if (mz_stream_read_uint8(s->stream_cd, &value8) != UNZ_OK)
                     err = UNZ_ERRNO;
                 if ((char)value8 != 'E')
                     err = UNZ_ERRNO;
                 /* Get AES encryption strength and actual compression method */
-                if (unzReadUInt8(s->stream_cd, &value8) != UNZ_OK)
+                if (mz_stream_read_uint8(s->stream_cd, &value8) != UNZ_OK)
                     err = UNZ_ERRNO;
                 file_info_internal.aes_encryption_mode = value8;
-                if (unzReadUInt16(s->stream_cd, &value16) != UNZ_OK)
+                if (mz_stream_read_uint16(s->stream_cd, &value16) != UNZ_OK)
                     err = UNZ_ERRNO;
                 file_info_internal.aes_compression_method = value16;
             }
@@ -926,18 +829,18 @@ static int unzCheckCurrentFileCoherencyHeader(unz64_internal *s, uint32_t *psize
 
     if (err == UNZ_OK)
     {
-        if (unzReadUInt32(s->stream, &magic) != UNZ_OK)
+        if (mz_stream_read_uint32(s->stream, &magic) != UNZ_OK)
             err = UNZ_ERRNO;
         else if (magic != LOCALHEADERMAGIC)
             err = UNZ_BADZIPFILE;
     }
 
-    if (unzReadUInt16(s->stream, &value16) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream, &value16) != UNZ_OK)
         err = UNZ_ERRNO;
-    if (unzReadUInt16(s->stream, &value16) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream, &value16) != UNZ_OK)
         err = UNZ_ERRNO;
     flags = value16;
-    if (unzReadUInt16(s->stream, &value16) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream, &value16) != UNZ_OK)
         err = UNZ_ERRNO;
     else if ((err == UNZ_OK) && (value16 != s->cur_file_info.compression_method))
         err = UNZ_BADZIPFILE;
@@ -956,28 +859,28 @@ static int unzCheckCurrentFileCoherencyHeader(unz64_internal *s, uint32_t *psize
             err = UNZ_BADZIPFILE;
     }
 
-    if (unzReadUInt32(s->stream, &value32) != UNZ_OK) /* date/time */
+    if (mz_stream_read_uint32(s->stream, &value32) != UNZ_OK) /* date/time */
         err = UNZ_ERRNO;
-    if (unzReadUInt32(s->stream, &value32) != UNZ_OK) /* crc */
+    if (mz_stream_read_uint32(s->stream, &value32) != UNZ_OK) /* crc */
         err = UNZ_ERRNO;
     else if ((err == UNZ_OK) && (value32 != s->cur_file_info.crc) && ((flags & 8) == 0))
         err = UNZ_BADZIPFILE;
-    if (unzReadUInt32(s->stream, &value32) != UNZ_OK) /* size compr */
+    if (mz_stream_read_uint32(s->stream, &value32) != UNZ_OK) /* size compr */
         err = UNZ_ERRNO;
     else if ((value32 != UINT32_MAX) && (err == UNZ_OK) && (value32 != s->cur_file_info.compressed_size) && ((flags & 8) == 0))
         err = UNZ_BADZIPFILE;
-    if (unzReadUInt32(s->stream, &value32) != UNZ_OK) /* size uncompr */
+    if (mz_stream_read_uint32(s->stream, &value32) != UNZ_OK) /* size uncompr */
         err = UNZ_ERRNO;
     else if ((value32 != UINT32_MAX) && (err == UNZ_OK) && (value32 != s->cur_file_info.uncompressed_size) && ((flags & 8) == 0))
         err = UNZ_BADZIPFILE;
-    if (unzReadUInt16(s->stream, &size_filename) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream, &size_filename) != UNZ_OK)
         err = UNZ_ERRNO;
     else if ((err == UNZ_OK) && (size_filename != s->cur_file_info.size_filename))
         err = UNZ_BADZIPFILE;
 
     *psize_variable += size_filename;
 
-    if (unzReadUInt16(s->stream, &size_extra_field) != UNZ_OK)
+    if (mz_stream_read_uint16(s->stream, &size_extra_field) != UNZ_OK)
         err = UNZ_ERRNO;
 
     *poffset_local_extrafield = s->cur_file_info_internal.offset_curfile + SIZEZIPLOCALHEADER + size_filename;

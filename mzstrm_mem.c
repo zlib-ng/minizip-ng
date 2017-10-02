@@ -24,12 +24,12 @@
 #include "mzstrm_mem.h"
 
 typedef struct mz_stream_mem_s {
-    mz_stream           stream;
-    char                *buffer;    // Memory buffer pointer 
-    uint32_t            size;       // Size of the memory buffer
-    uint32_t            limit;      // Furthest we've written
-    uint32_t            position;   // Current positoin in the memory
-    int16_t             growable;   // Growable memory buffer
+    mz_stream   stream;
+    char        *buffer;    // Memory buffer pointer 
+    uint32_t    size;       // Size of the memory buffer
+    uint32_t    limit;      // Furthest we've written
+    uint32_t    position;   // Current positoin in the memory
+    int16_t     growable;   // Growable memory buffer
 } mz_stream_mem;
 
 int32_t mz_stream_mem_open(void *stream, const char *path, int mode)

@@ -24,7 +24,7 @@ int32_t mz_stream_aes_seek(void *stream, uint64_t offset, int origin);
 int32_t mz_stream_aes_close(void *stream);
 int32_t mz_stream_aes_error(void *stream);
 
-void    mz_stream_aes_set_password(void *stream, char *password);
+void    mz_stream_aes_set_password(void *stream, const char *password);
 void    mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode);
 
 void*   mz_stream_aes_create(void **stream);
