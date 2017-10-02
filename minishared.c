@@ -223,29 +223,32 @@ int makedir(const char *newdir)
 int check_file_exists(const char *path)
 {
     int opened = 0;
-    voidpf stream = mzstream_os_alloc();
-    if (mzstream_os_open(stream, path, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    voidpf stream = NULL;
+    mz_stream_os_create(&stream);
+    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        mzstream_os_close(stream);
+        mz_stream_os_close(stream);
         opened = 1;
     }
-    mzstream_os_free(stream);
+    mz_stream_os_delete(&stream);
     return opened;
 }
 
 int is_large_file(const char *path)
 {
     int64_t size = 0;
-    voidpf stream = mzstream_os_alloc();
+    voidpf stream = NULL;
+    
+    mz_stream_os_create(&stream);
 
-    if (mzstream_os_open(stream, path, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        mzstream_os_seek(stream, 0, MZSTREAM_SEEK_END);
-        size = mzstream_os_tell(stream);
-        mzstream_os_close(stream);
+        mz_stream_os_seek(stream, 0, MZ_STREAM_SEEK_END);
+        size = mz_stream_os_tell(stream);
+        mz_stream_os_close(stream);
     }
 
-    mzstream_os_free(stream);
+    mz_stream_os_delete(&stream);
 
     printf("file : %s is %lld bytes\n", path, size);
 

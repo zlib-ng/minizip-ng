@@ -39,8 +39,8 @@
 #  endif
 #endif
 
-typedef struct mzstream_zlib_s {
-    mzstream    stream;
+typedef struct mz_stream_zlib_s {
+    mz_stream    stream;
     z_stream    zstream;
     uint8_t     buffer[UINT16_MAX];
     int32_t     buffer_len;
@@ -53,11 +53,11 @@ typedef struct mzstream_zlib_s {
     int16_t     strategy;
     int16_t     mode;
     int16_t     error;
-} mzstream_zlib;
+} mz_stream_zlib;
 
-int32_t ZCALLBACK mzstream_zlib_open(voidpf stream, const char *filename, int mode)
+int32_t ZCALLBACK mz_stream_zlib_open(voidpf stream, const char *filename, int mode)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     int16_t window_bits = 0;
 
 
@@ -71,14 +71,14 @@ int32_t ZCALLBACK mzstream_zlib_open(voidpf stream, const char *filename, int mo
     zlib->total_in = 0;
     zlib->total_out = 0;
 
-    if (mode & MZSTREAM_MODE_READ)
+    if (mode & MZ_STREAM_MODE_READ)
     {
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
 
         zlib->error = inflateInit2(&zlib->zstream, -MAX_WBITS);
     }
-    else if (mode & MZSTREAM_MODE_WRITE)
+    else if (mode & MZ_STREAM_MODE_WRITE)
     {
         window_bits = zlib->window_bits;
         if (window_bits > 0)
@@ -91,24 +91,24 @@ int32_t ZCALLBACK mzstream_zlib_open(voidpf stream, const char *filename, int mo
     }
 
     if (zlib->error != Z_OK)
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
 
     zlib->initialized = 1;
     zlib->mode = mode;
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_zlib_is_open(voidpf stream)
+int32_t ZCALLBACK mz_stream_zlib_is_open(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     if (zlib->initialized != 1)
-        return MZSTREAM_ERR;
-    return MZSTREAM_OK;
+        return MZ_STREAM_ERR;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_zlib_read(voidpf stream, void *buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_zlib_read(voidpf stream, void *buf, uint32_t size)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t total_out_before = 0;
     uint32_t total_out_after = 0;
     uint32_t out_bytes = 0;
@@ -122,8 +122,8 @@ int32_t ZCALLBACK mzstream_zlib_read(voidpf stream, void *buf, uint32_t size)
     {
         if (zlib->zstream.avail_in == 0)
         {
-            bytes_read = mzstream_read(zlib->stream.base, zlib->buffer, UINT16_MAX);
-            if (mzstream_error(zlib->stream.base))
+            bytes_read = mz_stream_read(zlib->stream.base, zlib->buffer, UINT16_MAX);
+            if (mz_stream_error(zlib->stream.base))
             {
                 zlib->error = Z_STREAM_ERROR;
                 break;
@@ -158,17 +158,17 @@ int32_t ZCALLBACK mzstream_zlib_read(voidpf stream, void *buf, uint32_t size)
     return total_out;
 }
 
-int32_t mzstream_zlib_flush(voidpf stream)
+int32_t mz_stream_zlib_flush(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
-    if (mzstream_write(zlib->stream.base, zlib->buffer, zlib->buffer_len) != zlib->buffer_len)
-        return MZSTREAM_ERR;
-    return MZSTREAM_OK;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
+    if (mz_stream_write(zlib->stream.base, zlib->buffer, zlib->buffer_len) != zlib->buffer_len)
+        return MZ_STREAM_ERR;
+    return MZ_STREAM_OK;
 }
 
-uint32_t mzstream_zlib_deflate(voidpf stream, int flush)
+uint32_t mz_stream_zlib_deflate(voidpf stream, int flush)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t total_out_before = 0;
     uint32_t total_out_after = 0;
     uint32_t out_bytes = 0;
@@ -182,9 +182,9 @@ uint32_t mzstream_zlib_deflate(voidpf stream, int flush)
     return out_bytes;
 }
 
-int32_t ZCALLBACK mzstream_zlib_write(voidpf stream, const void *buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_zlib_write(voidpf stream, const void *buf, uint32_t size)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t out_bytes = 0;
     uint32_t total_out = 0;
 
@@ -196,7 +196,7 @@ int32_t ZCALLBACK mzstream_zlib_write(voidpf stream, const void *buf, uint32_t s
     {
         if (zlib->zstream.avail_out == 0)
         {
-            if (mzstream_zlib_flush(zlib) == MZSTREAM_ERR)
+            if (mz_stream_zlib_flush(zlib) == MZ_STREAM_ERR)
             {
                 zlib->error = Z_STREAM_ERROR;
                 return 0;
@@ -208,7 +208,7 @@ int32_t ZCALLBACK mzstream_zlib_write(voidpf stream, const void *buf, uint32_t s
             zlib->buffer_len = 0;
         }
         
-        out_bytes = mzstream_zlib_deflate(stream, Z_NO_FLUSH);
+        out_bytes = mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
 
         total_out += out_bytes;
         zlib->buffer_len += out_bytes;
@@ -220,218 +220,228 @@ int32_t ZCALLBACK mzstream_zlib_write(voidpf stream, const void *buf, uint32_t s
     return total_out;
 }
 
-int64_t ZCALLBACK mzstream_zlib_tell(voidpf stream)
+int64_t ZCALLBACK mz_stream_zlib_tell(voidpf stream)
 {
-    mzstream_zlib *mem = (mzstream_zlib *)stream;
-    return MZSTREAM_ERR;
+    mz_stream_zlib *mem = (mz_stream_zlib *)stream;
+    return MZ_STREAM_ERR;
 }
 
-int32_t ZCALLBACK mzstream_zlib_seek(voidpf stream, uint64_t offset, int origin)
+int32_t ZCALLBACK mz_stream_zlib_seek(voidpf stream, uint64_t offset, int origin)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
-    return MZSTREAM_ERR;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
+    return MZ_STREAM_ERR;
 }
 
-int32_t ZCALLBACK mzstream_zlib_close(voidpf stream)
+int32_t ZCALLBACK mz_stream_zlib_close(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t out_bytes = 0;
 
-    if (zlib->mode & MZSTREAM_MODE_READ)
+    if (zlib->mode & MZ_STREAM_MODE_READ)
     {
         inflateEnd(&zlib->zstream);
     }
-    else if (zlib->mode & MZSTREAM_MODE_WRITE)
+    else if (zlib->mode & MZ_STREAM_MODE_WRITE)
     {
-        out_bytes = mzstream_zlib_deflate(stream, Z_FINISH);
+        out_bytes = mz_stream_zlib_deflate(stream, Z_FINISH);
 
         zlib->buffer_len += out_bytes;
         zlib->total_out += out_bytes;
 
-        mzstream_zlib_flush(stream);
+        mz_stream_zlib_flush(stream);
 
         zlib->error = deflateEnd(&zlib->zstream);
     }
 
     zlib->initialized = 0;
     if (zlib->error != Z_OK)
-        return MZSTREAM_ERR;
-    return MZSTREAM_OK;
+        return MZ_STREAM_ERR;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_zlib_error(voidpf stream)
+int32_t ZCALLBACK mz_stream_zlib_error(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     return zlib->error;
 }
 
-void mzstream_zlib_set_level(voidpf stream, int16_t level)
+void mz_stream_zlib_set_level(voidpf stream, int16_t level)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     zlib->level = level;
 }
 
-void mzstream_zlib_set_window_bits(voidpf stream, int16_t window_bits)
+void mz_stream_zlib_set_window_bits(voidpf stream, int16_t window_bits)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     zlib->window_bits = window_bits;
 }
 
-void mzstream_zlib_set_mem_level(voidpf stream, int16_t mem_level)
+void mz_stream_zlib_set_mem_level(voidpf stream, int16_t mem_level)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     zlib->mem_level = mem_level;
 }
 
-void mzstream_zlib_set_strategy(voidpf stream, int16_t strategy)
+void mz_stream_zlib_set_strategy(voidpf stream, int16_t strategy)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     zlib->strategy = strategy;
 }
 
-uint64_t mzstream_zlib_get_total_in(voidpf stream)
+uint64_t mz_stream_zlib_get_total_in(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     return zlib->total_in;
 }
 
-uint64_t mzstream_zlib_get_total_out(voidpf stream)
+uint64_t mz_stream_zlib_get_total_out(voidpf stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     return zlib->total_out;
 }
 
-voidpf mzstream_zlib_alloc(void)
+voidpf mz_stream_zlib_create(voidpf *stream)
 {
-    mzstream_zlib *zlib = NULL;
+    mz_stream_zlib *zlib = NULL;
 
-    zlib = (mzstream_zlib *)malloc(sizeof(mzstream_zlib));
-    if (zlib == NULL)
-        return NULL;
+    zlib = (mz_stream_zlib *)malloc(sizeof(mz_stream_zlib));
+    if (zlib != NULL)
+    {
+        memset(zlib, 0, sizeof(mz_stream_zlib));
 
-    memset(zlib, 0, sizeof(mzstream_zlib));
-
-    zlib->stream.open = mzstream_zlib_open;
-    zlib->stream.is_open = mzstream_zlib_is_open;
-    zlib->stream.read = mzstream_zlib_read;
-    zlib->stream.write = mzstream_zlib_write;
-    zlib->stream.tell = mzstream_zlib_tell;
-    zlib->stream.seek = mzstream_zlib_seek;
-    zlib->stream.close = mzstream_zlib_close;
-    zlib->stream.error = mzstream_zlib_error;
-    zlib->stream.alloc = mzstream_zlib_alloc;
-    zlib->stream.free = mzstream_zlib_free;
-    zlib->level = Z_DEFAULT_COMPRESSION;
-    zlib->window_bits = -MAX_WBITS;
-    zlib->mem_level = DEF_MEM_LEVEL;
-    zlib->strategy = Z_DEFAULT_STRATEGY;
+        zlib->stream.open = mz_stream_zlib_open;
+        zlib->stream.is_open = mz_stream_zlib_is_open;
+        zlib->stream.read = mz_stream_zlib_read;
+        zlib->stream.write = mz_stream_zlib_write;
+        zlib->stream.tell = mz_stream_zlib_tell;
+        zlib->stream.seek = mz_stream_zlib_seek;
+        zlib->stream.close = mz_stream_zlib_close;
+        zlib->stream.error = mz_stream_zlib_error;
+        zlib->stream.create = mz_stream_zlib_create;
+        zlib->stream.delete = mz_stream_zlib_delete;
+        zlib->level = Z_DEFAULT_COMPRESSION;
+        zlib->window_bits = -MAX_WBITS;
+        zlib->mem_level = DEF_MEM_LEVEL;
+        zlib->strategy = Z_DEFAULT_STRATEGY;
+    }
+    if (stream != NULL)
+        *stream = zlib;
 
     return (voidpf)zlib;
 }
 
-void mzstream_zlib_free(voidpf stream)
+void mz_stream_zlib_delete(voidpf *stream)
 {
-    mzstream_zlib *zlib = (mzstream_zlib *)stream;
+    mz_stream_zlib *zlib = NULL;
+    if (stream == NULL)
+        return;
+    zlib = (mz_stream_zlib *)*stream;
     if (zlib != NULL)
         free(zlib);
 }
 
-typedef struct mzstream_crc32_s {
-    mzstream    stream;
+typedef struct mz_stream_crc32_s {
+    mz_stream    stream;
     int8_t      initialized;
     uint32_t    value;
-} mzstream_crc32;
+} mz_stream_crc32;
 
-int32_t ZCALLBACK mzstream_crc32_open(voidpf stream, const char *filename, int mode)
+int32_t ZCALLBACK mz_stream_crc32_open(voidpf stream, const char *filename, int mode)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     crc32->initialized = 1;
     crc32->value = 0;
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_crc32_is_open(voidpf stream)
+int32_t ZCALLBACK mz_stream_crc32_is_open(voidpf stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     if (crc32->initialized != 1)
-        return MZSTREAM_ERR;
-    return MZSTREAM_OK;
+        return MZ_STREAM_ERR;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_crc32_read(voidpf stream, void *buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_crc32_read(voidpf stream, void *buf, uint32_t size)
 {
-    mzstream_crc32 *crc32x = (mzstream_crc32 *)stream;
-    int32_t read = mzstream_read(crc32x->stream.base, buf, size);
+    mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
+    int32_t read = mz_stream_read(crc32x->stream.base, buf, size);
     if (read > 0)
         crc32x->value = crc32(crc32x->value, buf, read);
     return read;
 }
 
-int32_t ZCALLBACK mzstream_crc32_write(voidpf stream, const void *buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_crc32_write(voidpf stream, const void *buf, uint32_t size)
 {
-    mzstream_crc32 *crc32x = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
     crc32x->value = crc32(crc32x->value, buf, size);
-    return mzstream_write(crc32x->stream.base, buf, size);
+    return mz_stream_write(crc32x->stream.base, buf, size);
 }
 
-int64_t ZCALLBACK mzstream_crc32_tell(voidpf stream)
+int64_t ZCALLBACK mz_stream_crc32_tell(voidpf stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    return mzstream_tell(crc32->stream.base);
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+    return mz_stream_tell(crc32->stream.base);
 }
 
-int32_t ZCALLBACK mzstream_crc32_seek(voidpf stream, uint64_t offset, int origin)
+int32_t ZCALLBACK mz_stream_crc32_seek(voidpf stream, uint64_t offset, int origin)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    return mzstream_seek(crc32->stream.base, offset, origin);
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+    return mz_stream_seek(crc32->stream.base, offset, origin);
 }
 
-int32_t ZCALLBACK mzstream_crc32_close(voidpf stream)
+int32_t ZCALLBACK mz_stream_crc32_close(voidpf stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     crc32->initialized = 0;
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_crc32_error(voidpf stream)
+int32_t ZCALLBACK mz_stream_crc32_error(voidpf stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
-    return mzstream_error(crc32->stream.base);
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+    return mz_stream_error(crc32->stream.base);
 }
 
-uint32_t mzstream_crc32_get_value(voidpf stream)
+uint32_t mz_stream_crc32_get_value(voidpf stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return crc32->value;
 }
 
-voidpf mzstream_crc32_alloc(void)
+voidpf mz_stream_crc32_create(voidpf *stream)
 {
-    mzstream_crc32 *crc32 = NULL;
+    mz_stream_crc32 *crc32 = NULL;
 
-    crc32 = (mzstream_crc32 *)malloc(sizeof(mzstream_crc32));
-    if (crc32 == NULL)
-        return NULL;
+    crc32 = (mz_stream_crc32 *)malloc(sizeof(mz_stream_crc32));
+    if (crc32 != NULL)
+    {
+        memset(crc32, 0, sizeof(mz_stream_crc32));
 
-    memset(crc32, 0, sizeof(mzstream_crc32));
-
-    crc32->stream.open = mzstream_crc32_open;
-    crc32->stream.is_open = mzstream_crc32_is_open;
-    crc32->stream.read = mzstream_crc32_read;
-    crc32->stream.write = mzstream_crc32_write;
-    crc32->stream.tell = mzstream_crc32_tell;
-    crc32->stream.seek = mzstream_crc32_seek;
-    crc32->stream.close = mzstream_crc32_close;
-    crc32->stream.error = mzstream_crc32_error;
-    crc32->stream.alloc = mzstream_crc32_alloc;
-    crc32->stream.free = mzstream_crc32_free;
+        crc32->stream.open = mz_stream_crc32_open;
+        crc32->stream.is_open = mz_stream_crc32_is_open;
+        crc32->stream.read = mz_stream_crc32_read;
+        crc32->stream.write = mz_stream_crc32_write;
+        crc32->stream.tell = mz_stream_crc32_tell;
+        crc32->stream.seek = mz_stream_crc32_seek;
+        crc32->stream.close = mz_stream_crc32_close;
+        crc32->stream.error = mz_stream_crc32_error;
+        crc32->stream.create = mz_stream_crc32_create;
+        crc32->stream.delete = mz_stream_crc32_delete;
+    }
+    if (stream != NULL)
+        *stream = crc32;
 
     return (voidpf)crc32;
 }
 
-void mzstream_crc32_free(voidpf stream)
+void mz_stream_crc32_delete(voidpf *stream)
 {
-    mzstream_crc32 *crc32 = (mzstream_crc32 *)stream;
+    mz_stream_crc32 *crc32 = NULL;
+    if (stream == NULL)
+        return;
+    crc32 = (mz_stream_crc32 *)*stream;
     if (crc32 != NULL)
         free(crc32);
 }

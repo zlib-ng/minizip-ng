@@ -37,18 +37,18 @@
 #  endif
 #endif
 
-typedef struct mzstream_win32_s
+typedef struct mz_stream_win32_s
 {
-    mzstream   stream;
+    mz_stream   stream;
     HANDLE      handle;
     int         error;
     char        *filename;
     int         filename_size;
-} mzstream_win32;
+} mz_stream_win32;
 
-int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int mode)
+int32_t ZCALLBACK mz_stream_win32_open(voidpf stream, const char *filename, int mode)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t desired_access = 0;
     uint32_t creation_disposition = 0;
     uint32_t share_mode = FILE_SHARE_READ;
@@ -58,27 +58,27 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
     HANDLE handle = NULL;
 
     if (filename == NULL)
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
 
-    if ((mode & MZSTREAM_MODE_READWRITEFILTER) == MZSTREAM_MODE_READ)
+    if ((mode & MZ_STREAM_MODE_READWRITEFILTER) == MZ_STREAM_MODE_READ)
     {
         desired_access = GENERIC_READ;
         creation_disposition = OPEN_EXISTING;
         share_mode &= FILE_SHARE_WRITE;
     }
-    else if (mode & MZSTREAM_MODE_EXISTING)
+    else if (mode & MZ_STREAM_MODE_EXISTING)
     {
         desired_access = GENERIC_WRITE | GENERIC_READ;
         creation_disposition = OPEN_EXISTING;
     }
-    else if (mode & MZSTREAM_MODE_CREATE)
+    else if (mode & MZ_STREAM_MODE_CREATE)
     {
         desired_access = GENERIC_WRITE | GENERIC_READ;
         creation_disposition = CREATE_ALWAYS;
     }
     else
     {
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
     }
 
     filename_wide_size = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
@@ -95,10 +95,10 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
 
     free(filename_wide);
 
-    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
+    if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
     {
         win32->error = GetLastError();
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
     }
 
     win32->filename_size = strlen(filename) + 1;
@@ -106,25 +106,25 @@ int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int m
 
     strncpy(win32->filename, filename, win32->filename_size);
 
-    return MZSTREAM_OK; 
+    return MZ_STREAM_OK; 
 }
 
-int32_t ZCALLBACK mzstream_win32_is_open(voidpf stream)
+int32_t ZCALLBACK mz_stream_win32_is_open(voidpf stream)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     if (win32->handle == NULL || win32->handle == INVALID_HANDLE_VALUE)
-        return MZSTREAM_ERR;
-    return MZSTREAM_OK;
+        return MZ_STREAM_ERR;
+    return MZ_STREAM_OK;
 }
 
-int32_t ZCALLBACK mzstream_win32_read(voidpf stream, void* buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_win32_read(voidpf stream, void* buf, uint32_t size)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t read = 0;
     HANDLE handle = NULL;
 
-    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
-        return MZSTREAM_ERR;
+    if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
+        return MZ_STREAM_ERR;
 
     if (!ReadFile(win32->handle, buf, size, &read, NULL))
     {
@@ -136,15 +136,15 @@ int32_t ZCALLBACK mzstream_win32_read(voidpf stream, void* buf, uint32_t size)
     return read;
 }
 
-int32_t ZCALLBACK mzstream_win32_write(voidpf stream, const void *buf, uint32_t size)
+int32_t ZCALLBACK mz_stream_win32_write(voidpf stream, const void *buf, uint32_t size)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t written = 0;
     uint32_t error = 0;
     HANDLE handle = NULL;
 
-    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
-        return MZSTREAM_ERR;
+    if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
+        return MZ_STREAM_ERR;
 
     if (!WriteFile(win32->handle, buf, size, &written, NULL))
     {
@@ -156,7 +156,7 @@ int32_t ZCALLBACK mzstream_win32_write(voidpf stream, const void *buf, uint32_t 
     return written;
 }
 
-static int32_t mzstream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos, uint32_t move_method)
+static int32_t mz_stream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos, uint32_t move_method)
 {
 #ifdef IOWIN32_USING_WINRT_API
     return SetFilePointerEx(handle, pos, newPos, dwMoveMethod);
@@ -165,7 +165,7 @@ static int32_t mzstream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_po
     uint32_t pos = SetFilePointer(handle, large_pos.LowPart, &high_part, move_method);
 
     if ((pos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
 
     if (new_pos != NULL)
     {
@@ -173,24 +173,24 @@ static int32_t mzstream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_po
         new_pos->HighPart = high_part;
     }
 
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 #endif
 }
 
-int64_t ZCALLBACK mzstream_win32_tell(voidpf stream)
+int64_t ZCALLBACK mz_stream_win32_tell(voidpf stream)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t written = 0;
     uint32_t error = 0;
     HANDLE handle = NULL;
     LARGE_INTEGER large_pos;
 
-    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
-        return MZSTREAM_ERR;
+    if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
+        return MZ_STREAM_ERR;
 
     large_pos.QuadPart = 0;
 
-    if (mzstream_win32_seekinternal(win32->handle, large_pos, &large_pos, FILE_CURRENT) == MZSTREAM_ERR)
+    if (mz_stream_win32_seekinternal(win32->handle, large_pos, &large_pos, FILE_CURRENT) == MZ_STREAM_ERR)
     {
         error = GetLastError();
         win32->error = error;
@@ -199,9 +199,9 @@ int64_t ZCALLBACK mzstream_win32_tell(voidpf stream)
     return large_pos.LowPart;
 }
 
-int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin)
+int32_t ZCALLBACK mz_stream_win32_seek(voidpf stream, uint64_t offset, int origin)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t move_method = 0xFFFFFFFF;
     uint32_t error = 0;
     HANDLE handle = NULL;
@@ -209,86 +209,91 @@ int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin
     LARGE_INTEGER large_pos;
 
 
-    if (mzstream_win32_is_open(stream) == MZSTREAM_ERR)
-        return MZSTREAM_ERR;
+    if (mz_stream_win32_is_open(stream) == MZ_STREAM_ERR)
+        return MZ_STREAM_ERR;
 
     switch (origin)
     {
-        case MZSTREAM_SEEK_CUR:
+        case MZ_STREAM_SEEK_CUR:
             move_method = FILE_CURRENT;
             break;
-        case MZSTREAM_SEEK_END:
+        case MZ_STREAM_SEEK_END:
             move_method = FILE_END;
             break;
-        case MZSTREAM_SEEK_SET:
+        case MZ_STREAM_SEEK_SET:
             move_method = FILE_BEGIN;
             break;
         default:
-            return MZSTREAM_ERR;
+            return MZ_STREAM_ERR;
     }
 
     large_pos.QuadPart = offset;
 
-    if (mzstream_win32_seekinternal(win32->handle, large_pos, NULL, move_method) == MZSTREAM_ERR)
+    if (mz_stream_win32_seekinternal(win32->handle, large_pos, NULL, move_method) == MZ_STREAM_ERR)
     {
         error = GetLastError();
         win32->error = error;
-        return MZSTREAM_ERR;
+        return MZ_STREAM_ERR;
     }
 
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 }
 
-int ZCALLBACK mzstream_win32_close(voidpf stream)
+int ZCALLBACK mz_stream_win32_close(voidpf stream)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
 
     if (win32->filename != NULL)
         free(win32->filename);
     if (win32->handle != NULL)
         CloseHandle(win32->handle);
     win32->handle = NULL;
-    return MZSTREAM_OK;
+    return MZ_STREAM_OK;
 }
 
-int ZCALLBACK mzstream_win32_error(voidpf stream)
+int ZCALLBACK mz_stream_win32_error(voidpf stream)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     return win32->error;
 }
 
-voidpf mzstream_win32_alloc(void)
+voidpf mz_stream_win32_create(voidpf *stream)
 {
-    mzstream_win32 *win32 = NULL;
+    mz_stream_win32 *win32 = NULL;
 
-    win32 = (mzstream_win32 *)malloc(sizeof(mzstream_win32));
-    if (win32 == NULL)
-        return NULL;
+    win32 = (mz_stream_win32 *)malloc(sizeof(mz_stream_win32));
+    if (win32 != NULL)
+    {
+        memset(win32, 0, sizeof(mz_stream_win32));
 
-    memset(win32, 0, sizeof(mzstream_win32));
-
-    win32->stream.open = mzstream_win32_open;
-    win32->stream.is_open = mzstream_win32_is_open;
-    win32->stream.read = mzstream_win32_read;
-    win32->stream.write = mzstream_win32_write;
-    win32->stream.tell = mzstream_win32_tell;
-    win32->stream.seek = mzstream_win32_seek;
-    win32->stream.close = mzstream_win32_close;
-    win32->stream.error = mzstream_win32_error;
-    win32->stream.alloc = mzstream_win32_alloc;
-    win32->stream.free = mzstream_win32_free;
+        win32->stream.open = mz_stream_win32_open;
+        win32->stream.is_open = mz_stream_win32_is_open;
+        win32->stream.read = mz_stream_win32_read;
+        win32->stream.write = mz_stream_win32_write;
+        win32->stream.tell = mz_stream_win32_tell;
+        win32->stream.seek = mz_stream_win32_seek;
+        win32->stream.close = mz_stream_win32_close;
+        win32->stream.error = mz_stream_win32_error;
+        win32->stream.create = mz_stream_win32_create;
+        win32->stream.delete = mz_stream_win32_delete;
+    }
+    if (stream != NULL)
+        *stream = win32;
 
     return (voidpf)win32;
 }
 
-void mzstream_win32_free(voidpf stream)
+void mz_stream_win32_delete(voidpf *stream)
 {
-    mzstream_win32 *win32 = (mzstream_win32 *)stream;
+    mz_stream_win32 *win32 = NULL;
+    if (stream == NULL)
+        return;
+    win32 = (mz_stream_win32 *)*stream;
     if (win32 != NULL)
         free(win32);
 }
 
-int32_t win32_rand(uint8_t *buf, uint32_t size)
+int32_t mz_win32_rand(uint8_t *buf, uint32_t size)
 {
     HCRYPTPROV provider;
     unsigned __int64 pentium_tsc[1];

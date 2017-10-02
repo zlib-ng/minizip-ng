@@ -14,8 +14,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZSTREAM_WIN32_H
-#define _MZSTREAM_WIN32_H
+#ifndef _MZ_STREAM_WIN32_H
+#define _MZ_STREAM_WIN32_H
 
 #include <windows.h>
 
@@ -23,19 +23,19 @@
 extern "C" {
 #endif
 
-int32_t ZCALLBACK mzstream_win32_open(voidpf stream, const char *filename, int mode);
-int32_t ZCALLBACK mzstream_win32_is_open(voidpf stream);
-int32_t ZCALLBACK mzstream_win32_read(voidpf stream, void* buf, uint32_t size);
-int32_t ZCALLBACK mzstream_win32_write(voidpf stream, const void *buf, uint32_t size);
-int64_t ZCALLBACK mzstream_win32_tell(voidpf stream);
-int32_t ZCALLBACK mzstream_win32_seek(voidpf stream, uint64_t offset, int origin);
-int32_t ZCALLBACK mzstream_win32_close(voidpf stream);
-int32_t ZCALLBACK mzstream_win32_error(voidpf stream);
+int32_t ZCALLBACK mz_stream_win32_open(voidpf stream, const char *filename, int mode);
+int32_t ZCALLBACK mz_stream_win32_is_open(voidpf stream);
+int32_t ZCALLBACK mz_stream_win32_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mz_stream_win32_write(voidpf stream, const void *buf, uint32_t size);
+int64_t ZCALLBACK mz_stream_win32_tell(voidpf stream);
+int32_t ZCALLBACK mz_stream_win32_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mz_stream_win32_close(voidpf stream);
+int32_t ZCALLBACK mz_stream_win32_error(voidpf stream);
 
-voidpf            mzstream_win32_alloc(void);
-void              mzstream_win32_free(voidpf stream);
+voidpf            mz_stream_win32_create(voidpf *stream);
+void              mz_stream_win32_delete(voidpf *stream);
 
-int32_t           win32_rand(uint8_t *buf, uint32_t size);
+int32_t           mz_win32_rand(uint8_t *buf, uint32_t size);
 
 #ifdef __cplusplus
 }

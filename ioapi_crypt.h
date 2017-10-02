@@ -16,8 +16,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZSTREAM_CRYPT_H
-#define _MZSTREAM_CRYPT_H
+#ifndef _MZ_STREAM_CRYPT_H
+#define _MZ_STREAM_CRYPT_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,20 +30,20 @@
 extern "C" {
 #endif
 
-int32_t ZCALLBACK mzstream_crypt_open(voidpf stream, const char* filename, int mode);
-int32_t ZCALLBACK mzstream_crypt_read(voidpf stream, void* buf, uint32_t size);
-int32_t ZCALLBACK mzstream_crypt_write(voidpf stream, const void* buf, uint32_t size);
-int64_t ZCALLBACK mzstream_crypt_tell(voidpf stream);
-int32_t ZCALLBACK mzstream_crypt_seek(voidpf stream, uint64_t offset, int origin);
-int32_t ZCALLBACK mzstream_crypt_close(voidpf stream);
-int32_t ZCALLBACK mzstream_crypt_error(voidpf stream);
+int32_t ZCALLBACK mz_stream_crypt_open(voidpf stream, const char* filename, int mode);
+int32_t ZCALLBACK mz_stream_crypt_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mz_stream_crypt_write(voidpf stream, const void* buf, uint32_t size);
+int64_t ZCALLBACK mz_stream_crypt_tell(voidpf stream);
+int32_t ZCALLBACK mz_stream_crypt_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mz_stream_crypt_close(voidpf stream);
+int32_t ZCALLBACK mz_stream_crypt_error(voidpf stream);
 
-void              mzstream_crypt_set_password(voidpf stream, char *password);
-void              mzstream_crypt_set_verify(voidpf stream, uint8_t verify1, uint8_t verify2);
-void              mzstream_crypt_get_verify(voidpf stream, uint8_t *verify1, uint8_t *verify2);
+void              mz_stream_crypt_set_password(voidpf stream, char *password);
+void              mz_stream_crypt_set_verify(voidpf stream, uint8_t verify1, uint8_t verify2);
+void              mz_stream_crypt_get_verify(voidpf stream, uint8_t *verify1, uint8_t *verify2);
 
-voidpf            mzstream_crypt_alloc(void);
-void              mzstream_crypt_free(voidpf stream);
+voidpf            mz_stream_crypt_create(voidpf *stream);
+void              mz_stream_crypt_delete(voidpf *stream);
 
 #ifdef __cplusplus
 }

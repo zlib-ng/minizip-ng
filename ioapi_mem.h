@@ -13,8 +13,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZSTREAM_MEM_H
-#define _MZSTREAM_MEM_H
+#ifndef _MZ_STREAM_MEM_H
+#define _MZ_STREAM_MEM_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,18 +27,19 @@
 extern "C" {
 #endif
 
-int32_t ZCALLBACK mzstream_mem_open(voidpf stream, const char* filename, int mode);
-int32_t ZCALLBACK mzstream_mem_read(voidpf stream, void* buf, uint32_t size);
-int32_t ZCALLBACK mzstream_mem_write(voidpf stream, const void* buf, uint32_t size);
-int64_t ZCALLBACK mzstream_mem_tell(voidpf stream);
-int32_t ZCALLBACK mzstream_mem_seek(voidpf stream, uint64_t offset, int origin);
-int32_t ZCALLBACK mzstream_mem_close(voidpf stream);
-int32_t ZCALLBACK mzstream_mem_error(voidpf stream);
+int32_t ZCALLBACK mz_stream_mem_open(voidpf stream, const char* filename, int mode);
+int32_t ZCALLBACK mz_stream_mem_read(voidpf stream, void* buf, uint32_t size);
+int32_t ZCALLBACK mz_stream_mem_write(voidpf stream, const void* buf, uint32_t size);
+int64_t ZCALLBACK mz_stream_mem_tell(voidpf stream);
+int32_t ZCALLBACK mz_stream_mem_seek(voidpf stream, uint64_t offset, int origin);
+int32_t ZCALLBACK mz_stream_mem_close(voidpf stream);
+int32_t ZCALLBACK mz_stream_mem_error(voidpf stream);
 
-void              mzstream_mem_set_buffer(voidpf stream, void *buf, uint32_t size);
-void              mzstream_mem_set_growable(voidpf stream, int growable);
-voidpf            mzstream_mem_alloc(void);
-void              mzstream_mem_free(voidpf stream);
+void              mz_stream_mem_set_buffer(voidpf stream, void *buf, uint32_t size);
+void              mz_stream_mem_set_growable(voidpf stream, int growable);
+
+voidpf            mz_stream_mem_create(voidpf *stream);
+void              mz_stream_mem_delete(voidpf *stream);
 
 #ifdef __cplusplus
 }

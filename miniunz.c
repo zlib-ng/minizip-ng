@@ -216,13 +216,14 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
             *popt_overwrite = 1;
     }
 
-    voidpf stream_entry = mzstream_os_alloc();
+    voidpf stream_entry = NULL;
+    mz_stream_os_create(&stream_entry);
 
     /* Create the file on disk so we can unzip to it */
     if ((skip == 0) && (err == UNZ_OK))
     {
         /* Some zips don't contain directory alone before file */
-        if ((mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE) == MZSTREAM_ERR) &&
+        if ((mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_WRITE) == MZ_STREAM_ERR) &&
             (opt_extract_without_path == 0) &&
             (filename_withoutpath != (char*)filename_inzip))
         {
@@ -231,12 +232,12 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
             makedir(write_filename);
             *(filename_withoutpath-1) = c;
 
-            mzstream_os_open(stream_entry, write_filename, MZSTREAM_MODE_WRITE);
+            mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_WRITE);
         }
     }
 
     /* Read from the zip, unzip to buffer, and write to disk */
-    if (mzstream_os_is_open(stream_entry))
+    if (mz_stream_os_is_open(stream_entry))
     {
         printf(" extracting: %s\n", write_filename);
 
@@ -250,7 +251,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
             }
             if (err == 0)
                 break;
-            if (mzstream_os_write(stream_entry, buf, 1) != 1)
+            if (mz_stream_os_write(stream_entry, buf, 1) != 1)
             {
                 printf("error %d in writing extracted file\n", errno);
                 err = UNZ_ERRNO;
@@ -259,7 +260,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
         }
         while (err > 0);
 
-        mzstream_os_close(stream_entry);
+        mz_stream_os_close(stream_entry);
 
         /* Set the time of the file that has been unzipped */
         if (err == 0)
@@ -270,7 +271,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
         printf("error opening %s\n", write_filename);
     }
 
-    mzstream_os_free(stream_entry);
+    mz_stream_os_delete(&stream_entry);
 
     errclose = unzCloseCurrentFile(uf);
     if (errclose != UNZ_OK)
@@ -385,7 +386,7 @@ int main(int argc, const char *argv[])
         }
     }
 
-    stream = mzstream_os_alloc();
+    mz_stream_os_create(&stream);
 
     /* Open zip file */
     if (zipfilename != NULL)
@@ -422,7 +423,7 @@ int main(int argc, const char *argv[])
 
     unzClose(uf);
 
-    mzstream_os_free(stream);
+    mz_stream_os_delete(&stream);
 
     return ret;
 }

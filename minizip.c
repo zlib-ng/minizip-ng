@@ -81,7 +81,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY,
         password, 0, zip64);
 
-    stream_entry = mzstream_os_alloc();
+    stream_entry = mz_stream_os_alloc();
 
     if (err != ZIP_OK)
     {
@@ -89,7 +89,7 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
     }
     else
     {
-        if (mzstream_os_open(stream_entry, path, MZSTREAM_MODE_READ) == MZSTREAM_ERR)
+        if (mz_stream_os_open(stream_entry, path, MZ_STREAM_MODE_READ) == MZ_STREAM_ERR)
         {
             err = ZIP_ERRNO;
             printf("error in opening %s for reading\n", path);
@@ -102,8 +102,8 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         do
         {
 
-            size_read = mzstream_os_read(stream_entry, buf, sizeof(buf));
-            if ((size_read < (int)sizeof(buf)) && mzstream_os_error(stream_entry))
+            size_read = mz_stream_os_read(stream_entry, buf, sizeof(buf));
+            if ((size_read < (int)sizeof(buf)) && mz_stream_os_error(stream_entry))
             {
                 printf("error in reading %s\n", filenameinzip);
                 err = ZIP_ERRNO;
@@ -119,10 +119,10 @@ int minizip_addfile(zipFile zf, const char *path, const char *filenameinzip, int
         while ((err == ZIP_OK) && (size_read > 0));
     }
 
-    if (mzstream_os_is_open(stream_entry))
-        mzstream_os_close(stream_entry);
+    if (mz_stream_os_is_open(stream_entry))
+        mz_stream_os_close(stream_entry);
 
-    mzstream_os_free(stream_entry);
+    mz_stream_os_free(stream_entry);
 
     if (err < 0)
     {
@@ -145,72 +145,72 @@ void test_aes()
     int16_t read = 0;
     int16_t written = 0;
 
-    voidpf in_stream = mzstream_os_alloc();
+    voidpf in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        read = mzstream_os_read(in_stream, buf, UINT16_MAX);
-        mzstream_os_close(in_stream);
+        read = mz_stream_os_read(in_stream, buf, UINT16_MAX);
+        mz_stream_os_close(in_stream);
     }
 
-    mzstream_os_free(in_stream);
+    mz_stream_os_free(in_stream);
 
-    voidpf out_stream = mzstream_os_alloc();
+    voidpf out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.aes-encrypt", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.aes-encrypt", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        voidpf aes_out_stream = mzstream_aes_alloc();
+        voidpf aes_out_stream = mz_stream_aes_alloc();
 
-        mzstream_aes_set_password(aes_out_stream, "hello");
-        mzstream_set_base(aes_out_stream, out_stream);
+        mz_stream_aes_set_password(aes_out_stream, "hello");
+        mz_stream_set_base(aes_out_stream, out_stream);
 
-        if (mzstream_open(aes_out_stream, NULL, MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+        if (mz_stream_open(aes_out_stream, NULL, MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
         {
-            written = mzstream_write(aes_out_stream, buf, read);
-            mzstream_close(aes_out_stream);
+            written = mz_stream_write(aes_out_stream, buf, read);
+            mz_stream_close(aes_out_stream);
         }
 
-        mzstream_aes_free(aes_out_stream);
+        mz_stream_aes_free(aes_out_stream);
 
-        mzstream_os_close(out_stream);
+        mz_stream_os_close(out_stream);
 
         printf("LICENSE aes encrypted %d\n", written);
     }
     
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 
-    in_stream = mzstream_os_alloc();
+    in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE.aes-encrypt", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE.aes-encrypt", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        voidpf aes_out_stream = mzstream_aes_alloc();
+        voidpf aes_out_stream = mz_stream_aes_alloc();
         
-        mzstream_aes_set_password(aes_out_stream, "hello");
-        mzstream_set_base(aes_out_stream, in_stream);
+        mz_stream_aes_set_password(aes_out_stream, "hello");
+        mz_stream_set_base(aes_out_stream, in_stream);
 
-        if (mzstream_open(aes_out_stream, NULL, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+        if (mz_stream_open(aes_out_stream, NULL, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
         {
-            read = mzstream_read(aes_out_stream, buf, read);
-            mzstream_close(aes_out_stream);
+            read = mz_stream_read(aes_out_stream, buf, read);
+            mz_stream_close(aes_out_stream);
         }
         
-        mzstream_aes_free(aes_out_stream);
+        mz_stream_aes_free(aes_out_stream);
 
-        mzstream_os_close(in_stream);
+        mz_stream_os_close(in_stream);
 
         printf("LICENSE aes decrypted %d\n", read);
     }
 
-    mzstream_os_free(in_stream);
-    out_stream = mzstream_os_alloc();
+    mz_stream_os_free(in_stream);
+    out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.aes-decrypt", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.aes-decrypt", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        mzstream_os_write(out_stream, buf, read);
-        mzstream_os_close(out_stream);
+        mz_stream_os_write(out_stream, buf, read);
+        mz_stream_os_close(out_stream);
     }
 
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 }
 void test_crypt()
 {
@@ -218,169 +218,169 @@ void test_crypt()
     int16_t read = 0;
     int16_t written = 0;
 
-    voidpf in_stream = mzstream_os_alloc();
+    voidpf in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        read = mzstream_os_read(in_stream, buf, UINT16_MAX);
-        mzstream_os_close(in_stream);
+        read = mz_stream_os_read(in_stream, buf, UINT16_MAX);
+        mz_stream_os_close(in_stream);
     }
 
-    mzstream_os_free(in_stream);
+    mz_stream_os_free(in_stream);
 
-    voidpf out_stream = mzstream_os_alloc();
+    voidpf out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.encrypt", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.encrypt", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        voidpf crypt_out_stream = mzstream_crypt_alloc();
+        voidpf crypt_out_stream = mz_stream_crypt_alloc();
 
-        mzstream_crypt_set_password(crypt_out_stream, "hello");
-        mzstream_set_base(crypt_out_stream, out_stream);
+        mz_stream_crypt_set_password(crypt_out_stream, "hello");
+        mz_stream_set_base(crypt_out_stream, out_stream);
 
-        if (mzstream_open(crypt_out_stream, NULL, MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+        if (mz_stream_open(crypt_out_stream, NULL, MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
         {
-            written = mzstream_write(crypt_out_stream, buf, read);
-            mzstream_close(crypt_out_stream);
+            written = mz_stream_write(crypt_out_stream, buf, read);
+            mz_stream_close(crypt_out_stream);
         }
 
-        mzstream_crypt_free(crypt_out_stream);
+        mz_stream_crypt_free(crypt_out_stream);
 
-        mzstream_os_close(out_stream);
+        mz_stream_os_close(out_stream);
 
         printf("LICENSE encrypted %d\n", written);
     }
     
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 
-    in_stream = mzstream_os_alloc();
+    in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE.encrypt", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE.encrypt", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        voidpf crypt_out_stream = mzstream_crypt_alloc();
+        voidpf crypt_out_stream = mz_stream_crypt_alloc();
         
-        mzstream_crypt_set_password(crypt_out_stream, "hello");
-        mzstream_set_base(crypt_out_stream, in_stream);
+        mz_stream_crypt_set_password(crypt_out_stream, "hello");
+        mz_stream_set_base(crypt_out_stream, in_stream);
 
-        if (mzstream_open(crypt_out_stream, NULL, MZSTREAM_MODE_READ) == MZSTREAM_OK)
+        if (mz_stream_open(crypt_out_stream, NULL, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
         {
-            read = mzstream_read(crypt_out_stream, buf, read);
-            mzstream_close(crypt_out_stream);
+            read = mz_stream_read(crypt_out_stream, buf, read);
+            mz_stream_close(crypt_out_stream);
         }
         
-        mzstream_crypt_free(crypt_out_stream);
+        mz_stream_crypt_free(crypt_out_stream);
 
-        mzstream_os_close(in_stream);
+        mz_stream_os_close(in_stream);
 
         printf("LICENSE decrypted %d\n", read);
     }
 
-    mzstream_os_free(in_stream);
-    out_stream = mzstream_os_alloc();
+    mz_stream_os_free(in_stream);
+    out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.decrypt", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.decrypt", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        mzstream_os_write(out_stream, buf, read);
-        mzstream_os_close(out_stream);
+        mz_stream_os_write(out_stream, buf, read);
+        mz_stream_os_close(out_stream);
     }
 
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 }
 void test_inflate()
 {
     char buf[UINT16_MAX];
     int16_t read = 0;
 
-    voidpf in_stream = mzstream_os_alloc();
+    voidpf in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE.deflate", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE.deflate", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        voidpf inflate_stream = mzstream_zlib_alloc();
+        voidpf inflate_stream = mz_stream_zlib_alloc();
         uint64_t total_in = 0;
         uint64_t total_out = 0;
 
-        mzstream_set_base(inflate_stream, in_stream);
+        mz_stream_set_base(inflate_stream, in_stream);
 
-        read = mzstream_read(inflate_stream, buf, UINT16_MAX);
-        mzstream_close(inflate_stream);
+        read = mz_stream_read(inflate_stream, buf, UINT16_MAX);
+        mz_stream_close(inflate_stream);
 
-        total_in = mzstream_zlib_get_total_in(inflate_stream);
-        total_out = mzstream_zlib_get_total_out(inflate_stream);
+        total_in = mz_stream_zlib_get_total_in(inflate_stream);
+        total_out = mz_stream_zlib_get_total_out(inflate_stream);
 
-        mzstream_zlib_free(inflate_stream);
+        mz_stream_zlib_free(inflate_stream);
 
-        mzstream_os_close(in_stream);
+        mz_stream_os_close(in_stream);
 
         printf("LICENSE uncompressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
     }
 
-    mzstream_os_free(in_stream);
+    mz_stream_os_free(in_stream);
 
-    voidpf out_stream = mzstream_os_alloc();
+    voidpf out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.inflate", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.inflate", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        voidpf crc_in_stream = mzstream_crc32_alloc();
-        mzstream_set_base(crc_in_stream, in_stream);
-        mzstream_write(crc_in_stream, buf, read);
-        uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
-        mzstream_close(crc_in_stream);
-        mzstream_crc32_free(crc_in_stream);
+        voidpf crc_in_stream = mz_stream_crc32_alloc();
+        mz_stream_set_base(crc_in_stream, in_stream);
+        mz_stream_write(crc_in_stream, buf, read);
+        uint32_t crc32 = mz_stream_crc32_get_value(crc_in_stream);
+        mz_stream_close(crc_in_stream);
+        mz_stream_crc32_free(crc_in_stream);
 
-        mzstream_os_close(out_stream);
+        mz_stream_os_close(out_stream);
 
         printf("LICENSE crc 0x%08x\n", crc32);
     }
     
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 }
 void test_deflate()
 {
     char buf[UINT16_MAX];
     int16_t read = 0;
 
-    voidpf in_stream = mzstream_os_alloc();
+    voidpf in_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(in_stream, "LICENSE", MZSTREAM_MODE_READ) == MZSTREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
     {
-        voidpf crc_in_stream = mzstream_crc32_alloc();
-        mzstream_set_base(crc_in_stream, in_stream);
-        read = mzstream_read(crc_in_stream, buf, UINT16_MAX);
-        uint32_t crc32 = mzstream_crc32_get_value(crc_in_stream);
-        mzstream_close(crc_in_stream);
-        mzstream_crc32_free(crc_in_stream);
+        voidpf crc_in_stream = mz_stream_crc32_alloc();
+        mz_stream_set_base(crc_in_stream, in_stream);
+        read = mz_stream_read(crc_in_stream, buf, UINT16_MAX);
+        uint32_t crc32 = mz_stream_crc32_get_value(crc_in_stream);
+        mz_stream_close(crc_in_stream);
+        mz_stream_crc32_free(crc_in_stream);
 
-        mzstream_os_close(in_stream);
+        mz_stream_os_close(in_stream);
 
         printf("LICENSE crc 0x%08x\n", crc32);
     }
 
-    mzstream_os_free(in_stream);
+    mz_stream_os_free(in_stream);
 
-    voidpf out_stream = mzstream_os_alloc();
+    voidpf out_stream = mz_stream_os_alloc();
 
-    if (mzstream_os_open(out_stream, "LICENSE.deflate", MZSTREAM_MODE_CREATE | MZSTREAM_MODE_WRITE) == MZSTREAM_OK)
+    if (mz_stream_os_open(out_stream, "LICENSE.deflate", MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
     {
-        voidpf deflate_stream = mzstream_zlib_alloc();
+        voidpf deflate_stream = mz_stream_zlib_alloc();
         uint64_t total_in = 0;
         uint64_t total_out = 0;
 
-        mzstream_set_base(deflate_stream, out_stream);
+        mz_stream_set_base(deflate_stream, out_stream);
 
-        mzstream_zlib_open(deflate_stream, NULL, MZSTREAM_MODE_WRITE);
-        mzstream_zlib_write(deflate_stream, buf, read);
-        mzstream_zlib_close(deflate_stream);
+        mz_stream_zlib_open(deflate_stream, NULL, MZ_STREAM_MODE_WRITE);
+        mz_stream_zlib_write(deflate_stream, buf, read);
+        mz_stream_zlib_close(deflate_stream);
 
-        total_in = mzstream_zlib_get_total_in(deflate_stream);
-        total_out = mzstream_zlib_get_total_out(deflate_stream);
+        total_in = mz_stream_zlib_get_total_in(deflate_stream);
+        total_out = mz_stream_zlib_get_total_out(deflate_stream);
 
-        mzstream_zlib_free(deflate_stream);
+        mz_stream_zlib_free(deflate_stream);
 
         printf("LICENSE compressed from %d to %d\n", (uint32_t)total_in, (uint32_t)total_out);
 
-        mzstream_os_close(out_stream);
+        mz_stream_os_close(out_stream);
     }
     
-    mzstream_os_free(out_stream);
+    mz_stream_os_free(out_stream);
 }
 #ifndef NOMAIN
 int main(int argc, char *argv[])
@@ -484,7 +484,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    stream = mzstream_os_alloc();
+    stream = mz_stream_os_alloc();
 
     zf = zipOpen2(zipfilename, opt_overwrite, NULL, stream);
 
@@ -539,7 +539,7 @@ int main(int argc, char *argv[])
     if (errclose != ZIP_OK)
         printf("error in closing %s (%d)\n", zipfilename, errclose);
 
-    mzstream_os_free(stream);
+    mz_stream_os_free(stream);
 
     return err;
 }
