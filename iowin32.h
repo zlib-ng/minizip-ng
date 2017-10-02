@@ -35,7 +35,7 @@ int32_t ZCALLBACK mzstream_win32_error(voidpf stream);
 voidpf            mzstream_win32_alloc(void);
 void              mzstream_win32_free(voidpf stream);
 
-int32_t           mzstream_win32_rand(uint8_t *buf, uint16_t size);
+int32_t           win32_rand(uint8_t *buf, uint32_t size);
 
 #ifdef __cplusplus
 }

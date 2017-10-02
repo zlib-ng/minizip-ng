@@ -288,7 +288,7 @@ void mzstream_win32_free(voidpf stream)
         free(win32);
 }
 
-int32_t mzstream_win32_rand(uint8_t *buf, uint16_t size)
+int32_t win32_rand(uint8_t *buf, uint32_t size)
 {
     HCRYPTPROV provider;
     unsigned __int64 pentium_tsc[1];

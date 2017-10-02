@@ -122,9 +122,10 @@ int32_t mzstream_set_base(voidpf stream, voidpf base)
     strm->base = (mzstream *)base;
     return MZSTREAM_OK;
 }
+
 typedef struct mzstream_posix_s
 {
-    mzstream   stream;
+    mzstream    stream;
     FILE        *handle;
     void        *filename;
     uint16_t    filename_size;
@@ -252,7 +253,7 @@ void mzstream_posix_free(voidpf stream)
         free(posix);
 }
 
-int32_t mzstream_posix_rand(uint8_t *buf, uint16_t size)
+int32_t posix_rand(uint8_t *buf, uint32_t size)
 {
     static unsigned calls = 0;
     voidpf rand_stream = NULL;

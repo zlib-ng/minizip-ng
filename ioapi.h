@@ -85,6 +85,7 @@ int32_t mzstream_error(voidpf stream);
 
 int32_t mzstream_set_base(voidpf stream, voidpf base);
 
+#ifndef _WIN32
 int32_t ZCALLBACK mzstream_posix_open(voidpf stream, const char *filename, int mode);
 int32_t ZCALLBACK mzstream_posix_is_open(voidpf stream);
 int32_t ZCALLBACK mzstream_posix_read(voidpf stream, void* buf, uint32_t size);
@@ -94,12 +95,11 @@ int32_t ZCALLBACK mzstream_posix_seek(voidpf stream, uint64_t offset, int origin
 int32_t ZCALLBACK mzstream_posix_close(voidpf stream);
 int32_t ZCALLBACK mzstream_posix_error(voidpf stream);
 
-voidpf             mzstream_posix_alloc(void);
-void               mzstream_posix_free(voidpf stream);
+voidpf            mzstream_posix_alloc(void);
+void              mzstream_posix_free(voidpf stream);
 
-int32_t            mzstream_posix_rand(uint8_t *buf, uint16_t size);
+int32_t           posix_rand(uint8_t *buf, uint32_t size);
 
-#ifndef _WIN32
 #define mzstream_os_open    mzstream_posix_open
 #define mzstream_os_is_open mzstream_posix_is_open
 #define mzstream_os_read    mzstream_posix_read
@@ -112,7 +112,7 @@ int32_t            mzstream_posix_rand(uint8_t *buf, uint16_t size);
 #define mzstream_os_alloc   mzstream_posix_alloc
 #define mzstream_os_free    mzstream_posix_free
 
-#define mzstream_os_rand    mzstream_posix_rand
+#define mz_os_rand          posix_rand
 #else
 #include "iowin32.h"
 
@@ -128,7 +128,7 @@ int32_t            mzstream_posix_rand(uint8_t *buf, uint16_t size);
 #define mzstream_os_alloc   mzstream_win32_alloc
 #define mzstream_os_free    mzstream_win32_free
 
-#define mzstream_os_rand    mzstream_win32_rand
+#define mz_os_rand          win32_rand
 #endif
 
 #ifdef __cplusplus
