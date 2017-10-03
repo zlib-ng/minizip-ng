@@ -20,6 +20,7 @@
 #include "mzstrm_buf.h"
 
 #define MZ_BUF_BUFFERSIZE (UINT16_MAX)
+//#define MZ_BUF_VERBOSE 
 
 #if defined(_WIN32)
 #  include <conio.h>
@@ -28,26 +29,6 @@
 #else
 #  define PRINTF  printf
 #  define VPRINTF vprintf
-#endif
-
-//#define IOBUF_VERBOSE
-
-#ifdef __GNUC__
-#ifndef max
-#define max(x,y) ({ \
-const typeof(x) _x = (x);	\
-const typeof(y) _y = (y);	\
-(void) (&_x == &_y);		\
-_x > _y ? _x : _y; })
-#endif /* __GNUC__ */
-
-#ifndef min
-#define min(x,y) ({ \
-const typeof(x) _x = (x);	\
-const typeof(y) _y = (y);	\
-(void) (&_x == &_y);		\
-_x < _y ? _x : _y; })
-#endif
 #endif
 
 typedef struct mz_stream_buffered_s {
@@ -66,7 +47,7 @@ typedef struct mz_stream_buffered_s {
   int32_t   error;
 } mz_stream_buffered;
 
-#if defined(IOBUF_VERBOSE)
+#ifdef MZ_BUF_VERBOSE
 #  define mz_stream_buffered_print(o,s,f,...) mz_stream_buffered_print_internal(o,s,f,__VA_ARGS__);
 #else
 #  define mz_stream_buffered_print(o,s,f,...)
@@ -164,7 +145,10 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
 
         if ((buffered->readbuf_len - buffered->readbuf_pos) > 0)
         {
-            bytes_to_copy = min(bytes_left_to_read, (uint32_t)(buffered->readbuf_len - buffered->readbuf_pos));
+            bytes_to_copy = (uint32_t)(buffered->readbuf_len - buffered->readbuf_pos);
+            if (bytes_to_copy > bytes_left_to_read)
+                bytes_to_copy = bytes_left_to_read;
+
             memcpy((char *)buf + buf_len, buffered->readbuf + buffered->readbuf_pos, bytes_to_copy);
 
             buf_len += bytes_to_copy;
@@ -187,6 +171,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
     uint32_t bytes_to_write = size;
     uint32_t bytes_left_to_write = size;
     uint32_t bytes_to_copy = 0;
+    uint32_t bytes_used = 0;
     uint32_t bytes_flushed = 0;
     int64_t ret = 0;
 
@@ -209,7 +194,12 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
 
     while (bytes_left_to_write > 0)
     {
-        bytes_to_copy = min(bytes_left_to_write, (uint32_t)(MZ_BUF_BUFFERSIZE - min(buffered->writebuf_len, buffered->writebuf_pos)));
+        bytes_used = buffered->writebuf_len;
+        if (bytes_used > buffered->writebuf_pos)
+            bytes_used = buffered->writebuf_pos;
+        bytes_to_copy = (uint32_t)(MZ_BUF_BUFFERSIZE - bytes_used);
+        if (bytes_to_copy > bytes_left_to_write)
+            bytes_to_copy = bytes_left_to_write;
 
         if (bytes_to_copy == 0)
         {

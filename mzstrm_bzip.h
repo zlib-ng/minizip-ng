@@ -1,4 +1,4 @@
-/* mzstrm_zlib.h -- Stream for zlib inflate/deflate
+/* mzstrm_bzip.h -- Stream for bzip inflate/deflate
    part of MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
