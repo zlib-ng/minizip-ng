@@ -131,9 +131,11 @@
     <ClCompile Include="..\..\..\zutil.c" />
     <ClCompile Include="..\crypt.c" />
     <ClCompile Include="..\lib\bzip2\bzlib.c" />
+    <ClCompile Include="..\lib\bzip2\crctable.c" />
     <ClCompile Include="..\mzstrm.c" />
     <ClCompile Include="..\mzstrm_aes.c" />
     <ClCompile Include="..\mzstrm_buf.c" />
+    <ClCompile Include="..\mzstrm_bzip.c" />
     <ClCompile Include="..\mzstrm_crypt.c" />
     <ClCompile Include="..\mzstrm_mem.c" />
     <ClCompile Include="..\mzstrm_posix.c" />
@@ -150,12 +152,11 @@
     <ClCompile Include="..\lib\aes\sha1.c" />
     <ClCompile Include="..\lib\bzip2\blocksort.c" />
     <ClCompile Include="..\lib\bzip2\compress.c" />
-    <ClCompile Include="..\lib\bzip2\crctable.c" />
     <ClCompile Include="..\lib\bzip2\decompress.c" />
     <ClCompile Include="..\lib\bzip2\huffman.c" />
-    <ClCompile Include="..\lib\bzip2\mk251.c" />
     <ClCompile Include="..\lib\bzip2\randtable.c" />
-    <ClCompile Include="..\lib\bzip2\unzcrash.c" />
+    <ClCompile Include="..\mz_compat.c" />
+    <ClCompile Include="..\test.c" />
     <ClCompile Include="..\unzip.c" />
     <ClCompile Include="..\zip.c" />
   </ItemGroup>
@@ -171,9 +172,11 @@
     <ClInclude Include="..\..\..\zlib.h" />
     <ClInclude Include="..\..\..\zutil.h" />
     <ClInclude Include="..\crypt.h" />
+    <ClInclude Include="..\lib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\mzstrm.h" />
     <ClInclude Include="..\mzstrm_aes.h" />
     <ClInclude Include="..\mzstrm_buf.h" />
+    <ClInclude Include="..\mzstrm_bzip.h" />
     <ClInclude Include="..\mzstrm_crypt.h" />
     <ClInclude Include="..\mzstrm_mem.h" />
     <ClInclude Include="..\mzstrm_posix.h" />
@@ -191,6 +194,8 @@
     <ClInclude Include="..\lib\aes\pwd2key.h" />
     <ClInclude Include="..\lib\aes\sha1.h" />
     <ClInclude Include="..\lib\bzip2\bzlib.h" />
+    <ClInclude Include="..\mz_compat.h" />
+    <ClInclude Include="..\test.h" />
     <ClInclude Include="..\unzip.h" />
     <ClInclude Include="..\zip.h" />
   </ItemGroup>

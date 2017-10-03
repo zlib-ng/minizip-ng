@@ -14,8 +14,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _ZIP_H
-#define _ZIP_H
+#ifndef _MZ_ZIP_H
+#define _MZ_ZIP_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,14 +35,7 @@ extern "C" {
 
 #define Z_BZIP2ED 12
 
-#if defined(STRICTZIP) || defined(STRICTZIPUNZIP)
-/* like the STRICT of WIN32, we define a pointer that cannot be converted
-    from (void*) without cast */
-typedef struct TagzipFile__ { int unused; } zip_file__;
-typedef zip_file__ *zipFile;
-#else
-typedef voidp zipFile;
-#endif
+/***************************************************************************/
 
 #define ZIP_OK                          (0)
 #define ZIP_EOF                         (0)
@@ -50,129 +43,71 @@ typedef voidp zipFile;
 #define ZIP_PARAMERROR                  (-102)
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
+    
+/***************************************************************************/
 
-#ifdef __GNUC__
-#  define ZIP_UNUSED __attribute__((__unused__))
-#else
-#  define ZIP_UNUSED
-#endif
-
-typedef struct
+typedef struct mz_zip_file_s
 {
-    uint32_t    dos_date;
-    uint16_t    internal_fa;        /* internal file attributes        2 bytes */
-    uint32_t    external_fa;        /* external file attributes        4 bytes */
-} zip_fileinfo;
+    uint32_t    dos_date;               // ms-dos date and time
+    uint16_t    internal_fa;            // internal file attributes
+    uint32_t    external_fa;            // external file attributes
+    const uint8_t *extrafield_local;    // extra fields in local header
+    uint16_t    extrafield_local_size;  // size of additional extra fields in local header
+    const uint8_t *extrafield_global;   // extra fields in global header
+    uint16_t    extrafield_global_size; // size of extra fields in global header
+    uint16_t    version_madeby;         // version made by
+    const char  *comment;               // file comment
+    const char  *filename;              // filename
+    uint8_t     zip64;                  // enable zip64 extensions if 1
+    uint16_t    flag;                   // base flag value
+} mz_zip_file;
 
-#define APPEND_STATUS_CREATE        (0)
-#define APPEND_STATUS_CREATEAFTER   (1)
-#define APPEND_STATUS_ADDINZIP      (2)
+typedef struct mz_zip_compress_s
+{
+    uint16_t    method;                 // compression method ie Z_DEFLATE
+    int         level;                  // compression level
+    uint8_t     raw;                    // no compression method if 1
+    int         window_bits;            // deflate window bits
+    int         mem_level;              // deflate memory level
+    int         strategy;               // deflate strategy
+} mz_zip_compress;
+
+typedef struct mz_zip_crypt_s
+{
+#if defined(HAVE_AES)
+    uint8_t     aes;                    // enable winzip aes encryption if 1
+#endif
+    uint32_t    crc_for_crypting;       // crc to use for traditional encryption
+    const char *password;               // encryption password
+} mz_zip_crypt;
 
 /***************************************************************************/
-/* Writing a zip file */
 
-extern zipFile ZEXPORT zipOpen(const char *path, int append, voidpf stream);
-/* Create a zipfile.
+#define MZ_APPEND_STATUS_CREATE        (0)  // create new zip
+#define MZ_APPEND_STATUS_CREATEAFTER   (1)  // create zip after file
+#define MZ_APPEND_STATUS_ADDINZIP      (2)  // add existing files to zip
 
-   path should contain the full path (by example, on a Windows XP computer 
-      "c:\\zlib\\zlib113.zip" or on an Unix computer "zlib/zlib113.zip". 
+/***************************************************************************/
 
-   return NULL if zipfile cannot be opened
-   return zipFile handle if no error
+// Create a zipfile
+extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, 
+    const char **globalcomment, void *stream);
 
-   If the file path exist and append == APPEND_STATUS_CREATEAFTER, the zip
-   will be created at the end of the file. (useful if the file contain a self extractor code)
-   If the file path exist and append == APPEND_STATUS_ADDINZIP, we will add files in existing 
-   zip (be sure you don't add file that doesn't exist)
+// Open a file in the ZIP for writing
+extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info, 
+    const mz_zip_compress *compress_info, const mz_zip_crypt *crypt_info);
 
-   NOTE: There is no delete function into a zipfile. If you want delete file into a zipfile, 
-   you must open a zipfile, and create another. Of course, you can use RAW reading and writing to copy
-   the file you did not want delete. */
+// Write data in the zipfile
+extern int ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
 
-extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment, 
-    voidpf stream);
+// Close the current file in the zipfile
+extern int ZEXPORT mz_zip_entry_close(void *handle);
 
-extern zipFile ZEXPORT zipOpen3(const char *path, int append, uint64_t disk_size, 
-    const char **globalcomment,  voidpf stream);
-/* Same as zipOpen2 but allows specification of spanned zip size */
+// Close the current file in the zipfile where raw is compressed data
+extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
 
-extern int ZEXPORT zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global, 
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level);
-/* Open a file in the ZIP for writing.
-
-   filename : the filename in zip (if NULL, '-' without quote will be used
-   *zipfi contain supplemental information
-   extrafield_local buffer to store the local header extra field data, can be NULL
-   size_extrafield_local size of extrafield_local buffer
-   extrafield_global buffer to store the global header extra field data, can be NULL
-   size_extrafield_global size of extrafield_local buffer
-   comment buffer for comment string
-   method contain the compression method (0 for store, Z_DEFLATED for deflate)
-   level contain the level of compression (can be Z_DEFAULT_COMPRESSION)
-   zip64 is set to 1 if a zip64 extended information block should be added to the local file header.
-   this MUST be '1' if the uncompressed size is >= 0xffffffff. */
-
-extern int ZEXPORT zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int zip64);
-/* Same as zipOpenNewFileInZip with zip64 support */
-
-extern int ZEXPORT zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw);
-/* Same as zipOpenNewFileInZip, except if raw=1, we write raw file */
-
-extern int ZEXPORT zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int zip64);
-/* Same as zipOpenNewFileInZip3 with zip64 support */
-
-extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting);
-/* Same as zipOpenNewFileInZip2, except
-    windowBits, memLevel, strategy : see parameter strategy in deflateInit2
-    password : crypting password (NULL for no crypting)
-    crc_for_crypting : crc of file to compress (needed for crypting) */
-
-extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, int zip64);
-/* Same as zipOpenNewFileInZip3 with zip64 support */
-
-extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base);
-/* Same as zipOpenNewFileInZip3 except versionMadeBy & flag fields */
-
-extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t method, int level, int raw, int windowBits, int memLevel,
-    int strategy, const char *password, ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64);
-/* Same as zipOpenNewFileInZip4 with zip64 support */
-
-extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
-/* Write data in the zipfile */
-
-extern int ZEXPORT zipCloseFileInZip(zipFile file);
-/* Close the current file in the zipfile */
-
-extern int ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32);
-extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32);
-/* Close the current file in the zipfile, for file opened with parameter raw=1 in zipOpenNewFileInZip2
-   where raw is compressed data. Parameters uncompressed_size and crc32 are value for the uncompressed data. */
-
-extern int ZEXPORT zipClose(zipFile file, const char *global_comment);
-/* Close the zipfile */
-
-extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment);
-
-extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
-/* Same as zipClose_64 except version_madeby field */
+// Close the zipfile
+extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16_t version_madeby);
 
 /***************************************************************************/
 

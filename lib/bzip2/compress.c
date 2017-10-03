@@ -599,7 +599,7 @@ void sendMTFValues ( EState* s )
 
 
 /*---------------------------------------------------*/
-void BZ2_compressBlock ( EState* s, Bool is_last_block )
+extern void BZ2_compressBlock ( EState* s, Bool is_last_block )
 {
    if (s->nblock > 0) {
 

@@ -16,6 +16,14 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
+#define MZ_AES_METHOD          (99)
+#define MZ_AES_VERSION         (0x0001)
+#define MZ_AES_ENCRYPTIONMODE  (0x03)
+
+/***************************************************************************/
+
 int32_t mz_stream_aes_open(void *stream, const char* filename, int mode);
 int32_t mz_stream_aes_read(void *stream, void* buf, uint32_t size);
 int32_t mz_stream_aes_write(void *stream, const void* buf, uint32_t size);
@@ -26,9 +34,13 @@ int32_t mz_stream_aes_error(void *stream);
 
 void    mz_stream_aes_set_password(void *stream, const char *password);
 void    mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode);
+int64_t mz_stream_aes_get_total_in(void *stream);
+int64_t mz_stream_aes_get_total_out(void *stream);
 
 void*   mz_stream_aes_create(void **stream);
 void    mz_stream_aes_delete(void **stream);
+
+/***************************************************************************/
 
 #ifdef __cplusplus
 }

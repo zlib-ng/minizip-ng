@@ -15,7 +15,7 @@
     <Filter Include="AES">
       <UniqueIdentifier>{a41d606c-337c-4c8f-aa15-65aafd88063d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="BZip2">
+    <Filter Include="BZip">
       <UniqueIdentifier>{fa8c9130-e0d5-4563-a4dc-bb3b0668d94c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -90,28 +90,19 @@
       <Filter>AES</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\blocksort.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\compress.c">
-      <Filter>BZip2</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\bzip2\crctable.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\decompress.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\huffman.c">
-      <Filter>BZip2</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\bzip2\mk251.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\randtable.c">
-      <Filter>BZip2</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\bzip2\unzcrash.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\mzstrm.c">
       <Filter>Source Files</Filter>
@@ -138,7 +129,19 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\bzlib.c">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mz_compat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_bzip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\crctable.c">
+      <Filter>BZip</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,7 +218,7 @@
       <Filter>AES</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\bzip2\bzlib.h">
-      <Filter>BZip2</Filter>
+      <Filter>BZip</Filter>
     </ClInclude>
     <ClInclude Include="..\mzstrm.h">
       <Filter>Header Files</Filter>
@@ -240,6 +243,18 @@
     </ClInclude>
     <ClInclude Include="..\mzstrm_win32.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mz_compat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_bzip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\bzip2\bzlib_private.h">
+      <Filter>BZip</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

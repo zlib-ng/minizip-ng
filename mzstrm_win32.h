@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
 int32_t mz_stream_win32_open(void *stream, const char *path, int mode);
 int32_t mz_stream_win32_is_open(void *stream);
 int32_t mz_stream_win32_read(void *stream, void* buf, uint32_t size);
@@ -35,6 +37,8 @@ void*   mz_stream_win32_create(void **stream);
 void    mz_stream_win32_delete(void **stream);
 
 int32_t mz_win32_rand(uint8_t *buf, uint32_t size);
+
+/***************************************************************************/
 
 #ifdef __cplusplus
 }

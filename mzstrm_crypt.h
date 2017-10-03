@@ -36,6 +36,8 @@ int32_t mz_stream_crypt_error(void *stream);
 void    mz_stream_crypt_set_password(void *stream, const char *password);
 void    mz_stream_crypt_set_verify(void *stream, uint8_t verify1, uint8_t verify2);
 void    mz_stream_crypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2);
+int64_t mz_stream_crypt_get_total_in(void *stream);
+int64_t mz_stream_crypt_get_total_out(void *stream);
 
 void*   mz_stream_crypt_create(void **stream);
 void    mz_stream_crypt_delete(void **stream);

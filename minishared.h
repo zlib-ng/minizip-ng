@@ -42,4 +42,4 @@ void display_zpos64(uint64_t n, int size_char);
 }
 #endif
 
-#endif /* _MINISHARED_H */
+#endif

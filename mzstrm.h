@@ -22,6 +22,8 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
 #define MZ_STREAM_SEEK_CUR              (1)
 #define MZ_STREAM_SEEK_END              (2)
 #define MZ_STREAM_SEEK_SET              (0)
@@ -32,34 +34,44 @@ extern "C" {
 #define MZ_STREAM_MODE_EXISTING         (4)
 #define MZ_STREAM_MODE_CREATE           (8)
 
-#define MZ_STREAM_ERR                   (-1)
 #define MZ_STREAM_OK                    (0)
+#define MZ_STREAM_ERR                   (-1)
 
-typedef int32_t (*mz_stream_open_cb)     (void *stream, const char *path, int mode);
-typedef int32_t (*mz_stream_is_open_cb)  (void *stream);
-typedef int32_t (*mz_stream_read_cb)     (void *stream, void* buf, uint32_t size);
-typedef int32_t (*mz_stream_write_cb)    (void *stream, const void *buf, uint32_t size);
-typedef int64_t (*mz_stream_tell_cb)     (void *stream);
-typedef int32_t (*mz_stream_seek_cb)     (void *stream, uint64_t offset, int origin);
-typedef int32_t (*mz_stream_close_cb)    (void *stream);
-typedef int32_t (*mz_stream_error_cb)    (void *stream);
-typedef void*   (*mz_stream_create_cb)   (void **stream);
-typedef void    (*mz_stream_delete_cb)   (void **stream);
+/***************************************************************************/
+
+typedef int32_t (*mz_stream_open_cb)           (void *stream, const char *path, int mode);
+typedef int32_t (*mz_stream_is_open_cb)        (void *stream);
+typedef int32_t (*mz_stream_read_cb)           (void *stream, void* buf, uint32_t size);
+typedef int32_t (*mz_stream_write_cb)          (void *stream, const void *buf, uint32_t size);
+typedef int64_t (*mz_stream_tell_cb)           (void *stream);
+typedef int32_t (*mz_stream_seek_cb)           (void *stream, uint64_t offset, int origin);
+typedef int32_t (*mz_stream_close_cb)          (void *stream);
+typedef int32_t (*mz_stream_error_cb)          (void *stream);
+typedef void*   (*mz_stream_create_cb)         (void **stream);
+typedef void    (*mz_stream_delete_cb)         (void **stream);
+typedef int64_t (*mz_stream_get_total_in_cb)   (void *stream);
+typedef int64_t (*mz_stream_get_total_out_cb)  (void *stream);
+
+/***************************************************************************/
 
 typedef struct mz_stream_s
 {
-    mz_stream_open_cb      open;
-    mz_stream_is_open_cb   is_open;
-    mz_stream_read_cb      read;
-    mz_stream_write_cb     write;
-    mz_stream_tell_cb      tell;
-    mz_stream_seek_cb      seek;
-    mz_stream_close_cb     close;
-    mz_stream_error_cb     error;
-    mz_stream_create_cb    create;
-    mz_stream_delete_cb    delete;
-    struct mz_stream_s     *base;
+    struct mz_stream_s          *base;
+    mz_stream_open_cb           open;
+    mz_stream_is_open_cb        is_open;
+    mz_stream_read_cb           read;
+    mz_stream_write_cb          write;
+    mz_stream_tell_cb           tell;
+    mz_stream_seek_cb           seek;
+    mz_stream_close_cb          close;
+    mz_stream_error_cb          error;
+    mz_stream_create_cb         create;
+    mz_stream_delete_cb         delete;
+    mz_stream_get_total_in_cb   get_total_in;
+    mz_stream_get_total_out_cb  get_total_out;
 } mz_stream;
+
+/***************************************************************************/
 
 int32_t mz_stream_open(void *stream, const char *path, int mode);
 int32_t mz_stream_is_open(void *stream);
@@ -69,18 +81,27 @@ int32_t mz_stream_read_uint16(void *stream, uint16_t *value);
 int32_t mz_stream_read_uint32(void *stream, uint32_t *value);
 int32_t mz_stream_read_uint64(void *stream, uint64_t *value);
 int32_t mz_stream_write(void *stream, const void *buf, uint32_t size);
+int32_t mz_stream_write_uint8(void *stream, uint8_t value);
+int32_t mz_stream_write_uint16(void *stream, uint16_t value);
+int32_t mz_stream_write_uint32(void *stream, uint32_t value);
+int32_t mz_stream_write_uint64(void *stream, uint64_t value);
+int32_t mz_stream_copy(void *target, void *source, int32_t len);
 int64_t mz_stream_tell(void *stream);
 int32_t mz_stream_seek(void *stream, uint64_t offset, int origin);
 int32_t mz_stream_close(void *stream);
 int32_t mz_stream_error(void *stream);
 
 int32_t mz_stream_set_base(void *stream, void *base);
+int64_t mz_stream_get_total_in(void *stream);
+int64_t mz_stream_get_total_out(void *stream);
 
 void*   mz_stream_create(void **stream);
 void    mz_stream_delete(void **stream);
 
 void*   mz_stream_passthru_create(void **stream);
 void    mz_stream_passthru_delete(void **stream);
+
+/***************************************************************************/
 
 #if !defined(_WIN32) && !defined(USEWIN32IOAPI)
 #include "mzstrm_posix.h"
@@ -118,6 +139,8 @@ void    mz_stream_passthru_delete(void **stream);
 
 int32_t mz_os_file_exists(const char *path);
 int32_t mz_os_file_is_large(const char *path);
+
+/***************************************************************************/
 
 #ifdef __cplusplus
 }

@@ -32,8 +32,8 @@ typedef struct mz_stream_zlib_s {
     z_stream    zstream;
     uint8_t     buffer[UINT16_MAX];
     int32_t     buffer_len;
-    uint64_t    total_in;
-    uint64_t    total_out;
+    int64_t     total_in;
+    int64_t     total_out;
     int8_t      initialized;
     int16_t     level;
     int16_t     window_bits;
@@ -221,7 +221,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, uint32_t size)
     zlib->total_in += size;
     zlib->total_out += total_out;
 
-    return total_out;
+    return size;
 }
 
 int64_t mz_stream_zlib_tell(void *stream)
@@ -294,13 +294,13 @@ void mz_stream_zlib_set_strategy(void *stream, int16_t strategy)
     zlib->strategy = strategy;
 }
 
-uint64_t mz_stream_zlib_get_total_in(void *stream)
+int64_t mz_stream_zlib_get_total_in(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     return zlib->total_in;
 }
 
-uint64_t mz_stream_zlib_get_total_out(void *stream)
+int64_t mz_stream_zlib_get_total_out(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     return zlib->total_out;
@@ -325,6 +325,8 @@ void *mz_stream_zlib_create(void **stream)
         zlib->stream.error = mz_stream_zlib_error;
         zlib->stream.create = mz_stream_zlib_create;
         zlib->stream.delete = mz_stream_zlib_delete;
+        zlib->stream.get_total_in = mz_stream_zlib_get_total_in;
+        zlib->stream.get_total_out = mz_stream_zlib_get_total_out;
         zlib->level = Z_DEFAULT_COMPRESSION;
         zlib->window_bits = -MAX_WBITS;
         zlib->mem_level = DEF_MEM_LEVEL;
@@ -333,7 +335,7 @@ void *mz_stream_zlib_create(void **stream)
     if (stream != NULL)
         *stream = zlib;
 
-    return (voidpf)zlib;
+    return zlib;
 }
 
 void mz_stream_zlib_delete(void **stream)
@@ -347,11 +349,11 @@ void mz_stream_zlib_delete(void **stream)
 }
 
 typedef struct mz_stream_crc32_s {
-    mz_stream   stream;
-    int8_t      initialized;
-    uint32_t    value;
-    uint64_t    total_in;
-    uint64_t    total_out;
+    mz_stream  stream;
+    int8_t     initialized;
+    int32_t    value;
+    int64_t    total_in;
+    int64_t    total_out;
 } mz_stream_crc32;
 
 int32_t mz_stream_crc32_open(void *stream, const char *path, int mode)
@@ -415,19 +417,19 @@ int32_t mz_stream_crc32_error(void *stream)
     return mz_stream_error(crc32->stream.base);
 }
 
-uint32_t mz_stream_crc32_get_value(void *stream)
+int32_t mz_stream_crc32_get_value(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return crc32->value;
 }
 
-uint64_t mz_stream_crc32_get_total_in(void *stream)
+int64_t mz_stream_crc32_get_total_in(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return crc32->total_in;
 }
 
-uint64_t mz_stream_crc32_get_total_out(void *stream)
+int64_t mz_stream_crc32_get_total_out(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return crc32->total_out;
@@ -452,11 +454,13 @@ void *mz_stream_crc32_create(void **stream)
         crc32->stream.error = mz_stream_crc32_error;
         crc32->stream.create = mz_stream_crc32_create;
         crc32->stream.delete = mz_stream_crc32_delete;
+        crc32->stream.get_total_in = mz_stream_crc32_get_total_in;
+        crc32->stream.get_total_out = mz_stream_crc32_get_total_out;
     }
     if (stream != NULL)
         *stream = crc32;
 
-    return (voidpf)crc32;
+    return crc32;
 }
 
 void mz_stream_crc32_delete(void **stream)

@@ -130,9 +130,79 @@ int32_t mz_stream_write(void *stream, const void *buf, uint32_t size)
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->write == NULL)
         return MZ_STREAM_ERR;
+    if (size == 0)
+        return size;
     if (strm->is_open != NULL && strm->is_open(strm) == MZ_STREAM_ERR)
         return MZ_STREAM_ERR;
     return strm->write(strm, buf, size);
+}
+
+static int32_t mz_stream_write_value(void *stream, uint64_t value, uint32_t len)
+{
+    uint8_t buf[8];
+    uint32_t n = 0;
+
+    for (n = 0; n < len; n++)
+    {
+        buf[n] = (uint8_t)(value & 0xff);
+        value >>= 8;
+    }
+
+    if (value != 0)
+    {
+        // Data overflow - hack for ZIP64 (X Roche)
+        for (n = 0; n < len; n++)
+            buf[n] = 0xff;
+    }
+
+    if (mz_stream_write(stream, buf, len) != len)
+        return MZ_STREAM_ERR;
+
+    return MZ_STREAM_OK;
+}
+
+int32_t mz_stream_write_uint8(void *stream, uint8_t value)
+{
+    return mz_stream_write_value(stream, value, sizeof(uint8_t));
+}
+
+int32_t mz_stream_write_uint16(void *stream, uint16_t value)
+{
+    return mz_stream_write_value(stream, value, sizeof(uint16_t));
+}
+
+int32_t mz_stream_write_uint32(void *stream, uint32_t value)
+{
+    return mz_stream_write_value(stream, value, sizeof(uint32_t));
+}
+
+int32_t mz_stream_write_uint64(void *stream, uint64_t value)
+{
+    return mz_stream_write_value(stream, value, sizeof(uint64_t));
+}
+
+int32_t mz_stream_copy(void *target, void *source, int32_t len)
+{
+    uint8_t buf[UINT16_MAX];
+    int32_t bytes_to_copy = 0;
+    int32_t read = 0;
+    int32_t written = 0;
+
+    while (len > 0)
+    {
+        bytes_to_copy = len;
+        if (bytes_to_copy > UINT16_MAX)
+            bytes_to_copy = UINT16_MAX;
+        read = mz_stream_read(source, buf, bytes_to_copy);
+        if (read == MZ_STREAM_ERR)
+            return MZ_STREAM_ERR;
+        written = mz_stream_write(target, buf, read);
+        if (written != read)
+            return MZ_STREAM_ERR;
+        len -= read;
+    }
+
+    return MZ_STREAM_OK;
 }
 
 int64_t mz_stream_tell(void *stream)
@@ -178,6 +248,22 @@ int32_t mz_stream_set_base(void *stream, void *base)
     return MZ_STREAM_OK;
 }
 
+int64_t mz_stream_get_total_in(void *stream)
+{
+    mz_stream *strm = (mz_stream *)stream;
+    if (strm->get_total_in == NULL)
+        return MZ_STREAM_ERR;
+    return strm->get_total_in(stream);
+}
+
+int64_t mz_stream_get_total_out(void *stream)
+{
+    mz_stream *strm = (mz_stream *)stream;
+    if (strm->get_total_out == NULL)
+        return MZ_STREAM_ERR;
+    return strm->get_total_out(stream);
+}
+
 void *mz_stream_create(void **stream)
 {
     mz_stream *strm = NULL;
@@ -197,7 +283,9 @@ void mz_stream_delete(void **stream)
 }
 
 typedef struct mz_stream_passthru_s {
-  mz_stream stream;
+    mz_stream   stream;
+    int64_t     total_in;
+    int64_t     total_out;
 } mz_stream_passthru;
 
 int32_t mz_stream_passthru_open(void *stream, const char *path, int mode)
@@ -215,13 +303,19 @@ int32_t mz_stream_passthru_is_open(void *stream)
 int32_t mz_stream_passthru_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return mz_stream_read(passthru->stream.base, buf, size);
+    int32_t read = mz_stream_read(passthru->stream.base, buf, size);
+    if (read > 0)
+        passthru->total_in += read;
+    return read;
 }
 
 int32_t mz_stream_passthru_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return mz_stream_write(passthru->stream.base, buf, size);
+    int32_t written = mz_stream_write(passthru->stream.base, buf, size);
+    if (written > 0)
+        passthru->total_out += written;
+    return written;
 }
 
 int64_t mz_stream_passthru_tell(void *stream)
@@ -248,6 +342,18 @@ int32_t mz_stream_passthru_error(void *stream)
     return mz_stream_error(passthru->stream.error);
 }
 
+int64_t mz_stream_passthru_get_total_in(void *stream)
+{
+    mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
+    return passthru->total_in;
+}
+
+int64_t mz_stream_passthru_get_total_out(void *stream)
+{
+    mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
+    return passthru->total_out;
+}
+
 void *mz_stream_passthru_create(void **stream)
 {
     mz_stream_passthru *passthru = NULL;
@@ -267,6 +373,8 @@ void *mz_stream_passthru_create(void **stream)
         passthru->stream.error = mz_stream_passthru_error;
         passthru->stream.create = mz_stream_passthru_create;
         passthru->stream.delete = mz_stream_passthru_delete;
+        passthru->stream.get_total_in = mz_stream_passthru_get_total_in;
+        passthru->stream.get_total_out = mz_stream_passthru_get_total_out;
     }
     if (stream != NULL)
         *stream = passthru;

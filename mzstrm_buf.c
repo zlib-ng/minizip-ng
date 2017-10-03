@@ -19,9 +19,7 @@
 #include "mzstrm.h"
 #include "mzstrm_buf.h"
 
-#ifndef IOBUF_BUFFERSIZE
-#  define IOBUF_BUFFERSIZE (UINT16_MAX)
-#endif
+#define MZ_BUF_BUFFERSIZE (UINT16_MAX)
 
 #if defined(_WIN32)
 #  include <conio.h>
@@ -54,12 +52,12 @@ _x < _y ? _x : _y; })
 
 typedef struct mz_stream_buffered_s {
   mz_stream stream;
-  char      readbuf[IOBUF_BUFFERSIZE];
+  char      readbuf[MZ_BUF_BUFFERSIZE];
   uint32_t  readbuf_len;
   uint32_t  readbuf_pos;
   uint32_t  readbuf_hits;
   uint32_t  readbuf_misses;
-  char      writebuf[IOBUF_BUFFERSIZE];
+  char      writebuf[MZ_BUF_BUFFERSIZE];
   uint32_t  writebuf_len;
   uint32_t  writebuf_pos;
   uint32_t  writebuf_hits;
@@ -109,7 +107,8 @@ int32_t mz_stream_buffered_flush(void *stream, uint32_t *written)
 
         buffered->writebuf_misses += 1;
 
-        mz_stream_buffered_print(opaque, stream, "write flush [%d:%d len %d]\n", bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
+        mz_stream_buffered_print(opaque, stream, "write flush [%d:%d len %d]\n", 
+            bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         total_bytes_written += bytes_written;
         bytes_left_to_write -= bytes_written;
@@ -141,13 +140,13 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
     {
         if ((buffered->readbuf_len == 0) || (buffered->readbuf_pos == buffered->readbuf_len))
         {
-            if (buffered->readbuf_len == IOBUF_BUFFERSIZE)
+            if (buffered->readbuf_len == MZ_BUF_BUFFERSIZE)
             {
                 buffered->readbuf_pos = 0;
                 buffered->readbuf_len = 0;
             }
 
-            bytes_to_read = IOBUF_BUFFERSIZE - (buffered->readbuf_len - buffered->readbuf_pos);
+            bytes_to_read = MZ_BUF_BUFFERSIZE - (buffered->readbuf_len - buffered->readbuf_pos);
 
             if (mz_stream_read(buffered->stream.base, buffered->readbuf + buffered->readbuf_pos, bytes_to_read) != bytes_to_read)
                 return 0;
@@ -156,7 +155,8 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
             buffered->readbuf_len += bytes_read;
             buffered->position += bytes_read;
 
-            mz_stream_buffered_print(opaque, stream, "filled [read %d/%d buf %d:%d pos %lld]\n", bytes_read, bytes_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
+            mz_stream_buffered_print(opaque, stream, "filled [read %d/%d buf %d:%d pos %lld]\n", 
+                bytes_read, bytes_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
 
             if (bytes_read == 0)
                 break;
@@ -173,7 +173,8 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
             buffered->readbuf_hits += 1;
             buffered->readbuf_pos += bytes_to_copy;
 
-            mz_stream_buffered_print(opaque, stream, "emptied [copied %d remaining %d buf %d:%d pos %lld]\n", bytes_to_copy, bytes_left_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
+            mz_stream_buffered_print(opaque, stream, "emptied [copied %d remaining %d buf %d:%d pos %lld]\n", 
+                bytes_to_copy, bytes_left_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
         }
     }
 
@@ -208,7 +209,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
 
     while (bytes_left_to_write > 0)
     {
-        bytes_to_copy = min(bytes_left_to_write, (uint32_t)(IOBUF_BUFFERSIZE - min(buffered->writebuf_len, buffered->writebuf_pos)));
+        bytes_to_copy = min(bytes_left_to_write, (uint32_t)(MZ_BUF_BUFFERSIZE - min(buffered->writebuf_len, buffered->writebuf_pos)));
 
         if (bytes_to_copy == 0)
         {
@@ -222,7 +223,8 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
 
         memcpy(buffered->writebuf + buffered->writebuf_pos, (char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
 
-        mz_stream_buffered_print(opaque, stream, "write copy [remaining %d write %d:%d len %d]\n", bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
+        mz_stream_buffered_print(opaque, stream, "write copy [remaining %d write %d:%d len %d]\n", 
+            bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         bytes_left_to_write -= bytes_to_copy;
 
@@ -239,7 +241,10 @@ int64_t mz_stream_buffered_tellinternal(void *stream, uint64_t position)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     buffered->position = position;
-    mz_stream_buffered_print(opaque, stream, "tell [pos %llu readpos %d writepos %d err %d]\n", buffered->position, buffered->readbuf_pos, buffered->writebuf_pos, errno);
+
+    mz_stream_buffered_print(opaque, stream, "tell [pos %llu readpos %d writepos %d err %d]\n", 
+        buffered->position, buffered->readbuf_pos, buffered->writebuf_pos, errno);
+
     if (buffered->readbuf_len > 0)
         position -= (buffered->readbuf_len - buffered->readbuf_pos);
     if (buffered->writebuf_len > 0)
@@ -341,12 +346,18 @@ int32_t mz_stream_buffered_close(void *stream)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_flushed = 0;
+
     mz_stream_buffered_flush(stream, &bytes_flushed);
     mz_stream_buffered_print(opaque, stream, "close\n");
+
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
-        mz_stream_buffered_print(opaque, stream, "read efficency %.02f%%\n", (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
+        mz_stream_buffered_print(opaque, stream, "read efficency %.02f%%\n", 
+            (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
+
     if (buffered->writebuf_hits + buffered->writebuf_misses > 0)
-        mz_stream_buffered_print(opaque, stream, "write efficency %.02f%%\n", (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
+        mz_stream_buffered_print(opaque, stream, "write efficency %.02f%%\n", 
+            (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
+
     return mz_stream_close(&buffered->stream.base);
 }
 

@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
 int32_t mz_stream_buffered_open(void *stream, const char *path, int mode);
 int32_t mz_stream_buffered_read(void *stream, void* buf, uint32_t size);
 int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size);
@@ -29,6 +31,8 @@ int32_t mz_stream_buffered_error(void *stream);
 
 void*   mz_stream_buffered_create(void **stream);
 void    mz_stream_buffered_delete(void **stream);
+
+/***************************************************************************/
 
 #ifdef __cplusplus
 }

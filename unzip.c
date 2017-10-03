@@ -27,10 +27,10 @@
 #include "unzip.h"
 
 #ifdef HAVE_AES
-#  define AES_METHOD          (99)
-#  define AES_PWVERIFYSIZE    (2)
-#  define AES_MAXSALTLENGTH   (16)
-#  define AES_AUTHCODESIZE    (10)
+#  define MZ_AES_METHOD          (99)
+#  define MZ_AES_PWVERIFYSIZE    (2)
+#  define MZ_AES_MAXSALTLENGTH   (16)
+#  define MZ_AES_AUTHCODESIZE    (10)
 #  define AES_HEADERSIZE      (11)
 #  define AES_KEYSIZE(mode)   (64 + (mode * 64))
 
@@ -847,7 +847,7 @@ static int unzCheckCurrentFileCoherencyHeader(unz64_internal *s, uint32_t *psize
 
     compression_method = s->cur_file_info.compression_method;
 #ifdef HAVE_AES
-    if (compression_method == AES_METHOD)
+    if (compression_method == MZ_AES_METHOD)
         compression_method = s->cur_file_info_internal.aes_compression_method;
 #endif
 
@@ -923,7 +923,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
     
     compression_method = s->cur_file_info.compression_method;
 #ifdef HAVE_AES
-    if (compression_method == AES_METHOD)
+    if (compression_method == MZ_AES_METHOD)
     {
         compression_method = s->cur_file_info_internal.aes_compression_method;
         if (password == NULL)
@@ -1064,11 +1064,11 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
                   MZ_STREAM_SEEK_SET) != 0)
             return UNZ_INTERNALERROR;
 #ifdef HAVE_AES
-        if (s->cur_file_info.compression_method == AES_METHOD)
+        if (s->cur_file_info.compression_method == MZ_AES_METHOD)
         {
-            unsigned char passverify_archive[AES_PWVERIFYSIZE];
-            unsigned char passverify_password[AES_PWVERIFYSIZE];
-            unsigned char salt_value[AES_MAXSALTLENGTH];
+            unsigned char passverify_archive[MZ_AES_PWVERIFYSIZE];
+            unsigned char passverify_password[MZ_AES_PWVERIFYSIZE];
+            unsigned char salt_value[MZ_AES_MAXSALTLENGTH];
             uint32_t salt_length = 0;
 
             if ((s->cur_file_info_internal.aes_encryption_mode < 1) ||
@@ -1079,19 +1079,19 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
 
             if (mz_stream_read(s->stream, salt_value, salt_length) != salt_length)
                 return UNZ_INTERNALERROR;
-            else if (mz_stream_read(s->stream, passverify_archive, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+            else if (mz_stream_read(s->stream, passverify_archive, MZ_AES_PWVERIFYSIZE) != MZ_AES_PWVERIFYSIZE)
                 return UNZ_INTERNALERROR;
 
             fcrypt_init(s->cur_file_info_internal.aes_encryption_mode, (uint8_t *)password,
                 (uint32_t)strlen(password), salt_value, passverify_password, &s->pfile_in_zip_read->aes_ctx);
 
-            if (memcmp(passverify_archive, passverify_password, AES_PWVERIFYSIZE) != 0)
+            if (memcmp(passverify_archive, passverify_password, MZ_AES_PWVERIFYSIZE) != 0)
                 return UNZ_BADPASSWORD;
 
-            s->pfile_in_zip_read->rest_read_compressed -= salt_length + AES_PWVERIFYSIZE;
-            s->pfile_in_zip_read->rest_read_compressed -= AES_AUTHCODESIZE;
+            s->pfile_in_zip_read->rest_read_compressed -= salt_length + MZ_AES_PWVERIFYSIZE;
+            s->pfile_in_zip_read->rest_read_compressed -= MZ_AES_AUTHCODESIZE;
 
-            s->pfile_in_zip_read->pos_in_zipfile += salt_length + AES_PWVERIFYSIZE;
+            s->pfile_in_zip_read->pos_in_zipfile += salt_length + MZ_AES_PWVERIFYSIZE;
         }
         else
 #endif
@@ -1221,7 +1221,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
             if ((s->cur_file_info.flag & 1) != 0)
             {
 #ifdef HAVE_AES
-                if (s->cur_file_info.compression_method == AES_METHOD)
+                if (s->cur_file_info.compression_method == MZ_AES_METHOD)
                 {
                     fcrypt_decrypt(s->pfile_in_zip_read->read_buffer, bytes_to_read, &s->pfile_in_zip_read->aes_ctx);
                 }
@@ -1467,21 +1467,21 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
         return UNZ_PARAMERROR;
 
 #ifdef HAVE_AES
-    if (s->cur_file_info.compression_method == AES_METHOD)
+    if (s->cur_file_info.compression_method == MZ_AES_METHOD)
     {
-        unsigned char authcode[AES_AUTHCODESIZE];
-        unsigned char rauthcode[AES_AUTHCODESIZE];
+        unsigned char authcode[MZ_AES_AUTHCODESIZE];
+        unsigned char rauthcode[MZ_AES_AUTHCODESIZE];
 
-        if (mz_stream_read(s->stream, authcode, AES_AUTHCODESIZE) != AES_AUTHCODESIZE)
+        if (mz_stream_read(s->stream, authcode, MZ_AES_AUTHCODESIZE) != MZ_AES_AUTHCODESIZE)
             return UNZ_ERRNO;
 
-        if (fcrypt_end(rauthcode, &s->pfile_in_zip_read->aes_ctx) != AES_AUTHCODESIZE)
+        if (fcrypt_end(rauthcode, &s->pfile_in_zip_read->aes_ctx) != MZ_AES_AUTHCODESIZE)
             err = UNZ_CRCERROR;
-        if (memcmp(authcode, rauthcode, AES_AUTHCODESIZE) != 0)
+        if (memcmp(authcode, rauthcode, MZ_AES_AUTHCODESIZE) != 0)
             err = UNZ_CRCERROR;
     }
     /* AES zip version AE-1 will expect a valid crc as well */
-    if ((s->cur_file_info.compression_method != AES_METHOD) ||
+    if ((s->cur_file_info.compression_method != MZ_AES_METHOD) ||
         (s->cur_file_info_internal.aes_version == 0x0001))
 #endif
     {

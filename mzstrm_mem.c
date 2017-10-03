@@ -29,7 +29,8 @@ typedef struct mz_stream_mem_s {
     uint32_t    size;       // Size of the memory buffer
     uint32_t    limit;      // Furthest we've written
     uint32_t    position;   // Current positoin in the memory
-    int16_t     growable;   // Growable memory buffer
+    int8_t      grow;       // Memory buffer can grow
+    uint32_t    grow_size;  // Size to grow when full
 } mz_stream_mem;
 
 int32_t mz_stream_mem_open(void *stream, const char *path, int mode)
@@ -38,9 +39,9 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int mode)
 
     if (mode & MZ_STREAM_MODE_CREATE)
     {
-        if (mem->growable)
+        if (mem->grow)
         {
-            mem->size = UINT16_MAX;
+            mem->size = mem->grow_size;
             mem->buffer = (char *)malloc(mem->size);
         }
 
@@ -84,13 +85,16 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, uint32_t size)
     uint32_t new_size = 0;
     char *new_buf = NULL;
 
+    if (size == 0)
+        return size;
+
     if (size > mem->size - mem->position)
     {
-        if (mem->growable)
+        if (mem->grow)
         {
             new_size = mem->size;
-            if (size < UINT16_MAX)
-                new_size += UINT16_MAX;
+            if (size < mem->grow_size)
+                new_size += mem->grow_size;
             else
                 new_size += size;
 
@@ -169,10 +173,16 @@ void mz_stream_mem_set_buffer(void *stream, void *buf, uint32_t size)
     mem->size = size;
 }
 
-void mz_stream_mem_set_growable(void *stream, int growable)
+void mz_stream_mem_set_grow(void *stream, int8_t grow)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    mem->growable = growable;
+    mem->grow = grow;
+}
+
+void mz_stream_mem_set_grow_size(void *stream, uint32_t grow_size)
+{
+    mz_stream_mem *mem = (mz_stream_mem *)stream;
+    mem->grow_size = grow_size;
 }
 
 void *mz_stream_mem_create(void **stream)
@@ -194,8 +204,9 @@ void *mz_stream_mem_create(void **stream)
         mem->stream.error = mz_stream_mem_error;
         mem->stream.create = mz_stream_mem_create;
         mem->stream.delete = mz_stream_mem_delete;
+        mem->grow_size = UINT16_MAX;
     }
-    if (stream == NULL)
+    if (stream != NULL)
         *stream = mem;
 
     return mem;
@@ -209,7 +220,7 @@ void mz_stream_mem_delete(void **stream)
     mem = (mz_stream_mem *)*stream;
     if (mem != NULL)
     {
-        if (mem->growable && mem->buffer != NULL)
+        if (mem->grow && mem->buffer != NULL)
             free(mem->buffer);
         free(mem);
     }

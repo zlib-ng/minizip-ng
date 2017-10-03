@@ -37,16 +37,16 @@
 #define RAND_HEAD_LEN  12
 
 typedef struct mz_stream_crypt_s {
-    mz_stream        stream;
-    uint32_t        keys[3];          /* keys defining the pseudo-random sequence */
+    mz_stream       stream;
+    uint32_t        keys[3];          // keys defining the pseudo-random sequence
     const z_crc_t   *crc_32_tab;
     int16_t         initialized;
     int16_t         error;
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
-    uint64_t        total_in;
-    uint64_t        total_out;
+    int64_t         total_in;
+    int64_t         total_out;
 } mz_stream_crypt;
 
 #define zdecode(keys,crc_32_tab,c) \
@@ -84,6 +84,7 @@ void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc
     *(keys+0) = 305419896L;
     *(keys+1) = 591751049L;
     *(keys+2) = 878082192L;
+
     while (*password != 0)
     {
         mz_stream_crypt_update_keys(keys, crc_32_tab, *password);
@@ -91,7 +92,7 @@ void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc
     }
 }
 
-int32_t mz_stream_crypt_open(voidpf stream, const char *path, int mode)
+int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint16_t t = 0;
@@ -99,6 +100,7 @@ int32_t mz_stream_crypt_open(voidpf stream, const char *path, int mode)
     uint8_t header[RAND_HEAD_LEN];
     uint8_t verify1 = 0;
     uint8_t verify2 = 0;
+    const char *password = path;
 
     crypt->total_in = 0;
     crypt->total_out = 0;
@@ -106,14 +108,17 @@ int32_t mz_stream_crypt_open(voidpf stream, const char *path, int mode)
 
     if (mz_stream_is_open(crypt->stream.base) == MZ_STREAM_ERR)
         return MZ_STREAM_ERR;
-    if (crypt->password == NULL)
+
+    if (password == NULL)
+        password = crypt->password;
+    if (password == NULL)
         return MZ_STREAM_ERR;
 
     crypt->crc_32_tab = get_crc_table();
     if (crypt->crc_32_tab == NULL)
         return MZ_STREAM_ERR;
 
-    mz_stream_crypt_init_keys(crypt->password, crypt->keys, crypt->crc_32_tab);
+    mz_stream_crypt_init_keys(password, crypt->keys, crypt->crc_32_tab);
 
     if (mode & MZ_STREAM_MODE_WRITE)
     {
@@ -150,7 +155,7 @@ int32_t mz_stream_crypt_open(voidpf stream, const char *path, int mode)
     return MZ_STREAM_OK;
 }
 
-int32_t mz_stream_crypt_is_open(voidpf stream)
+int32_t mz_stream_crypt_is_open(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     if (crypt->initialized == 0)
@@ -158,7 +163,7 @@ int32_t mz_stream_crypt_is_open(voidpf stream)
     return MZ_STREAM_OK;
 }
 
-int32_t mz_stream_crypt_read(voidpf stream, void *buf, uint32_t size)
+int32_t mz_stream_crypt_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -172,7 +177,7 @@ int32_t mz_stream_crypt_read(voidpf stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t size)
+int32_t mz_stream_crypt_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -187,52 +192,64 @@ int32_t mz_stream_crypt_write(voidpf stream, const void *buf, uint32_t size)
     return written;
 }
 
-int64_t mz_stream_crypt_tell(voidpf stream)
+int64_t mz_stream_crypt_tell(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return mz_stream_tell(crypt->stream.base);
 }
 
-int32_t mz_stream_crypt_seek(voidpf stream, uint64_t offset, int origin)
+int32_t mz_stream_crypt_seek(void *stream, uint64_t offset, int origin)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return mz_stream_seek(crypt->stream.base, offset, origin);
 }
 
-int32_t mz_stream_crypt_close(voidpf stream)
+int32_t mz_stream_crypt_close(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->initialized = 0;
     return MZ_STREAM_OK;
 }
 
-int32_t mz_stream_crypt_error(voidpf stream)
+int32_t mz_stream_crypt_error(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return crypt->error;
 }
 
-void mz_stream_crypt_set_password(voidpf stream, const char *password)
+void mz_stream_crypt_set_password(void *stream, const char *password)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->password = password;
 }
 
-void mz_stream_crypt_set_verify(voidpf stream, uint8_t verify1, uint8_t verify2)
+void mz_stream_crypt_set_verify(void *stream, uint8_t verify1, uint8_t verify2)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->verify1 = verify1;
     crypt->verify2 = verify2;
 }
 
-void mz_stream_crypt_get_verify(voidpf stream, uint8_t *verify1, uint8_t *verify2)
+void mz_stream_crypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     *verify1 = crypt->verify1;
     *verify2 = crypt->verify2;
 }
 
-voidpf mz_stream_crypt_create(voidpf *stream)
+int64_t mz_stream_crypt_get_total_in(void *stream)
+{
+    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    return crypt->total_in;
+}
+
+int64_t mz_stream_crypt_get_total_out(void *stream)
+{
+    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    return crypt->total_out;
+}
+
+void *mz_stream_crypt_create(void **stream)
 {
     mz_stream_crypt *crypt = NULL;
 
@@ -251,14 +268,16 @@ voidpf mz_stream_crypt_create(voidpf *stream)
         crypt->stream.error = mz_stream_crypt_error;
         crypt->stream.create = mz_stream_crypt_create;
         crypt->stream.delete = mz_stream_crypt_delete;
+        crypt->stream.get_total_in = mz_stream_crypt_get_total_in;
+        crypt->stream.get_total_out = mz_stream_crypt_get_total_out;
     }
 
     if (stream != NULL)
         *stream = crypt;
-    return (voidpf)crypt;
+    return crypt;
 }
 
-void mz_stream_crypt_delete(voidpf *stream)
+void mz_stream_crypt_delete(void **stream)
 {
     mz_stream_crypt *crypt = NULL;
     if (stream == NULL)

@@ -19,32 +19,31 @@
 #include "aes/fileenc.h"
 #include "aes/prng.h"
 
-#define AES_PWVERIFYSIZE    (2)
-#define AES_AUTHCODESIZE    (10)
-#define AES_MAXSALTLENGTH   (16)
-#define AES_VERSION         (0x0001)
-#define AES_ENCRYPTIONMODE  (0x03)
+#define MZ_AES_PWVERIFYSIZE    (2)
+#define MZ_AES_AUTHCODESIZE    (10)
+#define MZ_AES_MAXSALTLENGTH   (16)
 
 typedef struct mz_stream_aes_s {
-    mz_stream        stream;
-    fcrypt_ctx      crypt_ctx;
-    int16_t         mode;
-    int16_t         initialized;
-    int16_t         error;
-    int16_t         encryption_mode;
-    const char      *password;
-    uint64_t        total_in;
-    uint64_t        total_out;
+    mz_stream      stream;
+    fcrypt_ctx     crypt_ctx;
+    int16_t        mode;
+    int16_t        initialized;
+    int16_t        error;
+    int16_t        encryption_mode;
+    const char     *password;
+    int64_t        total_in;
+    int64_t        total_out;
 } mz_stream_aes;
 
 int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     uint16_t salt_length = 0;
-    uint8_t verify[AES_PWVERIFYSIZE];
-    uint8_t verify_expected[AES_PWVERIFYSIZE];
-    uint8_t salt_value[AES_MAXSALTLENGTH];
+    uint8_t verify[MZ_AES_PWVERIFYSIZE];
+    uint8_t verify_expected[MZ_AES_PWVERIFYSIZE];
+    uint8_t salt_value[MZ_AES_MAXSALTLENGTH];
     prng_ctx rng_ctx[1];
+    const char *password = path;
 
     aes->total_in = 0;
     aes->total_out = 0;
@@ -52,7 +51,9 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 
     if (mz_stream_is_open(aes->stream.base) == MZ_STREAM_ERR)
         return MZ_STREAM_ERR;
-    if (aes->password == NULL)
+    if (password == NULL)
+        password = aes->password;
+    if (password == NULL)
         return MZ_STREAM_ERR;
 
     salt_length = SALT_LENGTH(aes->encryption_mode);
@@ -63,8 +64,8 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
         prng_rand(salt_value, salt_length, rng_ctx);
         prng_end(rng_ctx);
 
-        if (fcrypt_init(aes->encryption_mode, (uint8_t *)aes->password, 
-            (uint32_t)strlen(aes->password), salt_value, verify, &aes->crypt_ctx) != 0)
+        if (fcrypt_init(aes->encryption_mode, (uint8_t *)password, 
+            (uint32_t)strlen(password), salt_value, verify, &aes->crypt_ctx) != 0)
             return MZ_STREAM_ERR;
 
         if (mz_stream_write(aes->stream.base, salt_value, salt_length) != salt_length)
@@ -72,10 +73,10 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 
         aes->total_out += salt_length;
 
-        if (mz_stream_write(aes->stream.base, verify, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+        if (mz_stream_write(aes->stream.base, verify, MZ_AES_PWVERIFYSIZE) != MZ_AES_PWVERIFYSIZE)
             return MZ_STREAM_ERR;
 
-        aes->total_out += AES_PWVERIFYSIZE;
+        aes->total_out += MZ_AES_PWVERIFYSIZE;
     }
     else if (mode & MZ_STREAM_MODE_READ)
     {
@@ -84,16 +85,16 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 
         aes->total_in += salt_length;
 
-        if (mz_stream_read(aes->stream.base, verify_expected, AES_PWVERIFYSIZE) != AES_PWVERIFYSIZE)
+        if (mz_stream_read(aes->stream.base, verify_expected, MZ_AES_PWVERIFYSIZE) != MZ_AES_PWVERIFYSIZE)
             return MZ_STREAM_ERR;
 
-        aes->total_in += AES_PWVERIFYSIZE;
+        aes->total_in += MZ_AES_PWVERIFYSIZE;
 
-        if (fcrypt_init(aes->encryption_mode, (uint8_t *)aes->password,
-            (uint32_t)strlen(aes->password), salt_value, verify, &aes->crypt_ctx) != 0)
+        if (fcrypt_init(aes->encryption_mode, (uint8_t *)password,
+            (uint32_t)strlen(password), salt_value, verify, &aes->crypt_ctx) != 0)
             return MZ_STREAM_ERR;
 
-        if (memcmp(verify_expected, verify, AES_PWVERIFYSIZE) != 0)
+        if (memcmp(verify_expected, verify, MZ_AES_PWVERIFYSIZE) != 0)
             return MZ_STREAM_ERR;
     }
 
@@ -114,7 +115,7 @@ int32_t mz_stream_aes_is_open(void *stream)
 int32_t mz_stream_aes_read(void *stream, void *buf, uint32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
-    uint32_t read = 0;
+    int32_t read = 0;
     read = mz_stream_read(aes->stream.base, buf, size);
     if (read > 0)
         fcrypt_decrypt((uint8_t *)buf, read, &aes->crypt_ctx);
@@ -125,7 +126,7 @@ int32_t mz_stream_aes_read(void *stream, void *buf, uint32_t size)
 int32_t mz_stream_aes_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
-    uint32_t written = 0;
+    int32_t written = 0;
     fcrypt_encrypt((uint8_t *)buf, size, &aes->crypt_ctx);
     written = mz_stream_write(aes->stream.base, buf, size);
     if (written > 0)
@@ -148,28 +149,28 @@ int32_t mz_stream_aes_seek(void *stream, uint64_t offset, int origin)
 int32_t mz_stream_aes_close(void *stream)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
-    unsigned char authcode[AES_AUTHCODESIZE];
-    unsigned char rauthcode[AES_AUTHCODESIZE];
+    unsigned char authcode[MZ_AES_AUTHCODESIZE];
+    unsigned char rauthcode[MZ_AES_AUTHCODESIZE];
 
     if (aes->mode & MZ_STREAM_MODE_WRITE)
     {
         fcrypt_end(authcode, &aes->crypt_ctx);
 
-        if (mz_stream_write(aes->stream.base, authcode, AES_AUTHCODESIZE) != AES_AUTHCODESIZE)
+        if (mz_stream_write(aes->stream.base, authcode, MZ_AES_AUTHCODESIZE) != MZ_AES_AUTHCODESIZE)
             return MZ_STREAM_ERR;
 
-        aes->total_out += AES_AUTHCODESIZE;
+        aes->total_out += MZ_AES_AUTHCODESIZE;
     }
     else if (aes->mode & MZ_STREAM_MODE_READ)
     {
-        if (mz_stream_read(aes->stream.base, authcode, AES_AUTHCODESIZE) != AES_AUTHCODESIZE)
+        if (mz_stream_read(aes->stream.base, authcode, MZ_AES_AUTHCODESIZE) != MZ_AES_AUTHCODESIZE)
             return MZ_STREAM_ERR;
 
-        aes->total_in += AES_AUTHCODESIZE;
+        aes->total_in += MZ_AES_AUTHCODESIZE;
 
-        if (fcrypt_end(rauthcode, &aes->crypt_ctx) != AES_AUTHCODESIZE)
+        if (fcrypt_end(rauthcode, &aes->crypt_ctx) != MZ_AES_AUTHCODESIZE)
             return MZ_STREAM_ERR;
-        if (memcmp(authcode, rauthcode, AES_AUTHCODESIZE) != 0)
+        if (memcmp(authcode, rauthcode, MZ_AES_AUTHCODESIZE) != 0)
             return MZ_STREAM_ERR;
     }
 
@@ -195,6 +196,18 @@ void mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode)
     aes->encryption_mode = encryption_mode;
 }
 
+int64_t mz_stream_aes_get_total_in(void *stream)
+{
+    mz_stream_aes *aes = (mz_stream_aes *)stream;
+    return aes->total_in;
+}
+
+int64_t mz_stream_aes_get_total_out(void *stream)
+{
+    mz_stream_aes *aes = (mz_stream_aes *)stream;
+    return aes->total_out;
+}
+
 void *mz_stream_aes_create(void **stream)
 {
     mz_stream_aes *aes = NULL;
@@ -214,7 +227,9 @@ void *mz_stream_aes_create(void **stream)
         aes->stream.error = mz_stream_aes_error;
         aes->stream.create = mz_stream_aes_create;
         aes->stream.delete = mz_stream_aes_delete;
-        aes->encryption_mode = AES_ENCRYPTIONMODE;
+        aes->stream.get_total_in = mz_stream_aes_get_total_in;
+        aes->stream.get_total_out = mz_stream_aes_get_total_out;
+        aes->encryption_mode = MZ_AES_ENCRYPTIONMODE;
     }
     if (stream != NULL)
         *stream = aes;
