@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
 int32_t mz_stream_crypt_open(void *stream, const char* filename, int mode);
 int32_t mz_stream_crypt_read(void *stream, void* buf, uint32_t size);
 int32_t mz_stream_crypt_write(void *stream, const void* buf, uint32_t size);
@@ -41,6 +43,8 @@ int64_t mz_stream_crypt_get_total_out(void *stream);
 
 void*   mz_stream_crypt_create(void **stream);
 void    mz_stream_crypt_delete(void **stream);
+
+/***************************************************************************/
 
 #ifdef __cplusplus
 }

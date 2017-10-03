@@ -85,7 +85,7 @@ typedef struct mz_zip_s
 // Locate the central directory of a zipfile (at the end, just before the global comment)
 static uint64_t mz_zip_search_cd(void *stream)
 {
-    uint8_t *buf = NULL;
+    uint8_t buf[BUFREADCOMMENT + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
     uint64_t max_back = UINT16_MAX; // maximum size of global comment
@@ -97,10 +97,6 @@ static uint64_t mz_zip_search_cd(void *stream)
     if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) == MZ_STREAM_ERR)
         return 0;
 
-    buf = (uint8_t *)malloc(BUFREADCOMMENT + 4);
-    if (buf == NULL)
-        return 0;
-    
     file_size = mz_stream_tell(stream);
 
     if (max_back > file_size)
@@ -137,8 +133,6 @@ static uint64_t mz_zip_search_cd(void *stream)
         if (pos_found != 0)
             break;
     }
-
-    free(buf);
 
     return pos_found;
 }

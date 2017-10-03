@@ -29,10 +29,6 @@ extern "C" {
 #  include "mzstrm.h"
 #endif
 
-#ifdef HAVE_BZIP2
-#  include "bzlib.h"
-#endif
-
 #define Z_BZIP2ED 12
 
 /***************************************************************************/
