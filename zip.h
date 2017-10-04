@@ -1,5 +1,5 @@
-/* zip.h -- IO on .zip files using zlib
-   Version 1.2.0, September 16th, 2017
+/* zip.h -- Zip manipulation
+   Version 1.3.0, September 16th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -90,9 +90,9 @@ typedef struct mz_zip_crypt_s
 /***************************************************************************/
 
 extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, void *stream);
-// Create a zipfile
+// Create a zip file
 //
-//   NOTE: There is no delete function into a zipfile. If you want delete file in a zip file, 
+//   NOTE: There is no delete function into a zip file. If you want delete file in a zip file, 
 //   you must open a zip file, and create another. You can use RAW reading and writing to copy
 //   the file you did not want delete.
 
@@ -104,16 +104,16 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
 // Open a file in the ZIP for writing
 
 extern int ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
-// Write data in the zipfile
+// Write data in the zip file
 
 extern int ZEXPORT mz_zip_entry_close(void *handle);
-// Close the current file in the zipfile
+// Close the current file in the zip file
 
 extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
-// Close the current file in the zipfile where raw is compressed data
+// Close the current file in the zip file where raw is compressed data
 
 extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16_t version_madeby);
-// Close the zipfile
+// Close the zip file
 
 /***************************************************************************/
 

@@ -128,6 +128,10 @@ void    mz_stream_passthru_delete(void **stream);
 #define mz_stream_os_delete  mz_stream_posix_delete
 
 #define mz_os_rand           mz_posix_rand
+#define mz_os_get_file_date  mz_posix_get_file_date
+#define mz_os_set_file_date  mz_posix_set_file_date
+#define mz_os_change_dir     mz_posix_change_dir
+#define mz_os_make_dir       mz_posix_make_dir
 #else
 #include "mzstrm_win32.h"
 
@@ -144,10 +148,25 @@ void    mz_stream_passthru_delete(void **stream);
 #define mz_stream_os_delete  mz_stream_win32_delete
 
 #define mz_os_rand           mz_win32_rand
+#define mz_os_get_file_date  mz_win32_get_file_date
+#define mz_os_set_file_date  mz_win32_set_file_date
+#define mz_os_change_dir     mz_win32_change_dir
+#define mz_os_make_dir       mz_win32_make_dir
 #endif
 
+/***************************************************************************/
+
 int32_t mz_os_file_exists(const char *path);
-int32_t mz_os_file_is_large(const char *path);
+int64_t mz_os_file_get_size(const char *path);
+
+/***************************************************************************/
+
+int32_t  mz_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
+// Convert dos date/time format to struct tm
+time_t   mz_dosdate_to_time_t(uint64_t dos_date);
+// Convert dos date/time format to time_t
+uint32_t mz_tm_to_dosdate(const struct tm *ptm);
+// Convert struct tm to dos date/time format
 
 /***************************************************************************/
 

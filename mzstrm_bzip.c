@@ -63,7 +63,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int mode)
     else if (mode & MZ_STREAM_MODE_WRITE)
     {
         bzip->bzstream.next_out = bzip->buffer;
-        bzip->bzstream.avail_out = UINT16_MAX;
+        bzip->bzstream.avail_out = sizeof(bzip->buffer);
 
         bzip->error = BZ2_bzCompressInit(&bzip->bzstream, bzip->level, 0, 35);
     }
@@ -102,10 +102,10 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, uint32_t size)
     {
         if (bzip->bzstream.avail_in == 0)
         {
-            bytes_to_read = UINT16_MAX;
+            bytes_to_read = sizeof(bzip->buffer);
             if (bzip->max_total_in > 0)
             {
-                if ((bzip->max_total_in - bzip->total_in) < UINT16_MAX)
+                if ((bzip->max_total_in - bzip->total_in) < sizeof(bzip->buffer))
                     bytes_to_read = (int32_t)(bzip->max_total_in - bzip->total_in);
             }    
 
@@ -205,7 +205,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, uint32_t size)
                 return 0;
             }
 
-            bzip->bzstream.avail_out = UINT32_MAX;
+            bzip->bzstream.avail_out = sizeof(bzip->buffer);
             bzip->bzstream.next_out = bzip->buffer;
 
             bzip->buffer_len = 0;

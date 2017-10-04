@@ -120,10 +120,10 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, uint32_t size)
     {
         if (zlib->zstream.avail_in == 0)
         {
-            bytes_to_read = UINT16_MAX;
+            bytes_to_read = sizeof(zlib->buffer);
             if (zlib->max_total_in > 0)
             {
-                if ((zlib->max_total_in - zlib->total_in) < UINT16_MAX)
+                if ((zlib->max_total_in - zlib->total_in) < sizeof(zlib->buffer))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
             }               
             
@@ -225,7 +225,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, uint32_t size)
                 return 0;
             }
 
-            zlib->zstream.avail_out = UINT32_MAX;
+            zlib->zstream.avail_out = sizeof(zlib->buffer);
             zlib->zstream.next_out = zlib->buffer;
 
             zlib->buffer_len = 0;

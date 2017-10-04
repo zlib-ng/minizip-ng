@@ -1,5 +1,5 @@
 /* minizip.c
-   Version 1.2.0, September 16th, 2017
+   Version 1.3.0, September 16th, 2017
    sample part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -39,11 +39,9 @@
 #include "mzstrm.h"
 #include "test.h"
 
-#include "minishared.h"
-
 void minizip_banner()
 {
-    printf("MiniZip 1.2.0, demo of zLib + MiniZip64 package\n");
+    printf("MiniZip 1.3.0, demo of zLib + MiniZip64 package\n");
     printf("more info on MiniZip at https://github.com/nmoinvaz/minizip\n\n");
 }
 
@@ -67,8 +65,8 @@ int minizip_addfile(void *zf, const char *path, const char *filenameinzip, int l
     char buf[UINT16_MAX];
 
 
-    /* Get information about the file on disk so we can store it in zip */
-    get_file_date(path, &zi.dos_date);
+    // Get information about the file on disk so we can store it in zip
+    mz_os_get_file_date(path, &zi.dos_date);
 
     /* Add to zip file */
     err = zipOpenNewFileInZip3_64(zf, filenameinzip, &zi,
@@ -81,7 +79,7 @@ int minizip_addfile(void *zf, const char *path, const char *filenameinzip, int l
 
     if (err != ZIP_OK)
     {
-        printf("error in opening %s in zipfile (%d)\n", filenameinzip, err);
+        printf("error in opening %s in zip file (%d)\n", filenameinzip, err);
     }
     else
     {
@@ -109,7 +107,7 @@ int minizip_addfile(void *zf, const char *path, const char *filenameinzip, int l
             {
                 err = zipWriteInFileInZip(zf, buf, size_read);
                 if (err < 0)
-                    printf("error in writing %s in the zipfile (%d)\n", filenameinzip, err);
+                    printf("error in writing %s in the zip file (%d)\n", filenameinzip, err);
             }
         }
         while ((err == ZIP_OK) && (size_read > 0));
@@ -128,7 +126,7 @@ int minizip_addfile(void *zf, const char *path, const char *filenameinzip, int l
     {
         err = zipCloseFileInZip(zf);
         if (err != ZIP_OK)
-            printf("error in closing %s in the zipfile (%d)\n", filenameinzip, err);
+            printf("error in closing %s in the zip file (%d)\n", filenameinzip, err);
     }
 
     return err;

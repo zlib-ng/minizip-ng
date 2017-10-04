@@ -322,3 +322,110 @@ int32_t mz_win32_rand(uint8_t *buf, uint32_t size)
 
     return len;
 }
+
+int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
+{
+    FILETIME ftm_local;
+    HANDLE handle = NULL;
+    WIN32_FIND_DATAW ff32;
+    wchar_t *path_wide = NULL;
+    uint32_t path_wide_size = 0;
+    int16_t err = MZ_INTERNAL_ERROR;
+
+    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
+
+    handle = FindFirstFileW(path_wide, &ff32);
+
+    free(path_wide);
+
+    if (handle != INVALID_HANDLE_VALUE)
+    {
+        FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftm_local);
+        FileTimeToDosDateTime(&ftm_local, ((LPWORD)dos_date) + 1, ((LPWORD)dos_date) + 0);
+        FindClose(handle);
+        err = MZ_OK;
+    }
+
+    return err;
+}
+
+int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
+{
+    HANDLE handle = NULL;
+    FILETIME ftm, ftm_local, ftm_create, ftm_access, ftm_modified;
+    wchar_t *path_wide = NULL;
+    uint32_t path_wide_size = 0;
+    int16_t err = MZ_OK;
+
+    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
+
+#ifdef IOWIN32_USING_WINRT_API
+    handle = CreateFile2W(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+#else
+    handle = CreateFileW(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+#endif
+
+    free(path_wide);
+
+    if (handle != INVALID_HANDLE_VALUE)
+    {
+        GetFileTime(handle, &ftm_create, &ftm_access, &ftm_modified);
+        DosDateTimeToFileTime((WORD)(dos_date >> 16), (WORD)dos_date, &ftm_local);
+        LocalFileTimeToFileTime(&ftm_local, &ftm);
+
+        if (SetFileTime(handle, &ftm, &ftm_access, &ftm) == 0)
+            err = MZ_INTERNAL_ERROR;
+
+        CloseHandle(handle);
+    }
+
+    return err;
+}
+
+int16_t mz_win32_change_dir(const char *path)
+{
+    wchar_t *path_wide = NULL;
+    uint32_t path_wide_size = 0;
+    int16_t err = MZ_OK;
+
+
+    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
+
+    if (_wchdir(path_wide) != 0)
+        err = MZ_INTERNAL_ERROR;
+
+    free(path_wide);
+    return err;
+}
+
+int16_t mz_win32_make_dir(const char *path)
+{
+    wchar_t *path_wide = NULL;
+    uint32_t path_wide_size = 0;
+    int16_t err = MZ_OK;
+
+
+    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
+    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
+
+    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
+
+    if (_wmkdir(path_wide) != 0)
+        err = MZ_INTERNAL_ERROR;
+
+    free(path_wide);
+    return err;
+}

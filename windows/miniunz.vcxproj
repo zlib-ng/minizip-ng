@@ -143,16 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\minishared.c" />
     <ClCompile Include="..\miniunz.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libminizip.vcxproj">
       <Project>{17a4a51f-3e4f-419a-9192-28559785cf66}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\minishared.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

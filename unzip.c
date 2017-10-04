@@ -1,4 +1,4 @@
-/* unzip.c -- IO for uncompress .zip files using zlib
+/* unzip.c -- Zip manipulation
    Version 1.2.0, September 16th, 2017
    part of the MiniZip project
 
@@ -59,7 +59,7 @@
 
 /***************************************************************************/
 
-// Contains internal information about the zipfile
+// Contains internal information about the zip file
 typedef struct mz_unzip_s
 {
     mz_unzip_global global_info;        // public global information
@@ -71,8 +71,8 @@ typedef struct mz_unzip_s
     void *crypt_stream;                 // encryption stream
     void *file_info_stream;             // memory stream for storing file info
 
-    uint64_t byte_before_the_zipfile;   // byte before the zipfile, (>0 for sfx)
-    uint64_t num_file;                  // number of the current file in the zipfile
+    uint64_t byte_before_the_zipfile;   // byte before the zip file, (>0 for sfx)
+    uint64_t num_file;                  // number of the current file in the zip file
     uint64_t pos_in_central_dir;        // pos of the current file in the central dir
     uint64_t central_pos;               // position of the beginning of the central dir
     uint32_t number_disk;               // number of the current disk, used for spanning ZIP
@@ -80,7 +80,7 @@ typedef struct mz_unzip_s
     uint64_t offset_central_dir;        // offset of start of central directory with
                                         //   respect to the starting disk number
 
-    uint64_t pos_in_zipfile;            // position in byte on the zipfile, for fseek
+    uint64_t pos_in_zipfile;            // position in byte on the zip file, for fseek
 
     uint8_t  stream_initialised;        // flag set if stream structure is initialised
     uint64_t stream_available;          // number of byte to be decompressed
@@ -155,7 +155,7 @@ static uint64_t mz_unzip_search_cd(void *stream)
     return pos_found;
 }
 
-// Locate the central directory 64 of a zipfile (at the end, just before the global comment)
+// Locate the central directory 64 of a zip file (at the end, just before the global comment)
 static uint64_t mz_unzip_search_zip64_cd(void *stream, const uint64_t endcentraloffset)
 {
     uint64_t offset = 0;
@@ -409,7 +409,7 @@ extern int ZEXPORT mz_unzip_get_global_comment(void *handle, char *comment, uint
     return MZ_OK;
 }
 
-// Get info about the current file in the zipfile
+// Get info about the current file in the zip file
 static int mz_unzip_entry_read_header(void *handle)
 {
     mz_unzip *unzip = NULL;
@@ -609,7 +609,7 @@ static int mz_unzip_entry_read_header(void *handle)
     return err;
 }
 
-// Read the local header of the current zipfile. Check the coherency of the local header and info in the
+// Read the local header of the current zip file. Check the coherency of the local header and info in the
 // end of central directory about this file store in extrainfo_size the size of extra info in local header
 // (filename and size of extra field data)
 static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size, uint64_t *extrafield_local_offset,

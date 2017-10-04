@@ -1,5 +1,5 @@
-/* unzip.h -- IO for uncompress .zip files using zlib
-   Version 1.2.0, September 16th, 2017
+/* unzip.h -- Zip manipulation
+   Version 1.3.0, September 16th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -54,7 +54,7 @@ typedef struct mz_unzip_global_s
 {
     uint64_t number_entry;          // total number of entries in the central dir on this disk
     uint32_t number_disk_with_CD;   // number the the disk with central dir, used for spanning ZIP
-    uint16_t comment_size;          // size of the global comment of the zipfile
+    uint16_t comment_size;          // size of the global comment of the zip file
 } mz_unzip_global;
 
 // Info about a file in the zip file at the central directory

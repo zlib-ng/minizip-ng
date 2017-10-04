@@ -21,7 +21,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include "zlib.h"
 #ifdef __GNUC__
 #  define ZIP_UNUSED __attribute__((__unused__))
 #else

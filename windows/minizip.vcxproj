@@ -138,11 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\minishared.c" />
     <ClCompile Include="..\minizip.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\minishared.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="libminizip.vcxproj">

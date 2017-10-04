@@ -1,5 +1,5 @@
-/* zip.c -- IO on .zip files using zlib
-   Version 1.2.0, September 16th, 2017
+/* zip.c -- Zip manipulation
+   Version 1.3.0, September 16th, 2017
    part of the MiniZip project
 
    Copyright (C) 2010-2017 Nathan Moinvaziri
@@ -86,7 +86,7 @@ typedef struct mz_zip_s
 
 /***************************************************************************/
 
-// Locate the central directory of a zipfile (at the end, just before the global comment)
+// Locate the central directory of a zip file (at the end, just before the global comment)
 static uint64_t mz_zip_search_cd(void *stream)
 {
     uint8_t buf[BUFREADCOMMENT + 4];
@@ -141,7 +141,7 @@ static uint64_t mz_zip_search_cd(void *stream)
     return pos_found;
 }
 
-// Locate the central directory 64 of a zipfile (at the end, just before the global comment)
+// Locate the central directory 64 of a zip file (at the end, just before the global comment)
 static uint64_t mz_zip_search_zip64_cd(void *stream, const uint64_t endcentraloffset)
 {
     uint64_t offset = 0;
@@ -181,7 +181,7 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
 {
     mz_zip *zip = NULL;
 #ifndef NO_ADDFILEINEXISTINGZIP
-    uint64_t byte_before_the_zipfile = 0;   // byte before the zipfile, (>0 for sfx)
+    uint64_t byte_before_the_zipfile = 0;   // byte before the zip file, (>0 for sfx)
     uint64_t size_central_dir = 0;          // size of the central directory
     uint64_t offset_central_dir = 0;        // offset of start of central directory
     uint64_t number_entry_CD = 0;           // total number of entries in the central dir
@@ -230,7 +230,7 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
     mz_stream_mem_open(zip->cd_stream, NULL, MZ_STREAM_MODE_CREATE);
 
 #ifndef NO_ADDFILEINEXISTINGZIP
-    // Add file in a zipfile
+    // Add file in a zip file
     if (append == MZ_APPEND_STATUS_ADDINZIP)
     {
         // Read and cache central directory records

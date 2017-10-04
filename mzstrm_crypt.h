@@ -1,5 +1,5 @@
 /* mzstrm_crypt.h -- Code for traditional PKWARE encryption
-   Version 1.2.0, September 16th, 2017
+   Version 1.3.0, September 16th, 2017
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
