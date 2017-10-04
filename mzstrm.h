@@ -34,8 +34,17 @@ extern "C" {
 #define MZ_STREAM_MODE_EXISTING         (4)
 #define MZ_STREAM_MODE_CREATE           (8)
 
-#define MZ_STREAM_OK                    (0)
-#define MZ_STREAM_ERR                   (-1)
+#ifndef MZ_RETURN
+#  define MZ_OK                         (0)
+#  define MZ_EOF                        (MZ_OK)
+#  define MZ_STREAM_ERROR               (-1)
+#  define MZ_END_OF_LIST                (-100)
+#  define MZ_PARAM_ERROR                (-102)
+#  define MZ_FORMAT_ERROR               (-103)
+#  define MZ_INTERNAL_ERROR             (-104)
+#  define MZ_CRC_ERROR                  (-105)
+#  define MZ_CRYPT_ERROR                (-106)
+#endif
 
 /***************************************************************************/
 

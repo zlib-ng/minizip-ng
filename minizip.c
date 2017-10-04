@@ -85,7 +85,7 @@ int minizip_addfile(void *zf, const char *path, const char *filenameinzip, int l
     }
     else
     {
-        if (mz_stream_os_open(stream_entry, path, MZ_STREAM_MODE_READ) == MZ_STREAM_ERR)
+        if (mz_stream_os_open(stream_entry, path, MZ_STREAM_MODE_READ) != MZ_OK)
         {
             err = ZIP_ERRNO;
             printf("error in opening %s for reading\n", path);

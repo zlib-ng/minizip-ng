@@ -23,7 +23,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
     mz_stream_os_create(&in_stream);
 
-    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_OK)
     {
         read = mz_stream_os_read(in_stream, buf, UINT16_MAX);
         mz_stream_os_close(in_stream);
@@ -33,13 +33,13 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     mz_stream_os_create(&out_stream);
 
     snprintf(filename, sizeof(filename), "LICENSE.encrypt.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
+    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_OK)
     {
         crypt_create(&crypt_out_stream);
 
         mz_stream_set_base(crypt_out_stream, out_stream);
 
-        if (mz_stream_open(crypt_out_stream, password, MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
+        if (mz_stream_open(crypt_out_stream, password, MZ_STREAM_MODE_WRITE) == MZ_OK)
         {
             written = mz_stream_write(crypt_out_stream, buf, read);
             mz_stream_close(crypt_out_stream);
@@ -55,13 +55,13 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
-    if (mz_stream_os_open(in_stream, filename, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    if (mz_stream_os_open(in_stream, filename, MZ_STREAM_MODE_READ) == MZ_OK)
     {
         crypt_create(&crypt_out_stream);
 
         mz_stream_set_base(crypt_out_stream, in_stream);
 
-        if (mz_stream_open(crypt_out_stream, password, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+        if (mz_stream_open(crypt_out_stream, password, MZ_STREAM_MODE_READ) == MZ_OK)
         {
             read = mz_stream_read(crypt_out_stream, buf, read);
             mz_stream_close(crypt_out_stream);
@@ -78,7 +78,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     mz_stream_os_create(&out_stream);
 
     snprintf(filename, sizeof(filename), "LICENSE.decrypt.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
+    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_OK)
     {
         mz_stream_os_write(out_stream, buf, read);
         mz_stream_os_close(out_stream);
@@ -105,7 +105,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
     mz_stream_os_create(&in_stream);
 
-    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    if (mz_stream_os_open(in_stream, "LICENSE", MZ_STREAM_MODE_READ) == MZ_OK)
     {
         mz_stream_crc32_create(&crc_in_stream);
         mz_stream_set_base(crc_in_stream, in_stream);
@@ -120,7 +120,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
     mz_stream_os_delete(&in_stream);
 
-    if (read == MZ_STREAM_ERR)
+    if (read < 0)
     {
         printf("Failed to read LICENSE\n");
         return;
@@ -131,7 +131,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     mz_stream_os_create(&out_stream);
 
     snprintf(filename, sizeof(filename), "LICENSE.deflate.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
+    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_OK)
     {
         create_compress(&deflate_stream);
         mz_stream_set_base(deflate_stream, out_stream);
@@ -153,7 +153,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
-    if (mz_stream_os_open(in_stream, filename, MZ_STREAM_MODE_READ) == MZ_STREAM_OK)
+    if (mz_stream_os_open(in_stream, filename, MZ_STREAM_MODE_READ) == MZ_OK)
     {
         create_compress(&inflate_stream);
         mz_stream_set_base(inflate_stream, in_stream);
@@ -176,7 +176,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     mz_stream_os_create(&out_stream);
 
     snprintf(filename, sizeof(filename), "LICENSE.inflate.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_STREAM_OK)
+    if (mz_stream_os_open(out_stream, filename, MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_WRITE) == MZ_OK)
     {
         mz_stream_crc32_create(&crc_in_stream);
         mz_stream_crc32_open(crc_in_stream, NULL, MZ_STREAM_MODE_WRITE);

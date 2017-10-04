@@ -20,9 +20,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\crypt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\unzip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -147,9 +144,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\inffixed.h">
       <Filter>Zlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\crypt.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\unzip.h">
       <Filter>Header Files</Filter>

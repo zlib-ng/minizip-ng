@@ -33,13 +33,18 @@ extern "C" {
 
 /***************************************************************************/
 
-#define ZIP_OK                          (0)
-#define ZIP_EOF                         (0)
-#define ZIP_ERRNO                       (Z_ERRNO)
-#define ZIP_PARAMERROR                  (-102)
-#define ZIP_BADZIPFILE                  (-103)
-#define ZIP_INTERNALERROR               (-104)
-    
+#ifndef MZ_RETURN
+#  define MZ_OK                         (0)
+#  define MZ_EOF                        (MZ_OK)
+#  define MZ_STREAM_ERROR               (-1)
+#  define MZ_END_OF_LIST                (-100)
+#  define MZ_PARAM_ERROR                (-102)
+#  define MZ_FORMAT_ERROR               (-103)
+#  define MZ_INTERNAL_ERROR             (-104)
+#  define MZ_CRC_ERROR                  (-105)
+#  define MZ_CRYPT_ERROR                (-106)
+#endif
+
 /***************************************************************************/
 
 typedef struct mz_zip_file_s
@@ -60,9 +65,8 @@ typedef struct mz_zip_file_s
 
 typedef struct mz_zip_compress_s
 {
-    uint16_t    method;                 // compression method ie Z_DEFLATE
+    uint16_t    method;                 // compression method ie Z_DEFLATE, 0 for raw
     int         level;                  // compression level
-    uint8_t     raw;                    // no compression method if 1
     int         window_bits;            // deflate window bits
     int         mem_level;              // deflate memory level
     int         strategy;               // deflate strategy
@@ -70,11 +74,11 @@ typedef struct mz_zip_compress_s
 
 typedef struct mz_zip_crypt_s
 {
+    const char *password;               // encryption password
+    uint32_t    crc_for_crypting;       // crc to use for traditional encryption
 #if defined(HAVE_AES)
     uint8_t     aes;                    // enable winzip aes encryption if 1
 #endif
-    uint32_t    crc_for_crypting;       // crc to use for traditional encryption
-    const char *password;               // encryption password
 } mz_zip_crypt;
 
 /***************************************************************************/
@@ -85,25 +89,31 @@ typedef struct mz_zip_crypt_s
 
 /***************************************************************************/
 
+extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, void *stream);
 // Create a zipfile
-extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, 
-    const char **globalcomment, void *stream);
+//
+//   NOTE: There is no delete function into a zipfile. If you want delete file in a zip file, 
+//   you must open a zip file, and create another. You can use RAW reading and writing to copy
+//   the file you did not want delete.
 
-// Open a file in the ZIP for writing
+extern int ZEXPORT mz_zip_get_global_comment(void *handle, const char **global_comment);
+// Gets the global comments if opening an existing zip
+
 extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info, 
     const mz_zip_compress *compress_info, const mz_zip_crypt *crypt_info);
+// Open a file in the ZIP for writing
 
-// Write data in the zipfile
 extern int ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
+// Write data in the zipfile
 
-// Close the current file in the zipfile
 extern int ZEXPORT mz_zip_entry_close(void *handle);
+// Close the current file in the zipfile
 
-// Close the current file in the zipfile where raw is compressed data
 extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
+// Close the current file in the zipfile where raw is compressed data
 
-// Close the zipfile
 extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16_t version_madeby);
+// Close the zipfile
 
 /***************************************************************************/
 

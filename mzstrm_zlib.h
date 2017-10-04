@@ -33,6 +33,7 @@ void    mz_stream_zlib_set_mem_level(void *stream, int16_t mem_level);
 void    mz_stream_zlib_set_strategy(void *stream, int16_t strategy);
 int64_t mz_stream_zlib_get_total_in(void *stream);
 int64_t mz_stream_zlib_get_total_out(void *stream);
+void    mz_stream_zlib_set_max_total_in(void *stream, int64_t max_total_in);
 
 void*   mz_stream_zlib_create(void **stream);
 void    mz_stream_zlib_delete(void **stream);

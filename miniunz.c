@@ -34,6 +34,7 @@
 
 #include "unzip.h"
 
+#include "mz_compat.h"
 #include "mzstrm.h"
 
 #include "minishared.h"
@@ -141,6 +142,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
     unz_file_info64 file_info = {0};
     void* buf = NULL;
     uint16_t size_buf = 8192;
+    int32_t read = 0;
     int err = UNZ_OK;
     int errclose = UNZ_OK;
     int skip = 0;
@@ -220,7 +222,7 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
     if ((skip == 0) && (err == UNZ_OK))
     {
         /* Some zips don't contain directory alone before file */
-        if ((mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_WRITE) == MZ_STREAM_ERR) &&
+        if ((mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
             (opt_extract_without_path == 0) &&
             (filename_withoutpath != (char*)filename_inzip))
         {
@@ -229,33 +231,33 @@ int miniunz_extract_currentfile(unzFile uf, int opt_extract_without_path, int *p
             makedir(write_filename);
             *(filename_withoutpath-1) = c;
 
-            mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_WRITE);
+            mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_CREATE);
         }
     }
 
     /* Read from the zip, unzip to buffer, and write to disk */
-    if (mz_stream_os_is_open(stream_entry))
+    if (mz_stream_os_is_open(stream_entry) == MZ_OK)
     {
         printf(" extracting: %s\n", write_filename);
 
-        do
+        while (1)
         {
-            err = unzReadCurrentFile(uf, buf, size_buf);
-            if (err < 0)
+            read = unzReadCurrentFile(uf, buf, size_buf);
+            if (read < 0)
             {
+                err = read;
                 printf("error %d with zipfile in unzReadCurrentFile\n", err);
                 break;
             }
-            if (err == 0)
+            if (read == 0)
                 break;
-            if (mz_stream_os_write(stream_entry, buf, 1) != 1)
+
+            if (mz_stream_os_write(stream_entry, buf, read) != read)
             {
-                printf("error %d in writing extracted file\n", errno);
-                err = UNZ_ERRNO;
+                printf("error %d in writing extracted file\n", err);
                 break;
             }
         }
-        while (err > 0);
 
         mz_stream_os_close(stream_entry);
 

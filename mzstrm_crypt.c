@@ -34,7 +34,11 @@
 #include "mzstrm.h"
 #include "mzstrm_crypt.h"
 
+/***************************************************************************/
+
 #define RAND_HEAD_LEN  12
+
+/***************************************************************************/
 
 typedef struct mz_stream_crypt_s {
     mz_stream       stream;
@@ -49,11 +53,15 @@ typedef struct mz_stream_crypt_s {
     int64_t         total_out;
 } mz_stream_crypt;
 
+/***************************************************************************/
+
 #define zdecode(keys,crc_32_tab,c) \
     (mz_stream_crypt_update_keys(keys,crc_32_tab, c ^= mz_stream_crypt_decrypt_byte(keys)))
 
 #define zencode(keys,crc_32_tab,c,t) \
     (t = mz_stream_crypt_decrypt_byte(keys), mz_stream_crypt_update_keys(keys,crc_32_tab,c), t^(c))
+
+/***************************************************************************/
 
 uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
 {
@@ -92,6 +100,8 @@ void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc
     }
 }
 
+/***************************************************************************/
+
 int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
@@ -106,17 +116,17 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
     crypt->total_out = 0;
     crypt->initialized = 0;
 
-    if (mz_stream_is_open(crypt->stream.base) == MZ_STREAM_ERR)
-        return MZ_STREAM_ERR;
+    if (mz_stream_is_open(crypt->stream.base) != MZ_OK)
+        return MZ_STREAM_ERROR;
 
     if (password == NULL)
         password = crypt->password;
     if (password == NULL)
-        return MZ_STREAM_ERR;
+        return MZ_STREAM_ERROR;
 
     crypt->crc_32_tab = get_crc_table();
     if (crypt->crc_32_tab == NULL)
-        return MZ_STREAM_ERR;
+        return MZ_STREAM_ERROR;
 
     mz_stream_crypt_init_keys(password, crypt->keys, crypt->crc_32_tab);
 
@@ -133,14 +143,14 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
         header[i++] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, crypt->verify2, t);
 
         if (mz_stream_write(crypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
-            return MZ_STREAM_ERR;
+            return MZ_STREAM_ERROR;
 
         crypt->total_out += RAND_HEAD_LEN;
     }
     else if (mode & MZ_STREAM_MODE_READ)
     {
         if (mz_stream_read(crypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
-            return MZ_STREAM_ERR;
+            return MZ_STREAM_ERROR;
 
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
             header[i] = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i]);
@@ -152,15 +162,15 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
     }
 
     crypt->initialized = 1;
-    return MZ_STREAM_OK;
+    return MZ_OK;
 }
 
 int32_t mz_stream_crypt_is_open(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     if (crypt->initialized == 0)
-        return MZ_STREAM_ERR;
-    return MZ_STREAM_OK;
+        return MZ_STREAM_ERROR;
+    return MZ_OK;
 }
 
 int32_t mz_stream_crypt_read(void *stream, void *buf, uint32_t size)
@@ -208,7 +218,7 @@ int32_t mz_stream_crypt_close(void *stream)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     crypt->initialized = 0;
-    return MZ_STREAM_OK;
+    return MZ_OK;
 }
 
 int32_t mz_stream_crypt_error(void *stream)

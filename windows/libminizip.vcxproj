@@ -129,7 +129,6 @@
     <ClCompile Include="..\..\..\trees.c" />
     <ClCompile Include="..\..\..\uncompr.c" />
     <ClCompile Include="..\..\..\zutil.c" />
-    <ClCompile Include="..\crypt.c" />
     <ClCompile Include="..\lib\bzip2\bzlib.c" />
     <ClCompile Include="..\lib\bzip2\crctable.c" />
     <ClCompile Include="..\mzstrm.c" />
@@ -171,7 +170,6 @@
     <ClInclude Include="..\..\..\zconf.h" />
     <ClInclude Include="..\..\..\zlib.h" />
     <ClInclude Include="..\..\..\zutil.h" />
-    <ClInclude Include="..\crypt.h" />
     <ClInclude Include="..\lib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\mzstrm.h" />
     <ClInclude Include="..\mzstrm_aes.h" />

@@ -30,6 +30,7 @@ int32_t mz_stream_bzip_error(void *stream);
 void    mz_stream_bzip_set_level(void *stream, int16_t level);
 int64_t mz_stream_bzip_get_total_in(void *stream);
 int64_t mz_stream_bzip_get_total_out(void *stream);
+void    mz_stream_bzip_set_max_total_in(void *stream, int64_t max_total_in);
 
 void*   mz_stream_bzip_create(void **stream);
 void    mz_stream_bzip_delete(void **stream);
