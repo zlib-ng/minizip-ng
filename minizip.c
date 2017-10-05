@@ -1,6 +1,6 @@
 /* minizip.c
-   Version 1.3.0, September 16th, 2017
-   sample part of the MiniZip project
+   Version 1.3.0, October 4th, 2017
+   part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
