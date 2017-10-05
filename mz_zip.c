@@ -451,8 +451,6 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     if (zip->pos_local_header >= UINT32_MAX)
         zip->file_info.zip64 = 1;
 
-    zip->number_disk = zip->number_disk;
-
     // Write the local header
     if (err == MZ_OK)
         err = mz_stream_write_uint32(zip->stream, (uint32_t)LOCALHEADERMAGIC);
@@ -727,17 +725,14 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
     if (zip->file_info.zip64)
     {
         version_needed = 45;
+        extrafield_zip64_size += 4;
         if (uncompressed_size >= UINT32_MAX)
             extrafield_zip64_size += 8;
         if (compressed_size >= UINT32_MAX)
             extrafield_zip64_size += 8;
         if (zip->pos_local_header >= UINT32_MAX)
             extrafield_zip64_size += 8;
-        if (extrafield_zip64_size > 0)
-        {
-            extrafield_zip64_size += 4;
-            extrafield_size += extrafield_zip64_size;
-        }
+        extrafield_size += extrafield_zip64_size;
     }
 #ifdef HAVE_AES
     if ((zip->file_info.flag & 1) && (zip->crypt_info.aes))
@@ -789,7 +784,7 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
     mz_stream_write(zip->cd_stream, zip->file_info.extrafield_global, zip->file_info.extrafield_global_size);
 
     // Add ZIP64 extra info header to central directory
-    if ((zip->file_info.zip64) && (extrafield_zip64_size > 0))
+    if (zip->file_info.zip64)
     {
         mz_stream_write_uint16(zip->cd_stream, 0x0001);
         mz_stream_write_uint16(zip->cd_stream, extrafield_zip64_size);

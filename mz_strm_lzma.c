@@ -91,7 +91,9 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int mode)
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MAJOR);
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MINOR);
         mz_stream_write_uint16(lzma->stream.base, size);
-        
+
+        lzma->total_out += 4;
+
         lzma->error = lzma_alone_encoder(&lzma->lstream, &opt_lzma);
     }
 
