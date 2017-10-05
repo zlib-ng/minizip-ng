@@ -79,7 +79,7 @@ void *unz_handle = mz_unzip_open(buf_stream);
 + Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
 
 When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since nobody outside of PKWARE supports it.
+When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
 
 ### Platforms
 
