@@ -393,14 +393,12 @@ int main(int argc, const char *argv[])
 
     mz_stream_os_create(&stream);
 
-    if (mz_stream_open(stream, path, MZ_STREAM_MODE_READ | MZ_STREAM_MODE_APPEND) != MZ_OK)
+    if (mz_stream_open(stream, path, MZ_STREAM_MODE_READ) != MZ_OK)
     {
         mz_stream_os_delete(&stream);
         printf("Error opening file %s\n", path);
         return 1;
     }
-
-    mz_stream_open(stream, NULL, MZ_STREAM_MODE_READ);
 
     // Open zip file
     if (path != NULL)
