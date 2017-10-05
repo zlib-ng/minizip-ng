@@ -1,4 +1,4 @@
-# MiniZip 1.3.0
+# Minizip 1.3.0
 
 This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
@@ -6,7 +6,7 @@ This library is a refactoring of the minizip contribution found in the zlib dist
 
 ### Streams
 
-This library has been refactored with streaming.
+This library has been refactored around streams.
 
 #### Memory Streaming
 
