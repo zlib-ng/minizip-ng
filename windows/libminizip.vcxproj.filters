@@ -101,9 +101,6 @@
     <ClCompile Include="..\lib\bzip2\decompress.c">
       <Filter>BZip</Filter>
     </ClCompile>
-    <ClCompile Include="..\mz_compat.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\mz_strm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -204,9 +201,6 @@
     </ClInclude>
     <ClInclude Include="..\lib\bzip2\bzlib.h">
       <Filter>BZip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\mz_compat.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\test.h">
       <Filter>Header Files</Filter>

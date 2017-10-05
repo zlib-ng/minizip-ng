@@ -74,7 +74,6 @@ typedef struct mz_zip_s
     void *crc32_stream;             // crc32 stream
     void *crypt_stream;             // encryption stream
 
-    int16_t mode;                   // open mode
     uint64_t pos_local_header;      // offset of the local header of the file currently writing
     uint64_t add_position_when_writting_offset;
     uint64_t number_entry;
@@ -180,7 +179,7 @@ static uint64_t mz_zip_search_zip64_cd(void *stream, const uint64_t endcentralof
     return offset;
 }
 
-extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_size, void *stream)
+extern void* ZEXPORT mz_zip_open(uint8_t open_existing, uint64_t disk_size, void *stream)
 {
     mz_zip *zip = NULL;
 #ifndef NO_ADDFILEINEXISTINGZIP
@@ -197,14 +196,7 @@ extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_s
 #endif
     int16_t err = MZ_OK;
 
-    if ((mode & MZ_OPENMODE_CREATEAFTER) == MZ_OPENMODE_CREATEAFTER)
-    {
-        // Don't support spanning ZIP with APPEND_STATUS_CREATEAFTER
-        if (disk_size > 0)
-            return NULL;
-        if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != MZ_OK)
-            return NULL;
-    }
+
     
     zip = (mz_zip*)malloc(sizeof(mz_zip));
     if (zip == NULL)
@@ -213,7 +205,6 @@ extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_s
     memset(zip, 0, sizeof(mz_zip));
 
     zip->stream = stream;
-    zip->mode = mode;
     zip->disk_size = disk_size;
 
     mz_stream_mem_create(&zip->cd_stream);
@@ -222,7 +213,7 @@ extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_s
 
 #ifndef NO_ADDFILEINEXISTINGZIP
     // Add file in a zip file
-    if ((mode & MZ_OPENMODE_ADDINZIP) == MZ_OPENMODE_ADDINZIP)
+    if (open_existing)
     {
         // Read and cache central directory records
         central_pos = mz_zip_search_cd(zip->stream);

@@ -111,6 +111,9 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int mode)
 
     strncpy(win32->path, path, win32->path_size);
 
+    if (mode & MZ_STREAM_MODE_APPEND)
+        return mz_stream_win32_seek(stream, 0, MZ_STREAM_SEEK_END);
+
     return MZ_OK; 
 }
 

@@ -194,7 +194,7 @@ static uint64_t mz_unzip_search_zip64_cd(void *stream, const uint64_t endcentral
     return offset;
 }
 
-extern void* ZEXPORT mz_unzip_open(const char *path, void *stream)
+extern void* ZEXPORT mz_unzip_open(void *stream)
 {
     mz_unzip *unzip = NULL;
     uint64_t central_pos = 0;

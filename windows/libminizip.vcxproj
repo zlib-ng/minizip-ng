@@ -144,7 +144,6 @@
     <ClCompile Include="..\lib\bzip2\blocksort.c" />
     <ClCompile Include="..\lib\bzip2\huffman.c" />
     <ClCompile Include="..\lib\bzip2\randtable.c" />
-    <ClCompile Include="..\mz_compat.c" />
     <ClCompile Include="..\mz_strm.c" />
     <ClCompile Include="..\mz_strm_aes.c" />
     <ClCompile Include="..\mz_strm_buf.c" />
@@ -182,7 +181,6 @@
     <ClInclude Include="..\lib\aes\pwd2key.h" />
     <ClInclude Include="..\lib\aes\sha1.h" />
     <ClInclude Include="..\lib\bzip2\bzlib.h" />
-    <ClInclude Include="..\mz_compat.h" />
     <ClInclude Include="..\mz_strm.h" />
     <ClInclude Include="..\mz_strm_aes.h" />
     <ClInclude Include="..\mz_strm_buf.h" />

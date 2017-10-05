@@ -35,7 +35,6 @@ extern "C" {
 #define MZ_STREAM_MODE_CREATE           (0x08)
 #define MZ_STREAM_MODE_EXISTING         (0x10)
 
-
 #ifndef MZ_RETURN
 #  define MZ_OK                         (0)
 #  define MZ_EOF                        (MZ_OK)

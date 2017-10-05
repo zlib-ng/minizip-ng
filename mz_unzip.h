@@ -91,7 +91,7 @@ typedef struct mz_unzip_file_s
 // Opening and close a zip file
 
 // Open a zip file
-extern void* ZEXPORT mz_unzip_open(const char *path, void *stream);
+extern void* ZEXPORT mz_unzip_open(void *stream);
 
 // Close a zip file
 extern int ZEXPORT mz_unzip_close(void *handle);

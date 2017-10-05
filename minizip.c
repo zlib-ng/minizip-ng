@@ -59,6 +59,8 @@ int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzi
 
 
     // Get information about the file on disk so we can store it in zip
+    printf("Adding: %s\n", filenameinzip);
+
     file_info.filename = filenameinzip;
 
     if (mz_os_file_get_size(path) >= UINT32_MAX)
@@ -132,9 +134,11 @@ int main(int argc, char *argv[])
     char *path = NULL;
     const char *password = NULL;
     int32_t path_arg = 0;
-    uint8_t opt_openmode = MZ_OPENMODE_CREATE;
+    uint8_t opt_append = 0;
+    uint8_t opt_open_existing = 0;
     uint8_t opt_compress_level = MZ_COMPRESS_LEVEL_DEFAULT;
     uint8_t opt_exclude_path = 0;
+    int16_t mode = 0;
     int16_t err_close = 0;
     int16_t err = 0;
     int16_t i = 0;
@@ -155,20 +159,20 @@ int main(int argc, char *argv[])
 
             while ((*p) != '\0')
             {
-                char c = *(p++);;
+                char c = *(p++);
                 if ((c == 'o') || (c == 'O'))
-                    opt_openmode = MZ_OPENMODE_CREATEAFTER;
+                    opt_append = 1;
                 if ((c == 'a') || (c == 'A'))
-                    opt_openmode = MZ_OPENMODE_ADDINZIP;
+                    opt_open_existing = 1;
                 if ((c >= '0') && (c <= '9'))
                     opt_compress_level = (c - '0');
                 if ((c == 'j') || (c == 'J'))
                     opt_exclude_path = 1;
 
-                if (((c == 'p') || (c == 'P')) && (i+1 < argc))
+                if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
                 {
-                    password=argv[i+1];
-                    i++;
+                    password = argv[i + 1];
+                    i += 1;
                 }
             }
 
@@ -187,13 +191,13 @@ int main(int argc, char *argv[])
 
     path = argv[path_arg];
 
-    if (opt_openmode == 2)
+    if (opt_open_existing)
     {
         // If the file don't exist, we not append file
-        if (mz_os_file_exists(path) == 0)
-            opt_openmode = 1;
+        if (mz_os_file_exists(path) != MZ_OK)
+            opt_append = 0;
     }
-    else if (opt_openmode == 0)
+    else if (opt_append == 0)
     {
         // If ask the user what to do because append and overwrite args not set
         if (mz_os_file_exists(path) != 0)
@@ -214,7 +218,7 @@ int main(int argc, char *argv[])
 
             if (rep == 'A')
             {
-                opt_openmode = MZ_OPENMODE_ADDINZIP;
+                opt_open_existing = 1;
             }
             else if (rep == 'N')
             {
@@ -226,14 +230,20 @@ int main(int argc, char *argv[])
 
     mz_stream_os_create(&stream);
 
-    if (mz_stream_open(stream, path, opt_openmode) != MZ_OK)
+    mode = MZ_STREAM_MODE_READWRITE;
+    if (opt_append)
+        mode |= MZ_STREAM_MODE_APPEND;
+    else
+        mode |= MZ_STREAM_MODE_CREATE;
+
+    if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
         mz_stream_os_delete(&stream);
         printf("Error opening file %s\n", path);
         return 1;
     }
-
-    handle = mz_zip_open(path, opt_openmode, 0, stream);
+    
+    handle = mz_zip_open(opt_open_existing, 0, stream);
 
     if (handle == NULL)
     {

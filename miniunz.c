@@ -404,7 +404,7 @@ int main(int argc, const char *argv[])
 
     // Open zip file
     if (path != NULL)
-        handle = mz_unzip_open(path, stream);
+        handle = mz_unzip_open(stream);
 
     if (handle == NULL)
     {
