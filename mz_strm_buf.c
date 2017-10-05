@@ -362,7 +362,7 @@ void *mz_stream_buffered_create(void **stream)
         buffered->stream.create = mz_stream_buffered_create;
         buffered->stream.delete = mz_stream_buffered_delete;
     }
-    if (stream == NULL)
+    if (stream != NULL)
         *stream = buffered;
 
     return buffered;
