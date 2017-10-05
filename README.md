@@ -65,26 +65,26 @@ void *unz_handle = mz_unzip_open(buf_stream);
 #### BZIP2
 
 + Requires #define HAVE_BZIP2
-+ Requires BZIP2 library
++ Requires [BZIP2](http://www.bzip.org/) library
 
 #### LZMA
 
 + Requires #define HAVE_LZMA
-+ Requires BZIP2 library
++ Requires [liblzma](https://tukaani.org/xz/) library
 
 ### Encryption
 
 #### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
 
 + Requires #define HAVE_AES
-+ Requires AES library
++ Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
 
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption.
 
 ### Platforms
 
-By default the library is supported on Windows, Macintosh, and Linux.
+The library is supported on Windows, Macintosh, and Linux.
 
 + Windows: Visual Studio 2015
 + Macintosh: XCode
