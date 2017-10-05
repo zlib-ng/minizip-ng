@@ -866,9 +866,6 @@ extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len)
         return 0;
     if (len > UINT16_MAX)
         return MZ_PARAM_ERROR;
-    
-    if (len > unzip->stream_available)
-        len = (uint32_t)unzip->stream_available;
 
     read = mz_stream_read(unzip->crc32_stream, buf, len);
 
