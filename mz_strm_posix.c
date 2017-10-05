@@ -74,6 +74,7 @@ typedef struct mz_stream_posix_s
 {
     mz_stream   stream;
     FILE        *handle;
+    int16_t     error;
 } mz_stream_posix;
 
 /***************************************************************************/
@@ -96,6 +97,11 @@ int32_t mz_stream_posix_open(void *stream, const char *path, int mode)
         return MZ_STREAM_ERROR;
 
     posix->handle = fopen64(path, mode_fopen);
+    if (posix->handle == NULL)
+    {
+        posix->error = errno;
+        return MZ_STREAM_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -111,19 +117,37 @@ int32_t mz_stream_posix_is_open(void *stream)
 int32_t mz_stream_posix_read(void *stream, void* buf, uint32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    return (uint32_t)fread(buf, 1, (size_t)size, posix->handle);
+    int32_t read = fread(buf, 1, (size_t)size, posix->handle);
+    if (read < 0)
+    {
+        posix->error = ferror(posix->handle);
+        return MZ_STREAM_ERROR;
+    }
+    return read;
 }
 
 int32_t mz_stream_posix_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    return (uint32_t)fwrite(buf, 1, (size_t)size, posix->handle);
+    int32_t written = fwrite(buf, 1, (size_t)size, posix->handle);
+    if (written < 0)
+    {
+        posix->error = ferror(posix->handle);
+        return MZ_STREAM_ERROR;
+    }
+    return written;
 }
 
 int64_t mz_stream_posix_tell(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    return ftello64(posix->handle);
+    int64_t position = ftello64(posix->handle);
+    if (position == -1)
+    {
+        posix->error = ferror(posix->handle);
+        return MZ_STREAM_ERROR;
+    }
+    return position;
 }
 
 int32_t mz_stream_posix_seek(void *stream, uint64_t offset, int origin)
@@ -147,7 +171,10 @@ int32_t mz_stream_posix_seek(void *stream, uint64_t offset, int origin)
     }
 
     if (fseeko64(posix->handle, offset, fseek_origin) != 0)
+    {
+        posix->error = ferror(posix->handle);
         return MZ_STREAM_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -155,17 +182,20 @@ int32_t mz_stream_posix_seek(void *stream, uint64_t offset, int origin)
 int32_t mz_stream_posix_close(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    int closed = fclose(posix->handle);
+    int32_t closed = fclose(posix->handle);
     posix->handle = NULL;
     if (closed != 0)
+    {
+        posix->error = errno;
         return MZ_STREAM_ERROR;
+    }
     return MZ_OK;
 }
 
 int32_t mz_stream_posix_error(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    return ferror(posix->handle);
+    return posix->error;
 }
 
 void *mz_stream_posix_create(void **stream)
