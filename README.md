@@ -1,4 +1,4 @@
-# Minizip zlib contribution fork
+# Minizip 1.3
 
 This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
@@ -83,7 +83,7 @@ When unzipping it will use AES decryption only if necessary. Does not support ce
 
 ### Platforms
 
-The library is supported on Windows, Macintosh, and Linux.
+This library is supported on Windows, Macintosh, and Linux.
 
 + Windows: Visual Studio 2015
 + Macintosh: XCode
