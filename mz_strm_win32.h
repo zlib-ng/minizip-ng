@@ -36,6 +36,8 @@ int32_t mz_stream_win32_error(void *stream);
 void*   mz_stream_win32_create(void **stream);
 void    mz_stream_win32_delete(void **stream);
 
+/***************************************************************************/
+
 int32_t mz_win32_rand(uint8_t *buf, uint32_t size);
 int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date);
 int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date);

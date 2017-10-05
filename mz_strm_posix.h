@@ -36,6 +36,8 @@ int32_t mz_stream_posix_error(void *stream);
 void*   mz_stream_posix_create(void **stream);
 void    mz_stream_posix_delete(void **stream);
 
+/***************************************************************************/
+
 int32_t mz_posix_rand(uint8_t *buf, uint32_t size);
 int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date);
 int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date);

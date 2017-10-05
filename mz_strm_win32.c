@@ -301,6 +301,8 @@ void mz_stream_win32_delete(void **stream)
         free(win32);
 }
 
+/***************************************************************************/
+
 int32_t mz_win32_rand(uint8_t *buf, uint32_t size)
 {
     HCRYPTPROV provider;

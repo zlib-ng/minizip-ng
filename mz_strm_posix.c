@@ -206,6 +206,8 @@ void mz_stream_posix_delete(void **stream)
         free(posix);
 }
 
+/***************************************************************************/
+
 int32_t mz_posix_rand(uint8_t *buf, uint32_t size)
 {
     static unsigned calls = 0;
