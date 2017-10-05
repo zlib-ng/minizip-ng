@@ -35,10 +35,10 @@ void *mem_stream = NULL;
 // create memory buffer stream and set our buffer
 mz_stream_mem_create(&mem_stream);
 mz_stream_mem_set_grow(mem_stream, 1);
-mz_stream_mem_set_grow_size(mem_stream, 128 * 1024);
+mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_CREATE);
 
-void *zip_handle = mz_zip_open(MZ_OPENMODE_CREATE, 0, mem_stream);
+void *zip_handle = mz_zip_open(0, 0, mem_stream);
 // do zip operations here
 
 mz_stream_mem_delete(&mem_stream);
@@ -93,7 +93,3 @@ By default the library is supported on Windows, Macintosh, and Linux.
 #### Windows RT
 
 + Requires #define IOWIN32_USING_WINRT_API
-
-### Apple libcompression
-
-+ Requires #define HAVE_APPLE_COMPRESSION
