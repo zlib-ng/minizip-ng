@@ -32,7 +32,7 @@ typedef struct mz_stream_mem_s {
     char        *buffer;    // Memory buffer pointer 
     uint32_t    size;       // Size of the memory buffer
     uint32_t    limit;      // Furthest we've written
-    uint32_t    position;   // Current positoin in the memory
+    uint32_t    position;   // Current position in the memory
     int8_t      grow;       // Memory buffer can grow
     uint32_t    grow_size;  // Size to grow when full
 } mz_stream_mem;
