@@ -12,17 +12,17 @@ The library has been refactored around streams.
 
 To unzip from a zip file in memory create a memory stream and pass it to the unzip open functions.
 ```
-uint8_t *zip_buffer = ...
+uint8_t *zip_buffer = NULL;
 int32_t zip_buffer_size = 0;
 void *mem_stream = NULL;
 
-// create memory buffer stream and set our buffer
+// fill zip_buffer with zip contents
 mz_stream_mem_create(&mem_stream);
 mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_READ);
 
 void *unz_handle = mz_unzip_open(mem_stream);
-// do unzip operations here
+// do unzip operations
 
 mz_stream_mem_delete(&mem_stream);
 ```
@@ -32,18 +32,17 @@ To create a zip file in memory first create a growable memory stream and pass it
 ```
 void *mem_stream = NULL;
 
-// create memory buffer stream and set our buffer
 mz_stream_mem_create(&mem_stream);
 mz_stream_mem_set_grow(mem_stream, 1);
 mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_CREATE);
 
 void *zip_handle = mz_zip_open(0, 0, mem_stream);
-// do zip operations here
+// do unzip operations
 
 mz_stream_mem_delete(&mem_stream);
 ```
-### Buffered Streaming
+#### Buffered Streaming
 
 By default the library will read bytes typically one at a time. The buffered stream allows for buffered read and write operations to improve I/O performance.
 
