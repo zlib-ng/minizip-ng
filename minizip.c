@@ -1,5 +1,5 @@
 /* minizip.c
-   Version 1.3.0, October 4th, 2017
+   Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -29,7 +29,7 @@
 
 void minizip_banner()
 {
-    printf("MiniZip 1.3.0, demo of zLib + MiniZip64 package\n");
+    printf("MiniZip 2.0.0, demo of zLib + MiniZip64 package\n");
     printf("more info on MiniZip at https://github.com/nmoinvaz/minizip\n\n");
 }
 

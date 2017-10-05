@@ -1,4 +1,6 @@
 /* mzstrm_mem.c -- Stream for memory access
+   Version 2.0.0, October 4th, 2017
+   part of the MiniZip project
 
    This interface is designed to access memory rather than files.
    We do use a region of memory to put data in to and take it out of. 
