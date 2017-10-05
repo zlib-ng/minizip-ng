@@ -92,13 +92,19 @@ typedef struct mz_zip_crypt_s
 
 /***************************************************************************/
 
-#define MZ_APPEND_STATUS_CREATE        (0)  // create new zip
-#define MZ_APPEND_STATUS_CREATEAFTER   (1)  // create zip after file
-#define MZ_APPEND_STATUS_ADDINZIP      (2)  // add existing files to zip
+// Create new zip file
+#define MZ_OPENMODE_CREATE         (MZ_STREAM_MODE_READWRITE | \
+                                    MZ_STREAM_MODE_CREATE) 
+// Create zip after file
+#define MZ_OPENMODE_CREATEAFTER     (MZ_STREAM_MODE_READWRITE | \
+                                     MZ_STREAM_MODE_APPEND)
+// Add existing files to zip
+#define MZ_OPENMODE_ADDINZIP        (MZ_STREAM_MODE_READWRITE | \
+                                     MZ_STREAM_MODE_EXISTING)
 
 /***************************************************************************/
 
-extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, void *stream);
+extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_size, void *stream);
 // Create a zip file
 //
 //   NOTE: There is no delete function into a zip file. If you want delete file in a zip file, 

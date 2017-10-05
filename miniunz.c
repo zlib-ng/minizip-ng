@@ -188,7 +188,10 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
     err = mz_unzip_entry_open(handle, 0, password);
 
     if (err != MZ_OK)
+    {
         printf("Error %d opening entry in zip file\n", err);
+        return err;
+    }
 
     if (opt_extract_without_path)
         write_filename = filename;
@@ -288,20 +291,20 @@ int32_t miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint
         return 1;
     }
 
-    do
+    while (err == MZ_OK)
     {
         err = miniunz_extract_currentfile(handle, opt_extract_without_path, &opt_overwrite, password);
+
         if (err != MZ_OK)
             break;
 
         err = mz_unzip_goto_next_entry(handle);
-    }
-    while (err == MZ_OK);
 
-    if (err != MZ_END_OF_LIST)
-    {
-        printf("Error %d going to next entry in zip file\n", err);
-        return 1;
+        if (err != MZ_OK && err != MZ_END_OF_LIST)
+        {
+            printf("Error %d going to next entry in zip file\n", err);
+            return 1;
+        }
     }
 
     return 0;
@@ -391,13 +394,23 @@ int main(int argc, const char *argv[])
 
     mz_stream_os_create(&stream);
 
+    if (mz_stream_open(stream, path, MZ_STREAM_MODE_READ | MZ_STREAM_MODE_APPEND) != MZ_OK)
+    {
+        mz_stream_os_delete(&stream);
+        printf("Error opening file %s\n", path);
+        return 1;
+    }
+
+    mz_stream_open(stream, NULL, MZ_STREAM_MODE_READ);
+
     // Open zip file
     if (path != NULL)
         handle = mz_unzip_open(path, stream);
 
     if (handle == NULL)
     {
-        printf("Cannot open %s\n", path);
+        mz_stream_os_delete(&stream);
+        printf("Error opening zip %s\n", path);
         return 1;
     }
 
@@ -423,6 +436,8 @@ int main(int argc, const char *argv[])
     }
 
     mz_unzip_close(handle);
+
+    mz_stream_os_close(stream);
     mz_stream_os_delete(&stream);
 
     return err;

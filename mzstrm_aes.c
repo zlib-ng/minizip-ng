@@ -36,6 +36,7 @@ typedef struct mz_stream_aes_s {
     const char     *password;
     int64_t        total_in;
     int64_t        total_out;
+    uint8_t        buffer[UINT16_MAX];
 } mz_stream_aes;
 
 /***************************************************************************/
@@ -129,8 +130,11 @@ int32_t mz_stream_aes_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     int32_t written = 0;
-    fcrypt_encrypt((uint8_t *)buf, size, &aes->crypt_ctx);
-    written = mz_stream_write(aes->stream.base, buf, size);
+    if (size > sizeof(aes->buffer))
+        return MZ_STREAM_ERROR;
+    memcpy(aes->buffer, buf, size);
+    fcrypt_encrypt((uint8_t *)aes->buffer, size, &aes->crypt_ctx);
+    written = mz_stream_write(aes->stream.base, aes->buffer, size);
     if (written > 0)
         aes->total_out += written;
     return written;

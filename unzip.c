@@ -206,9 +206,6 @@ extern void* ZEXPORT mz_unzip_open(const char *path, void *stream)
     int16_t err = MZ_OK;
 
 
-    if (mz_stream_open(stream, path, MZ_STREAM_MODE_READ | MZ_STREAM_MODE_EXISTING) != MZ_OK)
-        return NULL;
-
     unzip = (mz_unzip*)malloc(sizeof(mz_unzip));
     if (unzip == NULL)
         return NULL;
@@ -336,8 +333,6 @@ extern void* ZEXPORT mz_unzip_open(const char *path, void *stream)
 
     if (err != MZ_OK)
     {
-        mz_stream_close(unzip->stream);
-
         if (unzip->file_info_stream != NULL)
             mz_stream_mem_delete(&unzip->file_info_stream);
 
@@ -361,11 +356,6 @@ extern int ZEXPORT mz_unzip_close(void *handle)
 
     mz_stream_mem_close(unzip->file_info_stream);
     mz_stream_mem_delete(&unzip->file_info_stream);
-
-    if (unzip->stream != NULL)
-        mz_stream_close(unzip->stream);
-
-    unzip->stream = NULL;
 
     free(unzip);
     return MZ_OK;
@@ -719,9 +709,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 
     if (unzip->entry_header_read == 0)
         return MZ_PARAM_ERROR;
-
-    if (unzip->stream_initialised != 0)
-        mz_unzip_entry_close(handle);
+    if ((unzip->file_info.flag & 1) && (password == NULL))
+        return MZ_PARAM_ERROR;
 
     err = mz_unzip_entry_check_header(unzip, &size_variable, &extrafield_local_offset, &extrafield_local_size);
     if (err != MZ_OK)
@@ -740,7 +729,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         return MZ_FORMAT_ERROR;
 #endif
     }
-    
+
+
     unzip->extrafield_local_offset = extrafield_local_offset;
     unzip->extrafield_local_size = extrafield_local_size;
     unzip->extrafield_local_pos = 0;
@@ -763,37 +753,40 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     max_total_in = unzip->file_info.compressed_size;
 
 #ifndef NOUNCRYPT
-    if (password == NULL)
+    if (unzip->file_info.flag & 1)
+    {
+#ifdef HAVE_AES
+        if (unzip->aes_version > 0)
+        {
+            mz_stream_aes_create(&unzip->crypt_stream);
+            mz_stream_aes_set_password(unzip->crypt_stream, password);
+            mz_stream_aes_set_encryption_mode(unzip->crypt_stream, unzip->aes_encryption_mode);
+
+            max_total_in -= mz_stream_aes_get_footer_size(unzip->crypt_stream);
+
+            mz_stream_set_base(unzip->crypt_stream, unzip->stream);
+
+            if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
+                err = MZ_INTERNAL_ERROR;
+        }
+        else
+#endif
+        {
+            mz_stream_crypt_create(&unzip->crypt_stream);
+            mz_stream_crypt_set_password(unzip->crypt_stream, password);
+
+            mz_stream_set_base(unzip->crypt_stream, unzip->stream);
+
+            if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
+                err = MZ_STREAM_ERROR;
+        }
+#endif
+    }
+    if (unzip->crypt_stream == NULL)
     {
         mz_stream_passthru_create(&unzip->crypt_stream);
         mz_stream_set_base(unzip->crypt_stream, unzip->stream);
     }
-#ifdef HAVE_AES
-    else if (unzip->aes_version > 0)
-    {
-        mz_stream_aes_create(&unzip->crypt_stream);
-        mz_stream_aes_set_password(unzip->crypt_stream, password);
-        mz_stream_aes_set_encryption_mode(unzip->crypt_stream, unzip->aes_encryption_mode);
-
-        max_total_in -= mz_stream_aes_get_footer_size(unzip->crypt_stream);
-
-        mz_stream_set_base(unzip->crypt_stream, unzip->stream);
-
-        if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-            err = MZ_INTERNAL_ERROR;
-    }
-    else
-#endif
-    {
-        mz_stream_crypt_create(&unzip->crypt_stream);
-        mz_stream_crypt_set_password(unzip->crypt_stream, password);
-
-        mz_stream_set_base(unzip->crypt_stream, unzip->stream);
-
-        if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-            err = MZ_STREAM_ERROR;
-    }
-#endif
 
     max_total_in -= mz_stream_get_total_in(unzip->crypt_stream);
     
@@ -971,7 +964,7 @@ extern int ZEXPORT mz_unzip_entry_close(void *handle)
 
     mz_stream_close(unzip->compress_stream);
 
-    if (unzip->file_info.flag & 1)
+    if (unzip->crypt_stream != NULL)
     {
         mz_stream_set_base(unzip->crypt_stream, unzip->stream);
         err = mz_stream_close(unzip->crypt_stream);

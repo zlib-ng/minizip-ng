@@ -65,13 +65,13 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int mode)
     if (path == NULL)
         return MZ_STREAM_ERROR;
 
-    if ((mode & MZ_STREAM_MODE_READWRITEFILTER) == MZ_STREAM_MODE_READ)
+    if ((mode & MZ_STREAM_MODE_READWRITE) == MZ_STREAM_MODE_READ)
     {
         desired_access = GENERIC_READ;
         creation_disposition = OPEN_EXISTING;
         share_mode &= FILE_SHARE_WRITE;
     }
-    else if (mode & MZ_STREAM_MODE_EXISTING)
+    else if (mode & MZ_STREAM_MODE_APPEND)
     {
         desired_access = GENERIC_WRITE | GENERIC_READ;
         creation_disposition = OPEN_EXISTING;

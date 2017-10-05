@@ -74,7 +74,7 @@ typedef struct mz_zip_s
     void *crc32_stream;             // crc32 stream
     void *crypt_stream;             // encryption stream
 
-    int16_t append;                 // append mode
+    int16_t mode;                   // open mode
     uint64_t pos_local_header;      // offset of the local header of the file currently writing
     uint64_t add_position_when_writting_offset;
     uint64_t number_entry;
@@ -180,7 +180,7 @@ static uint64_t mz_zip_search_zip64_cd(void *stream, const uint64_t endcentralof
     return offset;
 }
 
-extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_size, void *stream)
+extern void* ZEXPORT mz_zip_open(const char *path, int16_t mode, uint64_t disk_size, void *stream)
 {
     mz_zip *zip = NULL;
 #ifndef NO_ADDFILEINEXISTINGZIP
@@ -196,17 +196,8 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
     uint16_t comment_size = 0;
 #endif
     int16_t err = MZ_OK;
-    int16_t mode = 0;
 
-    if (append == MZ_APPEND_STATUS_CREATE)
-        mode = (MZ_STREAM_MODE_READ | MZ_STREAM_MODE_WRITE | MZ_STREAM_MODE_CREATE);
-    else
-        mode = (MZ_STREAM_MODE_READ | MZ_STREAM_MODE_WRITE | MZ_STREAM_MODE_EXISTING);
-
-    if (mz_stream_open(stream, path, mode) != MZ_OK)
-        return NULL;
-
-    if (append == MZ_APPEND_STATUS_CREATEAFTER)
+    if ((mode & MZ_OPENMODE_CREATEAFTER) == MZ_OPENMODE_CREATEAFTER)
     {
         // Don't support spanning ZIP with APPEND_STATUS_CREATEAFTER
         if (disk_size > 0)
@@ -217,15 +208,12 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
     
     zip = (mz_zip*)malloc(sizeof(mz_zip));
     if (zip == NULL)
-    {
-        mz_stream_close(stream);
         return NULL;
-    }
 
     memset(zip, 0, sizeof(mz_zip));
 
     zip->stream = stream;
-    zip->append = append;
+    zip->mode = mode;
     zip->disk_size = disk_size;
 
     mz_stream_mem_create(&zip->cd_stream);
@@ -234,7 +222,7 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
 
 #ifndef NO_ADDFILEINEXISTINGZIP
     // Add file in a zip file
-    if (append == MZ_APPEND_STATUS_ADDINZIP)
+    if ((mode & MZ_OPENMODE_ADDINZIP) == MZ_OPENMODE_ADDINZIP)
     {
         // Read and cache central directory records
         central_pos = mz_zip_search_cd(zip->stream);
@@ -380,7 +368,6 @@ extern void* ZEXPORT mz_zip_open(const char *path, int append, uint64_t disk_siz
     {
         mz_stream_close(zip->cd_stream);
         mz_stream_delete(&zip->cd_stream);
-        mz_stream_close(stream);
 
 #ifndef NO_ADDFILEINEXISTINGZIP
         if (zip->comment)
@@ -418,6 +405,12 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
         return MZ_PARAM_ERROR;
 #endif
     if (handle == NULL)
+        return MZ_PARAM_ERROR;
+    if (file_info == NULL || file_info->filename == NULL)
+        return MZ_PARAM_ERROR;
+    if (compress_info == NULL)
+        return MZ_PARAM_ERROR;
+    if (crypt_info == NULL)
         return MZ_PARAM_ERROR;
 
     if ((compress_info->method != 0) && (compress_info->method != MZ_METHOD_DEFLATE))
@@ -461,9 +454,6 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
         zip->file_info.flag |= 1;
     else
         zip->file_info.flag &= ~1;
-
-    if (zip->file_info.filename == NULL)
-        zip->file_info.filename = "-";
 
     filename_size = (uint16_t)strlen(zip->file_info.filename);
 
@@ -996,9 +986,6 @@ extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16
         if (mz_stream_write(zip->stream, global_comment, comment_size) != comment_size)
             err = MZ_STREAM_ERROR;
     }
-
-    if (mz_stream_close(zip->stream) == MZ_STREAM_ERROR)
-        err = MZ_STREAM_ERROR;
 
 #ifndef NO_ADDFILEINEXISTINGZIP
     if (zip->comment)

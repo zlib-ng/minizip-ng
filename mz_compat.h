@@ -59,9 +59,9 @@ typedef struct
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
 
-#define APPEND_STATUS_CREATE        (MZ_APPEND_STATUS_CREATE)
-#define APPEND_STATUS_CREATEAFTER   (MZ_APPEND_STATUS_CREATEAFTER)
-#define APPEND_STATUS_ADDINZIP      (MZ_APPEND_STATUS_ADDINZIP)
+#define APPEND_STATUS_CREATE        (MZ_OPENMODE_CREATE)
+#define APPEND_STATUS_CREATEAFTER   (MZ_OPENMODE_CREATEAFTER)
+#define APPEND_STATUS_ADDINZIP      (MZ_OPENMODE_ADDINZIP)
 
 extern zipFile ZEXPORT zipOpen(const char *path, int append, voidpf stream);
 /* Create a zipfile.

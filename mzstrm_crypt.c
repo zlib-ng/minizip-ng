@@ -49,6 +49,7 @@ typedef struct mz_stream_crypt_s {
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
+    uint8_t         buffer[UINT16_MAX];
     int64_t         total_in;
     int64_t         total_out;
 } mz_stream_crypt;
@@ -194,9 +195,11 @@ int32_t mz_stream_crypt_write(void *stream, const void *buf, uint32_t size)
     uint32_t written = 0;
     uint32_t i = 0;
     uint16_t t = 0;
+    if (size > sizeof(crypt->buffer))
+        return MZ_STREAM_ERROR;
     for (i = 0; i < size; i++)
-        buf_ptr[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, buf_ptr[i], t);
-    written = mz_stream_write(crypt->stream.base, buf, size);
+        crypt->buffer[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, buf_ptr[i], t);
+    written = mz_stream_write(crypt->stream.base, crypt->buffer, size);
     if (written > 0)
         crypt->total_out += written;
     return written;
