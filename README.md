@@ -1,4 +1,4 @@
-# Minizip 1.3.0
+# Minizip 2.0.0
 
 This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
