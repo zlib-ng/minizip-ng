@@ -6,7 +6,7 @@ This library is a refactoring of the minizip contribution found in the zlib dist
 
 ### Streams
 
-The library has been refactored around streams.
+This library has been refactored with streaming.
 
 #### Memory Streaming
 
