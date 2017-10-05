@@ -1,6 +1,6 @@
 # Minizip zlib contribution fork
 
-Contains the latest bug fixes that having been found all over the internet including the [old minizip forum](https://web.archive.org/web/20121015065401/http://www.winimage.info/forum/) and zlib developer's mailing list along with some additional features. Based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and contributed to by many people over the years.
+This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
 ## Features
 
@@ -80,7 +80,7 @@ void *unz_handle = mz_unzip_open(buf_stream);
 + Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
 
 When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption.
+When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since nobody outside of PKWARE supports it.
 
 ### Platforms
 
