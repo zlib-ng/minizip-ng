@@ -74,8 +74,6 @@ typedef struct mz_stream_posix_s
 {
     mz_stream   stream;
     FILE        *handle;
-    void        *path;
-    uint16_t    path_size;
 } mz_stream_posix;
 
 /***************************************************************************/
@@ -98,7 +96,6 @@ int32_t mz_stream_posix_open(void *stream, const char *path, int mode)
         return MZ_STREAM_ERROR;
 
     posix->handle = fopen64(path, mode_fopen);
-    strncpy((char *)posix->path, path, posix->path_size);
 
     return MZ_OK;
 }
@@ -159,8 +156,6 @@ int32_t mz_stream_posix_close(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
     int closed = fclose(posix->handle);
-    if (posix->path != NULL)
-        free(posix->path);
     posix->handle = NULL;
     if (closed != 0)
         return MZ_STREAM_ERROR;
