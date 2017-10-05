@@ -133,16 +133,6 @@
     <ClCompile Include="..\lib\bzip2\compress.c" />
     <ClCompile Include="..\lib\bzip2\crctable.c" />
     <ClCompile Include="..\lib\bzip2\decompress.c" />
-    <ClCompile Include="..\mzstrm.c" />
-    <ClCompile Include="..\mzstrm_aes.c" />
-    <ClCompile Include="..\mzstrm_buf.c" />
-    <ClCompile Include="..\mzstrm_bzip.c" />
-    <ClCompile Include="..\mzstrm_crypt.c" />
-    <ClCompile Include="..\mzstrm_lzma.c" />
-    <ClCompile Include="..\mzstrm_mem.c" />
-    <ClCompile Include="..\mzstrm_posix.c" />
-    <ClCompile Include="..\mzstrm_zlib.c" />
-    <ClCompile Include="..\mzstrm_win32.c" />
     <ClCompile Include="..\lib\aes\aescrypt.c" />
     <ClCompile Include="..\lib\aes\aeskey.c" />
     <ClCompile Include="..\lib\aes\aestab.c" />
@@ -155,9 +145,19 @@
     <ClCompile Include="..\lib\bzip2\huffman.c" />
     <ClCompile Include="..\lib\bzip2\randtable.c" />
     <ClCompile Include="..\mz_compat.c" />
+    <ClCompile Include="..\mz_strm.c" />
+    <ClCompile Include="..\mz_strm_aes.c" />
+    <ClCompile Include="..\mz_strm_buf.c" />
+    <ClCompile Include="..\mz_strm_bzip.c" />
+    <ClCompile Include="..\mz_strm_crypt.c" />
+    <ClCompile Include="..\mz_strm_lzma.c" />
+    <ClCompile Include="..\mz_strm_mem.c" />
+    <ClCompile Include="..\mz_strm_posix.c" />
+    <ClCompile Include="..\mz_strm_win32.c" />
+    <ClCompile Include="..\mz_strm_zlib.c" />
+    <ClCompile Include="..\mz_unzip.c" />
+    <ClCompile Include="..\mz_zip.c" />
     <ClCompile Include="..\test.c" />
-    <ClCompile Include="..\unzip.c" />
-    <ClCompile Include="..\zip.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\crc32.h" />
@@ -171,16 +171,6 @@
     <ClInclude Include="..\..\..\zlib.h" />
     <ClInclude Include="..\..\..\zutil.h" />
     <ClInclude Include="..\lib\bzip2\bzlib_private.h" />
-    <ClInclude Include="..\mzstrm.h" />
-    <ClInclude Include="..\mzstrm_aes.h" />
-    <ClInclude Include="..\mzstrm_buf.h" />
-    <ClInclude Include="..\mzstrm_bzip.h" />
-    <ClInclude Include="..\mzstrm_crypt.h" />
-    <ClInclude Include="..\mzstrm_lzma.h" />
-    <ClInclude Include="..\mzstrm_mem.h" />
-    <ClInclude Include="..\mzstrm_posix.h" />
-    <ClInclude Include="..\mzstrm_zlib.h" />
-    <ClInclude Include="..\mzstrm_win32.h" />
     <ClInclude Include="..\lib\aes\aes.h" />
     <ClInclude Include="..\lib\aes\aesopt.h" />
     <ClInclude Include="..\lib\aes\aestab.h" />
@@ -193,9 +183,19 @@
     <ClInclude Include="..\lib\aes\sha1.h" />
     <ClInclude Include="..\lib\bzip2\bzlib.h" />
     <ClInclude Include="..\mz_compat.h" />
+    <ClInclude Include="..\mz_strm.h" />
+    <ClInclude Include="..\mz_strm_aes.h" />
+    <ClInclude Include="..\mz_strm_buf.h" />
+    <ClInclude Include="..\mz_strm_bzip.h" />
+    <ClInclude Include="..\mz_strm_crypt.h" />
+    <ClInclude Include="..\mz_strm_lzma.h" />
+    <ClInclude Include="..\mz_strm_mem.h" />
+    <ClInclude Include="..\mz_strm_posix.h" />
+    <ClInclude Include="..\mz_strm_win32.h" />
+    <ClInclude Include="..\mz_strm_zlib.h" />
+    <ClInclude Include="..\mz_unzip.h" />
+    <ClInclude Include="..\mz_zip.h" />
     <ClInclude Include="..\test.h" />
-    <ClInclude Include="..\unzip.h" />
-    <ClInclude Include="..\zip.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="liblzma.vcxproj">

@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mzstrm.h"
-#include "mzstrm_aes.h"
+#include "mz_strm.h"
+#include "mz_strm_aes.h"
 
 #include "aes/aes.h"
 #include "aes/fileenc.h"

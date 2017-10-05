@@ -16,8 +16,8 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "mzstrm.h"
-#include "mzstrm_buf.h"
+#include "mz_strm.h"
+#include "mz_strm_buf.h"
 
 /***************************************************************************/
 

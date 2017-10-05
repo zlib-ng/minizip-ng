@@ -25,23 +25,23 @@
 
 #include "zlib.h"
 
-#include "mzstrm.h"
+#include "mz_strm.h"
 #ifdef HAVE_AES
-#include "mzstrm_aes.h"
+#include "mz_strm_aes.h"
 #endif
 #ifdef HAVE_BZIP2
-#include "mzstrm_bzip.h"
+#include "mz_strm_bzip.h"
 #endif
 #ifndef NOUNCRYPT
-#  include "mzstrm_crypt.h"
+#  include "mz_strm_crypt.h"
 #endif
 #ifdef HAVE_LZMA
-#include "mzstrm_lzma.h"
+#include "mz_strm_lzma.h"
 #endif
-#include "mzstrm_mem.h"
-#include "mzstrm_zlib.h"
+#include "mz_strm_mem.h"
+#include "mz_strm_zlib.h"
 
-#include "unzip.h"
+#include "mz_unzip.h"
 
 /***************************************************************************/
 

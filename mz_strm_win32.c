@@ -19,8 +19,8 @@
 #include <windows.h>
 #include <wincrypt.h>
 
-#include "mzstrm.h"
-#include "mzstrm_win32.h"
+#include "mz_strm.h"
+#include "mz_strm_win32.h"
 
 /***************************************************************************/
 

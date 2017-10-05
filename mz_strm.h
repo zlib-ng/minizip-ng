@@ -115,7 +115,7 @@ void    mz_stream_passthru_delete(void **stream);
 /***************************************************************************/
 
 #if !defined(_WIN32) && !defined(USEWIN32IOAPI)
-#include "mzstrm_posix.h"
+#include "mz_strm_posix.h"
 
 #define mz_stream_os_open    mz_stream_posix_open
 #define mz_stream_os_is_open mz_stream_posix_is_open
@@ -135,7 +135,7 @@ void    mz_stream_passthru_delete(void **stream);
 #define mz_os_change_dir     mz_posix_change_dir
 #define mz_os_make_dir       mz_posix_make_dir
 #else
-#include "mzstrm_win32.h"
+#include "mz_strm_win32.h"
 
 #define mz_stream_os_open    mz_stream_win32_open
 #define mz_stream_os_is_open mz_stream_win32_is_open

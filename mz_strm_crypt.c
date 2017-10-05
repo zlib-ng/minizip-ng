@@ -31,8 +31,8 @@
 
 #include "zlib.h"
 
-#include "mzstrm.h"
-#include "mzstrm_crypt.h"
+#include "mz_strm.h"
+#include "mz_strm_crypt.h"
 
 /***************************************************************************/
 

@@ -16,8 +16,8 @@
 
 #include "bzip2\bzlib.h"
 
-#include "mzstrm.h"
-#include "mzstrm_bzip.h"
+#include "mz_strm.h"
+#include "mz_strm_bzip.h"
 
 /***************************************************************************/
 

@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #ifndef _ZLIBIOAPI_H
-#include "mzstrm.h"
+#include "mz_strm.h"
 #endif
 
 /***************************************************************************/

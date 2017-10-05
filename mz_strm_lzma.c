@@ -17,8 +17,8 @@
 
 #include <lzma.h>
 
-#include "mzstrm.h"
-#include "mzstrm_lzma.h"
+#include "mz_strm.h"
+#include "mz_strm_lzma.h"
 
 /***************************************************************************/
 

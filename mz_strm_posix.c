@@ -35,8 +35,8 @@
 #  define mkdir(x,y) _mkdir(x)
 #endif
 
-#include "mzstrm.h"
-#include "mzstrm_posix.h"
+#include "mz_strm.h"
+#include "mz_strm_posix.h"
 
 /***************************************************************************/
 

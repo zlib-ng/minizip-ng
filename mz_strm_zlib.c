@@ -16,8 +16,8 @@
 
 #include "zlib.h"
 
-#include "mzstrm.h"
-#include "mzstrm_zlib.h"
+#include "mz_strm.h"
+#include "mz_strm_zlib.h"
 
 /***************************************************************************/
 

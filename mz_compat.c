@@ -17,8 +17,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "zip.h"
-#include "unzip.h"
+#include "mz_zip.h"
+#include "mz_unzip.h"
 
 #include "mz_compat.h"
 

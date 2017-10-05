@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mzstrm.h"
-#include "mzstrm_mem.h"
+#include "mz_strm.h"
+#include "mz_strm_mem.h"
 
 /***************************************************************************/
 

@@ -22,9 +22,8 @@
 #include <time.h>
 #include <errno.h>
 
-#include "mzstrm.h"
-
-#include "unzip.h"
+#include "mz_strm.h"
+#include "mz_unzip.h"
 
 /***************************************************************************/
 

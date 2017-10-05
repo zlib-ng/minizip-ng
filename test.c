@@ -5,11 +5,11 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#include "mzstrm.h"
-#include "mzstrm_bzip.h"
-#include "mzstrm_crypt.h"
-#include "mzstrm_aes.h"
-#include "mzstrm_zlib.h"
+#include "mz_strm.h"
+#include "mz_strm_bzip.h"
+#include "mz_strm_crypt.h"
+#include "mz_strm_aes.h"
+#include "mz_strm_zlib.h"
 
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
 {
