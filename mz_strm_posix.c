@@ -22,13 +22,13 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/utime.h>
 
 #if defined unix || defined __APPLE__
 #  include <unistd.h>
 #  include <utime.h>
 #  include <fcntl.h>
 #elif defined _WIN32
+#  include <sys/utime.h>
 #  include <direct.h>
 #  include <io.h>
 #  define chdir(x)   _chdir(x)

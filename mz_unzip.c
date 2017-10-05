@@ -112,7 +112,6 @@ static uint64_t mz_unzip_search_cd(void *stream)
     uint64_t pos_found = 0;
     uint32_t read_size = 0;
     uint64_t read_pos = 0;
-    uint32_t bytes_read = 0;
     uint32_t i = 0;
 
     if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != 0)
@@ -407,7 +406,6 @@ static int mz_unzip_entry_read_header(void *handle)
 {
     mz_unzip *unzip = NULL;
     uint32_t magic = 0;
-    uint64_t current_pos = 0;
     uint32_t extra_pos = 0;
     uint16_t extra_header_id = 0;
     uint16_t extra_data_size = 0;
@@ -482,7 +480,7 @@ static int mz_unzip_entry_read_header(void *handle)
     if ((err == MZ_OK) && (unzip->file_info.filename_size > 0))
     {
         // Read filename in our memory stream buffer
-        mz_stream_mem_get_buffer(unzip->file_info_stream, &unzip->file_info.filename);
+        mz_stream_mem_get_buffer(unzip->file_info_stream, (void **)&unzip->file_info.filename);
 
         if (mz_stream_seek(unzip->file_info_stream, 0, MZ_STREAM_SEEK_SET) != MZ_OK)
             err = MZ_STREAM_ERROR;
@@ -496,7 +494,7 @@ static int mz_unzip_entry_read_header(void *handle)
 
     if ((err == MZ_OK) && (unzip->file_info.extrafield_size > 0))
     {
-        mz_stream_mem_get_buffer_at(unzip->file_info_stream, seek, &unzip->file_info.extrafield);
+        mz_stream_mem_get_buffer_at(unzip->file_info_stream, seek, (void **)&unzip->file_info.extrafield);
 
         if (mz_stream_copy(unzip->file_info_stream, unzip->stream, unzip->file_info.extrafield_size) != MZ_OK)
             err = MZ_STREAM_ERROR;
@@ -585,7 +583,7 @@ static int mz_unzip_entry_read_header(void *handle)
 
     if ((err == MZ_OK) && (unzip->file_info.comment_size > 0))
     {
-        mz_stream_mem_get_buffer_at(unzip->file_info_stream, seek, &unzip->file_info.comment);
+        mz_stream_mem_get_buffer_at(unzip->file_info_stream, seek, (void **)&unzip->file_info.comment);
 
         if (mz_stream_copy(unzip->file_info_stream, unzip->stream, unzip->file_info.comment_size) != MZ_OK)
             err = MZ_STREAM_ERROR;
@@ -614,7 +612,6 @@ static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size
     uint32_t flags = 0;
     uint16_t filename_size = 0;
     uint16_t extrafield_size = 0;
-    uint16_t compression_method = 0;
     int err = MZ_OK;
 
     if (extrainfo_size == NULL)
@@ -901,7 +898,6 @@ extern int ZEXPORT mz_unzip_entry_get_extrafield_local(void *handle, void *buf, 
 {
     mz_unzip *unzip = NULL;
     uint64_t size_to_read = 0;
-    uint32_t bytes_read = 0;
     uint32_t read_now = 0;
 
     if (handle == NULL)

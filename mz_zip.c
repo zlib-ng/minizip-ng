@@ -388,7 +388,6 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     mz_zip *zip = NULL;
     uint16_t filename_size = 0;
     uint16_t version_needed = 0;
-    uint16_t i = 0;
     int16_t err = MZ_OK;
 
 #ifdef NOCRYPT
@@ -666,7 +665,6 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
     uint16_t filename_size = 0;
     uint16_t comment_size = 0;
     uint16_t version_needed = 0;
-    uint32_t i = 0;
     int16_t err = MZ_OK;
 
     if (handle == NULL)
@@ -844,7 +842,6 @@ extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16
     uint64_t centraldir_pos_inzip = 0;
     uint64_t pos = 0;
     uint64_t cd_pos = 0;
-    uint32_t write = 0;
     int16_t err = MZ_OK;
 
     if (handle == NULL)
@@ -852,7 +849,11 @@ extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16
     zip = (mz_zip*)handle;
 
     if (zip->entry_opened == 1)
+    {
         err = mz_zip_entry_close(handle);
+        if (err != MZ_OK)
+            return err;
+    }
 
 #ifndef NO_ADDFILEINEXISTINGZIP
     if (global_comment == NULL)

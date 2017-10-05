@@ -110,8 +110,6 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
     uint16_t t = 0;
     int16_t i = 0;
     uint8_t header[RAND_HEAD_LEN];
-    uint8_t verify1 = 0;
-    uint8_t verify2 = 0;
     const char *password = path;
 
     crypt->total_in = 0;

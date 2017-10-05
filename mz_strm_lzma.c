@@ -245,13 +245,11 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, uint32_t size)
 
 int64_t mz_stream_lzma_tell(void *stream)
 {
-    mz_stream_lzma *mem = (mz_stream_lzma *)stream;
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_lzma_seek(void *stream, uint64_t offset, int origin)
 {
-    mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     return MZ_STREAM_ERROR;
 }
 

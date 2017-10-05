@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "bzip2\bzlib.h"
+#include "bzip2/bzlib.h"
 
 #include "mz_strm.h"
 #include "mz_strm_bzip.h"
@@ -55,14 +55,14 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int mode)
 
     if (mode & MZ_STREAM_MODE_READ)
     {
-        bzip->bzstream.next_in = bzip->buffer;
+        bzip->bzstream.next_in = (char *)bzip->buffer;
         bzip->bzstream.avail_in = 0;
 
         bzip->error = BZ2_bzDecompressInit(&bzip->bzstream, 0, 0);
     }
     else if (mode & MZ_STREAM_MODE_WRITE)
     {
-        bzip->bzstream.next_out = bzip->buffer;
+        bzip->bzstream.next_out = (char *)bzip->buffer;
         bzip->bzstream.avail_out = sizeof(bzip->buffer);
 
         bzip->error = BZ2_bzCompressInit(&bzip->bzstream, bzip->level, 0, 35);
@@ -95,7 +95,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, uint32_t size)
     int32_t read = 0;
     int16_t err = BZ_OK;
 
-    bzip->bzstream.next_out = (uint8_t*)buf;
+    bzip->bzstream.next_out = (char *)buf;
     bzip->bzstream.avail_out = (uint16_t)size;
 
     do
@@ -120,7 +120,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, uint32_t size)
 
             bzip->total_in += read;
 
-            bzip->bzstream.next_in = bzip->buffer;
+            bzip->bzstream.next_in = (char *)bzip->buffer;
             bzip->bzstream.avail_in = read;
         }
 
@@ -192,7 +192,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, uint32_t size)
     uint32_t total_out = 0;
 
 
-    bzip->bzstream.next_in = (uint8_t*)buf;
+    bzip->bzstream.next_in = (char *)buf;
     bzip->bzstream.avail_in = size;
 
     while ((bzip->error == BZ_OK) && (bzip->bzstream.avail_in > 0))
@@ -206,7 +206,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, uint32_t size)
             }
 
             bzip->bzstream.avail_out = sizeof(bzip->buffer);
-            bzip->bzstream.next_out = bzip->buffer;
+            bzip->bzstream.next_out = (char *)bzip->buffer;
 
             bzip->buffer_len = 0;
         }
@@ -225,13 +225,11 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, uint32_t size)
 
 int64_t mz_stream_bzip_tell(void *stream)
 {
-    mz_stream_bzip *mem = (mz_stream_bzip *)stream;
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_bzip_seek(void *stream, uint64_t offset, int origin)
 {
-    mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     return MZ_STREAM_ERROR;
 }
 
