@@ -1,5 +1,5 @@
 /* miniunz.c
-   Version 1.3.0, October 4th, 2017
+   Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -29,7 +29,7 @@
 
 void miniunz_banner()
 {
-    printf("MiniUnz 1.3.0, demo of zLib + Unz package\n");
+    printf("MiniUnz 2.0.0, demo of zLib + Unz package\n");
     printf("more info at https://github.com/nmoinvaz/minizip\n\n");
 }
 
