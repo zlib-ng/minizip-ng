@@ -66,23 +66,23 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int mode)
     zlib->total_in = 0;
     zlib->total_out = 0;
 
+    window_bits = zlib->window_bits;
+    if (window_bits > 0)
+        window_bits = -window_bits;
+
     if (mode & MZ_STREAM_MODE_READ)
     {
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
 
-        zlib->error = inflateInit2(&zlib->zstream, -MAX_WBITS);
+        zlib->error = inflateInit2(&zlib->zstream, window_bits);
     }
     else if (mode & MZ_STREAM_MODE_WRITE)
     {
-        window_bits = zlib->window_bits;
-        if (window_bits > 0)
-            window_bits = -window_bits;
-
         zlib->zstream.next_out = zlib->buffer;
-        zlib->zstream.avail_out = UINT16_MAX;
+        zlib->zstream.avail_out = sizeof(zlib->buffer);
 
-        zlib->error = deflateInit2(&zlib->zstream, zlib->level, Z_DEFLATED, window_bits, zlib->mem_level, zlib->strategy);
+        zlib->error = deflateInit2(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, window_bits, zlib->mem_level, zlib->strategy);
     }
 
     if (zlib->error != Z_OK)
@@ -298,12 +298,16 @@ void mz_stream_zlib_set_level(void *stream, int16_t level)
 void mz_stream_zlib_set_window_bits(void *stream, int16_t window_bits)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
+    if (window_bits == 0)
+        window_bits = -MAX_WBITS;
     zlib->window_bits = window_bits;
 }
 
 void mz_stream_zlib_set_mem_level(void *stream, int16_t mem_level)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
+    if (mem_level == 0)
+        mem_level = DEF_MEM_LEVEL;
     zlib->mem_level = mem_level;
 }
 
@@ -373,6 +377,8 @@ void mz_stream_zlib_delete(void **stream)
         free(zlib);
 }
 
+/***************************************************************************/
+
 typedef struct mz_stream_crc32_s {
     mz_stream  stream;
     int8_t     initialized;
@@ -380,6 +386,8 @@ typedef struct mz_stream_crc32_s {
     int64_t    total_in;
     int64_t    total_out;
 } mz_stream_crc32;
+
+/***************************************************************************/
 
 int32_t mz_stream_crc32_open(void *stream, const char *path, int mode)
 {

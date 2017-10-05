@@ -74,8 +74,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;HAVE_AES;HAVE_AES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api;..\lib\lzma</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_LZMA</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,8 +83,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;HAVE_AES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_LZMA</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -95,7 +95,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -130,12 +130,15 @@
     <ClCompile Include="..\..\..\uncompr.c" />
     <ClCompile Include="..\..\..\zutil.c" />
     <ClCompile Include="..\lib\bzip2\bzlib.c" />
+    <ClCompile Include="..\lib\bzip2\compress.c" />
     <ClCompile Include="..\lib\bzip2\crctable.c" />
+    <ClCompile Include="..\lib\bzip2\decompress.c" />
     <ClCompile Include="..\mzstrm.c" />
     <ClCompile Include="..\mzstrm_aes.c" />
     <ClCompile Include="..\mzstrm_buf.c" />
     <ClCompile Include="..\mzstrm_bzip.c" />
     <ClCompile Include="..\mzstrm_crypt.c" />
+    <ClCompile Include="..\mzstrm_lzma.c" />
     <ClCompile Include="..\mzstrm_mem.c" />
     <ClCompile Include="..\mzstrm_posix.c" />
     <ClCompile Include="..\mzstrm_zlib.c" />
@@ -146,12 +149,9 @@
     <ClCompile Include="..\lib\aes\aes_ni.c" />
     <ClCompile Include="..\lib\aes\fileenc.c" />
     <ClCompile Include="..\lib\aes\hmac.c" />
-    <ClCompile Include="..\lib\aes\prng.c" />
     <ClCompile Include="..\lib\aes\pwd2key.c" />
     <ClCompile Include="..\lib\aes\sha1.c" />
     <ClCompile Include="..\lib\bzip2\blocksort.c" />
-    <ClCompile Include="..\lib\bzip2\compress.c" />
-    <ClCompile Include="..\lib\bzip2\decompress.c" />
     <ClCompile Include="..\lib\bzip2\huffman.c" />
     <ClCompile Include="..\lib\bzip2\randtable.c" />
     <ClCompile Include="..\mz_compat.c" />
@@ -176,6 +176,7 @@
     <ClInclude Include="..\mzstrm_buf.h" />
     <ClInclude Include="..\mzstrm_bzip.h" />
     <ClInclude Include="..\mzstrm_crypt.h" />
+    <ClInclude Include="..\mzstrm_lzma.h" />
     <ClInclude Include="..\mzstrm_mem.h" />
     <ClInclude Include="..\mzstrm_posix.h" />
     <ClInclude Include="..\mzstrm_zlib.h" />
@@ -188,7 +189,6 @@
     <ClInclude Include="..\lib\aes\brg_types.h" />
     <ClInclude Include="..\lib\aes\fileenc.h" />
     <ClInclude Include="..\lib\aes\hmac.h" />
-    <ClInclude Include="..\lib\aes\prng.h" />
     <ClInclude Include="..\lib\aes\pwd2key.h" />
     <ClInclude Include="..\lib\aes\sha1.h" />
     <ClInclude Include="..\lib\bzip2\bzlib.h" />
@@ -196,6 +196,11 @@
     <ClInclude Include="..\test.h" />
     <ClInclude Include="..\unzip.h" />
     <ClInclude Include="..\zip.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="liblzma.vcxproj">
+      <Project>{46776da5-bd16-4946-910f-d20b64196181}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

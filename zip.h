@@ -29,10 +29,14 @@ extern "C" {
 #  include "mzstrm.h"
 #endif
 
-#define Z_BZIP2ED 12
-
 /***************************************************************************/
 
+#ifndef MZ_METHOD
+#  define MZ_METHOD_RAW                 (0)
+#  define MZ_METHOD_DEFLATE             (8)
+#  define MZ_METHOD_BZIP2               (12)
+#  define MZ_METHOD_LZMA                (14)
+#endif
 #ifndef MZ_RETURN
 #  define MZ_OK                         (0)
 #  define MZ_EOF                        (MZ_OK)
@@ -44,6 +48,11 @@ extern "C" {
 #  define MZ_CRC_ERROR                  (-105)
 #  define MZ_CRYPT_ERROR                (-106)
 #endif
+
+#define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
+#define MZ_COMPRESS_WINDOW_BITS_DEFAULT (0)
+#define MZ_COMPRESS_MEM_LEVEL_DEFAULT   (0)
+#define MZ_COMPRESS_STRATEGY_DEFAULT    (-1)
 
 /***************************************************************************/
 

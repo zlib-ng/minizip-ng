@@ -14,6 +14,7 @@
 */
 
 #include <stdlib.h>
+#include <direct.h>
 
 #include <windows.h>
 #include <wincrypt.h>

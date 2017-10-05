@@ -77,9 +77,6 @@
     <ClCompile Include="..\lib\aes\hmac.c">
       <Filter>AES</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\aes\prng.c">
-      <Filter>AES</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\aes\pwd2key.c">
       <Filter>AES</Filter>
     </ClCompile>
@@ -87,12 +84,6 @@
       <Filter>AES</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\blocksort.c">
-      <Filter>BZip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\bzip2\compress.c">
-      <Filter>BZip</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\bzip2\decompress.c">
       <Filter>BZip</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\huffman.c">
@@ -138,6 +129,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\bzip2\crctable.c">
+      <Filter>BZip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mzstrm_lzma.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\compress.c">
+      <Filter>BZip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\bzip2\decompress.c">
       <Filter>BZip</Filter>
     </ClCompile>
   </ItemGroup>
@@ -202,9 +202,6 @@
     <ClInclude Include="..\lib\aes\hmac.h">
       <Filter>AES</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\aes\prng.h">
-      <Filter>AES</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\aes\pwd2key.h">
       <Filter>AES</Filter>
     </ClInclude>
@@ -249,6 +246,9 @@
     </ClInclude>
     <ClInclude Include="..\lib\bzip2\bzlib_private.h">
       <Filter>BZip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mzstrm_lzma.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

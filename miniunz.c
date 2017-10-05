@@ -48,7 +48,7 @@ void miniunz_help()
 
 /***************************************************************************/
 
-int miniunz_list(void *handle)
+int32_t miniunz_list(void *handle)
 {
     mz_unzip_file *file_info = NULL;
     uint32_t ratio = 0;
@@ -63,7 +63,7 @@ int miniunz_list(void *handle)
 
     if (err != MZ_OK)
     {
-        printf("Error %d with zip file @ mz_unzip_goto_first_entry\n", err);
+        printf("Error %d going to first entry in zip file\n", err);
         return err;
     }
 
@@ -75,7 +75,7 @@ int miniunz_list(void *handle)
         err = mz_unzip_entry_get_info(handle, &file_info);
         if (err != MZ_OK)
         {
-            printf("Error %d with zip file @ mz_unzip_entry_get_info\n", err);
+            printf("Error %d getting entry info in zip file\n", err);
             break;
         }
 
@@ -90,7 +90,7 @@ int miniunz_list(void *handle)
         {
             string_method = "Stored";
         }
-        else if (file_info->compression_method == Z_DEFLATED)
+        else if (file_info->compression_method == MZ_METHOD_DEFLATE)
         {
             level = (int16_t)((file_info->flag & 0x6) / 2);
             if (level == 0)
@@ -102,9 +102,13 @@ int miniunz_list(void *handle)
             else
                 string_method = "Unkn. ";
         }
-        else if (file_info->compression_method == Z_BZIP2ED)
+        else if (file_info->compression_method == MZ_METHOD_BZIP2)
         {
             string_method = "BZip2 ";
+        }
+        else if (file_info->compression_method == MZ_METHOD_LZMA)
+        {
+            string_method = "LZMA ";
         }
         else
         {
@@ -126,22 +130,23 @@ int miniunz_list(void *handle)
 
     if (err != MZ_END_OF_LIST && err != MZ_OK)
     {
-        printf("Error %d with zip file @ mz_unzip_goto_next_entry\n", err);
+        printf("Error %d going to next entry in zip file\n", err);
         return err;
     }
 
     return MZ_OK;
 }
 
-int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, uint8_t *opt_overwrite, const char *password)
+int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, uint8_t *opt_overwrite, const char *password)
 {
     mz_unzip_file *file_info = NULL;
     uint8_t buf[UINT16_MAX];
     int32_t read = 0;
+    int32_t written = 0;
     int16_t err = MZ_OK;
     int16_t err_close = MZ_OK;
     uint8_t skip = 0;
-    void *stream_entry = NULL;
+    void *stream = NULL;
     char *match = NULL;
     char *filename = NULL;
     char *write_filename = NULL;
@@ -152,7 +157,7 @@ int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, 
 
     if (err != MZ_OK)
     {
-        printf("Error %d with zip file @ mz_unzip_entry_get_info\n", err);
+        printf("Error %d getting entry info in zip file\n", err);
         return err;
     }
 
@@ -183,7 +188,7 @@ int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, 
     err = mz_unzip_entry_open(handle, 0, password);
 
     if (err != MZ_OK)
-        printf("Error %d with zip file @ mz_unzip_entry_open\n", err);
+        printf("Error %d opening entry in zip file\n", err);
 
     if (opt_extract_without_path)
         write_filename = filename;
@@ -212,22 +217,22 @@ int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, 
             *opt_overwrite = 1;
     }
 
-    mz_stream_os_create(&stream_entry);
+    mz_stream_os_create(&stream);
 
     // Create the file on disk so we can unzip to it
     if ((skip == 0) && (err == MZ_OK))
     {
         // Some zips don't contain directory alone before file
-        if ((mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
+        if ((mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
             (opt_extract_without_path == 0) && (filename != file_info->filename))
         {
             mz_os_make_dir(directory);
-            mz_stream_os_open(stream_entry, write_filename, MZ_STREAM_MODE_CREATE);
+            mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE);
         }
     }
 
     // Read from the zip, unzip to buffer, and write to disk
-    if (mz_stream_os_is_open(stream_entry) == MZ_OK)
+    if (mz_stream_os_is_open(stream) == MZ_OK)
     {
         printf(" Extracting: %s\n", write_filename);
         while (1)
@@ -236,23 +241,24 @@ int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, 
             if (read < 0)
             {
                 err = read;
-                printf("Error %d with zip file @ mz_unzip_entry_read\n", err);
+                printf("Error %d  reading entry in zip file\n", err);
                 break;
             }
             if (read == 0)
                 break;
-
-            if (mz_stream_os_write(stream_entry, buf, read) != read)
+            written = mz_stream_os_write(stream, buf, read);
+            if (written != read)
             {
+                err = mz_stream_os_error(stream);
                 printf("Error %d in writing extracted file\n", err);
                 break;
             }
         }
 
-        mz_stream_os_close(stream_entry);
+        mz_stream_os_close(stream);
 
         // Set the time of the file that has been unzipped
-        if (err == 0)
+        if (err == MZ_OK)
             mz_os_set_file_date(write_filename, file_info->dos_date);
     }
     else
@@ -260,16 +266,16 @@ int miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, 
         printf("Error opening %s\n", write_filename);
     }
 
-    mz_stream_os_delete(&stream_entry);
+    mz_stream_os_delete(&stream);
 
     err_close = mz_unzip_entry_close(handle);
     if (err_close != MZ_OK)
-        printf("Error %d with zip file @ mz_unzip_entry_close\n", err_close);
+        printf("Error %d closing entry in zip file\n", err_close);
 
     return err;
 }
 
-int miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint8_t opt_overwrite, const char *password)
+int32_t miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint8_t opt_overwrite, const char *password)
 {
     int16_t err = MZ_OK;
     
@@ -278,7 +284,7 @@ int miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint8_t 
 
     if (err != MZ_OK)
     {
-        printf("Error %d with zip file @ mz_unzip_goto_first_entry\n", err);
+        printf("Error %d going to first entry in zip file\n", err);
         return 1;
     }
 
@@ -294,14 +300,14 @@ int miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint8_t 
 
     if (err != MZ_END_OF_LIST)
     {
-        printf("Error %d with zip file @ mz_unzip_goto_next_entry\n", err);
+        printf("Error %d going to next entry in zip file\n", err);
         return 1;
     }
 
     return 0;
 }
 
-int miniunz_extract_onefile(void *handle, const char *filename, uint8_t opt_extract_without_path, 
+int32_t miniunz_extract_onefile(void *handle, const char *filename, uint8_t opt_extract_without_path, 
     uint8_t opt_overwrite, const char *password)
 {
     if (mz_unzip_locate_entry(handle, filename, NULL) != MZ_OK)

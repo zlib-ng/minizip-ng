@@ -33,6 +33,9 @@
 #ifndef NOCRYPT
 #  include "mzstrm_crypt.h"
 #endif
+#ifdef HAVE_LZMA
+#  include "mzstrm_lzma.h"
+#endif
 #include "mzstrm_mem.h"
 #include "mzstrm_zlib.h"
 
@@ -417,10 +420,13 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     if (handle == NULL)
         return MZ_PARAM_ERROR;
 
-    if ((compress_info->method != 0) && (compress_info->method != Z_DEFLATED))
+    if ((compress_info->method != 0) && (compress_info->method != MZ_METHOD_DEFLATE))
     {
 #ifdef HAVE_BZIP2
-        if (compress_info->method != Z_BZIP2ED)
+        if (compress_info->method != MZ_METHOD_BZIP2)
+            return MZ_PARAM_ERROR;
+#elif HAVE_LZMA
+        if (compress_info->method != MZ_METHOD_LZMA)
             return MZ_PARAM_ERROR;
 #else
         return MZ_PARAM_ERROR;
@@ -440,7 +446,10 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     memcpy(&zip->crypt_info, crypt_info, sizeof(mz_zip_crypt));
     memcpy(&zip->compress_info, compress_info, sizeof(mz_zip_compress));
 
-    zip->file_info.flag |= 8;
+    zip->file_info.flag |= 8; // data descriptor
+#ifdef HAVE_LZMA
+    zip->file_info.flag |= 2; // end of stream marker
+#endif
     if ((zip->compress_info.level == 8) || (zip->compress_info.level == 9))
         zip->file_info.flag |= 2;
     if (zip->compress_info.level == 2)
@@ -474,6 +483,10 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
 #ifdef HAVE_AES
     if ((zip->file_info.flag & 1) && (zip->crypt_info.aes))
         version_needed = 51;
+#endif
+#ifdef HAVE_LZMA
+    if (zip->compress_info.method == MZ_METHOD_LZMA)
+        version_needed = 63;
 #endif
 
     if (err == MZ_OK)
@@ -592,7 +605,7 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
             mz_stream_passthru_create(&zip->compress_stream);
             mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
         }
-        else if (zip->compress_info.method == Z_DEFLATED)
+        else if (zip->compress_info.method == MZ_METHOD_DEFLATE)
         {
             mz_stream_zlib_create(&zip->compress_stream);
             mz_stream_zlib_set_level(zip->compress_stream, zip->compress_info.level);
@@ -605,18 +618,30 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
             if (mz_stream_open(zip->compress_stream, NULL, MZ_STREAM_MODE_WRITE) != MZ_OK)
                 err = MZ_INTERNAL_ERROR;
         }
-        else if (zip->compress_info.method == Z_BZIP2ED)
-        {
 #ifdef HAVE_BZIP2
+        else if (zip->compress_info.method == MZ_METHOD_BZIP2)
+        {
             mz_stream_bzip_create(&zip->compress_stream);
-            mz_stream_bzip_set_level(zip->compress_stream, level);
+            mz_stream_bzip_set_level(zip->compress_stream, zip->compress_info.level);
 
             mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
 
             if (mz_stream_open(zip->compress_stream, NULL, MZ_STREAM_MODE_WRITE) != MZ_OK)
                 err = MZ_INTERNAL_ERROR;
-#endif
         }
+#endif
+#ifdef HAVE_LZMA
+        else if (zip->compress_info.method == MZ_METHOD_LZMA)
+        {
+            mz_stream_lzma_create(&zip->compress_stream);
+            mz_stream_lzma_set_level(zip->compress_stream, zip->compress_info.level);
+
+            mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
+
+            if (mz_stream_open(zip->compress_stream, NULL, MZ_STREAM_MODE_WRITE) != MZ_OK)
+                err = MZ_INTERNAL_ERROR;
+        }
+#endif
     }
 
     if (err == Z_OK)
@@ -741,6 +766,10 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
         version_needed = 51;
         extrafield_size += 4 + 7;
     }
+#endif
+#ifdef HAVE_LZMA
+    if (zip->compress_info.method == MZ_METHOD_LZMA)
+        version_needed = 63;
 #endif
 
     filename_size = (uint16_t)strlen(zip->file_info.filename);

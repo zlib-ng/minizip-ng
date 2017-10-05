@@ -35,6 +35,9 @@
 #ifndef NOUNCRYPT
 #  include "mzstrm_crypt.h"
 #endif
+#ifdef HAVE_LZMA
+#include "mzstrm_lzma.h"
+#endif
 #include "mzstrm_mem.h"
 #include "mzstrm_zlib.h"
 
@@ -725,10 +728,13 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         return err;
     
     if ((unzip->file_info.compression_method != 0) && 
-        (unzip->file_info.compression_method != Z_DEFLATED))
+        (unzip->file_info.compression_method != MZ_METHOD_DEFLATE))
     {
 #ifdef HAVE_BZIP2
-        if (unzip->file_info.compression_method != Z_BZIP2ED)
+        if (unzip->file_info.compression_method != MZ_METHOD_BZIP2)
+            return MZ_FORMAT_ERROR;
+#elif HAVE_LZMA
+        if (unzip->file_info.compression_method != MZ_METHOD_LZMA)
             return MZ_FORMAT_ERROR;
 #else
         return MZ_FORMAT_ERROR;
@@ -798,19 +804,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
             mz_stream_passthru_create(&unzip->compress_stream);
             mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
         }
-        else if (unzip->file_info.compression_method == Z_BZIP2ED)
-        {
-#ifdef HAVE_BZIP2
-            mz_stream_bzip_create(&unzip->compress_stream);
-            mz_stream_bzip_set_max_total_in(unzip->compress_stream, max_total_in);
-
-            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
-
-            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-                err = MZ_INTERNAL_ERROR;
-#endif
-        }
-        else if (unzip->file_info.compression_method == Z_DEFLATED)
+        else if (unzip->file_info.compression_method == MZ_METHOD_DEFLATE)
         {
             mz_stream_zlib_create(&unzip->compress_stream);
             mz_stream_zlib_set_max_total_in(unzip->compress_stream, max_total_in);
@@ -820,6 +814,30 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
             if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
                 err = MZ_INTERNAL_ERROR;
         }
+#ifdef HAVE_BZIP2
+        else if (unzip->file_info.compression_method == MZ_METHOD_BZIP2)
+        {
+            mz_stream_bzip_create(&unzip->compress_stream);
+            mz_stream_bzip_set_max_total_in(unzip->compress_stream, max_total_in);
+
+            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
+
+            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
+                err = MZ_INTERNAL_ERROR;
+        }
+#endif
+#ifdef HAVE_LZMA
+        else if (unzip->file_info.compression_method == MZ_METHOD_LZMA)
+        {
+            mz_stream_lzma_create(&unzip->compress_stream);
+
+            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
+
+            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
+                err = MZ_INTERNAL_ERROR;
+        }
+#endif
+
     }
     if (err == MZ_OK)
     {

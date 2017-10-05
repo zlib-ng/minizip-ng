@@ -17,7 +17,6 @@
 
 #include "aes/aes.h"
 #include "aes/fileenc.h"
-#include "aes/prng.h"
 
 /***************************************************************************/
 
@@ -48,7 +47,6 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
     uint8_t verify[MZ_AES_PWVERIFYSIZE];
     uint8_t verify_expected[MZ_AES_PWVERIFYSIZE];
     uint8_t salt_value[MZ_AES_MAXSALTLENGTH];
-    prng_ctx rng_ctx[1];
     const char *password = path;
 
     aes->total_in = 0;
@@ -66,9 +64,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int mode)
 
     if (mode & MZ_STREAM_MODE_WRITE)
     {
-        prng_init(mz_os_rand, rng_ctx);
-        prng_rand(salt_value, salt_length, rng_ctx);
-        prng_end(rng_ctx);
+        mz_os_rand(salt_value, salt_length);
 
         if (fcrypt_init(aes->encryption_mode, (uint8_t *)password, 
             (uint32_t)strlen(password), salt_value, verify, &aes->crypt_ctx) != 0)
