@@ -84,7 +84,6 @@ typedef struct mz_zip_compress_s
 typedef struct mz_zip_crypt_s
 {
     const char *password;               // encryption password
-    uint32_t    crc_for_crypting;       // crc to use for traditional encryption
 #if defined(HAVE_AES)
     uint8_t     aes;                    // enable winzip aes encryption if 1
 #endif
