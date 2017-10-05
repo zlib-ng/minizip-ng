@@ -807,7 +807,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         else if (unzip->file_info.compression_method == MZ_METHOD_DEFLATE)
         {
             mz_stream_zlib_create(&unzip->compress_stream);
-            mz_stream_zlib_set_max_total_in(unzip->compress_stream, max_total_in);
+            if (unzip->file_info.flag & 1)
+                mz_stream_zlib_set_max_total_in(unzip->compress_stream, max_total_in);
 
             mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
 
@@ -818,7 +819,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         else if (unzip->file_info.compression_method == MZ_METHOD_BZIP2)
         {
             mz_stream_bzip_create(&unzip->compress_stream);
-            mz_stream_bzip_set_max_total_in(unzip->compress_stream, max_total_in);
+            if (unzip->file_info.flag & 1)
+                mz_stream_bzip_set_max_total_in(unzip->compress_stream, max_total_in);
 
             mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
 
@@ -830,6 +832,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         else if (unzip->file_info.compression_method == MZ_METHOD_LZMA)
         {
             mz_stream_lzma_create(&unzip->compress_stream);
+            if (unzip->file_info.flag & 1)
+                mz_stream_lzma_set_max_total_in(unzip->compress_stream, max_total_in);
 
             mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
 
