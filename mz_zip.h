@@ -92,18 +92,6 @@ typedef struct mz_zip_crypt_s
 
 /***************************************************************************/
 
-// Create new zip file
-#define MZ_OPENMODE_CREATE         (MZ_STREAM_MODE_READWRITE | \
-                                    MZ_STREAM_MODE_CREATE) 
-// Create zip after file
-#define MZ_OPENMODE_CREATEAFTER     (MZ_STREAM_MODE_READWRITE | \
-                                     MZ_STREAM_MODE_APPEND)
-// Add existing files to zip
-#define MZ_OPENMODE_ADDINZIP        (MZ_STREAM_MODE_READWRITE | \
-                                     MZ_STREAM_MODE_EXISTING)
-
-/***************************************************************************/
-
 extern void* ZEXPORT mz_zip_open(uint8_t open_existing, uint64_t disk_size, void *stream);
 // Create a zip file
 //
