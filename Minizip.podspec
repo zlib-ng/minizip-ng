@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'Minizip'
-  s.version  = '1.3.0'
+  s.version  = '2.0.0'
   s.license  = 'zlib'
   s.summary  = 'Minizip contrib in zlib with latest bug fixes that supports PKWARE disk spanning, AES encryption, and IO buffering'
   s.description = <<-DESC

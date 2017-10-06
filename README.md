@@ -86,10 +86,10 @@ When unzipping it will use AES decryption only if necessary. Does not support ce
 
 ### Platforms
 
-This library is supported on Windows, Macintosh, and Linux.
+This library is supported on Windows, macOS, and Linux.
 
 + Windows: Visual Studio 2015
-+ Macintosh: XCode
++ macOS: Xcode
 + Linux: Qt Creator / Qbs
 
 #### Windows RT
