@@ -154,8 +154,9 @@ int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_pat
 int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info, uint8_t recursive)
 {
     DIR *dir = NULL;
-    dirent *entry = NULL;
+    struct dirent *entry = NULL;
     int16_t err = 0;
+    int16_t full_path_len = 0;
     char full_path[320];
 
 
@@ -176,9 +177,10 @@ int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz
             continue;
 
         strncpy(full_path, path, sizeof(full_path));
-        if (strlen(path) > 0 && path[strlen(path) - 1] != '\\')
-            strncat(full_path, "\\", sizeof(full_path));
-        strncat(full_path, entry->d_name, sizeof(full_path));
+        full_path_len = strlen(full_path);
+        if (full_path_len > 0 && full_path[full_path_len - 1] != '\\')
+            strncat(full_path, "\\", sizeof(full_path) - full_path_len - 1);
+        strncat(full_path, entry->d_name, sizeof(full_path) - full_path_len - 2);
 
         if (!recursive && mz_os_is_dir(full_path))
             continue;

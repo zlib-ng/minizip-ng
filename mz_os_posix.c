@@ -26,7 +26,8 @@
 #endif
 
 #include "mz_error.h"
-
+#include "mz_strm.h"
+#include "mz_os.h"
 #include "mz_os_posix.h"
 
 /***************************************************************************/
@@ -137,7 +138,7 @@ DIR* mz_posix_open_dir(const char *path)
     return opendir(path);
 }
 
-dirent* mz_posix_read_dir(DIR *dir)
+struct dirent* mz_posix_read_dir(DIR *dir)
 {
     if (dir == NULL)
         return NULL;

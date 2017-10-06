@@ -187,6 +187,11 @@
 		D81CAABA1F8607B500417286 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAB91F8607B500417286 /* config.h */; };
 		D81CAABB1F860D2800417286 /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* liblzma.a */; };
 		D81CAABC1F860D2F00417286 /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* liblzma.a */; };
+		D86FB1821F875BF9003D03C4 /* mz_error.h in Headers */ = {isa = PBXBuildFile; fileRef = D86FB17D1F875BF9003D03C4 /* mz_error.h */; };
+		D86FB1831F875BF9003D03C4 /* mz_os_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = D86FB17E1F875BF9003D03C4 /* mz_os_posix.c */; };
+		D86FB1841F875BF9003D03C4 /* mz_os_posix.h in Headers */ = {isa = PBXBuildFile; fileRef = D86FB17F1F875BF9003D03C4 /* mz_os_posix.h */; };
+		D86FB1851F875BF9003D03C4 /* mz_os.c in Sources */ = {isa = PBXBuildFile; fileRef = D86FB1801F875BF9003D03C4 /* mz_os.c */; };
+		D86FB1861F875BF9003D03C4 /* mz_os.h in Headers */ = {isa = PBXBuildFile; fileRef = D86FB1811F875BF9003D03C4 /* mz_os.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -408,6 +413,11 @@
 		D81CAAB11F86066300417286 /* range_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range_decoder.h; sourceTree = "<group>"; };
 		D81CAAB21F86066300417286 /* range_encoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range_encoder.h; sourceTree = "<group>"; };
 		D81CAAB91F8607B500417286 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		D86FB17D1F875BF9003D03C4 /* mz_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mz_error.h; path = ../mz_error.h; sourceTree = "<group>"; };
+		D86FB17E1F875BF9003D03C4 /* mz_os_posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mz_os_posix.c; path = ../mz_os_posix.c; sourceTree = "<group>"; };
+		D86FB17F1F875BF9003D03C4 /* mz_os_posix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mz_os_posix.h; path = ../mz_os_posix.h; sourceTree = "<group>"; };
+		D86FB1801F875BF9003D03C4 /* mz_os.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mz_os.c; path = ../mz_os.c; sourceTree = "<group>"; };
+		D86FB1811F875BF9003D03C4 /* mz_os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mz_os.h; path = ../mz_os.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -477,6 +487,11 @@
 		693817A91E90DEC90045C821 /* libminizip */ = {
 			isa = PBXGroup;
 			children = (
+				D86FB17D1F875BF9003D03C4 /* mz_error.h */,
+				D86FB17E1F875BF9003D03C4 /* mz_os_posix.c */,
+				D86FB17F1F875BF9003D03C4 /* mz_os_posix.h */,
+				D86FB1801F875BF9003D03C4 /* mz_os.c */,
+				D86FB1811F875BF9003D03C4 /* mz_os.h */,
 				D81CA9081F8600CA00417286 /* mz_strm_aes.c */,
 				D81CA9091F8600CA00417286 /* mz_strm_aes.h */,
 				D81CA90A1F8600CA00417286 /* mz_strm_buf.c */,
@@ -787,9 +802,12 @@
 				D81CA9591F8600E800417286 /* fileenc.h in Headers */,
 				D81CA9231F8600CA00417286 /* mz_strm_aes.h in Headers */,
 				D81CA94F1F8600E800417286 /* aes_ni.h in Headers */,
+				D86FB1821F875BF9003D03C4 /* mz_error.h in Headers */,
 				D81CA96C1F8600FB00417286 /* bzlib_private.h in Headers */,
 				D81CA9571F8600E800417286 /* brg_types.h in Headers */,
+				D86FB1861F875BF9003D03C4 /* mz_os.h in Headers */,
 				D81CA9291F8600CA00417286 /* mz_strm_crypt.h in Headers */,
+				D86FB1841F875BF9003D03C4 /* mz_os_posix.h in Headers */,
 				D81CA9351F8600CA00417286 /* mz_strm.h in Headers */,
 				D81CA95F1F8600E800417286 /* sha1.h in Headers */,
 				D81CA96E1F8600FB00417286 /* bzlib.h in Headers */,
@@ -1003,9 +1021,11 @@
 				D81CA9541F8600E800417286 /* aestab.c in Sources */,
 				D81CA9321F8600CA00417286 /* mz_strm_zlib.c in Sources */,
 				D81CA96D1F8600FB00417286 /* bzlib.c in Sources */,
+				D86FB1851F875BF9003D03C4 /* mz_os.c in Sources */,
 				D81CA9711F8600FB00417286 /* decompress.c in Sources */,
 				D81CA9241F8600CA00417286 /* mz_strm_buf.c in Sources */,
 				D81CA95A1F8600E800417286 /* hmac.c in Sources */,
+				D86FB1831F875BF9003D03C4 /* mz_os_posix.c in Sources */,
 				D81CA9701F8600FB00417286 /* crctable.c in Sources */,
 				D81CA9581F8600E800417286 /* fileenc.c in Sources */,
 				D81CA9521F8600E800417286 /* aeskey.c in Sources */,
