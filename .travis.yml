@@ -15,4 +15,9 @@ before_script:
     - cd build
     - cmake ..
 
-script: cmake
+script:
+    - cmake --clean ..
+    - cmake --build ..
+
+after_success:
+    - python test/test.py --dir=
