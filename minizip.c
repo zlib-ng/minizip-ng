@@ -35,16 +35,22 @@ void minizip_banner()
 
 void minizip_help()
 {
-    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n" \
-           "  -o  Overwrite existing file.zip\n" \
-           "  -a  Append to existing file.zip\n" \
-           "  -0  Store only\n" \
-           "  -1  Compress faster\n" \
-           "  -9  Compress better\n" \
-           "  -b  BZIP2 compression\n" \
-           "  -m  LZMA compression\n" \
-           "  -s  AES encryption\n" \
-           "  -j  Exclude path and store only the file name\n\n");
+    printf("Usage : minizip [-o] [-a] [-0 to -9] [-p password] [-j] file.zip [files_to_add]\n\n");
+    printf("  -o  Overwrite existing file.zip\n");
+    printf("  -a  Append to existing file.zip\n");
+    printf("  -0  Store only\n");
+    printf("  -1  Compress faster\n");
+    printf("  -9  Compress better\n");
+#ifdef HAVE_BZIP2
+    printf("  -b  BZIP2 compression\n");
+#endif
+#ifdef HAVE_LZMA
+    printf("  -m  LZMA compression\n");
+#endif
+#ifdef HAVE_AES
+    printf("  -s  AES encryption\n");
+#endif
+    printf("  -j  Exclude path and store only the file name\n\n");
 }
 
 /***************************************************************************/
@@ -170,13 +176,18 @@ int main(int argc, char *argv[])
                 }
                 if ((c == 'j') || (c == 'J'))
                     opt_exclude_path = 1;
+#ifdef HAVE_BZIP2
                 if ((c == 'b') || (c == 'B'))
                     compress_info.method = MZ_METHOD_BZIP2;
+#endif
+#ifdef HAVE_LZMA
                 if ((c == 'm') || (c == 'M'))
                     compress_info.method = MZ_METHOD_LZMA;
+#endif
+#ifdef HAVE_AES
                 if ((c == 's') || (c == 'S'))
                     crypt_info.aes = 1;
-
+#endif
                 if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
                 {
                     crypt_info.password = argv[i + 1];

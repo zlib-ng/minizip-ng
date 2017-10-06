@@ -11,8 +11,8 @@
 		6938182C1E90E0560045C821 /* minizip.c in Sources */ = {isa = PBXBuildFile; fileRef = 6938182B1E90E0560045C821 /* minizip.c */; };
 		6938182F1E90E0F70045C821 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6938182E1E90E0F70045C821 /* libz.tbd */; };
 		693818301E90E0FE0045C821 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6938182E1E90E0F70045C821 /* libz.tbd */; };
-		693818351E90E1930045C821 /* liblibminizip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 693817A21E90DEA40045C821 /* liblibminizip.a */; };
-		6938183A1E90E2AF0045C821 /* liblibminizip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 693817A21E90DEA40045C821 /* liblibminizip.a */; };
+		693818351E90E1930045C821 /* libminizip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 693817A21E90DEA40045C821 /* libminizip.a */; };
+		6938183A1E90E2AF0045C821 /* libminizip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 693817A21E90DEA40045C821 /* libminizip.a */; };
 		D81CA9221F8600CA00417286 /* mz_strm_aes.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CA9081F8600CA00417286 /* mz_strm_aes.c */; };
 		D81CA9231F8600CA00417286 /* mz_strm_aes.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA9091F8600CA00417286 /* mz_strm_aes.h */; };
 		D81CA9241F8600CA00417286 /* mz_strm_buf.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CA90A1F8600CA00417286 /* mz_strm_buf.c */; };
@@ -35,8 +35,6 @@
 		D81CA9371F8600CA00417286 /* mz_unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA91D1F8600CA00417286 /* mz_unzip.h */; };
 		D81CA9381F8600CA00417286 /* mz_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CA91E1F8600CA00417286 /* mz_zip.c */; };
 		D81CA9391F8600CA00417286 /* mz_zip.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA91F1F8600CA00417286 /* mz_zip.h */; };
-		D81CA93A1F8600CA00417286 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CA9201F8600CA00417286 /* test.c */; };
-		D81CA93B1F8600CA00417286 /* test.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA9211F8600CA00417286 /* test.h */; };
 		D81CA94E1F8600E800417286 /* aes_ni.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CA93C1F8600E800417286 /* aes_ni.c */; };
 		D81CA94F1F8600E800417286 /* aes_ni.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA93D1F8600E800417286 /* aes_ni.h */; };
 		D81CA9501F8600E800417286 /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CA93E1F8600E800417286 /* aes.h */; };
@@ -182,14 +180,13 @@
 		D81CAAAB1F86064B00417286 /* lzma_encoder.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAA9F1F86064B00417286 /* lzma_encoder.h */; };
 		D81CAAAC1F86064B00417286 /* lzma2_encoder.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAA01F86064B00417286 /* lzma2_encoder.h */; };
 		D81CAAB31F86066300417286 /* price_table.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CAAAD1F86066300417286 /* price_table.c */; };
-		D81CAAB41F86066300417286 /* price_tablegen.c in Sources */ = {isa = PBXBuildFile; fileRef = D81CAAAE1F86066300417286 /* price_tablegen.c */; };
 		D81CAAB51F86066300417286 /* price.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAAF1F86066300417286 /* price.h */; };
 		D81CAAB61F86066300417286 /* range_common.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAB01F86066300417286 /* range_common.h */; };
 		D81CAAB71F86066300417286 /* range_decoder.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAB11F86066300417286 /* range_decoder.h */; };
 		D81CAAB81F86066300417286 /* range_encoder.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAB21F86066300417286 /* range_encoder.h */; };
 		D81CAABA1F8607B500417286 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = D81CAAB91F8607B500417286 /* config.h */; };
-		D81CAABB1F860D2800417286 /* libliblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* libliblzma.a */; };
-		D81CAABC1F860D2F00417286 /* libliblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* libliblzma.a */; };
+		D81CAABB1F860D2800417286 /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* liblzma.a */; };
+		D81CAABC1F860D2F00417286 /* liblzma.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D81CA9A41F86055F00417286 /* liblzma.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -232,7 +229,7 @@
 
 /* Begin PBXFileReference section */
 		3753D62F1F6CE7E900F946A2 /* Minizip.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Minizip.podspec; path = ../Minizip.podspec; sourceTree = "<group>"; };
-		693817A21E90DEA40045C821 /* liblibminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		693817A21E90DEA40045C821 /* libminizip.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817B01E90DF490045C821 /* minizip */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minizip; sourceTree = BUILT_PRODUCTS_DIR; };
 		693817BB1E90DF550045C821 /* miniunz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = miniunz; sourceTree = BUILT_PRODUCTS_DIR; };
 		693818291E90E04A0045C821 /* miniunz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = miniunz.c; path = ../miniunz.c; sourceTree = SOURCE_ROOT; };
@@ -260,8 +257,6 @@
 		D81CA91D1F8600CA00417286 /* mz_unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mz_unzip.h; path = ../mz_unzip.h; sourceTree = "<group>"; };
 		D81CA91E1F8600CA00417286 /* mz_zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mz_zip.c; path = ../mz_zip.c; sourceTree = "<group>"; };
 		D81CA91F1F8600CA00417286 /* mz_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mz_zip.h; path = ../mz_zip.h; sourceTree = "<group>"; };
-		D81CA9201F8600CA00417286 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = ../test.c; sourceTree = "<group>"; };
-		D81CA9211F8600CA00417286 /* test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = test.h; path = ../test.h; sourceTree = "<group>"; };
 		D81CA93C1F8600E800417286 /* aes_ni.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aes_ni.c; sourceTree = "<group>"; };
 		D81CA93D1F8600E800417286 /* aes_ni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes_ni.h; sourceTree = "<group>"; };
 		D81CA93E1F8600E800417286 /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aes.h; sourceTree = "<group>"; };
@@ -290,7 +285,7 @@
 		D81CA9681F8600FB00417286 /* huffman.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffman.c; sourceTree = "<group>"; };
 		D81CA9691F8600FB00417286 /* mk251.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mk251.c; sourceTree = "<group>"; };
 		D81CA96A1F8600FB00417286 /* randtable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = randtable.c; sourceTree = "<group>"; };
-		D81CA9A41F86055F00417286 /* libliblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libliblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D81CA9A41F86055F00417286 /* liblzma.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblzma.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D81CA9BE1F8605F200417286 /* check.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = check.c; sourceTree = "<group>"; };
 		D81CA9BF1F8605F200417286 /* check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = check.h; sourceTree = "<group>"; };
 		D81CA9C01F8605F200417286 /* crc_macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crc_macros.h; sourceTree = "<group>"; };
@@ -408,7 +403,6 @@
 		D81CAA9F1F86064B00417286 /* lzma_encoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma_encoder.h; sourceTree = "<group>"; };
 		D81CAAA01F86064B00417286 /* lzma2_encoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma2_encoder.h; sourceTree = "<group>"; };
 		D81CAAAD1F86066300417286 /* price_table.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = price_table.c; sourceTree = "<group>"; };
-		D81CAAAE1F86066300417286 /* price_tablegen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = price_tablegen.c; sourceTree = "<group>"; };
 		D81CAAAF1F86066300417286 /* price.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = price.h; sourceTree = "<group>"; };
 		D81CAAB01F86066300417286 /* range_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range_common.h; sourceTree = "<group>"; };
 		D81CAAB11F86066300417286 /* range_decoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = range_decoder.h; sourceTree = "<group>"; };
@@ -428,8 +422,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D81CAABB1F860D2800417286 /* libliblzma.a in Frameworks */,
-				6938183A1E90E2AF0045C821 /* liblibminizip.a in Frameworks */,
+				D81CAABB1F860D2800417286 /* liblzma.a in Frameworks */,
+				6938183A1E90E2AF0045C821 /* libminizip.a in Frameworks */,
 				6938182F1E90E0F70045C821 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -438,8 +432,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D81CAABC1F860D2F00417286 /* libliblzma.a in Frameworks */,
-				693818351E90E1930045C821 /* liblibminizip.a in Frameworks */,
+				D81CAABC1F860D2F00417286 /* liblzma.a in Frameworks */,
+				693818351E90E1930045C821 /* libminizip.a in Frameworks */,
 				693818301E90E0FE0045C821 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -459,8 +453,8 @@
 			children = (
 				3753D62F1F6CE7E900F946A2 /* Minizip.podspec */,
 				693817C21E90DF6C0045C821 /* AES */,
-				D81CA9601F8600EB00417286 /* BZIP2 */,
-				D81CA9971F86052900417286 /* LZMA */,
+				D81CA9601F8600EB00417286 /* BZip */,
+				D81CA9971F86052900417286 /* liblzma */,
 				693817A91E90DEC90045C821 /* libminizip */,
 				693817BC1E90DF560045C821 /* miniunz */,
 				693817B11E90DF490045C821 /* minizip */,
@@ -472,10 +466,10 @@
 		693817A31E90DEA40045C821 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				693817A21E90DEA40045C821 /* liblibminizip.a */,
+				693817A21E90DEA40045C821 /* libminizip.a */,
 				693817B01E90DF490045C821 /* minizip */,
 				693817BB1E90DF550045C821 /* miniunz */,
-				D81CA9A41F86055F00417286 /* libliblzma.a */,
+				D81CA9A41F86055F00417286 /* liblzma.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -505,8 +499,6 @@
 				D81CA91D1F8600CA00417286 /* mz_unzip.h */,
 				D81CA91E1F8600CA00417286 /* mz_zip.c */,
 				D81CA91F1F8600CA00417286 /* mz_zip.h */,
-				D81CA9201F8600CA00417286 /* test.c */,
-				D81CA9211F8600CA00417286 /* test.h */,
 			);
 			name = libminizip;
 			sourceTree = "<group>";
@@ -561,7 +553,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		D81CA9601F8600EB00417286 /* BZIP2 */ = {
+		D81CA9601F8600EB00417286 /* BZip */ = {
 			isa = PBXGroup;
 			children = (
 				D81CA9611F8600FB00417286 /* blocksort.c */,
@@ -575,22 +567,22 @@
 				D81CA9691F8600FB00417286 /* mk251.c */,
 				D81CA96A1F8600FB00417286 /* randtable.c */,
 			);
-			name = BZIP2;
+			name = BZip;
 			path = ../lib/bzip2;
 			sourceTree = "<group>";
 		};
-		D81CA9971F86052900417286 /* LZMA */ = {
+		D81CA9971F86052900417286 /* liblzma */ = {
 			isa = PBXGroup;
 			children = (
-				D81CAAB91F8607B500417286 /* config.h */,
-				D81CAA861F86063800417286 /* RangeCoder */,
-				D81CAA851F86063300417286 /* LZMA */,
-				D81CAA841F86062F00417286 /* LZ */,
-				D81CA9ED1F86061700417286 /* Common */,
-				D81CA9B71F8605B900417286 /* Check */,
 				D81CA9B61F8605AF00417286 /* API */,
+				D81CA9B71F8605B900417286 /* Check */,
+				D81CA9ED1F86061700417286 /* Common */,
+				D81CAA841F86062F00417286 /* LZ */,
+				D81CAA851F86063300417286 /* LZMA */,
+				D81CAA861F86063800417286 /* RangeCoder */,
+				D81CAAB91F8607B500417286 /* config.h */,
 			);
-			name = LZMA;
+			name = liblzma;
 			path = ../lib/liblzma;
 			sourceTree = "<group>";
 		};
@@ -763,7 +755,6 @@
 			isa = PBXGroup;
 			children = (
 				D81CAAAD1F86066300417286 /* price_table.c */,
-				D81CAAAE1F86066300417286 /* price_tablegen.c */,
 				D81CAAAF1F86066300417286 /* price.h */,
 				D81CAAB01F86066300417286 /* range_common.h */,
 				D81CAAB11F86066300417286 /* range_decoder.h */,
@@ -784,7 +775,6 @@
 				D81CA9551F8600E800417286 /* aestab.h in Headers */,
 				D81CA9251F8600CA00417286 /* mz_strm_buf.h in Headers */,
 				D81CA95D1F8600E800417286 /* pwd2key.h in Headers */,
-				D81CA93B1F8600CA00417286 /* test.h in Headers */,
 				D81CA95B1F8600E800417286 /* hmac.h in Headers */,
 				D81CA9501F8600E800417286 /* aes.h in Headers */,
 				D81CA92B1F8600CA00417286 /* mz_strm_lzma.h in Headers */,
@@ -835,7 +825,6 @@
 				D81CAA411F86062500417286 /* block_decoder.h in Headers */,
 				D81CAA911F86064000417286 /* lz_encoder_hash.h in Headers */,
 				D81CAA731F86062500417286 /* tuklib_cpucores.h in Headers */,
-				D81CA9E01F86060100417286 /* check.h in Headers */,
 				D81CAA771F86062500417286 /* tuklib_integer.h in Headers */,
 				D81CA9C81F8605F200417286 /* crc_macros.h in Headers */,
 				D81CAA7E1F86062500417286 /* tuklib_physmem.h in Headers */,
@@ -868,6 +857,7 @@
 				D81CA9CC1F8605F200417286 /* crc32_table_le.h in Headers */,
 				D81CAA3A1F86062500417286 /* alone_decoder.h in Headers */,
 				D81CA9C71F8605F200417286 /* check.h in Headers */,
+				D81CA9E01F86060100417286 /* check.h in Headers */,
 				D81CAA621F86062500417286 /* mythread.h in Headers */,
 				D81CAAB51F86066300417286 /* price.h in Headers */,
 				D81CA9E71F86060100417286 /* lzma12.h in Headers */,
@@ -892,7 +882,7 @@
 			);
 			name = libminizip;
 			productName = minizip;
-			productReference = 693817A21E90DEA40045C821 /* liblibminizip.a */;
+			productReference = 693817A21E90DEA40045C821 /* libminizip.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		693817AF1E90DF490045C821 /* minizip */ = {
@@ -945,7 +935,7 @@
 			);
 			name = liblzma;
 			productName = liblzma;
-			productReference = D81CA9A41F86055F00417286 /* libliblzma.a */;
+			productReference = D81CA9A41F86055F00417286 /* liblzma.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -955,7 +945,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = "Gabriel Gritsch Software Development";
+				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					693817A11E90DEA40045C821 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -1002,7 +992,6 @@
 			files = (
 				D81CA94E1F8600E800417286 /* aes_ni.c in Sources */,
 				D81CA9721F8600FB00417286 /* huffman.c in Sources */,
-				D81CA93A1F8600CA00417286 /* test.c in Sources */,
 				D81CA9361F8600CA00417286 /* mz_unzip.c in Sources */,
 				D81CA9341F8600CA00417286 /* mz_strm.c in Sources */,
 				D81CA9281F8600CA00417286 /* mz_strm_crypt.c in Sources */,
@@ -1072,7 +1061,6 @@
 				D81CAA811F86062500417286 /* vli_decoder.c in Sources */,
 				D81CAA6B1F86062500417286 /* stream_flags_common.c in Sources */,
 				D81CAA591F86062500417286 /* hardware_cputhreads.c in Sources */,
-				D81CAAB41F86066300417286 /* price_tablegen.c in Sources */,
 				D81CAA4C1F86062500417286 /* easy_encoder.c in Sources */,
 				D81CAA921F86064000417286 /* lz_encoder_mf.c in Sources */,
 				D81CAA5F1F86062500417286 /* index.c in Sources */,
@@ -1135,7 +1123,6 @@
 		693817A41E90DEA40045C821 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
@@ -1167,6 +1154,9 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					HAVE_BZIP2,
+					HAVE_AES,
+					HAVE_LZMA,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1186,7 +1176,6 @@
 		693817A51E90DEA40045C821 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
@@ -1213,6 +1202,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					HAVE_BZIP2,
+					HAVE_AES,
+					HAVE_LZMA,
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
@@ -1230,48 +1224,31 @@
 		693817A71E90DEA40045C821 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 					BZ_NO_STDIO,
-					HAVE_BZIP2,
-					HAVE_AES,
-					HAVE_LZMA,
 				);
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib,
-					../lib/aes,
-					../lib/bzip2,
-					../lib/liblzma/api,
-				);
 				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib ../lib/bzip2 ../lib/liblzma/api";
 			};
 			name = Debug;
 		};
 		693817A81E90DEA40045C821 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					BZ_NO_STDIO,
-					HAVE_LZMA,
-					HAVE_AES,
-					HAVE_BZIP2,
 				);
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib,
-					../lib/aes,
-					../lib/bzip2,
-					../lib/liblzma/api,
-				);
 				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib ../lib/bzip2 ../lib/liblzma/api";
 			};
 			name = Release;
 		};
@@ -1308,25 +1285,16 @@
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					LZMA_API_STATIC,
 					HAVE_CONFIG_H,
 					MYTHREAD_POSIX,
 					"DEBUG=1",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib/liblzma,
-					../lib/liblzma/check,
-					../lib/liblzma/api,
-					../lib/liblzma/lz,
-					../lib/liblzma/lzma,
-					../lib/liblzma/rangecoder,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib/liblzma ../lib/liblzma/check ../lib/liblzma/api ../lib/liblzma/common ../lib/liblzma/lz ../lib/liblzma/lzma ../lib/liblzma/rangecoder";
 			};
 			name = Debug;
 		};
@@ -1335,23 +1303,15 @@
 			buildSettings = {
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					LZMA_API_STATIC,
-					MYTHREAD_POSIX,
 					HAVE_CONFIG_H,
-				);
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib/liblzma,
-					../lib/liblzma/check,
-					../lib/liblzma/api,
-					../lib/liblzma/lz,
-					../lib/liblzma/lzma,
-					../lib/liblzma/rangecoder,
+					MYTHREAD_POSIX,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib/liblzma ../lib/liblzma/check ../lib/liblzma/api ../lib/liblzma/common ../lib/liblzma/lz ../lib/liblzma/lzma ../lib/liblzma/rangecoder";
 			};
 			name = Release;
 		};
