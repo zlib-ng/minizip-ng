@@ -9,10 +9,12 @@ compiler:
     - clang
 
 before_script:  
-    - cmake .
+    - mkdir build
+    - cd build
+    - cmake ..
 
 script: make
 
 after_success:
     - cd test
-    - python test.py --exe_dir=../Debug
+    - python test.py --exe_dir=../build
