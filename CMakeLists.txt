@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 2.8)
 option(USE_AES "Enables building of AES library" ON)
 option(USE_BZIP2 "Enables building of BZIP2 library" ON)
 option(USE_LIBLZMA "Enables building of LZMA library" ON)
-option(BUILD_TEST "Enables building of executables minizip and miniunz. Requires ZLIB!" ON)
+option(BUILD_TEST "Enables building of executables minizip and miniunz. Requires ZLIB!" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.

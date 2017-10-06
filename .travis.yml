@@ -8,12 +8,12 @@ matrix:
 compiler:
     - clang
 
-before_script:  
+before_script:
     - mkdir build
     - cd build
     - cmake ..
 
-script: make
+script: make -DBUILD_TEST=ON
 
 after_success:
     - cd ../test
