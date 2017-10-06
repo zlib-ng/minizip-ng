@@ -16,5 +16,5 @@ before_script:
 script: make
 
 after_success:
-    - cd test
+    - cd ../test
     - python test.py --exe_dir=../build
