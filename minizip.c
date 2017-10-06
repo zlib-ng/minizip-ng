@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
     if (opt_open_existing)
     {
-        // If the file don't exist, we not append file
+        // If the file doesn't exist, we don't append file
         if (mz_os_file_exists(path) != MZ_OK)
             opt_append = 0;
     }

@@ -97,7 +97,7 @@ int32_t miniunz_list(void *handle)
             else if (level == 1)
                 string_method = "Defl:X";
             else if ((level == 2) || (level == 3))
-                string_method = "Defl:F"; // 2:fast , 3 : extra fast
+                string_method = "Defl:F"; // 2: fast , 3: extra fast
             else
                 string_method = "Defl:?";
             break;
@@ -388,6 +388,12 @@ int main(int argc, const char *argv[])
             filename_to_extract = argv[i];
     }
 
+    if (path == NULL)
+    {
+        printf("Error missing path\n");
+        return 1;
+    }
+
     mz_stream_os_create(&stream);
 
     if (mz_stream_open(stream, path, MZ_STREAM_MODE_READ) != MZ_OK)
@@ -398,8 +404,7 @@ int main(int argc, const char *argv[])
     }
 
     // Open zip file
-    if (path != NULL)
-        handle = mz_unzip_open(stream);
+    handle = mz_unzip_open(stream);
 
     if (handle == NULL)
     {
