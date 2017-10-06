@@ -22,11 +22,11 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_stream_buffered_open(void *stream, const char *path, int mode);
-int32_t mz_stream_buffered_read(void *stream, void* buf, uint32_t size);
-int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size);
+int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode);
+int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size);
+int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_buffered_tell(void *stream);
-int32_t mz_stream_buffered_seek(void *stream, uint64_t offset, int origin);
+int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_buffered_close(void *stream);
 int32_t mz_stream_buffered_error(void *stream);
 

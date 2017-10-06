@@ -24,7 +24,7 @@
 
 /***************************************************************************/
 
-int32_t mz_stream_open(void *stream, const char *path, int mode)
+int32_t mz_stream_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->open == NULL)
@@ -40,7 +40,7 @@ int32_t mz_stream_is_open(void *stream)
     return strm->is_open(strm);
 }
 
-int32_t mz_stream_read(void *stream, void* buf, uint32_t size)
+int32_t mz_stream_read(void *stream, void *buf, int32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->read == NULL)
@@ -130,7 +130,7 @@ int32_t mz_stream_read_uint64(void *stream, uint64_t *value)
     return MZ_OK;
 }
 
-int32_t mz_stream_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->write == NULL)
@@ -220,7 +220,7 @@ int64_t mz_stream_tell(void *stream)
     return strm->tell(strm);
 }
 
-int32_t mz_stream_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream *strm = (mz_stream *)stream;
     if (strm == NULL || strm->seek == NULL)
@@ -298,7 +298,7 @@ typedef struct mz_stream_passthru_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_passthru_open(void *stream, const char *path, int mode)
+int32_t mz_stream_passthru_open(void *stream, const char *path, int32_t mode)
 {
     return MZ_OK;
 }
@@ -309,7 +309,7 @@ int32_t mz_stream_passthru_is_open(void *stream)
     return mz_stream_is_open(passthru->stream.base);
 }
 
-int32_t mz_stream_passthru_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_passthru_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
     int32_t read = mz_stream_read(passthru->stream.base, buf, size);
@@ -318,7 +318,7 @@ int32_t mz_stream_passthru_read(void *stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_passthru_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_passthru_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
     int32_t written = mz_stream_write(passthru->stream.base, buf, size);
@@ -333,7 +333,7 @@ int64_t mz_stream_passthru_tell(void *stream)
     return mz_stream_tell(passthru->stream.base);
 }
 
-int32_t mz_stream_passthru_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_passthru_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
     return mz_stream_seek(passthru->stream.base, offset, origin);

@@ -52,7 +52,7 @@ typedef struct mz_stream_lzma_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_lzma_open(void *stream, const char *path, int mode)
+int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     lzma_filter filters[LZMA_FILTERS_MAX + 1];
@@ -113,7 +113,7 @@ int32_t mz_stream_lzma_is_open(void *stream)
     return MZ_OK;
 }
 
-uint32_t mz_stream_lzma_code(void *stream, int flush)
+uint32_t mz_stream_lzma_code(void *stream, int32_t flush)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint64_t total_out_before = 0;
@@ -136,7 +136,7 @@ uint32_t mz_stream_lzma_code(void *stream, int flush)
     return out_bytes;
 }
 
-int32_t mz_stream_lzma_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint64_t total_out_before = 0;
@@ -208,7 +208,7 @@ int32_t mz_stream_lzma_flush(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_lzma_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint32_t out_bytes = 0;
@@ -251,7 +251,7 @@ int64_t mz_stream_lzma_tell(void *stream)
     return MZ_STREAM_ERROR;
 }
 
-int32_t mz_stream_lzma_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
 {
     return MZ_STREAM_ERROR;
 }

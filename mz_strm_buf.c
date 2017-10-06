@@ -50,7 +50,7 @@ typedef struct mz_stream_buffered_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_buffered_open(void *stream, const char *path, int mode)
+int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
 {
     //mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     //mz_stream_buffered_print(opaque, buffered, "open [num %d mode %d]\n", number_disk, mode);
@@ -90,7 +90,7 @@ int32_t mz_stream_buffered_flush(void *stream, uint32_t *written)
     return MZ_OK;
 }
 
-int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t buf_len = 0;
@@ -152,7 +152,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, uint32_t size)
     return size - bytes_left_to_read;
 }
 
-int32_t mz_stream_buffered_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_to_write = size;
@@ -235,7 +235,7 @@ int64_t mz_stream_buffered_tell(void *stream)
     return mz_stream_buffered_tellinternal(stream, position);
 }
 
-int mz_stream_buffered_seekinternal(void *stream, uint64_t offset, int origin)
+int mz_stream_buffered_seekinternal(void *stream, uint64_t offset, int32_t origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     uint32_t bytes_flushed = 0;
@@ -310,7 +310,7 @@ int mz_stream_buffered_seekinternal(void *stream, uint64_t offset, int origin)
     return MZ_STREAM_ERROR;
 }
 
-int32_t mz_stream_buffered_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     if (mz_stream_buffered_seekinternal(stream, offset, origin) != MZ_OK)

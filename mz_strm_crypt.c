@@ -104,7 +104,7 @@ void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc
 
 /***************************************************************************/
 
-int32_t mz_stream_crypt_open(void *stream, const char *path, int mode)
+int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint16_t t = 0;
@@ -173,7 +173,7 @@ int32_t mz_stream_crypt_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_crypt_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_crypt_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -187,7 +187,7 @@ int32_t mz_stream_crypt_read(void *stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_crypt_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
@@ -210,7 +210,7 @@ int64_t mz_stream_crypt_tell(void *stream)
     return mz_stream_tell(crypt->stream.base);
 }
 
-int32_t mz_stream_crypt_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_crypt_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     return mz_stream_seek(crypt->stream.base, offset, origin);

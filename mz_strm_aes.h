@@ -26,11 +26,11 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_stream_aes_open(void *stream, const char* filename, int mode);
-int32_t mz_stream_aes_read(void *stream, void* buf, uint32_t size);
-int32_t mz_stream_aes_write(void *stream, const void* buf, uint32_t size);
+int32_t mz_stream_aes_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_aes_read(void *stream, void *buf, int32_t size);
+int32_t mz_stream_aes_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_aes_tell(void *stream);
-int32_t mz_stream_aes_seek(void *stream, uint64_t offset, int origin);
+int32_t mz_stream_aes_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_aes_close(void *stream);
 int32_t mz_stream_aes_error(void *stream);
 

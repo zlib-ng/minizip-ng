@@ -51,7 +51,7 @@ typedef struct mz_stream_zlib_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_zlib_open(void *stream, const char *path, int mode)
+int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     int16_t window_bits = 0;
@@ -102,7 +102,7 @@ int32_t mz_stream_zlib_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_zlib_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint64_t total_out_before = 0;
@@ -206,7 +206,7 @@ uint32_t mz_stream_zlib_deflate(void *stream, int flush)
     return out_bytes;
 }
 
-int32_t mz_stream_zlib_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t out_bytes = 0;
@@ -249,7 +249,7 @@ int64_t mz_stream_zlib_tell(void *stream)
     return MZ_STREAM_ERROR;
 }
 
-int32_t mz_stream_zlib_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
 {
     return MZ_STREAM_ERROR;
 }
@@ -389,7 +389,7 @@ typedef struct mz_stream_crc32_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_crc32_open(void *stream, const char *path, int mode)
+int32_t mz_stream_crc32_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     crc32->initialized = 1;
@@ -405,7 +405,7 @@ int32_t mz_stream_crc32_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_crc32_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_crc32_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
     int32_t read = mz_stream_read(crc32x->stream.base, buf, size);
@@ -415,7 +415,7 @@ int32_t mz_stream_crc32_read(void *stream, void *buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_crc32_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_crc32_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
     int32_t written = 0;
@@ -431,7 +431,7 @@ int64_t mz_stream_crc32_tell(void *stream)
     return mz_stream_tell(crc32->stream.base);
 }
 
-int32_t mz_stream_crc32_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_crc32_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     return mz_stream_seek(crc32->stream.base, offset, origin);

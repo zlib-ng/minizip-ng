@@ -50,7 +50,7 @@ typedef struct mz_stream_win32_s
 
 /***************************************************************************/
 
-int32_t mz_stream_win32_open(void *stream, const char *path, int mode)
+int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t desired_access = 0;
@@ -119,7 +119,7 @@ int32_t mz_stream_win32_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_win32_read(void *stream, void* buf, uint32_t size)
+int32_t mz_stream_win32_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t read = 0;
@@ -138,7 +138,7 @@ int32_t mz_stream_win32_read(void *stream, void* buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_win32_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_win32_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t written = 0;
@@ -201,7 +201,7 @@ int64_t mz_stream_win32_tell(void *stream)
     return large_pos.LowPart;
 }
 
-int32_t mz_stream_win32_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_win32_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t move_method = 0xFFFFFFFF;
@@ -296,7 +296,7 @@ void mz_stream_win32_delete(void **stream)
 
 /***************************************************************************/
 
-int32_t mz_win32_rand(uint8_t *buf, uint32_t size)
+int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 {
     HCRYPTPROV provider;
     unsigned __int64 pentium_tsc[1];

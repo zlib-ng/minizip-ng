@@ -79,7 +79,7 @@ typedef struct mz_stream_posix_s
 
 /***************************************************************************/
 
-int32_t mz_stream_posix_open(void *stream, const char *path, int mode)
+int32_t mz_stream_posix_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_posix *posix = (mz_stream_posix *)stream;
     const char *mode_fopen = NULL;
@@ -114,7 +114,7 @@ int32_t mz_stream_posix_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_posix_read(void *stream, void* buf, uint32_t size)
+int32_t mz_stream_posix_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
     int32_t read = (int32_t)fread(buf, 1, (size_t)size, posix->handle);
@@ -126,7 +126,7 @@ int32_t mz_stream_posix_read(void *stream, void* buf, uint32_t size)
     return read;
 }
 
-int32_t mz_stream_posix_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_posix_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
     int32_t written = (int32_t)fwrite(buf, 1, (size_t)size, posix->handle);
@@ -150,10 +150,10 @@ int64_t mz_stream_posix_tell(void *stream)
     return position;
 }
 
-int32_t mz_stream_posix_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_posix_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    int fseek_origin = 0;
+    int32_t fseek_origin = 0;
 
     switch (origin)
     {
@@ -235,7 +235,7 @@ void mz_stream_posix_delete(void **stream)
 
 /***************************************************************************/
 
-int32_t mz_posix_rand(uint8_t *buf, uint32_t size)
+int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     static unsigned calls = 0;
     void *rand_stream = NULL;

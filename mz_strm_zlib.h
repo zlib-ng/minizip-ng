@@ -20,11 +20,11 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_stream_zlib_open(void *stream, const char* filename, int mode);
-int32_t mz_stream_zlib_read(void *stream, void* buf, uint32_t size);
-int32_t mz_stream_zlib_write(void *stream, const void* buf, uint32_t size);
+int32_t mz_stream_zlib_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size);
+int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_zlib_tell(void *stream);
-int32_t mz_stream_zlib_seek(void *stream, uint64_t offset, int origin);
+int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_zlib_close(void *stream);
 int32_t mz_stream_zlib_error(void *stream);
 
@@ -41,11 +41,11 @@ void    mz_stream_zlib_delete(void **stream);
 
 /***************************************************************************/
 
-int32_t mz_stream_crc32_open(void *stream, const char* filename, int mode);
-int32_t mz_stream_crc32_read(void *stream, void* buf, uint32_t size);
-int32_t mz_stream_crc32_write(void *stream, const void* buf, uint32_t size);
+int32_t mz_stream_crc32_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_crc32_read(void *stream, void *buf, int32_t size);
+int32_t mz_stream_crc32_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_crc32_tell(void *stream);
-int32_t mz_stream_crc32_seek(void *stream, uint64_t offset, int origin);
+int32_t mz_stream_crc32_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_crc32_close(void *stream);
 int32_t mz_stream_crc32_error(void *stream);
 

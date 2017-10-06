@@ -30,16 +30,16 @@
 typedef struct mz_stream_mem_s {
     mz_stream   stream;
     char        *buffer;    // Memory buffer pointer 
-    uint32_t    size;       // Size of the memory buffer
-    uint32_t    limit;      // Furthest we've written
-    uint32_t    position;   // Current position in the memory
+    int32_t     size;       // Size of the memory buffer
+    int32_t     limit;      // Furthest we've written
+    int32_t     position;   // Current position in the memory
     int8_t      grow;       // Memory buffer can grow
-    uint32_t    grow_size;  // Size to grow when full
+    int32_t     grow_size;  // Size to grow when full
 } mz_stream_mem;
 
 /***************************************************************************/
 
-int32_t mz_stream_mem_open(void *stream, const char *path, int mode)
+int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
@@ -72,7 +72,7 @@ int32_t mz_stream_mem_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_mem_read(void *stream, void *buf, uint32_t size)
+int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
@@ -85,10 +85,10 @@ int32_t mz_stream_mem_read(void *stream, void *buf, uint32_t size)
     return size;
 }
 
-int32_t mz_stream_mem_write(void *stream, const void *buf, uint32_t size)
+int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    uint32_t new_size = 0;
+    int32_t new_size = 0;
     char *new_buf = NULL;
 
     if (size == 0)
@@ -133,7 +133,7 @@ int64_t mz_stream_mem_tell(void *stream)
     return mem->position;
 }
 
-int32_t mz_stream_mem_seek(void *stream, uint64_t offset, int origin)
+int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     uint64_t new_pos = 0;
@@ -172,7 +172,7 @@ int32_t mz_stream_mem_error(void *stream)
     return MZ_OK;
 }
 
-void mz_stream_mem_set_buffer(void *stream, void *buf, uint32_t size)
+void mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->buffer = buf;
@@ -199,7 +199,7 @@ void mz_stream_mem_set_grow(void *stream, int8_t grow)
     mem->grow = grow;
 }
 
-void mz_stream_mem_set_grow_size(void *stream, uint32_t grow_size)
+void mz_stream_mem_set_grow_size(void *stream, int32_t grow_size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->grow_size = grow_size;
