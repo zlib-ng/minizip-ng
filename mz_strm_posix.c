@@ -117,7 +117,7 @@ int32_t mz_stream_posix_is_open(void *stream)
 int32_t mz_stream_posix_read(void *stream, void* buf, uint32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    int32_t read = fread(buf, 1, (size_t)size, posix->handle);
+    int32_t read = (int32_t)fread(buf, 1, (size_t)size, posix->handle);
     if (read < 0)
     {
         posix->error = ferror(posix->handle);
@@ -129,7 +129,7 @@ int32_t mz_stream_posix_read(void *stream, void* buf, uint32_t size)
 int32_t mz_stream_posix_write(void *stream, const void *buf, uint32_t size)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    int32_t written = fwrite(buf, 1, (size_t)size, posix->handle);
+    int32_t written = (int32_t)fwrite(buf, 1, (size_t)size, posix->handle);
     if (written < 0)
     {
         posix->error = ferror(posix->handle);

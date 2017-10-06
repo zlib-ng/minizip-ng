@@ -825,7 +825,6 @@
 				D81CAA411F86062500417286 /* block_decoder.h in Headers */,
 				D81CAA911F86064000417286 /* lz_encoder_hash.h in Headers */,
 				D81CAA731F86062500417286 /* tuklib_cpucores.h in Headers */,
-				D81CA9E01F86060100417286 /* check.h in Headers */,
 				D81CAA771F86062500417286 /* tuklib_integer.h in Headers */,
 				D81CA9C81F8605F200417286 /* crc_macros.h in Headers */,
 				D81CAA7E1F86062500417286 /* tuklib_physmem.h in Headers */,
@@ -858,6 +857,7 @@
 				D81CA9CC1F8605F200417286 /* crc32_table_le.h in Headers */,
 				D81CAA3A1F86062500417286 /* alone_decoder.h in Headers */,
 				D81CA9C71F8605F200417286 /* check.h in Headers */,
+				D81CA9E01F86060100417286 /* check.h in Headers */,
 				D81CAA621F86062500417286 /* mythread.h in Headers */,
 				D81CAAB51F86066300417286 /* price.h in Headers */,
 				D81CA9E71F86060100417286 /* lzma12.h in Headers */,
@@ -945,7 +945,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
-				ORGANIZATIONNAME = "Gabriel Gritsch Software Development";
+				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					693817A11E90DEA40045C821 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -1123,7 +1123,6 @@
 		693817A41E90DEA40045C821 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
@@ -1155,6 +1154,9 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					HAVE_BZIP2,
+					HAVE_AES,
+					HAVE_LZMA,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1174,7 +1176,6 @@
 		693817A51E90DEA40045C821 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
@@ -1201,6 +1202,11 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					HAVE_BZIP2,
+					HAVE_AES,
+					HAVE_LZMA,
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
@@ -1223,20 +1229,11 @@
 					"DEBUG=1",
 					"$(inherited)",
 					BZ_NO_STDIO,
-					HAVE_BZIP2,
-					HAVE_AES,
-					HAVE_LZMA,
 				);
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib,
-					../lib/aes,
-					../lib/bzip2,
-					../lib/liblzma/api,
-				);
 				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib ../lib/bzip2 ../lib/liblzma/api";
 			};
 			name = Debug;
 		};
@@ -1245,21 +1242,13 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
 					BZ_NO_STDIO,
-					HAVE_LZMA,
-					HAVE_AES,
-					HAVE_BZIP2,
 				);
 				GCC_WARN_UNUSED_FUNCTION = NO;
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib,
-					../lib/aes,
-					../lib/bzip2,
-					../lib/liblzma/api,
-				);
 				OTHER_CFLAGS = "-DHAVE_AES";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib ../lib/bzip2 ../lib/liblzma/api";
 			};
 			name = Release;
 		};
@@ -1302,19 +1291,10 @@
 					HAVE_CONFIG_H,
 					MYTHREAD_POSIX,
 					"DEBUG=1",
-					"$(inherited)",
-				);
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib/liblzma,
-					../lib/liblzma/api,
-					../lib/liblzma/check,
-					../lib/liblzma/lz,
-					../lib/liblzma/lzma,
-					../lib/liblzma/rangecoder,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib/liblzma ../lib/liblzma/check ../lib/liblzma/api ../lib/liblzma/common ../lib/liblzma/lz ../lib/liblzma/lzma ../lib/liblzma/rangecoder";
 			};
 			name = Debug;
 		};
@@ -1326,20 +1306,12 @@
 				EXECUTABLE_PREFIX = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					LZMA_API_STATIC,
-					MYTHREAD_POSIX,
 					HAVE_CONFIG_H,
-				);
-				HEADER_SEARCH_PATHS = (
-					../,
-					../lib/liblzma,
-					../lib/liblzma/api,
-					../lib/liblzma/check,
-					../lib/liblzma/lz,
-					../lib/liblzma/lzma,
-					../lib/liblzma/rangecoder,
+					MYTHREAD_POSIX,
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "../lib/liblzma ../lib/liblzma/check ../lib/liblzma/api ../lib/liblzma/common ../lib/liblzma/lz ../lib/liblzma/lzma ../lib/liblzma/rangecoder";
 			};
 			name = Release;
 		};
