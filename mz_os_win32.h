@@ -21,10 +21,11 @@ extern "C" {
 /***************************************************************************/
 
 struct dirent {
-    char d_name[260];
+    char d_name[256];
 };
-
 typedef void* DIR;
+
+/***************************************************************************/
 
 int32_t mz_win32_rand(uint8_t *buf, int32_t size);
 int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date);
