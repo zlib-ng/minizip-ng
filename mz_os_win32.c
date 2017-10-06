@@ -160,10 +160,17 @@ int16_t mz_win32_make_dir(const char *path)
     return MZ_OK;
 }
 
+typedef struct DIR_int_s {
+    void            *find_handle;
+    WIN32_FIND_DATAW find_data;
+    dirent           entry;
+    uint8_t          end;
+} DIR_int;
+
 DIR *mz_win32_open_dir(const char *path)
 {
     WIN32_FIND_DATAW find_data;
-    DIR *dir = NULL;
+    DIR_int *dir_int = NULL;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
     int16_t err = 0;
@@ -172,7 +179,9 @@ DIR *mz_win32_open_dir(const char *path)
 
 
     strncpy(fixed_path, path, sizeof(fixed_path));
-    strncat(fixed_path, "\\*", sizeof(fixed_path));
+    if (strlen(path) > 0 && path[strlen(path) - 1] != '\\')
+        strncat(fixed_path, "\\", sizeof(fixed_path));
+    strncat(fixed_path, "*", sizeof(fixed_path));
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, fixed_path, -1, NULL, 0);
     path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
@@ -184,43 +193,55 @@ DIR *mz_win32_open_dir(const char *path)
 
     free(path_wide);
 
-    if (handle == NULL || handle == INVALID_HANDLE_VALUE)
+    if (handle == INVALID_HANDLE_VALUE)
         return NULL;
 
-    dir = (DIR *)malloc(sizeof(DIR));
-    dir->find_handle = handle;
+    dir_int = (DIR *)malloc(sizeof(DIR));
+    dir_int->find_handle = handle;
+    dir_int->end = 0;
 
-    WideCharToMultiByte(CP_UTF8, 0, find_data.cFileName, -1, dir->d_name, sizeof(dir->d_name), NULL, NULL);
+    memcpy(&dir_int->find_data, &find_data, sizeof(dir_int->find_data));
 
-    return dir;
+    return dir_int;
 }
 
-DIR* mz_win32_read_dir(DIR *dir)
+dirent* mz_win32_read_dir(DIR *dir)
 {
+    DIR_int *dir_int;
     WIN32_FIND_DATAW find_data;
- 
+
     if (dir == NULL)
         return NULL;
 
-    if (FindNextFileW(dir->find_handle, &find_data) == 0)
-    {
-        if (GetLastError() == ERROR_NO_MORE_FILES)
-            return NULL;
+    dir_int = (DIR_int *)dir;
+    if (dir_int->end)
         return NULL;
+
+    WideCharToMultiByte(CP_UTF8, 0, dir_int->find_data.cFileName, -1, 
+        dir_int->entry.d_name, sizeof(dir_int->entry.d_name), NULL, NULL);
+    
+    if (FindNextFileW(dir_int->find_handle, &dir_int->find_data) == 0)
+    {
+        if (GetLastError() != ERROR_NO_MORE_FILES)
+            return NULL;
+
+        dir_int->end = 1;
     }
-
-    WideCharToMultiByte(CP_UTF8, 0, find_data.cFileName, -1, dir->d_name, sizeof(dir->d_name), NULL, NULL);
-
-    return dir;
+ 
+    return &dir_int->entry;
 }
 
 int32_t mz_win32_close_dir(DIR *dir)
 {
+    DIR_int *dir_int;
+
     if (dir == NULL)
         return MZ_PARAM_ERROR;
 
-    FindClose(dir->find_handle);
-    free(dir);
+    dir_int = (DIR_int *)dir;
+    if (dir_int->find_handle != INVALID_HANDLE_VALUE)
+        FindClose(dir_int->find_handle);
+    free(dir_int);
     return MZ_OK;
 }
 

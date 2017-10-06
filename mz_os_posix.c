@@ -137,7 +137,7 @@ DIR* mz_posix_open_dir(const char *path)
     return opendir(path);
 }
 
-DIR* mz_posix_read_dir(DIR *dir)
+dirent* mz_posix_read_dir(DIR *dir)
 {
     if (dir == NULL)
         return NULL;
