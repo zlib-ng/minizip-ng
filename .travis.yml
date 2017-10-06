@@ -16,7 +16,6 @@ before_script:
     - cmake ..
 
 script:
-    - cmake --clean ..
     - cmake --build ..
 
 after_success:
