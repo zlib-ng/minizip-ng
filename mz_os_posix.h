@@ -21,6 +21,14 @@ extern "C" {
 
 /***************************************************************************/
 
+#if defined(__APPLE__)
+#define MZ_VERSION_MADEBY (19)
+#elif defined(unix)
+#define MZ_VERSION_MADEBY (3)
+#endif
+
+/***************************************************************************/
+
 int32_t mz_posix_rand(uint8_t *buf, int32_t size);
 int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date);
 int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date);

@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
         err = minizip_add(handle, filename, opt_exclude_path, &compress_info, &crypt_info, 1);
     }
 
-    err_close = mz_zip_close(handle, NULL, 0);
+    err_close = mz_zip_close(handle, NULL, MZ_VERSION_MADEBY);
     if (err_close != MZ_OK)
         printf("Error in closing %s (%d)\n", path, err_close);
 
