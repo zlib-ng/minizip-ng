@@ -1,4 +1,4 @@
-/* mzstrm_crypt.h -- Code for traditional PKWARE encryption
+/* mz_strm_crypt.h -- Code for traditional PKWARE encryption
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 

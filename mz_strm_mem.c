@@ -1,4 +1,4 @@
-/* mzstrm_mem.c -- Stream for memory access
+/* mz_strm_mem.c -- Stream for memory access
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mz_error.h"
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
 

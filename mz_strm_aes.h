@@ -1,4 +1,4 @@
-/* mzstrm_aes.h -- Stream for WinZIP AES encryption
+/* mz_strm_aes.h -- Stream for WinZIP AES encryption
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 

@@ -1,4 +1,4 @@
-/* zip.h -- Zip manipulation
+/* mz_zip.h -- Zip manipulation
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -36,17 +36,6 @@ extern "C" {
 #  define MZ_METHOD_DEFLATE             (8)
 #  define MZ_METHOD_BZIP2               (12)
 #  define MZ_METHOD_LZMA                (14)
-#endif
-#ifndef MZ_RETURN
-#  define MZ_OK                         (0)
-#  define MZ_EOF                        (MZ_OK)
-#  define MZ_STREAM_ERROR               (-1)
-#  define MZ_END_OF_LIST                (-100)
-#  define MZ_PARAM_ERROR                (-102)
-#  define MZ_FORMAT_ERROR               (-103)
-#  define MZ_INTERNAL_ERROR             (-104)
-#  define MZ_CRC_ERROR                  (-105)
-#  define MZ_CRYPT_ERROR                (-106)
 #endif
 
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)

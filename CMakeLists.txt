@@ -29,27 +29,32 @@ if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
 
-set(MINIZIP_SRC "mz_strm.c"
-    "mz_strm_buf.c"
-    "mz_strm_crypt.c"
-    "mz_strm_mem.c"
-    "mz_strm_posix.c"
-    "mz_strm_zlib.c"
-    "mz_unzip.c"
-    "mz_zip.c")
+set(MINIZIP_SRC
+    mz_os.c
+    mz_strm.c
+    mz_strm_buf.c
+    mz_strm_crypt.c
+    mz_strm_mem.c
+    mz_strm_posix.c
+    mz_strm_zlib.c
+    mz_unzip.c
+    mz_zip.c)
 
-set(MINIZIP_PUBLIC_HEADERS "mz_strm.h"
-    "mz_strm_buf.h"
-    "mz_strm_crypt.h"
-    "mz_strm_mem.h"
-    "mz_strm_posix.h"
-    "mz_strm_zlib.h"
-    "mz_unzip.h"
-    "mz_zip.h")
+set(MINIZIP_PUBLIC_HEADERS
+    mz_error.h
+    mz_os.h
+    mz_strm.h
+    mz_strm_buf.h
+    mz_strm_crypt.h
+    mz_strm_mem.h
+    mz_strm_posix.h
+    mz_strm_zlib.h
+    mz_unzip.h
+    mz_zip.h)
 
 if(WIN32)
-    list(APPEND MINIZIP_SRC "mz_strm_win32.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_win32.h")
+    list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_win32.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_win32.h" "mz_strm_win32.h")
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
 

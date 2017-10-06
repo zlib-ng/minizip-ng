@@ -1,4 +1,4 @@
-/* mzstrm_mem.h -- Stream for memory access
+/* mz_strm_mem.h -- Stream for memory access
    part of MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri

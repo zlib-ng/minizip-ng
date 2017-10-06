@@ -134,6 +134,15 @@
     <ClCompile Include="..\mz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\mz_os.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mz_os_posix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\mz_os_win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\inffixed.h">
@@ -236,6 +245,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\mz_zip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mz_os.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mz_os_posix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mz_os_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\mz_error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

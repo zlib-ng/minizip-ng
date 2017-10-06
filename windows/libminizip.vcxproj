@@ -144,6 +144,11 @@
     <ClCompile Include="..\lib\bzip2\blocksort.c" />
     <ClCompile Include="..\lib\bzip2\huffman.c" />
     <ClCompile Include="..\lib\bzip2\randtable.c" />
+    <ClCompile Include="..\mz_os.c" />
+    <ClCompile Include="..\mz_os_posix.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\mz_os_win32.c" />
     <ClCompile Include="..\mz_strm.c" />
     <ClCompile Include="..\mz_strm_aes.c" />
     <ClCompile Include="..\mz_strm_buf.c" />
@@ -151,7 +156,12 @@
     <ClCompile Include="..\mz_strm_crypt.c" />
     <ClCompile Include="..\mz_strm_lzma.c" />
     <ClCompile Include="..\mz_strm_mem.c" />
-    <ClCompile Include="..\mz_strm_posix.c" />
+    <ClCompile Include="..\mz_strm_posix.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\mz_strm_win32.c" />
     <ClCompile Include="..\mz_strm_zlib.c" />
     <ClCompile Include="..\mz_unzip.c" />
@@ -180,6 +190,12 @@
     <ClInclude Include="..\lib\aes\pwd2key.h" />
     <ClInclude Include="..\lib\aes\sha1.h" />
     <ClInclude Include="..\lib\bzip2\bzlib.h" />
+    <ClInclude Include="..\mz_error.h" />
+    <ClInclude Include="..\mz_os.h" />
+    <ClInclude Include="..\mz_os_posix.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\mz_os_win32.h" />
     <ClInclude Include="..\mz_strm.h" />
     <ClInclude Include="..\mz_strm_aes.h" />
     <ClInclude Include="..\mz_strm_buf.h" />
@@ -187,7 +203,12 @@
     <ClInclude Include="..\mz_strm_crypt.h" />
     <ClInclude Include="..\mz_strm_lzma.h" />
     <ClInclude Include="..\mz_strm_mem.h" />
-    <ClInclude Include="..\mz_strm_posix.h" />
+    <ClInclude Include="..\mz_strm_posix.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\mz_strm_win32.h" />
     <ClInclude Include="..\mz_strm_zlib.h" />
     <ClInclude Include="..\mz_unzip.h" />

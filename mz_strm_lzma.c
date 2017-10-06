@@ -1,4 +1,4 @@
-/* mzstrm_lzma.c -- Stream for lzma inflate/deflate
+/* mz_strm_lzma.c -- Stream for lzma inflate/deflate
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -18,6 +18,7 @@
 
 #include <lzma.h>
 
+#include "mz_error.h"
 #include "mz_strm.h"
 #include "mz_strm_lzma.h"
 

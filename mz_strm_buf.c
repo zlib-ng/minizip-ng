@@ -1,4 +1,4 @@
-/* mzstrm_buf.c -- Stream for buffering reads/writes
+/* mz_strm_buf.c -- Stream for buffering reads/writes
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "mz_error.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
 

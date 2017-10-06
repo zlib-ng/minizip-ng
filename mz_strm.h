@@ -1,4 +1,4 @@
-/* mzstrm.h -- Stream interface
+/* mz_strm.h -- Stream interface
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -35,18 +35,6 @@ extern "C" {
 #define MZ_STREAM_MODE_APPEND           (0x04)
 #define MZ_STREAM_MODE_CREATE           (0x08)
 #define MZ_STREAM_MODE_EXISTING         (0x10)
-
-#ifndef MZ_RETURN
-#  define MZ_OK                         (0)
-#  define MZ_EOF                        (MZ_OK)
-#  define MZ_STREAM_ERROR               (-1)
-#  define MZ_END_OF_LIST                (-100)
-#  define MZ_PARAM_ERROR                (-102)
-#  define MZ_FORMAT_ERROR               (-103)
-#  define MZ_INTERNAL_ERROR             (-104)
-#  define MZ_CRC_ERROR                  (-105)
-#  define MZ_CRYPT_ERROR                (-106)
-#endif
 
 /***************************************************************************/
 
@@ -111,64 +99,6 @@ void    mz_stream_delete(void **stream);
 
 void*   mz_stream_passthru_create(void **stream);
 void    mz_stream_passthru_delete(void **stream);
-
-/***************************************************************************/
-
-#if !defined(_WIN32) && !defined(USEWIN32IOAPI)
-#include "mz_strm_posix.h"
-
-#define mz_stream_os_open    mz_stream_posix_open
-#define mz_stream_os_is_open mz_stream_posix_is_open
-#define mz_stream_os_read    mz_stream_posix_read
-#define mz_stream_os_write   mz_stream_posix_write
-#define mz_stream_os_tell    mz_stream_posix_tell
-#define mz_stream_os_seek    mz_stream_posix_seek
-#define mz_stream_os_close   mz_stream_posix_close
-#define mz_stream_os_error   mz_stream_posix_error
-
-#define mz_stream_os_create  mz_stream_posix_create
-#define mz_stream_os_delete  mz_stream_posix_delete
-
-#define mz_os_rand           mz_posix_rand
-#define mz_os_get_file_date  mz_posix_get_file_date
-#define mz_os_set_file_date  mz_posix_set_file_date
-#define mz_os_change_dir     mz_posix_change_dir
-#define mz_os_make_dir       mz_posix_make_dir
-#else
-#include "mz_strm_win32.h"
-
-#define mz_stream_os_open    mz_stream_win32_open
-#define mz_stream_os_is_open mz_stream_win32_is_open
-#define mz_stream_os_read    mz_stream_win32_read
-#define mz_stream_os_write   mz_stream_win32_write
-#define mz_stream_os_tell    mz_stream_win32_tell
-#define mz_stream_os_seek    mz_stream_win32_seek
-#define mz_stream_os_close   mz_stream_win32_close
-#define mz_stream_os_error   mz_stream_win32_error
-
-#define mz_stream_os_create  mz_stream_win32_create
-#define mz_stream_os_delete  mz_stream_win32_delete
-
-#define mz_os_rand           mz_win32_rand
-#define mz_os_get_file_date  mz_win32_get_file_date
-#define mz_os_set_file_date  mz_win32_set_file_date
-#define mz_os_change_dir     mz_win32_change_dir
-#define mz_os_make_dir       mz_win32_make_dir
-#endif
-
-/***************************************************************************/
-
-int32_t mz_os_file_exists(const char *path);
-int64_t mz_os_file_get_size(const char *path);
-
-/***************************************************************************/
-
-int32_t  mz_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
-// Convert dos date/time format to struct tm
-time_t   mz_dosdate_to_time_t(uint64_t dos_date);
-// Convert dos date/time format to time_t
-uint32_t mz_tm_to_dosdate(const struct tm *ptm);
-// Convert struct tm to dos date/time format
 
 /***************************************************************************/
 

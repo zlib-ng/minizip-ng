@@ -1,4 +1,4 @@
-/* mzstrm_posix.h -- Stream for filesystem access for posix/linux
+/* mz_strm_posix.h -- Stream for filesystem access for posix/linux
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -39,11 +39,19 @@ void    mz_stream_posix_delete(void **stream);
 
 /***************************************************************************/
 
-int32_t mz_posix_rand(uint8_t *buf, int32_t size);
-int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date);
-int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date);
-int16_t mz_posix_change_dir(const char *path);
-int16_t mz_posix_make_dir(const char *path);
+#if !defined(_WIN32) && !defined(USEWIN32IOAPI)
+#define mz_stream_os_open    mz_stream_posix_open
+#define mz_stream_os_is_open mz_stream_posix_is_open
+#define mz_stream_os_read    mz_stream_posix_read
+#define mz_stream_os_write   mz_stream_posix_write
+#define mz_stream_os_tell    mz_stream_posix_tell
+#define mz_stream_os_seek    mz_stream_posix_seek
+#define mz_stream_os_close   mz_stream_posix_close
+#define mz_stream_os_error   mz_stream_posix_error
+
+#define mz_stream_os_create  mz_stream_posix_create
+#define mz_stream_os_delete  mz_stream_posix_delete
+#endif
 
 /***************************************************************************/
 

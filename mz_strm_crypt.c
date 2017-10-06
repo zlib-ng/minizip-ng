@@ -1,4 +1,4 @@
-/* mzstrm_crypt.c -- Code for traditional PKWARE encryption
+/* mz_strm_crypt.c -- Code for traditional PKWARE encryption
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -32,6 +32,8 @@
 
 #include "zlib.h"
 
+#include "mz_error.h"
+#include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_crypt.h"
 
@@ -181,8 +183,10 @@ int32_t mz_stream_crypt_read(void *stream, void *buf, int32_t size)
     uint32_t i = 0;
 
     read = mz_stream_read(crypt->stream.base, buf, size);
+
     for (i = 0; i < read; i++)
         buf_ptr[i] = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, buf_ptr[i]);
+
     crypt->total_in += read;
     return read;
 }
@@ -192,15 +196,20 @@ int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
     uint32_t written = 0;
-    uint32_t i = 0;
     uint16_t t = 0;
+    int32_t i = 0;
+
     if (size > sizeof(crypt->buffer))
         return MZ_STREAM_ERROR;
+
     for (i = 0; i < size; i++)
         crypt->buffer[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, buf_ptr[i], t);
+
     written = mz_stream_write(crypt->stream.base, crypt->buffer, size);
+
     if (written > 0)
         crypt->total_out += written;
+
     return written;
 }
 

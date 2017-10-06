@@ -1,4 +1,4 @@
-/* mzstrm_zlib.h -- Stream for zlib inflate/deflate
+/* mz_strm_zlib.h -- Stream for zlib inflate/deflate
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 

@@ -1,4 +1,4 @@
-/* mzstrm_win32.h -- Stream for filesystem access for windows
+/* mz_sstrm_win32.h -- Stream for filesystem access for windows
    Version 2.0.0, October 4th, 2017
    part of the MiniZip project
 
@@ -39,11 +39,29 @@ void    mz_stream_win32_delete(void **stream);
 
 /***************************************************************************/
 
-int32_t mz_win32_rand(uint8_t *buf, int32_t size);
-int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date);
-int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date);
-int16_t mz_win32_change_dir(const char *path);
-int16_t mz_win32_make_dir(const char *path);
+#if defined(_WIN32) || defined(USEWIN32IOAPI)
+#define mz_stream_os_open    mz_stream_win32_open
+#define mz_stream_os_is_open mz_stream_win32_is_open
+#define mz_stream_os_read    mz_stream_win32_read
+#define mz_stream_os_write   mz_stream_win32_write
+#define mz_stream_os_tell    mz_stream_win32_tell
+#define mz_stream_os_seek    mz_stream_win32_seek
+#define mz_stream_os_close   mz_stream_win32_close
+#define mz_stream_os_error   mz_stream_win32_error
+
+#define mz_stream_os_create  mz_stream_win32_create
+#define mz_stream_os_delete  mz_stream_win32_delete
+
+#define mz_os_rand           mz_win32_rand
+#define mz_os_get_file_date  mz_win32_get_file_date
+#define mz_os_set_file_date  mz_win32_set_file_date
+#define mz_os_change_dir     mz_win32_change_dir
+#define mz_os_make_dir       mz_win32_make_dir
+#define mz_os_open_dir       mz_win32_open_dir
+#define mz_os_read_dir       mz_win32_read_dir
+#define mz_os_close_dir      mz_win32_close_dir
+#define mz_os_is_dir         mz_win32_is_dir
+#endif
 
 /***************************************************************************/
 

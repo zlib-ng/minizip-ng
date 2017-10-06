@@ -25,6 +25,7 @@
 
 #include "zlib.h"
 
+#include "mz_error.h"
 #include "mz_strm.h"
 #ifdef HAVE_AES
 #include "mz_strm_aes.h"

@@ -22,8 +22,10 @@
 #include <time.h>
 #include <errno.h>
 
-#include "mz_zip.h"
+#include "mz_error.h"
+#include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_zip.h"
 
 /***************************************************************************/
 
@@ -55,16 +57,41 @@ void minizip_help()
 
 /***************************************************************************/
 
-int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzip, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info)
+int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_path, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info)
 {
     mz_zip_file file_info = { 0 };
     int32_t read = 0;
     int16_t err = MZ_OK;
     int16_t err_close = MZ_OK;
     void *stream = NULL;
+    const char *filenameinzip = NULL;
     char buf[UINT16_MAX];
 
 
+    // Construct the filename that our file will be stored in the zip as.
+    // The path name saved, should not include a leading slash.
+    // If it did, windows/xp and dynazip couldn't read the zip file. 
+
+    filenameinzip = path;
+    while (filenameinzip[0] == '\\' || filenameinzip[0] == '/')
+        filenameinzip += 1;
+
+    // Should the file be stored with any path info at all?
+    if (opt_exclude_path)
+    {
+        const char *match = NULL;
+        const char *last_slash = NULL;
+
+        for (match = filenameinzip; *match; match += 1)
+        {
+            if (*match == '\\' || *match == '/')
+                last_slash = match;
+        }
+
+        if (last_slash != NULL)
+            filenameinzip = last_slash + 1; // base filename follows last slash
+    }
+    
     // Get information about the file on disk so we can store it in zip
     printf("Adding: %s\n", filenameinzip);
 
@@ -122,6 +149,46 @@ int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzi
         printf("Error in closing %s in the zip file (%d)\n", filenameinzip, err_close);
 
     return err;
+}
+
+int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info, uint8_t recursive)
+{
+    DIR *dir = NULL;
+    int16_t err = 0;
+    char full_path[320];
+
+
+    if (mz_os_is_dir(path) != MZ_OK)
+        return minizip_add_file(handle, path, opt_exclude_path, compress_info, crypt_info);
+
+    dir = mz_os_open_dir(path);
+
+    if (dir == NULL)
+    {
+        printf("Cannot enumerate directory %s\n", path);
+        return MZ_EXIST_ERROR;
+    }
+
+    while ((dir = mz_os_read_dir(dir)) != NULL)
+    {
+        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+            continue;
+
+        strncpy(full_path, path, sizeof(full_path));
+        if (strlen(path) > 0 && path[strlen(path) - 1] != '\\')
+            strncat(full_path, "\\", sizeof(full_path));
+        strncat(full_path, dir->d_name, sizeof(full_path));
+
+        if (!recursive && mz_os_is_dir(full_path))
+            continue;
+
+        err = minizip_add(handle, full_path, opt_exclude_path, compress_info, crypt_info, recursive);
+        if (err != MZ_OK)
+            return err;
+    }
+
+    mz_os_close_dir(dir);
+    return MZ_OK;
 }
 
 #ifndef NOMAIN
@@ -277,8 +344,6 @@ int main(int argc, char *argv[])
     for (i = path_arg + 1; (i < argc) && (err == MZ_OK); i++)
     {
         const char *filename = argv[i];
-        const char *filenameinzip = NULL;
-
 
         // Skip command line options
         if ((((*(argv[i])) == '-') || ((*(argv[i])) == '/')) && (strlen(argv[i]) == 2) &&
@@ -286,31 +351,7 @@ int main(int argc, char *argv[])
              (argv[i][1] == 'p') || (argv[i][1] == 'P') || ((argv[i][1] >= '0') && (argv[i][1] <= '9'))))
             continue;
 
-        // Construct the filename that our file will be stored in the zip as.
-        // The path name saved, should not include a leading slash.
-        // If it did, windows/xp and dynazip couldn't read the zip file. 
-
-        filenameinzip = filename;
-        while (filenameinzip[0] == '\\' || filenameinzip[0] == '/')
-            filenameinzip += 1;
-
-        // Should the file be stored with any path info at all?
-        if (opt_exclude_path)
-        {
-            const char *match = NULL;
-            const char *last_slash = NULL;
-
-            for (match = filenameinzip; *match; match += 1)
-            {
-                if (*match == '\\' || *match == '/')
-                    last_slash = match;
-            }
-
-            if (last_slash != NULL)
-                filenameinzip = last_slash + 1; // base filename follows last slash
-        }
-
-        err = minizip_addfile(handle, filename, filenameinzip, &compress_info, &crypt_info);
+        err = minizip_add(handle, filename, opt_exclude_path, &compress_info, &crypt_info, 1);
     }
 
     err_close = mz_zip_close(handle, NULL, 0);
