@@ -186,14 +186,17 @@ typedef unsigned char _Bool;
 // NOTE: Avoid using MIN() and MAX(), because even conditionally defining
 // those macros can cause some portability trouble, since on some systems
 // the system headers insist defining their own versions.
+#ifdef _MSC_VER
 #define my_min(x, y) \
-({ __typeof__ (x) _x = (x); \
-   __typeof__ (y) _y = (y); \
-   _x < _y ? _x : _y; })
+({ decltype(x) _x = (x); decltype(y) _y = (y); _x < _y ? _x : _y; })
 #define my_max(x, y) \
-({ __typeof__ (x) _x = (x); \
-   __typeof__ (y) _y = (y); \
-   _x > _y ? _x : _y; })
+({ decltype(x) _x = (x); decltype(y) _y = (y); _x > _y ? _x : _y; })
+#else
+#define my_min(x, y) \
+({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x < _y ? _x : _y; })
+#define my_max(x, y) \
+({ __typeof__(x) _x = (x); __typeof__(y) _y = (y); _x > _y ? _x : _y; })
+#endif
 
 #ifndef ARRAY_SIZE
 #	define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
