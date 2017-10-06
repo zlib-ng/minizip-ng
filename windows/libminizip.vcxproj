@@ -156,7 +156,6 @@
     <ClCompile Include="..\mz_strm_zlib.c" />
     <ClCompile Include="..\mz_unzip.c" />
     <ClCompile Include="..\mz_zip.c" />
-    <ClCompile Include="..\test.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\crc32.h" />
@@ -193,7 +192,6 @@
     <ClInclude Include="..\mz_strm_zlib.h" />
     <ClInclude Include="..\mz_unzip.h" />
     <ClInclude Include="..\mz_zip.h" />
-    <ClInclude Include="..\test.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="liblzma.vcxproj">

@@ -89,9 +89,6 @@
     <ClCompile Include="..\lib\bzip2\bzlib.c">
       <Filter>BZip</Filter>
     </ClCompile>
-    <ClCompile Include="..\test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\bzip2\crctable.c">
       <Filter>BZip</Filter>
     </ClCompile>
@@ -201,9 +198,6 @@
     </ClInclude>
     <ClInclude Include="..\lib\bzip2\bzlib.h">
       <Filter>BZip</Filter>
-    </ClInclude>
-    <ClInclude Include="..\test.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\lib\bzip2\bzlib_private.h">
       <Filter>BZip</Filter>
