@@ -2,8 +2,8 @@
 
 This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
-Dev: https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev
-Master: https://travis-ci.org/nmoinvaz/minizip.svg?branch=master
+Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
+Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
 
 ## Features
 
