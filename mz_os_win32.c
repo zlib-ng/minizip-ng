@@ -163,7 +163,7 @@ int16_t mz_win32_make_dir(const char *path)
 typedef struct DIR_int_s {
     void            *find_handle;
     WIN32_FIND_DATAW find_data;
-    dirent           entry;
+    struct dirent    entry;
     uint8_t          end;
 } DIR_int;
 
@@ -174,14 +174,16 @@ DIR *mz_win32_open_dir(const char *path)
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
     int16_t err = 0;
-    void *handle = NULL;
+    int16_t fixed_path_len = 0;
     char fixed_path[320];
+    void *handle = NULL;
 
 
     strncpy(fixed_path, path, sizeof(fixed_path));
-    if (strlen(path) > 0 && path[strlen(path) - 1] != '\\')
-        strncat(fixed_path, "\\", sizeof(fixed_path));
-    strncat(fixed_path, "*", sizeof(fixed_path));
+    fixed_path_len = (int16_t)strlen(fixed_path);
+    if (fixed_path_len > 0 && fixed_path[fixed_path_len - 1] != '\\')
+        strncat(fixed_path, "\\", sizeof(fixed_path) - fixed_path_len - 1);
+    strncat(fixed_path, "*", sizeof(fixed_path) - fixed_path_len - 2);
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, fixed_path, -1, NULL, 0);
     path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
@@ -196,19 +198,18 @@ DIR *mz_win32_open_dir(const char *path)
     if (handle == INVALID_HANDLE_VALUE)
         return NULL;
 
-    dir_int = (DIR *)malloc(sizeof(DIR));
+    dir_int = (DIR_int *)malloc(sizeof(DIR_int));
     dir_int->find_handle = handle;
     dir_int->end = 0;
 
     memcpy(&dir_int->find_data, &find_data, sizeof(dir_int->find_data));
 
-    return dir_int;
+    return (DIR *)dir_int;
 }
 
-dirent* mz_win32_read_dir(DIR *dir)
+struct dirent* mz_win32_read_dir(DIR *dir)
 {
     DIR_int *dir_int;
-    WIN32_FIND_DATAW find_data;
 
     if (dir == NULL)
         return NULL;

@@ -177,7 +177,7 @@ int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz
             continue;
 
         strncpy(full_path, path, sizeof(full_path));
-        full_path_len = strlen(full_path);
+        full_path_len = (int16_t)strlen(full_path);
         if (full_path_len > 0 && full_path[full_path_len - 1] != '\\')
             strncat(full_path, "\\", sizeof(full_path) - full_path_len - 1);
         strncat(full_path, entry->d_name, sizeof(full_path) - full_path_len - 2);

@@ -20,9 +20,9 @@ extern "C" {
 
 /***************************************************************************/
 
-typedef struct dirent_s {
+struct dirent {
     char d_name[260];
-} dirent;
+};
 
 typedef void* DIR;
 
@@ -32,6 +32,7 @@ int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date);
 int16_t mz_win32_change_dir(const char *path);
 int16_t mz_win32_make_dir(const char *path);
 DIR*    mz_win32_open_dir(const char *path);
+struct 
 dirent* mz_win32_read_dir(DIR *dir);
 int32_t mz_win32_close_dir(DIR *dir);
 int32_t mz_win32_is_dir(const char *path);
