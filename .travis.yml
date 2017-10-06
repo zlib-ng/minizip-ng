@@ -4,19 +4,16 @@ matrix:
     include:
         - os:
             - linux
-            - osx
 
 compiler:
     - gcc
-    - clang
 
-before_script:
+before_script:  
     - mkdir build
     - cd build
     - cmake ..
 
-script:
-    - cmake --build ..
+script: make
 
 after_success:
     - python test/test.py --dir=
