@@ -308,8 +308,10 @@ if(USE_LIBLZMA)
 
     add_library(liblzma ${LIBLZMA_SRC} ${LIBLZMA_PUBLIC_HEADERS})
 
-    set_target_properties(liblzma PROPERTIES LINKER_LANGUAGE C)
-    set_target_properties(liblzma PROPERTIES PREFIX "")
+    set_target_properties(liblzma PROPERTIES
+        LINKER_LANGUAGE C
+        C_STANDARD 99
+        PREFIX "")
 
     target_link_libraries(libminizip liblzma)
 

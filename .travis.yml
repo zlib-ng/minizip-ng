@@ -4,7 +4,6 @@ matrix:
     include:
         - os:
             - linux
-          env: CFLAGS="-std=c99"
 
 compiler:
     - clang
