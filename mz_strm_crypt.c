@@ -297,4 +297,5 @@ void mz_stream_crypt_delete(void **stream)
     crypt = (mz_stream_crypt *)*stream;
     if (crypt != NULL)
         free(crypt);
+    *stream = NULL;
 }

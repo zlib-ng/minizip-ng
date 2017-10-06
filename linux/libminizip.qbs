@@ -54,7 +54,6 @@ Product {
             "aestab.c",
             "fileenc.c",
             "hmac.c",
-            "prng.c",
             "pwd2key.c",
             "sha1.c"
         ]
@@ -85,7 +84,6 @@ Product {
             "brg_types.h",
             "fileenc.h",
             "hmac.h",
-            "prng.h",
             "pwd2key.h",
             "sha1.h"
         ]

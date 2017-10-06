@@ -374,6 +374,7 @@ void mz_stream_zlib_delete(void **stream)
     zlib = (mz_stream_zlib *)*stream;
     if (zlib != NULL)
         free(zlib);
+    *stream = NULL;
 }
 
 /***************************************************************************/
@@ -503,4 +504,5 @@ void mz_stream_crc32_delete(void **stream)
     crc32 = (mz_stream_crc32 *)*stream;
     if (crc32 != NULL)
         free(crc32);
+    *stream = NULL;
 }

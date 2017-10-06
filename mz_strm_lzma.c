@@ -355,4 +355,5 @@ void mz_stream_lzma_delete(void **stream)
     lzma = (mz_stream_lzma *)*stream;
     if (lzma != NULL)
         free(lzma);
+    *stream = NULL;
 }

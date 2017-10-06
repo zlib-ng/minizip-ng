@@ -258,4 +258,5 @@ void mz_stream_aes_delete(void **stream)
     aes = (mz_stream_aes *)*stream;
     if (aes != NULL)
         free(aes);
+    *stream = NULL;
 }

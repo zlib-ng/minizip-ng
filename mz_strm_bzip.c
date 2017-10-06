@@ -66,7 +66,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int mode)
         bzip->bzstream.next_out = (char *)bzip->buffer;
         bzip->bzstream.avail_out = sizeof(bzip->buffer);
 
-        bzip->error = BZ2_bzCompressInit(&bzip->bzstream, bzip->level, 0, 35);
+        bzip->error = BZ2_bzCompressInit(&bzip->bzstream, bzip->level, 0, 0);
     }
 
     if (bzip->error != BZ_OK)
@@ -177,7 +177,7 @@ uint32_t mz_stream_bzip_compress(void *stream, int flush)
 
     out_bytes = (uint32_t)(total_out_after - total_out_before);
 
-    if (err != BZ_OK && err != BZ_STREAM_END)
+    if (err < 0)
     {
         bzip->error = err;
         return MZ_STREAM_ERROR;
@@ -271,7 +271,10 @@ int32_t mz_stream_bzip_error(void *stream)
 void mz_stream_bzip_set_level(void *stream, int16_t level)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    bzip->level = level;
+    if (level < 0)
+        bzip->level = 6;
+    else
+        bzip->level = level;
 }
 
 int64_t mz_stream_bzip_get_total_in(void *stream)
@@ -329,6 +332,7 @@ void mz_stream_bzip_delete(void **stream)
     bzip = (mz_stream_bzip *)*stream;
     if (bzip != NULL)
         free(bzip);
+    *stream = NULL;
 }
 
 extern void bz_internal_error(int errcode)

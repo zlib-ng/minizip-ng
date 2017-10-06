@@ -230,6 +230,7 @@ void mz_stream_posix_delete(void **stream)
     posix = (mz_stream_posix *)*stream;
     if (posix != NULL)
         free(posix);
+    *stream = NULL;
 }
 
 /***************************************************************************/
@@ -319,7 +320,12 @@ int16_t mz_posix_change_dir(const char *path)
 
 int16_t mz_posix_make_dir(const char *path)
 {
-    if (mkdir(path, 0755) != 0)
+    int16_t err = 0;
+
+    err = mkdir(path, 0755);
+
+    if (err != 0 && errno != EEXIST)
         return MZ_INTERNAL_ERROR;
+
     return MZ_OK;
 }

@@ -244,4 +244,5 @@ void mz_stream_mem_delete(void **stream)
             free(mem->buffer);
         free(mem);
     }
+    *stream = NULL;
 }

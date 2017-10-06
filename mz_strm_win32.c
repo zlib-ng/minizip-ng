@@ -45,9 +45,7 @@ typedef struct mz_stream_win32_s
 {
     mz_stream   stream;
     HANDLE      handle;
-    int         error;
-    char        *path;
-    int         path_size;
+    int32_t     error;
 } mz_stream_win32;
 
 /***************************************************************************/
@@ -106,11 +104,6 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int mode)
         win32->error = GetLastError();
         return MZ_STREAM_ERROR;
     }
-
-    win32->path_size = strlen(path) + 1;
-    win32->path = (char *)malloc(win32->path_size);
-
-    strncpy(win32->path, path, win32->path_size);
 
     if (mode & MZ_STREAM_MODE_APPEND)
         return mz_stream_win32_seek(stream, 0, MZ_STREAM_SEEK_END);
@@ -252,8 +245,6 @@ int mz_stream_win32_close(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
 
-    if (win32->path != NULL)
-        free(win32->path);
     if (win32->handle != NULL)
         CloseHandle(win32->handle);
     win32->handle = NULL;
@@ -300,6 +291,7 @@ void mz_stream_win32_delete(void **stream)
     win32 = (mz_stream_win32 *)*stream;
     if (win32 != NULL)
         free(win32);
+    *stream = NULL;
 }
 
 /***************************************************************************/
@@ -421,7 +413,7 @@ int16_t mz_win32_make_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
-    int16_t err = MZ_OK;
+    int16_t err = 0;
 
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
@@ -430,9 +422,12 @@ int16_t mz_win32_make_dir(const char *path)
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
 
-    if (_wmkdir(path_wide) != 0)
-        err = MZ_INTERNAL_ERROR;
+    err = _wmkdir(path_wide);
 
     free(path_wide);
-    return err;
+
+    if (err != 0 && errno != EEXIST)
+        return MZ_INTERNAL_ERROR;
+
+    return MZ_OK;
 }

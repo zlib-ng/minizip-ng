@@ -285,6 +285,7 @@ void mz_stream_delete(void **stream)
         return;
     strm = (mz_stream *)*stream;
     strm->delete(stream);
+    *stream = NULL;
 }
 
 /***************************************************************************/
@@ -299,8 +300,7 @@ typedef struct mz_stream_passthru_s {
 
 int32_t mz_stream_passthru_open(void *stream, const char *path, int mode)
 {
-    mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return mz_stream_open(passthru->stream.base, path, mode);
+    return MZ_OK;
 }
 
 int32_t mz_stream_passthru_is_open(void *stream)
@@ -341,8 +341,7 @@ int32_t mz_stream_passthru_seek(void *stream, uint64_t offset, int origin)
 
 int32_t mz_stream_passthru_close(void *stream)
 {
-    mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return mz_stream_close(passthru->stream.base);
+    return MZ_OK;
 }
 
 int32_t mz_stream_passthru_error(void *stream)
@@ -399,6 +398,7 @@ void mz_stream_passthru_delete(void **stream)
     passthru = (mz_stream_passthru *)*stream;
     if (passthru != NULL)
         free(passthru);
+    *stream = NULL;
 }
 
 /***************************************************************************/

@@ -74,7 +74,7 @@ typedef struct mz_zip_file_s
 
 typedef struct mz_zip_compress_s
 {
-    uint16_t    method;                 // compression method ie Z_DEFLATE, 0 for raw
+    uint16_t    method;                 // compression method
     int         level;                  // compression level
     int         window_bits;            // deflate window bits
     int         mem_level;              // deflate memory level

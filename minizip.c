@@ -29,8 +29,8 @@
 
 void minizip_banner()
 {
-    printf("MiniZip 2.0.0, demo of zLib + MiniZip64 package\n");
-    printf("more info on MiniZip at https://github.com/nmoinvaz/minizip\n\n");
+    printf("Minizip 2.0.0 - https://github.com/nmoinvaz/minizip\n");
+    printf("---------------------------------------------------\n");
 }
 
 void minizip_help()
@@ -40,17 +40,18 @@ void minizip_help()
            "  -a  Append to existing file.zip\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
-           "  -9  Compress better\n\n" \
-           "  -j  exclude path. store only the file name.\n\n");
+           "  -9  Compress better\n" \
+           "  -b  BZIP2 compression\n" \
+           "  -m  LZMA compression\n" \
+           "  -s  AES encryption\n" \
+           "  -j  Exclude path and store only the file name\n\n");
 }
 
 /***************************************************************************/
 
-int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzip, int level, const char *password)
+int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzip, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info)
 {
     mz_zip_file file_info = { 0 };
-    mz_zip_compress compress_info = { 0 };
-    mz_zip_crypt crypt_info = { 0 };
     int32_t read = 0;
     int16_t err = MZ_OK;
     int16_t err_close = MZ_OK;
@@ -67,30 +68,18 @@ int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzi
         file_info.zip64 = 1;
 
     mz_os_get_file_date(path, &file_info.dos_date);
-    
-    compress_info.level = level;
-    if (level > 0)
-        compress_info.method = MZ_METHOD_DEFLATE;
-    else
-        compress_info.method = MZ_METHOD_RAW;
 
-    crypt_info.password = password;
-
-    // Add to zip file 
-    err = mz_zip_entry_open(handle, &file_info, &compress_info, &crypt_info);
-
-    mz_stream_os_create(&stream);
-
+    // Add to zip
+    err = mz_zip_entry_open(handle, &file_info, compress_info, crypt_info);
     if (err != MZ_OK)
     {
         printf("Error in opening %s in zip file (%d)\n", filenameinzip, err);
+        return err;
     }
-    else
-    {
-        err = mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ);
-        if (err != MZ_OK)
-            printf("Error in opening %s for reading\n", path);
-    }
+
+    mz_stream_os_create(&stream);
+
+    err = mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ);
 
     if (err == MZ_OK)
     {
@@ -112,10 +101,13 @@ int32_t minizip_addfile(void *handle, const char *path, const char *filenameinzi
                 printf("Error in writing %s in the zip file (%d)\n", filenameinzip, err);
         }
         while (err == MZ_OK);
-    }
 
-    if (mz_stream_os_is_open(stream))
         mz_stream_os_close(stream);
+    }
+    else
+    {
+        printf("Error in opening %s for reading\n", path);
+    }
 
     mz_stream_os_delete(&stream);
 
@@ -132,11 +124,11 @@ int main(int argc, char *argv[])
     void *handle = NULL;
     void *stream = NULL;
     char *path = NULL;
-    const char *password = NULL;
+    mz_zip_compress compress_info;
+    mz_zip_crypt crypt_info;
     int32_t path_arg = 0;
     uint8_t opt_append = 0;
     uint8_t opt_open_existing = 0;
-    uint8_t opt_compress_level = MZ_COMPRESS_LEVEL_DEFAULT;
     uint8_t opt_exclude_path = 0;
     int16_t mode = 0;
     int16_t err_close = 0;
@@ -149,6 +141,12 @@ int main(int argc, char *argv[])
         minizip_help();
         return 0;
     }
+
+    memset(&compress_info, 0, sizeof(compress_info));
+    memset(&crypt_info, 0, sizeof(crypt_info));
+
+    compress_info.method = MZ_METHOD_DEFLATE;
+    compress_info.level = MZ_COMPRESS_LEVEL_DEFAULT;
 
     // Parse command line options
     for (i = 1; i < argc; i++)
@@ -165,13 +163,23 @@ int main(int argc, char *argv[])
                 if ((c == 'a') || (c == 'A'))
                     opt_open_existing = 1;
                 if ((c >= '0') && (c <= '9'))
-                    opt_compress_level = (c - '0');
+                {
+                    compress_info.level = (c - '0');
+                    if (compress_info.level == 0)
+                        compress_info.method = MZ_METHOD_RAW;
+                }
                 if ((c == 'j') || (c == 'J'))
                     opt_exclude_path = 1;
+                if ((c == 'b') || (c == 'B'))
+                    compress_info.method = MZ_METHOD_BZIP2;
+                if ((c == 'm') || (c == 'M'))
+                    compress_info.method = MZ_METHOD_LZMA;
+                if ((c == 's') || (c == 'S'))
+                    crypt_info.aes = 1;
 
                 if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
                 {
-                    password = argv[i + 1];
+                    crypt_info.password = argv[i + 1];
                     i += 1;
                 }
             }
@@ -258,7 +266,7 @@ int main(int argc, char *argv[])
     for (i = path_arg + 1; (i < argc) && (err == MZ_OK); i++)
     {
         const char *filename = argv[i];
-        const char *filenameinzip;
+        const char *filenameinzip = NULL;
 
 
         // Skip command line options
@@ -291,7 +299,7 @@ int main(int argc, char *argv[])
                 filenameinzip = last_slash + 1; // base filename follows last slash
         }
 
-        err = minizip_addfile(handle, filename, filenameinzip, opt_compress_level, password);
+        err = minizip_addfile(handle, filename, filenameinzip, &compress_info, &crypt_info);
     }
 
     err_close = mz_zip_close(handle, NULL, 0);

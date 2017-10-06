@@ -29,8 +29,8 @@
 
 void miniunz_banner()
 {
-    printf("MiniUnz 2.0.0, demo of zLib + Unz package\n");
-    printf("more info at https://github.com/nmoinvaz/minizip\n\n");
+    printf("Miniunz 2.0.0 - https://github.com/nmoinvaz/minizip\n");
+    printf("---------------------------------------------------\n");
 }
 
 void miniunz_help()
@@ -80,17 +80,17 @@ int32_t miniunz_list(void *handle)
 
         if (file_info->uncompressed_size > 0)
             ratio = (uint32_t)((file_info->compressed_size * 100) / file_info->uncompressed_size);
-
+        
         // Display a '*' if the file is encrypted
         if ((file_info->flag & 1) != 0)
             crypt = '*';
 
-        if (file_info->compression_method == 0)
+        switch (file_info->compression_method)
         {
-            string_method = "Stored";
-        }
-        else if (file_info->compression_method == MZ_METHOD_DEFLATE)
-        {
+        case MZ_METHOD_RAW:
+            string_method = "Stored"; 
+            break;
+        case MZ_METHOD_DEFLATE:
             level = (int16_t)((file_info->flag & 0x6) / 2);
             if (level == 0)
                 string_method = "Defl:N";
@@ -99,19 +99,16 @@ int32_t miniunz_list(void *handle)
             else if ((level == 2) || (level == 3))
                 string_method = "Defl:F"; // 2:fast , 3 : extra fast
             else
-                string_method = "Unkn. ";
-        }
-        else if (file_info->compression_method == MZ_METHOD_BZIP2)
-        {
-            string_method = "BZip2 ";
-        }
-        else if (file_info->compression_method == MZ_METHOD_LZMA)
-        {
-            string_method = "LZMA ";
-        }
-        else
-        {
-            string_method = "Unkn. ";
+                string_method = "Defl:?";
+            break;
+        case MZ_METHOD_BZIP2:
+            string_method = "BZip2";
+            break;
+        case MZ_METHOD_LZMA:
+            string_method = "LZMA";
+            break;
+        default:
+            string_method = "Unknwn";
         }
 
         mz_dosdate_to_tm(file_info->dos_date, &tmu_date);
@@ -420,7 +417,10 @@ int main(int argc, const char *argv[])
     }
     else if (opt_do_extract)
     {
-        if (opt_extractdir && mz_os_change_dir(directory))
+        // Create target directory if it doesn't exist
+        mz_os_make_dir(directory);
+
+        if ((opt_extractdir) && (mz_os_change_dir(directory) != MZ_OK))
         {
             printf("Error changing into %s, aborting\n", directory);
             exit(-1);

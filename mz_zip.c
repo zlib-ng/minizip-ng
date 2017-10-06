@@ -403,17 +403,20 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     if (crypt_info == NULL)
         return MZ_PARAM_ERROR;
 
-    if ((compress_info->method != 0) && (compress_info->method != MZ_METHOD_DEFLATE))
+    switch (compress_info->method)
     {
+    case MZ_METHOD_RAW:
+    case MZ_METHOD_DEFLATE:
 #ifdef HAVE_BZIP2
-        if (compress_info->method != MZ_METHOD_BZIP2)
-            return MZ_PARAM_ERROR;
-#elif HAVE_LZMA
-        if (compress_info->method != MZ_METHOD_LZMA)
-            return MZ_PARAM_ERROR;
-#else
-        return MZ_PARAM_ERROR;
+    case MZ_METHOD_BZIP2:
 #endif
+#if HAVE_LZMA
+    case MZ_METHOD_LZMA:
+#endif
+        err = MZ_OK;
+        break;
+    default:
+        return MZ_PARAM_ERROR;
     }
 
     zip = (mz_zip*)handle;
