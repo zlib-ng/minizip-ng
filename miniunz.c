@@ -410,6 +410,7 @@ int main(int argc, const char *argv[])
 
     if (handle == NULL)
     {
+        mz_stream_os_close(stream);
         mz_stream_os_delete(&stream);
         printf("Error opening zip %s\n", path);
         return 1;
