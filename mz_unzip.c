@@ -879,7 +879,7 @@ extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len)
     return read;
 }
 
-extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file **file_info)
+extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file *file_info)
 {
     mz_unzip *unzip = NULL;
 
@@ -891,7 +891,7 @@ extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file **file_in
     if (unzip->entry_header_read == 0)
         return MZ_PARAM_ERROR;
 
-    *file_info = &unzip->file_info;
+    *file_info = unzip->file_info;
     return MZ_OK;
 }
 

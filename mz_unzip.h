@@ -98,7 +98,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len);
 // Read bytes from the current file
 
-extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file **file_info);
+extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file *file_info);
 // Get info about the current file
 
 extern int ZEXPORT mz_unzip_entry_get_extrafield_local(void *handle, void *buf, uint32_t len);
