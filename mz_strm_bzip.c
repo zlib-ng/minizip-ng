@@ -23,6 +23,23 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_bzip_vtbl = {
+    mz_stream_bzip_open,
+    mz_stream_bzip_is_open,
+    mz_stream_bzip_read,
+    mz_stream_bzip_write,
+    mz_stream_bzip_tell,
+    mz_stream_bzip_seek,
+    mz_stream_bzip_close,
+    mz_stream_bzip_error,
+    mz_stream_bzip_create,
+    mz_stream_bzip_delete,
+    mz_stream_bzip_get_total_in,
+    mz_stream_bzip_get_total_out
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_bzip_s {
     mz_stream   stream;
     bz_stream   bzstream;
@@ -304,19 +321,7 @@ void *mz_stream_bzip_create(void **stream)
     if (bzip != NULL)
     {
         memset(bzip, 0, sizeof(mz_stream_bzip));
-
-        bzip->stream.open = mz_stream_bzip_open;
-        bzip->stream.is_open = mz_stream_bzip_is_open;
-        bzip->stream.read = mz_stream_bzip_read;
-        bzip->stream.write = mz_stream_bzip_write;
-        bzip->stream.tell = mz_stream_bzip_tell;
-        bzip->stream.seek = mz_stream_bzip_seek;
-        bzip->stream.close = mz_stream_bzip_close;
-        bzip->stream.error = mz_stream_bzip_error;
-        bzip->stream.create = mz_stream_bzip_create;
-        bzip->stream.delete = mz_stream_bzip_delete;
-        bzip->stream.get_total_in = mz_stream_bzip_get_total_in;
-        bzip->stream.get_total_out = mz_stream_bzip_get_total_out;
+        bzip->stream.vtbl = &mz_stream_bzip_vtbl;
         bzip->level = 6;
     }
     if (stream != NULL)
@@ -334,6 +339,11 @@ void mz_stream_bzip_delete(void **stream)
     if (bzip != NULL)
         free(bzip);
     *stream = NULL;
+}
+
+void *mz_stream_bzip_get_interface(void)
+{
+    return (void *)&mz_stream_bzip_vtbl;
 }
 
 extern void bz_internal_error(int errcode)

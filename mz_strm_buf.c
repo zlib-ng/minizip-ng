@@ -33,6 +33,21 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_buffered_vtbl = {
+    mz_stream_buffered_open,
+    mz_stream_buffered_is_open,
+    mz_stream_buffered_read,
+    mz_stream_buffered_write,
+    mz_stream_buffered_tell,
+    mz_stream_buffered_seek,
+    mz_stream_buffered_close,
+    mz_stream_buffered_error,
+    mz_stream_buffered_create,
+    mz_stream_buffered_delete
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_buffered_s {
   mz_stream stream;
   char      readbuf[MZ_BUF_BUFFERSIZE];
@@ -352,16 +367,7 @@ void *mz_stream_buffered_create(void **stream)
     if (buffered != NULL)
     {
         memset(buffered, 0, sizeof(mz_stream_buffered));
-
-        buffered->stream.open = mz_stream_buffered_open;
-        buffered->stream.read = mz_stream_buffered_read;
-        buffered->stream.write = mz_stream_buffered_write;
-        buffered->stream.tell = mz_stream_buffered_tell;
-        buffered->stream.seek = mz_stream_buffered_seek;
-        buffered->stream.close = mz_stream_buffered_close;
-        buffered->stream.error = mz_stream_buffered_error;
-        buffered->stream.create = mz_stream_buffered_create;
-        buffered->stream.delete = mz_stream_buffered_delete;
+        buffered->stream.vtbl = &mz_stream_buffered_vtbl;
     }
     if (stream != NULL)
         *stream = buffered;
@@ -378,4 +384,9 @@ void mz_stream_buffered_delete(void **stream)
     if (buffered != NULL)
         free(buffered);
     *stream = NULL;
+}
+
+void *mz_stream_buffered_get_interface(void)
+{
+    return (void *)&mz_stream_buffered_vtbl;
 }

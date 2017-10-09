@@ -61,6 +61,21 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_posix_vtbl = {
+    mz_stream_posix_open,
+    mz_stream_posix_is_open,
+    mz_stream_posix_read,
+    mz_stream_posix_write,
+    mz_stream_posix_tell,
+    mz_stream_posix_seek,
+    mz_stream_posix_close,
+    mz_stream_posix_error,
+    mz_stream_posix_create,
+    mz_stream_posix_delete
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_posix_s
 {
     mz_stream   stream;
@@ -195,18 +210,7 @@ void *mz_stream_posix_create(void **stream)
 
     posix = (mz_stream_posix *)malloc(sizeof(mz_stream_posix));
     if (posix != NULL)
-    {
-        posix->stream.open = mz_stream_posix_open;
-        posix->stream.is_open = mz_stream_posix_is_open;
-        posix->stream.read = mz_stream_posix_read;
-        posix->stream.write = mz_stream_posix_write;
-        posix->stream.tell = mz_stream_posix_tell;
-        posix->stream.seek = mz_stream_posix_seek;
-        posix->stream.close = mz_stream_posix_close;
-        posix->stream.error = mz_stream_posix_error;
-        posix->stream.create = mz_stream_posix_create;
-        posix->stream.delete = mz_stream_posix_delete;
-    }
+        posix->stream.vtbl = &mz_stream_posix_vtbl;
     if (stream != NULL)
         *stream = posix;
 
@@ -222,4 +226,9 @@ void mz_stream_posix_delete(void **stream)
     if (posix != NULL)
         free(posix);
     *stream = NULL;
+}
+
+void *mz_stream_posix_get_interface(void)
+{
+    return (void *)&mz_stream_posix_vtbl;
 }

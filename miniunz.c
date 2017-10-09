@@ -168,8 +168,8 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
             filename = match + 1;
         match += 1;
     }
-    if (filename != directory)
-        *match = 0;
+    if (filename > directory)
+        directory[(int32_t)(filename - directory) - 1] = 0;
 
     // If zip entry is a directory then create it on disk
     if (*filename == 0)
@@ -177,7 +177,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
         if (opt_extract_without_path == 0)
         {
             printf("Creating directory: %s\n", file_info.filename);
-            mz_os_make_dir(directory);
+            mz_make_dir(directory);
         }
 
         return err;
@@ -197,7 +197,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
         write_filename = file_info.filename;
 
     // Determine if the file should be overwritten or not and ask the user if needed
-    if ((err == MZ_OK) && (*opt_overwrite == 0) && (mz_os_file_exists(write_filename)))
+    if ((err == MZ_OK) && (*opt_overwrite == 0) && (mz_file_exists(write_filename)))
     {
         char rep = 0;
         do
@@ -227,7 +227,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
         if ((mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
             (opt_extract_without_path == 0) && (filename != file_info.filename))
         {
-            mz_os_make_dir(directory);
+            mz_make_dir(directory);
             mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE);
         }
     }
@@ -410,6 +410,7 @@ int main(int argc, const char *argv[])
 
     if (handle == NULL)
     {
+        mz_stream_os_close(stream);
         mz_stream_os_delete(&stream);
         printf("Error opening zip %s\n", path);
         return 1;
@@ -425,7 +426,7 @@ int main(int argc, const char *argv[])
     else if (opt_do_extract)
     {
         // Create target directory if it doesn't exist
-        mz_os_make_dir(directory);
+        mz_make_dir(directory);
 
         if ((opt_extractdir) && (mz_os_change_dir(directory) != MZ_OK))
         {

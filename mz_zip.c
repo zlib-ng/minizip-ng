@@ -79,7 +79,6 @@ typedef struct mz_zip_s
     uint64_t add_position_when_writting_offset;
     uint64_t number_entry;
     uint16_t entry_opened;          // 1 if a file in the zip is currently writ.
-    uint64_t disk_size;             // size of each disk
     uint32_t number_disk;           // number of the current disk, used for spanning ZIP
     uint32_t number_disk_with_CD;   // number the the disk with central dir, used for spanning ZIP
 #ifndef NO_ADDFILEINEXISTINGZIP
@@ -180,7 +179,7 @@ static uint64_t mz_zip_search_zip64_cd(void *stream, const uint64_t endcentralof
     return offset;
 }
 
-extern void* ZEXPORT mz_zip_open(uint8_t open_existing, uint64_t disk_size, void *stream)
+extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream)
 {
     mz_zip *zip = NULL;
 #ifndef NO_ADDFILEINEXISTINGZIP
@@ -206,7 +205,6 @@ extern void* ZEXPORT mz_zip_open(uint8_t open_existing, uint64_t disk_size, void
     memset(zip, 0, sizeof(mz_zip));
 
     zip->stream = stream;
-    zip->disk_size = disk_size;
 
     mz_stream_mem_create(&zip->cd_stream);
     mz_stream_mem_set_grow(zip->cd_stream, 1);

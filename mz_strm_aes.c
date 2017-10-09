@@ -30,6 +30,23 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_aes_vtbl = {
+    mz_stream_aes_open,
+    mz_stream_aes_is_open,
+    mz_stream_aes_read,
+    mz_stream_aes_write,
+    mz_stream_aes_tell,
+    mz_stream_aes_seek,
+    mz_stream_aes_close,
+    mz_stream_aes_error,
+    mz_stream_aes_create,
+    mz_stream_aes_delete,
+    mz_stream_aes_get_total_in,
+    mz_stream_aes_get_total_out
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_aes_s {
     mz_stream      stream;
     fcrypt_ctx     crypt_ctx;
@@ -231,19 +248,7 @@ void *mz_stream_aes_create(void **stream)
     if (aes != NULL)
     {
         memset(aes, 0, sizeof(mz_stream_aes));
-
-        aes->stream.open = mz_stream_aes_open;
-        aes->stream.is_open = mz_stream_aes_is_open;
-        aes->stream.read = mz_stream_aes_read;
-        aes->stream.write = mz_stream_aes_write;
-        aes->stream.tell = mz_stream_aes_tell;
-        aes->stream.seek = mz_stream_aes_seek;
-        aes->stream.close = mz_stream_aes_close;
-        aes->stream.error = mz_stream_aes_error;
-        aes->stream.create = mz_stream_aes_create;
-        aes->stream.delete = mz_stream_aes_delete;
-        aes->stream.get_total_in = mz_stream_aes_get_total_in;
-        aes->stream.get_total_out = mz_stream_aes_get_total_out;
+        aes->stream.vtbl = &mz_stream_aes_vtbl;
         aes->encryption_mode = MZ_AES_ENCRYPTIONMODE;
     }
     if (stream != NULL)

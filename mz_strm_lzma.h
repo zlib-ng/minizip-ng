@@ -21,6 +21,7 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_stream_lzma_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_lzma_is_open(void *stream);
 int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size);
 int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_lzma_tell(void *stream);
@@ -35,6 +36,8 @@ void    mz_stream_lzma_set_max_total_in(void *stream, int64_t max_total_in);
 
 void*   mz_stream_lzma_create(void **stream);
 void    mz_stream_lzma_delete(void **stream);
+
+void*   mz_stream_lzma_get_interface(void);
 
 /***************************************************************************/
 

@@ -27,6 +27,7 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_stream_aes_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_aes_is_open(void *stream);
 int32_t mz_stream_aes_read(void *stream, void *buf, int32_t size);
 int32_t mz_stream_aes_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_aes_tell(void *stream);
@@ -42,6 +43,8 @@ int32_t mz_stream_aes_get_footer_size(void *stream);
 
 void*   mz_stream_aes_create(void **stream);
 void    mz_stream_aes_delete(void **stream);
+
+void*   mz_stream_aes_get_interface(void);
 
 /***************************************************************************/
 

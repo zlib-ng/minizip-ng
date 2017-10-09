@@ -37,6 +37,8 @@ int32_t mz_stream_posix_error(void *stream);
 void*   mz_stream_posix_create(void **stream);
 void    mz_stream_posix_delete(void **stream);
 
+void*   mz_stream_posix_get_interface(void);
+
 /***************************************************************************/
 
 #if !defined(_WIN32) && !defined(USEWIN32IOAPI)
@@ -51,6 +53,9 @@ void    mz_stream_posix_delete(void **stream);
 
 #define mz_stream_os_create  mz_stream_posix_create
 #define mz_stream_os_delete  mz_stream_posix_delete
+
+#define mz_stream_os_get_interface \
+                             mz_stream_posix_get_interface
 #endif
 
 /***************************************************************************/

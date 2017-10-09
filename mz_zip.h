@@ -78,7 +78,7 @@ typedef struct mz_zip_crypt_s
 
 /***************************************************************************/
 
-extern void* ZEXPORT mz_zip_open(uint8_t open_existing, uint64_t disk_size, void *stream);
+extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream);
 // Create a zip file
 //
 //   NOTE: There is no delete function into a zip file. If you want delete file in a zip file, 
