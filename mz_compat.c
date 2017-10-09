@@ -591,6 +591,8 @@ int get_file_crc(const char *path, void *buf, uint32_t buf_size, uint32_t *resul
     mz_stream_crc32_create(&crc32_stream);
     mz_stream_crc32_open(crc32_stream, NULL, MZ_STREAM_MODE_READ);
 
+    mz_stream_set_base(crc32_stream, stream);
+
     if (err == MZ_OK)
     {
         do
