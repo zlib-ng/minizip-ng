@@ -22,7 +22,7 @@
 
 /***************************************************************************/
 
-int32_t mz_os_file_exists(const char *path)
+int32_t mz_file_exists(const char *path)
 {
     void *stream = NULL;
     int opened = 0;
@@ -40,7 +40,7 @@ int32_t mz_os_file_exists(const char *path)
     return opened;
 }
 
-int64_t mz_os_file_get_size(const char *path)
+int64_t mz_file_get_size(const char *path)
 {
     void *stream = NULL;
     int64_t size = 0;
@@ -57,6 +57,54 @@ int64_t mz_os_file_get_size(const char *path)
     mz_stream_os_delete(&stream);
 
     return size;
+}
+
+int16_t mz_make_dir(const char *path)
+{
+    int16_t err = MZ_OK;
+    int16_t len = 0;
+    char *current_dir = NULL;
+    char *match = NULL;
+    char hold = 0;
+
+
+    len = (int16_t)strlen(path);
+    if (len <= 0)
+        return 0;
+
+    current_dir = (char *)malloc(len + 1);
+    if (current_dir == NULL)
+        return MZ_MEM_ERROR;
+
+    strcpy(current_dir, path);
+
+    if (current_dir[len - 1] == '/')
+        current_dir[len - 1] = 0;
+
+    err = mz_os_make_dir(current_dir);
+    if (err != MZ_OK)
+    {
+        match = current_dir + 1;
+        while (1)
+        {
+            while (*match != 0 && *match != '\\' && *match != '/')
+                match += 1;
+            hold = *match;
+            *match = 0;
+
+            err = mz_os_make_dir(current_dir);
+            if (err != MZ_OK)
+                break;
+            if (hold == 0)
+                break;
+
+            *match = hold;
+            match += 1;
+        }
+    }
+
+    free(current_dir);
+    return err;
 }
 
 /***************************************************************************/

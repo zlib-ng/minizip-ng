@@ -97,7 +97,7 @@ int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_pat
 
     file_info.filename = filenameinzip;
 
-    if (mz_os_file_get_size(path) >= UINT32_MAX)
+    if (mz_file_get_size(path) >= UINT32_MAX)
         file_info.zip64 = 1;
 
     mz_os_get_file_date(path, &file_info.dos_date);
@@ -283,13 +283,13 @@ int main(int argc, char *argv[])
     if (opt_open_existing)
     {
         // If the file doesn't exist, we don't append file
-        if (mz_os_file_exists(path) != MZ_OK)
+        if (mz_file_exists(path) != MZ_OK)
             opt_append = 0;
     }
     else if (opt_append == 0)
     {
         // If ask the user what to do because append and overwrite args not set
-        if (mz_os_file_exists(path) != 0)
+        if (mz_file_exists(path) != MZ_OK)
         {
             char rep = 0;
             do

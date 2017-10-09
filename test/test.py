@@ -40,11 +40,27 @@ def get_exec(name):
         return os.path.join(args.exe_dir, name)
     return name
 
+def get_files_info(path):
+    if os.path.isfile(path):
+        return {
+            path: {
+                'hash': hash_file_sha1(path),
+                'size': os.path.getsize(path)
+            }
+        }
+    info = {}
+    for root, dirs, files in os.walk(path):
+        path = root.split(os.sep)
+        for path in files:
+            info.update(get_files_info(path))
+    return info
+
 def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
     # Single test run
-    original_hash = {}
+    original_infos = {}
     for (i, path) in enumerate(files):
-        original_hash[path] = hash_file_sha1(path)
+        original_infos.update(get_files_info(path))
+    print original_infos
 
     erase_file(zip_file)
     erase_dir(dest_dir)
@@ -68,16 +84,16 @@ def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
         print('Unzip returned error code {0}'.format(err))
         exit(err)
 
-    new_hash = {}
+    new_infos = {}
     for (i, path) in enumerate(files):
-        new_hash[path] = hash_file_sha1(path)
+        new_infos.update(get_files_info(path))
 
-    if (' '.join(original_hash) != ' '.join(new_hash)):
-        print('Hashes do not match')
+    if (' '.join(original_infos) != ' '.join(new_infos)):
+        print('Infos do not match')
         print('Original: ')
-        pprint(original_hash)
+        pprint(original_infos)
         print('New: ')
-        print(new_hash)
+        print(new_infos)
 
 def test_level_0(method, zip_arg = '', unzip_arg = ''):
     # File tests
@@ -85,6 +101,8 @@ def test_level_0(method, zip_arg = '', unzip_arg = ''):
     zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['LICENSE'])
     print 'Testing {0} on Two Files'.format(method)
     zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['LICENSE', 'test.png'])
+    print 'Testing {0} Directory'.format(method)
+    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
 
 def test_level_1(method = '', zip_arg = '', unzip_arg = ''):
     # Compression method tests
@@ -93,6 +111,9 @@ def test_level_1(method = '', zip_arg = '', unzip_arg = ''):
     test_level_0(method + 'Raw', '-0 ' + zip_arg, unzip_arg)
     test_level_0(method + 'BZIP2', '-b ' + zip_arg, unzip_arg)
     test_level_0(method + 'LZMA', '-l ' + zip_arg, unzip_arg)
+
+if not os.path.exists('repo'):
+    os.system('git clone https://github.com/nmoinvaz/minizip repo')
 
 # Run tests
 test_level_1()
