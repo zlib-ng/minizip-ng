@@ -84,7 +84,7 @@ void *unz_handle = mz_unzip_open(buf_stream);
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
 
-### Platforms
+## Platforms
 
 This library is supported on Windows, macOS, and Linux.
 
@@ -95,3 +95,25 @@ This library is supported on Windows, macOS, and Linux.
 #### Windows RT
 
 + Requires #define IOWIN32_USING_WINRT_API
+
+## Contents
+
+| File(s) | Description |
+|:------------- |:-------------|
+| miniunz.c | Sample unzip application |
+| minizip.c | Sample zip application |
+| mz_compat.\* | Minizip 1.0 compatibility layer |
+| mz_error.h | Error codes for all the functions |
+| mz_os\* | OS specific helper functions |
+| mz_strm.\* | Stream interface |
+| mz_strm_aes.\* | WinZIP AES stream |
+| mz_strm_buf.\* | Buffered stream |
+| mz_strm_bzip.\* | BZIP2 stream |
+| mz_strm_crypt.\* | PKWARE traditional encryption stream |
+| mz_strm_lzma.\* | LZMA stream using liblzma |
+| mz_strm_mem.\* | Memory stream |
+| mz_strm_posix.\* | File stream using Posix functions |
+| mz_strm_win32.\* | File stream using Win32 API functions |
+| mz_strm_zlib.\* | Deflate stream using zlib |
+| mz_unzip.\* | Unzip functionality |
+| mz_zip.\* | Zip functionality |
