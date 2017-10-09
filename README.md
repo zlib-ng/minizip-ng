@@ -108,7 +108,7 @@ This library is supported on Windows, macOS, and Linux.
 | mz_strm.\* | Stream interface |
 | mz_strm_aes.\* | WinZIP AES stream |
 | mz_strm_buf.\* | Buffered stream |
-| mz_strm_bzip.\* | BZIP2 stream |
+| mz_strm_bzip.\* | BZIP2 stream using libbzip2 |
 | mz_strm_crypt.\* | PKWARE traditional encryption stream |
 | mz_strm_lzma.\* | LZMA stream using liblzma |
 | mz_strm_mem.\* | Memory stream |
