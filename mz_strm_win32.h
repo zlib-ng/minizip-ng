@@ -54,6 +54,9 @@ void*   mz_stream_win32_get_interface(void);
 #define mz_stream_os_create  mz_stream_win32_create
 #define mz_stream_os_delete  mz_stream_win32_delete
 
+#define mz_stream_os_get_interface \
+                             mz_stream_win32_get_interface
+
 #define mz_os_rand           mz_win32_rand
 #define mz_os_get_file_date  mz_win32_get_file_date
 #define mz_os_set_file_date  mz_win32_set_file_date

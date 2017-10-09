@@ -4,11 +4,6 @@
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Modifications for Zip64 support
-     Copyright (C) 2009-2010 Mathias Svensson
-     http://result42.com
-   Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -272,15 +267,13 @@ int64_t mz_stream_get_total_out(void *stream)
     return strm->vtbl->get_total_out(stream);
 }
 
-void *mz_stream_create(void **stream)
+void *mz_stream_create(void **stream, mz_stream_vtbl *vtbl)
 {
-    mz_stream *strm = NULL;
     if (stream == NULL)
         return NULL;
-    strm = (mz_stream *)*stream;
-    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->create == NULL)
+    if (vtbl == NULL || vtbl->create == NULL)
         return NULL;
-    return strm->vtbl->create(stream);
+    return vtbl->create(stream);
 }
 
 void mz_stream_delete(void **stream)

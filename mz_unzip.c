@@ -115,7 +115,7 @@ static uint64_t mz_unzip_search_cd(void *stream)
     uint64_t read_pos = 0;
     uint32_t i = 0;
 
-    if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != 0)
+    if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != MZ_OK)
         return 0;
 
     file_size = mz_stream_tell(stream);

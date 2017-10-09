@@ -53,6 +53,9 @@ void*   mz_stream_posix_get_interface(void);
 
 #define mz_stream_os_create  mz_stream_posix_create
 #define mz_stream_os_delete  mz_stream_posix_delete
+
+#define mz_stream_os_get_interface \
+                             mz_stream_posix_get_interface
 #endif
 
 /***************************************************************************/

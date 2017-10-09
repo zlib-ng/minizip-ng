@@ -57,7 +57,7 @@ mz_stream_vtbl mz_stream_win32_vtbl = {
 
 typedef struct mz_stream_win32_s
 {
-    mz_stream       vtbl;
+    mz_stream       stream;
     HANDLE          handle;
     int32_t         error;
 } mz_stream_win32;

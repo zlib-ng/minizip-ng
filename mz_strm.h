@@ -4,11 +4,6 @@
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Copyright (C) 2009-2010 Mathias Svensson
-     Modifications for Zip64 support
-     http://result42.com
-   Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -50,17 +45,8 @@ typedef int64_t (*mz_stream_tell_cb)           (void *stream);
 typedef int32_t (*mz_stream_seek_cb)           (void *stream, int64_t offset, int32_t origin);
 typedef int32_t (*mz_stream_close_cb)          (void *stream);
 typedef int32_t (*mz_stream_error_cb)          (void *stream);
-
-typedef int64_t (*mz_stream_set_property_ptr)  (void *stream, int32_t property, void *value);
-typedef int64_t (*mz_stream_get_property_ptr)  (void *stream, int32_t property, void **value);
-typedef int64_t (*mz_stream_get_property_int64)(void *stream, int32_t property, int64_t *value);
-
 typedef void*   (*mz_stream_create_cb)         (void **stream);
 typedef void    (*mz_stream_delete_cb)         (void **stream);
-
-typedef int64_t (*mz_stream_set_base_cb)       (void *stream);
-
-
 
 typedef int64_t (*mz_stream_get_total_in_cb)   (void *stream);
 typedef int64_t (*mz_stream_get_total_out_cb)  (void *stream);
@@ -79,6 +65,7 @@ typedef struct mz_stream_vtbl_s
     mz_stream_error_cb          error;
     mz_stream_create_cb         create;
     mz_stream_delete_cb         delete;
+
     mz_stream_get_total_in_cb   get_total_in;
     mz_stream_get_total_out_cb  get_total_out;
 } mz_stream_vtbl;
@@ -112,7 +99,7 @@ int32_t mz_stream_set_base(void *stream, void *base);
 int64_t mz_stream_get_total_in(void *stream);
 int64_t mz_stream_get_total_out(void *stream);
 
-void*   mz_stream_create(void **stream);
+void*   mz_stream_create(void **stream, mz_stream_vtbl *vtbl);
 void    mz_stream_delete(void **stream);
 
 void*   mz_stream_passthru_create(void **stream);
