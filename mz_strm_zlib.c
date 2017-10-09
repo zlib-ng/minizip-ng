@@ -33,6 +33,23 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_zlib_vtbl = {
+    mz_stream_zlib_open,
+    mz_stream_zlib_is_open,
+    mz_stream_zlib_read,
+    mz_stream_zlib_write,
+    mz_stream_zlib_tell,
+    mz_stream_zlib_seek,
+    mz_stream_zlib_close,
+    mz_stream_zlib_error,
+    mz_stream_zlib_create,
+    mz_stream_zlib_delete,
+    mz_stream_zlib_get_total_in,
+    mz_stream_zlib_get_total_out
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_zlib_s {
     mz_stream   stream;
     z_stream    zstream;
@@ -343,19 +360,7 @@ void *mz_stream_zlib_create(void **stream)
     if (zlib != NULL)
     {
         memset(zlib, 0, sizeof(mz_stream_zlib));
-
-        zlib->stream.open = mz_stream_zlib_open;
-        zlib->stream.is_open = mz_stream_zlib_is_open;
-        zlib->stream.read = mz_stream_zlib_read;
-        zlib->stream.write = mz_stream_zlib_write;
-        zlib->stream.tell = mz_stream_zlib_tell;
-        zlib->stream.seek = mz_stream_zlib_seek;
-        zlib->stream.close = mz_stream_zlib_close;
-        zlib->stream.error = mz_stream_zlib_error;
-        zlib->stream.create = mz_stream_zlib_create;
-        zlib->stream.delete = mz_stream_zlib_delete;
-        zlib->stream.get_total_in = mz_stream_zlib_get_total_in;
-        zlib->stream.get_total_out = mz_stream_zlib_get_total_out;
+        zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
         zlib->window_bits = -MAX_WBITS;
         zlib->mem_level = DEF_MEM_LEVEL;
@@ -377,6 +382,28 @@ void mz_stream_zlib_delete(void **stream)
         free(zlib);
     *stream = NULL;
 }
+
+void *mz_stream_zlib_get_interface(void)
+{
+    return (void *)&mz_stream_zlib_vtbl;
+}
+
+/***************************************************************************/
+
+mz_stream_vtbl mz_stream_crc32_vtbl = {
+    mz_stream_crc32_open,
+    mz_stream_crc32_is_open,
+    mz_stream_crc32_read,
+    mz_stream_crc32_write,
+    mz_stream_crc32_tell,
+    mz_stream_crc32_seek,
+    mz_stream_crc32_close,
+    mz_stream_crc32_error,
+    mz_stream_crc32_create,
+    mz_stream_crc32_delete,
+    mz_stream_crc32_get_total_in,
+    mz_stream_crc32_get_total_out
+};
 
 /***************************************************************************/
 
@@ -409,7 +436,8 @@ int32_t mz_stream_crc32_is_open(void *stream)
 int32_t mz_stream_crc32_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_crc32 *crc32x = (mz_stream_crc32 *)stream;
-    int32_t read = mz_stream_read(crc32x->stream.base, buf, size);
+    int32_t read = 0;
+    read = mz_stream_read(crc32x->stream.base, buf, size);
     if (read > 0)
         crc32x->value = (int32_t)crc32(crc32x->value, buf, read);
     crc32x->total_in += read;
@@ -477,19 +505,7 @@ void *mz_stream_crc32_create(void **stream)
     if (crc32 != NULL)
     {
         memset(crc32, 0, sizeof(mz_stream_crc32));
-
-        crc32->stream.open = mz_stream_crc32_open;
-        crc32->stream.is_open = mz_stream_crc32_is_open;
-        crc32->stream.read = mz_stream_crc32_read;
-        crc32->stream.write = mz_stream_crc32_write;
-        crc32->stream.tell = mz_stream_crc32_tell;
-        crc32->stream.seek = mz_stream_crc32_seek;
-        crc32->stream.close = mz_stream_crc32_close;
-        crc32->stream.error = mz_stream_crc32_error;
-        crc32->stream.create = mz_stream_crc32_create;
-        crc32->stream.delete = mz_stream_crc32_delete;
-        crc32->stream.get_total_in = mz_stream_crc32_get_total_in;
-        crc32->stream.get_total_out = mz_stream_crc32_get_total_out;
+        crc32->stream.vtbl = &mz_stream_crc32_vtbl;
     }
     if (stream != NULL)
         *stream = crc32;
@@ -506,4 +522,9 @@ void mz_stream_crc32_delete(void **stream)
     if (crc32 != NULL)
         free(crc32);
     *stream = NULL;
+}
+
+void *mz_stream_crc32_get_interface(void)
+{
+    return (void *)&mz_stream_crc32_vtbl;
 }

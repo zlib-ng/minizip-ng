@@ -23,6 +23,7 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode);
+int32_t mz_stream_buffered_is_open(void *stream);
 int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size);
 int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_buffered_tell(void *stream);
@@ -32,6 +33,8 @@ int32_t mz_stream_buffered_error(void *stream);
 
 void*   mz_stream_buffered_create(void **stream);
 void    mz_stream_buffered_delete(void **stream);
+
+void*   mz_stream_buffered_get_interface(void);
 
 /***************************************************************************/
 

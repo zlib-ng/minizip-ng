@@ -22,6 +22,7 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_stream_mem_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_mem_is_open(void *stream);
 int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size);
 int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size);
 int64_t mz_stream_mem_tell(void *stream);
@@ -37,6 +38,8 @@ void    mz_stream_mem_set_grow_size(void *stream, int32_t grow_size);
 
 void*   mz_stream_mem_create(void **stream);
 void    mz_stream_mem_delete(void **stream);
+
+void*   mz_stream_mem_get_interface(void);
 
 /***************************************************************************/
 

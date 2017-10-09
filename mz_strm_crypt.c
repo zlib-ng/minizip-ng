@@ -43,6 +43,23 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_crypt_vtbl = {
+    mz_stream_crypt_open,
+    mz_stream_crypt_is_open,
+    mz_stream_crypt_read,
+    mz_stream_crypt_write,
+    mz_stream_crypt_tell,
+    mz_stream_crypt_seek,
+    mz_stream_crypt_close,
+    mz_stream_crypt_error,
+    mz_stream_crypt_create,
+    mz_stream_crypt_delete,
+    mz_stream_crypt_get_total_in,
+    mz_stream_crypt_get_total_out
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_crypt_s {
     mz_stream       stream;
     uint32_t        keys[3];          // keys defining the pseudo-random sequence
@@ -278,19 +295,7 @@ void *mz_stream_crypt_create(void **stream)
     if (crypt != NULL)
     {
         memset(crypt, 0, sizeof(mz_stream_crypt));
-
-        crypt->stream.open = mz_stream_crypt_open;
-        crypt->stream.is_open = mz_stream_crypt_is_open;
-        crypt->stream.read = mz_stream_crypt_read;
-        crypt->stream.write = mz_stream_crypt_write;
-        crypt->stream.tell = mz_stream_crypt_tell;
-        crypt->stream.seek = mz_stream_crypt_seek;
-        crypt->stream.close = mz_stream_crypt_close;
-        crypt->stream.error = mz_stream_crypt_error;
-        crypt->stream.create = mz_stream_crypt_create;
-        crypt->stream.delete = mz_stream_crypt_delete;
-        crypt->stream.get_total_in = mz_stream_crypt_get_total_in;
-        crypt->stream.get_total_out = mz_stream_crypt_get_total_out;
+        crypt->stream.vtbl = &mz_stream_crypt_vtbl;
     }
 
     if (stream != NULL)
@@ -307,4 +312,9 @@ void mz_stream_crypt_delete(void **stream)
     if (crypt != NULL)
         free(crypt);
     *stream = NULL;
+}
+
+void *mz_stream_crypt_get_interface(void)
+{
+    return (void *)&mz_stream_crypt_vtbl;
 }

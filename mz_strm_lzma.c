@@ -34,6 +34,23 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_lzma_vtbl = {
+    mz_stream_lzma_open,
+    mz_stream_lzma_is_open,
+    mz_stream_lzma_read,
+    mz_stream_lzma_write,
+    mz_stream_lzma_tell,
+    mz_stream_lzma_seek,
+    mz_stream_lzma_close,
+    mz_stream_lzma_error,
+    mz_stream_lzma_create,
+    mz_stream_lzma_delete,
+    mz_stream_lzma_get_total_in,
+    mz_stream_lzma_get_total_out
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_lzma_s {
     mz_stream   stream;
     lzma_stream lstream;
@@ -327,19 +344,7 @@ void *mz_stream_lzma_create(void **stream)
     if (lzma != NULL)
     {
         memset(lzma, 0, sizeof(mz_stream_lzma));
-
-        lzma->stream.open = mz_stream_lzma_open;
-        lzma->stream.is_open = mz_stream_lzma_is_open;
-        lzma->stream.read = mz_stream_lzma_read;
-        lzma->stream.write = mz_stream_lzma_write;
-        lzma->stream.tell = mz_stream_lzma_tell;
-        lzma->stream.seek = mz_stream_lzma_seek;
-        lzma->stream.close = mz_stream_lzma_close;
-        lzma->stream.error = mz_stream_lzma_error;
-        lzma->stream.create = mz_stream_lzma_create;
-        lzma->stream.delete = mz_stream_lzma_delete;
-        lzma->stream.get_total_in = mz_stream_lzma_get_total_in;
-        lzma->stream.get_total_out = mz_stream_lzma_get_total_out;
+        lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->preset = LZMA_PRESET_DEFAULT;
     }
     if (stream != NULL)
@@ -357,4 +362,9 @@ void mz_stream_lzma_delete(void **stream)
     if (lzma != NULL)
         free(lzma);
     *stream = NULL;
+}
+
+void *mz_stream_lzma_get_interface(void)
+{
+    return (void *)&mz_stream_lzma_vtbl;
 }

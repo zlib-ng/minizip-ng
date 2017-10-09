@@ -37,6 +37,8 @@ int32_t mz_stream_win32_error(void *stream);
 void*   mz_stream_win32_create(void **stream);
 void    mz_stream_win32_delete(void **stream);
 
+void*   mz_stream_win32_get_interface(void);
+
 /***************************************************************************/
 
 #if defined(_WIN32) || defined(USEWIN32IOAPI)

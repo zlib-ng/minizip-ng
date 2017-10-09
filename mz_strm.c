@@ -28,27 +28,27 @@
 int32_t mz_stream_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->open == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->open == NULL)
         return MZ_STREAM_ERROR;
-    return strm->open(strm, path, mode);
+    return strm->vtbl->open(strm, path, mode);
 }
 
 int32_t mz_stream_is_open(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->is_open == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->is_open == NULL)
         return MZ_STREAM_ERROR;
-    return strm->is_open(strm);
+    return strm->vtbl->is_open(strm);
 }
 
 int32_t mz_stream_read(void *stream, void *buf, int32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->read == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->read == NULL)
+        return MZ_PARAM_ERROR;
+    if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
-    if (strm->is_open != NULL && strm->is_open(strm) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    return strm->read(strm, buf, size);
+    return strm->vtbl->read(strm, buf, size);
 }
 
 int32_t mz_stream_read_uint8(void *stream, uint8_t *value)
@@ -134,13 +134,13 @@ int32_t mz_stream_read_uint64(void *stream, uint64_t *value)
 int32_t mz_stream_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->write == NULL)
-        return MZ_STREAM_ERROR;
     if (size == 0)
         return size;
-    if (strm->is_open != NULL && strm->is_open(strm) != MZ_OK)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->write == NULL)
+        return MZ_PARAM_ERROR;
+    if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
-    return strm->write(strm, buf, size);
+    return strm->vtbl->write(strm, buf, size);
 }
 
 static int32_t mz_stream_write_value(void *stream, uint64_t value, uint32_t len)
@@ -214,37 +214,39 @@ int32_t mz_stream_copy(void *target, void *source, int32_t len)
 int64_t mz_stream_tell(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->tell == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->tell == NULL)
+        return MZ_PARAM_ERROR;
+    if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
-    if (strm->is_open != NULL && strm->is_open(strm) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    return strm->tell(strm);
+    return strm->vtbl->tell(strm);
 }
 
 int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->seek == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->seek == NULL)
+        return MZ_PARAM_ERROR;
+    if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
-    if (strm->is_open != NULL && strm->is_open(strm) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    return strm->seek(strm, offset, origin);
+    return strm->vtbl->seek(strm, offset, origin);
 }
 
 int32_t mz_stream_close(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->close == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->close == NULL)
+        return MZ_PARAM_ERROR;
+    if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
-    return strm->close(strm);
+    return strm->vtbl->close(strm);
 }
 
 int32_t mz_stream_error(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->error == NULL)
-        return MZ_STREAM_ERROR;
-    return strm->error(strm);
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->error == NULL)
+        return MZ_PARAM_ERROR;
+    return strm->vtbl->error(strm);
 }
 
 int32_t mz_stream_set_base(void *stream, void *base)
@@ -257,17 +259,17 @@ int32_t mz_stream_set_base(void *stream, void *base)
 int64_t mz_stream_get_total_in(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm->get_total_in == NULL)
-        return MZ_STREAM_ERROR;
-    return strm->get_total_in(stream);
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->get_total_in == NULL)
+        return MZ_PARAM_ERROR;
+    return strm->vtbl->get_total_in(stream);
 }
 
 int64_t mz_stream_get_total_out(void *stream)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm->get_total_out == NULL)
-        return MZ_STREAM_ERROR;
-    return strm->get_total_out(stream);
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->get_total_out == NULL)
+        return MZ_PARAM_ERROR;
+    return strm->vtbl->get_total_out(stream);
 }
 
 void *mz_stream_create(void **stream)
@@ -276,7 +278,9 @@ void *mz_stream_create(void **stream)
     if (stream == NULL)
         return NULL;
     strm = (mz_stream *)*stream;
-    return strm->create(stream);
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->create == NULL)
+        return NULL;
+    return strm->vtbl->create(stream);
 }
 
 void mz_stream_delete(void **stream)
@@ -285,7 +289,8 @@ void mz_stream_delete(void **stream)
     if (stream == NULL)
         return;
     strm = (mz_stream *)*stream;
-    strm->delete(stream);
+    if (strm != NULL && strm->vtbl != NULL && strm->vtbl->delete != NULL)
+        strm->vtbl->delete(stream);
     *stream = NULL;
 }
 
@@ -363,6 +368,25 @@ int64_t mz_stream_passthru_get_total_out(void *stream)
     return passthru->total_out;
 }
 
+/***************************************************************************/
+
+mz_stream_vtbl mz_stream_passthru_vtbl = {
+    mz_stream_passthru_open,
+    mz_stream_passthru_is_open,
+    mz_stream_passthru_read,
+    mz_stream_passthru_write,
+    mz_stream_passthru_tell,
+    mz_stream_passthru_seek,
+    mz_stream_passthru_close,
+    mz_stream_passthru_error,
+    mz_stream_passthru_create,
+    mz_stream_passthru_delete,
+    mz_stream_passthru_get_total_in,
+    mz_stream_passthru_get_total_out
+};
+
+/***************************************************************************/
+
 void *mz_stream_passthru_create(void **stream)
 {
     mz_stream_passthru *passthru = NULL;
@@ -371,19 +395,7 @@ void *mz_stream_passthru_create(void **stream)
     if (passthru != NULL)
     {
         memset(passthru, 0, sizeof(mz_stream_passthru));
-
-        passthru->stream.open = mz_stream_passthru_open;
-        passthru->stream.is_open = mz_stream_passthru_is_open;
-        passthru->stream.read = mz_stream_passthru_read;
-        passthru->stream.write = mz_stream_passthru_write;
-        passthru->stream.tell = mz_stream_passthru_tell;
-        passthru->stream.seek = mz_stream_passthru_seek;
-        passthru->stream.close = mz_stream_passthru_close;
-        passthru->stream.error = mz_stream_passthru_error;
-        passthru->stream.create = mz_stream_passthru_create;
-        passthru->stream.delete = mz_stream_passthru_delete;
-        passthru->stream.get_total_in = mz_stream_passthru_get_total_in;
-        passthru->stream.get_total_out = mz_stream_passthru_get_total_out;
+        passthru->stream.vtbl = &mz_stream_passthru_vtbl;
     }
     if (stream != NULL)
         *stream = passthru;

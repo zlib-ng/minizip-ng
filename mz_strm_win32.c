@@ -40,11 +40,26 @@
 
 /***************************************************************************/
 
+mz_stream_vtbl mz_stream_win32_vtbl = {
+    mz_stream_win32_open,
+    mz_stream_win32_is_open,
+    mz_stream_win32_read,
+    mz_stream_win32_write,
+    mz_stream_win32_tell,
+    mz_stream_win32_seek,
+    mz_stream_win32_close,
+    mz_stream_win32_error,
+    mz_stream_win32_create,
+    mz_stream_win32_delete
+};
+
+/***************************************************************************/
+
 typedef struct mz_stream_win32_s
 {
-    mz_stream   stream;
-    HANDLE      handle;
-    int32_t     error;
+    mz_stream       vtbl;
+    HANDLE          handle;
+    int32_t         error;
 } mz_stream_win32;
 
 /***************************************************************************/
@@ -264,17 +279,7 @@ void *mz_stream_win32_create(void **stream)
     if (win32 != NULL)
     {
         memset(win32, 0, sizeof(mz_stream_win32));
-
-        win32->stream.open = mz_stream_win32_open;
-        win32->stream.is_open = mz_stream_win32_is_open;
-        win32->stream.read = mz_stream_win32_read;
-        win32->stream.write = mz_stream_win32_write;
-        win32->stream.tell = mz_stream_win32_tell;
-        win32->stream.seek = mz_stream_win32_seek;
-        win32->stream.close = mz_stream_win32_close;
-        win32->stream.error = mz_stream_win32_error;
-        win32->stream.create = mz_stream_win32_create;
-        win32->stream.delete = mz_stream_win32_delete;
+        win32->stream.vtbl = &mz_stream_win32_vtbl;
     }
     if (stream != NULL)
         *stream = win32;
@@ -291,4 +296,9 @@ void mz_stream_win32_delete(void **stream)
     if (win32 != NULL)
         free(win32);
     *stream = NULL;
+}
+
+void *mz_stream_win32_get_interface(void)
+{
+    return (void *)&mz_stream_win32_vtbl;
 }
