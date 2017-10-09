@@ -78,7 +78,7 @@ mz_stream_vtbl mz_stream_posix_vtbl = {
 
 typedef struct mz_stream_posix_s
 {
-    mz_stream   *stream;
+    mz_stream   stream;
     FILE        *handle;
     int16_t     error;
 } mz_stream_posix;
@@ -210,7 +210,7 @@ void *mz_stream_posix_create(void **stream)
 
     posix = (mz_stream_posix *)malloc(sizeof(mz_stream_posix));
     if (posix != NULL)
-        posix->stream.vtbl = &mz_stream_posix_i;
+        posix->stream.vtbl = &mz_stream_posix_vtbl;
     if (stream != NULL)
         *stream = posix;
 
@@ -230,5 +230,5 @@ void mz_stream_posix_delete(void **stream)
 
 void *mz_stream_posix_get_interface(void)
 {
-    return (void *)&mz_stream_posix_i;
+    return (void *)&mz_stream_posix_vtbl;
 }
