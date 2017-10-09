@@ -75,7 +75,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api;..\lib\lzma</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -94,7 +94,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -109,7 +109,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;BZ_NO_STDIO;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_MBCS;_CRT_SECURE_NO_WARNINGS;LZMA_API_STATIC;HAVE_AES;HAVE_BZIP2;HAVE_LZMA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\;..\..\..\;..\lib\;..\lib\liblzma\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -129,10 +129,6 @@
     <ClCompile Include="..\..\..\trees.c" />
     <ClCompile Include="..\..\..\uncompr.c" />
     <ClCompile Include="..\..\..\zutil.c" />
-    <ClCompile Include="..\lib\bzip2\bzlib.c" />
-    <ClCompile Include="..\lib\bzip2\compress.c" />
-    <ClCompile Include="..\lib\bzip2\crctable.c" />
-    <ClCompile Include="..\lib\bzip2\decompress.c" />
     <ClCompile Include="..\lib\aes\aescrypt.c" />
     <ClCompile Include="..\lib\aes\aeskey.c" />
     <ClCompile Include="..\lib\aes\aestab.c" />
@@ -141,9 +137,6 @@
     <ClCompile Include="..\lib\aes\hmac.c" />
     <ClCompile Include="..\lib\aes\pwd2key.c" />
     <ClCompile Include="..\lib\aes\sha1.c" />
-    <ClCompile Include="..\lib\bzip2\blocksort.c" />
-    <ClCompile Include="..\lib\bzip2\huffman.c" />
-    <ClCompile Include="..\lib\bzip2\randtable.c" />
     <ClCompile Include="..\mz_os.c" />
     <ClCompile Include="..\mz_os_posix.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -178,7 +171,6 @@
     <ClInclude Include="..\..\..\zconf.h" />
     <ClInclude Include="..\..\..\zlib.h" />
     <ClInclude Include="..\..\..\zutil.h" />
-    <ClInclude Include="..\lib\bzip2\bzlib_private.h" />
     <ClInclude Include="..\lib\aes\aes.h" />
     <ClInclude Include="..\lib\aes\aesopt.h" />
     <ClInclude Include="..\lib\aes\aestab.h" />
@@ -189,7 +181,6 @@
     <ClInclude Include="..\lib\aes\hmac.h" />
     <ClInclude Include="..\lib\aes\pwd2key.h" />
     <ClInclude Include="..\lib\aes\sha1.h" />
-    <ClInclude Include="..\lib\bzip2\bzlib.h" />
     <ClInclude Include="..\mz_error.h" />
     <ClInclude Include="..\mz_os.h" />
     <ClInclude Include="..\mz_os_posix.h">
@@ -215,6 +206,9 @@
     <ClInclude Include="..\mz_zip.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="libbzip2.vcxproj">
+      <Project>{8d25d6b6-f379-4efa-9135-ce0e2baa12a0}</Project>
+    </ProjectReference>
     <ProjectReference Include="liblzma.vcxproj">
       <Project>{46776da5-bd16-4946-910f-d20b64196181}</Project>
     </ProjectReference>
