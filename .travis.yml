@@ -4,6 +4,7 @@ matrix:
     include:
         - os:
             - linux
+            - osx
 
 compiler:
     - clang
