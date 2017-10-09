@@ -156,12 +156,15 @@ if(USE_BZIP2)
         lib/bzip2/bzlib.h
         lib/bzip2/bzlib_private.h)
 
-    add_library(bzip2 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS})
+    add_library(libbzip2 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS})
 
-    set_target_properties(bzip2 PROPERTIES LINKER_LANGUAGE C)
-    target_link_libraries(libminizip bzip2)
+    set_target_properties(libbzip2 PROPERTIES
+        LINKER_LANGUAGE C
+        PREFIX "")
 
-    install(TARGETS bzip2 EXPORT libminizip-exports
+    target_link_libraries(libminizip libbzip2)
+
+    install(TARGETS libbzip2 EXPORT libminizip-exports
             INCLUDES DESTINATION "lib"
             RUNTIME DESTINATION  "bin"
             LIBRARY DESTINATION  "lib"
