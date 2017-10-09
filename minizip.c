@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
         return 1;
     }
     
-    handle = mz_zip_open(opt_open_existing, 0, stream);
+    handle = mz_zip_open(opt_open_existing, stream);
 
     if (handle == NULL)
     {
