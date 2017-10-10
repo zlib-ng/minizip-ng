@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,40 +29,10 @@
 
 /***************************************************************************/
 
-#ifndef ZCR_SEED2
-#  define ZCR_SEED2 3141592654UL     // use PI as default pattern
-#endif
-
-/***************************************************************************/
-
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
-    static unsigned calls = 0;
-    void *rand_stream = NULL;
-    int32_t len = 0;
-
-
-    if (mz_stream_posix_create(&rand_stream) == NULL)
-        return 0;
-    
-    if (mz_stream_posix_open(rand_stream, "/dev/urandom", MZ_STREAM_MODE_READ) == MZ_OK)
-    {
-        len = mz_stream_posix_read(rand_stream, buf, size);
-        mz_stream_posix_close(rand_stream);
-    }
-
-    mz_stream_posix_delete(&rand_stream);
-
-    if (len < (int)size)
-    {
-        // Ensure different random header each time
-        if (++calls == 1)
-            srand((unsigned)(time(NULL) ^ ZCR_SEED2));
-
-        while (len < (int)size)
-            buf[len++] = (rand() >> 7) & 0xff;
-    }
-    return len;
+    arc4random_buf(buf, size);
+    return size;
 }
 
 int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date)
