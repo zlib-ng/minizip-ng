@@ -1,10 +1,8 @@
 language: c
 
-matrix:
-    include:
-        - os:
-            - linux
-            - osx
+os:
+    - linux
+    - osx
 
 compiler:
     - clang
