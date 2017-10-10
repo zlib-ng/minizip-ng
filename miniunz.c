@@ -62,7 +62,7 @@ int32_t miniunz_list(void *handle)
 
     err = mz_unzip_goto_first_entry(handle);
 
-    if (err != MZ_OK)
+    if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
         printf("Error %d going to first entry in zip file\n", err);
         return err;
@@ -283,7 +283,7 @@ int32_t miniunz_extract_all(void *handle, uint8_t opt_extract_without_path, uint
 
     err = mz_unzip_goto_first_entry(handle);
 
-    if (err != MZ_OK)
+    if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
         printf("Error %d going to first entry in zip file\n", err);
         return 1;
@@ -425,13 +425,16 @@ int main(int argc, const char *argv[])
     }
     else if (opt_do_extract)
     {
-        // Create target directory if it doesn't exist
-        mz_make_dir(directory);
-
-        if ((opt_extractdir) && (mz_os_change_dir(directory) != MZ_OK))
+        if (directory != NULL)
         {
-            printf("Error changing into %s, aborting\n", directory);
-            exit(-1);
+            // Create target directory if it doesn't exist
+            mz_make_dir(directory);
+
+            if ((opt_extractdir) && (mz_os_change_dir(directory) != MZ_OK))
+            {
+                printf("Error changing into %s, aborting\n", directory);
+                exit(-1);
+            }
         }
 
         if (filename_to_extract == NULL)

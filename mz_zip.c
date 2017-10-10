@@ -99,19 +99,19 @@ typedef struct mz_zip_s
 /***************************************************************************/
 
 // Locate the central directory of a zip file (at the end, just before the global comment)
-static uint64_t mz_zip_search_cd(void *stream)
+static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
 {
     uint8_t buf[BUFREADCOMMENT + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
-    uint64_t max_back = UINT16_MAX; // maximum size of global comment
+    uint64_t max_back = UINT16_MAX; /* maximum size of global comment */
     uint64_t pos_found = 0;
     uint32_t read_size = 0;
     uint64_t read_pos = 0;
     uint32_t i = 0;
-    
+
     if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != MZ_OK)
-        return 0;
+        return MZ_STREAM_ERROR;
 
     file_size = mz_stream_tell(stream);
 
@@ -125,9 +125,9 @@ static uint64_t mz_zip_search_cd(void *stream)
         else
             back_read += BUFREADCOMMENT;
 
-        read_pos = file_size-back_read;
+        read_pos = file_size - back_read;
         read_size = ((BUFREADCOMMENT + 4) < (file_size - read_pos)) ?
-                     (BUFREADCOMMENT + 4) : (uint32_t)(file_size - read_pos);
+            (BUFREADCOMMENT + 4) : (uint32_t)(file_size - read_pos);
 
         if (mz_stream_seek(stream, read_pos, MZ_STREAM_SEEK_SET) != MZ_OK)
             break;
@@ -136,13 +136,13 @@ static uint64_t mz_zip_search_cd(void *stream)
 
         for (i = read_size - 3; (i--) > 0;)
         {
-            if ((*(buf + i)) == (ENDHEADERMAGIC & 0xff) &&
-                (*(buf + i + 1)) == (ENDHEADERMAGIC >> 8 & 0xff) &&
-                (*(buf + i + 2)) == (ENDHEADERMAGIC >> 16 & 0xff) &&
-                (*(buf + i + 3)) == (ENDHEADERMAGIC >> 24 & 0xff))
+            if (((*(buf + i)) == (ENDHEADERMAGIC & 0xff)) &&
+                ((*(buf + i + 1)) == (ENDHEADERMAGIC >> 8 & 0xff)) &&
+                ((*(buf + i + 2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
+                ((*(buf + i + 3)) == (ENDHEADERMAGIC >> 24 & 0xff)))
             {
                 pos_found = read_pos + i;
-                break;
+                return MZ_OK;
             }
         }
 
@@ -150,44 +150,54 @@ static uint64_t mz_zip_search_cd(void *stream)
             break;
     }
 
-    return pos_found;
+    return MZ_EXIST_ERROR;
 }
 
 // Locate the central directory 64 of a zip file (at the end, just before the global comment)
-static uint64_t mz_zip_search_zip64_cd(void *stream, const uint64_t endcentraloffset)
+static int32_t mz_zip_search_zip64_cd(void *stream, const uint64_t end_central_offset, uint64_t *central_pos)
 {
     uint64_t offset = 0;
     uint32_t value32 = 0;
+    int16_t err = MZ_OK;
+
+
+    *central_pos = 0;
 
     // Zip64 end of central directory locator
-    if (mz_stream_seek(stream, endcentraloffset - SIZECENTRALHEADERLOCATOR, MZ_STREAM_SEEK_SET) != MZ_OK)
-        return 0;
-
+    err = mz_stream_seek(stream, end_central_offset - SIZECENTRALHEADERLOCATOR, MZ_STREAM_SEEK_SET);
     // Read locator signature
-    if (mz_stream_read_uint32(stream, &value32) != MZ_OK)
-        return 0;
-    if (value32 != ZIP64ENDLOCHEADERMAGIC)
-        return 0;
+    if (err == MZ_OK)
+    {
+        err = mz_stream_read_uint32(stream, &value32);
+        if (value32 != ZIP64ENDLOCHEADERMAGIC)
+            err = MZ_FORMAT_ERROR;
+    }
     // Number of the disk with the start of the zip64 end of  central directory
-    if (mz_stream_read_uint32(stream, &value32) != MZ_OK)
-        return 0;
-    // Relative offset of the zip64 end of central directory record
-    if (mz_stream_read_uint64(stream, &offset) != MZ_OK)
-        return 0;
+    if (err == MZ_OK)
+        err = mz_stream_read_uint32(stream, &value32);
+    // Relative offset of the zip64 end of central directory record8
+    if (err == MZ_OK)
+        err = mz_stream_read_uint64(stream, &offset);
     // Total number of disks
-    if (mz_stream_read_uint32(stream, &value32) != MZ_OK)
-        return 0;
+    if (err == MZ_OK)
+        err = mz_stream_read_uint32(stream, &value32);
     // Goto end of central directory record
-    if (mz_stream_seek(stream, offset, MZ_STREAM_SEEK_SET) != 0)
-        return 0;
+    if (err == MZ_OK)
+        err = mz_stream_seek(stream, offset, MZ_STREAM_SEEK_SET);
     // The signature
-    if (mz_stream_read_uint32(stream, &value32) != MZ_OK)
-        return 0;
-    if (value32 != ZIP64ENDHEADERMAGIC)
-        return 0;
+    if (err == MZ_OK)
+    {
+        err = mz_stream_read_uint32(stream, &value32);
+        if (value32 != ZIP64ENDHEADERMAGIC)
+            err = MZ_FORMAT_ERROR;
+    }
 
-    return offset;
+    if (err == MZ_OK)
+        *central_pos = offset;
+
+    return err;
 }
+
 
 extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream)
 {
@@ -199,6 +209,7 @@ extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream)
     uint64_t number_entry_CD = 0;           // total number of entries in the central dir
     uint64_t number_entry = 0;
     uint64_t central_pos = 0;
+    uint64_t central_pos64 = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
     uint64_t value64 = 0;
@@ -225,13 +236,7 @@ extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream)
     if (open_existing)
     {
         // Read and cache central directory records
-        central_pos = mz_zip_search_cd(zip->stream);
-
-        // Disable to allow appending to empty ZIP archive (must be standard zip, not zip64)
-        //    if (central_pos == 0)
-        //        err = MZ_FORMAT_ERROR;
-
-        if (err == MZ_OK)
+        if (mz_zip_search_cd(zip->stream, &central_pos) == MZ_OK)
         {
             // Read end of central directory info
             if (mz_stream_seek(zip->stream, central_pos, MZ_STREAM_SEEK_SET) != MZ_OK)
@@ -281,10 +286,10 @@ extern void* ZEXPORT mz_zip_open(uint8_t open_existing, void *stream)
             if ((err == MZ_OK) && ((number_entry_CD == UINT16_MAX) || (offset_central_dir == UINT32_MAX)))
             {
                 // Format should be Zip64, as the central directory or file size is too large
-                central_pos = mz_zip_search_zip64_cd(zip->stream, central_pos);
-
-                if (central_pos)
+                if (mz_zip_search_zip64_cd(zip->stream, central_pos, &central_pos64) == MZ_OK)
                 {
+                    central_pos = central_pos64;
+
                     if (mz_stream_seek(zip->stream, central_pos, MZ_STREAM_SEEK_SET) != 0)
                         err = MZ_STREAM_ERROR;
 
