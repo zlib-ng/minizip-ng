@@ -39,6 +39,7 @@ set(MINIZIP_SRC
     mz_strm_buf.c
     mz_strm_crypt.c
     mz_strm_mem.c
+    mz_strm_posix.c
     mz_strm_split.c
     mz_strm_zlib.c
     mz_unzip.c
@@ -51,6 +52,7 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_buf.h
     mz_strm_crypt.h
     mz_strm_mem.h
+    mz_strm_posix.h
     mz_strm_split.h
     mz_strm_zlib.h
     mz_unzip.h
@@ -66,8 +68,8 @@ endif()
 if(UNIX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
 
-    list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_posix.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h" "mz_strm_posix.h")
+    list(APPEND MINIZIP_SRC "mz_os_posix.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h")
 
     add_definitions(-D__USE_FILE_OFFSET64)
     add_definitions(-D__USE_LARGEFILE64)
