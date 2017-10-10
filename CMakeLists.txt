@@ -19,8 +19,12 @@ endif()
 
 project("minizip")
 
-# set cmake debug postfix to d
+# Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
+
+if(CMAKE_C_COMPILER MATCHES ".*clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
+endif()
 
 # Ensure correct version of zlib is referenced
 set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
