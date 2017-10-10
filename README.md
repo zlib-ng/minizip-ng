@@ -5,6 +5,17 @@ This library is a refactoring of the minizip contribution found in the zlib dist
 Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
 Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
 
+## How to Build
+
+To generate the project files for your platform and IDE use cmake.
+
+```
+cmake .
+cmake --build .
+```
+
+This library is supported on Windows, macOS, and Linux. 
+
 ## Features
 
 ### Streams
@@ -87,15 +98,6 @@ When unzipping it will use AES decryption only if necessary. Does not support ce
 ### Windows RT
 
 + Requires #define IOWIN32_USING_WINRT_API
-
-## Building
-
-This library is supported on Windows, macOS, and Linux. To create the project files for your platform and IDE use cmake.
-
-```
-cmake .
-cmake --build .
-```
 
 ## Contents
 
