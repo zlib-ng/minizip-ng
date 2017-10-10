@@ -7,7 +7,7 @@ Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branc
 
 ## Build
 
-To generate the project files for your platform and IDE use cmake.
+To generate the project files for your platform and IDE download and run cmake in the project directory.
 
 ```
 cmake .
