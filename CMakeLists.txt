@@ -81,7 +81,7 @@ if(UNIX)
         set(DIR_TO_BSD_LIB_FILE /usr/lib/x86_64-linux-gnu/libbsd.so)
     endif()
 
-    target_link_libraries(${PROJECT_NAME} ${DIR_TO_BSD_LIB_FILE})
+    target_link_libraries(libminizip ${DIR_TO_BSD_LIB_FILE})
 endif()
 
 if(USE_AES)
