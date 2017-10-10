@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
     memset(&compress_info, 0, sizeof(compress_info));
     memset(&crypt_info, 0, sizeof(crypt_info));
 
-    compress_info.method = MZ_METHOD_DEFLATE;
+    compress_info.method = MZ_COMPRESS_METHOD_DEFLATE;
     compress_info.level = MZ_COMPRESS_LEVEL_DEFAULT;
 
     // Parse command line options
@@ -242,17 +242,17 @@ int main(int argc, char *argv[])
                 {
                     compress_info.level = (c - '0');
                     if (compress_info.level == 0)
-                        compress_info.method = MZ_METHOD_RAW;
+                        compress_info.method = MZ_COMPRESS_METHOD_RAW;
                 }
                 if ((c == 'j') || (c == 'J'))
                     opt_exclude_path = 1;
 #ifdef HAVE_BZIP2
                 if ((c == 'b') || (c == 'B'))
-                    compress_info.method = MZ_METHOD_BZIP2;
+                    compress_info.method = MZ_COMPRESS_METHOD_BZIP2;
 #endif
 #ifdef HAVE_LZMA
                 if ((c == 'm') || (c == 'M'))
-                    compress_info.method = MZ_METHOD_LZMA;
+                    compress_info.method = MZ_COMPRESS_METHOD_LZMA;
 #endif
 #ifdef HAVE_AES
                 if ((c == 's') || (c == 'S'))

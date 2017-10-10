@@ -89,10 +89,10 @@ int32_t miniunz_list(void *handle)
 
         switch (file_info->compression_method)
         {
-        case MZ_METHOD_RAW:
+        case MZ_COMPRESS_METHOD_RAW:
             string_method = "Stored"; 
             break;
-        case MZ_METHOD_DEFLATE:
+        case MZ_COMPRESS_METHOD_DEFLATE:
             level = (int16_t)((file_info->flag & 0x6) / 2);
             if (level == 0)
                 string_method = "Defl:N";
@@ -103,10 +103,10 @@ int32_t miniunz_list(void *handle)
             else
                 string_method = "Defl:?";
             break;
-        case MZ_METHOD_BZIP2:
+        case MZ_COMPRESS_METHOD_BZIP2:
             string_method = "BZip2";
             break;
-        case MZ_METHOD_LZMA:
+        case MZ_COMPRESS_METHOD_LZMA:
             string_method = "LZMA";
             break;
         default:

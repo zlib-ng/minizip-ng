@@ -29,11 +29,11 @@ extern "C" {
 
 /***************************************************************************/
 
-#ifndef MZ_METHOD
-#  define MZ_METHOD_RAW                 (0)
-#  define MZ_METHOD_DEFLATE             (8)
-#  define MZ_METHOD_BZIP2               (12)
-#  define MZ_METHOD_LZMA                (14)
+#ifndef MZ_COMPRESS_METHOD
+#  define MZ_COMPRESS_METHOD_RAW        (0)
+#  define MZ_COMPRESS_METHOD_DEFLATE    (8)
+#  define MZ_COMPRESS_METHOD_BZIP2      (12)
+#  define MZ_COMPRESS_METHOD_LZMA       (14)
 #endif
 
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)

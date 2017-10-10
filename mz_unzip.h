@@ -31,11 +31,11 @@ extern "C" {
 
 /***************************************************************************/
 
-#ifndef MZ_METHOD
-#  define MZ_METHOD_RAW                 (0)
-#  define MZ_METHOD_DEFLATE             (8)
-#  define MZ_METHOD_BZIP2               (12)
-#  define MZ_METHOD_LZMA                (14)
+#ifndef MZ_COMPRESS_METHOD
+#  define MZ_COMPRESS_METHOD_RAW        (0)
+#  define MZ_COMPRESS_METHOD_DEFLATE    (8)
+#  define MZ_COMPRESS_METHOD_BZIP2      (12)
+#  define MZ_COMPRESS_METHOD_LZMA       (14)
 #endif
 
 /***************************************************************************/
@@ -77,17 +77,17 @@ typedef struct mz_unzip_file_s
 /***************************************************************************/
 // Opening and close a zip file
 
-// Open a zip file
 extern void* ZEXPORT mz_unzip_open(void *stream);
+// Open a zip file
 
-// Close a zip file
 extern int ZEXPORT mz_unzip_close(void *handle);
+// Close a zip file
 
-// Get global info about the zip file 
 extern int ZEXPORT mz_unzip_get_global_info(void *handle, mz_unzip_global *global_info);
+// Get global info about the zip file
 
-// Get the global comment string of the zip file, in the comment buffer 
 extern int ZEXPORT mz_unzip_get_global_comment(void *handle, char *comment, uint16_t comment_size);
+// Get the global comment string of the zip file, in the comment buffer 
 
 /***************************************************************************/
 // Reading the content of the current zip file, you can open it, read it, and close it
@@ -100,6 +100,8 @@ extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len);
 
 extern int ZEXPORT mz_unzip_entry_get_info(void *handle, mz_unzip_file **file_info);
 // Get info about the current file
+//
+//   NOTE: The pointer to the file info is only valid while the current file is open
 
 extern int ZEXPORT mz_unzip_entry_get_extrafield_local(void *handle, void *buf, uint32_t len);
 // Read extra field from the current file

@@ -63,6 +63,16 @@
 
 /***************************************************************************/
 
+#define MZ_ZIP_FLAG_ENCRYPTED           (1 << 0)
+#define MZ_ZIP_FLAG_LZMA_EOS_MARKER     (1 << 1)
+#define MZ_ZIP_FLAG_DEFLATE_MAX         (1 << 1)
+#define MZ_ZIP_FLAG_DEFLATE_NORMAL      (0)
+#define MZ_ZIP_FLAG_DEFLATE_FAST        (1 << 2)
+#define MZ_ZIP_FLAG_DEFLATE_SUPER_FAST  (MZ_ZIP_FLAG_DEFLATE_FAST | MZ_ZIP_FLAG_DEFLATE_MAX)
+#define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
+
+/***************************************************************************/
+
 typedef struct mz_zip_s
 {
     mz_zip_file file_info;
@@ -405,13 +415,13 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
 
     switch (compress_info->method)
     {
-    case MZ_METHOD_RAW:
-    case MZ_METHOD_DEFLATE:
+    case MZ_COMPRESS_METHOD_RAW:
+    case MZ_COMPRESS_METHOD_DEFLATE:
 #ifdef HAVE_BZIP2
-    case MZ_METHOD_BZIP2:
+    case MZ_COMPRESS_METHOD_BZIP2:
 #endif
 #if HAVE_LZMA
-    case MZ_METHOD_LZMA:
+    case MZ_COMPRESS_METHOD_LZMA:
 #endif
         err = MZ_OK;
         break;
@@ -432,21 +442,21 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     memcpy(&zip->crypt_info, crypt_info, sizeof(mz_zip_crypt));
     memcpy(&zip->compress_info, compress_info, sizeof(mz_zip_compress));
 
-    zip->file_info.flag |= 8; // data descriptor
+    zip->file_info.flag |= MZ_ZIP_FLAG_DATA_DESCRIPTOR;
 #ifdef HAVE_LZMA
-    zip->file_info.flag |= 2; // end of stream marker
+    zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
 #endif
     if ((zip->compress_info.level == 8) || (zip->compress_info.level == 9))
-        zip->file_info.flag |= 2;
+        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_MAX;
     if (zip->compress_info.level == 2)
-        zip->file_info.flag |= 4;
+        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_FAST;
     if (zip->compress_info.level == 1)
-        zip->file_info.flag |= 6;
+        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
 
     if (zip->crypt_info.password != NULL)
-        zip->file_info.flag |= 1;
+        zip->file_info.flag |= MZ_ZIP_FLAG_ENCRYPTED;
     else
-        zip->file_info.flag &= ~1;
+        zip->file_info.flag &= ~MZ_ZIP_FLAG_ENCRYPTED;
 
     filename_size = (uint16_t)strlen(zip->file_info.filename);
 
@@ -469,7 +479,7 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
         version_needed = 51;
 #endif
 #ifdef HAVE_LZMA
-    if (zip->compress_info.method == MZ_METHOD_LZMA)
+    if (zip->compress_info.method == MZ_COMPRESS_METHOD_LZMA)
         version_needed = 63;
 #endif
 
@@ -505,6 +515,8 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
         if ((zip->file_info.flag & 1) && (zip->crypt_info.aes))
             extrafield_size += 4 + 7;
 #endif
+        if (zip->file_info.zip64)
+            extrafield_size += 4;
         err = mz_stream_write_uint16(zip->stream, extrafield_size);
     }
     if (err == MZ_OK)
@@ -518,10 +530,15 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
                 zip->file_info.extrafield_local_size) != zip->file_info.extrafield_local_size)
             err = MZ_STREAM_ERROR;
     }
-
+    // Add ZIP64 extra info header to central directory
+    if (zip->file_info.zip64)
+    {
+        mz_stream_write_uint16(zip->stream, 0x0001);
+        mz_stream_write_uint16(zip->stream, 0);
+    }
 #ifdef HAVE_AES
     // Write the AES extended info
-    if ((err == MZ_OK) && (zip->file_info.flag & 1) && (zip->crypt_info.aes))
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->crypt_info.aes))
     {
         err = mz_stream_write_uint16(zip->stream, 0x9901);
         if (err == MZ_OK)
@@ -591,14 +608,14 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
         }
         else
         {
-            if (zip->compress_info.method == MZ_METHOD_DEFLATE)
+            if (zip->compress_info.method == MZ_COMPRESS_METHOD_DEFLATE)
                 mz_stream_zlib_create(&zip->compress_stream);
 #ifdef HAVE_BZIP2
-            else if (zip->compress_info.method == MZ_METHOD_BZIP2)
+            else if (zip->compress_info.method == MZ_COMPRESS_METHOD_BZIP2)
                 mz_stream_bzip_create(&zip->compress_stream);
 #endif
 #ifdef HAVE_LZMA
-            else if (zip->compress_info.method == MZ_METHOD_LZMA)
+            else if (zip->compress_info.method == MZ_COMPRESS_METHOD_LZMA)
                 mz_stream_lzma_create(&zip->compress_stream);
 #endif
             else
@@ -680,7 +697,7 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
         mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
     }
 
-    if (zip->file_info.flag & 1)
+    if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
     {
         mz_stream_set_base(zip->crypt_stream, zip->stream);
 
@@ -723,7 +740,7 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
     if (zip->file_info.zip64)
     {
         version_needed = 45;
-        extrafield_zip64_size += 4;
+        extrafield_size += 4;
         if (uncompressed_size >= UINT32_MAX)
             extrafield_zip64_size += 8;
         if (compressed_size >= UINT32_MAX)
@@ -733,14 +750,14 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
         extrafield_size += extrafield_zip64_size;
     }
 #ifdef HAVE_AES
-    if ((zip->file_info.flag & 1) && (zip->crypt_info.aes))
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->crypt_info.aes))
     {
         version_needed = 51;
         extrafield_size += 4 + 7;
     }
 #endif
 #ifdef HAVE_LZMA
-    if (zip->compress_info.method == MZ_METHOD_LZMA)
+    if (zip->compress_info.method == MZ_COMPRESS_METHOD_LZMA)
         version_needed = 63;
 #endif
 
@@ -797,7 +814,7 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
 
 #ifdef HAVE_AES
     // Write AES extra info header to central directory
-    if ((zip->file_info.flag & 1) && (zip->crypt_info.aes))
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->crypt_info.aes))
     {
         mz_stream_write_uint16(zip->cd_stream, 0x9901);
         mz_stream_write_uint16(zip->cd_stream, 7);

@@ -717,10 +717,10 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         return err;
     
     if ((unzip->file_info.compression_method != 0) && 
-        (unzip->file_info.compression_method != MZ_METHOD_DEFLATE))
+        (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_DEFLATE))
     {
 #ifdef HAVE_BZIP2
-        if (unzip->file_info.compression_method != MZ_METHOD_BZIP2)
+        if (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_BZIP2)
             return MZ_FORMAT_ERROR;
 #elif HAVE_LZMA
         if (unzip->file_info.compression_method != MZ_METHOD_LZMA)
@@ -801,14 +801,14 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         }
         else
         {
-            if (unzip->file_info.compression_method == MZ_METHOD_DEFLATE)
+            if (unzip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
                 mz_stream_zlib_create(&unzip->compress_stream);
 #ifdef HAVE_BZIP2
-            else if (unzip->file_info.compression_method == MZ_METHOD_BZIP2)
+            else if (unzip->file_info.compression_method == MZ_COMPRESS_METHOD_BZIP2)
                 mz_stream_bzip_create(&unzip->compress_stream);
 #endif
 #ifdef HAVE_LZMA
-            else if (unzip->file_info.compression_method == MZ_METHOD_LZMA)
+            else if (unzip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA)
                 mz_stream_lzma_create(&unzip->compress_stream);
 #endif
             else

@@ -160,11 +160,15 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
 
         if (err == MZ_OK)
         {
-            bytes_avail = (int32_t)(split->disk_size - split->total_out_disk);
             bytes_to_write = bytes_left;
-            if (bytes_to_write > bytes_avail)
-                bytes_to_write = bytes_avail;
 
+            if (split->disk_directory == 0)
+            {
+                bytes_avail = (int32_t)(split->disk_size - split->total_out_disk);
+                if (bytes_to_write > bytes_avail)
+                    bytes_to_write = bytes_avail;
+            }
+            
             written = mz_stream_write(split->stream.base, buf_ptr, bytes_to_write);
             if (written != bytes_to_write)
                 return MZ_STREAM_ERROR;
@@ -259,6 +263,11 @@ void mz_stream_split_delete(void **stream)
     split = (mz_stream_split *)*stream;
     if (split != NULL)
     {
+        if (split->path)
+            free(split->path);
+        if (split->current_path)
+            free(split->current_path);
+
         free(split);
     }
     *stream = NULL;
