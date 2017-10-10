@@ -98,9 +98,9 @@ def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
 def test_level_0(method, zip_arg = '', unzip_arg = ''):
     # File tests
     print 'Testing {0} on Single File'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['LICENSE'])
+    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c'])
     print 'Testing {0} on Two Files'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['LICENSE', 'test.png'])
+    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.png'])
     print 'Testing {0} Directory'.format(method)
     zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
 
