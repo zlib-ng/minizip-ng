@@ -30,6 +30,7 @@ cmake --build .
 | mz_strm_crypt.\* | PKWARE traditional encryption stream |
 | mz_strm_lzma.\* | LZMA stream using liblzma |
 | mz_strm_mem.\* | Memory stream |
+| mz_strm_split.\* | Disk splitting stream |
 | mz_strm_posix.\* | File stream using Posix functions |
 | mz_strm_win32.\* | File stream using Win32 API functions |
 | mz_strm_zlib.\* | Deflate stream using zlib |
