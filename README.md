@@ -84,22 +84,23 @@ void *unz_handle = mz_unzip_open(buf_stream);
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
 
-## Platforms
-
-This library is supported on Windows, macOS, and Linux.
-
-+ Windows: Visual Studio 2015
-+ macOS: Xcode
-+ Linux: Qt Creator / Qbs
-
-#### Windows RT
+### Windows RT
 
 + Requires #define IOWIN32_USING_WINRT_API
+
+## Building
+
+This library is supported on Windows, macOS, and Linux. To create the project files for your platform and IDE use cmake.
+
+```
+cmake .
+cmake --build .
+```
 
 ## Contents
 
 | File(s) | Description |
-|:------------- |:-------------|
+|:- |:-|
 | miniunz.c | Sample unzip application |
 | minizip.c | Sample zip application |
 | mz_compat.\* | Minizip 1.0 compatibility layer |
