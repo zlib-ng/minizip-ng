@@ -14,13 +14,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "aes.h"
+#include "fileenc.h"
+
 #include "mz_error.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_aes.h"
-
-#include "aes/aes.h"
-#include "aes/fileenc.h"
 
 /***************************************************************************/
 

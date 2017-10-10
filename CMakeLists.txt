@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 2.8)
 
 option(USE_AES "Enables building of AES library" ON)
 option(USE_BZIP2 "Enables building of BZIP2 library" ON)
-option(USE_LIBLZMA "Enables building of LZMA library" ON)
+option(USE_LZMA "Enables building of LZMA library" ON)
 option(BUILD_TEST "Enables building of executables minizip and miniunz. Requires ZLIB!" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -53,13 +53,16 @@ set(MINIZIP_PUBLIC_HEADERS
 if(WIN32)
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_win32.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_win32.h" "mz_strm_win32.h")
+
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
 
 if(UNIX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
+
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h" "mz_strm_posix.h")
+
     add_definitions(-D__USE_FILE_OFFSET64)
     add_definitions(-D__USE_LARGEFILE64)
     add_definitions(-D_LARGEFILE64_SOURCE)
@@ -68,42 +71,10 @@ endif()
 
 if(USE_AES)
     add_definitions(-DHAVE_AES)
+
     set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_aes.c")
     set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_aes.h")
-endif()
-if(USE_BZIP2)
-    add_definitions(-DHAVE_BZIP2)
-    add_definitions(-DBZ_NO_STDIO)
-    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_bzip.c")
-    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_bzip.h")
-endif()
-if(USE_LIBLZMA)
-    add_definitions(-DHAVE_LZMA)
-    add_definitions(-DHAVE_CONFIG_H)
-    add_definitions(-DLZMA_API_STATIC)
-    if(UNIX)
-        add_definitions(-DMYTHREAD_POSIX)
-    endif()
-    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_lzma.c")
-    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_lzma.h")
-endif()
 
-if(CMAKE_C_COMPILER MATCHES ".*clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
-endif()
-
-include_directories(lib
-                    lib/aes
-                    lib/bzip2
-                    lib/lzma/api)
-
-# create minizip library
-add_library(libminizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
-
-set_target_properties(libminizip PROPERTIES PREFIX "")
-target_link_libraries(libminizip ZLIB::ZLIB)
-
-if(USE_AES)
     set(AES_SRC
         lib/aes/aescrypt.c
         lib/aes/aeskey.c
@@ -126,22 +97,18 @@ if(USE_AES)
         lib/aes/pwd2key.h
         lib/aes/sha1.h)
 
-    add_library(aes ${AES_SRC} ${AES_PUBLIC_HEADERS})
+    include_directories(lib/aes)
 
-    set_target_properties(aes PROPERTIES LINKER_LANGUAGE C)
-    target_link_libraries(libminizip aes)
-
-    install(TARGETS aes EXPORT libminizip-exports
-            INCLUDES DESTINATION "lib"
-            RUNTIME DESTINATION  "bin"
-            LIBRARY DESTINATION  "lib"
-            ARCHIVE DESTINATION  "lib")
-
-    install(FILES ${AES_PUBLIC_HEADERS}
-            DESTINATION "include/minizip")
+    source_group("AES" FILES ${AES_SRC} ${AES_PUBLIC_HEADERS})
 endif()
 
 if(USE_BZIP2)
+    add_definitions(-DHAVE_BZIP2)
+    add_definitions(-DBZ_NO_STDIO)
+
+    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_bzip.c")
+    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_bzip.h")
+
     set(BZIP2_SRC
         lib/bzip2/blocksort.c
         lib/bzip2/bzlib.c
@@ -156,29 +123,28 @@ if(USE_BZIP2)
         lib/bzip2/bzlib.h
         lib/bzip2/bzlib_private.h)
 
-    add_library(libbzip2 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS})
+    include_directories(lib/bzip2)
 
-    set_target_properties(libbzip2 PROPERTIES
-        LINKER_LANGUAGE C
-        PREFIX "")
-
-    target_link_libraries(libminizip libbzip2)
-
-    install(TARGETS libbzip2 EXPORT libminizip-exports
-            INCLUDES DESTINATION "lib"
-            RUNTIME DESTINATION  "bin"
-            LIBRARY DESTINATION  "lib"
-            ARCHIVE DESTINATION  "lib")
-
-    install(FILES ${BZIP2_PUBLIC_HEADERS}
-            DESTINATION "include/minizip")
+    source_group("BZip2" FILES ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS})
 endif()
 
-if(USE_LIBLZMA)
-    set(LIBLZMA_SRC
+if(USE_LZMA)
+    add_definitions(-DHAVE_LZMA)
+    add_definitions(-DHAVE_CONFIG_H)
+    add_definitions(-DLZMA_API_STATIC)
+
+    if(UNIX)
+        add_definitions(-DMYTHREAD_POSIX)
+    endif()
+
+    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_lzma.c")
+    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_lzma.h")
+
+    set(LZMA_CHECK_SRC
         lib/liblzma/check/check.c
         lib/liblzma/check/crc32_fast.c
-        lib/liblzma/check/crc32_table.c
+        lib/liblzma/check/crc32_table.c)
+    set(LZMA_COMMON_SRC
         lib/liblzma/common/alone_decoder.c
         lib/liblzma/common/alone_encoder.c
         lib/liblzma/common/auto_decoder.c
@@ -227,21 +193,25 @@ if(USE_LIBLZMA)
         lib/liblzma/common/tuklib_progname.h
         lib/liblzma/common/vli_decoder.c
         lib/liblzma/common/vli_encoder.c
-        lib/liblzma/common/vli_size.c
+        lib/liblzma/common/vli_size.c)
+    set(LZMA_LZ_SRC
         lib/liblzma/lz/lz_decoder.c
         lib/liblzma/lz/lz_encoder.c
-        lib/liblzma/lz/lz_encoder_mf.c
+        lib/liblzma/lz/lz_encoder_mf.c)
+    set(LZMA_LZMA_SRC
         lib/liblzma/lzma/fastpos.h
         lib/liblzma/lzma/fastpos_table.c
         lib/liblzma/lzma/lzma_decoder.c
         lib/liblzma/lzma/lzma_encoder.c
         lib/liblzma/lzma/lzma_encoder_optimum_fast.c
         lib/liblzma/lzma/lzma_encoder_optimum_normal.c
-        lib/liblzma/lzma/lzma_encoder_presets.c
+        lib/liblzma/lzma/lzma_encoder_presets.c)
+    set(LZMA_RANGECODER_SRC
         lib/liblzma/rangecoder/price_table.c)
 
-    set(LIBLZMA_PUBLIC_HEADERS
-        lib/liblzma/config.h
+    set(LZMA_CONFIG_HEADERS
+        lib/liblzma/config.h)
+    set(LZMA_API_HEADERS
         lib/liblzma/api/lzma.h
         lib/liblzma/api/lzma/base.h
         lib/liblzma/api/lzma/bcj.h
@@ -256,11 +226,13 @@ if(USE_LIBLZMA)
         lib/liblzma/api/lzma/lzma12.h
         lib/liblzma/api/lzma/stream_flags.h
         lib/liblzma/api/lzma/version.h
-        lib/liblzma/api/lzma/vli.h
+        lib/liblzma/api/lzma/vli.h)
+    set(LZMA_CHECK_HEADERS
         lib/liblzma/check/check.h
         lib/liblzma/check/crc32_table_be.h
         lib/liblzma/check/crc32_table_le.h
-        lib/liblzma/check/crc_macros.h
+        lib/liblzma/check/crc_macros.h)
+    set(LZMA_COMMON_HEADERS
         lib/liblzma/common/alone_decoder.h
         lib/liblzma/common/block_buffer_encoder.h
         lib/liblzma/common/block_decoder.h
@@ -286,20 +258,39 @@ if(USE_LIBLZMA)
         lib/liblzma/common/tuklib_integer.h
         lib/liblzma/common/tuklib_mbstr.h
         lib/liblzma/common/tuklib_open_stdxxx.h
-        lib/liblzma/common/tuklib_physmem.h
+        lib/liblzma/common/tuklib_physmem.h)
+    set(LZMA_LZ_HEADERS
         lib/liblzma/lz/lz_decoder.h
         lib/liblzma/lz/lz_encoder.h
         lib/liblzma/lz/lz_encoder_hash.h
-        lib/liblzma/lz/lz_encoder_hash_table.h
+        lib/liblzma/lz/lz_encoder_hash_table.h)
+    set(LZMA_LZMA_HEADERS
         lib/liblzma/lzma/lzma2_encoder.h
         lib/liblzma/lzma/lzma_common.h
         lib/liblzma/lzma/lzma_decoder.h
         lib/liblzma/lzma/lzma_encoder.h
-        lib/liblzma/lzma/lzma_encoder_private.h
+        lib/liblzma/lzma/lzma_encoder_private.h)
+    set(LZMA_RANGECODER_HEADERS
         lib/liblzma/rangecoder/price.h
         lib/liblzma/rangecoder/range_common.h
         lib/liblzma/rangecoder/range_decoder.h
         lib/liblzma/rangecoder/range_encoder.h)
+
+    set(LZMA_PUBLIC_HEADERS
+        ${LZMA_CONFIG_HEADERS}
+        ${LZMA_API_HEADERS}
+        ${LZMA_CHECK_HEADERS}
+        ${LZMA_COMMON_HEADERS}
+        ${LZMA_LZ_HEADERS}
+        ${LZMA_LZMA_HEADERS}
+        ${LZMA_RANGECODER_HEADERS})
+
+    set(LZMA_SRC
+        ${LZMA_CHECK_SRC}
+        ${LZMA_COMMON_SRC}
+        ${LZMA_LZ_SRC}
+        ${LZMA_LZMA_SRC}
+        ${LZMA_RANGECODER_SRC})
 
     include_directories(lib/liblzma
                         lib/liblzma/api
@@ -309,24 +300,27 @@ if(USE_LIBLZMA)
                         lib/liblzma/lzma
                         lib/liblzma/rangecoder)
 
-    add_library(liblzma ${LIBLZMA_SRC} ${LIBLZMA_PUBLIC_HEADERS})
-
-    set_target_properties(liblzma PROPERTIES
-        LINKER_LANGUAGE C
-        C_STANDARD 99
-        PREFIX "")
-
-    target_link_libraries(libminizip liblzma)
-
-    install(TARGETS liblzma EXPORT libminizip-exports
-            INCLUDES DESTINATION "lib"
-            RUNTIME DESTINATION  "bin"
-            LIBRARY DESTINATION  "lib"
-            ARCHIVE DESTINATION  "lib")
-
-    install(FILES ${LIBLZMA_PUBLIC_HEADERS}
-            DESTINATION "include/minizip")
+    source_group("LZMA" FILES ${LZMA_CONFIG_HEADERS})
+    source_group("LZMA\\API" FILES ${LZMA_API_HEADERS})
+    source_group("LZMA\\Check" FILES ${LZMA_CHECK_SRC} ${LZMA_CHECK_HEADERS})
+    source_group("LZMA\\Common" FILES ${LZMA_COMMON_SRC} ${LZMA_COMMON_HEADERS})
+    source_group("LZMA\\LZ" FILES ${LZMA_LZ_SRC} ${LZMA_LZ_HEADERS})
+    source_group("LZMA\\LZMA" FILES ${LZMA_LZMA_SRC} ${LZMA_LZMA_HEADERS})
+    source_group("LZMA\\RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HEADERS})
 endif()
+
+# Create minizip library
+source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
+
+add_library(libminizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
+                       ${AES_SRC} ${AES_PUBLIC_HEADERS}
+                       ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
+                       ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
+set_target_properties(libminizip PROPERTIES LINKER_LANGUAGE C PREFIX "")
+if(USE_LZMA)
+    set_target_properties(libminizip PROPERTIES C_STANDARD 99)
+endif()
+target_link_libraries(libminizip ZLIB::ZLIB)
 
 install(TARGETS libminizip EXPORT libminizip-exports
         INCLUDES DESTINATION "include"

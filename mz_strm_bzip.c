@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "bzip2/bzlib.h"
+#include "bzlib.h"
 
 #include "mz_error.h"
 #include "mz_strm.h"
