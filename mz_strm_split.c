@@ -14,10 +14,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef WIN32
-#define snprintf _snprintf
-#endif
-
 #include "mz_error.h"
 #include "mz_strm.h"
 #include "mz_strm_split.h"
