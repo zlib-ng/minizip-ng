@@ -70,11 +70,18 @@ if(UNIX)
 
     list(APPEND MINIZIP_SRC "mz_os_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h")
-
     add_definitions(-D__USE_FILE_OFFSET64)
     add_definitions(-D__USE_LARGEFILE64)
     add_definitions(-D_LARGEFILE64_SOURCE)
     add_definitions(-D_FILE_OFFSET_BIT=64)
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        set(DIR_TO_BSD_LIB_FILE /usr/lib/i386-linux-gnu/libbsd.so)
+    else(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(DIR_TO_BSD_LIB_FILE /usr/lib/x86_64-linux-gnu/libbsd.so)
+    endif()
+
+    target_link_libraries(${PROJECT_NAME} ${DIR_TO_BSD_LIB_FILE})
 endif()
 
 if(USE_AES)
