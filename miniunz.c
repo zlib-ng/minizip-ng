@@ -51,7 +51,7 @@ void miniunz_help()
 
 int32_t miniunz_list(void *handle)
 {
-    mz_unzip_file *file_info = NULL;
+    mz_unzip_file file_info;
     uint32_t ratio = 0;
     int16_t level = 0;
     int16_t err = MZ_OK;
@@ -80,20 +80,20 @@ int32_t miniunz_list(void *handle)
             break;
         }
 
-        if (file_info->uncompressed_size > 0)
-            ratio = (uint32_t)((file_info->compressed_size * 100) / file_info->uncompressed_size);
+        if (file_info.uncompressed_size > 0)
+            ratio = (uint32_t)((file_info.compressed_size * 100) / file_info.uncompressed_size);
         
         // Display a '*' if the file is encrypted
-        if ((file_info->flag & 1) != 0)
+        if ((file_info.flag & 1) != 0)
             crypt = '*';
 
-        switch (file_info->compression_method)
+        switch (file_info.compression_method)
         {
         case MZ_METHOD_RAW:
             string_method = "Stored"; 
             break;
         case MZ_METHOD_DEFLATE:
-            level = (int16_t)((file_info->flag & 0x6) / 2);
+            level = (int16_t)((file_info.flag & 0x6) / 2);
             if (level == 0)
                 string_method = "Defl:N";
             else if (level == 1)
@@ -113,14 +113,14 @@ int32_t miniunz_list(void *handle)
             string_method = "Unknwn";
         }
 
-        mz_dosdate_to_tm(file_info->dos_date, &tmu_date);
+        mz_dosdate_to_tm(file_info.dos_date, &tmu_date);
 
         printf(" %7llu  %6s%c %7llu %3u%%  %2.2u-%2.2u-%2.2u  %2.2u:%2.2u  %8.8x   %s\n", 
-            file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio, 
+            file_info.uncompressed_size, string_method, crypt, file_info.compressed_size, ratio,
             (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
             (uint32_t)tmu_date.tm_year % 100,
             (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
-            file_info->crc, file_info->filename);
+            file_info.crc, file_info.filename);
 
         err = mz_unzip_goto_next_entry(handle);
     }
@@ -137,7 +137,7 @@ int32_t miniunz_list(void *handle)
 
 int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_path, uint8_t *opt_overwrite, const char *password)
 {
-    mz_unzip_file *file_info = NULL;
+    mz_unzip_file file_info;
     uint8_t buf[UINT16_MAX];
     int32_t read = 0;
     int32_t written = 0;
@@ -160,7 +160,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
     }
 
     // Break apart filename and directory from full path
-    strncpy(directory, file_info->filename, sizeof(directory));
+    strncpy(directory, file_info.filename, sizeof(directory));
     match = filename = directory;
     while (*match != 0)
     {
@@ -176,7 +176,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
     {
         if (opt_extract_without_path == 0)
         {
-            printf("Creating directory: %s\n", file_info->filename);
+            printf("Creating directory: %s\n", file_info.filename);
             mz_make_dir(directory);
         }
 
@@ -194,7 +194,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
     if (opt_extract_without_path)
         write_filename = filename;
     else
-        write_filename = file_info->filename;
+        write_filename = file_info.filename;
 
     // Determine if the file should be overwritten or not and ask the user if needed
     if ((err == MZ_OK) && (*opt_overwrite == 0) && (mz_file_exists(write_filename)))
@@ -225,7 +225,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
     {
         // Some zips don't contain directory alone before file
         if ((mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
-            (opt_extract_without_path == 0) && (filename != file_info->filename))
+            (opt_extract_without_path == 0) && (filename != file_info.filename))
         {
             mz_make_dir(directory);
             mz_stream_os_open(stream, write_filename, MZ_STREAM_MODE_CREATE);
@@ -260,7 +260,7 @@ int32_t miniunz_extract_currentfile(void *handle, uint8_t opt_extract_without_pa
 
         // Set the time of the file that has been unzipped
         if (err == MZ_OK)
-            mz_os_set_file_date(write_filename, file_info->dos_date);
+            mz_os_set_file_date(write_filename, file_info.dos_date);
     }
     else
     {
