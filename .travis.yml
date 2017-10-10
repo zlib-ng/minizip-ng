@@ -8,6 +8,9 @@ compiler:
     - clang
     - gcc
 
+before_install:
+    - sudo apt-get install libbsd-dev
+
 before_script:
     - mkdir build
     - cd build
