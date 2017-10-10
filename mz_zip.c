@@ -693,8 +693,8 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
     {
         crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
-        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, &uncompressed_size);
-        mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
+        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&uncompressed_size);
+        mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
     }
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
@@ -704,7 +704,7 @@ extern int ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_si
         err = mz_stream_close(zip->crypt_stream);
 
         if ((zip->compress_info.method != 0) || (uncompressed_size == 0))
-            mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
+            mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
 
         mz_stream_delete(&zip->crypt_stream);
     }

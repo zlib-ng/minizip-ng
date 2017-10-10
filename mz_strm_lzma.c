@@ -273,7 +273,6 @@ int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_lzma_close(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
-    uint32_t out_bytes = 0;
 
     if (lzma->mode & MZ_STREAM_MODE_READ)
     {

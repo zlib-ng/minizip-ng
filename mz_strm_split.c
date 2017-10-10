@@ -14,6 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
+
 #include "mz_error.h"
 #include "mz_strm.h"
 #include "mz_strm_split.h"
@@ -71,7 +75,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
         {
             if (split->current_path[i] != '.')
                 continue;
-            _snprintf(&split->current_path[i], split->current_path_size - i, ".z%02d", number_disk + 1);
+            snprintf(&split->current_path[i], split->current_path_size - i, ".z%02d", number_disk + 1);
             break;
         }
     }
@@ -127,7 +131,6 @@ int32_t mz_stream_split_is_open(void *stream)
 
 int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
 {
-    mz_stream_split *split = (mz_stream_split *)stream;
     return size;
 }
 
@@ -191,7 +194,6 @@ int64_t mz_stream_split_tell(void *stream)
 
 int32_t mz_stream_split_seek(void *stream, int64_t offset, int32_t origin)
 {
-    mz_stream_split *split = (mz_stream_split *)stream;
     return MZ_OK;
 }
 

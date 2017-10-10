@@ -225,7 +225,6 @@ uint32_t mz_stream_bzip_compress(void *stream, int flush)
 int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    uint32_t out_bytes = 0;
 
 
     bzip->bzstream.next_in = (char *)buf;
@@ -252,7 +251,6 @@ int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_bzip_close(void *stream)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    uint32_t out_bytes = 0;
 
     if (bzip->mode & MZ_STREAM_MODE_READ)
     {

@@ -245,7 +245,6 @@ int32_t mz_stream_zlib_deflate(void *stream, int flush)
 int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    uint32_t out_bytes = 0;
 
 
     zlib->zstream.next_in = (uint8_t*)buf;

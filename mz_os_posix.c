@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <errno.h>
 #include <fcntl.h>
 
@@ -22,7 +21,6 @@
 #if defined unix || defined __APPLE__
 #  include <unistd.h>
 #  include <utime.h>
-#  include <fcntl.h>
 #endif
 
 #include "mz_error.h"
