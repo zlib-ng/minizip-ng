@@ -80,8 +80,6 @@ if(UNIX)
     else(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(DIR_TO_BSD_LIB_FILE /usr/lib/x86_64-linux-gnu/libbsd.so)
     endif()
-
-    target_link_libraries(libminizip ${DIR_TO_BSD_LIB_FILE})
 endif()
 
 if(USE_AES)
@@ -336,6 +334,9 @@ if(USE_LZMA)
     set_target_properties(libminizip PROPERTIES C_STANDARD 99)
 endif()
 target_link_libraries(libminizip ZLIB::ZLIB)
+if(UNIX)
+    target_link_libraries(libminizip ${DIR_TO_BSD_LIB_FILE})
+endif()
 
 install(TARGETS libminizip EXPORT libminizip-exports
         INCLUDES DESTINATION "include"
