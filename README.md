@@ -1,6 +1,6 @@
 # Minizip 2.0.0
 
-This library is a refactoring of the minizip contribution found in the zlib distribution. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
+This library is a refactoring of the minizip contribution found in the zlib distribution that is supported on Windows, macOS, and Linux. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
 Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
 Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
@@ -12,9 +12,7 @@ To generate the project files for your platform and IDE download and run cmake i
 ```
 cmake .
 cmake --build .
-```
-
-This library is supported on Windows, macOS, and Linux. 
+``` 
 
 ## Contents
 
