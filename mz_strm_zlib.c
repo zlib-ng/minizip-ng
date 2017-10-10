@@ -44,8 +44,8 @@ mz_stream_vtbl mz_stream_zlib_vtbl = {
     mz_stream_zlib_error,
     mz_stream_zlib_create,
     mz_stream_zlib_delete,
-    mz_stream_zlib_get_total_in,
-    mz_stream_zlib_get_total_out
+    mz_stream_zlib_get_prop_int64,
+    mz_stream_zlib_set_prop_int64
 };
 
 /***************************************************************************/
@@ -201,13 +201,28 @@ int32_t mz_stream_zlib_flush(void *stream)
     return MZ_OK;
 }
 
-uint32_t mz_stream_zlib_deflate(void *stream, int flush)
+int32_t mz_stream_zlib_deflate(void *stream, int flush)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
-    uint32_t out_bytes = 0;
+    int32_t out_bytes = 0;
     int16_t err = Z_OK;
+
+
+    if (zlib->zstream.avail_out == 0)
+    {
+        if (mz_stream_zlib_flush(zlib) != MZ_OK)
+        {
+            zlib->error = Z_STREAM_ERROR;
+            return MZ_STREAM_ERROR;
+        }
+
+        zlib->zstream.avail_out = sizeof(zlib->buffer);
+        zlib->zstream.next_out = zlib->buffer;
+
+        zlib->buffer_len = 0;
+    }
 
     total_out_before = zlib->zstream.total_out;
     err = deflate(&zlib->zstream, flush);
@@ -221,43 +236,25 @@ uint32_t mz_stream_zlib_deflate(void *stream, int flush)
         return MZ_STREAM_ERROR;
     }
 
-    return out_bytes;
+    zlib->buffer_len += out_bytes;
+    zlib->total_out += out_bytes;
+
+    return MZ_OK;
 }
 
 int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint32_t out_bytes = 0;
-    uint32_t total_out = 0;
 
 
     zlib->zstream.next_in = (uint8_t*)buf;
     zlib->zstream.avail_in = size;
 
     while ((zlib->error == Z_OK) && (zlib->zstream.avail_in > 0))
-    {
-        if (zlib->zstream.avail_out == 0)
-        {
-            if (mz_stream_zlib_flush(zlib) != MZ_OK)
-            {
-                zlib->error = Z_STREAM_ERROR;
-                return 0;
-            }
-
-            zlib->zstream.avail_out = sizeof(zlib->buffer);
-            zlib->zstream.next_out = zlib->buffer;
-
-            zlib->buffer_len = 0;
-        }
-        
-        out_bytes = mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
-
-        total_out += out_bytes;
-        zlib->buffer_len += out_bytes;
-    }
+        mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
 
     zlib->total_in += size;
-    zlib->total_out += total_out;
 
     return size;
 }
@@ -275,7 +272,7 @@ int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_zlib_close(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    uint32_t out_bytes = 0;
+
 
     if (zlib->mode & MZ_STREAM_MODE_READ)
     {
@@ -283,14 +280,10 @@ int32_t mz_stream_zlib_close(void *stream)
     }
     else if (zlib->mode & MZ_STREAM_MODE_WRITE)
     {
-        out_bytes = mz_stream_zlib_deflate(stream, Z_FINISH);
-
-        zlib->buffer_len += out_bytes;
-        zlib->total_out += out_bytes;
-
+        mz_stream_zlib_deflate(stream, Z_FINISH);
         mz_stream_zlib_flush(stream);
 
-        zlib->error = deflateEnd(&zlib->zstream);
+        deflateEnd(&zlib->zstream);
     }
 
     zlib->initialized = 0;
@@ -306,50 +299,47 @@ int32_t mz_stream_zlib_error(void *stream)
     return zlib->error;
 }
 
-void mz_stream_zlib_set_level(void *stream, int16_t level)
+int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    zlib->level = level;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN:
+        *value = zlib->total_in;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT:
+        *value = zlib->total_out;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
-void mz_stream_zlib_set_window_bits(void *stream, int16_t window_bits)
+int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    if (window_bits == 0)
-        window_bits = -MAX_WBITS;
-    zlib->window_bits = window_bits;
-}
-
-void mz_stream_zlib_set_mem_level(void *stream, int16_t mem_level)
-{
-    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    if (mem_level == 0)
-        mem_level = DEF_MEM_LEVEL;
-    zlib->mem_level = mem_level;
-}
-
-void mz_stream_zlib_set_strategy(void *stream, int16_t strategy)
-{
-    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    zlib->strategy = strategy;
-}
-
-int64_t mz_stream_zlib_get_total_in(void *stream)
-{
-    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    return zlib->total_in;
-}
-
-int64_t mz_stream_zlib_get_total_out(void *stream)
-{
-    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    return zlib->total_out;
-}
-
-void mz_stream_zlib_set_max_total_in(void *stream, int64_t max_total_in)
-{
-    mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    zlib->max_total_in = max_total_in;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_COMPRESS_LEVEL:
+        zlib->level = (int16_t)value;
+        return MZ_OK;
+    case MZ_STREAM_PROP_COMPRESS_WINDOW_BITS:
+        if (value == 0)
+            value = -MAX_WBITS;
+        zlib->window_bits = (int16_t)value;
+        return MZ_OK;
+    case MZ_STREAM_PROP_COMPRESS_MEM_LEVEL:
+        if (value == 0)
+            value = DEF_MEM_LEVEL;
+        zlib->mem_level = (int16_t)value;
+        return MZ_OK;
+    case MZ_STREAM_PROP_COMPRESS_STRATEGY:
+        zlib->strategy = (int16_t)value;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        zlib->max_total_in = value;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 void *mz_stream_zlib_create(void **stream)
@@ -401,8 +391,7 @@ mz_stream_vtbl mz_stream_crc32_vtbl = {
     mz_stream_crc32_error,
     mz_stream_crc32_create,
     mz_stream_crc32_delete,
-    mz_stream_crc32_get_total_in,
-    mz_stream_crc32_get_total_out
+    mz_stream_crc32_get_prop_int64
 };
 
 /***************************************************************************/
@@ -485,16 +474,19 @@ int32_t mz_stream_crc32_get_value(void *stream)
     return crc32->value;
 }
 
-int64_t mz_stream_crc32_get_total_in(void *stream)
+int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
-    return crc32->total_in;
-}
-
-int64_t mz_stream_crc32_get_total_out(void *stream)
-{
-    mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
-    return crc32->total_out;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN:
+        *value = crc32->total_in;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT:
+        *value = crc32->total_out;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 void *mz_stream_crc32_create(void **stream)

@@ -34,8 +34,8 @@ mz_stream_vtbl mz_stream_bzip_vtbl = {
     mz_stream_bzip_error,
     mz_stream_bzip_create,
     mz_stream_bzip_delete,
-    mz_stream_bzip_get_total_in,
-    mz_stream_bzip_get_total_out
+    mz_stream_bzip_get_prop_int64,
+    mz_stream_bzip_set_prop_int64
 };
 
 /***************************************************************************/
@@ -185,6 +185,21 @@ uint32_t mz_stream_bzip_compress(void *stream, int flush)
     uint32_t out_bytes = 0;
     int16_t err = BZ_OK;
 
+
+    if (bzip->bzstream.avail_out == 0)
+    {
+        if (mz_stream_bzip_flush(bzip) != MZ_OK)
+        {
+            bzip->error = BZ_DATA_ERROR;
+            return MZ_STREAM_ERROR;
+        }
+
+        bzip->bzstream.avail_out = sizeof(bzip->buffer);
+        bzip->bzstream.next_out = (char *)bzip->buffer;
+
+        bzip->buffer_len = 0;
+    }
+
     total_out_before = bzip->bzstream.total_out_lo32 + 
             (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
 
@@ -201,43 +216,25 @@ uint32_t mz_stream_bzip_compress(void *stream, int flush)
         return MZ_STREAM_ERROR;
     }
 
-    return out_bytes;
+    bzip->buffer_len += out_bytes;
+    bzip->total_out += out_bytes;
+
+    return MZ_OK;
 }
 
 int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     uint32_t out_bytes = 0;
-    uint32_t total_out = 0;
 
 
     bzip->bzstream.next_in = (char *)buf;
     bzip->bzstream.avail_in = size;
 
     while ((bzip->error == BZ_OK) && (bzip->bzstream.avail_in > 0))
-    {
-        if (bzip->bzstream.avail_out == 0)
-        {
-            if (mz_stream_bzip_flush(bzip) != MZ_OK)
-            {
-                bzip->error = BZ_DATA_ERROR;
-                return 0;
-            }
-
-            bzip->bzstream.avail_out = sizeof(bzip->buffer);
-            bzip->bzstream.next_out = (char *)bzip->buffer;
-
-            bzip->buffer_len = 0;
-        }
-        
-        out_bytes = mz_stream_bzip_compress(stream, BZ_RUN);
-
-        total_out += out_bytes;
-        bzip->buffer_len += out_bytes;
-    }
+        mz_stream_bzip_compress(stream, BZ_RUN);
 
     bzip->total_in += size;
-    bzip->total_out += total_out;
 
     return size;
 }
@@ -263,14 +260,10 @@ int32_t mz_stream_bzip_close(void *stream)
     }
     else if (bzip->mode & MZ_STREAM_MODE_WRITE)
     {
-        out_bytes = mz_stream_bzip_compress(stream, BZ_FINISH);
-
-        bzip->buffer_len += out_bytes;
-        bzip->total_out += out_bytes;
-
+        mz_stream_bzip_compress(stream, BZ_FINISH);
         mz_stream_bzip_flush(stream);
 
-        bzip->error = BZ2_bzCompressEnd(&bzip->bzstream);
+        BZ2_bzCompressEnd(&bzip->bzstream);
     }
 
     bzip->initialized = 0;
@@ -286,31 +279,37 @@ int32_t mz_stream_bzip_error(void *stream)
     return bzip->error;
 }
 
-void mz_stream_bzip_set_level(void *stream, int16_t level)
+int32_t mz_stream_bzip_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    if (level < 0)
-        bzip->level = 6;
-    else
-        bzip->level = level;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN:
+        *value = bzip->total_in;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT:
+        *value = bzip->total_out;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
-int64_t mz_stream_bzip_get_total_in(void *stream)
+int32_t mz_stream_bzip_set_prop_int64(void *stream, int32_t prop, int64_t value)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    return bzip->total_in;
-}
-
-int64_t mz_stream_bzip_get_total_out(void *stream)
-{
-    mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    return bzip->total_out;
-}
-
-void mz_stream_bzip_set_max_total_in(void *stream, int64_t max_total_in)
-{
-    mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    bzip->max_total_in = max_total_in;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_COMPRESS_LEVEL:
+        if (value < 0)
+            bzip->level = 6;
+        else
+            bzip->level = (int16_t)value;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        bzip->max_total_in = value;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 void *mz_stream_bzip_create(void **stream)

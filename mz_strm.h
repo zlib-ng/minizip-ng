@@ -20,20 +20,30 @@ extern "C" {
 
 /***************************************************************************/
 
-#define MZ_STREAM_SEEK_CUR              (1)
-#define MZ_STREAM_SEEK_END              (2)
-#define MZ_STREAM_SEEK_SET              (0)
+#define MZ_STREAM_SEEK_CUR                  (1)
+#define MZ_STREAM_SEEK_END                  (2)
+#define MZ_STREAM_SEEK_SET                  (0)
 
-#define MZ_STREAM_MODE_READ             (0x01)
-#define MZ_STREAM_MODE_WRITE            (0x02)
-#define MZ_STREAM_MODE_READWRITE        (MZ_STREAM_MODE_READ | MZ_STREAM_MODE_WRITE)
-#define MZ_STREAM_MODE_APPEND           (0x04)
-#define MZ_STREAM_MODE_CREATE           (0x08)
-#define MZ_STREAM_MODE_EXISTING         (0x10)
+#define MZ_STREAM_MODE_READ                 (0x01)
+#define MZ_STREAM_MODE_WRITE                (0x02)
+#define MZ_STREAM_MODE_READWRITE            (MZ_STREAM_MODE_READ | MZ_STREAM_MODE_WRITE)
+#define MZ_STREAM_MODE_APPEND               (0x04)
+#define MZ_STREAM_MODE_CREATE               (0x08)
+#define MZ_STREAM_MODE_EXISTING             (0x10)
 
-#define MZ_STREAM_PROPERTY_TOTAL_IN     (1)
-#define MZ_STREAM_PROPERTY_TOTAL_OUT    (2)
-#define MZ_STREAM_PROPERTY_DISK_SIZE    (3)
+#define MZ_STREAM_PROP_TOTAL_IN             (1)
+#define MZ_STREAM_PROP_TOTAL_IN_MAX         (2)
+#define MZ_STREAM_PROP_TOTAL_OUT            (3)
+#define MZ_STREAM_PROP_TOTAL_OUT_MAX        (4)
+#define MZ_STREAM_PROP_HEADER_SIZE          (5)
+#define MZ_STREAM_PROP_FOOTER_SIZE          (6)
+#define MZ_STREAM_PROP_DISK_SIZE            (7)
+#define MZ_STREAM_PROP_DISK_NUMBER          (8)
+#define MZ_STREAM_PROP_DISK_DIRECTORY       (9)
+#define MZ_STREAM_PROP_COMPRESS_LEVEL       (10)
+#define MZ_STREAM_PROP_COMPRESS_STRATEGY    (11)
+#define MZ_STREAM_PROP_COMPRESS_MEM_LEVEL   (12)
+#define MZ_STREAM_PROP_COMPRESS_WINDOW_BITS (13)
 
 /***************************************************************************/
 
@@ -48,8 +58,8 @@ typedef int32_t (*mz_stream_error_cb)          (void *stream);
 typedef void*   (*mz_stream_create_cb)         (void **stream);
 typedef void    (*mz_stream_delete_cb)         (void **stream);
 
-typedef int64_t (*mz_stream_get_total_in_cb)   (void *stream);
-typedef int64_t (*mz_stream_get_total_out_cb)  (void *stream);
+typedef int32_t (*mz_stream_get_prop_int64_cb) (void *stream, int32_t prop, int64_t *value);
+typedef int32_t (*mz_stream_set_prop_int64_cb) (void *stream, int32_t prop, int64_t value);
 
 /***************************************************************************/
 
@@ -66,8 +76,8 @@ typedef struct mz_stream_vtbl_s
     mz_stream_create_cb         create;
     mz_stream_delete_cb         delete;
 
-    mz_stream_get_total_in_cb   get_total_in;
-    mz_stream_get_total_out_cb  get_total_out;
+    mz_stream_get_prop_int64_cb get_prop_int64;
+    mz_stream_set_prop_int64_cb set_prop_int64;
 } mz_stream_vtbl;
 
 typedef struct mz_stream_s {
@@ -96,8 +106,8 @@ int32_t mz_stream_close(void *stream);
 int32_t mz_stream_error(void *stream);
 
 int32_t mz_stream_set_base(void *stream, void *base);
-int64_t mz_stream_get_total_in(void *stream);
-int64_t mz_stream_get_total_out(void *stream);
+int32_t mz_stream_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
 void*   mz_stream_create(void **stream, mz_stream_vtbl *vtbl);
 void    mz_stream_delete(void **stream);

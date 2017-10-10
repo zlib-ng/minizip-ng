@@ -29,13 +29,8 @@ int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_zlib_close(void *stream);
 int32_t mz_stream_zlib_error(void *stream);
 
-void    mz_stream_zlib_set_level(void *stream, int16_t level);
-void    mz_stream_zlib_set_window_bits(void *stream, int16_t window_bits);
-void    mz_stream_zlib_set_mem_level(void *stream, int16_t mem_level);
-void    mz_stream_zlib_set_strategy(void *stream, int16_t strategy);
-int64_t mz_stream_zlib_get_total_in(void *stream);
-int64_t mz_stream_zlib_get_total_out(void *stream);
-void    mz_stream_zlib_set_max_total_in(void *stream, int64_t max_total_in);
+int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
 void*   mz_stream_zlib_create(void **stream);
 void    mz_stream_zlib_delete(void **stream);
@@ -54,8 +49,8 @@ int32_t mz_stream_crc32_close(void *stream);
 int32_t mz_stream_crc32_error(void *stream);
 
 int32_t mz_stream_crc32_get_value(void *stream);
-int64_t mz_stream_crc32_get_total_in(void *stream);
-int64_t mz_stream_crc32_get_total_out(void *stream);
+
+int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *value);
 
 void*   mz_stream_crc32_create(void **stream);
 void    mz_stream_crc32_delete(void **stream);

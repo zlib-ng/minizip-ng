@@ -54,8 +54,7 @@ mz_stream_vtbl mz_stream_crypt_vtbl = {
     mz_stream_crypt_error,
     mz_stream_crypt_create,
     mz_stream_crypt_delete,
-    mz_stream_crypt_get_total_in,
-    mz_stream_crypt_get_total_out
+    mz_stream_crypt_get_prop_int64
 };
 
 /***************************************************************************/
@@ -275,16 +274,19 @@ void mz_stream_crypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2
     *verify2 = crypt->verify2;
 }
 
-int64_t mz_stream_crypt_get_total_in(void *stream)
+int32_t mz_stream_crypt_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    return crypt->total_in;
-}
-
-int64_t mz_stream_crypt_get_total_out(void *stream)
-{
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    return crypt->total_out;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN:
+        *value = crypt->total_in;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT:
+        *value = crypt->total_out;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 void *mz_stream_crypt_create(void **stream)

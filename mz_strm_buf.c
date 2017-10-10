@@ -69,7 +69,7 @@ typedef struct mz_stream_buffered_s {
 int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
 {
     //mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
-    //mz_stream_buffered_print(opaque, buffered, "open [num %d mode %d]\n", number_disk, mode);
+    //mz_stream_buffered_print(opaque, buffered, "open [mode %d]\n", mode);
     return mz_stream_open(stream, path, mode);
 }
 
@@ -85,7 +85,9 @@ int32_t mz_stream_buffered_flush(void *stream, uint32_t *written)
 
     while (bytes_left_to_write > 0)
     {
-        bytes_written = mz_stream_write(buffered->stream.base, buffered->writebuf + (bytes_to_write - bytes_left_to_write), bytes_left_to_write);
+        bytes_written = mz_stream_write(buffered->stream.base, 
+            buffered->writebuf + (bytes_to_write - bytes_left_to_write), bytes_left_to_write);
+
         if (bytes_written != bytes_left_to_write)
             return MZ_STREAM_ERROR;
 
@@ -118,7 +120,8 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
     mz_stream_buffered_print(opaque, stream, "read [size %ld pos %lld]\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0)
-        mz_stream_buffered_print(opaque, stream, "switch from write to read, not yet supported [%lld]\n", buffered->position);
+        mz_stream_buffered_print(opaque, stream, "switch from write to read, not yet supported [%lld]\n", 
+            buffered->position);
 
     while (bytes_left_to_read > 0)
     {
@@ -178,7 +181,8 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
     uint32_t bytes_flushed = 0;
 
 
-    mz_stream_buffered_print(opaque, stream, "write [size %ld len %d pos %lld]\n", size, buffered->writebuf_len, buffered->position);
+    mz_stream_buffered_print(opaque, stream, "write [size %ld len %d pos %lld]\n", 
+        size, buffered->writebuf_len, buffered->position);
 
     if (buffered->readbuf_len > 0)
     {
@@ -270,7 +274,9 @@ int mz_stream_buffered_seekinternal(void *stream, uint64_t offset, int32_t origi
                     return MZ_OK;
                 }
             }
-            if ((buffered->readbuf_len > 0) && (offset < buffered->position) && (offset >= buffered->position - buffered->readbuf_len))
+
+            if ((buffered->readbuf_len > 0) && (offset < buffered->position) && 
+                (offset >= buffered->position - buffered->readbuf_len))
             {
                 buffered->readbuf_pos = (uint32_t)(offset - (buffered->position - buffered->readbuf_len));
                 return MZ_OK;

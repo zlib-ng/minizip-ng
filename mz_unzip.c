@@ -694,6 +694,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     uint16_t extrafield_local_size = 0;
     uint32_t size_variable = 0;
     int64_t max_total_in = 0;
+    int64_t total_in = 0;
+    int64_t footer_size = 0;
     int16_t err = MZ_OK;
 
 #ifdef NOUNCRYPT
@@ -760,7 +762,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
             mz_stream_aes_set_password(unzip->crypt_stream, password);
             mz_stream_aes_set_encryption_mode(unzip->crypt_stream, unzip->aes_encryption_mode);
 
-            max_total_in -= mz_stream_aes_get_footer_size(unzip->crypt_stream);
+            if (mz_stream_get_prop_int64(unzip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
+                max_total_in -= footer_size;
 
             mz_stream_set_base(unzip->crypt_stream, unzip->stream);
 
@@ -786,7 +789,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         mz_stream_set_base(unzip->crypt_stream, unzip->stream);
     }
 
-    max_total_in -= mz_stream_get_total_in(unzip->crypt_stream);
+    if (mz_stream_get_prop_int64(unzip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
+        max_total_in -= total_in;
     
     if (err == MZ_OK)
     {
@@ -795,45 +799,34 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
             mz_stream_passthru_create(&unzip->compress_stream);
             mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
         }
-        else if (unzip->file_info.compression_method == MZ_METHOD_DEFLATE)
+        else
         {
-            mz_stream_zlib_create(&unzip->compress_stream);
-            if (unzip->file_info.flag & 1)
-                mz_stream_zlib_set_max_total_in(unzip->compress_stream, max_total_in);
-
-            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
-
-            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-                err = MZ_INTERNAL_ERROR;
-        }
+            if (unzip->file_info.compression_method == MZ_METHOD_DEFLATE)
+                mz_stream_zlib_create(&unzip->compress_stream);
 #ifdef HAVE_BZIP2
-        else if (unzip->file_info.compression_method == MZ_METHOD_BZIP2)
-        {
-            mz_stream_bzip_create(&unzip->compress_stream);
-            if (unzip->file_info.flag & 1)
-                mz_stream_bzip_set_max_total_in(unzip->compress_stream, max_total_in);
-
-            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
-
-            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-                err = MZ_INTERNAL_ERROR;
-        }
+            else if (unzip->file_info.compression_method == MZ_METHOD_BZIP2)
+                mz_stream_bzip_create(&unzip->compress_stream);
 #endif
 #ifdef HAVE_LZMA
-        else if (unzip->file_info.compression_method == MZ_METHOD_LZMA)
-        {
-            mz_stream_lzma_create(&unzip->compress_stream);
-            if (unzip->file_info.flag & 1)
-                mz_stream_lzma_set_max_total_in(unzip->compress_stream, max_total_in);
-
-            mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
-
-            if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-                err = MZ_INTERNAL_ERROR;
-        }
+            else if (unzip->file_info.compression_method == MZ_METHOD_LZMA)
+                mz_stream_lzma_create(&unzip->compress_stream);
 #endif
+            else
+                err = MZ_PARAM_ERROR;
 
+            if (err == MZ_OK)
+            {
+                if (unzip->file_info.flag & 1)
+                    mz_stream_set_prop_int64(unzip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
+
+                mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
+
+                if (mz_stream_open(unzip->compress_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
+                    err = MZ_INTERNAL_ERROR;
+            }
+        }
     }
+
     if (err == MZ_OK)
     {
         mz_stream_crc32_create(&unzip->crc32_stream);

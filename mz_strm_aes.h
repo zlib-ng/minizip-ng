@@ -37,9 +37,8 @@ int32_t mz_stream_aes_error(void *stream);
 
 void    mz_stream_aes_set_password(void *stream, const char *password);
 void    mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode);
-int64_t mz_stream_aes_get_total_in(void *stream);
-int64_t mz_stream_aes_get_total_out(void *stream);
-int32_t mz_stream_aes_get_footer_size(void *stream);
+
+int32_t mz_stream_aes_get_prop_int64(void *stream, int32_t prop, int64_t *value);
 
 void*   mz_stream_aes_create(void **stream);
 void    mz_stream_aes_delete(void **stream);

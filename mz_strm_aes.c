@@ -41,8 +41,7 @@ mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_error,
     mz_stream_aes_create,
     mz_stream_aes_delete,
-    mz_stream_aes_get_total_in,
-    mz_stream_aes_get_total_out
+    mz_stream_aes_get_prop_int64
 };
 
 /***************************************************************************/
@@ -99,7 +98,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
 
         if (mz_stream_write(aes->stream.base, verify, MZ_AES_PWVERIFYSIZE) != MZ_AES_PWVERIFYSIZE)
             return MZ_STREAM_ERROR;
-
+        
         aes->total_out += MZ_AES_PWVERIFYSIZE;
     }
     else if (mode & MZ_STREAM_MODE_READ)
@@ -223,21 +222,25 @@ void mz_stream_aes_set_encryption_mode(void *stream, int16_t encryption_mode)
     aes->encryption_mode = encryption_mode;
 }
 
-int64_t mz_stream_aes_get_total_in(void *stream)
+int32_t mz_stream_aes_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
-    return aes->total_in;
-}
-
-int64_t mz_stream_aes_get_total_out(void *stream)
-{
-    mz_stream_aes *aes = (mz_stream_aes *)stream;
-    return aes->total_out;
-}
-
-int32_t mz_stream_aes_get_footer_size(void *stream)
-{
-    return MZ_AES_AUTHCODESIZE;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN: 
+        *value = aes->total_in;
+        return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT: 
+        *value = aes->total_out;
+        return MZ_OK;
+    case MZ_STREAM_PROP_HEADER_SIZE:
+        *value = MZ_AES_MAXSALTLENGTH + MZ_AES_PWVERIFYSIZE;
+        return MZ_OK;
+    case MZ_STREAM_PROP_FOOTER_SIZE:
+        *value = MZ_AES_AUTHCODESIZE;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 void *mz_stream_aes_create(void **stream)

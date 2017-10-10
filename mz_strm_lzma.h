@@ -29,10 +29,8 @@ int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_lzma_close(void *stream);
 int32_t mz_stream_lzma_error(void *stream);
 
-void    mz_stream_lzma_set_level(void *stream, int16_t level);
-int64_t mz_stream_lzma_get_total_in(void *stream);
-int64_t mz_stream_lzma_get_total_out(void *stream);
-void    mz_stream_lzma_set_max_total_in(void *stream, int64_t max_total_in);
+int32_t mz_stream_lzma_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
 void*   mz_stream_lzma_create(void **stream);
 void    mz_stream_lzma_delete(void **stream);

@@ -251,20 +251,20 @@ int32_t mz_stream_set_base(void *stream, void *base)
     return MZ_OK;
 }
 
-int64_t mz_stream_get_total_in(void *stream)
+int32_t mz_stream_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->get_total_in == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->get_prop_int64 == NULL)
         return MZ_PARAM_ERROR;
-    return strm->vtbl->get_total_in(stream);
+    return strm->vtbl->get_prop_int64(stream, prop, value);
 }
 
-int64_t mz_stream_get_total_out(void *stream)
+int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value)
 {
     mz_stream *strm = (mz_stream *)stream;
-    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->get_total_out == NULL)
+    if (strm == NULL || strm->vtbl == NULL || strm->vtbl->set_prop_int64 == NULL)
         return MZ_PARAM_ERROR;
-    return strm->vtbl->get_total_out(stream);
+    return strm->vtbl->set_prop_int64(stream, prop, value);
 }
 
 void *mz_stream_create(void **stream, mz_stream_vtbl *vtbl)
@@ -349,16 +349,16 @@ int32_t mz_stream_passthru_error(void *stream)
     return mz_stream_error(passthru->stream.base);
 }
 
-int64_t mz_stream_passthru_get_total_in(void *stream)
+int32_t mz_stream_passthru_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return passthru->total_in;
+    return mz_stream_get_prop_int64(passthru->stream.base, prop, value);
 }
 
-int64_t mz_stream_passthru_get_total_out(void *stream)
+int32_t mz_stream_passthru_set_prop_int64(void *stream, int32_t prop, int64_t value)
 {
     mz_stream_passthru *passthru = (mz_stream_passthru *)stream;
-    return passthru->total_out;
+    return mz_stream_set_prop_int64(passthru->stream.base, prop, value);
 }
 
 /***************************************************************************/
@@ -374,8 +374,8 @@ mz_stream_vtbl mz_stream_passthru_vtbl = {
     mz_stream_passthru_error,
     mz_stream_passthru_create,
     mz_stream_passthru_delete,
-    mz_stream_passthru_get_total_in,
-    mz_stream_passthru_get_total_out
+    mz_stream_passthru_get_prop_int64,
+    mz_stream_passthru_set_prop_int64
 };
 
 /***************************************************************************/
