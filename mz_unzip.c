@@ -224,7 +224,7 @@ extern void* ZEXPORT mz_unzip_open(void *stream)
 
     unzip->stream = stream;
 
-    mz_stream_set_prop_int64(stream, MZ_STREAM_PROP_DISK_DIRECTORY, 1);
+    mz_stream_set_prop_int64(stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
 
     // Search for end of central directory header
     if (mz_unzip_search_cd(unzip->stream, &central_pos) == MZ_OK)
@@ -433,6 +433,8 @@ static int mz_unzip_entry_read_header(void *handle)
     unzip->entry_header_read = 0;
     
     memset(&unzip->file_info, 0, sizeof(mz_unzip_file));
+
+    mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
 
     if (mz_stream_seek(unzip->stream,
             unzip->pos_in_central_dir + unzip->byte_before_the_zipfile, MZ_STREAM_SEEK_SET) != MZ_OK)
@@ -722,12 +724,12 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     if ((unzip->file_info.flag & 1) && (password == NULL))
         return MZ_PARAM_ERROR;
 
+    mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, unzip->file_info.disk_num_start);
+
     err = mz_unzip_entry_check_header(unzip, &size_variable, &extrafield_local_offset, &extrafield_local_size);
     if (err != MZ_OK)
         return err;
    
-    mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, unzip->file_info.disk_num_start);
-
     if ((unzip->file_info.compression_method != 0) && 
         (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_DEFLATE))
     {

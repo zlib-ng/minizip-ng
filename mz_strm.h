@@ -39,11 +39,10 @@ extern "C" {
 #define MZ_STREAM_PROP_FOOTER_SIZE          (6)
 #define MZ_STREAM_PROP_DISK_SIZE            (7)
 #define MZ_STREAM_PROP_DISK_NUMBER          (8)
-#define MZ_STREAM_PROP_DISK_DIRECTORY       (9)
-#define MZ_STREAM_PROP_COMPRESS_LEVEL       (10)
-#define MZ_STREAM_PROP_COMPRESS_STRATEGY    (11)
-#define MZ_STREAM_PROP_COMPRESS_MEM_LEVEL   (12)
-#define MZ_STREAM_PROP_COMPRESS_WINDOW_BITS (13)
+#define MZ_STREAM_PROP_COMPRESS_LEVEL       (9)
+#define MZ_STREAM_PROP_COMPRESS_STRATEGY    (10)
+#define MZ_STREAM_PROP_COMPRESS_MEM_LEVEL   (11)
+#define MZ_STREAM_PROP_COMPRESS_WINDOW_BITS (12)
 
 /***************************************************************************/
 

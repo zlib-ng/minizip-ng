@@ -116,6 +116,8 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     if (mz_stream_win32_is_open(stream) != MZ_OK)
     {
         win32->error = GetLastError();
+        if (win32->error == ERROR_FILE_NOT_FOUND)
+            return MZ_EXIST_ERROR;
         return MZ_STREAM_ERROR;
     }
 

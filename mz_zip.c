@@ -880,7 +880,7 @@ extern int ZEXPORT mz_zip_close(void *handle, const char *global_comment, uint16
     
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
         zip->number_disk_with_CD = (uint32_t)disk_number + 1;
-    if (mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_DIRECTORY, 1) != MZ_OK)
+    if (mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1) != MZ_OK)
         centraldir_pos_inzip = mz_stream_tell(zip->stream);
 
     mz_stream_seek(zip->cd_stream, 0, MZ_STREAM_SEEK_END);
