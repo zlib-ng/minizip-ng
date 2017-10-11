@@ -104,11 +104,13 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
     uint8_t buf[BUFREADCOMMENT + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
-    uint64_t max_back = UINT16_MAX; /* maximum size of global comment */
+    uint64_t max_back = UINT16_MAX; // maximum size of global comment
     uint64_t pos_found = 0;
     uint32_t read_size = 0;
     uint64_t read_pos = 0;
     uint32_t i = 0;
+
+    *central_pos = 0;
 
     if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != MZ_OK)
         return MZ_STREAM_ERROR;
@@ -141,12 +143,12 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
                 ((*(buf + i + 2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
                 ((*(buf + i + 3)) == (ENDHEADERMAGIC >> 24 & 0xff)))
             {
-                pos_found = read_pos + i;
+                *central_pos = read_pos + i;
                 return MZ_OK;
             }
         }
 
-        if (pos_found != 0)
+        if (*central_pos != 0)
             break;
     }
 

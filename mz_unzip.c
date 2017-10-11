@@ -109,11 +109,12 @@ static int32_t mz_unzip_search_cd(void *stream, uint64_t *central_pos)
     uint8_t buf[BUFREADCOMMENT + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
-    uint64_t max_back = UINT16_MAX; /* maximum size of global comment */
-    uint64_t pos_found = 0;
+    uint64_t max_back = UINT16_MAX; // maximum size of global comment
     uint32_t read_size = 0;
     uint64_t read_pos = 0;
     uint32_t i = 0;
+
+    *central_pos = 0;
 
     if (mz_stream_seek(stream, 0, MZ_STREAM_SEEK_END) != MZ_OK)
         return MZ_STREAM_ERROR;
@@ -146,12 +147,12 @@ static int32_t mz_unzip_search_cd(void *stream, uint64_t *central_pos)
                 ((*(buf + i + 2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
                 ((*(buf + i + 3)) == (ENDHEADERMAGIC >> 24 & 0xff)))
             {
-                pos_found = read_pos + i;
+                *central_pos = read_pos + i;
                 return MZ_OK;
             }
         }
 
-        if (pos_found != 0)
+        if (*central_pos != 0)
             break;
     }
 
@@ -177,7 +178,7 @@ static int32_t mz_unzip_search_zip64_cd(void *stream, const uint64_t end_central
         if (value32 != ZIP64ENDLOCHEADERMAGIC)
             err = MZ_FORMAT_ERROR;
     }
-    // Number of the disk with the start of the zip64 end of  central directory
+    // Number of the disk with the start of the zip64 end of central directory
     if (err == MZ_OK)
         err = mz_stream_read_uint32(stream, &value32);
     // Relative offset of the zip64 end of central directory record8
@@ -223,10 +224,12 @@ extern void* ZEXPORT mz_unzip_open(void *stream)
 
     unzip->stream = stream;
 
+    mz_stream_set_prop_int64(stream, MZ_STREAM_PROP_DISK_DIRECTORY, 1);
+
     // Search for end of central directory header
     if (mz_unzip_search_cd(unzip->stream, &central_pos) == MZ_OK)
     {
-        if (mz_stream_seek(unzip->stream, central_pos, MZ_STREAM_SEEK_SET) != 0)
+        if (mz_stream_seek(unzip->stream, central_pos, MZ_STREAM_SEEK_SET) != MZ_OK)
             err = MZ_STREAM_ERROR;
 
         // The signature, already checked
@@ -722,7 +725,9 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     err = mz_unzip_entry_check_header(unzip, &size_variable, &extrafield_local_offset, &extrafield_local_size);
     if (err != MZ_OK)
         return err;
-    
+   
+    mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, unzip->file_info.disk_num_start);
+
     if ((unzip->file_info.compression_method != 0) && 
         (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_DEFLATE))
     {
