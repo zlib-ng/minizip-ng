@@ -22,16 +22,14 @@ project("minizip")
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
 
-if(CMAKE_C_COMPILER MATCHES ".*clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
-endif()
-
 # Ensure correct version of zlib is referenced
 set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
 find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
+
+set(PROJECT_NAME libminizip)
 
 set(MINIZIP_SRC
     mz_os.c
@@ -70,16 +68,18 @@ if(UNIX)
 
     list(APPEND MINIZIP_SRC "mz_os_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h")
+
     add_definitions(-D__USE_FILE_OFFSET64)
     add_definitions(-D__USE_LARGEFILE64)
     add_definitions(-D_LARGEFILE64_SOURCE)
     add_definitions(-D_FILE_OFFSET_BIT=64)
 
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
-        set(DIR_TO_BSD_LIB_FILE /usr/lib/i386-linux-gnu/libbsd.so)
-    else(CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(DIR_TO_BSD_LIB_FILE /usr/lib/x86_64-linux-gnu/libbsd.so)
-    endif()
+    find_package(PkgConfig REQUIRED)
+
+    pkg_check_modules(LIBBSD libbsd)
+
+    include_directories(${LIBBSD_INCLUDE_DIRS})
+    link_directories(${LIBBSD_LIBRARY_DIRS})
 endif()
 
 if(USE_AES)
@@ -322,29 +322,35 @@ if(USE_LZMA)
     source_group("LZMA\\RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HEADERS})
 endif()
 
+if(CMAKE_C_COMPILER MATCHES ".*clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
+endif()
+
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
-add_library(libminizip ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
-                       ${AES_SRC} ${AES_PUBLIC_HEADERS}
-                       ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
-                       ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
-set_target_properties(libminizip PROPERTIES LINKER_LANGUAGE C PREFIX "")
+add_library(${PROJECT_NAME}
+                ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
+                ${AES_SRC} ${AES_PUBLIC_HEADERS}
+                ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
+                ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "")
 if(USE_LZMA)
-    set_target_properties(libminizip PROPERTIES C_STANDARD 99)
+    set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 endif()
-target_link_libraries(libminizip ZLIB::ZLIB)
+target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
 if(UNIX)
-    target_link_libraries(libminizip ${DIR_TO_BSD_LIB_FILE})
+    target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
 endif()
 
-install(TARGETS libminizip EXPORT libminizip-exports
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-exports
         INCLUDES DESTINATION "include"
         RUNTIME DESTINATION "bin"
         LIBRARY DESTINATION "lib"
         ARCHIVE DESTINATION "lib")
 
-install(EXPORT libminizip-exports
+install(EXPORT ${PROJECT_NAME}-exports
         DESTINATION "cmake"
         NAMESPACE "MINIZIP::")
 
@@ -353,10 +359,10 @@ install(FILES ${MINIZIP_PUBLIC_HEADERS}
 
 #if(BUILD_TEST)
     add_executable(miniunz miniunz.c)
-    target_link_libraries(miniunz libminizip)
+    target_link_libraries(miniunz ${PROJECT_NAME})
 
     add_executable(minizip minizip.c)
-    target_link_libraries(minizip libminizip)
+    target_link_libraries(minizip ${PROJECT_NAME})
 
     install(TARGETS miniunz minizip
             RUNTIME DESTINATION "bin")
