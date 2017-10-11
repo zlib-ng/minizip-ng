@@ -138,7 +138,7 @@ handle = mz_unzip/zip_open(split_stream);
 
 The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
 
-When unzipping it will automatically determine when in needs to span disks.
+When unzipping it will automatically determine when in needs to cross disk boundaries.
 
 ### Windows RT
 
