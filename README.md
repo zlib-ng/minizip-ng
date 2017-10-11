@@ -94,29 +94,8 @@ mz_stream_buffered_set_base(buf_stream, stream);
 
 void *unz_handle = mz_unzip_open(buf_stream);
 ```
-### Compression Methods
 
-#### BZIP2
-
-+ Requires #define HAVE_BZIP2
-+ Requires [BZIP2](http://www.bzip.org/) library
-
-#### LZMA
-
-+ Requires #define HAVE_LZMA
-+ Requires [liblzma](https://tukaani.org/xz/) library
-
-### Encryption
-
-#### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
-
-+ Requires #define HAVE_AES
-+ Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
-
-When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
-
-### Disk Splitting
+#### Disk Splitting Stream
 
 To create an archive with multiple disks use the disk splitting stream and for zipping supply a disk size value in bytes.
 
@@ -139,6 +118,28 @@ handle = mz_unzip/zip_open(split_stream);
 The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
 
 When unzipping it will automatically determine when in needs to cross disk boundaries.
+
+### Compression Methods
+
+#### BZIP2
+
++ Requires #define HAVE_BZIP2
++ Requires [BZIP2](http://www.bzip.org/) library
+
+#### LZMA
+
++ Requires #define HAVE_LZMA
++ Requires [liblzma](https://tukaani.org/xz/) library
+
+### Encryption
+
+#### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
+
++ Requires #define HAVE_AES
++ Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
+
+When zipping with a password it will always use AES 256-bit encryption.
+When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
 
 ### Windows RT
 
