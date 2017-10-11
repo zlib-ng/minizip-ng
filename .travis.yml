@@ -1,0 +1,22 @@
+language: c
+
+os:
+    - linux
+
+compiler:
+    - clang
+    - gcc
+
+before_install:
+    - sudo apt-get install libbsd-dev
+
+before_script:
+    - mkdir build
+    - cd build
+    - cmake .. -DBUILD_TEST=ON
+
+script: make
+
+after_success:
+    - cd ../test
+    - python test.py --exe_dir=../build
