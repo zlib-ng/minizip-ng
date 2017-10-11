@@ -1,6 +1,6 @@
-# Minizip zlib contribution fork
+# Minizip 1.2
 
-Contains the latest bug fixes that having been found all over the internet including the [old minizip forum](https://web.archive.org/web/20121015065401/http://www.winimage.info/forum/) and zlib developer's mailing list along with some additional features. Based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and contributed to by many people over the years.
+Zlib contribution fork that ontains the latest bug fixes that having been found all over the internet including the [old minizip forum](https://web.archive.org/web/20121015065401/http://www.winimage.info/forum/) and zlib developer's mailing list along with some additional features. Based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and contributed to by many people over the years.
 
 ## Features
 
@@ -54,17 +54,17 @@ zipOpen3("__notused__", APPEND_STATUS_CREATE, 0, 0, &filefunc32);
 When zipping with a password it will always use AES 256-bit encryption. 
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption.
 
-### PKWARE disk spanning
+### PKWARE disk splitting
 
-To create an archive with multiple disks use zipOpen3_64 supplying a disk_size value in bytes.
+To create an archive with multiple disks use zipOpen3_64 supplying a disk size value in bytes.
 
 ```
 extern zipFile ZEXPORT zipOpen3_64(const void *pathname, int append, 
   ZPOS64_T disk_size, zipcharpc* globalcomment, zlib_filefunc64_def* pzlib_filefunc_def);
 ```
-The central directory is the only data stored in the .zip and doesn't follow disk_size restrictions.
+The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
 
-When unzipping it will automatically determine when in needs to span disks.
+When unzipping it will automatically determine when in needs to cross disk boundaries.
 
 ### I/O Buffering
 
