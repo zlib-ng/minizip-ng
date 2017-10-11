@@ -12,7 +12,7 @@ To generate the project files for your platform and IDE download and run cmake i
 ```
 cmake .
 cmake --build .
-``` 
+```
 
 ## Contents
 
@@ -89,7 +89,7 @@ mz_stream_os_create(&stream)
 // do open os stream
 
 mz_stream_buffered_create(&buf_stream);
-mz_stream_buffered_open(buf_stream, NULL, MZ_STREAM_MODE_READ)
+mz_stream_buffered_open(buf_stream, NULL, MZ_STREAM_MODE_READ);
 mz_stream_buffered_set_base(buf_stream, stream);
 
 void *unz_handle = mz_unzip_open(buf_stream);
@@ -115,6 +115,30 @@ void *unz_handle = mz_unzip_open(buf_stream);
 
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
+
+### Disk Splitting
+
+To create an archive with multiple disks use the disk splitting stream and for zipping supply a disk size value in bytes.
+
+```
+void *stream = NULL;
+void *split_stream = NULL;
+
+mz_stream_os_create(&stream);
+
+mz_stream_split_create(&split_stream);
+mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, 64 * 1024);
+
+mz_stream_set_base(split_stream, stream);
+
+mz_stream_open(split_stream, path..
+
+handle = mz_unzip/zip_open(split_stream);
+```
+
+The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
+
+When unzipping it will automatically determine when in needs to span disks.
 
 ### Windows RT
 
