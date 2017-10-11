@@ -5,6 +5,8 @@ This library is a refactoring of the minizip contribution found in the zlib dist
 Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
 Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
 
+For the older release of the library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
+
 ## Build
 
 To generate the project files for your platform and IDE download and run cmake in the project directory.
