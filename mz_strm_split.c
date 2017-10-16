@@ -199,6 +199,8 @@ int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
             return read;
         if (read == 0)
         {
+            if (split->current_disk < 0) // No more disks to goto
+                break;
             err = mz_stream_split_goto_disk(stream, split->current_disk + 1);
             if (err == MZ_EXIST_ERROR)
                 break;

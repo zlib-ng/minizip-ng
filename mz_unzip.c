@@ -96,10 +96,9 @@ static int32_t mz_unzip_search_cd(void *stream, uint64_t *central_pos)
 {
     uint8_t buf[1024 + 4];
     uint64_t file_size = 0;
-    uint64_t back_read = 4;
+    uint64_t back_read = 0;
     uint64_t max_back = UINT16_MAX; // maximum size of global comment
-    uint64_t pos_found = 0;
-    uint32_t read_size = 0;
+    uint32_t read_size = sizeof(buf);
     uint64_t read_pos = 0;
     uint32_t i = 0;
 
@@ -120,7 +119,6 @@ static int32_t mz_unzip_search_cd(void *stream, uint64_t *central_pos)
             back_read = max_back;
 
         read_pos = file_size - back_read;
-        read_size = sizeof(buf);
         if (read_size > (file_size - read_pos))
             read_size = (uint32_t)(file_size - read_pos);
 
@@ -425,9 +423,9 @@ static int mz_unzip_entry_read_header(void *handle)
             unzip->pos_in_central_dir + unzip->byte_before_the_zipfile, MZ_STREAM_SEEK_SET) != MZ_OK)
         err = MZ_STREAM_ERROR;
     
-    // Check the magic
     if (err == MZ_OK)
     {
+        // Check the magic
         if (mz_stream_read_uint32(unzip->stream, &magic) != MZ_OK)
             err = MZ_STREAM_ERROR;
         else if (magic == MZ_ZIP_MAGIC_ENDHEADER || magic == MZ_ZIP_MAGIC_ENDHEADER64)
@@ -436,41 +434,44 @@ static int mz_unzip_entry_read_header(void *handle)
             err = MZ_FORMAT_ERROR;
     }
 
-    // Read central directory header
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.version) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.version_needed) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.flag) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.compression_method) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.dos_date) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.crc) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    unzip->file_info.compressed_size = value32;
-    if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    unzip->file_info.uncompressed_size = value32;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.filename_size) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.extrafield_size) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.comment_size) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint16(unzip->stream, &value16) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    unzip->file_info.disk_num_start = value16;
-    if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.internal_fa) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.external_fa) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
-        err = MZ_STREAM_ERROR;
-    unzip->file_info.disk_offset = value32;
+    if (err == MZ_OK)
+    {
+        // Read central directory header
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.version) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.version_needed) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.flag) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.compression_method) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.dos_date) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.crc) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        unzip->file_info.compressed_size = value32;
+        if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        unzip->file_info.uncompressed_size = value32;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.filename_size) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.extrafield_size) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.comment_size) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint16(unzip->stream, &value16) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        unzip->file_info.disk_num_start = value16;
+        if (mz_stream_read_uint16(unzip->stream, &unzip->file_info.internal_fa) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint32(unzip->stream, &unzip->file_info.external_fa) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        if (mz_stream_read_uint32(unzip->stream, &value32) != MZ_OK)
+            err = MZ_STREAM_ERROR;
+        unzip->file_info.disk_offset = value32;
+    }
 
 #ifdef HAVE_AES
     unzip->aes_version = 0;
@@ -983,10 +984,7 @@ extern int ZEXPORT mz_unzip_goto_first_entry(void *handle)
     unzip = (mz_unzip*)handle;
 
     unzip->pos_in_central_dir = unzip->offset_central_dir;
-
-    if (unzip->size_central_dir == 0)
-        return MZ_END_OF_LIST;
-
+    
     return mz_unzip_entry_read_header(handle);
 }
 

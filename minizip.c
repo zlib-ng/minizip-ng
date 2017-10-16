@@ -60,10 +60,17 @@ void minizip_help()
 
 /***************************************************************************/
 
-int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_path, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info)
+typedef struct minizip_opt_s {
+    uint8_t exclude_path;
+} minizip_opt;
+
+/***************************************************************************/
+
+int32_t minizip_add_file(void *handle, const char *path, minizip_opt *options, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info)
 {
     mz_zip_file file_info = { 0 };
     int32_t read = 0;
+    int32_t written = 0;
     int16_t err = MZ_OK;
     int16_t err_close = MZ_OK;
     void *stream = NULL;
@@ -80,7 +87,7 @@ int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_pat
         filenameinzip += 1;
 
     // Should the file be stored with any path info at all?
-    if (opt_exclude_path)
+    if (options->exclude_path)
     {
         const char *match = NULL;
         const char *last_slash = NULL;
@@ -132,9 +139,13 @@ int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_pat
             if (read == 0)
                 break;
 
-            err = mz_zip_entry_write(handle, buf, read);
-            if (err < 0)
+            written = mz_zip_entry_write(handle, buf, read);
+            if (written != read)
+            {
+                err = mz_stream_os_error(stream);
                 printf("Error in writing %s in the zip file (%d)\n", filenameinzip, err);
+                break;
+            }
         }
         while (err == MZ_OK);
 
@@ -154,17 +165,16 @@ int32_t minizip_add_file(void *handle, const char *path, uint8_t opt_exclude_pat
     return err;
 }
 
-int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info, uint8_t recursive)
+int32_t minizip_add(void *handle, const char *path, minizip_opt *options, mz_zip_compress *compress_info, mz_zip_crypt *crypt_info, uint8_t recursive)
 {
     DIR *dir = NULL;
     struct dirent *entry = NULL;
     int16_t err = 0;
-    int16_t full_path_len = 0;
     char full_path[320];
 
 
     if (mz_os_is_dir(path) != MZ_OK)
-        return minizip_add_file(handle, path, opt_exclude_path, compress_info, crypt_info);
+        return minizip_add_file(handle, path, options, compress_info, crypt_info);
 
     dir = mz_os_open_dir(path);
 
@@ -179,16 +189,14 @@ int32_t minizip_add(void *handle, const char *path, uint8_t opt_exclude_path, mz
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
-        strncpy(full_path, path, sizeof(full_path));
-        full_path_len = (int16_t)strlen(full_path);
-        if (full_path_len > 0 && full_path[full_path_len - 1] != '\\')
-            strncat(full_path, "\\", sizeof(full_path) - full_path_len - 1);
-        strncat(full_path, entry->d_name, sizeof(full_path) - full_path_len - 2);
+        full_path[0] = 0;
+        mz_path_combine(full_path, path, sizeof(full_path));
+        mz_path_combine(full_path, entry->d_name, sizeof(full_path));
 
         if (!recursive && mz_os_is_dir(full_path))
             continue;
 
-        err = minizip_add(handle, full_path, opt_exclude_path, compress_info, crypt_info, recursive);
+        err = minizip_add(handle, full_path, options, compress_info, crypt_info, recursive);
         if (err != MZ_OK)
             return err;
     }
@@ -205,6 +213,7 @@ int main(int argc, char *argv[])
     void *split_stream = NULL;
     void *open_stream = NULL;
     char *path = NULL;
+    minizip_opt options;
     mz_zip_compress compress_info;
     mz_zip_crypt crypt_info;
     int64_t disk_size = 0;
@@ -224,6 +233,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    memset(&options, 0, sizeof(options));
     memset(&compress_info, 0, sizeof(compress_info));
     memset(&crypt_info, 0, sizeof(crypt_info));
 
@@ -251,7 +261,7 @@ int main(int argc, char *argv[])
                         compress_info.method = MZ_COMPRESS_METHOD_RAW;
                 }
                 if ((c == 'j') || (c == 'J'))
-                    opt_exclude_path = 1;
+                    options.exclude_path = 1;
 #ifdef HAVE_BZIP2
                 if ((c == 'b') || (c == 'B'))
                     compress_info.method = MZ_COMPRESS_METHOD_BZIP2;
@@ -370,7 +380,7 @@ int main(int argc, char *argv[])
 
             // Go through command line args looking for files to add to zip
             for (i = path_arg + 1; (i < argc) && (err == MZ_OK); i += 1)
-                err = minizip_add(handle, argv[i], opt_exclude_path, &compress_info, &crypt_info, 1);
+                err = minizip_add(handle, argv[i], &options, &compress_info, &crypt_info, 1);
 
             err_close = mz_zip_close(handle, NULL, MZ_VERSION_MADEBY);
 

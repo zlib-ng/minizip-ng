@@ -80,10 +80,9 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
 {
     uint8_t buf[1024 + 4];
     uint64_t file_size = 0;
-    uint64_t back_read = 4;
+    uint64_t back_read = 0;
     uint64_t max_back = UINT16_MAX; // maximum size of global comment
-    uint64_t pos_found = 0;
-    uint32_t read_size = 0;
+    uint32_t read_size = sizeof(buf);
     uint64_t read_pos = 0;
     uint32_t i = 0;
 
@@ -104,7 +103,6 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
             back_read = max_back;
 
         read_pos = file_size - back_read;
-        read_size = sizeof(buf);
         if (read_size > (file_size - read_pos))
             read_size = (uint32_t)(file_size - read_pos);
 

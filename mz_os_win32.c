@@ -20,7 +20,17 @@
 
 #include "mz.h"
 
+#include "mz_os.h"
 #include "mz_os_win32.h"
+
+/***************************************************************************/
+
+typedef struct DIR_int_s {
+    void            *find_handle;
+    WIN32_FIND_DATAW find_data;
+    struct dirent    entry;
+    uint8_t          end;
+} DIR_int;
 
 /***************************************************************************/
 
@@ -140,13 +150,6 @@ int16_t mz_win32_make_dir(const char *path)
     return MZ_OK;
 }
 
-typedef struct DIR_int_s {
-    void            *find_handle;
-    WIN32_FIND_DATAW find_data;
-    struct dirent    entry;
-    uint8_t          end;
-} DIR_int;
-
 DIR *mz_win32_open_dir(const char *path)
 {
     WIN32_FIND_DATAW find_data;
@@ -154,16 +157,13 @@ DIR *mz_win32_open_dir(const char *path)
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
     int16_t err = 0;
-    int16_t fixed_path_len = 0;
     char fixed_path[320];
     void *handle = NULL;
 
 
-    strncpy(fixed_path, path, sizeof(fixed_path));
-    fixed_path_len = (int16_t)strlen(fixed_path);
-    if (fixed_path_len > 0 && fixed_path[fixed_path_len - 1] != '\\')
-        strncat(fixed_path, "\\", sizeof(fixed_path) - fixed_path_len - 1);
-    strncat(fixed_path, "*", sizeof(fixed_path) - fixed_path_len - 2);
+    fixed_path[0] = 0;
+    mz_path_combine(fixed_path, path, sizeof(fixed_path));
+    mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, fixed_path, -1, NULL, 0);
     path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));

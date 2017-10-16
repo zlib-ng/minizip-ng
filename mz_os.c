@@ -179,3 +179,26 @@ uint32_t mz_tm_to_dosdate(const struct tm *ptm)
     return (uint32_t)(((fixed_tm.tm_mday) + (32 * (fixed_tm.tm_mon + 1)) + (512 * fixed_tm.tm_year)) << 16) |
         ((fixed_tm.tm_sec / 2) + (32 * fixed_tm.tm_min) + (2048 * (uint32_t)fixed_tm.tm_hour));
 }
+
+int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
+{
+    int32_t path_len = 0;
+
+    if (path == NULL || join == NULL || max_path == 0)
+        return MZ_PARAM_ERROR;
+
+    path_len = strlen(path);
+
+    if (path_len == 0)
+    {
+        strncpy(path, join, max_path);
+    }
+    else
+    {
+        if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
+            strncat(path, "/", max_path - path_len - 1);
+        strncat(path, join, max_path - path_len);
+    }
+
+    return MZ_OK;
+}
