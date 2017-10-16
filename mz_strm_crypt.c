@@ -68,7 +68,7 @@ typedef struct mz_stream_crypt_s {
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
-    uint8_t         buffer[UINT16_MAX];
+    uint8_t         buffer[INT16_MAX];
     int64_t         total_in;
     int64_t         total_out;
 } mz_stream_crypt;

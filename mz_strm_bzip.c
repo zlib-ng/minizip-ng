@@ -43,7 +43,7 @@ mz_stream_vtbl mz_stream_bzip_vtbl = {
 typedef struct mz_stream_bzip_s {
     mz_stream   stream;
     bz_stream   bzstream;
-    uint8_t     buffer[UINT16_MAX];
+    uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
     int64_t     total_in;
     int64_t     total_out;

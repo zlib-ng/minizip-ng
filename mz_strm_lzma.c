@@ -54,7 +54,7 @@ mz_stream_vtbl mz_stream_lzma_vtbl = {
 typedef struct mz_stream_lzma_s {
     mz_stream   stream;
     lzma_stream lstream;
-    uint8_t     buffer[UINT16_MAX];
+    uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
     int64_t     total_in;
     int64_t     total_out;

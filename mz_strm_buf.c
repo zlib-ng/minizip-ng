@@ -23,8 +23,6 @@
 
 /***************************************************************************/
 
-#define MZ_BUF_BUFFERSIZE (UINT16_MAX)
-
 #if 0
 #  define mz_stream_buffered_print(o,s,f,...) printf(o,s,f,__VA_ARGS__);
 #else
@@ -50,12 +48,12 @@ mz_stream_vtbl mz_stream_buffered_vtbl = {
 
 typedef struct mz_stream_buffered_s {
   mz_stream stream;
-  char      readbuf[MZ_BUF_BUFFERSIZE];
+  char      readbuf[INT16_MAX];
   uint32_t  readbuf_len;
   uint32_t  readbuf_pos;
   uint32_t  readbuf_hits;
   uint32_t  readbuf_misses;
-  char      writebuf[MZ_BUF_BUFFERSIZE];
+  char      writebuf[INT16_MAX];
   uint32_t  writebuf_len;
   uint32_t  writebuf_pos;
   uint32_t  writebuf_hits;
@@ -127,13 +125,13 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
     {
         if ((buffered->readbuf_len == 0) || (buffered->readbuf_pos == buffered->readbuf_len))
         {
-            if (buffered->readbuf_len == MZ_BUF_BUFFERSIZE)
+            if (buffered->readbuf_len == sizeof(buffered->readbuf))
             {
                 buffered->readbuf_pos = 0;
                 buffered->readbuf_len = 0;
             }
 
-            bytes_to_read = MZ_BUF_BUFFERSIZE - (buffered->readbuf_len - buffered->readbuf_pos);
+            bytes_to_read = sizeof(buffered->readbuf) - (buffered->readbuf_len - buffered->readbuf_pos);
 
             if (mz_stream_read(buffered->stream.base, buffered->readbuf + buffered->readbuf_pos, bytes_to_read) != bytes_to_read)
                 return 0;
@@ -203,7 +201,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
         bytes_used = buffered->writebuf_len;
         if (bytes_used > buffered->writebuf_pos)
             bytes_used = buffered->writebuf_pos;
-        bytes_to_copy = (uint32_t)(MZ_BUF_BUFFERSIZE - bytes_used);
+        bytes_to_copy = (uint32_t)(sizeof(buffered->writebuf) - bytes_used);
         if (bytes_to_copy > bytes_left_to_write)
             bytes_to_copy = bytes_left_to_write;
 
