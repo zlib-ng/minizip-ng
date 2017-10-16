@@ -76,7 +76,6 @@ typedef struct mz_unzip_s
     void *file_info_stream;             // memory stream for storing file info
 
     uint64_t byte_before_the_zipfile;   // byte before the zip file, (>0 for sfx)
-    uint64_t num_file;                  // number of the current file in the zip file
     uint64_t pos_in_central_dir;        // pos of the current file in the central dir
     uint64_t central_pos;               // position of the beginning of the central dir
     uint32_t number_disk;               // number of the current disk, used for spanning ZIP
@@ -435,16 +434,18 @@ static int mz_unzip_entry_read_header(void *handle)
     memset(&unzip->file_info, 0, sizeof(mz_unzip_file));
 
     mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-
+    
     if (mz_stream_seek(unzip->stream,
             unzip->pos_in_central_dir + unzip->byte_before_the_zipfile, MZ_STREAM_SEEK_SET) != MZ_OK)
         err = MZ_STREAM_ERROR;
-
+    
     // Check the magic
     if (err == MZ_OK)
     {
         if (mz_stream_read_uint32(unzip->stream, &magic) != MZ_OK)
             err = MZ_STREAM_ERROR;
+        else if (magic == ENDHEADERMAGIC || magic == ZIP64ENDHEADERMAGIC)
+            err = MZ_END_OF_LIST;
         else if (magic != CENTRALHEADERMAGIC)
             err = MZ_FORMAT_ERROR;
     }
@@ -625,7 +626,7 @@ static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size
     uint32_t flags = 0;
     uint16_t filename_size = 0;
     uint16_t extrafield_size = 0;
-    int err = MZ_OK;
+    int16_t err = MZ_OK;
 
     if (extrainfo_size == NULL)
         return MZ_PARAM_ERROR;
@@ -636,9 +637,6 @@ static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size
     if (extrafield_local_size == NULL)
         return MZ_PARAM_ERROR;
     *extrafield_local_size = 0;
-
-    if (err != MZ_OK)
-        return err;
 
     if (mz_stream_seek(unzip->stream, unzip->file_info.disk_offset +
             unzip->byte_before_the_zipfile, MZ_STREAM_SEEK_SET) != MZ_OK)
@@ -992,10 +990,9 @@ extern int ZEXPORT mz_unzip_goto_first_entry(void *handle)
 
     unzip = (mz_unzip*)handle;
 
-    unzip->num_file = 0;
     unzip->pos_in_central_dir = unzip->offset_central_dir;
 
-    if (unzip->global_info.number_entry == 0)
+    if (unzip->size_central_dir == 0)
         return MZ_END_OF_LIST;
 
     return mz_unzip_entry_read_header(handle);
@@ -1013,13 +1010,6 @@ extern int ZEXPORT mz_unzip_goto_next_entry(void *handle)
     if (unzip->entry_header_read == 0)
         return MZ_END_OF_LIST;
 
-    if (unzip->global_info.number_entry != UINT16_MAX)
-    {
-        if (unzip->num_file + 1 == unzip->global_info.number_entry)
-            return MZ_END_OF_LIST;
-    }
-
-    unzip->num_file += 1;
     unzip->pos_in_central_dir += SIZECENTRALDIRITEM + unzip->file_info.filename_size +
         unzip->file_info.extrafield_size + unzip->file_info.comment_size;
 
