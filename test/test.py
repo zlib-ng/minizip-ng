@@ -100,7 +100,7 @@ def test_level_0(method, zip_arg = '', unzip_arg = ''):
     print 'Testing {0} on Single File'.format(method)
     zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c'])
     print 'Testing {0} on Two Files'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.png'])
+    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.h'])
     print 'Testing {0} Directory'.format(method)
     zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
 
