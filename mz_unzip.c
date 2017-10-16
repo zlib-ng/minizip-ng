@@ -1030,25 +1030,23 @@ extern int ZEXPORT mz_unzip_locate_entry(void *handle, const char *filename, mz_
 {
     mz_unzip *unzip = NULL;
     int16_t err = MZ_OK;
+    int32_t result = 0;
 
     if (handle == NULL)
         return MZ_PARAM_ERROR;
 
     unzip = (mz_unzip*)handle;
 
-    if (unzip->entry_header_read == 0)
-        return MZ_END_OF_LIST;
-
     err = mz_unzip_goto_first_entry(handle);
 
     while (err == MZ_OK)
     {
         if (filename_compare_cb != NULL)
-            err = filename_compare_cb(handle, unzip->file_info.filename, filename);
+            result = filename_compare_cb(handle, unzip->file_info.filename, filename);
         else
-            err = strcmp(unzip->file_info.filename, filename);
+            result = strcmp(unzip->file_info.filename, filename);
 
-        if (err == 0)
+        if (result == 0)
             return MZ_OK;
 
         err = mz_unzip_goto_next_entry(handle);
