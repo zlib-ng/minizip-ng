@@ -5,9 +5,10 @@
 #***************************************************************************
 cmake_minimum_required(VERSION 2.8)
 
-option(USE_AES "Enables building of AES library" ON)
-option(USE_BZIP2 "Enables building of BZIP2 library" ON)
-option(USE_LZMA "Enables building of LZMA library" ON)
+option(USE_CRYPT "Enables building with PKWARE traditional encryption" ON)
+option(USE_AES "Enables building with AES library" ON)
+option(USE_BZIP2 "Enables building with BZIP2 library" ON)
+option(USE_LZMA "Enables building with LZMA library" ON)
 option(BUILD_TEST "Enables building of executables minizip and miniunz. Requires ZLIB!" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -46,7 +47,6 @@ set(MINIZIP_SRC
     mz_os.c
     mz_strm.c
     mz_strm_buf.c
-    mz_strm_crypt.c
     mz_strm_mem.c
     mz_strm_posix.c
     mz_strm_split.c
@@ -55,11 +55,10 @@ set(MINIZIP_SRC
     mz_zip.c)
 
 set(MINIZIP_PUBLIC_HEADERS
-    mz_error.h
+    mz.h
     mz_os.h
     mz_strm.h
     mz_strm_buf.h
-    mz_strm_crypt.h
     mz_strm_mem.h
     mz_strm_posix.h
     mz_strm_split.h
@@ -91,6 +90,13 @@ if(UNIX)
 
     include_directories(${LIBBSD_INCLUDE_DIRS})
     link_directories(${LIBBSD_LIBRARY_DIRS})
+endif()
+
+if(USE_CRYPT)
+    add_definitions(-DHAVE_CRYPT)
+
+    list(APPEND MINIZIP_SRC "mz_strm_crypt.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_crypt.h")
 endif()
 
 if(USE_AES)

@@ -17,7 +17,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
 

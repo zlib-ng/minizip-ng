@@ -18,7 +18,7 @@
 #include <windows.h>
 #include <wincrypt.h>
 
-#include "mz_error.h"
+#include "mz.h"
 
 #include "mz_os_win32.h"
 
@@ -114,26 +114,6 @@ int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
         CloseHandle(handle);
     }
 
-    return err;
-}
-
-int16_t mz_win32_change_dir(const char *path)
-{
-    wchar_t *path_wide = NULL;
-    uint32_t path_wide_size = 0;
-    int16_t err = MZ_OK;
-
-
-    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
-    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
-
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
-
-    if (_wchdir(path_wide) != 0)
-        err = MZ_INTERNAL_ERROR;
-
-    free(path_wide);
     return err;
 }
 

@@ -25,19 +25,19 @@
 
 #include "zlib.h"
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #ifdef HAVE_AES
-#include "mz_strm_aes.h"
+#  include "mz_strm_aes.h"
 #endif
 #ifdef HAVE_BZIP2
-#include "mz_strm_bzip.h"
+#  include "mz_strm_bzip.h"
 #endif
-#ifndef NOUNCRYPT
+#ifdef HAVE_CRYPT
 #  include "mz_strm_crypt.h"
 #endif
 #ifdef HAVE_LZMA
-#include "mz_strm_lzma.h"
+#  include "mz_strm_lzma.h"
 #endif
 #include "mz_strm_mem.h"
 #include "mz_strm_zlib.h"
@@ -46,19 +46,12 @@
 
 /***************************************************************************/
 
-#define DISKHEADERMAGIC             (0x08074b50)
-#define LOCALHEADERMAGIC            (0x04034b50)
-#define CENTRALHEADERMAGIC          (0x02014b50)
-#define ENDHEADERMAGIC              (0x06054b50)
-#define ZIP64ENDHEADERMAGIC         (0x06064b50)
-#define ZIP64ENDLOCHEADERMAGIC      (0x07064b50)
-
-#define SIZECENTRALDIRITEM          (0x2e)
-#define SIZECENTRALHEADERLOCATOR    (0x14)
-#define SIZEZIPLOCALHEADER          (0x1e)
+#define MZ_ZIP_SIZE_CD_ITEM             (0x2e)
+#define MZ_ZIP_SIZE_CD_LOCATOR64        (0x14)
+#define MZ_ZIP_SIZE_LOCALHEADER         (0x1e)
 
 #ifndef BUFREADCOMMENT
-#  define BUFREADCOMMENT            (0x400)
+#  define BUFREADCOMMENT                (0x400)
 #endif
 
 /***************************************************************************/
@@ -141,10 +134,10 @@ static int32_t mz_unzip_search_cd(void *stream, uint64_t *central_pos)
 
         for (i = read_size - 3; (i--) > 0;)
         {
-            if (((*(buf + i)) == (ENDHEADERMAGIC & 0xff)) &&
-                ((*(buf + i + 1)) == (ENDHEADERMAGIC >> 8 & 0xff)) &&
-                ((*(buf + i + 2)) == (ENDHEADERMAGIC >> 16 & 0xff)) &&
-                ((*(buf + i + 3)) == (ENDHEADERMAGIC >> 24 & 0xff)))
+            if (((*(buf + i))     == (MZ_ZIP_MAGIC_ENDHEADER & 0xff)) &&
+                ((*(buf + i + 1)) == (MZ_ZIP_MAGIC_ENDHEADER >> 8 & 0xff)) &&
+                ((*(buf + i + 2)) == (MZ_ZIP_MAGIC_ENDHEADER >> 16 & 0xff)) &&
+                ((*(buf + i + 3)) == (MZ_ZIP_MAGIC_ENDHEADER >> 24 & 0xff)))
             {
                 *central_pos = read_pos + i;
                 return MZ_OK;
@@ -169,12 +162,12 @@ static int32_t mz_unzip_search_zip64_cd(void *stream, const uint64_t end_central
     *central_pos = 0;
 
     // Zip64 end of central directory locator
-    err = mz_stream_seek(stream, end_central_offset - SIZECENTRALHEADERLOCATOR, MZ_STREAM_SEEK_SET);
+    err = mz_stream_seek(stream, end_central_offset - MZ_ZIP_SIZE_CD_LOCATOR64, MZ_STREAM_SEEK_SET);
     // Read locator signature
     if (err == MZ_OK)
     {
         err = mz_stream_read_uint32(stream, &value32);
-        if (value32 != ZIP64ENDLOCHEADERMAGIC)
+        if (value32 != MZ_ZIP_MAGIC_ENDLOCHEADER64)
             err = MZ_FORMAT_ERROR;
     }
     // Number of the disk with the start of the zip64 end of central directory
@@ -193,7 +186,7 @@ static int32_t mz_unzip_search_zip64_cd(void *stream, const uint64_t end_central
     if (err == MZ_OK)
     {
         err = mz_stream_read_uint32(stream, &value32);
-        if (value32 != ZIP64ENDHEADERMAGIC)
+        if (value32 != MZ_ZIP_MAGIC_ENDHEADER64)
             err = MZ_FORMAT_ERROR;
     }
 
@@ -323,10 +316,6 @@ extern void* ZEXPORT mz_unzip_open(void *stream)
 
     if (err == MZ_OK)
     {
-        // Hack for zip files that have no respect for zip64
-        //if ((central_pos > 0xffffffff) && (unzip->offset_central_dir < 0xffffffff))
-        //    unzip->offset_central_dir = central_pos - unzip->size_central_dir;
-
         unzip->byte_before_the_zipfile = central_pos - (unzip->offset_central_dir + unzip->size_central_dir);
         unzip->central_pos = central_pos;
     }
@@ -444,9 +433,9 @@ static int mz_unzip_entry_read_header(void *handle)
     {
         if (mz_stream_read_uint32(unzip->stream, &magic) != MZ_OK)
             err = MZ_STREAM_ERROR;
-        else if (magic == ENDHEADERMAGIC || magic == ZIP64ENDHEADERMAGIC)
+        else if (magic == MZ_ZIP_MAGIC_ENDHEADER || magic == MZ_ZIP_MAGIC_ENDHEADER64)
             err = MZ_END_OF_LIST;
-        else if (magic != CENTRALHEADERMAGIC)
+        else if (magic != MZ_ZIP_MAGIC_CENTRALHEADER)
             err = MZ_FORMAT_ERROR;
     }
 
@@ -646,7 +635,7 @@ static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size
     {
         if (mz_stream_read_uint32(unzip->stream, &magic) != MZ_OK)
             err = MZ_STREAM_ERROR;
-        else if (magic != LOCALHEADERMAGIC)
+        else if (magic != MZ_ZIP_MAGIC_LOCALHEADER)
             err = MZ_FORMAT_ERROR;
     }
 
@@ -690,7 +679,7 @@ static int mz_unzip_entry_check_header(mz_unzip *unzip, uint32_t *extrainfo_size
     if (mz_stream_read_uint16(unzip->stream, &extrafield_size) != MZ_OK)
         err = MZ_STREAM_ERROR;
 
-    *extrafield_local_offset = unzip->file_info.disk_offset + SIZEZIPLOCALHEADER + filename_size;
+    *extrafield_local_offset = unzip->file_info.disk_offset + MZ_ZIP_SIZE_LOCALHEADER + filename_size;
     *extrafield_local_size = extrafield_size;
     *extrainfo_size += extrafield_size;
 
@@ -708,7 +697,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     int64_t footer_size = 0;
     int16_t err = MZ_OK;
 
-#ifdef NOUNCRYPT
+#if !defined(HAVE_CRYPT) && !defined(HAVE_AES)
     if (password != NULL)
         return MZ_PARAM_ERROR;
 #endif
@@ -719,10 +708,13 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 
     if (unzip->entry_header_read == 0)
         return MZ_PARAM_ERROR;
-    if ((unzip->file_info.flag & 1) && (password == NULL))
+    if ((unzip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL))
         return MZ_PARAM_ERROR;
 
-    mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, unzip->file_info.disk_num_start);
+    if (unzip->file_info.disk_num_start == unzip->global_info.number_disk_with_CD)
+        mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
+    else
+        mz_stream_set_prop_int64(unzip->stream, MZ_STREAM_PROP_DISK_NUMBER, unzip->file_info.disk_num_start);
 
     err = mz_unzip_entry_check_header(unzip, &size_variable, &extrafield_local_offset, &extrafield_local_size);
     if (err != MZ_OK)
@@ -753,7 +745,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
         unzip->byte_before_the_zipfile = unzip->byte_before_the_zipfile;
         
     unzip->pos_in_zipfile = unzip->file_info.disk_offset + 
-        SIZEZIPLOCALHEADER + size_variable;
+        MZ_ZIP_SIZE_LOCALHEADER + size_variable;
 
     if (err == MZ_OK)
     {
@@ -764,8 +756,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 
     max_total_in = unzip->file_info.compressed_size;
 
-#ifndef NOUNCRYPT
-    if (unzip->file_info.flag & 1)
+    if (unzip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
     {
 #ifdef HAVE_AES
         if (unzip->aes_version > 0)
@@ -776,33 +767,35 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 
             if (mz_stream_get_prop_int64(unzip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
                 max_total_in -= footer_size;
-
-            mz_stream_set_base(unzip->crypt_stream, unzip->stream);
-
-            if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
-                err = MZ_INTERNAL_ERROR;
         }
         else
 #endif
         {
+#ifdef HAVE_CRYPT
             mz_stream_crypt_create(&unzip->crypt_stream);
             mz_stream_crypt_set_password(unzip->crypt_stream, password);
+#endif
+        }
+    }
 
+    if (err == MZ_OK)
+    {
+        if (unzip->crypt_stream == NULL)
+        {
+            mz_stream_passthru_create(&unzip->crypt_stream);
+            mz_stream_set_base(unzip->crypt_stream, unzip->stream);
+        }
+        else
+        {
             mz_stream_set_base(unzip->crypt_stream, unzip->stream);
 
             if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
                 err = MZ_STREAM_ERROR;
         }
-#endif
-    }
-    if (unzip->crypt_stream == NULL)
-    {
-        mz_stream_passthru_create(&unzip->crypt_stream);
-        mz_stream_set_base(unzip->crypt_stream, unzip->stream);
-    }
 
-    if (mz_stream_get_prop_int64(unzip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
-        max_total_in -= total_in;
+        if (mz_stream_get_prop_int64(unzip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
+            max_total_in -= total_in;
+    }
     
     if (err == MZ_OK)
     {
@@ -828,7 +821,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
 
             if (err == MZ_OK)
             {
-                if (unzip->file_info.flag & 1)
+                if (unzip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
                     mz_stream_set_prop_int64(unzip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
 
                 mz_stream_set_base(unzip->compress_stream, unzip->crypt_stream);
@@ -1012,7 +1005,7 @@ extern int ZEXPORT mz_unzip_goto_next_entry(void *handle)
     if (unzip->entry_header_read == 0)
         return MZ_END_OF_LIST;
 
-    unzip->pos_in_central_dir += SIZECENTRALDIRITEM + unzip->file_info.filename_size +
+    unzip->pos_in_central_dir += MZ_ZIP_SIZE_CD_ITEM + unzip->file_info.filename_size +
         unzip->file_info.extrafield_size + unzip->file_info.comment_size;
 
     return mz_unzip_entry_read_header(handle);

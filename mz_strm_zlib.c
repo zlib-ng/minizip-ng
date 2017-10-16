@@ -17,7 +17,7 @@
 
 #include "zlib.h"
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_zlib.h"
 

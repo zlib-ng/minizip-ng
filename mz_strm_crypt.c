@@ -20,9 +20,6 @@
    Roger Schlafly, described by Phil Katz in the file appnote.txt. This
    file (appnote.txt) is distributed with the PKZIP program (even in the
    version without encryption capabilities).
-
-   If you don't need crypting in your application, just define symbols
-   NOCRYPT and NOUNCRYPT.
 */
 
 
@@ -32,7 +29,7 @@
 
 #include "zlib.h"
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_crypt.h"

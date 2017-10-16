@@ -81,13 +81,6 @@ int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
     return MZ_OK;
 }
 
-int16_t mz_posix_change_dir(const char *path)
-{
-    if (chdir(path) != 0)
-        return MZ_INTERNAL_ERROR;
-    return MZ_OK;
-}
-
 int16_t mz_posix_make_dir(const char *path)
 {
     int16_t err = 0;

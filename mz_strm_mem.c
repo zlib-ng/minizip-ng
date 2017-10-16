@@ -13,8 +13,8 @@
    Copyright (C) 1998-2003 Gilles Vollant
      http://www.winimage.com/zLibDll/minizip.html
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
 
