@@ -48,10 +48,6 @@
 #define MZ_ZIP_SIZE_CD_LOCATOR64        (0x14)
 #define MZ_ZIP_SIZE_LOCALHEADER         (0x1e)
 
-#ifndef BUFREADCOMMENT
-#  define BUFREADCOMMENT                (0x400)
-#endif
-
 /***************************************************************************/
 
 typedef struct mz_zip_s
@@ -82,7 +78,7 @@ typedef struct mz_zip_s
 // Locate the central directory of a zip file (at the end, just before the global comment)
 static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
 {
-    uint8_t buf[BUFREADCOMMENT + 4];
+    uint8_t buf[1024 + 4];
     uint64_t file_size = 0;
     uint64_t back_read = 4;
     uint64_t max_back = UINT16_MAX; // maximum size of global comment
@@ -103,14 +99,14 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
 
     while (back_read < max_back)
     {
-        if (back_read + BUFREADCOMMENT > max_back)
+        back_read += (sizeof(buf) - 4);
+        if (back_read > max_back)
             back_read = max_back;
-        else
-            back_read += BUFREADCOMMENT;
 
         read_pos = file_size - back_read;
-        read_size = ((BUFREADCOMMENT + 4) < (file_size - read_pos)) ?
-            (BUFREADCOMMENT + 4) : (uint32_t)(file_size - read_pos);
+        read_size = sizeof(buf);
+        if (read_size > (file_size - read_pos))
+            read_size = (uint32_t)(file_size - read_pos);
 
         if (mz_stream_seek(stream, read_pos, MZ_STREAM_SEEK_SET) != MZ_OK)
             break;
@@ -119,7 +115,7 @@ static int32_t mz_zip_search_cd(void *stream, uint64_t *central_pos)
 
         for (i = read_size - 3; (i--) > 0;)
         {
-            if (((*(buf + i)) == (MZ_ZIP_MAGIC_ENDHEADER & 0xff)) &&
+            if (((*(buf + i))     == (MZ_ZIP_MAGIC_ENDHEADER & 0xff)) &&
                 ((*(buf + i + 1)) == (MZ_ZIP_MAGIC_ENDHEADER >> 8 & 0xff)) &&
                 ((*(buf + i + 2)) == (MZ_ZIP_MAGIC_ENDHEADER >> 16 & 0xff)) &&
                 ((*(buf + i + 3)) == (MZ_ZIP_MAGIC_ENDHEADER >> 24 & 0xff)))
