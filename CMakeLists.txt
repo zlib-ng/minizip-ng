@@ -17,7 +17,15 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
     set(CMAKE_MACOSX_RPATH 0)
 endif()
 
+set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
+set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
+set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Installation directory for manual pages")
+set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
+
 project("minizip")
+
+set(VERSION "2.0.0")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
@@ -28,6 +36,9 @@ find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIRS})
 endif()
+
+set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
 set(PROJECT_NAME libminizip)
 
@@ -85,8 +96,8 @@ endif()
 if(USE_AES)
     add_definitions(-DHAVE_AES)
 
-    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_aes.c")
-    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_aes.h")
+    list(APPEND MINIZIP_SRC "mz_strm_aes.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_aes.h")
 
     set(AES_SRC
         lib/aes/aescrypt.c
@@ -119,8 +130,8 @@ if(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
     add_definitions(-DBZ_NO_STDIO)
 
-    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_bzip.c")
-    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_bzip.h")
+    list(APPEND MINIZIP_SRC "mz_strm_bzip.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_bzip.h")
 
     set(BZIP2_SRC
         lib/bzip2/blocksort.c
@@ -150,8 +161,8 @@ if(USE_LZMA)
         add_definitions(-DMYTHREAD_POSIX)
     endif()
 
-    set(MINIZIP_SRC ${MINIZIP_SRC} "mz_strm_lzma.c")
-    set(MINIZIP_PUBLIC_HEADERS ${MINIZIP_SRC} "mz_strm_lzma.h")
+    list(APPEND MINIZIP_SRC "mz_strm_lzma.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_lzma.h")
 
     set(LZMA_CHECK_SRC
         lib/liblzma/check/check.c
@@ -344,18 +355,18 @@ if(UNIX)
     target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
 endif()
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-exports
-        INCLUDES DESTINATION "include"
-        RUNTIME DESTINATION "bin"
-        LIBRARY DESTINATION "lib"
-        ARCHIVE DESTINATION "lib")
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
+        INCLUDES DESTINATION "${INSTALL_INC_DIR}"
+        RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
+        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
+        LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 
-install(EXPORT ${PROJECT_NAME}-exports
+install(EXPORT ${PROJECT_NAME}
         DESTINATION "cmake"
         NAMESPACE "MINIZIP::")
 
-install(FILES ${MINIZIP_PUBLIC_HEADERS}
-        DESTINATION "include/minizip")
+install(FILES ${MINIZIP_PUBLIC_HEADERS} DESTINATION "${INSTALL_INC_DIR}")
+install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
 #if(BUILD_TEST)
     add_executable(miniunz miniunz.c)

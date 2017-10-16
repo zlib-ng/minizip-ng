@@ -870,7 +870,9 @@ extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len)
 
     if (len == 0)
         return 0;
-    if (len > UINT16_MAX)
+
+    // Zlib limitation
+    if (len > UINT16_MAX) 
         return MZ_PARAM_ERROR;
     
     if (len > unzip->stream_available)
