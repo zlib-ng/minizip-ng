@@ -15,8 +15,8 @@ before_script:
     - cd build
     - cmake .. -DBUILD_TEST=ON
 
-script: make
-
-after_success:
+script:
+    - make
     - cd ../test
+    - pip install numpy
     - python test.py --exe_dir=../build
