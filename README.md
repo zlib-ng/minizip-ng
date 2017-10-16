@@ -18,26 +18,26 @@ cmake --build .
 
 ## Contents
 
-| File(s) | Description |
-|:- |:-|
-| miniunz.c | Sample unzip application |
-| minizip.c | Sample zip application |
-| mz_compat.\* | Minizip 1.0 compatibility layer |
-| mz_error.h | Error codes for all the functions |
-| mz_os\* | OS specific helper functions |
-| mz_strm.\* | Stream interface |
-| mz_strm_aes.\* | WinZIP AES stream |
-| mz_strm_buf.\* | Buffered stream |
-| mz_strm_bzip.\* | BZIP2 stream using libbzip2 |
-| mz_strm_crypt.\* | PKWARE traditional encryption stream |
-| mz_strm_lzma.\* | LZMA stream using liblzma |
-| mz_strm_mem.\* | Memory stream |
-| mz_strm_split.\* | Disk splitting stream |
-| mz_strm_posix.\* | File stream using Posix functions |
-| mz_strm_win32.\* | File stream using Win32 API functions |
-| mz_strm_zlib.\* | Deflate stream using zlib |
-| mz_unzip.\* | Unzip functionality |
-| mz_zip.\* | Zip functionality |
+| File(s) | Description | Required |
+|:- |:-|:-:|
+| miniunz.c | Sample unzip application | No |
+| minizip.c | Sample zip application | No | 
+| mz_compat.\* | Minizip 1.0 compatibility layer | No |
+| mz_error.h | Error codes for all the functions | Yes |
+| mz_os\* | OS specific helper functions | Encryption |
+| mz_strm.\* | Stream interface | Yes |
+| mz_strm_aes.\* | WinZIP AES stream | No |
+| mz_strm_buf.\* | Buffered stream | No |
+| mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
+| mz_strm_crypt.\* | PKWARE traditional encryption stream | Yes |
+| mz_strm_lzma.\* | LZMA stream using liblzma | No |
+| mz_strm_mem.\* | Memory stream | Yes |
+| mz_strm_split.\* | Disk splitting stream | No |
+| mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
+| mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
+| mz_strm_zlib.\* | Deflate stream using zlib | Yes |
+| mz_unzip.\* | Unzip functionality | Unzipping |
+| mz_zip.\* | Zip functionality | Zipping |
 
 ## Features
 
