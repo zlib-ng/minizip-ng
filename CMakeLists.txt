@@ -26,7 +26,7 @@ set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/share/pkgconfig" CACHE PATH "
 
 project("minizip")
 
-set(VERSION "2.0.0")
+set(VERSION "2.0.1")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
