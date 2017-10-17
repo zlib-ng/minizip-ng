@@ -123,19 +123,19 @@ def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
     err = os.system(cmd)
     if (err != 0):
         print('Zip returned error code {0}'.format(err))
-        exit(err)
+        sys.exit(err)
     cmd = '{0} -l {1}'.format(get_exec('miniunz'), zip_file)
     print cmd
     err = os.system(cmd)
     if (err != 0):
         print('List returned error code {0}'.format(err))
-        exit(err)
+        sys.exit(err)
     cmd = '{0} -x {1} {2} -d {3}'.format(get_exec('miniunz'), zip_file, unzip_args, dest_dir)
     print cmd
     err = os.system(cmd)
     if (err != 0):
         print('Unzip returned error code {0}'.format(err))
-        exit(err)
+        sys.exit(err)
 
     new_infos = {}
     for (i, path) in enumerate(files):
