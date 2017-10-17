@@ -1,5 +1,5 @@
 /* miniunz.c
-   Version 2.0.0, October 4th, 2017
+   Version 2.0.1, October 16th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -32,7 +32,7 @@
 
 void miniunz_banner()
 {
-    printf("Miniunz 2.0.0 - https://github.com/nmoinvaz/minizip\n");
+    printf("Miniunz %s - https://github.com/nmoinvaz/minizip\n", MZ_VERSION);
     printf("---------------------------------------------------\n");
 }
 
