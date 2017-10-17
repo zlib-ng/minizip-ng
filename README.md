@@ -1,4 +1,4 @@
-# Minizip 2.0
+# Minizip 2.0.1
 
 This library is a refactoring of the minizip contribution found in the zlib distribution that is supported on Windows, macOS, and Linux. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
@@ -29,7 +29,7 @@ cmake --build .
 | mz_strm_aes.\* | WinZIP AES stream | No |
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
-| mz_strm_crypt.\* | PKWARE traditional encryption stream | Yes |
+| mz_strm_crypt.\* | PKWARE traditional encryption stream | No |
 | mz_strm_lzma.\* | LZMA stream using liblzma | No |
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
@@ -142,6 +142,15 @@ When unzipping it will automatically determine when in needs to cross disk bound
 
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
+
+#### Disabling
+
+To disable encryption use the following cmake commands:
+
+```
+cmake . -DUSE_AES=OFF
+cmake . -DUSE_CRYPT=OFF
+```
 
 ### Windows RT
 
