@@ -375,10 +375,10 @@ install(FILES ${MINIZIP_PUBLIC_HEADERS} DESTINATION "${INSTALL_INC_DIR}")
 install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
 #if(BUILD_TEST)
-    add_executable(miniunz miniunz.c)
+    add_executable(miniunz "src/miniunz.c")
     target_link_libraries(miniunz ${PROJECT_NAME})
 
-    add_executable(minizip minizip.c)
+    add_executable(minizip "src/minizip.c")
     target_link_libraries(minizip ${PROJECT_NAME})
 
     install(TARGETS miniunz minizip
