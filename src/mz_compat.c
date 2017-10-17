@@ -1,4 +1,4 @@
-/* mzstrm.c -- Backwards compatible interface for older versions
+/* mz_compat.c -- Backwards compatible interface for older versions
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
