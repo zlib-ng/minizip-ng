@@ -6,6 +6,8 @@ os:
 compiler:
     - clang
     - gcc
+python:
+    - "2.8"
 
 before_install:
     - sudo apt-get install libbsd-dev
