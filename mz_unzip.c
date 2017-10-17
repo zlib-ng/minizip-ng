@@ -795,8 +795,8 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
             if (mz_stream_open(unzip->crypt_stream, NULL, MZ_STREAM_MODE_READ) != MZ_OK)
                 err = MZ_STREAM_ERROR;
         }
-#endif
     }
+#endif
     if (unzip->crypt_stream == NULL)
     {
         mz_stream_passthru_create(&unzip->crypt_stream);
