@@ -125,19 +125,19 @@ When unzipping it will automatically determine when in needs to cross disk bound
 
 #### BZIP2
 
-+ Requires #define HAVE_BZIP2
++ Requires ``cmake . -DUSE_BZIP2=ON`` or ``#define HAVE_BZIP2``
 + Requires [BZIP2](http://www.bzip.org/) library
 
 #### LZMA
 
-+ Requires #define HAVE_LZMA
++ Requires ``cmake . -DUSE_LZMA=ON`` or ``#define HAVE_LZMA``
 + Requires [liblzma](https://tukaani.org/xz/) library
 
 ### Encryption
 
 #### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
 
-+ Requires #define HAVE_AES
++ Requires ``cmake . -DUSE_AES=ON`` or ``#define HAVE_AES``
 + Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
 
 When zipping with a password it will always use AES 256-bit encryption.
