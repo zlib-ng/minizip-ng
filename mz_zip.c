@@ -408,7 +408,7 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     int16_t err = MZ_OK;
 
 #ifdef NOCRYPT
-    if (password != NULL)
+    if (crypt_info != NULL)
         return MZ_PARAM_ERROR;
 #endif
     if (handle == NULL)
