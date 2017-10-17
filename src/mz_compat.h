@@ -1,4 +1,4 @@
-/* mz_compat.h -- Backwards compatible interface for older versions of MiniZip
+/* mz_compat.h -- Backwards compatible interface for older versions
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
