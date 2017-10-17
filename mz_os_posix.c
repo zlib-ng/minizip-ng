@@ -118,7 +118,7 @@ int32_t mz_posix_is_dir(const char *path)
 {
     struct stat path_stat;
     stat(path, &path_stat);
-    if (S_ISREG(path_stat.st_mode))
+    if (S_ISDIR(path_stat.st_mode))
         return MZ_OK;
     return MZ_EXIST_ERROR;
 }
