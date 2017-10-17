@@ -18,7 +18,7 @@
 
 #include <windows.h>
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_win32.h"
 
@@ -214,7 +214,7 @@ int64_t mz_stream_win32_tell(void *stream)
         win32->error = error;
     }
 
-    return large_pos.LowPart;
+    return large_pos.QuadPart;
 }
 
 int32_t mz_stream_win32_seek(void *stream, int64_t offset, int32_t origin)

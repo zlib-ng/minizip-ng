@@ -17,7 +17,7 @@
 #include "aes.h"
 #include "fileenc.h"
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_aes.h"
@@ -56,7 +56,7 @@ typedef struct mz_stream_aes_s {
     const char     *password;
     int64_t        total_in;
     int64_t        total_out;
-    uint8_t        buffer[UINT16_MAX];
+    uint8_t        buffer[INT16_MAX];
 } mz_stream_aes;
 
 /***************************************************************************/

@@ -15,7 +15,7 @@
 
 #include <time.h>
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 
 /***************************************************************************/
@@ -184,7 +184,7 @@ int32_t mz_stream_write_uint64(void *stream, uint64_t value)
 
 int32_t mz_stream_copy(void *target, void *source, int32_t len)
 {
-    uint8_t buf[UINT16_MAX];
+    uint8_t buf[INT16_MAX];
     int32_t bytes_to_copy = 0;
     int32_t read = 0;
     int32_t written = 0;
@@ -192,8 +192,8 @@ int32_t mz_stream_copy(void *target, void *source, int32_t len)
     while (len > 0)
     {
         bytes_to_copy = len;
-        if (bytes_to_copy > UINT16_MAX)
-            bytes_to_copy = UINT16_MAX;
+        if (bytes_to_copy > sizeof(buf))
+            bytes_to_copy = sizeof(buf);
         read = mz_stream_read(source, buf, bytes_to_copy);
         if (read < 0)
             return MZ_STREAM_ERROR;

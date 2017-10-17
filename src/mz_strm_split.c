@@ -5,8 +5,8 @@
    Copyright (C) 2012-2017 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
 
-   This file is under the same license as the Unzip tool it is distributed
-   with.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 */
 
 
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_split.h"
 
@@ -57,10 +57,6 @@ typedef struct mz_stream_split_s {
 
 /***************************************************************************/
 
-#define DISKHEADERMAGIC             (0x08074b50)
-
-/***************************************************************************/
-
 int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
@@ -95,7 +91,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
         {
             if (split->current_disk == 0)
             {
-                err = mz_stream_write_uint32(split->stream.base, DISKHEADERMAGIC);
+                err = mz_stream_write_uint32(split->stream.base, MZ_ZIP_MAGIC_DISKHEADER);
                 split->total_out_disk += 4;
                 split->total_out += split->total_out_disk;
             }
@@ -105,7 +101,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
             if (split->current_disk == 0)
             {
                 err = mz_stream_read_uint32(split->stream.base, &magic);
-                if (magic != DISKHEADERMAGIC)
+                if (magic != MZ_ZIP_MAGIC_DISKHEADER)
                     err = MZ_FORMAT_ERROR;
             }
         }
@@ -203,6 +199,8 @@ int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
             return read;
         if (read == 0)
         {
+            if (split->current_disk < 0) // No more disks to goto
+                break;
             err = mz_stream_split_goto_disk(stream, split->current_disk + 1);
             if (err == MZ_EXIST_ERROR)
                 break;

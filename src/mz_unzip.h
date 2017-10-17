@@ -31,15 +31,6 @@ extern "C" {
 
 /***************************************************************************/
 
-#ifndef MZ_COMPRESS_METHOD
-#  define MZ_COMPRESS_METHOD_RAW        (0)
-#  define MZ_COMPRESS_METHOD_DEFLATE    (8)
-#  define MZ_COMPRESS_METHOD_BZIP2      (12)
-#  define MZ_COMPRESS_METHOD_LZMA       (14)
-#endif
-
-/***************************************************************************/
-
 // Global data about the zip file that come from the end of central dir
 typedef struct mz_unzip_global_s
 {

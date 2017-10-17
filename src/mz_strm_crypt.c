@@ -20,9 +20,6 @@
    Roger Schlafly, described by Phil Katz in the file appnote.txt. This
    file (appnote.txt) is distributed with the PKZIP program (even in the
    version without encryption capabilities).
-
-   If you don't need crypting in your application, just define symbols
-   NOCRYPT and NOUNCRYPT.
 */
 
 
@@ -32,7 +29,7 @@
 
 #include "zlib.h"
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_crypt.h"
@@ -68,7 +65,7 @@ typedef struct mz_stream_crypt_s {
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
-    uint8_t         buffer[UINT16_MAX];
+    uint8_t         buffer[INT16_MAX];
     int64_t         total_in;
     int64_t         total_out;
 } mz_stream_crypt;

@@ -22,7 +22,7 @@
 #  include <utime.h>
 #endif
 
-#include "mz_error.h"
+#include "mz.h"
 #include "mz_strm.h"
 #include "mz_os.h"
 #include "mz_os_posix.h"
@@ -81,13 +81,6 @@ int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
     return MZ_OK;
 }
 
-int16_t mz_posix_change_dir(const char *path)
-{
-    if (chdir(path) != 0)
-        return MZ_INTERNAL_ERROR;
-    return MZ_OK;
-}
-
 int16_t mz_posix_make_dir(const char *path)
 {
     int16_t err = 0;
@@ -125,7 +118,7 @@ int32_t mz_posix_is_dir(const char *path)
 {
     struct stat path_stat;
     stat(path, &path_stat);
-    if (S_ISREG(path_stat.st_mode))
+    if (S_ISDIR(path_stat.st_mode))
         return MZ_OK;
     return MZ_EXIST_ERROR;
 }

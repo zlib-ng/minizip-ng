@@ -29,20 +29,6 @@ extern "C" {
 
 /***************************************************************************/
 
-#ifndef MZ_COMPRESS_METHOD
-#  define MZ_COMPRESS_METHOD_RAW        (0)
-#  define MZ_COMPRESS_METHOD_DEFLATE    (8)
-#  define MZ_COMPRESS_METHOD_BZIP2      (12)
-#  define MZ_COMPRESS_METHOD_LZMA       (14)
-#endif
-
-#define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
-#define MZ_COMPRESS_WINDOW_BITS_DEFAULT (0)
-#define MZ_COMPRESS_MEM_LEVEL_DEFAULT   (0)
-#define MZ_COMPRESS_STRATEGY_DEFAULT    (-1)
-
-/***************************************************************************/
-
 typedef struct mz_zip_file_s
 {
     uint32_t    dos_date;               // ms-dos date and time
