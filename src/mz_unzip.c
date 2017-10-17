@@ -75,7 +75,7 @@ typedef struct mz_unzip_s
     uint64_t pos_in_zipfile;            // position in byte on the zip file, for fseek
 
     uint8_t  stream_initialised;        // flag set if stream structure is initialised
-    uint64_t stream_available;          // number of byte to be decompressed
+    uint64_t stream_read;               // number of bytes decompressed
 
     uint64_t entry_header_read;         // flag about the usability of the current file
 
@@ -595,7 +595,7 @@ static int mz_unzip_entry_read_header(void *handle)
     if (err == MZ_OK)
     {
         unzip->entry_header_read = 1;
-        unzip->stream_available = unzip->file_info.uncompressed_size;
+        unzip->stream_read = 0;
     }
 
     return err;
@@ -718,7 +718,7 @@ extern int ZEXPORT mz_unzip_entry_open(void *handle, int raw, const char *passwo
     if (err != MZ_OK)
         return err;
    
-    if ((unzip->file_info.compression_method != 0) && 
+    if ((unzip->file_info.compression_method != MZ_COMPRESS_METHOD_RAW) &&
         (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_DEFLATE))
     {
 #ifdef HAVE_BZIP2
@@ -866,13 +866,10 @@ extern int ZEXPORT mz_unzip_entry_read(void *handle, void *buf, uint32_t len)
     if (len > UINT16_MAX) 
         return MZ_PARAM_ERROR;
     
-    if (len > unzip->stream_available)
-        len = (uint32_t)unzip->stream_available;
-
     read = mz_stream_read(unzip->crc32_stream, buf, len);
 
     if (read > 0)
-        unzip->stream_available -= read;
+        unzip->stream_read += read;
 
     return read;
 }
@@ -936,6 +933,7 @@ extern int ZEXPORT mz_unzip_entry_close(void *handle)
     mz_unzip *unzip = NULL;
     uint32_t crc = 0;
     int16_t err = MZ_OK;
+    int16_t err_close = MZ_OK;
 
     if (handle == NULL)
         return MZ_PARAM_ERROR;
@@ -949,7 +947,7 @@ extern int ZEXPORT mz_unzip_entry_close(void *handle)
     if (unzip->aes_version <= 0x0001)
 #endif
     {
-        if ((unzip->stream_available == 0) && (unzip->file_info.compression_method != 0))
+        if ((unzip->stream_read > 0) && (unzip->file_info.compression_method != MZ_COMPRESS_METHOD_RAW))
         {
             crc = mz_stream_crc32_get_value(unzip->crc32_stream);
             if (crc != unzip->file_info.crc)
@@ -962,7 +960,9 @@ extern int ZEXPORT mz_unzip_entry_close(void *handle)
     if (unzip->crypt_stream != NULL)
     {
         mz_stream_set_base(unzip->crypt_stream, unzip->stream);
-        err = mz_stream_close(unzip->crypt_stream);
+        err_close = mz_stream_close(unzip->crypt_stream);
+        if (err == MZ_OK)
+            err = err_close;
         mz_stream_delete(&unzip->crypt_stream);
     }
 

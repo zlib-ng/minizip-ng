@@ -141,7 +141,7 @@ int32_t mz_dosdate_to_tm(uint64_t dos_date, struct tm *ptm)
 
     if (mz_invalid_date(ptm))
     {
-        // Invalid date stored, so don't return it.
+        // Invalid date stored, so don't return it
         memset(ptm, 0, sizeof(struct tm));
         return -1;
     }
