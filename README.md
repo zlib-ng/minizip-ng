@@ -143,7 +143,7 @@ When unzipping it will automatically determine when in needs to cross disk bound
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary. Does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
 
-#### Disabling
+#### Disabling All Encryption
 
 To disable encryption use the following cmake commands:
 
@@ -154,4 +154,4 @@ cmake . -DUSE_CRYPT=OFF
 
 ### Windows RT
 
-+ Requires #define MZ_USING_WINRT_API
++ Requires ``#define MZ_USING_WINRT_API``
