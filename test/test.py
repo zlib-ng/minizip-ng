@@ -8,6 +8,7 @@ import fnmatch
 import time
 import struct
 import numpy
+import random
 import pprint
 import hashlib
 from sys import platform
@@ -100,7 +101,7 @@ def create_random_file(path, size):
         while size > 0:
             if i == 0 or i % 400000 == 0:
                 data = numpy.random.rand(100000)
-            floatlist = [random.random() for _ in data]
+            floatlist = numpy.squeeze(numpy.asarray(data))
             buf = struct.pack('%sf' % len(floatlist), *floatlist)
             fout.write(buf)
             size -= len(buf)
