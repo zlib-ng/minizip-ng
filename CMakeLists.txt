@@ -73,6 +73,10 @@ if(WIN32)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
 
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
+    add_definitions(-DMZ_USING_WINRT_API)
+endif()
+
 if(UNIX)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
 

@@ -32,9 +32,9 @@
 #  define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
-#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(IOWIN32_USING_WINRT_API)))
+#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(MZ_USING_WINRT_API)))
 #  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define IOWIN32_USING_WINRT_API 1
+#    define MZ_USING_WINRT_API 1
 #  endif
 #endif
 
@@ -105,7 +105,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
 
-#ifdef IOWIN32_USING_WINRT_API
+#ifdef MZ_USING_WINRT_API
     win32->handle = CreateFile2W(path_wide, desired_access, share_mode, creation_disposition, NULL);
 #else
     win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
@@ -176,7 +176,7 @@ int32_t mz_stream_win32_write(void *stream, const void *buf, int32_t size)
 
 static int32_t mz_stream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos, uint32_t move_method)
 {
-#ifdef IOWIN32_USING_WINRT_API
+#ifdef MZ_USING_WINRT_API
     return SetFilePointerEx(handle, pos, newPos, dwMoveMethod);
 #else
     LONG high_part = large_pos.HighPart;

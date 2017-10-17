@@ -154,4 +154,4 @@ cmake . -DUSE_CRYPT=OFF
 
 ### Windows RT
 
-+ Requires #define IOWIN32_USING_WINRT_API
++ Requires #define MZ_USING_WINRT_API

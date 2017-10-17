@@ -25,6 +25,14 @@
 
 /***************************************************************************/
 
+#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(MZ_USING_WINRT_API)))
+#  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+#    define MZ_USING_WINRT_API 1
+#  endif
+#endif
+
+/***************************************************************************/
+
 typedef struct DIR_int_s {
     void            *find_handle;
     WIN32_FIND_DATAW find_data;
@@ -104,7 +112,7 @@ int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
 
-#ifdef IOWIN32_USING_WINRT_API
+#ifdef MZ_USING_WINRT_API
     handle = CreateFile2W(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
