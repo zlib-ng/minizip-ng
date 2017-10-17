@@ -23,7 +23,7 @@ cmake --build .
 | miniunz.c | Sample unzip application | No |
 | minizip.c | Sample zip application | No | 
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
-| mz_error.h | Error codes for all the functions | Yes |
+| mz.h | Error codes and flags | Yes |
 | mz_os\* | OS specific helper functions | Encryption |
 | mz_strm.\* | Stream interface | Yes |
 | mz_strm_aes.\* | WinZIP AES stream | No |
