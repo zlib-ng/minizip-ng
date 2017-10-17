@@ -9,6 +9,8 @@ compiler:
 
 before_install:
     - sudo apt-get install libbsd-dev
+    - sudo pip install --upgrade pip
+    - sudo pip install numpy
 
 before_script:
     - mkdir build
@@ -18,5 +20,4 @@ before_script:
 script:
     - make
     - cd ../test
-    - pip install numpy
     - python test.py --exe_dir=../build
