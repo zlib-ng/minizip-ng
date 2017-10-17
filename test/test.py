@@ -41,7 +41,7 @@ def find_files(directory, pattern, recursive = True):
                 yield filename
 
 def erase_file(path):
-    print('Deleting {0}'.format(path))
+    #print('Deleting {0}'.format(path))
     os.chmod(path, stat.S_IWUSR)
     os.remove(path)
 
