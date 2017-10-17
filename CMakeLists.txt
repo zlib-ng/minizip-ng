@@ -378,7 +378,7 @@ install(EXPORT ${PROJECT_NAME}
 install(FILES ${MINIZIP_PUBLIC_HEADERS} DESTINATION "${INSTALL_INC_DIR}")
 install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
-#if(BUILD_TEST)
+if(BUILD_TEST)
     add_executable(miniunz "src/miniunz.c")
     target_link_libraries(miniunz ${PROJECT_NAME})
 
@@ -387,4 +387,4 @@ install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
     install(TARGETS miniunz minizip
             RUNTIME DESTINATION "bin")
-#endif()
+endif()
