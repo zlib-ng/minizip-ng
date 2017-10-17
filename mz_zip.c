@@ -383,7 +383,7 @@ extern int ZEXPORT mz_zip_entry_open(void *handle, const mz_zip_file *file_info,
     int16_t err = MZ_OK;
 
 #if !defined(HAVE_CRYPT) && !defined(HAVE_AES)
-    if (password != NULL)
+    if (crypt_info != NULL)
         return MZ_PARAM_ERROR;
 #endif
     if (handle == NULL)
