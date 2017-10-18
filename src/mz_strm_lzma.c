@@ -110,11 +110,11 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 
         mz_stream_read_uint8(lzma->stream.base, &major);
         mz_stream_read_uint8(lzma->stream.base, &minor);
-        mz_stream_read_uint16(lzma->stream.base, &size);
+        mz_stream_read_uint16(lzma->stream.base, (uint16_t *)&size);
 
         lzma->total_in += MZ_LZMA_HEADER_SIZE;
 
-        lzma->error = lzma_alone_decoder(&lzma->lstream, UINT64_MAX, LZMA_CONCATENATED);
+        lzma->error = lzma_alone_decoder(&lzma->lstream, UINT64_MAX);
     }
     
     if (lzma->error != LZMA_OK)
@@ -142,6 +142,8 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
     uint64_t total_out_after = 0;
     uint32_t total_in = 0;
     uint32_t total_out = 0;
+    uint32_t in_bytes = 0;
+    uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int16_t err = LZMA_OK;
@@ -183,8 +185,14 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
         total_in_after = lzma->lstream.avail_in;
         total_out_after = lzma->lstream.total_out;
         
-        total_in += (uint32_t)(total_in_before - total_in_after);
-        total_out += (uint32_t)(total_out_after - total_out_before);
+        in_bytes = (uint32_t)(total_in_before - total_in_after);
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        total_in += in_bytes;
+        total_out += out_bytes;
+
+        lzma->total_in += in_bytes;
+        lzma->total_out += out_bytes;
 
         if (err == LZMA_STREAM_END)
             break;
@@ -195,9 +203,6 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
         }
     }
     while (lzma->lstream.avail_out > 0);
-
-    lzma->total_in += total_in;
-    lzma->total_out += total_out;
 
     if (lzma->error != 0)
         return lzma->error;
@@ -222,34 +227,38 @@ uint32_t mz_stream_lzma_code(void *stream, int32_t flush)
     int16_t err = LZMA_OK;
 
 
-    if (lzma->lstream.avail_out == 0)
+    do
     {
-        if (mz_stream_lzma_flush(lzma) != MZ_OK)
+        if (lzma->lstream.avail_out == 0)
         {
-            lzma->error = MZ_STREAM_ERROR;
+            if (mz_stream_lzma_flush(lzma) != MZ_OK)
+            {
+                lzma->error = MZ_STREAM_ERROR;
+                return MZ_STREAM_ERROR;
+            }
+
+            lzma->lstream.avail_out = sizeof(lzma->buffer);
+            lzma->lstream.next_out = lzma->buffer;
+
+            lzma->buffer_len = 0;
+        }
+
+        total_out_before = lzma->lstream.total_out;
+        err = lzma_code(&lzma->lstream, flush);
+        total_out_after = lzma->lstream.total_out;
+
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        if (err != LZMA_OK && err != LZMA_STREAM_END)
+        {
+            lzma->error = err;
             return MZ_STREAM_ERROR;
         }
 
-        lzma->lstream.avail_out = sizeof(lzma->buffer);
-        lzma->lstream.next_out = lzma->buffer;
-
-        lzma->buffer_len = 0;
+        lzma->buffer_len += out_bytes;
+        lzma->total_out += out_bytes;
     }
-
-    total_out_before = lzma->lstream.total_out;
-    err = lzma_code(&lzma->lstream, flush);
-    total_out_after = lzma->lstream.total_out;
-
-    out_bytes = (uint32_t)(total_out_after - total_out_before);
-
-    if (err != LZMA_OK && err != LZMA_STREAM_END)
-    {
-        lzma->error = err;
-        return MZ_STREAM_ERROR;
-    }
-
-    lzma->buffer_len += out_bytes;
-    lzma->total_out += out_bytes;
+    while (lzma->lstream.avail_in > 0);
 
     return MZ_OK;
 }
@@ -262,8 +271,7 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
     lzma->lstream.next_in = (uint8_t*)buf;
     lzma->lstream.avail_in = size;
 
-    while ((lzma->error == LZMA_OK) && (lzma->lstream.avail_in > 0))
-        mz_stream_lzma_code(stream, LZMA_RUN);
+    mz_stream_lzma_code(stream, LZMA_RUN);
 
     lzma->total_in += size;
 
@@ -339,7 +347,7 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
             lzma->preset = LZMA_PRESET_DEFAULT;
         return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
-        lzma->max_total_in = value + MZ_LZMA_HEADER_SIZE;
+        lzma->max_total_in = value;
         return MZ_OK;
     }
     return MZ_EXIST_ERROR;

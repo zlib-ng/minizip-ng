@@ -122,6 +122,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     uint64_t total_out_after = 0;
     uint32_t total_in = 0;
     uint32_t total_out = 0;
+    uint32_t in_bytes = 0;
+    uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int16_t err = Z_OK;
@@ -140,7 +142,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
                 if ((zlib->max_total_in - zlib->total_in) < sizeof(zlib->buffer))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
             }
-            
+
             read = mz_stream_read(zlib->stream.base, zlib->buffer, bytes_to_read);
 
             if (read < 0)
@@ -168,8 +170,14 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
         total_in_after = zlib->zstream.avail_in;
         total_out_after = zlib->zstream.total_out;
 
-        total_in += (uint32_t)(total_in_before - total_in_after);
-        total_out += (uint32_t)(total_out_after - total_out_before);
+        in_bytes = (uint32_t)(total_in_before - total_in_after);
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        total_in += in_bytes;
+        total_out += out_bytes;
+
+        zlib->total_in += in_bytes;
+        zlib->total_out += out_bytes;
 
         if (err == Z_STREAM_END)
             break;
@@ -181,9 +189,6 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
         }
     }
     while (zlib->zstream.avail_out > 0);
-
-    zlib->total_in += total_in;
-    zlib->total_out += total_out;
 
     if (zlib->error != 0)
         return zlib->error;
@@ -208,34 +213,38 @@ int32_t mz_stream_zlib_deflate(void *stream, int flush)
     int16_t err = Z_OK;
 
 
-    if (zlib->zstream.avail_out == 0)
+    do
     {
-        if (mz_stream_zlib_flush(zlib) != MZ_OK)
+        if (zlib->zstream.avail_out == 0)
         {
-            zlib->error = Z_STREAM_ERROR;
+            if (mz_stream_zlib_flush(zlib) != MZ_OK)
+            {
+                zlib->error = Z_STREAM_ERROR;
+                return MZ_STREAM_ERROR;
+            }
+
+            zlib->zstream.avail_out = sizeof(zlib->buffer);
+            zlib->zstream.next_out = zlib->buffer;
+
+            zlib->buffer_len = 0;
+        }
+
+        total_out_before = zlib->zstream.total_out;
+        err = deflate(&zlib->zstream, flush);
+        total_out_after = zlib->zstream.total_out;
+
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        if (err != Z_OK && err != Z_STREAM_END)
+        {
+            zlib->error = err;
             return MZ_STREAM_ERROR;
         }
 
-        zlib->zstream.avail_out = sizeof(zlib->buffer);
-        zlib->zstream.next_out = zlib->buffer;
-
-        zlib->buffer_len = 0;
+        zlib->buffer_len += out_bytes;
+        zlib->total_out += out_bytes;
     }
-
-    total_out_before = zlib->zstream.total_out;
-    err = deflate(&zlib->zstream, flush);
-    total_out_after = zlib->zstream.total_out;
-
-    out_bytes = (uint32_t)(total_out_after - total_out_before);
-
-    if (err != Z_OK && err != Z_STREAM_END)
-    {
-        zlib->error = err;
-        return MZ_STREAM_ERROR;
-    }
-
-    zlib->buffer_len += out_bytes;
-    zlib->total_out += out_bytes;
+    while (zlib->zstream.avail_in > 0);
 
     return MZ_OK;
 }
@@ -248,8 +257,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
     zlib->zstream.next_in = (uint8_t*)buf;
     zlib->zstream.avail_in = size;
 
-    while ((zlib->error == Z_OK) && (zlib->zstream.avail_in > 0))
-        mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
+    mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
 
     zlib->total_in += size;
 

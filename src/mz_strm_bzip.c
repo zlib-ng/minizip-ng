@@ -112,10 +112,10 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     uint64_t total_out_before = 0;
     uint64_t total_in_after = 0;
     uint64_t total_out_after = 0;
-    uint32_t in_bytes = 0;
-    uint32_t out_bytes = 0;
     uint32_t total_in = 0;
     uint32_t total_out = 0;
+    uint32_t in_bytes = 0;
+    uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int16_t err = BZ_OK;
@@ -139,7 +139,8 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
             }    
 
             read = mz_stream_read(bzip->stream.base, bzip->buffer, bytes_to_read);
-            if (mz_stream_error(bzip->stream.base))
+
+            if (read < 0)
             {
                 bzip->error = BZ_IO_ERROR;
                 break;
@@ -161,24 +162,27 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
         total_out_after = bzip->bzstream.total_out_lo32 + 
                 (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
 
-        total_in += (uint32_t)(total_in_before - total_in_after);
-        total_out += (uint32_t)(total_out_after - total_out_before);
+        in_bytes = (uint32_t)(total_in_before - total_in_after);
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        total_in += in_bytes;
+        total_out += out_bytes;
+
+        bzip->total_in += in_bytes;
+        bzip->total_out += out_bytes;
 
         if (err == BZ_STREAM_END)
         {
             bzip->stream_end = 1;
             break;
         }
-        if (err != BZ_RUN_OK)
+        if (err != BZ_OK && err != BZ_RUN_OK)
         {
             bzip->error = err;
             break;
         }
     }
     while (bzip->bzstream.avail_out > 0);
-
-    bzip->total_in += total_in;
-    bzip->total_out += total_out;
 
     if (bzip->error != 0)
         return bzip->error;
@@ -202,39 +206,42 @@ uint32_t mz_stream_bzip_compress(void *stream, int flush)
     uint32_t out_bytes = 0;
     int16_t err = BZ_OK;
 
-
-    if (bzip->bzstream.avail_out == 0)
+    do
     {
-        if (mz_stream_bzip_flush(bzip) != MZ_OK)
+        if (bzip->bzstream.avail_out == 0)
         {
-            bzip->error = BZ_DATA_ERROR;
+            if (mz_stream_bzip_flush(bzip) != MZ_OK)
+            {
+                bzip->error = BZ_DATA_ERROR;
+                return MZ_STREAM_ERROR;
+            }
+
+            bzip->bzstream.avail_out = sizeof(bzip->buffer);
+            bzip->bzstream.next_out = (char *)bzip->buffer;
+
+            bzip->buffer_len = 0;
+        }
+
+        total_out_before = bzip->bzstream.total_out_lo32 + 
+                (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
+
+        err = BZ2_bzCompress(&bzip->bzstream, flush);
+
+        total_out_after = bzip->bzstream.total_out_lo32 + 
+                (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
+
+        out_bytes = (uint32_t)(total_out_after - total_out_before);
+
+        if (err < 0)
+        {
+            bzip->error = err;
             return MZ_STREAM_ERROR;
         }
 
-        bzip->bzstream.avail_out = sizeof(bzip->buffer);
-        bzip->bzstream.next_out = (char *)bzip->buffer;
-
-        bzip->buffer_len = 0;
+        bzip->buffer_len += out_bytes;
+        bzip->total_out += out_bytes;
     }
-
-    total_out_before = bzip->bzstream.total_out_lo32 + 
-            (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
-
-    err = BZ2_bzCompress(&bzip->bzstream, flush);
-
-    total_out_after = bzip->bzstream.total_out_lo32 + 
-            (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
-
-    out_bytes = (uint32_t)(total_out_after - total_out_before);
-
-    if (err < 0)
-    {
-        bzip->error = err;
-        return MZ_STREAM_ERROR;
-    }
-
-    bzip->buffer_len += out_bytes;
-    bzip->total_out += out_bytes;
+    while ((bzip->bzstream.avail_in > 0) || (flush == BZ_FINISH && err == BZ_FINISH_OK));
 
     return MZ_OK;
 }
@@ -247,8 +254,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
     bzip->bzstream.next_in = (char *)buf;
     bzip->bzstream.avail_in = size;
 
-    while ((bzip->error == BZ_OK) && (bzip->bzstream.avail_in > 0))
-        mz_stream_bzip_compress(stream, BZ_RUN);
+    mz_stream_bzip_compress(stream, BZ_RUN);
 
     bzip->total_in += size;
 
