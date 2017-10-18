@@ -75,6 +75,7 @@ typedef voidp zipFile;
 
 typedef void *zlib_filefunc_def;
 typedef void *zlib_filefunc64_def;
+typedef const char *zipcharpc;
 
 /***************************************************************************/
 
