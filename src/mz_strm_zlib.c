@@ -60,9 +60,6 @@ typedef struct mz_stream_zlib_s {
     int64_t     max_total_in;
     int8_t      initialized;
     int16_t     level;
-    int16_t     window_bits;
-    int16_t     mem_level;
-    int16_t     strategy;
     int16_t     mode;
     int16_t     error;
 } mz_stream_zlib;
@@ -85,23 +82,19 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
     zlib->total_in = 0;
     zlib->total_out = 0;
 
-    window_bits = zlib->window_bits;
-    if (window_bits > 0)
-        window_bits = -window_bits;
-
     if (mode & MZ_STREAM_MODE_WRITE)
     {
         zlib->zstream.next_out = zlib->buffer;
         zlib->zstream.avail_out = sizeof(zlib->buffer);
 
-        zlib->error = deflateInit2(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, window_bits, zlib->mem_level, zlib->strategy);
+        zlib->error = deflateInit2(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     }
     else if (mode & MZ_STREAM_MODE_READ)
     {
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
 
-        zlib->error = inflateInit2(&zlib->zstream, window_bits);
+        zlib->error = inflateInit2(&zlib->zstream, -MAX_WBITS);
     }
 
     if (zlib->error != Z_OK)
@@ -127,8 +120,6 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     uint64_t total_in_after = 0;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
-    uint32_t in_bytes = 0;
-    uint32_t out_bytes = 0;
     uint32_t total_in = 0;
     uint32_t total_out = 0;
     int32_t bytes_to_read = 0;
@@ -148,7 +139,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
             {
                 if ((zlib->max_total_in - zlib->total_in) < sizeof(zlib->buffer))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
-            }               
+            }
             
             read = mz_stream_read(zlib->stream.base, zlib->buffer, bytes_to_read);
 
@@ -177,11 +168,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
         total_in_after = zlib->zstream.avail_in;
         total_out_after = zlib->zstream.total_out;
 
-        in_bytes = (uint32_t)(total_in_before - total_in_after);
-        out_bytes = (uint32_t)(total_out_after - total_out_before);
-        
-        total_out += out_bytes;
-        total_in += in_bytes;
+        total_in += (uint32_t)(total_in_before - total_in_after);
+        total_out += (uint32_t)(total_out_after - total_out_before);
 
         if (err == Z_STREAM_END)
             break;
@@ -319,6 +307,9 @@ int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = zlib->total_out;
         return MZ_OK;
+    case MZ_STREAM_PROP_HEADER_SIZE:
+        *value = 0;
+        return MZ_OK;
     }
     return MZ_EXIST_ERROR;
 }
@@ -330,19 +321,6 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
     {
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
         zlib->level = (int16_t)value;
-        return MZ_OK;
-    case MZ_STREAM_PROP_COMPRESS_WINDOW_BITS:
-        if (value == 0)
-            value = -MAX_WBITS;
-        zlib->window_bits = (int16_t)value;
-        return MZ_OK;
-    case MZ_STREAM_PROP_COMPRESS_MEM_LEVEL:
-        if (value == 0)
-            value = DEF_MEM_LEVEL;
-        zlib->mem_level = (int16_t)value;
-        return MZ_OK;
-    case MZ_STREAM_PROP_COMPRESS_STRATEGY:
-        zlib->strategy = (int16_t)value;
         return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         zlib->max_total_in = value;
@@ -361,9 +339,6 @@ void *mz_stream_zlib_create(void **stream)
         memset(zlib, 0, sizeof(mz_stream_zlib));
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
-        zlib->window_bits = -MAX_WBITS;
-        zlib->mem_level = DEF_MEM_LEVEL;
-        zlib->strategy = Z_DEFAULT_STRATEGY;
     }
     if (stream != NULL)
         *stream = zlib;
