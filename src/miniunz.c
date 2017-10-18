@@ -26,7 +26,7 @@
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_split.h"
-#include "mz_unzip.h"
+#include "mz_zip.h"
 
 /***************************************************************************/
 
@@ -59,7 +59,7 @@ typedef struct miniunz_opt_s {
 
 int32_t miniunz_list(void *handle)
 {
-    mz_unzip_file *file_info = NULL;
+    mz_zip_file *file_info = NULL;
     uint32_t ratio = 0;
     int16_t level = 0;
     int16_t err = MZ_OK;
@@ -68,7 +68,7 @@ int32_t miniunz_list(void *handle)
     char crypt = ' ';
 
 
-    err = mz_unzip_goto_first_entry(handle);
+    err = mz_zip_goto_first_entry(handle);
 
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
@@ -81,7 +81,7 @@ int32_t miniunz_list(void *handle)
 
     do
     {
-        err = mz_unzip_entry_get_info(handle, &file_info);
+        err = mz_zip_entry_get_info(handle, &file_info);
         if (err != MZ_OK)
         {
             printf("Error %d getting entry info in zip file\n", err);
@@ -130,7 +130,7 @@ int32_t miniunz_list(void *handle)
             (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
             file_info->crc, file_info->filename);
 
-        err = mz_unzip_goto_next_entry(handle);
+        err = mz_zip_goto_next_entry(handle);
     }
     while (err == MZ_OK);
 
@@ -145,7 +145,7 @@ int32_t miniunz_list(void *handle)
 
 int32_t miniunz_extract_currentfile(void *handle, const char *destination, const char *password, miniunz_opt *options)
 {
-    mz_unzip_file *file_info = NULL;
+    mz_zip_file *file_info = NULL;
     uint8_t buf[INT16_MAX];
     int32_t read = 0;
     int32_t written = 0;
@@ -159,7 +159,7 @@ int32_t miniunz_extract_currentfile(void *handle, const char *destination, const
     char directory[512];
 
 
-    err = mz_unzip_entry_get_info(handle, &file_info);
+    err = mz_zip_entry_get_info(handle, &file_info);
 
     if (err != MZ_OK)
     {
@@ -196,7 +196,7 @@ int32_t miniunz_extract_currentfile(void *handle, const char *destination, const
         return err;
     }
 
-    err = mz_unzip_entry_open(handle, 0, password);
+    err = mz_zip_entry_read_open(handle, 0, password);
 
     if (err != MZ_OK)
     {
@@ -260,11 +260,11 @@ int32_t miniunz_extract_currentfile(void *handle, const char *destination, const
         printf(" Extracting: %s\n", out_path);
         while (1)
         {
-            read = mz_unzip_entry_read(handle, buf, sizeof(buf));
+            read = mz_zip_entry_read(handle, buf, sizeof(buf));
             if (read < 0)
             {
                 err = read;
-                printf("Error %d  reading entry in zip file\n", err);
+                printf("Error %d reading entry in zip file\n", err);
                 break;
             }
             if (read == 0)
@@ -291,7 +291,7 @@ int32_t miniunz_extract_currentfile(void *handle, const char *destination, const
 
     mz_stream_os_delete(&stream);
 
-    err_close = mz_unzip_entry_close(handle);
+    err_close = mz_zip_entry_close(handle);
     if (err_close != MZ_OK)
         printf("Error %d closing entry in zip file\n", err_close);
 
@@ -303,7 +303,7 @@ int32_t miniunz_extract_all(void *handle, const char *destination, const char *p
     int16_t err = MZ_OK;
     
 
-    err = mz_unzip_goto_first_entry(handle);
+    err = mz_zip_goto_first_entry(handle);
 
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
@@ -318,7 +318,7 @@ int32_t miniunz_extract_all(void *handle, const char *destination, const char *p
         if (err != MZ_OK)
             break;
 
-        err = mz_unzip_goto_next_entry(handle);
+        err = mz_zip_goto_next_entry(handle);
 
         if (err != MZ_OK && err != MZ_END_OF_LIST)
         {
@@ -332,7 +332,7 @@ int32_t miniunz_extract_all(void *handle, const char *destination, const char *p
 
 int32_t miniunz_extract_onefile(void *handle, const char *filename, const char *destination, const char *password, miniunz_opt *options)
 {
-    if (mz_unzip_locate_entry(handle, filename, NULL) != MZ_OK)
+    if (mz_zip_locate_entry(handle, filename, NULL) != MZ_OK)
     {
         printf("File %s not found in the zip file\n", filename);
         return 2;
@@ -432,7 +432,7 @@ int main(int argc, const char *argv[])
     else
     {
         // Open zip file
-        handle = mz_unzip_open(split_stream);
+        handle = mz_zip_open(split_stream, MZ_STREAM_MODE_READ);
 
         if (handle == NULL)
         {
@@ -460,7 +460,7 @@ int main(int argc, const char *argv[])
                     err = miniunz_extract_onefile(handle, filename_to_extract, destination, password, &options);
             }
 
-            mz_unzip_close(handle);
+            mz_zip_close(handle, NULL, NULL);
         }
 
         mz_stream_os_close(stream);

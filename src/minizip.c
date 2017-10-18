@@ -108,12 +108,12 @@ int32_t minizip_add_file(void *handle, const char *path, minizip_opt *options, m
     file_info.filename = filenameinzip;
 
     if (mz_file_get_size(path) >= UINT32_MAX)
-        file_info.zip64 = 1;
+        file_info.zip_64 = 1;
 
     mz_os_get_file_date(path, &file_info.dos_date);
 
     // Add to zip
-    err = mz_zip_entry_open(handle, &file_info, compress_info, crypt_info);
+    err = mz_zip_entry_write_open(handle, &file_info, compress_info, crypt_info);
     if (err != MZ_OK)
     {
         printf("Error in opening %s in zip file (%d)\n", filenameinzip, err);
@@ -367,7 +367,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        handle = mz_zip_open(opt_open_existing, open_stream);
+        handle = mz_zip_open(open_stream, mode);
 
         if (handle == NULL)
         {

@@ -56,15 +56,6 @@ extern "C" {
                                          MZ_ZIP_FLAG_DEFLATE_MAX)
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 
-// MZ_ZIP_MAGIC
-#define MZ_ZIP_MAGIC_DISKHEADER         (0x08074b50)
-#define MZ_ZIP_MAGIC_LOCALHEADER        (0x04034b50)
-#define MZ_ZIP_MAGIC_CENTRALHEADER      (0x02014b50)
-#define MZ_ZIP_MAGIC_ENDHEADER          (0x06054b50)
-#define MZ_ZIP_MAGIC_ENDHEADER64        (0x06064b50)
-#define MZ_ZIP_MAGIC_ENDLOCHEADER64     (0x07064b50)
-#define MZ_ZIP_MAGIC_DATADESCRIPTOR     (0x08074b50)
-
 // MZ_VERSION
 #define MZ_VERSION                      ("2.0.1")
 
