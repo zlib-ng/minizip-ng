@@ -20,6 +20,10 @@
 
 /***************************************************************************/
 
+#define MZ_ZIP_MAGIC_DISKHEADER         (0x08074b50)
+
+/***************************************************************************/
+
 mz_stream_vtbl mz_stream_split_vtbl = {
     mz_stream_split_open,
     mz_stream_split_is_open,
