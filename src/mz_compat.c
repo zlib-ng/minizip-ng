@@ -120,6 +120,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
         file_info.internal_fa = zipfi->internal_fa;
     }
 
+    file_info.compression_method = compression_method;
     file_info.filename = (char *)filename;
     //file_info.extrafield_local = extrafield_local;
     //file_info.extrafield_local_size = size_extrafield_local;
@@ -129,22 +130,11 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     file_info.comment = (char *)comment;
     file_info.flag = flag_base;
     file_info.zip_64 = zip64;
-
-    mz_zip_compress compress_info;
-
-    compress_info.level = level;
-    compress_info.window_bits = windowBits;
-    compress_info.mem_level = memLevel;
-    compress_info.strategy = strategy;
-    compress_info.method = compression_method;
-
-    mz_zip_crypt crypt_info;
 #ifdef HAVE_AES
-    crypt_info.aes = 1;
+    file_info.aes_version = 1;
 #endif
-    crypt_info.password = password;
 
-    return mz_zip_entry_write_open(compat->handle, &file_info, &compress_info, &crypt_info);
+    return mz_zip_entry_write_open(compat->handle, &file_info, level, password);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,

@@ -9,7 +9,7 @@ option(USE_CRYPT "Enables building with PKWARE traditional encryption" ON)
 option(USE_AES "Enables building with AES library" ON)
 option(USE_BZIP2 "Enables building with BZIP2 library" ON)
 option(USE_LZMA "Enables building with LZMA library" ON)
-option(BUILD_TEST "Enables building of executables minizip and miniunz. Requires ZLIB!" OFF)
+option(BUILD_TEST "Enables building of executables. Requires ZLIB!" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -45,25 +45,25 @@ set(PROJECT_NAME libminizip)
 
 set(MINIZIP_SRC
     src/mz_os.c
+    src/mz_compat.c
     src/mz_strm.c
     src/mz_strm_buf.c
     src/mz_strm_mem.c
     src/mz_strm_posix.c
     src/mz_strm_split.c
     src/mz_strm_zlib.c
-    src/mz_unzip.c
     src/mz_zip.c)
 
 set(MINIZIP_PUBLIC_HEADERS
     src/mz.h
     src/mz_os.h
+    src/mz_compat.h
     src/mz_strm.h
     src/mz_strm_buf.h
     src/mz_strm_mem.h
     src/mz_strm_posix.h
     src/mz_strm_split.h
     src/mz_strm_zlib.h
-    src/mz_unzip.h
     src/mz_zip.h)
 
 if(WIN32)
@@ -379,12 +379,9 @@ install(FILES ${MINIZIP_PUBLIC_HEADERS} DESTINATION "${INSTALL_INC_DIR}")
 install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 
 if(BUILD_TEST)
-    add_executable(miniunz "src/miniunz.c")
-    target_link_libraries(miniunz ${PROJECT_NAME})
-
     add_executable(minizip "src/minizip.c")
     target_link_libraries(minizip ${PROJECT_NAME})
 
-    install(TARGETS miniunz minizip
+    install(TARGETS minizip
             RUNTIME DESTINATION "bin")
 endif()

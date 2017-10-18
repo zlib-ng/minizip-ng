@@ -68,7 +68,8 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     int32_t i = 0;
     int16_t err = MZ_OK;
 
-    if (number_disk >= 0)
+    if ((((split->disk_size > 0) && (split->mode & MZ_STREAM_MODE_WRITE)) || 
+        ((split->mode & MZ_STREAM_MODE_WRITE) == 0)) && (number_disk >= 0))
     {
         for (i = strlen(split->path_disk) - 1; i >= 0; i -= 1)
         {
@@ -93,7 +94,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 
         if (split->mode & MZ_STREAM_MODE_WRITE)
         {
-            if (split->current_disk == 0)
+            if ((split->current_disk == 0) && (split->disk_size > 0))
             {
                 err = mz_stream_write_uint32(split->stream.base, MZ_ZIP_MAGIC_DISKHEADER);
                 split->total_out_disk += 4;
@@ -132,7 +133,12 @@ int32_t mz_stream_split_goto_disk(void *stream, int32_t number_disk)
     mz_stream_split *split = (mz_stream_split *)stream;
     int16_t err = MZ_OK;
 
-    if (number_disk != split->current_disk)
+    if ((split->disk_size == 0) && (split->mode & MZ_STREAM_MODE_WRITE))
+    {
+        if (mz_stream_is_open(split->stream.base) != MZ_OK)
+            err = mz_stream_split_open_disk(stream, number_disk);
+    }
+    else if (number_disk != split->current_disk)
     {
         err = mz_stream_split_close_disk(stream);
         if (err == MZ_OK)
@@ -231,33 +237,35 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
     int16_t err = MZ_OK;
     uint8_t *buf_ptr = (uint8_t *)buf;
 
-    
     while (bytes_left > 0)
     {
-        if ((split->total_out_disk == split->disk_size && split->total_out > 0) || 
-            (split->number_disk == -1 && split->number_disk != split->current_disk))
-        {
-            if (split->number_disk != -1)
-                number_disk = split->current_disk + 1;
-
-            err = mz_stream_split_goto_disk(stream, number_disk);
-            if (err != MZ_OK)
-                return err;
-        }
-
         bytes_to_write = bytes_left;
 
-        if (split->number_disk != -1)
+        if (split->disk_size > 0)
         {
-            bytes_avail = (int32_t)(split->disk_size - split->total_out_disk);
-            if (bytes_to_write > bytes_avail)
-                bytes_to_write = bytes_avail;
+            if ((split->total_out_disk == split->disk_size && split->total_out > 0) ||
+                (split->number_disk == -1 && split->number_disk != split->current_disk))
+            {
+                if (split->number_disk != -1)
+                    number_disk = split->current_disk + 1;
+
+                err = mz_stream_split_goto_disk(stream, number_disk);
+                if (err != MZ_OK)
+                    return err;
+            }
+
+            if (split->number_disk != -1)
+            {
+                bytes_avail = (int32_t)(split->disk_size - split->total_out_disk);
+                if (bytes_to_write > bytes_avail)
+                    bytes_to_write = bytes_avail;
+            }
         }
-            
+        
         written = mz_stream_write(split->stream.base, buf_ptr, bytes_to_write);
         if (written != bytes_to_write)
             return MZ_STREAM_ERROR;
-
+        
         bytes_left -= written;
         buf_ptr += written;
         split->total_out += written;
@@ -345,7 +353,6 @@ void *mz_stream_split_create(void **stream)
     {
         memset(split, 0, sizeof(mz_stream_split));
         split->stream.vtbl = &mz_stream_split_vtbl;
-        split->disk_size = 64 * 1024;
     }
     if (stream != NULL)
         *stream = split;

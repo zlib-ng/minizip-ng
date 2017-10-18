@@ -7,17 +7,17 @@ Pod::Spec.new do |s|
 Minizip zlib contribution that includes:
 * AES encryption
 * I/O buffering
-* PKWARE disk spanning
-It also has the latest bug fixes that having been found all over the internet including the minizip forum and zlib developer's mailing list.
+* PKWARE disk splitting
+It also has the latest bug fixes that having been found all over the internet.
 DESC
   s.homepage = 'https://github.com/nmoinvaz/minizip'
-  s.authors = 'Gilles Vollant', 'Nathan Moinvaziri'
+  s.authors = 'Nathan Moinvaziri', 'Gilles Vollant'
 
   s.source   = { :git => 'https://github.com/nmoinvaz/minizip.git' }
   s.libraries = 'z'
 
   s.subspec 'Core' do |sp|
-    sp.source_files = '{mz_strm,mz_strm_mem,mz_strm_buf,mz_unzip,mz_zip,mz_strm_crypt,mz_strm_posix,mz_strm_zlib}.{c,h}'
+    sp.source_files = 'src/{mz_os,mz_compat,mz_strm,mz_strm_mem,mz_strm_buf,mz_zip,mz_strm_crypt,mz_strm_posix,mz_strm_zlib}.{c,h}'
   end
 
   s.subspec 'AES' do |sp|

@@ -20,8 +20,7 @@ cmake --build .
 
 | File(s) | Description | Required |
 |:- |:-|:-:|
-| miniunz.c | Sample unzip application | No |
-| minizip.c | Sample zip application | No | 
+| minizip.c | Sample application | No | 
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
 | mz_os\* | OS specific helper functions | Encryption |
@@ -36,8 +35,7 @@ cmake --build .
 | mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
 | mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
 | mz_strm_zlib.\* | Deflate stream using zlib | Yes |
-| mz_unzip.\* | Unzip functionality | Unzipping |
-| mz_zip.\* | Zip functionality | Zipping |
+| mz_zip.\* | Zip functionality | Yes |
 
 ## Features
 
@@ -58,7 +56,7 @@ mz_stream_mem_create(&mem_stream);
 mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_READ);
 
-void *unz_handle = mz_unzip_open(mem_stream);
+void *zip_handle = mz_zip_open(mem_stream, MZ_STREAM_MODE_READ);
 // do unzip operations
 
 mz_stream_mem_delete(&mem_stream);
@@ -74,7 +72,7 @@ mz_stream_mem_set_grow(mem_stream, 1);
 mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_CREATE);
 
-void *zip_handle = mz_zip_open(0, 0, mem_stream);
+void *zip_handle = mz_zip_open(mem_stream, MZ_STREAM_MODE_WRITE);
 // do unzip operations
 
 mz_stream_mem_delete(&mem_stream);
@@ -94,7 +92,7 @@ mz_stream_buffered_create(&buf_stream);
 mz_stream_buffered_open(buf_stream, NULL, MZ_STREAM_MODE_READ);
 mz_stream_buffered_set_base(buf_stream, stream);
 
-void *unz_handle = mz_unzip_open(buf_stream);
+void *zip_handle = mz_zip_open(buf_stream, MZ_STREAM_MODE_READ);
 ```
 
 #### Disk Splitting Stream
@@ -114,7 +112,7 @@ mz_stream_set_base(split_stream, stream);
 
 mz_stream_open(split_stream, path..
 
-handle = mz_unzip/zip_open(split_stream);
+handle = mz_zip_open(split_stream, MZ_STREAM_MODE_WRITE);
 ```
 
 The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
@@ -141,7 +139,7 @@ When unzipping it will automatically determine when in needs to cross disk bound
 + Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
 
 When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary. 
+When unzipping it will use AES decryption only if necessary.
 
 #### Central Directory Encryption
 

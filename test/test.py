@@ -53,7 +53,7 @@ def erase_files(search_pattern):
 def erase_dir(path):
     if not os.path.exists(path):
         return
-    print 'Erasing dir {0}'.format(path)
+    print('Erasing dir {0}'.format(path))
     # shutil.rmtree doesn't work well and sometimes can't delete
     for root, dirs, files in os.walk(path, topdown=False):
         for name in files:
@@ -107,7 +107,31 @@ def create_random_file(path, size):
             size -= len(buf)
             i += 1
 
-def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
+def zip(zip_file, zip_args, files):
+    cmd = '{0} {1} {2} {3}'.format(get_exec('minizip'), zip_args, zip_file, ' '.join(files))
+    print cmd
+    err = os.system(cmd)
+    if (err != 0):
+        print('Zip returned error code {0}'.format(err))
+        sys.exit(err)
+
+def list(zip_file):
+    cmd = '{0} -l {1}'.format(get_exec('minizip'), zip_file)
+    print cmd
+    err = os.system(cmd)
+    if (err != 0):
+        print('List returned error code {0}'.format(err))
+        sys.exit(err)
+
+def unzip(zip_file, dest_dir, unzip_args = ''):
+    cmd = '{0} -x {1} -d {2} {3}'.format(get_exec('minizip'), unzip_args, dest_dir, zip_file)
+    print cmd
+    err = os.system(cmd)
+    if (err != 0):
+        print('Unzip returned error code {0}'.format(err))
+        sys.exit(err)
+
+def zip_list_unzip(zip_file, dest_dir, zip_args, unzip_args, files):
     # Single test run
     original_infos = {}
     for (i, path) in enumerate(files):
@@ -117,25 +141,9 @@ def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
     erase_files(zip_file[0:-2] + "*")
     erase_dir(dest_dir)
 
-    cmd = '{0} {1} {2} {3}'.format(get_exec('minizip'), zip_args, zip_file, ' '.join(files))
-    print cmd
-
-    err = os.system(cmd)
-    if (err != 0):
-        print('Zip returned error code {0}'.format(err))
-        sys.exit(err)
-    cmd = '{0} -l {1}'.format(get_exec('miniunz'), zip_file)
-    print cmd
-    err = os.system(cmd)
-    if (err != 0):
-        print('List returned error code {0}'.format(err))
-        sys.exit(err)
-    cmd = '{0} -x {1} {2} -d {3}'.format(get_exec('miniunz'), zip_file, unzip_args, dest_dir)
-    print cmd
-    err = os.system(cmd)
-    if (err != 0):
-        print('Unzip returned error code {0}'.format(err))
-        sys.exit(err)
+    zip(zip_file, zip_args, files)
+    list(zip_file)
+    unzip(zip_file, dest_dir, unzip_args)
 
     new_infos = {}
     for (i, path) in enumerate(files):
@@ -148,34 +156,39 @@ def zip_unzip_test(zip_file, dest_dir, zip_args, unzip_args, files):
         print('New: ')
         print(new_infos)
 
-def test_level_0(method, zip_arg = '', unzip_arg = ''):
-    # File tests
-    print 'Testing {0} on Single File'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c'])
-    print 'Testing {0} on Two Files'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.h'])
-    print 'Testing {0} Directory'.format(method)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
-    print 'Testing {0} 1MB file'.format(method)
+def file_tests(method, zip_arg = '', unzip_arg = ''):
+    print('Testing {0} on Single File'.format(method))
+    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['test.c'])
+    print('Testing {0} on Two Files'.format(method))
+    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.h'])
+    print('Testing {0} Directory'.format(method))
+    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
+    print('Testing {0} 1MB file'.format(method))
     create_random_file('1MB.dat', 1 * 1024 * 1024)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['1MB.dat'])
-    print 'Testing {0} 50MB file'.format(method)
+    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['1MB.dat'])
+    print('Testing {0} 50MB file'.format(method))
     create_random_file('50MB.dat', 50 * 1024 * 1024)
-    zip_unzip_test('test.zip', 'out', zip_arg, unzip_arg, ['50MB.dat'])
+    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['50MB.dat'])
 
-def test_level_1(method = '', zip_arg = '', unzip_arg = ''):
-    # Compression method tests
+def compression_method_tests(method = '', zip_arg = '', unzip_arg = ''):
     method = method + ' ' if method != '' else ''
-    test_level_0(method + 'Deflate', zip_arg, unzip_arg)
-    test_level_0(method + 'Raw', '-0 ' + zip_arg, unzip_arg)
-    test_level_0(method + 'BZIP2', '-b ' + zip_arg, unzip_arg)
-    test_level_0(method + 'LZMA', '-l ' + zip_arg, unzip_arg)
+    file_tests(method + 'Deflate', zip_arg, unzip_arg)
+    file_tests(method + 'Raw', '-0 ' + zip_arg, unzip_arg)
+    file_tests(method + 'BZIP2', '-b ' + zip_arg, unzip_arg)
+    file_tests(method + 'LZMA', '-m ' + zip_arg, unzip_arg)
+
+def encryption_tests():
+    compression_method_tests('Crypt', '-p 1234567890', '-p 1234567890')
+    compression_method_tests('AES', '-s -p 1234567890', '-p 1234567890')
+
+def empty_zip_test():
+    unzip('empty.zip', 'out')
 
 if not os.path.exists('repo'):
     os.system('git clone https://github.com/nmoinvaz/minizip repo')
 
 # Run tests
-test_level_1()
-test_level_1('Disk Span', '-k 1024', '')
-test_level_1('Crypt', '-p 1234567890', '-p 1234567890')
-test_level_1('AES', '-s -p 1234567890', '-p 1234567890')
+empty_zip_test()
+compression_method_tests()
+encryption_tests()
+compression_method_tests('Disk Span', '-k 1024', '')

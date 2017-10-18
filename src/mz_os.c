@@ -24,20 +24,18 @@
 
 int32_t mz_file_exists(const char *path)
 {
+    int16_t err = MZ_OK;
     void *stream = NULL;
-    int opened = 0;
 
     mz_stream_os_create(&stream);
 
-    if (mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ) == MZ_OK)
-    {
+    err = mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ);
+    if (err == MZ_OK)
         mz_stream_os_close(stream);
-        opened = 1;
-    }
 
     mz_stream_os_delete(&stream);
 
-    return opened;
+    return err;
 }
 
 int64_t mz_file_get_size(const char *path)
