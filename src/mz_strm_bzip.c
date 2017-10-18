@@ -45,6 +45,7 @@ typedef struct mz_stream_bzip_s {
     bz_stream   bzstream;
     uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
+    int16_t     stream_end;
     int64_t     total_in;
     int64_t     total_out;
     int64_t     max_total_in;
@@ -91,6 +92,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
         return MZ_STREAM_ERROR;
 
     bzip->initialized = 1;
+    bzip->stream_end = 0;
     bzip->mode = mode;
     return MZ_OK;
 }
@@ -117,6 +119,10 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int16_t err = BZ_OK;
+
+
+    if (bzip->stream_end)
+        return 0;
 
     bzip->bzstream.next_out = (char *)buf;
     bzip->bzstream.avail_out = (uint16_t)size;
@@ -155,14 +161,14 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
         total_out_after = bzip->bzstream.total_out_lo32 + 
                 (((uint64_t)bzip->bzstream.total_out_hi32) << 32);
 
-        in_bytes = (uint32_t)(total_in_before - total_in_after);
-        out_bytes = (uint32_t)(total_out_after - total_out_before);
-
-        total_in += in_bytes;
-        total_out += out_bytes;
+        total_in += (uint32_t)(total_in_before - total_in_after);
+        total_out += (uint32_t)(total_out_after - total_out_before);
 
         if (err == BZ_STREAM_END)
+        {
+            bzip->stream_end = 1;
             break;
+        }
         if (err != BZ_RUN_OK)
         {
             bzip->error = err;
@@ -298,6 +304,9 @@ int32_t mz_stream_bzip_get_prop_int64(void *stream, int32_t prop, int64_t *value
         return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = bzip->total_out;
+        return MZ_OK;
+    case MZ_STREAM_PROP_HEADER_SIZE:
+        *value = 0;
         return MZ_OK;
     }
     return MZ_EXIST_ERROR;

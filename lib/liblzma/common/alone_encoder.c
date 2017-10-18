@@ -118,9 +118,6 @@ alone_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
 
 	unaligned_write32le(next->coder->header + 1, d);
 
-	// - Uncompressed size (always unknown and using EOPM)
-	//memset(next->coder->header + 1 + 4, 0xFF, 8);
-
 	// Initialize the LZMA encoder.
 	const lzma_filter_info filters[2] = {
 		{

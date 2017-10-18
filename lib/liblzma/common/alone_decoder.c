@@ -71,57 +71,38 @@ alone_decode(lzma_coder *coder,
 	case SEQ_DICTIONARY_SIZE:
 		coder->options.dict_size
 				|= (size_t)(in[*in_pos]) << (coder->pos * 8);
+        ++*in_pos;
+        if (++coder->pos < 4)
+            break;
 
-		if (++coder->pos == 4) {
-			if (coder->picky && coder->options.dict_size
-					!= UINT32_MAX) {
-				// A hack to ditch tons of false positives:
-				// We allow only dictionary sizes that are
-				// 2^n or 2^n + 2^(n-1). LZMA_Alone created
-				// only files with 2^n, but accepts any
-				// dictionary size.
-				uint32_t d = coder->options.dict_size - 1;
-				d |= d >> 2;
-				d |= d >> 3;
-				d |= d >> 4;
-				d |= d >> 8;
-				d |= d >> 16;
-				++d;
+		if (coder->picky && coder->options.dict_size
+				!= UINT32_MAX) {
+			// A hack to ditch tons of false positives:
+			// We allow only dictionary sizes that are
+			// 2^n or 2^n + 2^(n-1). LZMA_Alone created
+			// only files with 2^n, but accepts any
+			// dictionary size.
+			uint32_t d = coder->options.dict_size - 1;
+			d |= d >> 2;
+			d |= d >> 3;
+			d |= d >> 4;
+			d |= d >> 8;
+			d |= d >> 16;
+			++d;
 
-				if (d != coder->options.dict_size)
-					return LZMA_FORMAT_ERROR;
-			}
-
-			coder->pos = 0;
-			coder->sequence = SEQ_UNCOMPRESSED_SIZE;
+			if (d != coder->options.dict_size)
+				return LZMA_FORMAT_ERROR;
 		}
 
-		++*in_pos;
-		break;
+        coder->uncompressed_size = LZMA_VLI_UNKNOWN;
 
-	case SEQ_UNCOMPRESSED_SIZE:
-		coder->uncompressed_size
-				|= (lzma_vli)(in[*in_pos]) << (coder->pos * 8);
-		++*in_pos;
-		if (++coder->pos < 8)
-			break;
+        // Calculate the memory usage so that it is ready
+        // for SEQ_CODER_INIT.
+        coder->memusage = lzma_lzma_decoder_memusage(&coder->options)
+            + LZMA_MEMUSAGE_BASE;
 
-		// Another hack to ditch false positives: Assume that
-		// if the uncompressed size is known, it must be less
-		// than 256 GiB.
-		if (coder->picky
-				&& coder->uncompressed_size != LZMA_VLI_UNKNOWN
-				&& coder->uncompressed_size
-					>= (LZMA_VLI_C(1) << 38))
-			return LZMA_FORMAT_ERROR;
-
-		// Calculate the memory usage so that it is ready
-		// for SEQ_CODER_INIT.
-		coder->memusage = lzma_lzma_decoder_memusage(&coder->options)
-				+ LZMA_MEMUSAGE_BASE;
-
-		coder->pos = 0;
-		coder->sequence = SEQ_CODER_INIT;
+        coder->pos = 0;
+        coder->sequence = SEQ_CODER_INIT;
 
 	// Fall through
 
