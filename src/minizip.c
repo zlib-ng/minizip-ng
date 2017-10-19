@@ -113,12 +113,13 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
     // Get information about the file on disk so we can store it in zip
     printf("Adding: %s\n", filenameinzip);
 
-    file_info.aes_version = options->aes;
     file_info.compression_method = options->compress_method;
     file_info.filename = filenameinzip;
 
     if (mz_file_get_size(path) >= UINT32_MAX)
         file_info.zip_64 = 1;
+    if (options->aes)
+        file_info.aes_version = MZ_AES_VERSION;
 
     mz_os_get_file_date(path, &file_info.dos_date);
 
@@ -708,7 +709,7 @@ int main(int argc, char *argv[])
             for (i = path_arg + 1; (i < argc) && (err == MZ_OK); i += 1)
                 err = minizip_add(handle, argv[i], password, &options, 1);
 
-            err_close = mz_zip_close(handle, NULL, MZ_VERSION_MADEBY);
+            err_close = mz_zip_close(handle, MZ_VERSION_MADEBY);
             if (err_close != MZ_OK)
             {
                 printf("Error in closing %s (%d)\n", path, err_close);

@@ -252,7 +252,7 @@ void *mz_stream_aes_create(void **stream)
     {
         memset(aes, 0, sizeof(mz_stream_aes));
         aes->stream.vtbl = &mz_stream_aes_vtbl;
-        aes->encryption_mode = MZ_AES_ENCRYPTIONMODE;
+        aes->encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
     }
     if (stream != NULL)
         *stream = aes;
@@ -269,4 +269,9 @@ void mz_stream_aes_delete(void **stream)
     if (aes != NULL)
         free(aes);
     *stream = NULL;
+}
+
+void *mz_stream_aes_get_interface(void)
+{
+    return (void *)&mz_stream_aes_vtbl;
 }

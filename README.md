@@ -20,7 +20,7 @@ cmake --build .
 
 | File(s) | Description | Required |
 |:- |:-|:-:|
-| minizip.c | Sample application | No | 
+| minizip.c | Sample application | No |
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
 | mz_os\* | OS specific helper functions | Encryption |
@@ -141,10 +141,6 @@ When unzipping it will automatically determine when in needs to cross disk bound
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary.
 
-#### Central Directory Encryption
-
-This library does not support central directory or local file header encryption since it is not supported outside of PKZIP. For a more secure method it is best to just encrypt the zip post-process.
-
 #### Disabling All Encryption
 
 To disable encryption use the following cmake commands:
@@ -160,4 +156,5 @@ cmake . -DUSE_CRYPT=OFF
 
 ## Limitations
 
-Archives are required to have a central directory with correct header values for unzipping.
++ Archives are required to have a central directory with correct header values for unzipping.
++ Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.

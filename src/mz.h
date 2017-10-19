@@ -39,6 +39,7 @@ extern "C" {
 #define MZ_COMPRESS_METHOD_DEFLATE      (8)
 #define MZ_COMPRESS_METHOD_BZIP2        (12)
 #define MZ_COMPRESS_METHOD_LZMA         (14)
+#define MZ_COMPRESS_METHOD_AES          (99)
 
 // MZ_COMPRESS_OPTIONS
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
@@ -55,6 +56,12 @@ extern "C" {
 #define MZ_ZIP_FLAG_DEFLATE_SUPER_FAST  (MZ_ZIP_FLAG_DEFLATE_FAST | \
                                          MZ_ZIP_FLAG_DEFLATE_MAX)
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
+
+// MZ_AES
+#define MZ_AES_VERSION                  (1)
+#define MZ_AES_ENCRYPTION_MODE_128      (0x01)
+#define MZ_AES_ENCRYPTION_MODE_192      (0x02)
+#define MZ_AES_ENCRYPTION_MODE_256      (0x03)
 
 // MZ_VERSION
 #define MZ_VERSION                      ("2.0.1")

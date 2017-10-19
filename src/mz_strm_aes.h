@@ -20,12 +20,6 @@ extern "C" {
 
 /***************************************************************************/
 
-#define MZ_AES_METHOD          (99)
-#define MZ_AES_VERSION         (0x0001)
-#define MZ_AES_ENCRYPTIONMODE  (0x03)
-
-/***************************************************************************/
-
 int32_t mz_stream_aes_open(void *stream, const char *filename, int32_t mode);
 int32_t mz_stream_aes_is_open(void *stream);
 int32_t mz_stream_aes_read(void *stream, void *buf, int32_t size);
