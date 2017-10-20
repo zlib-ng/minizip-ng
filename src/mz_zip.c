@@ -356,9 +356,6 @@ static int32_t mz_zip_write_cd(void *handle)
     
     err = mz_stream_copy(zip->stream, zip->cd_stream, (int32_t)zip->cd_size);
 
-    mz_stream_close(zip->cd_stream);
-    mz_stream_delete(&zip->cd_stream);
-
     // Write the ZIP64 central directory header
     if (pos >= UINT32_MAX || zip->number_entry > UINT32_MAX)
     {
@@ -514,9 +511,13 @@ extern void* ZEXPORT mz_zip_open(void *stream, int32_t mode)
     {
         if (zip->file_info_stream != NULL)
             mz_stream_mem_delete(&zip->file_info_stream);
-
-        mz_stream_close(zip->cd_stream);
-        mz_stream_delete(&zip->cd_stream);
+        if (zip->local_file_info_stream != NULL)
+            mz_stream_mem_delete(&zip->local_file_info_stream);
+        if (zip->cd_stream != NULL)
+        {
+            mz_stream_close(zip->cd_stream);
+            mz_stream_delete(&zip->cd_stream);
+        }
 
         if (zip->comment)
             free(zip->comment);
@@ -545,6 +546,12 @@ extern int32_t ZEXPORT mz_zip_close(void *handle)
 
     if (zip->open_mode & MZ_STREAM_MODE_WRITE)
         err = mz_zip_write_cd(handle);
+
+    if (zip->cd_stream != NULL)
+    {
+        mz_stream_close(zip->cd_stream);
+        mz_stream_delete(&zip->cd_stream);
+    }
 
     mz_stream_mem_close(zip->file_info_stream);
     mz_stream_mem_delete(&zip->file_info_stream);
@@ -1119,6 +1126,8 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
     int32_t err = MZ_OK;
+    int16_t compression_method = 0;
+
 
 #if !defined(HAVE_CRYPT) && !defined(HAVE_AES)
     if (crypt_info != NULL)
@@ -1166,10 +1175,14 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
 
+    compression_method = zip->file_info.compression_method;
+    if (compress_level == 0)
+        compression_method = MZ_COMPRESS_METHOD_RAW;
+
     if (err == MZ_OK)
         err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
     if (err == MZ_OK)
-        err = mz_zip_entry_open_int(handle, zip->file_info.compression_method, compress_level, password);
+        err = mz_zip_entry_open_int(handle, compression_method, compress_level, password);
 
     return err;
 }
@@ -1316,7 +1329,7 @@ static int32_t mz_zip_goto_next_entry_int(void *handle)
     zip->entry_scanned = 0;
 
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-
+    
     err = mz_stream_seek(zip->stream, zip->disk_offset + zip->cd_current_pos, MZ_STREAM_SEEK_SET);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 0, &zip->file_info, zip->file_info_stream);
