@@ -55,6 +55,24 @@ typedef struct mz_stream_mem_s {
 
 /***************************************************************************/
 
+static void mz_stream_mem_set_size(void *stream, int32_t size)
+{
+    mz_stream_mem *mem = (mz_stream_mem *)stream;
+    int32_t new_size = size;
+    char *new_buf = NULL;
+
+
+    new_buf = (char *)malloc(new_size);
+    if (mem->buffer)
+    {
+        memcpy(new_buf, mem->buffer, mem->size);
+        free(mem->buffer);
+    }
+
+    mem->buffer = new_buf;
+    mem->size = new_size;
+}
+
 int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
@@ -159,7 +177,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
         if ((mem->mode & MZ_STREAM_MODE_CREATE) == 0)
             return MZ_STREAM_ERROR;
 
-        mz_stream_mem_set_size(stream, new_pos);
+        mz_stream_mem_set_size(stream, (int32_t)new_pos);
     }
 
     mem->position = (uint32_t)new_pos;
@@ -197,24 +215,6 @@ int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, void **buf)
         return MZ_STREAM_ERROR;
     *buf = mem->buffer + position;
     return MZ_OK;
-}
-
-void mz_stream_mem_set_size(void *stream, int32_t size)
-{
-    mz_stream_mem *mem = (mz_stream_mem *)stream;
-    int32_t new_size = size;
-    char *new_buf = NULL;
-
-
-    new_buf = (char *)malloc(new_size);
-    if (mem->buffer)
-    {
-        memcpy(new_buf, mem->buffer, mem->size);
-        free(mem->buffer);
-    }
-
-    mem->buffer = new_buf;
-    mem->size = new_size;
 }
 
 void mz_stream_mem_set_grow_size(void *stream, int32_t grow_size)

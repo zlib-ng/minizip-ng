@@ -110,6 +110,11 @@ void    mz_stream_delete(void **stream);
 
 /***************************************************************************/
 
+void*   mz_stream_raw_create(void **stream);
+void    mz_stream_raw_delete(void **stream);
+
+/***************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif

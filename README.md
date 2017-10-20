@@ -68,7 +68,6 @@ To create a zip file in memory first create a growable memory stream and pass it
 void *mem_stream = NULL;
 
 mz_stream_mem_create(&mem_stream);
-mz_stream_mem_set_grow(mem_stream, 1);
 mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
 mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_CREATE);
 

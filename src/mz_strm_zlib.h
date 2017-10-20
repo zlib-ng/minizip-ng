@@ -59,11 +59,6 @@ void*   mz_stream_crc32_get_interface(void);
 
 /***************************************************************************/
 
-void*   mz_stream_raw_create(void **stream);
-void    mz_stream_raw_delete(void **stream);
-
-/***************************************************************************/
-
 #ifdef __cplusplus
 }
 #endif
