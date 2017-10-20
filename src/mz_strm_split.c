@@ -66,7 +66,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     mz_stream_split *split = (mz_stream_split *)stream;
     uint32_t magic = 0;
     int32_t i = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if ((((split->disk_size > 0) && (split->mode & MZ_STREAM_MODE_WRITE)) || 
         ((split->mode & MZ_STREAM_MODE_WRITE) == 0)) && (number_disk >= 0))
@@ -131,7 +131,7 @@ int32_t mz_stream_split_close_disk(void *stream)
 int32_t mz_stream_split_goto_disk(void *stream, int32_t number_disk)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if ((split->disk_size == 0) && (split->mode & MZ_STREAM_MODE_WRITE))
     {
@@ -192,10 +192,9 @@ int32_t mz_stream_split_is_open(void *stream)
 int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
-    int32_t bytes_to_read = 0;
     int32_t bytes_left = size;
     int32_t read = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     uint8_t *buf_ptr = (uint8_t *)buf;
 
     err = mz_stream_split_goto_disk(stream, split->number_disk);
@@ -234,7 +233,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
     int32_t bytes_to_write = 0;
     int32_t bytes_avail = 0;
     int32_t number_disk = -1;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     uint8_t *buf_ptr = (uint8_t *)buf;
 
     while (bytes_left > 0)
@@ -278,7 +277,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
 int64_t mz_stream_split_tell(void *stream)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     err = mz_stream_split_goto_disk(stream, split->number_disk);
     if (err != MZ_OK)
         return err;
@@ -298,7 +297,7 @@ int32_t mz_stream_split_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_split_close(void *stream)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     err = mz_stream_split_close_disk(stream);
     split->is_open = 0;

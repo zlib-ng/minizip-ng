@@ -35,12 +35,12 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date)
+int32_t mz_posix_get_file_date(const char *path, uint32_t *dos_date)
 {
     struct stat stat_info;
     struct tm *filedate = NULL;
     time_t tm_t = 0;
-    int16_t err = MZ_INTERNAL_ERROR;
+    int32_t err = MZ_INTERNAL_ERROR;
 
     memset(&stat_info, 0, sizeof(stat_info));
 
@@ -68,7 +68,7 @@ int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date)
     return err;
 }
 
-int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
+int32_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
 {
     struct utimbuf ut;
 
@@ -81,9 +81,9 @@ int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
     return MZ_OK;
 }
 
-int16_t mz_posix_make_dir(const char *path)
+int32_t mz_posix_make_dir(const char *path)
 {
-    int16_t err = 0;
+    int32_t err = 0;
 
     err = mkdir(path, 0755);
 

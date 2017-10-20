@@ -53,7 +53,6 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     mz_compat *compat = NULL;
     int32_t mode = MZ_STREAM_MODE_READWRITE;
     int32_t open_existing = 0;
-    int16_t err = MZ_OK;
     void *handle = NULL;
     void *stream = NULL;
 
@@ -125,12 +124,11 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     file_info.version_madeby = version_madeby;
     file_info.comment = (char *)comment;
     file_info.flag = flag_base;
-    file_info.zip_64 = zip64;
 #ifdef HAVE_AES
     file_info.aes_version = MZ_AES_VERSION;
 #endif
 
-    return mz_zip_entry_write_open(compat->handle, &file_info, level, password);
+    return mz_zip_entry_write_open(compat->handle, &file_info, (int16_t)level, password);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
@@ -216,7 +214,7 @@ extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment)
 extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby)
 {
     mz_compat *compat = (mz_compat *)file;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
@@ -224,7 +222,8 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     if (global_comment != NULL)
         mz_zip_set_comment(compat->handle, global_comment);
 
-    err = mz_zip_close(compat->handle, version_madeby);
+    mz_zip_set_version_madeby(compat->handle, version_madeby);
+    err = mz_zip_close(compat->handle);
 
     if (compat->stream != NULL)
         mz_stream_delete(&compat->stream);
@@ -255,8 +254,6 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
 {
     mz_compat *compat = NULL;
     int32_t mode = MZ_STREAM_MODE_READ;
-    int32_t open_existing = 0;
-    int16_t err = MZ_OK;
     void *handle = NULL;
     void *stream = NULL;
 
@@ -287,12 +284,12 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
 extern int ZEXPORT unzClose(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
 
-    err = mz_zip_close(compat->handle, 0);
+    err = mz_zip_close(compat->handle);
 
     if (compat->stream != NULL)
         mz_stream_delete(&compat->stream);
@@ -306,7 +303,7 @@ extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info3
 {
     mz_compat *compat = (mz_compat *)file;
     unz_global_info64 global_info64;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
@@ -325,14 +322,14 @@ extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_i
 {
     mz_compat *compat = (mz_compat *)file;
     const char *comment_ptr = NULL;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
     err = mz_zip_get_comment(compat->handle, &comment_ptr);
     if (err == MZ_OK)
         pglobal_info->size_comment = (uint16_t)strlen(comment_ptr);
-    mz_zip_get_number_entry(compat->handle, &pglobal_info->number_entry);
+    mz_zip_get_number_entry(compat->handle, (int64_t *)&pglobal_info->number_entry);
     return err;
 }
 
@@ -340,7 +337,7 @@ extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t com
 {
     mz_compat *compat = (mz_compat *)file;
     const char *comment_ptr = NULL;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (comment == NULL || comment_size == 0)
         return MZ_PARAM_ERROR;
@@ -359,7 +356,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
         *method = 0;
     if (level != NULL)
         *level = 0;
-    return mz_zip_entry_read_open(compat->handle, raw, password);
+    return mz_zip_entry_read_open(compat->handle, (int16_t)raw, password);
 }
 
 extern int ZEXPORT unzOpenCurrentFile(unzFile file)
@@ -399,7 +396,7 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
     int16_t bytes_to_copy = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
@@ -456,7 +453,7 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
     int16_t bytes_to_copy = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
@@ -578,7 +575,7 @@ int get_file_crc(const char *path, void *buf, uint32_t buf_size, uint32_t *resul
     void *stream = NULL;
     void *crc32_stream = NULL;
     uint32_t read = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     mz_stream_os_create(&stream);
 

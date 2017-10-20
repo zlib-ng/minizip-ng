@@ -24,7 +24,7 @@
 
 int32_t mz_file_exists(const char *path)
 {
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     void *stream = NULL;
 
     mz_stream_os_create(&stream);
@@ -57,9 +57,9 @@ int64_t mz_file_get_size(const char *path)
     return size;
 }
 
-int16_t mz_make_dir(const char *path)
+int32_t mz_make_dir(const char *path)
 {
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     int16_t len = 0;
     char *current_dir = NULL;
     char *match = NULL;
@@ -107,7 +107,7 @@ int16_t mz_make_dir(const char *path)
 
 /***************************************************************************/
 
-int mz_invalid_date(const struct tm *ptm)
+int32_t mz_invalid_date(const struct tm *ptm)
 {
 #define datevalue_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
     return (!datevalue_in_range(0, 207, ptm->tm_year) ||

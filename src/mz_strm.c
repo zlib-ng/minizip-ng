@@ -138,12 +138,12 @@ int32_t mz_stream_write(void *stream, const void *buf, int32_t size)
     return strm->vtbl->write(strm, buf, size);
 }
 
-static int32_t mz_stream_write_value(void *stream, uint64_t value, uint32_t len)
+static int32_t mz_stream_write_value(void *stream, uint64_t value, int32_t len)
 {
     uint8_t buf[8];
-    uint32_t n = 0;
+    int32_t n = 0;
 
-    for (n = 0; n < len; n++)
+    for (n = 0; n < len; n += 1)
     {
         buf[n] = (uint8_t)(value & 0xff);
         value >>= 8;
@@ -152,7 +152,7 @@ static int32_t mz_stream_write_value(void *stream, uint64_t value, uint32_t len)
     if (value != 0)
     {
         // Data overflow - hack for ZIP64 (X Roche)
-        for (n = 0; n < len; n++)
+        for (n = 0; n < len; n += 1)
             buf[n] = 0xff;
     }
 

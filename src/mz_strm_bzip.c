@@ -43,6 +43,8 @@ mz_stream_vtbl mz_stream_bzip_vtbl = {
 typedef struct mz_stream_bzip_s {
     mz_stream   stream;
     bz_stream   bzstream;
+    int32_t     mode;
+    int32_t     error;
     uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
     int16_t     stream_end;
@@ -51,8 +53,6 @@ typedef struct mz_stream_bzip_s {
     int64_t     max_total_in;
     int8_t      initialized;
     int16_t     level;
-    int16_t     mode;
-    int16_t     error;
 } mz_stream_bzip;
 
 /***************************************************************************/
@@ -118,7 +118,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
-    int16_t err = BZ_OK;
+    int32_t err = BZ_OK;
 
 
     if (bzip->stream_end)
@@ -198,13 +198,13 @@ int32_t mz_stream_bzip_flush(void *stream)
     return MZ_OK;
 }
 
-uint32_t mz_stream_bzip_compress(void *stream, int flush)
+int32_t mz_stream_bzip_compress(void *stream, int flush)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     uint32_t out_bytes = 0;
-    int16_t err = BZ_OK;
+    int32_t err = BZ_OK;
 
     do
     {

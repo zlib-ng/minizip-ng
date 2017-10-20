@@ -68,14 +68,14 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
     return len;
 }
 
-int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
+int32_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
 {
     FILETIME ftm_local;
     HANDLE handle = NULL;
     WIN32_FIND_DATAW ff32;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
-    int16_t err = MZ_INTERNAL_ERROR;
+    int32_t err = MZ_INTERNAL_ERROR;
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
     path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
@@ -98,13 +98,13 @@ int16_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
     return err;
 }
 
-int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
+int32_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
 {
     HANDLE handle = NULL;
     FILETIME ftm, ftm_local, ftm_create, ftm_access, ftm_modified;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
     path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
@@ -135,11 +135,11 @@ int16_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
     return err;
 }
 
-int16_t mz_win32_make_dir(const char *path)
+int32_t mz_win32_make_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
-    int16_t err = 0;
+    int32_t err = 0;
 
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
@@ -164,7 +164,6 @@ DIR *mz_win32_open_dir(const char *path)
     DIR_int *dir_int = NULL;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
-    int16_t err = 0;
     char fixed_path[320];
     void *handle = NULL;
 

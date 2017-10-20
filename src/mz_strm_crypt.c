@@ -58,16 +58,16 @@ mz_stream_vtbl mz_stream_crypt_vtbl = {
 
 typedef struct mz_stream_crypt_s {
     mz_stream       stream;
-    uint32_t        keys[3];          // keys defining the pseudo-random sequence
-    const z_crc_t   *crc_32_tab;
+    int32_t         error;
     int16_t         initialized;
-    int16_t         error;
-    uint8_t         verify1;
-    uint8_t         verify2;
-    const char      *password;
     uint8_t         buffer[INT16_MAX];
     int64_t         total_in;
     int64_t         total_out;
+    uint32_t        keys[3];          // keys defining the pseudo-random sequence
+    const z_crc_t   *crc_32_tab;
+    uint8_t         verify1;
+    uint8_t         verify2;
+    const char      *password;
 } mz_stream_crypt;
 
 /***************************************************************************/
@@ -101,7 +101,7 @@ uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, i
         register int32_t keyshift = (int32_t)((*(keys + 1)) >> 24);
         (*(keys+2)) = (uint32_t)CRC32((*(keys+2)), keyshift);
     }
-    return c;
+    return (uint8_t)c;
 }
 
 void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)

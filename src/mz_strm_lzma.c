@@ -48,6 +48,8 @@ mz_stream_vtbl mz_stream_lzma_vtbl = {
 typedef struct mz_stream_lzma_s {
     mz_stream   stream;
     lzma_stream lstream;
+    int32_t     mode;
+    int32_t     error;
     uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
     int64_t     total_in;
@@ -55,11 +57,6 @@ typedef struct mz_stream_lzma_s {
     int64_t     max_total_in;
     int8_t      initialized;
     uint32_t    preset;
-    int16_t     window_bits;
-    int16_t     mem_level;
-    int16_t     strategy;
-    int16_t     mode;
-    int16_t     error;
 } mz_stream_lzma;
 
 /***************************************************************************/
@@ -97,7 +94,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
         
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MAJOR);
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MINOR);
-        mz_stream_write_uint16(lzma->stream.base, size);
+        mz_stream_write_uint16(lzma->stream.base, (uint16_t)size);
 
         lzma->total_out += MZ_LZMA_HEADER_SIZE;
 
@@ -146,7 +143,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
     uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
-    int16_t err = LZMA_OK;
+    int32_t err = LZMA_OK;
 
 
     lzma->lstream.next_out = (uint8_t*)buf;
@@ -218,13 +215,13 @@ int32_t mz_stream_lzma_flush(void *stream)
     return MZ_OK;
 }
 
-uint32_t mz_stream_lzma_code(void *stream, int32_t flush)
+int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     uint32_t out_bytes = 0;
-    int16_t err = LZMA_OK;
+    int32_t err = LZMA_OK;
 
 
     do

@@ -48,15 +48,15 @@ mz_stream_vtbl mz_stream_aes_vtbl = {
 
 typedef struct mz_stream_aes_s {
     mz_stream      stream;
-    fcrypt_ctx     crypt_ctx;
-    int16_t        mode;
+    int32_t        mode;
+    int32_t        error;
     int16_t        initialized;
-    int16_t        error;
-    int16_t        encryption_mode;
-    const char     *password;
+    uint8_t        buffer[INT16_MAX];
     int64_t        total_in;
     int64_t        total_out;
-    uint8_t        buffer[INT16_MAX];
+    fcrypt_ctx     crypt_ctx;
+    int16_t        encryption_mode;
+    const char     *password;
 } mz_stream_aes;
 
 /***************************************************************************/

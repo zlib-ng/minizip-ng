@@ -68,8 +68,10 @@ typedef struct minizip_opt_s {
     uint8_t exclude_path;
     int16_t compress_level;
     int16_t compress_method;
-    int16_t aes;
     uint8_t overwrite;
+#ifdef HAVE_AES
+    int16_t aes;
+#endif
 } minizip_opt;
 
 /***************************************************************************/
@@ -79,8 +81,8 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
     mz_zip_file file_info = { 0 };
     int32_t read = 0;
     int32_t written = 0;
-    int16_t err = MZ_OK;
-    int16_t err_close = MZ_OK;
+    int32_t err = MZ_OK;
+    int32_t err_close = MZ_OK;
     void *stream = NULL;
     const char *filenameinzip = NULL;
     char buf[INT16_MAX];
@@ -113,13 +115,15 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
     // Get information about the file on disk so we can store it in zip
     printf("Adding: %s\n", filenameinzip);
 
+    file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = options->compress_method;
-    file_info.filename = filenameinzip;
+    file_info.filename = (const char *)filenameinzip;
+    file_info.uncompressed_size = mz_file_get_size(path);
 
-    if (mz_file_get_size(path) >= UINT32_MAX)
-        file_info.zip_64 = 1;
+#ifdef HAVE_AES
     if (options->aes)
         file_info.aes_version = MZ_AES_VERSION;
+#endif
 
     mz_os_get_file_date(path, &file_info.dos_date);
 
@@ -183,7 +187,7 @@ int32_t minizip_add(void *handle, const char *path, const char *password, minizi
 {
     DIR *dir = NULL;
     struct dirent *entry = NULL;
-    int16_t err = 0;
+    int32_t err = 0;
     char full_path[320];
 
 
@@ -226,7 +230,7 @@ int32_t minizip_list(void *handle)
     mz_zip_file *file_info = NULL;
     uint32_t ratio = 0;
     int16_t level = 0;
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     struct tm tmu_date = { 0 };
     const char *string_method = NULL;
     char crypt = ' ';
@@ -316,8 +320,8 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     uint8_t buf[INT16_MAX];
     int32_t read = 0;
     int32_t written = 0;
-    int16_t err = MZ_OK;
-    int16_t err_close = MZ_OK;
+    int32_t err = MZ_OK;
+    int32_t err_close = MZ_OK;
     uint8_t skip = 0;
     void *stream = NULL;
     char *match = NULL;
@@ -470,7 +474,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
 
 int32_t minizip_extract_all(void *handle, const char *destination, const char *password, minizip_opt *options)
 {
-    int16_t err = MZ_OK;
+    int32_t err = MZ_OK;
     
 
     err = mz_zip_goto_first_entry(handle);
@@ -500,7 +504,7 @@ int32_t minizip_extract_all(void *handle, const char *destination, const char *p
 
 int32_t minizip_extract_onefile(void *handle, const char *filename, const char *destination, const char *password, minizip_opt *options)
 {
-    int16_t err = mz_zip_locate_entry(handle, filename, NULL);
+    int32_t err = mz_zip_locate_entry(handle, filename, NULL);
 
     if (err != MZ_OK)
     {
@@ -530,9 +534,9 @@ int main(int argc, char *argv[])
     uint8_t do_extract = 0;
     int16_t mode = 0;
     uint8_t append = 0;
-    int16_t err_close = 0;
-    int16_t err = 0;
-    int16_t i = 0;
+    int32_t err_close = 0;
+    int32_t err = 0;
+    int32_t i = 0;
 
     minizip_banner();
     if (argc == 1)
@@ -709,12 +713,15 @@ int main(int argc, char *argv[])
             for (i = path_arg + 1; (i < argc) && (err == MZ_OK); i += 1)
                 err = minizip_add(handle, argv[i], password, &options, 1);
 
-            err_close = mz_zip_close(handle, MZ_VERSION_MADEBY);
-            if (err_close != MZ_OK)
-            {
-                printf("Error in closing %s (%d)\n", path, err_close);
-                err = err_close;
-            }
+            mz_zip_set_version_madeby(handle, MZ_VERSION_MADEBY);
+        }
+
+        err_close = mz_zip_close(handle);
+
+        if (err_close != MZ_OK)
+        {
+            printf("Error in closing %s (%d)\n", path, err_close);
+            err = err_close;
         }
 
         mz_stream_os_close(file_stream);

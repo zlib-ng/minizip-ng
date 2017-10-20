@@ -33,16 +33,22 @@ extern "C" {
 
 int32_t  mz_file_exists(const char *path);
 // Checks to see if a file exists
+
 int64_t  mz_file_get_size(const char *path);
 // Gets the size of a file
-int16_t  mz_make_dir(const char *path);
+
+int32_t  mz_make_dir(const char *path);
 // Creates a directory recursively
+
 int32_t  mz_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
 // Convert dos date/time format to struct tm
+
 time_t   mz_dosdate_to_time_t(uint64_t dos_date);
 // Convert dos date/time format to time_t
+
 uint32_t mz_tm_to_dosdate(const struct tm *ptm);
 // Convert struct tm to dos date/time format
+
 int32_t  mz_path_combine(char *path, const char *join, int32_t max_path);
 // Combines two paths
 

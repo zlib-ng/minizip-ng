@@ -30,9 +30,9 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_posix_rand(uint8_t *buf, int32_t size);
-int16_t mz_posix_get_file_date(const char *path, uint32_t *dos_date);
-int16_t mz_posix_set_file_date(const char *path, uint32_t dos_date);
-int16_t mz_posix_make_dir(const char *path);
+int32_t mz_posix_get_file_date(const char *path, uint32_t *dos_date);
+int32_t mz_posix_set_file_date(const char *path, uint32_t dos_date);
+int32_t mz_posix_make_dir(const char *path);
 DIR*    mz_posix_open_dir(const char *path);
 struct 
 dirent* mz_posix_read_dir(DIR *dir);

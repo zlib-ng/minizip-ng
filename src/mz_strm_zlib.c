@@ -60,8 +60,8 @@ typedef struct mz_stream_zlib_s {
     int64_t     max_total_in;
     int8_t      initialized;
     int16_t     level;
-    int16_t     mode;
-    int16_t     error;
+    int32_t     mode;
+    int32_t     error;
 } mz_stream_zlib;
 
 /***************************************************************************/
@@ -69,7 +69,6 @@ typedef struct mz_stream_zlib_s {
 int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-    int16_t window_bits = 0;
 
 
     zlib->zstream.data_type = Z_BINARY;
@@ -126,7 +125,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     uint32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
-    int16_t err = Z_OK;
+    int32_t err = Z_OK;
 
 
     zlib->zstream.next_out = (uint8_t*)buf;
@@ -210,7 +209,7 @@ int32_t mz_stream_zlib_deflate(void *stream, int flush)
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     int32_t out_bytes = 0;
-    int16_t err = Z_OK;
+    int32_t err = Z_OK;
 
 
     do

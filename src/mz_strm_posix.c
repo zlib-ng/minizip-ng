@@ -68,8 +68,8 @@ mz_stream_vtbl mz_stream_posix_vtbl = {
 typedef struct mz_stream_posix_s
 {
     mz_stream   stream;
+    int32_t     error;
     FILE        *handle;
-    int16_t     error;
 } mz_stream_posix;
 
 /***************************************************************************/
