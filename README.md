@@ -1,11 +1,11 @@
-# Minizip 2.1.0
+# Minizip 2.1.1
 
 This library is a refactoring of the minizip contribution found in the zlib distribution that is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
 Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
 Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
 
-For the older release of the library maintained by myself checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
+For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
 For the original work maintained by Mark Adler checkout the zlib minizip  [contrib](https://github.com/madler/zlib/tree/master/contrib/minizip).
 
 ## Build
