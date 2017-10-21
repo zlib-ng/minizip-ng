@@ -22,11 +22,11 @@ extern "C" {
 
 // MZ_ERROR
 #define MZ_OK                           (0)
-#define MZ_EOF                          (MZ_OK)
 #define MZ_STREAM_ERROR                 (-1)
 #define MZ_DATA_ERROR                   (-3)
 #define MZ_MEM_ERROR                    (-4)
 #define MZ_END_OF_LIST                  (-100)
+#define MZ_END_OF_STREAM                (-101)
 #define MZ_PARAM_ERROR                  (-102)
 #define MZ_FORMAT_ERROR                 (-103)
 #define MZ_INTERNAL_ERROR               (-104)

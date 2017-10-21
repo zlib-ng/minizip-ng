@@ -46,84 +46,65 @@ int32_t mz_stream_read(void *stream, void *buf, int32_t size)
     return strm->vtbl->read(strm, buf, size);
 }
 
-int32_t mz_stream_read_uint8(void *stream, uint8_t *value)
+static int32_t mz_stream_read_value(void *stream, uint64_t *value, int32_t len)
 {
-    uint8_t c = 0;
-    
-    if (mz_stream_read(stream, &c, 1) == 1)
-        *value = (uint8_t)c;
+    uint8_t buf[8];
+    int32_t n = 0;
+    int32_t i = 0;
+
+    *value = 0;
+    if (mz_stream_read(stream, buf, len) == len)
+    {
+        for (n = 0; n < len; n += 1, i += 8)
+            *value += ((uint64_t)buf[n]) << i;
+    }
     else if (mz_stream_error(stream))
         return MZ_STREAM_ERROR;
+    else
+        return MZ_END_OF_STREAM;
 
     return MZ_OK;
+}
+
+int32_t mz_stream_read_uint8(void *stream, uint8_t *value)
+{
+    int32_t err = MZ_OK;
+    uint64_t value64 = 0;
+
+    *value = 0;
+    err = mz_stream_read_value(stream, &value64, sizeof(uint8_t));
+    if (err == MZ_OK)
+        *value = (uint8_t)value64;
+    return err;
 }
 
 int32_t mz_stream_read_uint16(void *stream, uint16_t *value)
 {
-    uint8_t c = 0;
+    int32_t err = MZ_OK;
+    uint64_t value64 = 0;
 
     *value = 0;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value = (uint16_t)c;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint16_t)c) << 8;
-
-    return MZ_OK;
+    err = mz_stream_read_value(stream, &value64, sizeof(uint16_t));
+    if (err == MZ_OK)
+        *value = (uint16_t)value64;
+    return err;
 }
 
 int32_t mz_stream_read_uint32(void *stream, uint32_t *value)
 {
-    uint8_t c = 0;
+    int32_t err = MZ_OK;
+    uint64_t value64 = 0;
 
     *value = 0;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value = (uint32_t)c;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint32_t)c) << 8;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint32_t)c) << 16;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint32_t)c) << 24;
-
-    return MZ_OK;
+    err = mz_stream_read_value(stream, &value64, sizeof(uint32_t));
+    if (err == MZ_OK)
+        *value = (uint32_t)value64;
+    return err;
 }
 
 int32_t mz_stream_read_uint64(void *stream, uint64_t *value)
 {
-    uint8_t c = 0;
-
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value = (uint64_t)c;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 8;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 16;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 24;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 32;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 40;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 48;
-    if (mz_stream_read_uint8(stream, &c) != MZ_OK)
-        return MZ_STREAM_ERROR;
-    *value += ((uint64_t)c) << 56;
-
-    return MZ_OK;
+    return mz_stream_read_value(stream, value, sizeof(uint64_t));
 }
 
 int32_t mz_stream_write(void *stream, const void *buf, int32_t size)
