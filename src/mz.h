@@ -1,5 +1,5 @@
 /* mz.h -- Errors codes, zip flags and magic
-   Version 2.1.1, October 21st, 2017
+   Version 2.2.0, October 22nd, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -64,7 +64,7 @@ extern "C" {
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
 
 // MZ_VERSION
-#define MZ_VERSION                      ("2.1.1")
+#define MZ_VERSION                      ("2.2.0")
 
 /***************************************************************************/
 
