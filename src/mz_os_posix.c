@@ -35,45 +35,54 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int32_t mz_posix_get_file_date(const char *path, uint32_t *dos_date)
+int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
 {
     struct stat stat_info;
     struct tm *filedate = NULL;
+    char *name = NULL;
+    size_t len = 0;
     time_t tm_t = 0;
     int32_t err = MZ_INTERNAL_ERROR;
+
 
     memset(&stat_info, 0, sizeof(stat_info));
 
     if (strcmp(path, "-") != 0)
     {
-        size_t len = strlen(path);
-        char *name = (char *)malloc(len + 1);
+        // Not all systems allow stat'ing a file with / appended
+        len = strlen(path);
+        name = (char *)malloc(len + 1);
         strncpy(name, path, len + 1);
         name[len] = 0;
         if (name[len - 1] == '/')
             name[len - 1] = 0;
 
-        /* Not all systems allow stat'ing a file with / appended */
         if (stat(name, &stat_info) == 0)
         {
-            tm_t = stat_info.st_mtime;
+            if (modified_date != NULL)
+                *modified_date = stat_info.st_mtime;
+            if (accessed_date != NULL)
+                *accessed_date = stat_info.st_atime;
+            // Creation date not supported
+            if (creation_date != NULL)
+                *creation_date = 0;
+
             err = MZ_OK;
         }
+
         free(name);
     }
-
-    filedate = localtime(&tm_t);
-    *dos_date = mz_tm_to_dosdate(filedate);
 
     return err;
 }
 
-int32_t mz_posix_set_file_date(const char *path, uint32_t dos_date)
+int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date)
 {
     struct utimbuf ut;
 
-    ut.actime = mz_dosdate_to_time_t(dos_date);
-    ut.modtime = mz_dosdate_to_time_t(dos_date);
+    ut.actime = accessed_date;
+    ut.modtime = modified_date;
+    // Creation date not supported
 
     if (utime(path, &ut) != 0)
         return MZ_INTERNAL_ERROR;

@@ -117,7 +117,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
 
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = options->compress_method;
-    file_info.filename = (const char *)filenameinzip;
+    file_info.filename = (char *)filenameinzip;
     file_info.uncompressed_size = mz_file_get_size(path);
 
 #ifdef HAVE_AES
@@ -125,7 +125,8 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
         file_info.aes_version = MZ_AES_VERSION;
 #endif
 
-    mz_os_get_file_date(path, &file_info.dos_date);
+    mz_os_get_file_date(path, &file_info.modified_date, &file_info.accessed_date, 
+        &file_info.creation_date);
 
     // Add to zip
     err = mz_zip_entry_write_open(handle, &file_info, options->compress_level, password);
@@ -291,7 +292,7 @@ int32_t minizip_list(void *handle)
             string_method = "Unknwn";
         }
 
-        mz_dosdate_to_tm(file_info->dos_date, &tmu_date);
+        mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
         printf(" %7llu  %6s%c %7llu %3u%%  %2.2u-%2.2u-%2.2u  %2.2u:%2.2u  %8.8x   %s\n", 
             file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio, 
@@ -338,7 +339,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
         return err;
     }
 
-    match = filename = (char *)file_info->filename;
+    match = filename = file_info->filename;
     while (*match != 0)
     {
         if ((*match == '/') || (*match == '\\'))
@@ -453,7 +454,8 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
 
         // Set the time of the file that has been unzipped
         if (err == MZ_OK)
-            mz_os_set_file_date(out_path, file_info->dos_date);
+            mz_os_set_file_date(out_path, file_info->modified_date, file_info->accessed_date, 
+                file_info->creation_date);
     }
     else
     {

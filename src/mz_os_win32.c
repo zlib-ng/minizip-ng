@@ -69,11 +69,26 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
     return len;
 }
 
-int32_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
+static void mz_win32_file_to_unix_time(FILETIME file_time, time_t *unix_time)
 {
-    FILETIME ftm_local;
-    HANDLE handle = NULL;
+    uint64_t quad_file_time = 0;
+    quad_file_time = file_time.dwLowDateTime;
+    quad_file_time |= ((uint64_t)file_time.dwHighDateTime << 32);
+    *unix_time = (time_t)((quad_file_time - 116444736000000000LL) / 10000000);
+}
+
+static void mz_win32_unix_to_file_time(time_t unix_time, FILETIME *file_time)
+{
+    uint64_t quad_file_time = 0;
+    quad_file_time = ((uint64_t)unix_time * 10000000) + 116444736000000000LL;
+    file_time->dwHighDateTime = (quad_file_time >> 32);
+    file_time->dwLowDateTime = (uint32_t)(quad_file_time);
+}
+
+int32_t mz_win32_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
+{
     WIN32_FIND_DATAW ff32;
+    HANDLE handle = NULL;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
     int32_t err = MZ_INTERNAL_ERROR;
@@ -90,8 +105,13 @@ int32_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
 
     if (handle != INVALID_HANDLE_VALUE)
     {
-        FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftm_local);
-        FileTimeToDosDateTime(&ftm_local, ((LPWORD)dos_date) + 1, ((LPWORD)dos_date) + 0);
+        if (modified_date != NULL)
+            mz_win32_file_to_unix_time(ff32.ftLastWriteTime, modified_date);
+        if (accessed_date != NULL)
+            mz_win32_file_to_unix_time(ff32.ftLastAccessTime, accessed_date);
+        if (creation_date != NULL)
+            mz_win32_file_to_unix_time(ff32.ftCreationTime, creation_date);
+
         FindClose(handle);
         err = MZ_OK;
     }
@@ -99,10 +119,10 @@ int32_t mz_win32_get_file_date(const char *path, uint32_t *dos_date)
     return err;
 }
 
-int32_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
+int32_t mz_win32_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date)
 {
     HANDLE handle = NULL;
-    FILETIME ftm, ftm_local, ftm_create, ftm_access, ftm_modified;
+    FILETIME ftm_creation, ftm_accessed, ftm_modified;
     wchar_t *path_wide = NULL;
     uint32_t path_wide_size = 0;
     int32_t err = MZ_OK;
@@ -123,11 +143,16 @@ int32_t mz_win32_set_file_date(const char *path, uint32_t dos_date)
 
     if (handle != INVALID_HANDLE_VALUE)
     {
-        GetFileTime(handle, &ftm_create, &ftm_access, &ftm_modified);
-        DosDateTimeToFileTime((WORD)(dos_date >> 16), (WORD)dos_date, &ftm_local);
-        LocalFileTimeToFileTime(&ftm_local, &ftm);
+        GetFileTime(handle, &ftm_creation, &ftm_accessed, &ftm_modified);
 
-        if (SetFileTime(handle, &ftm, &ftm_access, &ftm) == 0)
+        if (modified_date != 0)
+            mz_win32_unix_to_file_time(modified_date, &ftm_modified);
+        if (accessed_date != 0)
+            mz_win32_unix_to_file_time(accessed_date, &ftm_accessed);
+        if (creation_date != 0)
+            mz_win32_unix_to_file_time(creation_date, &ftm_creation);
+
+        if (SetFileTime(handle, &ftm_creation, &ftm_accessed, &ftm_modified) == 0)
             err = MZ_INTERNAL_ERROR;
 
         CloseHandle(handle);

@@ -31,27 +31,29 @@ extern "C" {
 
 typedef struct mz_zip_file_s
 {
-    uint16_t version_madeby;            // version made by                 2 bytes
-    uint16_t version_needed;            // version needed to extract       2 bytes
-    uint16_t flag;                      // general purpose bit flag        2 bytes
-    uint16_t compression_method;        // compression method              2 bytes
-    uint32_t dos_date;                  // last mod file date in Dos fmt   4 bytes
-    uint32_t crc;                       // crc-32                          4 bytes
-    uint64_t compressed_size;           // compressed size                 8 bytes
-    uint64_t uncompressed_size;         // uncompressed size               8 bytes
-    uint16_t filename_size;             // filename length                 2 bytes
-    uint16_t extrafield_size;           // extra field length              2 bytes
-    uint16_t comment_size;              // file comment length             2 bytes
+    uint16_t version_madeby;            // version made by 
+    uint16_t version_needed;            // version needed to extract
+    uint16_t flag;                      // general purpose bit flag 
+    uint16_t compression_method;        // compression method
+    time_t   modified_date;             // last modified date in unix time
+    time_t   accessed_date;             // last accessed date in unix time
+    time_t   creation_date;             // creation date in unix time
+    uint32_t crc;                       // crc-32
+    uint64_t compressed_size;           // compressed size
+    uint64_t uncompressed_size;         // uncompressed size
+    uint16_t filename_size;             // filename length
+    uint16_t extrafield_size;           // extra field length
+    uint16_t comment_size;              // file comment length
 
-    uint32_t disk_num_start;            // disk number start               4 bytes
-    uint16_t internal_fa;               // internal file attributes        2 bytes
-    uint32_t external_fa;               // external file attributes        4 bytes
+    uint32_t disk_num_start;            // disk number start
+    uint16_t internal_fa;               // internal file attributes
+    uint32_t external_fa;               // external file attributes
 
-    uint64_t disk_offset;               // relative offset of local header 8 bytes
+    uint64_t disk_offset;               // relative offset of local header
 
-    const char     *filename;           // filename string
-    const uint8_t  *extrafield;         // extrafield data
-    const char     *comment;            // comment string
+    char     *filename;                 // filename string
+    uint8_t  *extrafield;               // extrafield data
+    char     *comment;                  // comment string
 
 #ifdef HAVE_AES
     uint16_t aes_version;               // winzip aes extension if not 0
@@ -62,11 +64,7 @@ typedef struct mz_zip_file_s
 /***************************************************************************/
 
 extern void * ZEXPORT mz_zip_open(void *stream, int32_t mode);
-// Create a zip file
-//
-// NOTE: There is no delete function into a zip file. If you want delete file in a 
-// zip file, you must open a zip file, and create another. You can use RAW reading
-// and writing to copy the file you did not want delete.
+// Create a zip file, no delete file in zip functionality
 
 extern int32_t ZEXPORT mz_zip_close(void *handle);
 // Close the zip file
@@ -97,14 +95,10 @@ extern int32_t ZEXPORT mz_zip_entry_read(void *handle, void *buf, uint32_t len);
 // Read bytes from the current file in the zip file
 
 extern int32_t ZEXPORT mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
-// Get info about the current file
-//
-// NOTE: The file info is only valid while the current entry is open.
+// Get info about the current file, only valid while current entry is open
 
 extern int32_t ZEXPORT mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
-// Get local info about the current file
-//
-// NOTE: The local file info is only valid while the current entry is being read.
+// Get local info about the current file, only valid while current entry is being read
 
 extern int32_t ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
 // Close the current file in the zip file where raw is compressed data
@@ -124,14 +118,32 @@ extern int32_t ZEXPORT mz_zip_goto_next_entry(void *handle);
 // Go to the next entry in the zip file or MZ_END_OF_LIST if reaching the end
 
 typedef int32_t (*mz_filename_compare_cb)(void *handle, const char *filename1, const char *filename2);
+extern int32_t ZEXPORT mz_zip_locate_entry(void *handle, const char *filename, 
+    mz_filename_compare_cb filename_compare_cb);
+// Locate the file with the specified name in the zip file or MZ_END_LIST if not found
 
-extern int32_t ZEXPORT mz_zip_locate_entry(void *handle, const char *filename, mz_filename_compare_cb filename_compare_cb);
-// Locate the file with the specified name in the zip file
-//
-// NOTE: if filename_compare_cb == NULL, it uses strcmp
-//
-// return MZ_OK if the file is found (it becomes the current file)
-// return MZ_END_OF_LIST if the file is not found 
+/***************************************************************************/
+
+int32_t  mz_zip_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
+// Convert dos date/time format to struct tm
+
+time_t   mz_zip_dosdate_to_time_t(uint64_t dos_date);
+// Convert dos date/time format to time_t
+
+int32_t  mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm);
+// Convert time_t to time struct 
+
+uint32_t mz_zip_time_t_to_dos_date(time_t unix_time);
+// Convert time_t to dos date/time format
+
+uint32_t mz_zip_tm_to_dosdate(const struct tm *ptm);
+// Convert struct tm to dos date/time format
+
+int32_t  mz_zip_ntfs_to_unix_time(uint64_t ntfs_time, time_t *unix_time);
+// Convert ntfs time to unix time
+
+int32_t  mz_zip_unix_to_ntfs_time(time_t unix_time, uint64_t *ntfs_time);
+// Convert unix time to ntfs time
 
 /***************************************************************************/
 
