@@ -415,7 +415,7 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
         pfile_info->size_file_extra = file_info->extrafield_size;
         pfile_info->size_file_comment = file_info->comment_size;
 
-        pfile_info->disk_num_start = (uint16_t)file_info->disk_num_start;
+        pfile_info->disk_num_start = (uint16_t)file_info->disk_number;
         pfile_info->internal_fa = file_info->internal_fa;
         pfile_info->external_fa = file_info->external_fa;
 
@@ -473,7 +473,7 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
         pfile_info->size_file_extra = file_info->extrafield_size;
         pfile_info->size_file_comment = file_info->comment_size;
 
-        pfile_info->disk_num_start = file_info->disk_num_start;
+        pfile_info->disk_num_start = file_info->disk_number;
         pfile_info->internal_fa = file_info->internal_fa;
         pfile_info->external_fa = file_info->external_fa;
 

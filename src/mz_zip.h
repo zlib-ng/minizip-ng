@@ -44,12 +44,10 @@ typedef struct mz_zip_file_s
     uint16_t filename_size;             // filename length
     uint16_t extrafield_size;           // extra field length
     uint16_t comment_size;              // file comment length
-
-    uint32_t disk_num_start;            // disk number start
+    uint32_t disk_number;               // disk number start
+    uint64_t disk_offset;               // relative offset of local header
     uint16_t internal_fa;               // internal file attributes
     uint32_t external_fa;               // external file attributes
-
-    uint64_t disk_offset;               // relative offset of local header
 
     char     *filename;                 // filename string
     uint8_t  *extrafield;               // extrafield data

@@ -79,6 +79,7 @@ typedef struct mz_zip_s
     int32_t  open_mode;
 
     uint64_t disk_offset;           // byte before the zip file, (>0 for sfx)
+    uint32_t disk_number_with_cd;   // number of the disk with the central dir
 
     uint64_t cd_start_pos;          // pos of the first file in the central dir stream
     uint64_t cd_current_pos;        // pos of the current file in the central dir
@@ -91,7 +92,6 @@ typedef struct mz_zip_s
     uint64_t entry_read;
 
     int64_t  number_entry;
-    uint32_t number_disk_with_cd;
 
     int16_t  compression_method;
 
@@ -233,7 +233,7 @@ static int32_t mz_zip_read_cd(void *handle)
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &value16);
-        zip->number_disk_with_cd = value16;
+        zip->disk_number_with_cd = value16;
         // Total number of entries in the central dir on this disk
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &value16);
@@ -282,7 +282,7 @@ static int32_t mz_zip_read_cd(void *handle)
                     err = mz_stream_read_uint32(zip->stream, &value32);
                 // Number of the disk with the start of the central directory
                 if (err == MZ_OK)
-                    err = mz_stream_read_uint32(zip->stream, &zip->number_disk_with_cd);
+                    err = mz_stream_read_uint32(zip->stream, &zip->disk_number_with_cd);
                 // Total number of entries in the central directory on this disk
                 if (err == MZ_OK)
                     err = mz_stream_read_uint64(zip->stream, &number_entry);
@@ -348,9 +348,9 @@ static int32_t mz_zip_write_cd(void *handle)
         return MZ_PARAM_ERROR;
     
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
-        zip->number_disk_with_cd = (uint32_t)disk_number;
+        zip->disk_number_with_cd = (uint32_t)disk_number;
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size) == MZ_OK && disk_size > 0)
-        zip->number_disk_with_cd += 1;
+        zip->disk_number_with_cd += 1;
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
 
     zip->cd_pos = mz_stream_tell(zip->stream);
@@ -378,10 +378,10 @@ static int32_t mz_zip_write_cd(void *handle)
             err = mz_stream_write_uint16(zip->stream, (uint16_t)45);
         // Number of this disk
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->number_disk_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->number_disk_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
         // Total number of entries in the central dir on this disk
         if (err == MZ_OK)
             err = mz_stream_write_uint64(zip->stream, zip->number_entry);
@@ -401,7 +401,7 @@ static int32_t mz_zip_write_cd(void *handle)
             err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDLOCHEADER64);
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->number_disk_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
         // Relative offset to the end of zip64 central directory
         if (err == MZ_OK)
         {
@@ -410,7 +410,7 @@ static int32_t mz_zip_write_cd(void *handle)
         }
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->number_disk_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
     }
 
     // Write the central directory header
@@ -420,10 +420,10 @@ static int32_t mz_zip_write_cd(void *handle)
         err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER);
     // Number of this disk
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_disk_with_cd);
+        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
     // Number of the disk with the start of the central directory
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_disk_with_cd);
+        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
     // Total number of entries in the central dir on this disk
     if (err == MZ_OK)
     {
@@ -712,7 +712,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 err = mz_stream_read_uint16(stream, &file_info->comment_size);
             if (err == MZ_OK)
                 err = mz_stream_read_uint16(stream, &value16);
-            file_info->disk_num_start = value16;
+            file_info->disk_number = value16;
             if (err == MZ_OK)
                 err = mz_stream_read_uint16(stream, &file_info->internal_fa);
             if (err == MZ_OK)
@@ -770,8 +770,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 if ((err == MZ_OK) && (file_info->disk_offset == UINT32_MAX))
                     err = mz_stream_read_uint64(file_info_stream, &value64);
                 file_info->disk_offset = value64;
-                if ((err == MZ_OK) && (file_info->disk_num_start == UINT32_MAX))
-                    err = mz_stream_read_uint32(file_info_stream, &file_info->disk_num_start);
+                if ((err == MZ_OK) && (file_info->disk_number == UINT32_MAX))
+                    err = mz_stream_read_uint32(file_info_stream, &file_info->disk_number);
             }
             // NTFS extra field
             else if (extra_header_id == MZ_ZIP_EXTENSION_NTFS)
@@ -972,7 +972,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, comment_size);
         if (err == MZ_OK)
-            err = mz_stream_write_uint16(stream, (uint16_t)file_info->disk_num_start);
+            err = mz_stream_write_uint16(stream, (uint16_t)file_info->disk_number);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, file_info->internal_fa);
         if (err == MZ_OK)
@@ -1215,10 +1215,10 @@ extern int32_t ZEXPORT mz_zip_entry_read_open(void *handle, int16_t raw, const c
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL))
         return MZ_PARAM_ERROR;
 
-    if (zip->file_info.disk_num_start == zip->number_disk_with_cd)
+    if (zip->file_info.disk_number == zip->disk_number_with_cd)
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
     else
-        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_num_start);
+        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
 
     err = mz_stream_seek(zip->stream, zip->disk_offset + zip->file_info.disk_offset, MZ_STREAM_SEEK_SET);
     if (err == MZ_OK)
@@ -1280,7 +1280,7 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
     zip->file_info.compressed_size = 0;
 
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
-        zip->file_info.disk_num_start = (uint32_t)disk_number;
+        zip->file_info.disk_number = (uint32_t)disk_number;
 
 #ifdef HAVE_AES
     if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
