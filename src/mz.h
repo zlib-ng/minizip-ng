@@ -44,9 +44,9 @@ extern "C" {
 #define MZ_OPEN_MODE_EXISTING           (0x10)
 
 // MZ_SEEK
+#define MZ_SEEK_SET                     (0)
 #define MZ_SEEK_CUR                     (1)
 #define MZ_SEEK_END                     (2)
-#define MZ_SEEK_SET                     (0)
 
 // MZ_COMPRESS
 #define MZ_COMPRESS_METHOD_RAW          (0)
@@ -54,7 +54,10 @@ extern "C" {
 #define MZ_COMPRESS_METHOD_BZIP2        (12)
 #define MZ_COMPRESS_METHOD_LZMA         (14)
 #define MZ_COMPRESS_METHOD_AES          (99)
+
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
+#define MZ_COMPRESS_LEVEL_NORMAL        (6)
+#define MZ_COMPRESS_LEVEL_BEST          (9)
 
 // MZ_ZIP
 #define MZ_ZIP_FLAG_ENCRYPTED           (1 << 0)
