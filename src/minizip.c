@@ -557,7 +557,7 @@ int main(int argc, char *argv[])
     {
         if ((*argv[i]) == '-')
         {
-            const char *p = argv[i]+1;
+            const char *p = argv[i] + 1;
 
             while ((*p) != '\0')
             {
