@@ -51,7 +51,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     zlib_filefunc64_def *pzlib_filefunc_def)
 {
     mz_compat *compat = NULL;
-    int32_t mode = MZ_STREAM_MODE_READWRITE;
+    int32_t mode = MZ_OPEN_MODE_READWRITE;
     int32_t open_existing = 0;
     void *handle = NULL;
     void *stream = NULL;
@@ -62,10 +62,10 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     switch (append)
     {
     case APPEND_STATUS_CREATE:
-        mode |= MZ_STREAM_MODE_CREATE;
+        mode |= MZ_OPEN_MODE_CREATE;
         break;
     case APPEND_STATUS_CREATEAFTER:
-        mode |= MZ_STREAM_MODE_CREATE | MZ_STREAM_MODE_APPEND;
+        mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
         break;
     case APPEND_STATUS_ADDINZIP:
         open_existing = 1;
@@ -253,7 +253,7 @@ extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filef
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
 {
     mz_compat *compat = NULL;
-    int32_t mode = MZ_STREAM_MODE_READ;
+    int32_t mode = MZ_OPEN_MODE_READ;
     void *handle = NULL;
     void *stream = NULL;
 
@@ -579,10 +579,10 @@ int get_file_crc(const char *path, void *buf, uint32_t buf_size, uint32_t *resul
 
     mz_stream_os_create(&stream);
 
-    err = mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ);
+    err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
 
     mz_stream_crc32_create(&crc32_stream);
-    mz_stream_crc32_open(crc32_stream, NULL, MZ_STREAM_MODE_READ);
+    mz_stream_crc32_open(crc32_stream, NULL, MZ_OPEN_MODE_READ);
 
     mz_stream_set_base(crc32_stream, stream);
 

@@ -184,11 +184,18 @@ def encryption_tests():
 def empty_zip_test():
     unzip('empty.zip', 'out')
 
+def sfx_zip_test():
+    org_exe = get_exec('minizip')
+    sfx_exe = org_exe.replace('.exe', '') + '_sfx.exe'
+    shutil.copyfile(org_exe, sfx_exe)
+    zip_list_unzip(sfx_exe, 'out', '-a', '', [ 'test.c', 'test.h' ])
+
 if not os.path.exists('repo'):
     os.system('git clone https://github.com/nmoinvaz/minizip repo')
 
 # Run tests
 empty_zip_test()
+sfx_zip_test()
 compression_method_tests()
 encryption_tests()
 compression_method_tests('Disk Span', '-k 1024', '')

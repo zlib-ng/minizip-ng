@@ -138,7 +138,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
 
     mz_stream_os_create(&stream);
 
-    err = mz_stream_os_open(stream, path, MZ_STREAM_MODE_READ);
+    err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
 
     if (err == MZ_OK)
     {
@@ -404,7 +404,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     if ((skip == 0) && (err == MZ_OK))
     {
         // Some zips don't contain directory alone before file
-        if ((mz_stream_os_open(stream, out_path, MZ_STREAM_MODE_CREATE) != MZ_OK) &&
+        if ((mz_stream_os_open(stream, out_path, MZ_OPEN_MODE_CREATE) != MZ_OK) &&
             (options->exclude_path == 0) && (filename != file_info->filename))
         {
             // Create the directory of the output path
@@ -422,7 +422,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
 
             mz_make_dir(directory);
 
-            mz_stream_os_open(stream, out_path, MZ_STREAM_MODE_CREATE);
+            mz_stream_os_open(stream, out_path, MZ_OPEN_MODE_CREATE);
         }
     }
 
@@ -553,7 +553,7 @@ int main(int argc, char *argv[])
     options.compress_level = MZ_COMPRESS_LEVEL_DEFAULT;
 
     // Parse command line options
-    for (i = 1; i < argc; i++)
+    for (i = 1; i < argc; i += 1)
     {
         if ((*argv[i]) == '-')
         {
@@ -623,17 +623,20 @@ int main(int argc, char *argv[])
 
     path = argv[path_arg];
 
-    mode = MZ_STREAM_MODE_READ;
+    mode = MZ_OPEN_MODE_READ;
 
     if ((do_list == 0) && (do_extract == 0))
     {
-        mode |= MZ_STREAM_MODE_WRITE;
+        mode |= MZ_OPEN_MODE_WRITE;
 
         if (mz_file_exists(path) != MZ_OK)
         {
             // If the file doesn't exist, we don't append file
-            if (append)
-                mode |= MZ_STREAM_MODE_APPEND;
+            mode |= MZ_OPEN_MODE_CREATE;
+        }
+        else if (append == 1)
+        {
+            mode |= MZ_OPEN_MODE_APPEND;
         }
         else if (options.overwrite == 0)
         {
@@ -654,7 +657,11 @@ int main(int argc, char *argv[])
 
             if (rep == 'A')
             {
-                mode |= MZ_STREAM_MODE_APPEND;
+                mode |= MZ_OPEN_MODE_APPEND;
+            }
+            else if (rep == 'Y')
+            {
+                mode |= MZ_OPEN_MODE_CREATE;
             }
             else if (rep == 'N')
             {
@@ -662,9 +669,6 @@ int main(int argc, char *argv[])
                 return 0;
             }
         }
-
-        if ((mode & MZ_STREAM_MODE_APPEND) == 0)
-            mode |= MZ_STREAM_MODE_CREATE;
     }
 
     mz_stream_os_create(&file_stream);

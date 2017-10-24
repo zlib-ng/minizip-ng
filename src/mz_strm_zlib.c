@@ -81,14 +81,14 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
     zlib->total_in = 0;
     zlib->total_out = 0;
 
-    if (mode & MZ_STREAM_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         zlib->zstream.next_out = zlib->buffer;
         zlib->zstream.avail_out = sizeof(zlib->buffer);
 
         zlib->error = deflateInit2(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
     }
-    else if (mode & MZ_STREAM_MODE_READ)
+    else if (mode & MZ_OPEN_MODE_READ)
     {
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
@@ -278,14 +278,14 @@ int32_t mz_stream_zlib_close(void *stream)
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
 
-    if (zlib->mode & MZ_STREAM_MODE_WRITE)
+    if (zlib->mode & MZ_OPEN_MODE_WRITE)
     {
         mz_stream_zlib_deflate(stream, Z_FINISH);
         mz_stream_zlib_flush(stream);
 
         deflateEnd(&zlib->zstream);
     }
-    else if (zlib->mode & MZ_STREAM_MODE_READ)
+    else if (zlib->mode & MZ_OPEN_MODE_READ)
     {
         inflateEnd(&zlib->zstream);
     }

@@ -20,6 +20,9 @@ extern "C" {
 
 /***************************************************************************/
 
+// MZ_VERSION
+#define MZ_VERSION                      ("2.2.0")
+
 // MZ_ERROR
 #define MZ_OK                           (0)
 #define MZ_STREAM_ERROR                 (-1)
@@ -34,17 +37,28 @@ extern "C" {
 #define MZ_CRYPT_ERROR                  (-106)
 #define MZ_EXIST_ERROR                  (-107)
 
-// MZ_COMPRESS_METHOD
+// MZ_OPEN
+#define MZ_OPEN_MODE_READ               (0x01)
+#define MZ_OPEN_MODE_WRITE              (0x02)
+#define MZ_OPEN_MODE_READWRITE          (MZ_OPEN_MODE_READ | MZ_OPEN_MODE_WRITE)
+#define MZ_OPEN_MODE_APPEND             (0x04)
+#define MZ_OPEN_MODE_CREATE             (0x08)
+#define MZ_OPEN_MODE_EXISTING           (0x10)
+
+// MZ_SEEK
+#define MZ_SEEK_CUR                     (1)
+#define MZ_SEEK_END                     (2)
+#define MZ_SEEK_SET                     (0)
+
+// MZ_COMPRESS
 #define MZ_COMPRESS_METHOD_RAW          (0)
 #define MZ_COMPRESS_METHOD_DEFLATE      (8)
 #define MZ_COMPRESS_METHOD_BZIP2        (12)
 #define MZ_COMPRESS_METHOD_LZMA         (14)
 #define MZ_COMPRESS_METHOD_AES          (99)
-
-// MZ_COMPRESS_OPTIONS
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
 
-// MZ_ZIP_FLAG
+// MZ_ZIP
 #define MZ_ZIP_FLAG_ENCRYPTED           (1 << 0)
 #define MZ_ZIP_FLAG_LZMA_EOS_MARKER     (1 << 1)
 #define MZ_ZIP_FLAG_DEFLATE_MAX         (1 << 1)
@@ -59,9 +73,6 @@ extern "C" {
 #define MZ_AES_ENCRYPTION_MODE_128      (0x01)
 #define MZ_AES_ENCRYPTION_MODE_192      (0x02)
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
-
-// MZ_VERSION
-#define MZ_VERSION                      ("2.2.0")
 
 /***************************************************************************/
 

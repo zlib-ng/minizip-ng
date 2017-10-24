@@ -82,7 +82,7 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
     mem->limit = 0;
     mem->position = 0;
 
-    if (mem->mode & MZ_STREAM_MODE_CREATE)
+    if (mem->mode & MZ_OPEN_MODE_CREATE)
         mz_stream_mem_set_size(stream, mem->grow_size);
     else
         mem->limit = mem->size;
@@ -124,7 +124,7 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size)
 
     if (size > mem->size - mem->position)
     {
-        if (mem->mode & MZ_STREAM_MODE_CREATE)
+        if (mem->mode & MZ_OPEN_MODE_CREATE)
         {
             new_size = mem->size;
             if (size < mem->grow_size)
@@ -162,13 +162,13 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
     switch (origin)
     {
-        case MZ_STREAM_SEEK_CUR:
+        case MZ_SEEK_CUR:
             new_pos = mem->position + offset;
             break;
-        case MZ_STREAM_SEEK_END:
+        case MZ_SEEK_END:
             new_pos = mem->limit + offset;
             break;
-        case MZ_STREAM_SEEK_SET:
+        case MZ_SEEK_SET:
             new_pos = offset;
             break;
         default:
@@ -177,7 +177,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
     if (new_pos > mem->size)
     {
-        if ((mem->mode & MZ_STREAM_MODE_CREATE) == 0)
+        if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
             return MZ_STREAM_ERROR;
 
         mz_stream_mem_set_size(stream, (int32_t)new_pos);
@@ -252,7 +252,7 @@ void mz_stream_mem_delete(void **stream)
     mem = (mz_stream_mem *)*stream;
     if (mem != NULL)
     {
-        if ((mem->mode & MZ_STREAM_MODE_CREATE) && (mem->buffer != NULL))
+        if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer != NULL))
             free(mem->buffer);
         free(mem);
     }

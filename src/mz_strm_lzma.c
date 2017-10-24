@@ -76,7 +76,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     lzma->total_in = 0;
     lzma->total_out = 0;
 
-    if (mode & MZ_STREAM_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         lzma->lstream.next_out = lzma->buffer;
         lzma->lstream.avail_out = sizeof(lzma->buffer);
@@ -100,7 +100,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 
         lzma->error = lzma_alone_encoder(&lzma->lstream, &opt_lzma);
     }
-    else if (mode & MZ_STREAM_MODE_READ)
+    else if (mode & MZ_OPEN_MODE_READ)
     {
         lzma->lstream.next_in = lzma->buffer;
         lzma->lstream.avail_in = 0;
@@ -289,14 +289,14 @@ int32_t mz_stream_lzma_close(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
 
-    if (lzma->mode & MZ_STREAM_MODE_WRITE)
+    if (lzma->mode & MZ_OPEN_MODE_WRITE)
     {
         mz_stream_lzma_code(stream, LZMA_FINISH);
         mz_stream_lzma_flush(stream);
 
         lzma_end(&lzma->lstream);
     }
-    else if (lzma->mode & MZ_STREAM_MODE_READ)
+    else if (lzma->mode & MZ_OPEN_MODE_READ)
     {
         lzma_end(&lzma->lstream);
     }

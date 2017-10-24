@@ -68,8 +68,8 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     int32_t i = 0;
     int32_t err = MZ_OK;
 
-    if ((((split->disk_size > 0) && (split->mode & MZ_STREAM_MODE_WRITE)) || 
-        ((split->mode & MZ_STREAM_MODE_WRITE) == 0)) && (number_disk >= 0))
+    if ((((split->disk_size > 0) && (split->mode & MZ_OPEN_MODE_WRITE)) || 
+        ((split->mode & MZ_OPEN_MODE_WRITE) == 0)) && (number_disk >= 0))
     {
         for (i = strlen(split->path_disk) - 1; i >= 0; i -= 1)
         {
@@ -92,7 +92,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
         split->total_out_disk = 0;
         split->current_disk = number_disk;
 
-        if (split->mode & MZ_STREAM_MODE_WRITE)
+        if (split->mode & MZ_OPEN_MODE_WRITE)
         {
             if ((split->current_disk == 0) && (split->disk_size > 0))
             {
@@ -101,7 +101,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
                 split->total_out += split->total_out_disk;
             }
         }
-        else if (split->mode & MZ_STREAM_MODE_READ)
+        else if (split->mode & MZ_OPEN_MODE_READ)
         {
             if (split->current_disk == 0)
             {
@@ -133,7 +133,7 @@ int32_t mz_stream_split_goto_disk(void *stream, int32_t number_disk)
     mz_stream_split *split = (mz_stream_split *)stream;
     int32_t err = MZ_OK;
 
-    if ((split->disk_size == 0) && (split->mode & MZ_STREAM_MODE_WRITE))
+    if ((split->disk_size == 0) && (split->mode & MZ_OPEN_MODE_WRITE))
     {
         if (mz_stream_is_open(split->stream.base) != MZ_OK)
             err = mz_stream_split_open_disk(stream, number_disk);
@@ -167,12 +167,12 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
     split->path_disk = (char *)malloc(split->path_disk_size);
     strncpy(split->path_disk, path, split->path_disk_size);
 
-    if (mode & MZ_STREAM_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         number_disk = 0;
         split->current_disk = -1;
     }
-    else if (mode & MZ_STREAM_MODE_READ)
+    else if (mode & MZ_OPEN_MODE_READ)
     {
         number_disk = -1;
         split->current_disk = 0;

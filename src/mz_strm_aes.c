@@ -83,7 +83,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
 
     salt_length = SALT_LENGTH(aes->encryption_mode);
 
-    if (mode & MZ_STREAM_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         mz_os_rand(salt_value, salt_length);
 
@@ -101,7 +101,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
         
         aes->total_out += MZ_AES_PWVERIFYSIZE;
     }
-    else if (mode & MZ_STREAM_MODE_READ)
+    else if (mode & MZ_OPEN_MODE_READ)
     {
         if (mz_stream_read(aes->stream.base, salt_value, salt_length) != salt_length)
             return MZ_STREAM_ERROR;
@@ -178,7 +178,7 @@ int32_t mz_stream_aes_close(void *stream)
     unsigned char authcode[MZ_AES_AUTHCODESIZE];
     unsigned char rauthcode[MZ_AES_AUTHCODESIZE];
 
-    if (aes->mode & MZ_STREAM_MODE_WRITE)
+    if (aes->mode & MZ_OPEN_MODE_WRITE)
     {
         fcrypt_end(authcode, &aes->crypt_ctx);
 
@@ -187,7 +187,7 @@ int32_t mz_stream_aes_close(void *stream)
 
         aes->total_out += MZ_AES_AUTHCODESIZE;
     }
-    else if (aes->mode & MZ_STREAM_MODE_READ)
+    else if (aes->mode & MZ_OPEN_MODE_READ)
     {
         if (mz_stream_read(aes->stream.base, authcode, MZ_AES_AUTHCODESIZE) != MZ_AES_AUTHCODESIZE)
             return MZ_STREAM_ERROR;

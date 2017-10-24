@@ -73,14 +73,14 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
     bzip->total_in = 0;
     bzip->total_out = 0;
 
-    if (mode & MZ_STREAM_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         bzip->bzstream.next_out = (char *)bzip->buffer;
         bzip->bzstream.avail_out = sizeof(bzip->buffer);
 
         bzip->error = BZ2_bzCompressInit(&bzip->bzstream, bzip->level, 0, 0);
     }
-    else if (mode & MZ_STREAM_MODE_READ)
+    else if (mode & MZ_OPEN_MODE_READ)
     {
         bzip->bzstream.next_in = (char *)bzip->buffer;
         bzip->bzstream.avail_in = 0;
@@ -275,14 +275,14 @@ int32_t mz_stream_bzip_close(void *stream)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
 
-    if (bzip->mode & MZ_STREAM_MODE_WRITE)
+    if (bzip->mode & MZ_OPEN_MODE_WRITE)
     {
         mz_stream_bzip_compress(stream, BZ_FINISH);
         mz_stream_bzip_flush(stream);
 
         BZ2_bzCompressEnd(&bzip->bzstream);
     }
-    else if (bzip->mode & MZ_STREAM_MODE_READ)
+    else if (bzip->mode & MZ_OPEN_MODE_READ)
     {
         BZ2_bzDecompressEnd(&bzip->bzstream);
     }
