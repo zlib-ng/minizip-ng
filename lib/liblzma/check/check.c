@@ -66,7 +66,7 @@ lzma_check_size(lzma_check type)
 	if ((unsigned int)(type) > LZMA_CHECK_ID_MAX)
 		return UINT32_MAX;
 
-	// See file-format.txt section 2.2.0.2.
+	// See file-format.txt section 2.1.1.2.
 	static const uint8_t check_sizes[LZMA_CHECK_ID_MAX + 1] = {
 		0,
 		4, 4, 4,
