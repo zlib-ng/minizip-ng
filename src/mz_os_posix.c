@@ -35,7 +35,7 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int64_t mz_posix_file_exists(const char *path)
+int32_t mz_posix_file_exists(const char *path)
 {
     struct stat stat_info;
 
