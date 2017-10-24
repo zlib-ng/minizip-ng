@@ -21,6 +21,9 @@
 #  include <unistd.h>
 #  include <utime.h>
 #endif
+#if defined unix
+#  include <bsd/stdlib.h>
+#endif
 
 #include "mz.h"
 #include "mz_strm.h"

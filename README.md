@@ -156,7 +156,7 @@ When unzipping it will automatically determine when in needs to cross disk bound
 
 ### Windows RT
 
-+ Requires ``#define MZ_USING_WINRT_API``
++ Requires ``#define MZ_USE_WINRT_API``
 
 ## Limitations
 

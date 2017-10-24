@@ -74,7 +74,7 @@ if(WIN32)
 endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
-    add_definitions(-DMZ_USING_WINRT_API)
+    add_definitions(-DMZ_USE_WINRT_API)
 endif()
 
 if(UNIX)

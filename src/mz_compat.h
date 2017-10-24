@@ -36,8 +36,9 @@ extern "C" {
 #    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #  endif
 #endif
-    
+
 #if defined(USE_FILE32API)
+#  define MZ_USE_FILE32API
 #  define fopen64 fopen
 #  define ftello64 ftell
 #  define fseeko64 fseek
