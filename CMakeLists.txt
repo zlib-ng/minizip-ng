@@ -150,7 +150,6 @@ if(USE_BZIP2)
         lib/bzip2/crctable.c
         lib/bzip2/decompress.c
         lib/bzip2/huffman.c
-        lib/bzip2/mk251.c
         lib/bzip2/randtable.c)
 
     set(BZIP2_PUBLIC_HEADERS
