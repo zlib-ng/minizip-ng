@@ -35,7 +35,7 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int64_t mz_win32_get_file_size(const char *path)
+int64_t mz_posix_get_file_size(const char *path)
 {
     struct stat stat_info;
 
@@ -46,7 +46,7 @@ int64_t mz_win32_get_file_size(const char *path)
     return 0;
 }
 
-int64_t mz_win32_get_file_size(const char *path)
+int64_t mz_posix_get_file_size(const char *path)
 {
     struct stat stat_info;
 

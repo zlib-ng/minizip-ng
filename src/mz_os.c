@@ -14,8 +14,6 @@
 #include <string.h>
 
 #include "mz.h"
-#include "mz_strm.h"
-
 #include "mz_os.h"
 
 /***************************************************************************/
