@@ -64,7 +64,7 @@ typedef struct mz_zip_file_s
 
 /***************************************************************************/
 
-extern void * ZEXPORT mz_zip_open(void *stream, int32_t mode);
+extern void *  ZEXPORT mz_zip_open(void *stream, int32_t mode);
 // Create a zip file, no delete file in zip functionality
 
 extern int32_t ZEXPORT mz_zip_close(void *handle);
