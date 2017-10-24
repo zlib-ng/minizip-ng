@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <time.h>
 #include <errno.h>
 
@@ -294,21 +295,22 @@ int32_t minizip_list(void *handle)
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
-        printf(" %7llu  %6s%c %7llu %3u%%  %2.2u-%2.2u-%2.2u  %2.2u:%2.2u  %8.8x   %s\n", 
-            file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio, 
-            (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
-            (uint32_t)tmu_date.tm_year % 100,
-            (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
-            file_info->crc, file_info->filename);
+        printf(" %7"PRIu64"  %6s%c %7"PRIu64" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
+               "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s\n",
+                file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio, 
+                (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
+                (uint32_t)tmu_date.tm_year % 100,
+                (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
+                file_info->crc, file_info->filename);
 
         err = mz_zip_goto_next_entry(handle);
+
+        if (err != MZ_OK)
+            printf("Error %d going to next entry in zip file\n", err);
     }
 
     if (err == MZ_END_OF_LIST)
         return MZ_OK;
-
-    if (err != MZ_OK)
-        printf("Error %d going to next entry in zip file\n", err);
 
     return err;
 }
