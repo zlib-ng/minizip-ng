@@ -35,15 +35,15 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int64_t mz_posix_get_file_size(const char *path)
+int64_t mz_posix_file_exists(const char *path)
 {
     struct stat stat_info;
 
     memset(&stat_info, 0, sizeof(stat_info));
     if (stat(path, &stat_info) == 0)
-        return stat_info.st_size;
+        return MZ_OK;
 
-    return 0;
+    return MZ_EXIST_ERROR;
 }
 
 int64_t mz_posix_get_file_size(const char *path)
