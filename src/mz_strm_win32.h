@@ -56,15 +56,6 @@ void*   mz_stream_win32_get_interface(void);
 
 #define mz_stream_os_get_interface \
                              mz_stream_win32_get_interface
-
-#define mz_os_rand           mz_win32_rand
-#define mz_os_get_file_date  mz_win32_get_file_date
-#define mz_os_set_file_date  mz_win32_set_file_date
-#define mz_os_make_dir       mz_win32_make_dir
-#define mz_os_open_dir       mz_win32_open_dir
-#define mz_os_read_dir       mz_win32_read_dir
-#define mz_os_close_dir      mz_win32_close_dir
-#define mz_os_is_dir         mz_win32_is_dir
 #endif
 
 /***************************************************************************/
