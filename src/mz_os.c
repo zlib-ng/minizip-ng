@@ -20,44 +20,6 @@
 
 /***************************************************************************/
 
-int32_t mz_file_exists(const char *path)
-{
-    int32_t err = MZ_OK;
-    void *stream = NULL;
-
-    mz_stream_os_create(&stream);
-
-    err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
-    if (err == MZ_OK)
-        mz_stream_os_close(stream);
-
-    mz_stream_os_delete(&stream);
-
-    if (err == MZ_EXIST_ERROR)
-        return MZ_EXIST_ERROR;
-
-    return MZ_OK;
-}
-
-int64_t mz_file_get_size(const char *path)
-{
-    void *stream = NULL;
-    int64_t size = 0;
-
-    mz_stream_os_create(&stream);
-
-    if (mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ) == MZ_OK)
-    {
-        mz_stream_os_seek(stream, 0, MZ_SEEK_END);
-        size = mz_stream_os_tell(stream);
-        mz_stream_os_close(stream);
-    }
-
-    mz_stream_os_delete(&stream);
-
-    return size;
-}
-
 int32_t mz_make_dir(const char *path)
 {
     int32_t err = MZ_OK;

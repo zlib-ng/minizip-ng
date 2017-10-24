@@ -118,7 +118,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = options->compress_method;
     file_info.filename = (char *)filenameinzip;
-    file_info.uncompressed_size = mz_file_get_size(path);
+    file_info.uncompressed_size = mz_os_get_file_size(path);
 
 #ifdef HAVE_AES
     if (options->aes)
@@ -377,7 +377,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     }
 
     // Determine if the file should be overwritten or not and ask the user if needed
-    if ((err == MZ_OK) && (options->overwrite == 0) && (mz_file_exists(out_path) == MZ_OK))
+    if ((err == MZ_OK) && (options->overwrite == 0) && (mz_os_file_exists(out_path) == MZ_OK))
     {
         char rep = 0;
         do
@@ -629,7 +629,7 @@ int main(int argc, char *argv[])
     {
         mode |= MZ_OPEN_MODE_WRITE;
 
-        if (mz_file_exists(path) != MZ_OK)
+        if (mz_os_file_exists(path) != MZ_OK)
         {
             // If the file doesn't exist, we don't append file
             mode |= MZ_OPEN_MODE_CREATE;

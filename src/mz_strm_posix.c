@@ -95,8 +95,6 @@ int32_t mz_stream_posix_open(void *stream, const char *path, int32_t mode)
     if (posix->handle == NULL)
     {
         posix->error = errno;
-        if (posix->error == EEXIST)
-            return MZ_EXIST_ERROR;
         return MZ_STREAM_ERROR;
     }
 

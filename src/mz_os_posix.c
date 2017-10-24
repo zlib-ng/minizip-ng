@@ -35,6 +35,28 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
+int64_t mz_win32_get_file_size(const char *path)
+{
+    struct stat stat_info;
+
+    memset(&stat_info, 0, sizeof(stat_info));
+    if (stat(path, &stat_info) == 0)
+        return stat_info.st_size;
+
+    return 0;
+}
+
+int64_t mz_win32_get_file_size(const char *path)
+{
+    struct stat stat_info;
+
+    memset(&stat_info, 0, sizeof(stat_info));
+    if (stat(path, &stat_info) == 0)
+        return stat_info.st_size;
+
+    return 0;
+}
+
 int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
 {
     struct stat stat_info;

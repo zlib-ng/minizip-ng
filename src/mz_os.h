@@ -30,12 +30,6 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t  mz_file_exists(const char *path);
-// Checks to see if a file exists
-
-int64_t  mz_file_get_size(const char *path);
-// Gets the size of a file
-
 int32_t  mz_make_dir(const char *path);
 // Creates a directory recursively
 
