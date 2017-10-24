@@ -1,4 +1,5 @@
 /* mz_compat.c -- Backwards compatible interface for older versions
+   Version 2.2.1, October 23rd, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -568,43 +569,3 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
         pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
-/***************************************************************************/
-
-int get_file_crc(const char *path, void *buf, uint32_t buf_size, uint32_t *result_crc)
-{
-    void *stream = NULL;
-    void *crc32_stream = NULL;
-    uint32_t read = 0;
-    int32_t err = MZ_OK;
-
-    mz_stream_os_create(&stream);
-
-    err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
-
-    mz_stream_crc32_create(&crc32_stream);
-    mz_stream_crc32_open(crc32_stream, NULL, MZ_OPEN_MODE_READ);
-
-    mz_stream_set_base(crc32_stream, stream);
-
-    if (err == MZ_OK)
-    {
-        do
-        {
-            read = mz_stream_crc32_read(crc32_stream, buf, buf_size);
-
-            if ((read < buf_size) && (mz_stream_error(crc32_stream) != MZ_OK))
-                err = read;
-        }
-        while ((err == MZ_OK) && (read > 0));
-
-        mz_stream_os_close(stream);
-    }
-
-    mz_stream_crc32_close(crc32_stream);
-    *result_crc = mz_stream_crc32_get_value(crc32_stream);
-    mz_stream_crc32_delete(&crc32_stream);
-
-    mz_stream_os_delete(&stream);
-
-    return err;
-}

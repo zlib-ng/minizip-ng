@@ -30,11 +30,14 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t  mz_make_dir(const char *path);
+int32_t mz_make_dir(const char *path);
 // Creates a directory recursively
 
-int32_t  mz_path_combine(char *path, const char *join, int32_t max_path);
+int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
 // Combines two paths
+
+int32_t mz_get_file_crc(const char *path, uint32_t *result_crc);
+// Gets the crc32 hash of a file
 
 /***************************************************************************/
 

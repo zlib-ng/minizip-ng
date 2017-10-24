@@ -1,4 +1,5 @@
 /* mz_compat.h -- Backwards compatible interface for older versions
+   Version 2.2.1, October 23rd, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
@@ -274,17 +275,16 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
 
 /***************************************************************************/
 
-#define check_file_exists   mz_file_exists
-#define dosdate_to_tm       mz_zip_dosdate_to_tm
-#define change_file_date    mz_os_set_file_date
-#define get_file_date       mz_os_get_file_date
-#define is_large_file(x)    (mz_os_get_file_size(x) >= UINT32_MAX)
+#define check_file_exists       mz_file_exists
+#define dosdate_to_tm           mz_zip_dosdate_to_tm
+#define change_file_date        mz_os_set_file_date
+#define get_file_date           mz_os_get_file_date
+#define is_large_file(x)        (mz_os_get_file_size(x) >= UINT32_MAX)
+#define makedir                 mz_make_dir
+#define get_file_crc(p,b,bs,rc) mz_get_file_crc(p,rc)
 
-#define makedir             mz_os_make_dir
-#define MKDIR               mz_os_make_dir
-#define CHDIR               mz_os_change_dir
-
-int get_file_crc(const char *path, void *buf, uint32_t buf_size, uint32_t *result_crc);
+#define MKDIR                   mz_os_make_dir
+#define CHDIR                   mz_os_change_dir
 
 /***************************************************************************/
 

@@ -15,6 +15,8 @@
 
 #include "mz.h"
 #include "mz_os.h"
+#include "mz_strm.h"
+#include "mz_strm_zlib.h"
 
 /***************************************************************************/
 
@@ -87,4 +89,47 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     }
 
     return MZ_OK;
+}
+
+int32_t mz_get_file_crc(const char *path, uint32_t *result_crc)
+{
+    void *stream = NULL;
+    void *crc32_stream = NULL;
+    uint32_t read = 0;
+    uint8_t buf[INT16_MAX];
+    int32_t err = MZ_OK;
+
+    mz_stream_os_create(&stream);
+
+    err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
+
+    mz_stream_crc32_create(&crc32_stream);
+    mz_stream_crc32_open(crc32_stream, NULL, MZ_OPEN_MODE_READ);
+
+    mz_stream_set_base(crc32_stream, stream);
+
+    if (err == MZ_OK)
+    {
+        do
+        {
+            read = mz_stream_crc32_read(crc32_stream, buf, sizeof(buf));
+
+            if (read < 0)
+            {
+                err = read;
+                break;
+            }
+        }
+        while ((err == MZ_OK) && (read > 0));
+
+        mz_stream_os_close(stream);
+    }
+
+    mz_stream_crc32_close(crc32_stream);
+    *result_crc = mz_stream_crc32_get_value(crc32_stream);
+    mz_stream_crc32_delete(&crc32_stream);
+
+    mz_stream_os_delete(&stream);
+
+    return err;
 }
