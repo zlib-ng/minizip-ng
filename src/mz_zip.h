@@ -17,15 +17,18 @@
 #ifndef _MZ_ZIP_H
 #define _MZ_ZIP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
+#include <time.h>
 
 #ifndef _ZLIB_H
 #  include "zlib.h"
 #endif
 
 #include "mz_strm.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /***************************************************************************/
 
