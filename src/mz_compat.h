@@ -275,7 +275,7 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
 
 /***************************************************************************/
 
-#define check_file_exists       mz_file_exists
+#define check_file_exists       mz_os_file_exists
 #define dosdate_to_tm           mz_zip_dosdate_to_tm
 #define change_file_date        mz_os_set_file_date
 #define get_file_date           mz_os_get_file_date
@@ -284,7 +284,7 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
 #define get_file_crc(p,b,bs,rc) mz_get_file_crc(p,rc)
 
 #define MKDIR                   mz_os_make_dir
-#define CHDIR                   mz_os_change_dir
+#define CHDIR                   chdir
 
 /***************************************************************************/
 
