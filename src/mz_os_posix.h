@@ -12,6 +12,7 @@
 #ifndef _MZ_OS_POSIX_H
 #define _MZ_OS_POSIX_H
 
+#include <time.h>
 #include <stdint.h>
 #include <dirent.h>
 
