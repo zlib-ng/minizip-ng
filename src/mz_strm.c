@@ -263,7 +263,7 @@ void mz_stream_delete(void **stream)
     if (stream == NULL)
         return;
     strm = (mz_stream *)*stream;
-    if (strm != NULL && strm->vtbl != NULL && strm->vtbl->delete != NULL)
-        strm->vtbl->delete(stream);
+    if (strm != NULL && strm->vtbl != NULL && strm->vtbl->destroy != NULL)
+        strm->vtbl->destroy(stream);
     *stream = NULL;
 }

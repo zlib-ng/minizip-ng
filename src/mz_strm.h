@@ -41,7 +41,7 @@ typedef int32_t (*mz_stream_seek_cb)           (void *stream, int64_t offset, in
 typedef int32_t (*mz_stream_close_cb)          (void *stream);
 typedef int32_t (*mz_stream_error_cb)          (void *stream);
 typedef void*   (*mz_stream_create_cb)         (void **stream);
-typedef void    (*mz_stream_delete_cb)         (void **stream);
+typedef void    (*mz_stream_destroy_cb)        (void **stream);
 
 typedef int32_t (*mz_stream_get_prop_int64_cb) (void *stream, int32_t prop, int64_t *value);
 typedef int32_t (*mz_stream_set_prop_int64_cb) (void *stream, int32_t prop, int64_t value);
@@ -59,7 +59,7 @@ typedef struct mz_stream_vtbl_s
     mz_stream_close_cb          close;
     mz_stream_error_cb          error;
     mz_stream_create_cb         create;
-    mz_stream_delete_cb         delete;
+    mz_stream_destroy_cb        destroy;
 
     mz_stream_get_prop_int64_cb get_prop_int64;
     mz_stream_set_prop_int64_cb set_prop_int64;
