@@ -59,7 +59,7 @@ typedef struct mz_stream_vtbl_s
     mz_stream_close_cb          close;
     mz_stream_error_cb          error;
     mz_stream_create_cb         create;
-    mz_stream_delete_cb         delete;
+    mz_stream_delete_cb         destroy;
 
     mz_stream_get_prop_int64_cb get_prop_int64;
     mz_stream_set_prop_int64_cb set_prop_int64;
