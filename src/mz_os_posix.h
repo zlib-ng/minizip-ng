@@ -13,6 +13,7 @@
 #define _MZ_OS_POSIX_H
 
 #include <stdint.h>
+#include <time.h>
 #include <dirent.h>
 
 #ifdef __cplusplus
