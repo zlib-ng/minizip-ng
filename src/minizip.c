@@ -243,12 +243,11 @@ int32_t minizip_list(void *handle)
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
         printf("Error %d going to first entry in zip file\n", err);
+        return err;
     }
-    else
-    {
-        printf("  Length  Method     Size Ratio   Date    Time   CRC-32     Name\n");
-        printf("  ------  ------     ---- -----   ----    ----   ------     ----\n");
-    }
+
+    printf("  Length  Method     Size Ratio   Date    Time   CRC-32     Name\n");
+    printf("  ------  ------     ---- -----   ----    ----   ------     ----\n");
 
     while (err == MZ_OK)
     {
@@ -305,8 +304,11 @@ int32_t minizip_list(void *handle)
 
         err = mz_zip_goto_next_entry(handle);
 
-        if (err != MZ_OK)
+        if (err != MZ_OK && err != MZ_END_OF_LIST)
+        {
             printf("Error %d going to next entry in zip file\n", err);
+            return err;
+        }
     }
 
     if (err == MZ_END_OF_LIST)
