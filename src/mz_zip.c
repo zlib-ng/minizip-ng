@@ -1215,7 +1215,7 @@ extern int32_t ZEXPORT mz_zip_entry_read_open(void *handle, int16_t raw, const c
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
 
-    compression_method = zip->compression_method;
+    compression_method = zip->file_info.compression_method;
     if (raw)
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
