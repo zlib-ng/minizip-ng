@@ -292,21 +292,21 @@ extern "C" {
 
 /* Filters */
 #include "lzma/filter.h"
-#include "lzma/bcj.h"
-#include "lzma/delta.h"
+//#include "lzma/bcj.h"
+//#include "lzma/delta.h"
 #include "lzma/lzma12.h"
 
 /* Container formats */
 #include "lzma/container.h"
 
 /* Advanced features */
-#include "lzma/stream_flags.h"
-#include "lzma/block.h"
-#include "lzma/index.h"
-#include "lzma/index_hash.h"
+//#include "lzma/stream_flags.h"
+//#include "lzma/block.h"
+//#include "lzma/index.h"
+//#include "lzma/index_hash.h"
 
 /* Hardware information */
-#include "lzma/hardware.h"
+//#include "lzma/hardware.h"
 
 /*
  * All subheaders included. Undefine LZMA_H_INTERNAL to prevent applications
