@@ -11,7 +11,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "filter_encoder.h"
-#include "filter_common.h"
 #include "lzma_encoder.h"
 #ifdef HAVE_DECODER_LZMA2
 #include "lzma2_encoder.h"
@@ -176,64 +175,6 @@ extern LZMA_API(lzma_bool)
 lzma_filter_encoder_is_supported(lzma_vli id)
 {
 	return encoder_find(id) != NULL;
-}
-
-
-extern LZMA_API(lzma_ret)
-lzma_filters_update(lzma_stream *strm, const lzma_filter *filters)
-{
-	if (strm->internal->next.update == NULL)
-		return LZMA_PROG_ERROR;
-
-	// Validate the filter chain.
-	if (lzma_raw_encoder_memusage(filters) == UINT64_MAX)
-		return LZMA_OPTIONS_ERROR;
-
-	// The actual filter chain in the encoder is reversed. Some things
-	// still want the normal order chain, so we provide both.
-	size_t count = 1;
-	while (filters[count].id != LZMA_VLI_UNKNOWN)
-		++count;
-
-	lzma_filter reversed_filters[LZMA_FILTERS_MAX + 1];
-	for (size_t i = 0; i < count; ++i)
-		reversed_filters[count - i - 1] = filters[i];
-
-	reversed_filters[count].id = LZMA_VLI_UNKNOWN;
-
-	return strm->internal->next.update(strm->internal->next.coder,
-			strm->allocator, filters, reversed_filters);
-}
-
-
-extern lzma_ret
-lzma_raw_encoder_init(lzma_next_coder *next, const lzma_allocator *allocator,
-		const lzma_filter *options)
-{
-	return lzma_raw_coder_init(next, allocator,
-			options, (lzma_filter_find)(&encoder_find), true);
-}
-
-
-extern LZMA_API(lzma_ret)
-lzma_raw_encoder(lzma_stream *strm, const lzma_filter *options)
-{
-	lzma_next_strm_init(lzma_raw_coder_init, strm, options,
-			(lzma_filter_find)(&encoder_find), true);
-
-	strm->internal->supported_actions[LZMA_RUN] = true;
-	strm->internal->supported_actions[LZMA_SYNC_FLUSH] = true;
-	strm->internal->supported_actions[LZMA_FINISH] = true;
-
-	return LZMA_OK;
-}
-
-
-extern LZMA_API(uint64_t)
-lzma_raw_encoder_memusage(const lzma_filter *filters)
-{
-	return lzma_raw_coder_memusage(
-			(lzma_filter_find)(&encoder_find), filters);
 }
 
 

@@ -180,42 +180,13 @@ if(USE_LZMA)
     set(LZMA_COMMON_SRC
         lib/liblzma/common/alone_decoder.c
         lib/liblzma/common/alone_encoder.c
-        lib/liblzma/common/auto_decoder.c
-        lib/liblzma/common/block_buffer_decoder.c
-        lib/liblzma/common/block_buffer_encoder.c
-        lib/liblzma/common/block_decoder.c
-        lib/liblzma/common/block_encoder.c
-        lib/liblzma/common/block_header_decoder.c
-        lib/liblzma/common/block_header_encoder.c
-        lib/liblzma/common/block_util.c
         lib/liblzma/common/common.c
-        lib/liblzma/common/easy_buffer_encoder.c
-        lib/liblzma/common/easy_decoder_memusage.c
-        lib/liblzma/common/easy_encoder.c
-        lib/liblzma/common/easy_encoder_memusage.c
-        lib/liblzma/common/easy_preset.c
-        lib/liblzma/common/filter_buffer_decoder.c
-        lib/liblzma/common/filter_buffer_encoder.c
-        lib/liblzma/common/filter_common.c
-        lib/liblzma/common/filter_decoder.c
         lib/liblzma/common/filter_encoder.c
-        lib/liblzma/common/filter_flags_decoder.c
-        lib/liblzma/common/filter_flags_encoder.c
         lib/liblzma/common/hardware_cputhreads.c
         lib/liblzma/common/hardware_physmem.c
         lib/liblzma/common/index.c
-        lib/liblzma/common/index_decoder.c
-        lib/liblzma/common/index_encoder.c
         lib/liblzma/common/index_hash.c
         lib/liblzma/common/outqueue.c
-        lib/liblzma/common/stream_buffer_decoder.c
-        lib/liblzma/common/stream_buffer_encoder.c
-        lib/liblzma/common/stream_decoder.c
-        lib/liblzma/common/stream_encoder.c
-        lib/liblzma/common/stream_encoder_mt.c
-        lib/liblzma/common/stream_flags_common.c
-        lib/liblzma/common/stream_flags_decoder.c
-        lib/liblzma/common/stream_flags_encoder.c
         lib/liblzma/common/tuklib_cpucores.c
         lib/liblzma/common/tuklib_exit.c
         lib/liblzma/common/tuklib_mbstr_fw.c
@@ -257,7 +228,6 @@ if(USE_LZMA)
         lib/liblzma/api/lzma/index.h
         lib/liblzma/api/lzma/index_hash.h
         lib/liblzma/api/lzma/lzma12.h
-        lib/liblzma/api/lzma/stream_flags.h
         lib/liblzma/api/lzma/version.h
         lib/liblzma/api/lzma/vli.h)
     set(LZMA_CHECK_HEADERS
@@ -267,21 +237,12 @@ if(USE_LZMA)
         lib/liblzma/check/crc_macros.h)
     set(LZMA_COMMON_HEADERS
         lib/liblzma/common/alone_decoder.h
-        lib/liblzma/common/block_buffer_encoder.h
-        lib/liblzma/common/block_decoder.h
-        lib/liblzma/common/block_encoder.h
         lib/liblzma/common/common.h
-        lib/liblzma/common/easy_preset.h
-        lib/liblzma/common/filter_common.h
-        lib/liblzma/common/filter_decoder.h
         lib/liblzma/common/filter_encoder.h
         lib/liblzma/common/index.h
-        lib/liblzma/common/index_encoder.h
         lib/liblzma/common/memcmplen.h
         lib/liblzma/common/mythread.h
         lib/liblzma/common/outqueue.h
-        lib/liblzma/common/stream_decoder.h
-        lib/liblzma/common/stream_flags_common.h
         lib/liblzma/common/sysdefs.h
         lib/liblzma/common/tuklib_common.h
         lib/liblzma/common/tuklib_config.h

@@ -2,6 +2,7 @@
 //
 /// \file       lzma_encoder_presets.c
 /// \brief      Encoder presets
+/// \note       xz needs this even when only decoding is enabled.
 //
 //  Author:     Lasse Collin
 //
@@ -32,7 +33,7 @@ lzma_lzma_preset(lzma_options_lzma *options, uint32_t preset)
 
 	static const uint8_t dict_pow2[]
 			= { 18, 20, 21, 22, 22, 23, 23, 24, 25, 26 };
-    options->dict_size = UINT32_C(1) << dict_pow2[level];
+	options->dict_size = UINT32_C(1) << dict_pow2[level];
 
 	if (level <= 3) {
 		options->mode = LZMA_MODE_FAST;
