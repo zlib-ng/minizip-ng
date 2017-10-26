@@ -929,7 +929,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
     if (err == MZ_OK)
     {
-        dos_date = mz_zip_time_t_to_dos_date(file_info->modified_date);
+        if (file_info->modified_date != 0)
+            dos_date = mz_zip_time_t_to_dos_date(file_info->modified_date);
         err = mz_stream_write_uint32(stream, dos_date);
     }
 
