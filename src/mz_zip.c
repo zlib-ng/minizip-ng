@@ -1553,10 +1553,13 @@ time_t mz_zip_dosdate_to_time_t(uint64_t dos_date)
 
 int32_t mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm)
 {
+    struct tm *ltm = NULL;
     if (ptm == NULL)
         return MZ_PARAM_ERROR;
-
-    memcpy(ptm, localtime(&unix_time), sizeof(struct tm));
+    ltm = localtime(&unix_time);
+    if (ltm == NULL)
+        return MZ_INTERNAL_ERROR;
+    memcpy(ptm, ltm, sizeof(struct tm));
     return MZ_OK;
 }
 
