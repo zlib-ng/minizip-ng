@@ -90,9 +90,9 @@ void *mem_stream = NULL;
 // fill zip_buffer with zip contents
 mz_stream_mem_create(&mem_stream);
 mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
-mz_stream_open(mem_stream, NULL, MZ_STREAM_MODE_READ);
+mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
 
-void *zip_handle = mz_zip_open(mem_stream, MZ_STREAM_MODE_READ);
+void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_READ);
 // do unzip operations
 
 mz_stream_mem_delete(&mem_stream);
