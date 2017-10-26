@@ -112,6 +112,9 @@ void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_WRITE);
 
 mz_stream_mem_delete(&mem_stream);
 ```
+
+For a complete example, see test_zip_mem() in [test.c](https://github.com/nmoinvaz/minizip/blob/master/test/test.c).
+
 #### Buffered Streaming
 
 By default the library will read bytes typically one at a time. The buffered stream allows for buffered read and write operations to improve I/O performance.
