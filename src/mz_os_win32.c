@@ -243,7 +243,7 @@ DIR *mz_win32_open_dir(const char *path)
     mz_path_combine(fixed_path, path, sizeof(fixed_path));
     mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
-    path_wide = mz_win32_unicode_path_create(path);
+    path_wide = mz_win32_unicode_path_create(fixed_path);
     handle = FindFirstFileW(path_wide, &find_data);
     mz_win32_unicode_path_delete(&path_wide);
 
