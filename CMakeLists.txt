@@ -171,7 +171,6 @@ if(USE_LZMA)
 
     set(LZMA_CHECK_SRC
         lib/liblzma/check/check.c
-        lib/liblzma/check/crc32_fast.c
         lib/liblzma/check/crc32_table.c)
     set(LZMA_COMMON_SRC
         lib/liblzma/common/alone_decoder.c
@@ -207,8 +206,7 @@ if(USE_LZMA)
     set(LZMA_CHECK_HEADERS
         lib/liblzma/check/check.h
         lib/liblzma/check/crc32_table_be.h
-        lib/liblzma/check/crc32_table_le.h
-        lib/liblzma/check/crc_macros.h)
+        lib/liblzma/check/crc32_table_le.h)
     set(LZMA_COMMON_HEADERS
         lib/liblzma/common/alone_decoder.h
         lib/liblzma/common/common.h
