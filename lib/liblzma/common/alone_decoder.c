@@ -73,6 +73,9 @@ alone_decode(void *coder_ptr,
 	case SEQ_DICTIONARY_SIZE:
 		coder->options.dict_size
 				|= (size_t)(in[*in_pos]) << (coder->pos * 8);
+        ++*in_pos;
+        if (++coder->pos < 4)
+            break;
 
 		if (coder->picky && coder->options.dict_size
 				!= UINT32_MAX) {
