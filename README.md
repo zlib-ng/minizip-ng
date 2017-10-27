@@ -24,7 +24,7 @@ cmake --build .
 | minizip.c | Sample application | No |
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
-| mz_os\* | OS specific helper functions | Encryption |
+| mz_os\* | OS specific helper functions | Encryption, Disk Splitting |
 | mz_strm.\* | Stream interface | Yes |
 | mz_strm_aes.\* | WinZIP AES stream | No |
 | mz_strm_buf.\* | Buffered stream | No |

@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "mz.h"
+#include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_split.h"
 
@@ -78,13 +79,17 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
             snprintf(&split->path_disk[i], split->path_disk_size - i, ".z%02d", number_disk + 1);
             break;
         }
+
+        // If disk number doesn't exist then return MZ_EXIST_ERROR
+        err = mz_os_file_exists(split->path_disk);
     }
     else
     {
         strncpy(split->path_disk, split->path_cd, split->path_disk_size);
     }
 
-    err = mz_stream_open(split->stream.base, split->path_disk, split->mode);
+    if (err == MZ_OK)
+        err = mz_stream_open(split->stream.base, split->path_disk, split->mode);
 
     if (err == MZ_OK)
     {
