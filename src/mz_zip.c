@@ -1,5 +1,5 @@
 /* zip.c -- Zip manipulation
-   Version 2.2.2, October 26th, 2017
+   Version 2.2.3, October 27th, 2017
    part of the MiniZip project
 
    Copyright (C) 2010-2017 Nathan Moinvaziri

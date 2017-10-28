@@ -1,5 +1,5 @@
 /* mz_os.h -- System functions
-   Version 2.2.2, October 26th, 2017
+   Version 2.2.3, October 27th, 2017
    part of the MiniZip project
 
    Copyright (C) 2012-2017 Nathan Moinvaziri
