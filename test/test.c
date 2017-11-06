@@ -151,7 +151,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         mz_stream_delete(&deflate_stream);
 
-        printf("%s compressed from %d to %d\n", filename, (uint32_t)total_in, (uint32_t)total_out);
+        printf("%s compressed from %u to %u\n", filename, (uint32_t)total_in, (uint32_t)total_out);
 
         mz_stream_os_close(out_stream);
     }
@@ -175,7 +175,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         mz_stream_os_close(in_stream);
 
-        printf("%s uncompressed from %d to %d\n", filename, (uint32_t)total_in, (uint32_t)total_out);
+        printf("%s uncompressed from %u to %u\n", filename, (uint32_t)total_in, (uint32_t)total_out);
     }
 
     mz_stream_os_delete(&in_stream);
