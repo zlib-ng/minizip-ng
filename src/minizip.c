@@ -595,7 +595,7 @@ int main(int argc, char *argv[])
                 if ((c == 's') || (c == 'S'))
                     options.aes = 1;
 #endif
-                if (((c == 'k') || (c == 'k')) && (i + 1 < argc))
+                if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
                 {
                     disk_size = atoi(argv[i + 1]) * 1024;
                     i += 1;
