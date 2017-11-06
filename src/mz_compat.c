@@ -282,6 +282,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     compat->handle = handle;
     compat->stream = stream;
 
+    mz_zip_goto_first_entry(compat->handle);
     return (unzFile)compat;
 }
 
