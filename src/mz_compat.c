@@ -57,7 +57,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def) == NULL)
+    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
         return NULL;
 
     switch (append)
@@ -261,7 +261,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def) == NULL)
+    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
         return NULL;
     
     if (mz_stream_open(stream, path, mode) != MZ_OK)
@@ -538,37 +538,37 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
 void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     // NOTE: You should no longer pass in widechar string to open function
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
