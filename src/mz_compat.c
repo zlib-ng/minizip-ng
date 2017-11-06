@@ -227,7 +227,10 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     err = mz_zip_close(compat->handle);
 
     if (compat->stream != NULL)
+    {
+        //mz_stream_close(compat->stream);
         mz_stream_delete(&compat->stream);
+    }
 
     free(compat);
 
