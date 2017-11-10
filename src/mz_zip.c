@@ -1236,7 +1236,7 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
 
 
 #if !defined(HAVE_CRYPT) && !defined(HAVE_AES)
-    if (crypt_info != NULL)
+    if (password != NULL)
         return MZ_PARAM_ERROR;
 #endif
     if (zip == NULL || file_info == NULL || file_info->filename == NULL)
