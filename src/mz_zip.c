@@ -22,8 +22,6 @@
 #include <time.h>
 #include <errno.h>
 
-#include "zlib.h"
-
 #include "mz.h"
 #include "mz_strm.h"
 #ifdef HAVE_AES
@@ -450,7 +448,7 @@ static int32_t mz_zip_write_cd(void *handle)
     return err;
 }
 
-extern void* ZEXPORT mz_zip_open(void *stream, int32_t mode)
+extern void* mz_zip_open(void *stream, int32_t mode)
 {
     mz_zip *zip = NULL;
     int32_t err = MZ_OK;
@@ -534,7 +532,7 @@ extern void* ZEXPORT mz_zip_open(void *stream, int32_t mode)
     return zip;
 }
 
-extern int32_t ZEXPORT mz_zip_close(void *handle)
+extern int32_t mz_zip_close(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -571,7 +569,7 @@ extern int32_t ZEXPORT mz_zip_close(void *handle)
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_get_comment(void *handle, const char **comment)
+extern int32_t mz_zip_get_comment(void *handle, const char **comment)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || comment == NULL)
@@ -582,7 +580,7 @@ extern int32_t ZEXPORT mz_zip_get_comment(void *handle, const char **comment)
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_set_comment(void *handle, const char *comment)
+extern int32_t mz_zip_set_comment(void *handle, const char *comment)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint16_t comment_size = 0;
@@ -596,7 +594,7 @@ extern int32_t ZEXPORT mz_zip_set_comment(void *handle, const char *comment)
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
+extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || version_madeby == NULL)
@@ -605,7 +603,7 @@ extern int32_t ZEXPORT mz_zip_get_version_madeby(void *handle, uint16_t *version
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
+extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL)
@@ -1089,7 +1087,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL))
         return MZ_PARAM_ERROR;
 
-    if ((err == Z_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED))
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED))
     {
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
@@ -1172,7 +1170,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 
         err = mz_stream_open(zip->compress_stream, NULL, zip->open_mode);
     }
-    if (err == Z_OK)
+    if (err == MZ_OK)
     {
         mz_stream_crc32_create(&zip->crc32_stream);
         mz_stream_set_base(zip->crc32_stream, zip->compress_stream);
@@ -1188,7 +1186,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_read_open(void *handle, int16_t raw, const char *password)
+extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int16_t compression_method = 0;
@@ -1226,7 +1224,7 @@ extern int32_t ZEXPORT mz_zip_entry_read_open(void *handle, int16_t raw, const c
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
     int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
@@ -1251,16 +1249,25 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
 
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
 
-    zip->file_info.flag |= MZ_ZIP_FLAG_DATA_DESCRIPTOR;
+    compression_method = zip->file_info.compression_method;
+    if (compress_level == 0)
+        compression_method = MZ_COMPRESS_METHOD_RAW;
+
+    if (compression_method == MZ_COMPRESS_METHOD_DEFLATE)
+    {
+        if ((compress_level == 8) || (compress_level == 9))
+            zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_MAX;
+        if (compress_level == 2)
+            zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_FAST;
+        if (compress_level == 1)
+            zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
+    }
 #ifdef HAVE_LZMA
-    zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
+    else if (compression_method == MZ_COMPRESS_METHOD_LZMA)
+        zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
 #endif
-    if ((compress_level == 8) || (compress_level == 9))
-        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_MAX;
-    if (compress_level == 2)
-        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_FAST;
-    if (compress_level == 1)
-        zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
+
+    zip->file_info.flag |= MZ_ZIP_FLAG_DATA_DESCRIPTOR;
 
     if (password != NULL)
         zip->file_info.flag |= MZ_ZIP_FLAG_ENCRYPTED;
@@ -1279,10 +1286,6 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
 
-    compression_method = zip->file_info.compression_method;
-    if (compress_level == 0)
-        compression_method = MZ_COMPRESS_METHOD_RAW;
-
     if (err == MZ_OK)
         err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
     if (err == MZ_OK)
@@ -1291,7 +1294,7 @@ extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_read(void *handle, void *buf, uint32_t len)
+extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t read = 0;
@@ -1308,7 +1311,7 @@ extern int32_t ZEXPORT mz_zip_entry_read(void *handle, void *buf, uint32_t len)
     return read;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
+extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || zip->entry_opened == 0)
@@ -1316,7 +1319,7 @@ extern int32_t ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_
     return mz_stream_write(zip->crc32_stream, buf, len);
 }
 
-extern int32_t ZEXPORT mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
+extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || zip->entry_scanned == 0)
@@ -1325,7 +1328,7 @@ extern int32_t ZEXPORT mz_zip_entry_get_info(void *handle, mz_zip_file **file_in
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
+extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || zip->entry_scanned == 0 || zip->entry_opened == 0)
@@ -1334,7 +1337,7 @@ extern int32_t ZEXPORT mz_zip_entry_get_local_info(void *handle, mz_zip_file **l
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
+extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t compressed_size = 0;
@@ -1417,7 +1420,7 @@ extern int32_t ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompresse
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_entry_close(void *handle)
+extern int32_t mz_zip_entry_close(void *handle)
 {
     return mz_zip_entry_close_raw(handle, 0, 0);
 }
@@ -1442,7 +1445,7 @@ static int32_t mz_zip_goto_next_entry_int(void *handle)
     return err;
 }
 
-extern int32_t ZEXPORT mz_zip_get_number_entry(void *handle, int64_t *number_entry)
+extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || number_entry == NULL)
@@ -1451,7 +1454,7 @@ extern int32_t ZEXPORT mz_zip_get_number_entry(void *handle, int64_t *number_ent
     return MZ_OK;
 }
 
-extern int32_t ZEXPORT mz_zip_goto_first_entry(void *handle)
+extern int32_t mz_zip_goto_first_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1463,7 +1466,7 @@ extern int32_t ZEXPORT mz_zip_goto_first_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-extern int32_t ZEXPORT mz_zip_goto_next_entry(void *handle)
+extern int32_t mz_zip_goto_next_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1476,7 +1479,7 @@ extern int32_t ZEXPORT mz_zip_goto_next_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-extern int32_t ZEXPORT mz_zip_locate_entry(void *handle, const char *filename, mz_filename_compare_cb filename_compare_cb)
+extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filename_compare_cb filename_compare_cb)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;

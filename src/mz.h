@@ -56,6 +56,7 @@ extern "C" {
 #define MZ_COMPRESS_METHOD_AES          (99)
 
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
+#define MZ_COMPRESS_LEVEL_FAST          (2)
 #define MZ_COMPRESS_LEVEL_NORMAL        (6)
 #define MZ_COMPRESS_LEVEL_BEST          (9)
 

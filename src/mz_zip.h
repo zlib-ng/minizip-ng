@@ -20,10 +20,6 @@
 #include <stdint.h>
 #include <time.h>
 
-#ifndef _ZLIB_H
-#  include "zlib.h"
-#endif
-
 #include "mz_strm.h"
 
 #ifdef __cplusplus
@@ -64,62 +60,62 @@ typedef struct mz_zip_file_s
 
 /***************************************************************************/
 
-extern void *  ZEXPORT mz_zip_open(void *stream, int32_t mode);
+extern void *  mz_zip_open(void *stream, int32_t mode);
 // Create a zip file, no delete file in zip functionality
 
-extern int32_t ZEXPORT mz_zip_close(void *handle);
+extern int32_t mz_zip_close(void *handle);
 // Close the zip file
 
-extern int32_t ZEXPORT mz_zip_get_comment(void *handle, const char **comment);
+extern int32_t mz_zip_get_comment(void *handle, const char **comment);
 // Get a pointer to the global comment
 
-extern int32_t ZEXPORT mz_zip_set_comment(void *handle, const char *comment);
+extern int32_t mz_zip_set_comment(void *handle, const char *comment);
 // Set the global comment used for writing zip file
 
-extern int32_t ZEXPORT mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby);
+extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby);
 // Get the version made by
 
-extern int32_t ZEXPORT mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
+extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 // Set the version made by used for writing zip file
 
-extern int32_t ZEXPORT mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
     int16_t compress_level, const char *password);
 // Open for writing the current file in the zip file
 
-extern int32_t ZEXPORT mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
+extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
 // Write bytes from the current file in the zip file
 
-extern int32_t ZEXPORT mz_zip_entry_read_open(void *handle, int16_t raw, const char *password);
+extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *password);
 // Open for reading the current file in the zip file
 
-extern int32_t ZEXPORT mz_zip_entry_read(void *handle, void *buf, uint32_t len);
+extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len);
 // Read bytes from the current file in the zip file
 
-extern int32_t ZEXPORT mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
+extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 // Get info about the current file, only valid while current entry is open
 
-extern int32_t ZEXPORT mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
+extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
 // Get local info about the current file, only valid while current entry is being read
 
-extern int32_t ZEXPORT mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
+extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
 // Close the current file in the zip file where raw is compressed data
 
-extern int32_t ZEXPORT mz_zip_entry_close(void *handle);
+extern int32_t mz_zip_entry_close(void *handle);
 // Close the current file in the zip file
 
 /***************************************************************************/
 
-extern int32_t ZEXPORT mz_zip_get_number_entry(void *handle, int64_t *number_entry);
+extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry);
 // Get the total number of entries
 
-extern int32_t ZEXPORT mz_zip_goto_first_entry(void *handle);
+extern int32_t mz_zip_goto_first_entry(void *handle);
 // Go to the first entry in the zip file 
 
-extern int32_t ZEXPORT mz_zip_goto_next_entry(void *handle);
+extern int32_t mz_zip_goto_next_entry(void *handle);
 // Go to the next entry in the zip file or MZ_END_OF_LIST if reaching the end
 
 typedef int32_t (*mz_filename_compare_cb)(void *handle, const char *filename1, const char *filename2);
-extern int32_t ZEXPORT mz_zip_locate_entry(void *handle, const char *filename, 
+extern int32_t mz_zip_locate_entry(void *handle, const char *filename, 
     mz_filename_compare_cb filename_compare_cb);
 // Locate the file with the specified name in the zip file or MZ_END_LIST if not found
 
