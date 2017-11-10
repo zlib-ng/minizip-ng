@@ -382,3 +382,13 @@ void *mz_stream_lzma_get_interface(void)
 {
     return (void *)&mz_stream_lzma_vtbl;
 }
+
+int32_t mz_stream_lzma_crc32(int32_t value, const void *buf, int32_t size)
+{
+    return lzma_crc32(buf, size, value);
+}
+
+void *mz_stream_lzma_get_crc32_update(void)
+{
+    return (void *)mz_stream_lzma_crc32;
+}

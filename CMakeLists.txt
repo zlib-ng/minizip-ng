@@ -5,11 +5,12 @@
 #***************************************************************************
 cmake_minimum_required(VERSION 2.8)
 
-option(USE_CRYPT "Enables building with PKWARE traditional encryption" ON)
-option(USE_AES "Enables building with AES library" ON)
+option(USE_ZLIB "Enables building with ZLIB library" ON)
 option(USE_BZIP2 "Enables building with BZIP2 library" ON)
 option(USE_LZMA "Enables building with LZMA library" ON)
-option(BUILD_TEST "Enables building of executables. Requires ZLIB!" OFF)
+option(USE_CRYPT "Enables building with PKWARE traditional encryption" ON)
+option(USE_AES "Enables building with AES library" ON)
+option(BUILD_TEST "Enables building of minizip executable." OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -32,10 +33,12 @@ set(VERSION "2.2.3")
 set(CMAKE_DEBUG_POSTFIX "d")
 
 # Ensure correct version of zlib is referenced
-set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
-find_package(ZLIB REQUIRED)
-if(ZLIB_FOUND)
-    include_directories(${ZLIB_INCLUDE_DIRS})
+if(USE_ZLIB)
+    set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
+    find_package(ZLIB REQUIRED)
+    if(ZLIB_FOUND)
+        include_directories(${ZLIB_INCLUDE_DIRS})
+    endif()
 endif()
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
@@ -136,6 +139,9 @@ if(USE_AES)
     source_group("AES" FILES ${AES_SRC} ${AES_PUBLIC_HEADERS})
 endif()
 
+if(USE_ZLIB)
+    add_definitions(-DHAVE_ZLIB)
+endif()
 if(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
     add_definitions(-DBZ_NO_STDIO)
@@ -283,10 +289,12 @@ add_library(${PROJECT_NAME}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "")
+if(USE_ZLIB)
+    target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
+endif()
 if(USE_LZMA)
     set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 endif()
-target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
 if(UNIX)
     target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
 endif()
