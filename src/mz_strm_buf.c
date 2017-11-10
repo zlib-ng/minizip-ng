@@ -71,6 +71,11 @@ int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
     return mz_stream_open(stream, path, mode);
 }
 
+int32_t mz_stream_buffered_is_open(void *stream)
+{
+    return mz_stream_is_open(stream);
+}
+
 int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
