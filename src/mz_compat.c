@@ -57,7 +57,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def) == NULL)
+    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
         return NULL;
 
     switch (append)
@@ -261,7 +261,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def) == NULL)
+    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
         return NULL;
     
     if (mz_stream_open(stream, path, mode) != MZ_OK)
@@ -282,6 +282,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     compat->handle = handle;
     compat->stream = stream;
 
+    mz_zip_goto_first_entry(compat->handle);
     return (unzFile)compat;
 }
 
@@ -296,7 +297,10 @@ extern int ZEXPORT unzClose(unzFile file)
     err = mz_zip_close(compat->handle);
 
     if (compat->stream != NULL)
+    {
+        mz_stream_close(compat->stream);
         mz_stream_delete(&compat->stream);
+    }
 
     free(compat);
 
@@ -490,7 +494,13 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
             if (bytes_to_copy > file_info->filename_size)
                 bytes_to_copy = file_info->filename_size;
             memcpy(filename, file_info->filename, bytes_to_copy);
+            /* Ensure NULL termination for MiniZip 1.x compatibility. */
+            if (file_info->filename_size < filename_size)
+            {
+                filename[file_info->filename_size] = 0;
+            }
         }
+
         if (extrafield_size > 0 && extrafield != NULL)
         {
             bytes_to_copy = extrafield_size;
@@ -498,12 +508,18 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
                 bytes_to_copy = file_info->extrafield_size;
             memcpy(extrafield, file_info->extrafield, bytes_to_copy);
         }
+
         if (comment_size > 0 && comment != NULL)
         {
             bytes_to_copy = comment_size;
             if (bytes_to_copy > file_info->comment_size)
                 bytes_to_copy = file_info->comment_size;
             memcpy(comment, file_info->comment, bytes_to_copy);
+            /* Ensure NULL termination for MiniZip 1.x compatibility. */
+            if (file_info->comment_size < comment_size)
+            {
+                comment[file_info->comment_size] = 0;
+            }
         }
     }
     return err;
@@ -538,37 +554,37 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
 void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
 void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
 {
     // NOTE: You should no longer pass in widechar string to open function
     if (pzlib_filefunc_def != NULL)
-        pzlib_filefunc_def = mz_stream_os_get_interface();
+        *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
 
