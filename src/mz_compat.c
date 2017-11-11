@@ -494,11 +494,8 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
             if (bytes_to_copy > file_info->filename_size)
                 bytes_to_copy = file_info->filename_size;
             memcpy(filename, file_info->filename, bytes_to_copy);
-            /* Ensure NULL termination for MiniZip 1.x compatibility. */
             if (file_info->filename_size < filename_size)
-            {
                 filename[file_info->filename_size] = 0;
-            }
         }
 
         if (extrafield_size > 0 && extrafield != NULL)
@@ -515,11 +512,8 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
             if (bytes_to_copy > file_info->comment_size)
                 bytes_to_copy = file_info->comment_size;
             memcpy(comment, file_info->comment, bytes_to_copy);
-            /* Ensure NULL termination for MiniZip 1.x compatibility. */
             if (file_info->comment_size < comment_size)
-            {
                 comment[file_info->comment_size] = 0;
-            }
         }
     }
     return err;
