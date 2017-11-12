@@ -34,12 +34,14 @@ typedef struct mz_compat_s {
 
 extern zipFile ZEXPORT zipOpen(const char *path, int append)
 {
-    return zipOpen2(path, append, NULL, mz_stream_os_get_interface());
+    zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
+    return zipOpen2(path, append, NULL, &pzlib);
 }
 
 extern zipFile ZEXPORT zipOpen64(const void *path, int append)
 {
-    return zipOpen2(path, append, NULL, mz_stream_os_get_interface());
+    zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
+    return zipOpen2(path, append, NULL, &pzlib);
 }
 
 extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment,
@@ -246,7 +248,8 @@ extern unzFile ZEXPORT unzOpen(const char *path)
 
 extern unzFile ZEXPORT unzOpen64(const void *path)
 {
-    return unzOpen2(path, mz_stream_os_get_interface());
+    zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
+    return unzOpen2(path, &pzlib);
 }
 
 extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def)
