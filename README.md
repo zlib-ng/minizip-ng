@@ -57,7 +57,7 @@ cmake --build .
 #### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
 
 + Requires ``cmake . -DUSE_AES=ON`` or ``#define HAVE_AES``
-+ Requires [Brian Gladman's](https://github.com/BrianGladman/aes) AES library
++ Requires Brian Gladman's [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries
 
 When zipping with a password it will always use AES 256-bit encryption.
 When unzipping it will use AES decryption only if necessary.
