@@ -117,7 +117,6 @@ if(USE_AES)
         lib/aes/aeskey.c
         lib/aes/aestab.c
         lib/aes/aes_ni.c
-        lib/aes/fileenc.c
         lib/aes/hmac.c
         lib/aes/pwd2key.c
         lib/aes/sha1.c)
@@ -129,7 +128,6 @@ if(USE_AES)
         lib/aes/aestab.h
         lib/aes/brg_endian.h
         lib/aes/brg_types.h
-        lib/aes/fileenc.h
         lib/aes/hmac.h
         lib/aes/pwd2key.h
         lib/aes/sha1.h)
