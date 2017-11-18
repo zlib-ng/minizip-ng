@@ -21,7 +21,9 @@
 #  include <unistd.h>
 #  include <utime.h>
 #endif
-#if defined __linux__
+#if defined __APPLE__ && defined __MACH__
+#  include <AvailabilityMacros.h>
+#elif defined __linux__
 #  include <bsd/stdlib.h>
 #else
 #  include <stdlib.h>
@@ -33,6 +35,22 @@
 #include "mz_os_posix.h"
 
 /***************************************************************************/
+
+#if defined __APPLE__ && defined __MACH__ && MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_7
+static __inline__ int32_t arc4random_buf(uint8_t *buf, size_t nbytes)
+{
+    for (; nbytes > 2; nbytes -= 3, buf += 3) {
+        uint32_t val = arc4random();
+        buf[0] = (val      ) & 0xFF;
+	buf[1] = (val >>  8) & 0xFF;
+	buf[2] = (val >> 16) & 0xFF;
+    }
+    for (; nbytes > 0; nbytes--, buf++) {
+        *buf = arc4random() & 0xFF;
+    }
+    return nbytes;
+}
+#endif
 
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
