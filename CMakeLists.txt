@@ -93,10 +93,12 @@ if(UNIX)
 
     find_package(PkgConfig REQUIRED)
 
-    pkg_check_modules(LIBBSD libbsd)
+    if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        pkg_check_modules(LIBBSD libbsd REQUIRED)
 
-    include_directories(${LIBBSD_INCLUDE_DIRS})
-    link_directories(${LIBBSD_LIBRARY_DIRS})
+        include_directories(${LIBBSD_INCLUDE_DIRS})
+        link_directories(${LIBBSD_LIBRARY_DIRS})
+    endif()
 endif()
 
 if(USE_CRYPT)

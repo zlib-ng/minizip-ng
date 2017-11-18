@@ -21,8 +21,10 @@
 #  include <unistd.h>
 #  include <utime.h>
 #endif
-#if defined unix
+#if defined __linux__
 #  include <bsd/stdlib.h>
+#else
+#  include <stdlib.h>
 #endif
 
 #include "mz.h"
