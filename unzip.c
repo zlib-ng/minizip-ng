@@ -1243,6 +1243,13 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
 
             for (i = 0; i < 12; i++)
                 zdecode(s->keys, s->pcrc_32_tab, source[i]);
+            uint8_t expected = (s->cur_file_info.flag & (1 << 3)) ?
+                s->cur_file_info.dos_date >> 8 :
+                s->cur_file_info.crc >> 24;
+            uint8_t actual = (uint8_t)source[11];
+            if (expected != actual) {
+              return UNZ_BADPASSWORD;
+            }
 
             s->pfile_in_zip_read->rest_read_compressed -= 12;
             s->pfile_in_zip_read->pos_in_zipfile += 12;
