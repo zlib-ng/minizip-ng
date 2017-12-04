@@ -117,12 +117,12 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
 
     key_length = MZ_AES_KEY_LENGTH(aes->encryption_mode);
     // Derive the encryption and authentication keys and the password verifier
-    derive_key(password, password_length, salt_value, salt_length,
+    derive_key((const uint8_t *)password, password_length, salt_value, salt_length,
         MZ_AES_KEYING_ITERATIONS, kbuf, 2 * key_length + MZ_AES_PW_VERIFY_SIZE);
 
     // Initialize the encryption nonce and buffer pos
     aes->encr_pos = AES_BLOCK_SIZE;
-    memset(aes->nonce, 0, AES_BLOCK_SIZE * sizeof(unsigned char));
+    memset(aes->nonce, 0, AES_BLOCK_SIZE * sizeof(uint8_t));
 
     // Initialize for encryption using key 1
     aes_encrypt_key(kbuf, key_length, aes->encr_ctx);
