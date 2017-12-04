@@ -369,7 +369,12 @@ void *mz_stream_zlib_get_interface(void)
     return (void *)&mz_stream_zlib_vtbl;
 }
 
+int32_t mz_stream_zlib_crc32(int32_t value, const void *buf, int32_t size)
+{
+    return crc32(value, buf, size);
+}
+
 void *mz_stream_zlib_get_crc32_update(void)
 {
-    return (void *)crc32;
+    return (void *)mz_stream_zlib_crc32;
 }
