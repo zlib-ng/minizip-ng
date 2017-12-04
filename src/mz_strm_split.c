@@ -23,6 +23,10 @@
 
 #define MZ_ZIP_MAGIC_DISKHEADER         (0x08074b50)
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#  define snprintf _snprintf
+#endif
+
 /***************************************************************************/
 
 mz_stream_vtbl mz_stream_split_vtbl = {
