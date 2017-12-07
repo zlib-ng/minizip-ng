@@ -1102,17 +1102,26 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 #endif
         {
 #ifdef HAVE_CRYPT
-            uint32_t dos_date = 0;
             uint8_t verify1 = 0;
             uint8_t verify2 = 0;
 
             // Info-ZIP modification to ZipCrypto format:
             // If bit 3 of the general purpose bit flag is set, it uses high byte of 16-bit File Time.
 
-            dos_date = mz_zip_time_t_to_dos_date(zip->file_info.modified_date);
+            if (zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR)
+            {
+                uint32_t dos_date = 0;
 
-            verify1 = (uint8_t)((dos_date >> 16) & 0xff);
-            verify2 = (uint8_t)((dos_date >> 8) & 0xff);
+                dos_date = mz_zip_time_t_to_dos_date(zip->file_info.modified_date);
+
+                verify1 = (uint8_t)((dos_date >> 16) & 0xff);
+                verify2 = (uint8_t)((dos_date >> 8) & 0xff);
+            }
+            else
+            {
+                verify1 = (uint8_t)((zip->file_info.crc >> 16) & 0xff);
+                verify2 = (uint8_t)((zip->file_info.crc >> 24) & 0xff);
+            }
 
             mz_stream_crypt_create(&zip->crypt_stream);
             mz_stream_crypt_set_password(zip->crypt_stream, password);

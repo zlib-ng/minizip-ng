@@ -155,7 +155,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
         aes->total_in += MZ_AES_PW_VERIFY_SIZE;
 
         if (memcmp(verify_expected, verify, MZ_AES_PW_VERIFY_SIZE) != 0)
-            return MZ_STREAM_ERROR;
+            return MZ_PASSWORD_ERROR;
     }
 
     aes->mode = mode;
