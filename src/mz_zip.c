@@ -463,9 +463,8 @@ extern void* mz_zip_open(void *stream, int32_t mode)
     memset(zip, 0, sizeof(mz_zip));
 
     zip->stream = stream;
-    zip->open_mode = mode;
 
-    if (zip->open_mode & MZ_OPEN_MODE_WRITE)
+    if (mode & MZ_OPEN_MODE_WRITE)
     {
         mz_stream_mem_create(&zip->cd_mem_stream);
         mz_stream_mem_open(zip->cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
@@ -477,7 +476,7 @@ extern void* mz_zip_open(void *stream, int32_t mode)
         zip->cd_stream = stream;
     }
 
-    if ((zip->open_mode & MZ_OPEN_MODE_READ) || (mode & MZ_OPEN_MODE_APPEND))
+    if ((mode & MZ_OPEN_MODE_READ) || (mode & MZ_OPEN_MODE_APPEND))
     {
         err = mz_zip_read_cd(zip);
 
@@ -514,22 +513,11 @@ extern void* mz_zip_open(void *stream, int32_t mode)
 
     if (err != MZ_OK)
     {
-        if (zip->file_info_stream != NULL)
-            mz_stream_mem_delete(&zip->file_info_stream);
-        if (zip->local_file_info_stream != NULL)
-            mz_stream_mem_delete(&zip->local_file_info_stream);
-        if (zip->cd_mem_stream != NULL)
-        {
-            mz_stream_close(zip->cd_mem_stream);
-            mz_stream_delete(&zip->cd_mem_stream);
-        }
-
-        if (zip->comment)
-            free(zip->comment);
-
-        free(zip);
+        mz_zip_close(zip);
         return NULL;
     }
+
+    zip->open_mode = mode;
 
     return zip;
 }
@@ -558,10 +546,16 @@ extern int32_t mz_zip_close(void *handle)
         mz_stream_delete(&zip->cd_mem_stream);
     }
 
-    mz_stream_mem_close(zip->file_info_stream);
-    mz_stream_mem_delete(&zip->file_info_stream);
-    mz_stream_mem_close(zip->local_file_info_stream);
-    mz_stream_mem_delete(&zip->local_file_info_stream);
+    if (zip->file_info_stream != NULL)
+    {
+        mz_stream_mem_close(zip->file_info_stream);
+        mz_stream_mem_delete(&zip->file_info_stream);
+    }
+    if (zip->local_file_info_stream != NULL)
+    {
+        mz_stream_mem_close(zip->local_file_info_stream);
+        mz_stream_mem_delete(&zip->local_file_info_stream);
+    }
 
     if (zip->comment)
         free(zip->comment);
