@@ -845,7 +845,6 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
 static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_file *file_info)
 {
-    struct tm *local_time = NULL;
     uint64_t ntfs_time = 0;
     uint32_t reserved = 0;
     uint32_t dos_date = 0;
@@ -1592,7 +1591,6 @@ uint32_t mz_zip_time_t_to_dos_date(time_t unix_time)
 uint32_t mz_zip_tm_to_dosdate(const struct tm *ptm)
 {
     struct tm fixed_tm = { 0 };
-    uint32_t dos_date = 0;
 
     // Years supported:
 

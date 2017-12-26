@@ -84,7 +84,6 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
     const char *password = path;
     int32_t password_length = 0;
     int32_t key_length = 0;
-    int32_t err = MZ_OK;
 
     aes->total_in = 0;
     aes->total_out = 0;

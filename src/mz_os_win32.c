@@ -113,7 +113,6 @@ int64_t mz_win32_get_file_size(const char *path)
     HANDLE handle = NULL;
     LARGE_INTEGER large_size;
     wchar_t *path_wide = NULL;
-    int32_t err = MZ_OK;
 
 
     path_wide = mz_win32_unicode_path_create(path);

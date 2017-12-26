@@ -73,7 +73,6 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     int32_t i = 0;
     int32_t err = MZ_OK;
     int16_t disk_part = 0;
-    int16_t read_disk_part = 0;
 
 
     // Check if we are reading or writing a disk part or the cd disk
