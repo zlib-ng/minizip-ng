@@ -76,7 +76,7 @@ int32_t mz_stream_buffered_is_open(void *stream)
     return mz_stream_is_open(stream);
 }
 
-int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
+static int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t total_bytes_written = 0;
@@ -236,7 +236,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
     return size - bytes_left_to_write;
 }
 
-int64_t mz_stream_buffered_tellinternal(void *stream, uint64_t position)
+static int64_t mz_stream_buffered_tellinternal(void *stream, uint64_t position)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     buffered->position = position;
@@ -258,7 +258,7 @@ int64_t mz_stream_buffered_tell(void *stream)
     return mz_stream_buffered_tellinternal(stream, position);
 }
 
-int mz_stream_buffered_seekinternal(void *stream, int64_t offset, int32_t origin)
+static int mz_stream_buffered_seekinternal(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t bytes_flushed = 0;

@@ -122,6 +122,18 @@ void*   mz_stream_crc32_get_interface(void);
 
 /***************************************************************************/
 
+int32_t mz_stream_raw_open(void *stream, const char *filename, int32_t mode);
+int32_t mz_stream_raw_is_open(void *stream);
+int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size);
+int32_t mz_stream_raw_write(void *stream, const void *buf, int32_t size);
+int64_t mz_stream_raw_tell(void *stream);
+int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin);
+int32_t mz_stream_raw_close(void *stream);
+int32_t mz_stream_raw_error(void *stream);
+
+int32_t mz_stream_raw_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+int32_t mz_stream_raw_set_prop_int64(void *stream, int32_t prop, int64_t value);
+
 void*   mz_stream_raw_create(void **stream);
 void    mz_stream_raw_delete(void **stream);
 

@@ -207,7 +207,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
     return total_out;
 }
 
-int32_t mz_stream_lzma_flush(void *stream)
+static int32_t mz_stream_lzma_flush(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     if (mz_stream_write(lzma->stream.base, lzma->buffer, lzma->buffer_len) != lzma->buffer_len)
@@ -215,7 +215,7 @@ int32_t mz_stream_lzma_flush(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_lzma_code(void *stream, int32_t flush)
+static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint64_t total_out_before = 0;
@@ -383,7 +383,7 @@ void *mz_stream_lzma_get_interface(void)
     return (void *)&mz_stream_lzma_vtbl;
 }
 
-int32_t mz_stream_lzma_crc32(int32_t value, const void *buf, int32_t size)
+static int32_t mz_stream_lzma_crc32(int32_t value, const void *buf, int32_t size)
 {
     return lzma_crc32(buf, size, value);
 }

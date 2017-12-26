@@ -80,7 +80,7 @@ typedef struct mz_stream_crypt_s {
 
 /***************************************************************************/
 
-uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
+static uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
 {
     unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
                      * unpredictable manner on 16-bit systems; not a problem
@@ -90,7 +90,7 @@ uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
 }
 
-uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
+static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
 {
     #define CRC32(c, b) ((*(crc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
@@ -104,7 +104,7 @@ uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, i
     return (uint8_t)c;
 }
 
-void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
+static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
 {
     *(keys+0) = 305419896L;
     *(keys+1) = 591751049L;

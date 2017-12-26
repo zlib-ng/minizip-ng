@@ -171,7 +171,7 @@ int32_t mz_stream_aes_is_open(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_aes_encrypt_data(void *stream, uint8_t *buf, int32_t size)
+static int32_t mz_stream_aes_encrypt_data(void *stream, uint8_t *buf, int32_t size)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     uint32_t pos = aes->encr_pos;

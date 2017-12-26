@@ -66,7 +66,7 @@ typedef struct mz_stream_split_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
+static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
     uint32_t magic = 0;
@@ -139,7 +139,7 @@ int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     return err;
 }
 
-int32_t mz_stream_split_close_disk(void *stream)
+static int32_t mz_stream_split_close_disk(void *stream)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
 
@@ -149,7 +149,7 @@ int32_t mz_stream_split_close_disk(void *stream)
     return mz_stream_close(split->stream.base);
 }
 
-int32_t mz_stream_split_goto_disk(void *stream, int32_t number_disk)
+static int32_t mz_stream_split_goto_disk(void *stream, int32_t number_disk)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
     int32_t err = MZ_OK;

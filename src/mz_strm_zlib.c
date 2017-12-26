@@ -195,7 +195,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     return total_out;
 }
 
-int32_t mz_stream_zlib_flush(void *stream)
+static int32_t mz_stream_zlib_flush(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     if (mz_stream_write(zlib->stream.base, zlib->buffer, zlib->buffer_len) != zlib->buffer_len)
@@ -203,7 +203,7 @@ int32_t mz_stream_zlib_flush(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_zlib_deflate(void *stream, int flush)
+static int32_t mz_stream_zlib_deflate(void *stream, int flush)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     uint64_t total_out_before = 0;
@@ -369,7 +369,7 @@ void *mz_stream_zlib_get_interface(void)
     return (void *)&mz_stream_zlib_vtbl;
 }
 
-int32_t mz_stream_zlib_crc32(int32_t value, const void *buf, int32_t size)
+static int32_t mz_stream_zlib_crc32(int32_t value, const void *buf, int32_t size)
 {
     return crc32(value, buf, size);
 }

@@ -37,6 +37,8 @@ void    mz_stream_bzip_delete(void **stream);
 
 void*   mz_stream_bzip_get_interface(void);
 
+void    bz_internal_error(int errcode);
+
 /***************************************************************************/
 
 #ifdef __cplusplus
