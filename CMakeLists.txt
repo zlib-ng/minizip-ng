@@ -81,7 +81,7 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
 endif()
 
 if(UNIX)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -O3")
+    add_compile_options(-fPIC -O3)
 
     list(APPEND MINIZIP_SRC "src/mz_os_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "src/mz_os_posix.h")
@@ -276,7 +276,7 @@ if(USE_LZMA)
 endif()
 
 if(CMAKE_C_COMPILER MATCHES ".*clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse3 -msse4.1 -maes")
+    add_compile_options(-msse3 -msse4.1 -maes)
 endif()
 
 # Create minizip library
