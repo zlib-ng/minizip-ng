@@ -67,7 +67,7 @@ typedef struct mz_stream_buffered_s {
 int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
-    //mz_stream_buffered_print(buffered, "open [mode %d]\n", mode);
+    mz_stream_buffered_print(buffered, "open [mode %d]\n", mode);
     return mz_stream_open(buffered->stream.base, path, mode);
 }
 
