@@ -89,7 +89,7 @@ if(UNIX)
     add_definitions(-D__USE_FILE_OFFSET64)
     add_definitions(-D__USE_LARGEFILE64)
     add_definitions(-D_LARGEFILE64_SOURCE)
-    add_definitions(-D_FILE_OFFSET_BIT=64)
+    add_definitions(-D_FILE_OFFSET_BITS=64)
 
     find_package(PkgConfig REQUIRED)
 
