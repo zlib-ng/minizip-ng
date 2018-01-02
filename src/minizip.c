@@ -26,6 +26,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_strm_buf.h"
 #include "mz_strm_split.h"
 #include "mz_zip.h"
 
@@ -45,6 +46,7 @@ void minizip_help()
            "  -d  Destination directory\n" \
            "  -o  Overwrite existing files\n" \
            "  -a  Append to existing zip file\n" \
+           "  -u  Buffered reading and writing\n" \
            "  -j  Exclude path of files\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
@@ -529,6 +531,7 @@ int main(int argc, char *argv[])
     void *handle = NULL;
     void *file_stream = NULL;
     void *split_stream = NULL;
+    void *buf_stream = NULL;
     char *path = NULL;
     char *password = NULL;
     char *destination = NULL;
@@ -538,6 +541,7 @@ int main(int argc, char *argv[])
     int32_t path_arg = 0;
     uint8_t do_list = 0;
     uint8_t do_extract = 0;
+    uint8_t buffered = 0;
     int16_t mode = 0;
     uint8_t append = 0;
     int32_t err_close = 0;
@@ -572,6 +576,8 @@ int main(int argc, char *argv[])
                     do_extract = 1;
                 if ((c == 'a') || (c == 'A'))
                     append = 1;
+                if ((c == 'u') || (c == 'U'))
+                    buffered = 1;
                 if ((c == 'o') || (c == 'O'))
                     options.overwrite = 1;
                 if ((c == 'j') || (c == 'J'))
@@ -676,9 +682,19 @@ int main(int argc, char *argv[])
     }
 
     mz_stream_os_create(&file_stream);
-
+    mz_stream_buffered_create(&buf_stream);
     mz_stream_split_create(&split_stream);
-    mz_stream_set_base(split_stream, file_stream);
+
+    if (buffered)
+    {
+        mz_stream_set_base(buf_stream, file_stream);
+        mz_stream_set_base(split_stream, buf_stream);
+    }
+    else
+    {
+        mz_stream_set_base(split_stream, file_stream);
+    }
+    
     mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, disk_size);
 
     err = mz_stream_open(split_stream, path, mode);
@@ -734,10 +750,11 @@ int main(int argc, char *argv[])
             err = err_close;
         }
 
-        mz_stream_os_close(file_stream);
+        mz_stream_close(split_stream);
     }
 
     mz_stream_split_delete(&split_stream);
+    mz_stream_buffered_delete(&buf_stream);
     mz_stream_os_delete(&file_stream);
 
     return err;
