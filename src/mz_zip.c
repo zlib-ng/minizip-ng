@@ -1317,7 +1317,7 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
         return MZ_PARAM_ERROR;
     if (len > UINT16_MAX) // Zlib limitation
         return MZ_PARAM_ERROR;
-    if (len == 0)
+    if (len == 0 || zip->file_info.uncompressed_size == 0)
         return 0;
     read = mz_stream_read(zip->crc32_stream, buf, len);
     if (read > 0)
