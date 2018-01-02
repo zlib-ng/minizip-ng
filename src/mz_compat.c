@@ -131,6 +131,9 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     file_info.aes_version = MZ_AES_VERSION;
 #endif
 
+    if (raw)
+        level = 0;
+
     return mz_zip_entry_write_open(compat->handle, &file_info, (int16_t)level, password);
 }
 
