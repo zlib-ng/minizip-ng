@@ -1,5 +1,5 @@
 /* mz_strm_buf.c -- Stream for buffering reads/writes
-   Version 2.2.4, November 15th, 2017
+   Version 2.2.5, January 3rd, 2018
    part of the MiniZip project
 
    This version of ioapi is designed to buffer IO.
@@ -23,7 +23,7 @@
 
 /***************************************************************************/
 
-#if 0
+#if 1
 #  define mz_stream_buffered_print(s,f,...) printf(f,__VA_ARGS__);
 #else
 #  define mz_stream_buffered_print(s,f,...)

@@ -1,4 +1,4 @@
-# Minizip 2.2.4
+# Minizip 2.2.5
 
 This library is a refactoring of the minizip contribution found in the zlib distribution that is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
