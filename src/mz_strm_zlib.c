@@ -234,16 +234,18 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush)
 
         out_bytes = (uint32_t)(total_out_after - total_out_before);
 
-        if (err != Z_OK && err != Z_STREAM_END)
+        zlib->buffer_len += out_bytes;
+        zlib->total_out += out_bytes;
+
+        if (err == Z_STREAM_END)
+            break;
+        if (err != Z_OK)
         {
             zlib->error = err;
             return MZ_STREAM_ERROR;
         }
-
-        zlib->buffer_len += out_bytes;
-        zlib->total_out += out_bytes;
     }
-    while (zlib->zstream.avail_in > 0);
+    while ((zlib->zstream.avail_in > 0) || (flush == Z_FINISH && err == Z_OK));
 
     return MZ_OK;
 }

@@ -3,7 +3,6 @@
    part of the MiniZip project
 
    Copyright (C) 2010-2017 Nathan Moinvaziri
-     Modifications for AES, PKWARE disk spanning
      https://github.com/nmoinvaz/minizip
    Copyright (C) 2009-2010 Mathias Svensson
      Modifications for Zip64 support
