@@ -23,7 +23,7 @@
 
 /***************************************************************************/
 
-#if 1
+#if 0
 #  define mz_stream_buffered_print(s,f,...) printf(f,__VA_ARGS__);
 #else
 #  define mz_stream_buffered_print(s,f,...)
