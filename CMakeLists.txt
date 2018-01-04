@@ -19,13 +19,16 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
     set(CMAKE_MACOSX_RPATH 0)
 endif()
 
-set(INSTALL_BIN_DIR "bin" CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR "lib" CACHE PATH "Installation directory for libraries")
-set(INSTALL_INC_DIR "include" CACHE PATH "Installation directory for headers")
-set(INSTALL_MAN_DIR "share/man" CACHE PATH "Installation directory for manual pages")
-set(INSTALL_PKGCONFIG_DIR "share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
-
 project("minizip")
+
+include(GNUInstallDirs)
+
+set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables")
+set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE PATH "Installation directory for libraries")
+set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for headers")
+set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory for manual pages")
+set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installation directory for pkgconfig (.pc) files")
+set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
 
 set(VERSION "2.2.5")
 
@@ -308,7 +311,7 @@ install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
 
 install(EXPORT ${PROJECT_NAME}
-        DESTINATION "cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}"
         NAMESPACE "MINIZIP::")
 
 install(FILES ${MINIZIP_PUBLIC_HEADERS} DESTINATION "${INSTALL_INC_DIR}")
