@@ -1405,16 +1405,16 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
             if (err == MZ_OK)
             {
                 if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                    err = mz_stream_write_uint64(zip->stream, compressed_size);
-                else
                     err = mz_stream_write_uint32(zip->stream, (uint32_t)compressed_size);
+                else
+                    err = mz_stream_write_uint64(zip->stream, compressed_size);
             }
             if (err == MZ_OK)
             {
                 if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                    err = mz_stream_write_uint64(zip->stream, uncompressed_size);
-                else
                     err = mz_stream_write_uint32(zip->stream, (uint32_t)uncompressed_size);
+                else
+                    err = mz_stream_write_uint64(zip->stream, uncompressed_size);
             }
         }
 
