@@ -86,10 +86,22 @@ if(UNIX)
     list(APPEND MINIZIP_SRC "src/mz_os_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "src/mz_os_posix.h")
 
-    add_definitions(-D__USE_FILE_OFFSET64)
-    add_definitions(-D__USE_LARGEFILE64)
-    add_definitions(-D_LARGEFILE64_SOURCE)
-    add_definitions(-D_FILE_OFFSET_BITS=64)
+    set(define_lfs_macros TRUE)
+
+    if(ANDROID)
+        string(REGEX REPLACE "android-([0-9+])" "\\1"
+            android_api "${ANDROID_PLATFORM}")
+        if(${android_api} LESS 24)
+            set(define_lfs_macros FALSE)
+        endif()
+    endif()
+
+    if(define_lfs_macros)
+        add_definitions(-D__USE_FILE_OFFSET64)
+        add_definitions(-D__USE_LARGEFILE64)
+        add_definitions(-D_LARGEFILE64_SOURCE)
+        add_definitions(-D_FILE_OFFSET_BITS=64)
+    endif()
 
     find_package(PkgConfig REQUIRED)
 
