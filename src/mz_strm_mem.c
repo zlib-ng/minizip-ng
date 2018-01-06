@@ -7,7 +7,7 @@
 
    Based on Unzip ioapi.c version 0.22, May 19th, 2003
 
-   Copyright (C) 2012-2017 Nathan Moinvaziri
+   Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 2003 Justin Fletcher
    Copyright (C) 1998-2003 Gilles Vollant
