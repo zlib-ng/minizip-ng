@@ -1,8 +1,8 @@
 /* mz_strm_posix.c -- Stream for filesystem access for posix/linux
-   Version 2.2.5, January 3rd, 2018
+   Version 2.2.6, January 6th, 2018
    part of the MiniZip project
 
-   Copyright (C) 2012-2017 Nathan Moinvaziri
+   Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Modifications for Zip64 support
      Copyright (C) 2009-2010 Mathias Svensson

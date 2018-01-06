@@ -1,8 +1,8 @@
 /* mz_strm_bzip.c -- Stream for bzip inflate/deflate
-   Version 2.2.5, January 3rd, 2018
+   Version 2.2.6, January 6th, 2018
    part of the MiniZip project
 
-   Copyright (C) 2012-2017 Nathan Moinvaziri
+   Copyright (C) 2010-2018 Nathan Moinvaziri
       https://github.com/nmoinvaz/minizip
 
    This program is distributed under the terms of the same license as bzip.
@@ -232,14 +232,16 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush)
 
         out_bytes = (uint32_t)(total_out_after - total_out_before);
 
+        bzip->buffer_len += out_bytes;
+        bzip->total_out += out_bytes;
+
+        if (err == BZ_STREAM_END)
+            break;
         if (err < 0)
         {
             bzip->error = err;
             return MZ_STREAM_ERROR;
         }
-
-        bzip->buffer_len += out_bytes;
-        bzip->total_out += out_bytes;
     }
     while ((bzip->bzstream.avail_in > 0) || (flush == BZ_FINISH && err == BZ_FINISH_OK));
 

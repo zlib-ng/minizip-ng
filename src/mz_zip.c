@@ -1,8 +1,8 @@
 /* zip.c -- Zip manipulation
-   Version 2.2.5, January 3rd, 2018
+   Version 2.2.6, January 6th, 2018
    part of the MiniZip project
 
-   Copyright (C) 2010-2017 Nathan Moinvaziri
+   Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 2009-2010 Mathias Svensson
      Modifications for Zip64 support
@@ -1405,16 +1405,16 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
             if (err == MZ_OK)
             {
                 if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                    err = mz_stream_write_uint64(zip->stream, compressed_size);
-                else
                     err = mz_stream_write_uint32(zip->stream, (uint32_t)compressed_size);
+                else
+                    err = mz_stream_write_uint64(zip->stream, compressed_size);
             }
             if (err == MZ_OK)
             {
                 if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                    err = mz_stream_write_uint64(zip->stream, uncompressed_size);
-                else
                     err = mz_stream_write_uint32(zip->stream, (uint32_t)uncompressed_size);
+                else
+                    err = mz_stream_write_uint64(zip->stream, uncompressed_size);
             }
         }
 
