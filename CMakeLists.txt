@@ -81,7 +81,7 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
 endif()
 
 if(UNIX)
-    add_compile_options(-fPIC -O3)
+    add_compile_options(-O3)
 
     list(APPEND MINIZIP_SRC "src/mz_os_posix.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "src/mz_os_posix.h")
@@ -288,7 +288,8 @@ add_library(${PROJECT_NAME}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX "")
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
+                      POSITION_INDEPENDENT_CODE 1)
 if(USE_ZLIB)
     target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
 endif()
