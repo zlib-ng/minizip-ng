@@ -275,8 +275,19 @@ if(USE_LZMA)
     source_group("LZMA\\RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HEADERS})
 endif()
 
+# Enable x86 optimizations if supported
 if(CMAKE_C_COMPILER MATCHES ".*clang")
-    add_compile_options(-msse3 -msse4.1 -maes)
+    include(CheckCCompilerFlag)
+    macro(enable_option_if_supported option variable)
+        check_c_compiler_flag("-Werror=unused-command-line-argument ${option}" ${variable})
+        if(${variable})
+            add_compile_options(${option})
+        endif()
+    endmacro()
+
+    enable_option_if_supported(-msse3 check_opt_sse3)
+    enable_option_if_supported(-msse4.1 check_opt_sse41)
+    enable_option_if_supported(-maes check_opt_aes)
 endif()
 
 # Create minizip library
