@@ -129,7 +129,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
 
     zlib->zstream.next_out = (uint8_t*)buf;
-    zlib->zstream.avail_out = (uint16_t)size;
+    zlib->zstream.avail_out = (uint32_t)size;
 
     do
     {
