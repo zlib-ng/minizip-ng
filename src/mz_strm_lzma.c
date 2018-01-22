@@ -147,7 +147,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 
 
     lzma->lstream.next_out = (uint8_t*)buf;
-    lzma->lstream.avail_out = (uint16_t)size;
+    lzma->lstream.avail_out = (size_t)size;
 
     do
     {
@@ -266,7 +266,7 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 
 
     lzma->lstream.next_in = (uint8_t*)buf;
-    lzma->lstream.avail_in = size;
+    lzma->lstream.avail_in = (size_t)size;
 
     mz_stream_lzma_code(stream, LZMA_RUN);
 

@@ -128,8 +128,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     int32_t err = Z_OK;
 
 
-    zlib->zstream.next_out = (uint8_t*)buf;
-    zlib->zstream.avail_out = (uint32_t)size;
+    zlib->zstream.next_out = (Bytef*)buf;
+    zlib->zstream.avail_out = (uInt)size;
 
     do
     {
@@ -255,8 +255,8 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
 
-    zlib->zstream.next_in = (uint8_t*)buf;
-    zlib->zstream.avail_in = size;
+    zlib->zstream.next_in = (Bytef*)buf;
+    zlib->zstream.avail_in = (uInt)size;
 
     mz_stream_zlib_deflate(stream, Z_NO_FLUSH);
 
