@@ -20,6 +20,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <limits.h>
 
 #include "mz.h"
 #include "mz_strm.h"
