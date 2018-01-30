@@ -1,5 +1,5 @@
 /* mz_strm_mem.c -- Stream for memory access
-   Version 2.2.6, January 6th, 2018
+   Version 2.2.7, January 30th, 2018
    part of the MiniZip project
 
    This interface is designed to access memory rather than files.
