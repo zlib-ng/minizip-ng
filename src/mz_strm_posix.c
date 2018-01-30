@@ -177,8 +177,12 @@ int32_t mz_stream_posix_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_posix_close(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
-    int32_t closed = fclose(posix->handle);
-    posix->handle = NULL;
+    int32_t closed = 0;
+    if (posix->handle != NULL)
+    {
+        closed = fclose(posix->handle);
+        posix->handle = NULL;
+    }
     if (closed != 0)
     {
         posix->error = errno;
@@ -199,10 +203,13 @@ void *mz_stream_posix_create(void **stream)
 
     posix = (mz_stream_posix *)malloc(sizeof(mz_stream_posix));
     if (posix != NULL)
+    {
+        memset(posix, 0, sizeof(mz_stream_posix));
         posix->stream.vtbl = &mz_stream_posix_vtbl;
+    }
     if (stream != NULL)
         *stream = posix;
-
+ 
     return posix;
 }
 
