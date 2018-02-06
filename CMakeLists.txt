@@ -156,6 +156,15 @@ endif()
 
 if(USE_ZLIB)
     add_definitions(-DHAVE_ZLIB)
+
+    include(CheckFunctionExists)
+    set(CMAKE_REQUIRED_LIBRARIES ZLIB::ZLIB)
+    CHECK_FUNCTION_EXISTS(z_get_crc_table
+        NEEDS_Z_PREFIX)
+
+    if(NEEDS_Z_PREFIX)
+        add_definitions(-DZ_PREFIX)
+    endif()
 endif()
 if(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
