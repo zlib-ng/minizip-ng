@@ -82,7 +82,6 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     {
         desired_access = GENERIC_READ;
         creation_disposition = OPEN_EXISTING;
-        share_mode &= FILE_SHARE_WRITE;
     }
     else if (mode & MZ_OPEN_MODE_APPEND)
     {
