@@ -395,7 +395,7 @@ static int32_t mz_zip_write_cd(void *handle)
             err = mz_stream_write_uint64(zip->stream, zip64_eocd_pos_inzip);
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd + 1);
     }
 
     // Write the central directory header
