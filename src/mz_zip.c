@@ -351,7 +351,7 @@ static int32_t mz_zip_write_cd(void *handle)
     err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
 
     // Write the ZIP64 central directory header
-    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT32_MAX)
+    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT16_MAX)
     {
         zip64_eocd_pos_inzip = mz_stream_tell(zip->stream);
 
