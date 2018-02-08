@@ -107,6 +107,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file file_info;
+    memset(&file_info, 0, sizeof(file_info));
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
@@ -128,7 +129,8 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     file_info.comment = (char *)comment;
     file_info.flag = flag_base;
 #ifdef HAVE_AES
-    file_info.aes_version = MZ_AES_VERSION;
+    if (password)
+        file_info.aes_version = MZ_AES_VERSION;
 #endif
 
     if (raw)
