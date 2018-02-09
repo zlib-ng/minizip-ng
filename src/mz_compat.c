@@ -107,10 +107,11 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file file_info;
-    memset(&file_info, 0, sizeof(file_info));
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
+   
+    memset(&file_info, 0, sizeof(file_info));
 
     if (zipfi != NULL)
     {
