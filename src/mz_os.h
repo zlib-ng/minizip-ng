@@ -42,7 +42,8 @@ extern "C" {
 #define MZ_VERSION_MADEBY_ZIP_VERSION (45)
 #endif
 
-#define MZ_VERSION_MADEBY (MZ_VERSION_MADEBY_HOST_SYSTEM << 8 | MZ_VERSION_MADEBY_ZIP_VERSION)
+#define MZ_VERSION_MADEBY             ((MZ_VERSION_MADEBY_HOST_SYSTEM << 8) | \
+                                       (MZ_VERSION_MADEBY_ZIP_VERSION))
 
 /***************************************************************************/
 
