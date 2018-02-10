@@ -32,6 +32,21 @@ extern "C" {
 
 /***************************************************************************/
 
+#ifdef HAVE_LZMA
+#define MZ_VERSION_MADEBY_ZIP_VERSION (63)
+#elif HAVE_AES
+#define MZ_VERSION_MADEBY_ZIP_VERSION (51)
+#elif HAVE_BZIP2
+#define MZ_VERSION_MADEBY_ZIP_VERSION (46)
+#else
+#define MZ_VERSION_MADEBY_ZIP_VERSION (45)
+#endif
+
+#define MZ_VERSION_MADEBY             ((MZ_VERSION_MADEBY_HOST_SYSTEM << 8) | \
+                                       (MZ_VERSION_MADEBY_ZIP_VERSION))
+
+/***************************************************************************/
+
 int32_t mz_make_dir(const char *path);
 // Creates a directory recursively
 

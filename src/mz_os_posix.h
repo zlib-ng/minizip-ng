@@ -23,9 +23,9 @@ extern "C" {
 /***************************************************************************/
 
 #if defined(__APPLE__)
-#define MZ_VERSION_MADEBY (19)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM (19)
 #elif defined(unix)
-#define MZ_VERSION_MADEBY (3)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM (3)
 #endif
 
 /***************************************************************************/

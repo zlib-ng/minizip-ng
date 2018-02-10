@@ -351,7 +351,7 @@ static int32_t mz_zip_write_cd(void *handle)
     err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
 
     // Write the ZIP64 central directory header
-    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT32_MAX)
+    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT16_MAX)
     {
         zip64_eocd_pos_inzip = mz_stream_tell(zip->stream);
 
@@ -395,7 +395,7 @@ static int32_t mz_zip_write_cd(void *handle)
             err = mz_stream_write_uint64(zip->stream, zip64_eocd_pos_inzip);
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd + 1);
     }
 
     // Write the central directory header
