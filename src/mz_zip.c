@@ -881,17 +881,11 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += 4 + 7;
 #endif
     // NTFS timestamps
-    if (file_info->modified_date != 0)
-        extrafield_ntfs_size += 8;
-    if (file_info->accessed_date != 0)
-        extrafield_ntfs_size += 8;
-    if (file_info->creation_date != 0)
-        extrafield_ntfs_size += 8;
-
-    if (extrafield_ntfs_size > 4)
+    if (file_info->modified_date != 0 &&
+        file_info->accessed_date != 0 &&
+        file_info->creation_date != 0)
     {
-        extrafield_ntfs_size += 4 + 4;
-
+        extrafield_ntfs_size += 8 + 8 + 8 + 4 + 2 + 2;
         extrafield_size += 4;
         extrafield_size += extrafield_ntfs_size;
     }
@@ -1006,17 +1000,17 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint16(stream, 0x01);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, extrafield_ntfs_size - 8);
-        if ((err == MZ_OK) && (file_info->modified_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->modified_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
         }
-        if ((err == MZ_OK) && (file_info->accessed_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->accessed_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
         }
-        if ((err == MZ_OK) && (file_info->creation_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->creation_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
