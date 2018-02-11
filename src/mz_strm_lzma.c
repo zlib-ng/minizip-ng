@@ -55,6 +55,7 @@ typedef struct mz_stream_lzma_s {
     int64_t     total_in;
     int64_t     total_out;
     int64_t     max_total_in;
+    int64_t     max_total_out;
     int8_t      initialized;
     uint32_t    preset;
 } mz_stream_lzma;
@@ -181,6 +182,8 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 
         total_in_after = lzma->lstream.avail_in;
         total_out_after = lzma->lstream.total_out;
+        if (lzma->max_total_out != -1 && total_out_after > lzma->max_total_out)
+            total_out_after = lzma->max_total_out;
         
         in_bytes = (uint32_t)(total_in_before - total_in_after);
         out_bytes = (uint32_t)(total_out_after - total_out_before);
@@ -346,6 +349,11 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         lzma->max_total_in = value;
         return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_OUT_MAX:
+        if (value < -1)
+            return MZ_PARAM_ERROR;
+        lzma->max_total_out = value;
+        return MZ_OK;
     }
     return MZ_EXIST_ERROR;
 }
@@ -360,6 +368,7 @@ void *mz_stream_lzma_create(void **stream)
         memset(lzma, 0, sizeof(mz_stream_lzma));
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->preset = LZMA_PRESET_DEFAULT;
+        lzma->max_total_out = -1;
     }
     if (stream != NULL)
         *stream = lzma;

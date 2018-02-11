@@ -1168,6 +1168,12 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
                     max_total_in -= total_in;
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
             }
+            if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA &&
+                (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)
+            {
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
+            }
         }
 
         mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
