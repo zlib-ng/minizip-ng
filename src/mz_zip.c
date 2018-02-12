@@ -755,7 +755,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 if ((err == MZ_OK) && (file_info->disk_offset == UINT32_MAX))
                     err = mz_stream_read_uint64(file_info_stream, &value64);
                 file_info->disk_offset = value64;
-                if ((err == MZ_OK) && (file_info->disk_number == UINT32_MAX))
+                if ((err == MZ_OK) && (file_info->disk_number == UINT16_MAX))
                     err = mz_stream_read_uint32(file_info_stream, &file_info->disk_number);
             }
             // NTFS extra field
