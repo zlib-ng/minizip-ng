@@ -881,9 +881,9 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += 4 + 7;
 #endif
     // NTFS timestamps
-    if (file_info->modified_date != 0 &&
-        file_info->accessed_date != 0 &&
-        file_info->creation_date != 0)
+    if ((file_info->modified_date != 0) &&
+        (file_info->accessed_date != 0) &&
+        (file_info->creation_date != 0))
     {
         extrafield_ntfs_size += 8 + 8 + 8 + 4 + 2 + 2;
         extrafield_size += 4;
