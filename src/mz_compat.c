@@ -322,17 +322,18 @@ extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info3
     unz_global_info64 global_info64;
     int32_t err = MZ_OK;
 
+    memset(pglobal_info32, 0, sizeof(unz_global_info));
     if (compat == NULL)
         return MZ_PARAM_ERROR;
 
     err = unzGetGlobalInfo64(file, &global_info64);
-    if (err != UNZ_OK)
+    if (err == MZ_OK)
     {
         pglobal_info32->number_entry = (uint32_t)global_info64.number_entry;
         pglobal_info32->size_comment = global_info64.size_comment;
         pglobal_info32->number_disk_with_CD = global_info64.number_disk_with_CD;
     }
-    return MZ_OK;
+    return err;
 }
 
 extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info)
@@ -341,12 +342,16 @@ extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_i
     const char *comment_ptr = NULL;
     int32_t err = MZ_OK;
 
+    memset(pglobal_info, 0, sizeof(unz_global_info64));
     if (compat == NULL)
         return MZ_PARAM_ERROR;
     err = mz_zip_get_comment(compat->handle, &comment_ptr);
     if (err == MZ_OK)
-        pglobal_info->size_comment = (uint16_t)strlen(comment_ptr);
-    mz_zip_get_number_entry(compat->handle, (int64_t *)&pglobal_info->number_entry);
+        pglobal_info->size_comment = (uint16_t)strlen(comment_ptr);       
+    if (err == MZ_OK)
+        err = mz_zip_get_number_entry(compat->handle, (int64_t *)&pglobal_info->number_entry);
+    if (err == MZ_OK)
+        err = mz_zip_get_disk_number_with_cd(compat->handle, (int64_t *)&pglobal_info->number_disk_with_CD);
     return err;
 }
 
