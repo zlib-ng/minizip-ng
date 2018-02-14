@@ -345,7 +345,9 @@ extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_i
     err = mz_zip_get_comment(compat->handle, &comment_ptr);
     if (err == MZ_OK)
         pglobal_info->size_comment = (uint16_t)strlen(comment_ptr);       
-    if (err == MZ_OK)
+    else if (err == MZ_EXIST_ERROR)
+        pglobal_info->size_comment = 0;
+    if ((err == MZ_OK) || (err == MZ_EXIST_ERROR))
         err = mz_zip_get_number_entry(compat->handle, (int64_t *)&pglobal_info->number_entry);
     if (err == MZ_OK)
         err = mz_zip_get_disk_number_with_cd(compat->handle, (int64_t *)&pglobal_info->number_disk_with_CD);
