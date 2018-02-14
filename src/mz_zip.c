@@ -1288,8 +1288,8 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     else
         zip->file_info.flag &= ~MZ_ZIP_FLAG_ENCRYPTED;
 
-    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
-        zip->file_info.disk_number = (uint32_t)disk_number;
+    mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
+    zip->file_info.disk_number = (uint32_t)disk_number;
 
     zip->file_info.disk_offset = mz_stream_tell(zip->stream);
     zip->file_info.crc = 0;
