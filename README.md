@@ -1,6 +1,6 @@
 # Minizip 2.2.7
 
-This library is a refactoring of the minizip contribution found in the zlib distribution that is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
+This library is a refactoring of the minizip contribution found in the zlib distribution and is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
 
 Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
 Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
@@ -30,12 +30,12 @@ cmake --build .
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
 | mz_strm_crypt.\* | PKWARE traditional encryption stream | No |
-| mz_strm_lzma.\* | LZMA stream using liblzma | No |
+| mz_strm_lzma.\* | LZMA stream using liblzma | zlib or liblzma |
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
 | mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
 | mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
-| mz_strm_zlib.\* | Deflate stream using zlib | Yes |
+| mz_strm_zlib.\* | Deflate stream using zlib | zlib or liblzma |
 | mz_zip.\* | Zip functionality | Yes |
 
 ## Features
@@ -81,7 +81,7 @@ This library has been refactored around streams.
 
 #### Memory Streaming
 
-To unzip from a zip file in memory create a memory stream and pass it to the unzip open functions.
+To unzip from a zip file in memory pass the memory stream to the open function.
 ```
 uint8_t *zip_buffer = NULL;
 int32_t zip_buffer_size = 0;
@@ -98,7 +98,7 @@ void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_READ);
 mz_stream_mem_delete(&mem_stream);
 ```
 
-To create a zip file in memory first create a growable memory stream and pass it to the zip open functions.
+To create a zip file in memory first create a growable memory stream and pass it to the open function.
 
 ```
 void *mem_stream = NULL;
@@ -135,7 +135,7 @@ void *zip_handle = mz_zip_open(buf_stream, MZ_OPEN_MODE_READ);
 
 #### Disk Splitting Stream
 
-To create an archive with multiple disks use the disk splitting stream and for zipping supply a disk size value in bytes.
+To create an archive with multiple disks use the disk splitting stream and supply a disk size value in bytes.
 
 ```
 void *stream = NULL;
@@ -150,12 +150,8 @@ mz_stream_set_base(split_stream, stream);
 
 mz_stream_open(split_stream, path..
 
-handle = mz_zip_open(split_stream, MZ_OPEN_MODE_WRITE);
+void *zip_handle = mz_zip_open(split_stream, MZ_OPEN_MODE_WRITE);
 ```
-
-The central directory is the only data stored in the .zip and doesn't follow disk size restrictions.
-
-When unzipping it will automatically determine when in needs to cross disk boundaries.
 
 ### Windows RT
 
@@ -166,3 +162,4 @@ When unzipping it will automatically determine when in needs to cross disk bound
 + Archives are required to have a central directory.
 + Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
 + Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
++ Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
