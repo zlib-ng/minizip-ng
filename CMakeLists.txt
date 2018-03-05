@@ -106,9 +106,9 @@ if(UNIX)
         add_definitions(-D_FILE_OFFSET_BITS=64)
     endif()
 
-    find_package(PkgConfig REQUIRED)
-
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        find_package(PkgConfig REQUIRED)
+
         pkg_check_modules(LIBBSD libbsd REQUIRED)
 
         include_directories(${LIBBSD_INCLUDE_DIRS})
