@@ -42,6 +42,7 @@ if(USE_ZLIB)
     if(ZLIB_FOUND)
         include_directories(${ZLIB_INCLUDE_DIRS})
     endif()
+    add_definitions(-DHAVE_ZLIB)
 endif()
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
