@@ -324,6 +324,10 @@ add_library(${PROJECT_NAME}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
+if (MINGW AND BUILD_SHARED_LIBS)
+  set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
+endif ()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)
 if(USE_ZLIB)
