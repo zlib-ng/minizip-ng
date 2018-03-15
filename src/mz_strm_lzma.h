@@ -1,5 +1,5 @@
 /* mz_strm_lzma.h -- Stream for lzma inflate/deflate
-   Version 2.2.7, January 30th, 2018
+   Version 2.2.8, March 15th, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
