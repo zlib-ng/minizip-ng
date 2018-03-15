@@ -8,6 +8,6 @@ Name: minizip
 Description: Minizip zip file manipulation library
 Version: @VERSION@
 
-Requires:
-Libs: -L${libdir} -L${sharedlibdir} -lz -lminizip
+Requires: zlib
+Libs: -L${libdir} -L${sharedlibdir} -lminizip
 Cflags: -I${includedir}

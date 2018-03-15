@@ -42,6 +42,7 @@ if(USE_ZLIB)
     if(ZLIB_FOUND)
         include_directories(${ZLIB_INCLUDE_DIRS})
     endif()
+    add_definitions(-DHAVE_ZLIB)
 endif()
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
@@ -106,9 +107,9 @@ if(UNIX)
         add_definitions(-D_FILE_OFFSET_BITS=64)
     endif()
 
-    find_package(PkgConfig REQUIRED)
-
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+        find_package(PkgConfig REQUIRED)
+
         pkg_check_modules(LIBBSD libbsd REQUIRED)
 
         include_directories(${LIBBSD_INCLUDE_DIRS})
@@ -156,6 +157,15 @@ endif()
 
 if(USE_ZLIB)
     add_definitions(-DHAVE_ZLIB)
+
+    include(CheckFunctionExists)
+    set(CMAKE_REQUIRED_LIBRARIES ZLIB::ZLIB)
+    CHECK_FUNCTION_EXISTS(z_get_crc_table
+        NEEDS_Z_PREFIX)
+
+    if(NEEDS_Z_PREFIX)
+        add_definitions(-DZ_PREFIX)
+    endif()
 endif()
 if(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
@@ -313,6 +323,10 @@ add_library(${PROJECT_NAME}
                 ${AES_SRC} ${AES_PUBLIC_HEADERS}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
+
+if (MINGW AND BUILD_SHARED_LIBS)
+  set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
+endif ()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)

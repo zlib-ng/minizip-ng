@@ -351,7 +351,7 @@ static int32_t mz_zip_write_cd(void *handle)
     err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
 
     // Write the ZIP64 central directory header
-    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT32_MAX)
+    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT16_MAX)
     {
         zip64_eocd_pos_inzip = mz_stream_tell(zip->stream);
 
@@ -395,7 +395,7 @@ static int32_t mz_zip_write_cd(void *handle)
             err = mz_stream_write_uint64(zip->stream, zip64_eocd_pos_inzip);
         // Number of the disk with the start of the central directory
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd + 1);
     }
 
     // Write the central directory header
@@ -755,7 +755,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 if ((err == MZ_OK) && (file_info->disk_offset == UINT32_MAX))
                     err = mz_stream_read_uint64(file_info_stream, &value64);
                 file_info->disk_offset = value64;
-                if ((err == MZ_OK) && (file_info->disk_number == UINT32_MAX))
+                if ((err == MZ_OK) && (file_info->disk_number == UINT16_MAX))
                     err = mz_stream_read_uint32(file_info_stream, &file_info->disk_number);
             }
             // NTFS extra field
@@ -770,17 +770,17 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     if (err == MZ_OK)
                         err = mz_stream_read_uint16(file_info_stream, &ntfs_attrib_size);
 
-                    if (ntfs_attrib_id == 0x01 && ntfs_attrib_size >= 8)
+                    if ((ntfs_attrib_id == 0x01) && (ntfs_attrib_size == 24))
                     {
                         err = mz_stream_read_uint64(file_info_stream, &ntfs_time);
                         mz_zip_ntfs_to_unix_time(ntfs_time, &file_info->modified_date);
 
-                        if ((err == MZ_OK) && (ntfs_attrib_size >= 16))
+                        if (err == MZ_OK)
                         {
                             err = mz_stream_read_uint64(file_info_stream, &ntfs_time);
                             mz_zip_ntfs_to_unix_time(ntfs_time, &file_info->accessed_date);
                         }
-                        if ((err == MZ_OK) && (ntfs_attrib_size >= 24))
+                        if (err == MZ_OK)
                         {
                             err = mz_stream_read_uint64(file_info_stream, &ntfs_time);
                             mz_zip_ntfs_to_unix_time(ntfs_time, &file_info->creation_date);
@@ -881,17 +881,11 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += 4 + 7;
 #endif
     // NTFS timestamps
-    if (file_info->modified_date != 0)
-        extrafield_ntfs_size += 8;
-    if (file_info->accessed_date != 0)
-        extrafield_ntfs_size += 8;
-    if (file_info->creation_date != 0)
-        extrafield_ntfs_size += 8;
-
-    if (extrafield_ntfs_size > 4)
+    if ((file_info->modified_date != 0) &&
+        (file_info->accessed_date != 0) &&
+        (file_info->creation_date != 0))
     {
-        extrafield_ntfs_size += 4 + 4;
-
+        extrafield_ntfs_size += 8 + 8 + 8 + 4 + 2 + 2;
         extrafield_size += 4;
         extrafield_size += extrafield_ntfs_size;
     }
@@ -1006,17 +1000,17 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint16(stream, 0x01);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, extrafield_ntfs_size - 8);
-        if ((err == MZ_OK) && (file_info->modified_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->modified_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
         }
-        if ((err == MZ_OK) && (file_info->accessed_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->accessed_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
         }
-        if ((err == MZ_OK) && (file_info->creation_date != 0))
+        if (err == MZ_OK)
         {
             mz_zip_unix_to_ntfs_time(file_info->creation_date, &ntfs_time);
             err = mz_stream_write_uint64(stream, ntfs_time);
@@ -1159,7 +1153,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         }
         else
         {
-            if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED || zip->compression_method == MZ_COMPRESS_METHOD_RAW)
+            if (zip->compression_method == MZ_COMPRESS_METHOD_RAW || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
@@ -1167,6 +1161,11 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
                     max_total_in -= total_in;
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
+            }
+            if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)
+            {
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
             }
         }
 
@@ -1288,8 +1287,8 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     else
         zip->file_info.flag &= ~MZ_ZIP_FLAG_ENCRYPTED;
 
-    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
-        zip->file_info.disk_number = (uint32_t)disk_number;
+    mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
+    zip->file_info.disk_number = (uint32_t)disk_number;
 
     zip->file_info.disk_offset = mz_stream_tell(zip->stream);
     zip->file_info.crc = 0;
@@ -1465,6 +1464,15 @@ extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
     if (zip == NULL || number_entry == NULL)
         return MZ_PARAM_ERROR;
     *number_entry = zip->number_entry;
+    return MZ_OK;
+}
+
+extern int32_t mz_zip_get_disk_number_with_cd(void *handle, int64_t *disk_number_with_cd)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || disk_number_with_cd == NULL)
+        return MZ_PARAM_ERROR;
+    *disk_number_with_cd = zip->disk_number_with_cd;
     return MZ_OK;
 }
 

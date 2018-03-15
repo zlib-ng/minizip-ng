@@ -56,6 +56,10 @@ mz_stream_vtbl mz_stream_crypt_vtbl = {
 
 /***************************************************************************/
 
+#if ZLIB_VERNUM < 0x1270 // Define z_crc_t in zlib 1.2.5 and less
+typedef unsigned long z_crc_t;
+#endif
+
 typedef struct mz_stream_crypt_s {
     mz_stream       stream;
     int32_t         error;
