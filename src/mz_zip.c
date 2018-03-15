@@ -1153,7 +1153,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         }
         else
         {
-            if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED || zip->compression_method == MZ_COMPRESS_METHOD_RAW)
+            if (zip->compression_method == MZ_COMPRESS_METHOD_RAW || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
@@ -1161,6 +1161,11 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
                     max_total_in -= total_in;
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
+            }
+            if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)
+            {
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
+                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
             }
         }
 
