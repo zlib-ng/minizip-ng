@@ -331,7 +331,7 @@ extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info3
     {
         pglobal_info32->number_entry = (uint32_t)global_info64.number_entry;
         pglobal_info32->size_comment = global_info64.size_comment;
-        pglobal_info32->number_disk_with_CD = global_info64.number_disk_with_CD;
+        pglobal_info32->number_disk_with_CD = (uint32_t)global_info64.number_disk_with_CD;
     }
     return err;
 }
