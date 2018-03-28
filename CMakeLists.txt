@@ -134,14 +134,12 @@ if(USE_AES)
         lib/aes/aescrypt.c
         lib/aes/aeskey.c
         lib/aes/aestab.c
-        lib/aes/aes_ni.c
         lib/aes/hmac.c
         lib/aes/pwd2key.c
         lib/aes/sha1.c)
 
     set(AES_PUBLIC_HEADERS
         lib/aes/aes.h
-        lib/aes/aes_ni.h
         lib/aes/aesopt.h
         lib/aes/aestab.h
         lib/aes/brg_endian.h
