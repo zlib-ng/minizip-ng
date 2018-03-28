@@ -56,10 +56,6 @@ mz_stream_vtbl mz_stream_crypt_vtbl = {
 
 /***************************************************************************/
 
-#if ZLIB_VERNUM < 0x1270 // Define z_crc_t in zlib 1.2.5 and less
-typedef unsigned long z_crc_t;
-#endif
-
 typedef struct mz_stream_crypt_s {
     mz_stream       stream;
     int32_t         error;
@@ -68,7 +64,7 @@ typedef struct mz_stream_crypt_s {
     int64_t         total_in;
     int64_t         total_out;
     uint32_t        keys[3];          // keys defining the pseudo-random sequence
-    const z_crc_t   *crc_32_tab;
+    const uint32_t  *crc_32_tab;
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
@@ -94,7 +90,7 @@ static uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
 }
 
-static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
+static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const uint32_t *crc_32_tab, int32_t c)
 {
     #define CRC32(c, b) ((*(crc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
@@ -108,7 +104,7 @@ static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32
     return (uint8_t)c;
 }
 
-static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
+static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const uint32_t *crc_32_tab)
 {
     *(keys+0) = 305419896L;
     *(keys+1) = 591751049L;
