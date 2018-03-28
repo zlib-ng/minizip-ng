@@ -17,7 +17,7 @@ DESC
   s.libraries = 'z'
 
   s.subspec 'Core' do |sp|
-    sp.source_files = 'src/{mz_os,mz_compat,mz_strm,mz_strm_mem,mz_strm_buf,mz_zip,mz_strm_crypt,mz_strm_posix,mz_strm_zlib}.{c,h}'
+    sp.source_files = '{mz_os,mz_compat,mz_strm,mz_strm_mem,mz_strm_buf,mz_zip,mz_strm_crypt,mz_strm_posix,mz_strm_zlib}.{c,h}'
   end
 
   s.subspec 'AES' do |sp|
