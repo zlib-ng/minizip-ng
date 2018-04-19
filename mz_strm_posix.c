@@ -85,7 +85,7 @@ int32_t mz_stream_posix_open(void *stream, const char *path, int32_t mode)
     if ((mode & MZ_OPEN_MODE_READWRITE) == MZ_OPEN_MODE_READ)
         mode_fopen = "rb";
     else if (mode & MZ_OPEN_MODE_APPEND)
-        mode_fopen = "ab";
+        mode_fopen = "r+b";
     else if (mode & MZ_OPEN_MODE_CREATE)
         mode_fopen = "wb";
     else
