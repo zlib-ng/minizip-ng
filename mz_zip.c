@@ -1073,10 +1073,10 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         return MZ_PARAM_ERROR;
     }
 
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL))
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && zip->compression_method != MZ_COMPRESS_METHOD_RAW)
         return MZ_PARAM_ERROR;
 
-    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED))
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && zip->compression_method != MZ_COMPRESS_METHOD_RAW)
     {
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
@@ -1215,7 +1215,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
         return MZ_PARAM_ERROR;
     if (zip->entry_scanned == 0)
         return MZ_PARAM_ERROR;
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL))
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && !raw)
         return MZ_PARAM_ERROR;
 
     if (zip->file_info.disk_number == zip->disk_number_with_cd)
@@ -1476,6 +1476,31 @@ extern int32_t mz_zip_get_disk_number_with_cd(void *handle, int32_t *disk_number
     return MZ_OK;
 }
 
+extern int64_t mz_zip_get_entry(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+
+    return zip->cd_current_pos;
+}
+
+extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos)
+{
+    mz_zip *zip = (mz_zip *)handle;
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+
+    if (cd_pos < zip->cd_start_pos || cd_pos > zip->cd_start_pos + zip->cd_size)
+        return MZ_PARAM_ERROR;
+
+    zip->cd_current_pos = cd_pos;
+
+    return mz_zip_goto_next_entry_int(handle);
+}
+
 extern int32_t mz_zip_goto_first_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
@@ -1532,7 +1557,7 @@ extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filena
 static int32_t mz_zip_invalid_date(const struct tm *ptm)
 {
 #define datevalue_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
-    return (!datevalue_in_range(0, 207, ptm->tm_year) ||
+    return (!datevalue_in_range(0, 127 + 80, ptm->tm_year) ||  // 1980-based year, allow 80 extra
             !datevalue_in_range(0, 11, ptm->tm_mon) ||
             !datevalue_in_range(1, 31, ptm->tm_mday) ||
             !datevalue_in_range(0, 23, ptm->tm_hour) ||
@@ -1582,9 +1607,13 @@ int32_t mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm)
     struct tm *ltm = NULL;
     if (ptm == NULL)
         return MZ_PARAM_ERROR;
-    ltm = localtime(&unix_time);
+    ltm = localtime(&unix_time);  // Returns a 1900-based year
     if (ltm == NULL)
+    {
+        // Invalid date stored, so don't return it
+        memset(ptm, 0, sizeof(struct tm));
         return MZ_INTERNAL_ERROR;
+    }
     memcpy(ptm, ltm, sizeof(struct tm));
     return MZ_OK;
 }
@@ -1610,12 +1639,12 @@ uint32_t mz_zip_tm_to_dosdate(const struct tm *ptm)
     memcpy(&fixed_tm, ptm, sizeof(struct tm));
     if (fixed_tm.tm_year >= 1980) // range [1980, 2107]
         fixed_tm.tm_year -= 1980;
-    else if (fixed_tm.tm_year >= 80) // range [80, 99]
+    else if (fixed_tm.tm_year >= 80) // range [80, 207]
         fixed_tm.tm_year -= 80;
     else // range [00, 79]
         fixed_tm.tm_year += 20;
 
-    if (mz_zip_invalid_date(ptm))
+    if (mz_zip_invalid_date(&fixed_tm))
         return 0;
 
     return (uint32_t)(((fixed_tm.tm_mday) + (32 * (fixed_tm.tm_mon + 1)) + (512 * fixed_tm.tm_year)) << 16) |
