@@ -111,6 +111,12 @@ extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry);
 extern int32_t mz_zip_get_disk_number_with_cd(void *handle, int32_t *disk_number_with_cd);
 // Get the the disk number containing the central directory record
 
+extern int64_t mz_zip_get_entry(void *handle);
+// Return offset of the current entry in the zip file
+
+extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos);
+// Go to specified entry in the zip file
+
 extern int32_t mz_zip_goto_first_entry(void *handle);
 // Go to the first entry in the zip file 
 
