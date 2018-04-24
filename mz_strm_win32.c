@@ -121,7 +121,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     if (mode & MZ_OPEN_MODE_APPEND)
         return mz_stream_win32_seek(stream, 0, MZ_SEEK_END);
 
-    return MZ_OK; 
+    return MZ_OK;
 }
 
 int32_t mz_stream_win32_is_open(void *stream)

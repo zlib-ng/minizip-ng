@@ -92,7 +92,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
         filters[1].id = LZMA_VLI_UNKNOWN;
 
         lzma_properties_size(&size, (lzma_filter *)&filters);
-        
+
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MAJOR);
         mz_stream_write_uint8(lzma->stream.base, LZMA_VERSION_MINOR);
         mz_stream_write_uint16(lzma->stream.base, (uint16_t)size);
@@ -114,7 +114,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 
         lzma->error = lzma_alone_decoder(&lzma->lstream, UINT64_MAX);
     }
-    
+
     if (lzma->error != LZMA_OK)
         return MZ_STREAM_ERROR;
 
@@ -160,7 +160,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
                 if ((lzma->max_total_in - lzma->total_in) < sizeof(lzma->buffer))
                     bytes_to_read = (int32_t)(lzma->max_total_in - lzma->total_in);
             }
-            
+
             read = mz_stream_read(lzma->stream.base, lzma->buffer, bytes_to_read);
 
             if (read < 0)
@@ -184,7 +184,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
         total_out_after = lzma->lstream.total_out;
         if ((lzma->max_total_out != -1) && (int64_t)total_out_after > lzma->max_total_out)
             total_out_after = lzma->max_total_out;
-        
+
         in_bytes = (uint32_t)(total_in_before - total_in_after);
         out_bytes = (uint32_t)(total_out_after - total_out_before);
 

@@ -269,9 +269,9 @@ struct dirent* mz_win32_read_dir(DIR *dir)
     if (dir_int->end)
         return NULL;
 
-    WideCharToMultiByte(CP_UTF8, 0, dir_int->find_data.cFileName, -1, 
+    WideCharToMultiByte(CP_UTF8, 0, dir_int->find_data.cFileName, -1,
         dir_int->entry.d_name, sizeof(dir_int->entry.d_name), NULL, NULL);
-    
+
     if (FindNextFileW(dir_int->find_handle, &dir_int->find_data) == 0)
     {
         if (GetLastError() != ERROR_NO_MORE_FILES)
@@ -279,7 +279,7 @@ struct dirent* mz_win32_read_dir(DIR *dir)
 
         dir_int->end = 1;
     }
- 
+
     return &dir_int->entry;
 }
 

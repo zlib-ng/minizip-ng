@@ -281,11 +281,11 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
                     bytes_to_write = bytes_avail;
             }
         }
-        
+
         written = mz_stream_write(split->stream.base, buf_ptr, bytes_to_write);
         if (written != bytes_to_write)
             return MZ_STREAM_ERROR;
-        
+
         bytes_left -= written;
         buf_ptr += written;
         split->total_out += written;
