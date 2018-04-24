@@ -50,7 +50,7 @@ extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globa
     return zipOpen2_64(path, append, globalcomment, pzlib_filefunc_def);
 }
 
-extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment, 
+extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def)
 {
     mz_compat *compat = NULL;
@@ -109,8 +109,8 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
 
 extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
-    int raw, int windowBits, int memLevel, int strategy, const char *password, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    int raw, int windowBits, int memLevel, int strategy, const char *password,
     ZIP_UNUSED uint32_t crc_for_crypting,  uint16_t version_madeby, uint16_t flag_base, int zip64)
 {
     mz_compat *compat = (mz_compat *)file;
@@ -119,7 +119,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
 
     if (compat == NULL)
         return ZIP_PARAMERROR;
-   
+
     memset(&file_info, 0, sizeof(file_info));
 
     if (zipfi != NULL)
@@ -159,45 +159,45 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
 
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
-    int raw, int windowBits, int memLevel,   int strategy, const char *password, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    int raw, int windowBits, int memLevel,   int strategy, const char *password,
     ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64)
 {
-    return zipOpenNewFileInZip5(file, filename, zipfi, extrafield_local, size_extrafield_local, 
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits, 
+    return zipOpenNewFileInZip5(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
         memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, zip64);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
-    int raw, int windowBits, int memLevel, int strategy, const char *password, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    int raw, int windowBits, int memLevel, int strategy, const char *password,
     ZIP_UNUSED uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits, 
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
         memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, 0);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
-    int raw, int windowBits, int memLevel, int strategy, const char *password, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    int raw, int windowBits, int memLevel, int strategy, const char *password,
     ZIP_UNUSED uint32_t crc_for_crypting)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits, 
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
         memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, 0);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
-    int raw, int windowBits, int memLevel, int strategy, const char *password, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    int raw, int windowBits, int memLevel, int strategy, const char *password,
     ZIP_UNUSED uint32_t crc_for_crypting, int zip64)
 {
     return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits, 
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
         memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, zip64);
 }
 
@@ -304,7 +304,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
         if (mz_stream_os_create(&stream) == NULL)
             return NULL;
     }
-    
+
     if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
         mz_stream_delete(&stream);

@@ -85,7 +85,7 @@ typedef struct mz_zip_s
     uint64_t cd_offset;             // offset of start of central directory
     uint64_t cd_size;               // size of the central directory
 
-    uint16_t entry_scanned; 
+    uint16_t entry_scanned;
     uint16_t entry_opened;          // 1 if a file in the zip is currently writ.
     uint64_t entry_read;
 
@@ -336,7 +336,7 @@ static int32_t mz_zip_write_cd(void *handle)
 
     if (zip == NULL)
         return MZ_PARAM_ERROR;
-    
+
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
         zip->disk_number_with_cd = (uint32_t)disk_number;
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size) == MZ_OK && disk_size > 0)
@@ -347,7 +347,7 @@ static int32_t mz_zip_write_cd(void *handle)
     mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_END);
     zip->cd_size = (uint32_t)mz_stream_tell(zip->cd_mem_stream);
     mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_SET);
-    
+
     err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
 
     // Write the ZIP64 central directory header
@@ -400,7 +400,7 @@ static int32_t mz_zip_write_cd(void *handle)
 
     // Write the central directory header
 
-    // Signature 
+    // Signature
     if (err == MZ_OK)
         err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER);
     // Number of this disk
@@ -662,7 +662,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         err = MZ_FORMAT_ERROR;
     else if ((!local) && (magic != MZ_ZIP_MAGIC_CENTRALHEADER))
         err = MZ_FORMAT_ERROR;
-    
+
     // Read header fields
     if (err == MZ_OK)
     {
@@ -1449,7 +1449,7 @@ static int32_t mz_zip_goto_next_entry_int(void *handle)
     zip->entry_scanned = 0;
 
     mz_stream_set_prop_int64(zip->cd_stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-    
+
     err = mz_stream_seek(zip->cd_stream, zip->cd_current_pos, MZ_SEEK_SET);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->cd_stream, 0, &zip->file_info, zip->file_info_stream);

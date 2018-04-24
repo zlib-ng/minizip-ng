@@ -93,7 +93,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
 
     // Construct the filename that our file will be stored in the zip as.
     // The path name saved, should not include a leading slash.
-    // If it did, windows/xp and dynazip couldn't read the zip file. 
+    // If it did, windows/xp and dynazip couldn't read the zip file.
 
     filenameinzip = path;
     while (filenameinzip[0] == '\\' || filenameinzip[0] == '/')
@@ -114,7 +114,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
         if (last_slash != NULL)
             filenameinzip = last_slash + 1; // base filename follows last slash
     }
-    
+
     // Get information about the file on disk so we can store it in zip
     printf("Adding: %s\n", filenameinzip);
 
@@ -128,7 +128,7 @@ int32_t minizip_add_file(void *handle, const char *path, const char *password, m
         file_info.aes_version = MZ_AES_VERSION;
 #endif
 
-    mz_os_get_file_date(path, &file_info.modified_date, &file_info.accessed_date, 
+    mz_os_get_file_date(path, &file_info.modified_date, &file_info.accessed_date,
         &file_info.creation_date);
 
     // Add to zip
@@ -263,7 +263,7 @@ int32_t minizip_list(void *handle)
 
         if (file_info->uncompressed_size > 0)
             ratio = (uint32_t)((file_info->compressed_size * 100) / file_info->uncompressed_size);
-        
+
         // Display a '*' if the file is encrypted
         if (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED)
             crypt = '*';
@@ -271,7 +271,7 @@ int32_t minizip_list(void *handle)
         switch (file_info->compression_method)
         {
         case MZ_COMPRESS_METHOD_RAW:
-            string_method = "Stored"; 
+            string_method = "Stored";
             break;
         case MZ_COMPRESS_METHOD_DEFLATE:
             level = (int16_t)((file_info->flag & 0x6) / 2);
@@ -298,7 +298,7 @@ int32_t minizip_list(void *handle)
 
         printf(" %7"PRIu64"  %6s%c %7"PRIu64" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
                "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s\n",
-                file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio, 
+                file_info->uncompressed_size, string_method, crypt, file_info->compressed_size, ratio,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                 (uint32_t)tmu_date.tm_year % 100,
                 (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
@@ -460,7 +460,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
 
         // Set the time of the file that has been unzipped
         if (err == MZ_OK)
-            mz_os_set_file_date(out_path, file_info->modified_date, file_info->accessed_date, 
+            mz_os_set_file_date(out_path, file_info->modified_date, file_info->accessed_date,
                 file_info->creation_date);
     }
     else
@@ -483,7 +483,6 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
 int32_t minizip_extract_all(void *handle, const char *destination, const char *password, minizip_opt *options)
 {
     int32_t err = MZ_OK;
-    
 
     err = mz_zip_goto_first_entry(handle);
 
@@ -694,7 +693,7 @@ int main(int argc, char *argv[])
     {
         mz_stream_set_base(split_stream, file_stream);
     }
-    
+
     mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, disk_size);
 
     err = mz_stream_open(split_stream, path, mode);

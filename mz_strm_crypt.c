@@ -151,11 +151,11 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
     {
         // First generate RAND_HEAD_LEN - 2 random bytes.
         mz_os_rand(header, RAND_HEAD_LEN - 2);
-        
+
         // Encrypt random header (last two bytes is high word of crc)
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
             header[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, header[i], t);
-        
+
         header[i++] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, crypt->verify1, t);
         header[i++] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, crypt->verify2, t);
 

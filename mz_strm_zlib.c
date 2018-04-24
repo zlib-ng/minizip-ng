@@ -180,7 +180,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
         if (err == Z_STREAM_END)
             break;
- 
+
         if (err != Z_OK)
         {
             zlib->error = err;
