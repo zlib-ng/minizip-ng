@@ -59,8 +59,16 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
-        return NULL;
+    if (pzlib_filefunc_def)
+    {
+        if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
+            return NULL;
+    }
+    else
+    {
+        if (mz_stream_os_create(&stream) == NULL)
+            return NULL;
+    }
 
     switch (append)
     {
@@ -115,10 +123,15 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
 
     if (zipfi != NULL)
     {
-        file_info.modified_date = mz_zip_dosdate_to_time_t(zipfi->dos_date);
+        file_info.modified_date = mz_zip_dosdate_to_time_t(zipfi->dosDate != 0 ?
+            zipfi->dosDate :
+            mz_zip_tm_to_dosdate(&zipfi->tmz_date));
         file_info.external_fa = zipfi->external_fa;
         file_info.internal_fa = zipfi->internal_fa;
     }
+
+    if (filename == NULL)
+        filename = "-";
 
     file_info.compression_method = compression_method;
     file_info.filename = (char *)filename;
@@ -189,10 +202,15 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
         return MZ_PARAM_ERROR;
-    return mz_zip_entry_write(compat->handle, buf, len);
+    return mz_zip_entry_write(compat->handle, buf, len) == len ? ZIP_OK : ZIP_ERRNO;
 }
 
 extern int ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32)
+{
+    return zipCloseFileInZipRaw64(file, (uint32_t) uncompressed_size, crc32);
+}
+
+extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -270,8 +288,16 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     void *handle = NULL;
     void *stream = NULL;
 
-    if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
-        return NULL;
+    if (pzlib_filefunc_def)
+    {
+        if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
+            return NULL;
+    }
+    else
+    {
+        if (mz_stream_os_create(&stream) == NULL)
+            return NULL;
+    }
     
     if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
@@ -422,6 +448,7 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
 
     if (compat == NULL)
         return MZ_PARAM_ERROR;
+
     err = mz_zip_entry_get_info(compat->handle, &file_info);
 
     if ((err == MZ_OK) && (pfile_info != NULL))
@@ -430,7 +457,9 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
         pfile_info->version_needed = file_info->version_needed;
         pfile_info->flag = file_info->flag;
         pfile_info->compression_method = file_info->compression_method;
-        pfile_info->dos_date = mz_zip_time_t_to_dos_date(file_info->modified_date);
+        pfile_info->dosDate = mz_zip_time_t_to_dos_date(file_info->modified_date);
+        mz_zip_time_t_to_tm(file_info->modified_date, &pfile_info->tmu_date);
+        pfile_info->tmu_date.tm_year += 1900;
         pfile_info->crc = file_info->crc;
 
         pfile_info->size_filename = file_info->filename_size;
@@ -488,7 +517,9 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
         pfile_info->version_needed = file_info->version_needed;
         pfile_info->flag = file_info->flag;
         pfile_info->compression_method = file_info->compression_method;
-        pfile_info->dos_date = mz_zip_time_t_to_dos_date(file_info->modified_date);
+        pfile_info->dosDate = mz_zip_time_t_to_dos_date(file_info->modified_date);
+        mz_zip_time_t_to_tm(file_info->modified_date, &pfile_info->tmu_date);
+        pfile_info->tmu_date.tm_year += 1900;
         pfile_info->crc = file_info->crc;
 
         pfile_info->size_filename = file_info->filename_size;
@@ -555,6 +586,46 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
     if (compat == NULL)
         return MZ_PARAM_ERROR;
     return mz_zip_locate_entry(compat->handle, filename, filename_compare_func);
+}
+
+extern int32_t ZEXPORT unzGetOffset(unzFile file)
+{
+    if (file == NULL)
+        return UNZ_PARAMERROR;
+
+    return (int32_t)unzGetOffset64(file);
+}
+
+extern int64_t ZEXPORT unzGetOffset64(unzFile file)
+{
+    if (file == NULL)
+        return UNZ_PARAMERROR;
+
+    return mz_zip_get_entry(((mz_compat *)file)->handle);
+}
+
+extern int ZEXPORT unzSetOffset(unzFile file, uint32_t pos)
+{
+    return unzSetOffset64(file, pos);
+}
+
+extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
+{
+    int err = UNZ_OK;
+
+    if (file == NULL)
+        return UNZ_PARAMERROR;
+
+    return (int)mz_zip_goto_entry(((mz_compat *)file)->handle, pos);
+}
+
+extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len)  // TODO
+{
+    (void)file;
+    (void)buf;
+    (void)len;
+
+    return 0;
 }
 
 /***************************************************************************/
