@@ -1073,10 +1073,10 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         return MZ_PARAM_ERROR;
     }
 
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && zip->compression_method != MZ_COMPRESS_METHOD_RAW)
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
         return MZ_PARAM_ERROR;
 
-    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && zip->compression_method != MZ_COMPRESS_METHOD_RAW)
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
     {
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
@@ -1215,7 +1215,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
         return MZ_PARAM_ERROR;
     if (zip->entry_scanned == 0)
         return MZ_PARAM_ERROR;
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && !raw)
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (!raw))
         return MZ_PARAM_ERROR;
 
     if (zip->file_info.disk_number == zip->disk_number_with_cd)
