@@ -182,7 +182,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 
         total_in_after = lzma->lstream.avail_in;
         total_out_after = lzma->lstream.total_out;
-        if (lzma->max_total_out != -1 && total_out_after > lzma->max_total_out)
+        if ((lzma->max_total_out != -1) && (int64_t)total_out_after > lzma->max_total_out)
             total_out_after = lzma->max_total_out;
         
         in_bytes = (uint32_t)(total_in_before - total_in_after);
