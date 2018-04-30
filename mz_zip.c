@@ -1263,8 +1263,6 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
 
     compression_method = zip->file_info.compression_method;
-    if (compress_level == 0)
-        compression_method = MZ_COMPRESS_METHOD_RAW;
 
     if (compression_method == MZ_COMPRESS_METHOD_DEFLATE)
     {
@@ -1298,6 +1296,9 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
+
+    if (compress_level == 0)
+        compression_method = MZ_COMPRESS_METHOD_RAW;
 
     if (err == MZ_OK)
         err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
