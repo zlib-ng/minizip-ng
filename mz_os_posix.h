@@ -23,9 +23,9 @@ extern "C" {
 /***************************************************************************/
 
 #if defined(__APPLE__)
-#define MZ_VERSION_MADEBY_HOST_SYSTEM (19)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM   (MZ_HOST_SYSTEM_OSX_DARWIN)
 #elif defined(unix)
-#define MZ_VERSION_MADEBY_HOST_SYSTEM (3)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM   (MZ_HOST_SYSTEM_UNIX)
 #endif
 
 /***************************************************************************/
@@ -35,6 +35,8 @@ int32_t mz_posix_file_exists(const char *path);
 int64_t mz_posix_get_file_size(const char *path);
 int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
 int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date);
+int32_t mz_posix_get_file_attribs(const char *path, int32_t *attributes);
+int32_t mz_posix_set_file_attribs(const char *path, int32_t attributes);
 int32_t mz_posix_make_dir(const char *path);
 DIR*    mz_posix_open_dir(const char *path);
 struct 
@@ -44,16 +46,18 @@ int32_t mz_posix_is_dir(const char *path);
 
 /***************************************************************************/
 
-#define mz_os_rand           mz_posix_rand
-#define mz_os_file_exists    mz_posix_file_exists
-#define mz_os_get_file_size  mz_posix_get_file_size
-#define mz_os_get_file_date  mz_posix_get_file_date
-#define mz_os_set_file_date  mz_posix_set_file_date
-#define mz_os_make_dir       mz_posix_make_dir
-#define mz_os_open_dir       mz_posix_open_dir
-#define mz_os_read_dir       mz_posix_read_dir
-#define mz_os_close_dir      mz_posix_close_dir
-#define mz_os_is_dir         mz_posix_is_dir
+#define mz_os_rand              mz_posix_rand
+#define mz_os_file_exists       mz_posix_file_exists
+#define mz_os_get_file_size     mz_posix_get_file_size
+#define mz_os_get_file_date     mz_posix_get_file_date
+#define mz_os_set_file_date     mz_posix_set_file_date
+#define mz_os_get_file_attribs  mz_posix_get_file_attribs
+#define mz_os_set_file_attribs  mz_posix_set_file_attribs
+#define mz_os_make_dir          mz_posix_make_dir
+#define mz_os_open_dir          mz_posix_open_dir
+#define mz_os_read_dir          mz_posix_read_dir
+#define mz_os_close_dir         mz_posix_close_dir
+#define mz_os_is_dir            mz_posix_is_dir
 
 /***************************************************************************/
 

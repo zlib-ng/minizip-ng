@@ -213,6 +213,34 @@ int32_t mz_win32_set_file_date(const char *path, time_t modified_date, time_t ac
     return err;
 }
 
+int32_t mz_win32_get_file_attribs(const char *path, int32_t *attributes)
+{
+    wchar_t *path_wide = NULL;
+    int32_t err = MZ_OK;
+
+    path_wide = mz_win32_unicode_path_create(path);
+    *attributes = GetFileAttributesW(path_wide);
+    free(path_wide);
+
+    if (*attributes == INVALID_FILE_ATTRIBUTES)
+        err = MZ_INTERNAL_ERROR;
+
+    return err;
+}
+
+int32_t mz_win32_set_file_attribs(const char *path, int32_t attributes)
+{
+    wchar_t *path_wide = NULL;
+    int32_t err = MZ_OK;
+
+    path_wide = mz_win32_unicode_path_create(path);
+    if (SetFileAttributesW(path_wide, attributes) == 0)
+        err = MZ_INTERNAL_ERROR;
+    free(path_wide);
+
+    return err;
+}
+
 int32_t mz_win32_make_dir(const char *path)
 {
     wchar_t *path_wide = NULL;

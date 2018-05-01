@@ -66,10 +66,12 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     lzma_filter filters[LZMA_FILTERS_MAX + 1];
-    lzma_options_lzma opt_lzma = { 0 };
+    lzma_options_lzma opt_lzma;
     uint32_t size = 0;
     uint8_t major = 0;
     uint8_t minor = 0;
+
+    memset(&opt_lzma, 0, sizeof(opt_lzma));
 
     lzma->lstream.total_in = 0;
     lzma->lstream.total_out = 0;

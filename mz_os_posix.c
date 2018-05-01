@@ -115,6 +115,28 @@ int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t ac
     return MZ_OK;
 }
 
+int32_t mz_posix_get_file_attribs(const char *path, int32_t *attributes)
+{
+    struct stat stat_info;
+    int32_t err = MZ_OK;
+
+    memset(&stat_info, 0, sizeof(stat_info));
+    if (stat(path, &stat_info) == -1)
+        err = MZ_INTERNAL_ERROR;
+    *attributes = stat_info.st_mode;
+    return err;
+}
+
+int32_t mz_posix_set_file_attribs(const char *path, int32_t attributes)
+{
+    int32_t err = MZ_OK;
+
+    if (chmod(path, attributes) == -1)
+        err = MZ_INTERNAL_ERROR;
+
+    return err;
+}
+
 int32_t mz_posix_make_dir(const char *path)
 {
     int32_t err = 0;

@@ -150,3 +150,26 @@ int32_t mz_get_file_crc(const char *path, uint32_t *result_crc)
 
     return err;
 }
+
+int32_t mz_attrib_is_dir(int32_t attributes, int32_t version_madeby)
+{
+    int32_t host_system = 0;
+    
+    if (version_madeby == 0)
+        host_system = MZ_VERSION_MADEBY_HOST_SYSTEM;
+    else
+        host_system = (uint8_t)(version_madeby >> 8);
+
+    if (host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    {
+        if (attributes & 0x10) // FILE_ATTRIBUTE_DIRECTORY
+            return MZ_OK;
+    }
+    else if (host_system == MZ_HOST_SYSTEM_UNIX || host_system == MZ_HOST_SYSTEM_OSX_DARWIN)
+    {
+        if (attributes & 0040000) // S_IFDIR
+            return MZ_OK;
+    }
+    
+    return MZ_EXIST_ERROR;
+}

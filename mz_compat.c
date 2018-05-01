@@ -114,7 +114,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     ZIP_UNUSED uint32_t crc_for_crypting,  uint16_t version_madeby, uint16_t flag_base, int zip64)
 {
     mz_compat *compat = (mz_compat *)file;
-    mz_zip_file file_info = { 0 };
+    mz_zip_file file_info;
     uint64_t dos_date = 0;
 
     if (compat == NULL)

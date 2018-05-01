@@ -1627,7 +1627,7 @@ uint32_t mz_zip_time_t_to_dos_date(time_t unix_time)
 
 uint32_t mz_zip_tm_to_dosdate(const struct tm *ptm)
 {
-    struct tm fixed_tm = { 0 };
+    struct tm fixed_tm;
 
     // Years supported:
 

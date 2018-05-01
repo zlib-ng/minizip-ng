@@ -71,6 +71,11 @@ extern "C" {
                                          MZ_ZIP_FLAG_DEFLATE_MAX)
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 
+// MZ_HOST_SYSTEM
+#define MZ_HOST_SYSTEM_UNIX             (3)
+#define MZ_HOST_SYSTEM_WINDOWS_NTFS     (10) 
+#define MZ_HOST_SYSTEM_OSX_DARWIN       (19)
+
 // MZ_AES
 #define MZ_AES_VERSION                  (1)
 #define MZ_AES_ENCRYPTION_MODE_128      (0x01)
