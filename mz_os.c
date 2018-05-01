@@ -114,7 +114,7 @@ int32_t mz_attrib_is_dir(int32_t attributes, int32_t version_madeby)
     }
     else if (host_system == MZ_HOST_SYSTEM_UNIX || host_system == MZ_HOST_SYSTEM_OSX_DARWIN)
     {
-        if (attributes & 00170000 == 0040000) // S_IFDIR
+        if (attributes & 00170000 == 0040000) // S_ISDIR
             return MZ_OK;
     }
 
