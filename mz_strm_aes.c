@@ -66,7 +66,7 @@ typedef struct mz_stream_aes_s {
     const char      *password;
     aes_encrypt_ctx encr_ctx[1];
     hmac_ctx        auth_ctx[1];
-    uint8_t         nonce[AES_BLOCK_SIZE]; 
+    uint8_t         nonce[AES_BLOCK_SIZE];
     uint8_t         encr_bfr[AES_BLOCK_SIZE];
     uint32_t        encr_pos;
 } mz_stream_aes;
@@ -299,10 +299,10 @@ int32_t mz_stream_aes_get_prop_int64(void *stream, int32_t prop, int64_t *value)
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     switch (prop)
     {
-    case MZ_STREAM_PROP_TOTAL_IN: 
+    case MZ_STREAM_PROP_TOTAL_IN:
         *value = aes->total_in;
         return MZ_OK;
-    case MZ_STREAM_PROP_TOTAL_OUT: 
+    case MZ_STREAM_PROP_TOTAL_OUT:
         *value = aes->total_out;
         return MZ_OK;
     case MZ_STREAM_PROP_HEADER_SIZE:

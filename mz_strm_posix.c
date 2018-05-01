@@ -209,7 +209,7 @@ void *mz_stream_posix_create(void **stream)
     }
     if (stream != NULL)
         *stream = posix;
- 
+
     return posix;
 }
 

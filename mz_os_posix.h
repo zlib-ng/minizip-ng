@@ -39,7 +39,7 @@ int32_t mz_posix_get_file_attribs(const char *path, int32_t *attributes);
 int32_t mz_posix_set_file_attribs(const char *path, int32_t attributes);
 int32_t mz_posix_make_dir(const char *path);
 DIR*    mz_posix_open_dir(const char *path);
-struct 
+struct
 dirent* mz_posix_read_dir(DIR *dir);
 int32_t mz_posix_close_dir(DIR *dir);
 int32_t mz_posix_is_dir(const char *path);

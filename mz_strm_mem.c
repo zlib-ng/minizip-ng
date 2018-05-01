@@ -3,7 +3,7 @@
    part of the MiniZip project
 
    This interface is designed to access memory rather than files.
-   We do use a region of memory to put data in to and take it out of. 
+   We do use a region of memory to put data in to and take it out of.
 
    Based on Unzip ioapi.c version 0.22, May 19th, 2003
 
@@ -46,7 +46,7 @@ mz_stream_vtbl mz_stream_mem_vtbl = {
 typedef struct mz_stream_mem_s {
     mz_stream   stream;
     int32_t     mode;
-    char        *buffer;    // Memory buffer pointer 
+    char        *buffer;    // Memory buffer pointer
     int32_t     size;       // Size of the memory buffer
     int32_t     limit;      // Furthest we've written
     int32_t     position;   // Current position in the memory

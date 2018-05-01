@@ -89,7 +89,7 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
 
     while (bytes_left_to_write > 0)
     {
-        bytes_written = mz_stream_write(buffered->stream.base, 
+        bytes_written = mz_stream_write(buffered->stream.base,
             buffered->writebuf + (bytes_to_write - bytes_left_to_write), bytes_left_to_write);
 
         if (bytes_written != bytes_left_to_write)
@@ -97,7 +97,7 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
 
         buffered->writebuf_misses += 1;
 
-        mz_stream_buffered_print(stream, "write flush [%d:%d len %d]\n", 
+        mz_stream_buffered_print(stream, "write flush [%d:%d len %d]\n",
             bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         total_bytes_written += bytes_written;
@@ -124,7 +124,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
     mz_stream_buffered_print(stream, "read [size %ld pos %lld]\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0)
-        mz_stream_buffered_print(stream, "switch from write to read, not yet supported [%lld]\n", 
+        mz_stream_buffered_print(stream, "switch from write to read, not yet supported [%lld]\n",
             buffered->position);
 
     while (bytes_left_to_read > 0)
@@ -146,7 +146,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
             buffered->readbuf_len += bytes_read;
             buffered->position += bytes_read;
 
-            mz_stream_buffered_print(stream, "filled [read %d/%d buf %d:%d pos %lld]\n", 
+            mz_stream_buffered_print(stream, "filled [read %d/%d buf %d:%d pos %lld]\n",
                 bytes_read, bytes_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
 
             if (bytes_read == 0)
@@ -167,7 +167,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
             buffered->readbuf_hits += 1;
             buffered->readbuf_pos += bytes_to_copy;
 
-            mz_stream_buffered_print(stream, "emptied [copied %d remaining %d buf %d:%d pos %lld]\n", 
+            mz_stream_buffered_print(stream, "emptied [copied %d remaining %d buf %d:%d pos %lld]\n",
                 bytes_to_copy, bytes_left_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
         }
     }
@@ -185,7 +185,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
     int32_t bytes_flushed = 0;
 
 
-    mz_stream_buffered_print(stream, "write [size %ld len %d pos %lld]\n", 
+    mz_stream_buffered_print(stream, "write [size %ld len %d pos %lld]\n",
         size, buffered->writebuf_len, buffered->position);
 
     if (buffered->readbuf_len > 0)
@@ -223,7 +223,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
 
         memcpy(buffered->writebuf + buffered->writebuf_pos, (char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
 
-        mz_stream_buffered_print(stream, "write copy [remaining %d write %d:%d len %d]\n", 
+        mz_stream_buffered_print(stream, "write copy [remaining %d write %d:%d len %d]\n",
             bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         bytes_left_to_write -= bytes_to_copy;
@@ -274,7 +274,7 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
                 }
             }
 
-            if ((buffered->readbuf_len > 0) && (offset < buffered->position) && 
+            if ((buffered->readbuf_len > 0) && (offset < buffered->position) &&
                 (offset >= buffered->position - buffered->readbuf_len))
             {
                 buffered->readbuf_pos = (uint32_t)(offset - (buffered->position - buffered->readbuf_len));
@@ -341,11 +341,11 @@ int32_t mz_stream_buffered_close(void *stream)
     mz_stream_buffered_print(stream, "close\n");
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
-        mz_stream_buffered_print(stream, "read efficency %.02f%%\n", 
+        mz_stream_buffered_print(stream, "read efficency %.02f%%\n",
             (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
 
     if (buffered->writebuf_hits + buffered->writebuf_misses > 0)
-        mz_stream_buffered_print(stream, "write efficency %.02f%%\n", 
+        mz_stream_buffered_print(stream, "write efficency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
 
     return mz_stream_close(buffered->stream.base);

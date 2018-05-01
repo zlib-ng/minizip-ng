@@ -30,9 +30,9 @@ extern "C" {
 
 typedef struct mz_zip_file_s
 {
-    uint16_t version_madeby;            // version made by 
+    uint16_t version_madeby;            // version made by
     uint16_t version_needed;            // version needed to extract
-    uint16_t flag;                      // general purpose bit flag 
+    uint16_t flag;                      // general purpose bit flag
     uint16_t compression_method;        // compression method
     time_t   modified_date;             // last modified date in unix time
     time_t   accessed_date;             // last accessed date in unix time
@@ -118,13 +118,13 @@ extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos);
 // Go to specified entry in the zip file
 
 extern int32_t mz_zip_goto_first_entry(void *handle);
-// Go to the first entry in the zip file 
+// Go to the first entry in the zip file
 
 extern int32_t mz_zip_goto_next_entry(void *handle);
 // Go to the next entry in the zip file or MZ_END_OF_LIST if reaching the end
 
 typedef int32_t (*mz_filename_compare_cb)(void *handle, const char *filename1, const char *filename2);
-extern int32_t mz_zip_locate_entry(void *handle, const char *filename, 
+extern int32_t mz_zip_locate_entry(void *handle, const char *filename,
     mz_filename_compare_cb filename_compare_cb);
 // Locate the file with the specified name in the zip file or MZ_END_LIST if not found
 
@@ -137,7 +137,7 @@ time_t   mz_zip_dosdate_to_time_t(uint64_t dos_date);
 // Convert dos date/time format to time_t
 
 int32_t  mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm);
-// Convert time_t to time struct 
+// Convert time_t to time struct
 
 uint32_t mz_zip_time_t_to_dos_date(time_t unix_time);
 // Convert time_t to dos date/time format

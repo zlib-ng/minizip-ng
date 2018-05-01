@@ -54,7 +54,7 @@ cmake --build .
 
 ### Encryption
 
-#### [WinZIP AES Encryption](http://www.winzip.com/aes_info.htm)
+#### [WinZIP AES Encryption](https://www.winzip.com/aes_info.htm)
 
 + Requires ``cmake . -DUSE_AES=ON`` or ``#define HAVE_AES``
 + Requires Brian Gladman's [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries

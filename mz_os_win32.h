@@ -40,7 +40,7 @@ int32_t mz_win32_get_file_attribs(const char *path, int32_t *attributes);
 int32_t mz_win32_set_file_attribs(const char *path, int32_t attributes);
 int32_t mz_win32_make_dir(const char *path);
 DIR*    mz_win32_open_dir(const char *path);
-struct 
+struct
 dirent* mz_win32_read_dir(DIR *dir);
 int32_t mz_win32_close_dir(DIR *dir);
 int32_t mz_win32_is_dir(const char *path);
