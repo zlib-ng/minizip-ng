@@ -321,7 +321,7 @@ int32_t minizip_list(void *handle)
 
         printf(" %7"PRIu64"  %6s%c %7"PRIu64" %8"PRIx32" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
                "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s\n",
-                file_info->uncompressed_size, string_method, crypt, 
+                file_info->uncompressed_size, string_method, crypt,
                 file_info->compressed_size, file_info->external_fa, ratio,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                 (uint32_t)tmu_date.tm_year % 100,
@@ -388,7 +388,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
             mz_path_combine(out_path, destination, sizeof(out_path));
         mz_path_combine(out_path, file_info->filename, sizeof(out_path));
     }
-    
+
     // If zip entry is a directory then create it on disk
     if (mz_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
     {
