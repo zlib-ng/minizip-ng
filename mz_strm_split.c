@@ -29,7 +29,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_split_vtbl = {
+static mz_stream_vtbl mz_stream_split_vtbl = {
     mz_stream_split_open,
     mz_stream_split_is_open,
     mz_stream_split_read,

@@ -38,7 +38,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_aes_vtbl = {
+static mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_open,
     mz_stream_aes_is_open,
     mz_stream_aes_read,
@@ -49,7 +49,8 @@ mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_error,
     mz_stream_aes_create,
     mz_stream_aes_delete,
-    mz_stream_aes_get_prop_int64
+    mz_stream_aes_get_prop_int64,
+    NULL
 };
 
 /***************************************************************************/
