@@ -1468,7 +1468,7 @@ extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_get_disk_number_with_cd(void *handle, int32_t *disk_number_with_cd)
+extern int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || disk_number_with_cd == NULL)
