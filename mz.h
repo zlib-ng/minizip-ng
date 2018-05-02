@@ -74,7 +74,7 @@ extern "C" {
 // MZ_HOST_SYSTEM
 #define MZ_HOST_SYSTEM_MSDOS            (0)
 #define MZ_HOST_SYSTEM_UNIX             (3)
-#define MZ_HOST_SYSTEM_WINDOWS_NTFS     (10) 
+#define MZ_HOST_SYSTEM_WINDOWS_NTFS     (10)
 #define MZ_HOST_SYSTEM_OSX_DARWIN       (19)
 
 // MZ_AES
