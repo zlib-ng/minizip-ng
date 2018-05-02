@@ -940,7 +940,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     filename_length = (uint16_t)strlen(file_info->filename);
-    if ((file_info->filename[filename_length - 1] == '/') || (file_info->filename[filename_length - 1] == '\\'))
+    if ((file_info->filename[filename_length - 1] == '/') || 
+        (file_info->filename[filename_length - 1] == '\\'))
         filename_length -= 1;
     if (err == MZ_OK)
     {
@@ -979,6 +980,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = MZ_STREAM_ERROR;
         if (err == MZ_OK)
         {
+            // Ensure that directories have a slash appended to them for compatibility
             if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
                 err = mz_stream_write_uint8(stream, '/');
         }
