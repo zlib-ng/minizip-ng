@@ -851,6 +851,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     uint16_t extrafield_zip64_size = 0;
     uint16_t extrafield_ntfs_size = 0;
     uint16_t filename_size = 0;
+    uint16_t filename_length = 0;
     uint16_t comment_size = 0;
     uint8_t zip64 = 0;
     int32_t err = MZ_OK;
@@ -938,9 +939,14 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint32(stream, (uint32_t)file_info->uncompressed_size);
     }
 
-    filename_size = (uint16_t)strlen(file_info->filename);
+    filename_length = (uint16_t)strlen(file_info->filename);
     if (err == MZ_OK)
+    {
+        filename_size = filename_length;
+        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
+            filename_size += 1;
         err = mz_stream_write_uint16(stream, filename_size);
+    }
     if (err == MZ_OK)
         err = mz_stream_write_uint16(stream, extrafield_size);
 
@@ -967,8 +973,13 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     if (err == MZ_OK)
     {
-        if (mz_stream_write(stream, file_info->filename, filename_size) != filename_size)
+        if (mz_stream_write(stream, file_info->filename, filename_length) != filename_length)
             err = MZ_STREAM_ERROR;
+        if (err == MZ_OK)
+        {
+            if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
+                err = mz_stream_write_uint8(stream, '/');
+        }
     }
     if (err == MZ_OK)
     {
@@ -1237,8 +1248,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     return err;
 }
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
-    int16_t compress_level, const char *password)
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;

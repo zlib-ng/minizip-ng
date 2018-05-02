@@ -260,7 +260,6 @@ int32_t minizip_list(void *handle)
     int32_t err = MZ_OK;
     struct tm tmu_date;
     const char *string_method = NULL;
-    const char *string_dir = NULL;
     char crypt = ' ';
 
 
@@ -321,21 +320,14 @@ int32_t minizip_list(void *handle)
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
-        string_dir = "";
-        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
-        {
-            string_dir = "/";
-            string_method = "";
-        }
-
         printf(" %7"PRIu64"  %6s%c %7"PRIu64" %8"PRIx32" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
-               "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s%s\n",
+               "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s\n",
                 file_info->uncompressed_size, string_method, crypt, 
                 file_info->compressed_size, file_info->external_fa, ratio,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                 (uint32_t)tmu_date.tm_year % 100,
                 (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
-                file_info->crc, file_info->filename, string_dir);
+                file_info->crc, file_info->filename);
 
         err = mz_zip_goto_next_entry(handle);
 
