@@ -940,6 +940,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     filename_length = (uint16_t)strlen(file_info->filename);
+    if ((file_info->filename[filename_length - 1] == '/') || (file_info->filename[filename_length - 1] == '\\'))
+        filename_length -= 1;
     if (err == MZ_OK)
     {
         filename_size = filename_length;
