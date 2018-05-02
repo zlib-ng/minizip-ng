@@ -53,9 +53,6 @@ int32_t mz_make_dir(const char *path);
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
 // Combines two paths
 
-int32_t mz_attrib_is_dir(int32_t attributes, int32_t version_madeby);
-// Checks to see if the attribute is a directory
-
 int32_t mz_get_file_crc(const char *path, uint32_t *result_crc);
 // Gets the crc32 hash of a file
 

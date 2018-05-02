@@ -1297,7 +1297,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
 
-    if (compress_level == 0)
+    if ((compress_level == 0) || (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK))
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
     if (err == MZ_OK)
@@ -1551,6 +1551,26 @@ extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filena
     }
 
     return err;
+}
+
+/***************************************************************************/
+
+int32_t mz_zip_attrib_is_dir(int32_t attributes, int32_t version_madeby)
+{
+    int32_t host_system = (uint8_t)(version_madeby >> 8);
+
+    if (host_system == MZ_HOST_SYSTEM_MSDOS || host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    {
+        if ((attributes & 0x10) == 0x10) // FILE_ATTRIBUTE_DIRECTORY
+            return MZ_OK;
+    }
+    else if (host_system == MZ_HOST_SYSTEM_UNIX || host_system == MZ_HOST_SYSTEM_OSX_DARWIN)
+    {
+        if ((attributes & 00170000) == 0040000) // S_ISDIR
+            return MZ_OK;
+    }
+
+    return MZ_EXIST_ERROR;
 }
 
 /***************************************************************************/

@@ -130,6 +130,9 @@ extern int32_t mz_zip_locate_entry(void *handle, const char *filename,
 
 /***************************************************************************/
 
+int32_t  mz_zip_attrib_is_dir(int32_t attributes, int32_t version_madeby);
+// Checks to see if the attribute is a directory based on platform
+
 int32_t  mz_zip_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
 // Convert dos date/time format to struct tm
 

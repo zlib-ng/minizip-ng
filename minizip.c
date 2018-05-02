@@ -322,7 +322,7 @@ int32_t minizip_list(void *handle)
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
         string_dir = "";
-        if (mz_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
+        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
         {
             string_dir = "/";
             string_method = "";
@@ -399,7 +399,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     }
     
     // If zip entry is a directory then create it on disk
-    if (mz_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
+    if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
     {
         printf("Creating directory: %s\n", out_path);
         mz_make_dir(out_path);
