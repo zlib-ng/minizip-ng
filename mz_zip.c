@@ -1297,7 +1297,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
 
-    if ((compress_level == 0) || (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK))
+    if ((compress_level == 0) || (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK))
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
     if (err == MZ_OK)
