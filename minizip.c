@@ -285,6 +285,7 @@ int32_t minizip_list(void *handle)
             break;
         }
 
+        ratio = 0;
         if (file_info->uncompressed_size > 0)
             ratio = (uint32_t)((file_info->compressed_size * 100) / file_info->uncompressed_size);
 
@@ -318,12 +319,14 @@ int32_t minizip_list(void *handle)
             string_method = "Unknwn";
         }
 
-        if (mz_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
-            string_dir = "/";
-        else
-            string_dir = "";
-
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
+
+        string_dir = "";
+        if (mz_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
+        {
+            string_dir = "/";
+            string_method = "";
+        }
 
         printf(" %7"PRIu64"  %6s%c %7"PRIu64" %8"PRIx32" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
                "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s%s\n",
