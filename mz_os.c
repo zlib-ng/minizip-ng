@@ -109,12 +109,12 @@ int32_t mz_attrib_is_dir(int32_t attributes, int32_t version_madeby)
 
     if (host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
     {
-        if (attributes & 0x10) // FILE_ATTRIBUTE_DIRECTORY
+        if ((attributes & 0x10) == 0x10) // FILE_ATTRIBUTE_DIRECTORY
             return MZ_OK;
     }
     else if (host_system == MZ_HOST_SYSTEM_UNIX || host_system == MZ_HOST_SYSTEM_OSX_DARWIN)
     {
-        if (attributes & 00170000 == 0040000) // S_ISDIR
+        if ((attributes & 00170000) == 0040000) // S_ISDIR
             return MZ_OK;
     }
 

@@ -614,8 +614,7 @@ static int16_t mz_zip_entry_get_version_needed(int16_t zip64, mz_zip_file *file_
 
     if (file_info == NULL)
         return MZ_PARAM_ERROR;
-    if (file_info->version_needed > 0)
-        version_needed = file_info->version_needed;
+
     if (zip64)
         version_needed = 45;
 #ifdef HAVE_AES
@@ -890,7 +889,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += extrafield_ntfs_size;
     }
 
-    file_info->version_needed = mz_zip_entry_get_version_needed(zip64, file_info);
+    if (file_info->version_needed == 0)
+        file_info->version_needed = mz_zip_entry_get_version_needed(zip64, file_info);
 
     if (local)
         err = mz_stream_write_uint32(stream, MZ_ZIP_MAGIC_LOCALHEADER);
