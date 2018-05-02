@@ -72,6 +72,7 @@ extern "C" {
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 
 // MZ_HOST_SYSTEM
+#define MZ_HOST_SYSTEM_MSDOS            (0)
 #define MZ_HOST_SYSTEM_UNIX             (3)
 #define MZ_HOST_SYSTEM_WINDOWS_NTFS     (10) 
 #define MZ_HOST_SYSTEM_OSX_DARWIN       (19)

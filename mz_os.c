@@ -107,7 +107,7 @@ int32_t mz_attrib_is_dir(int32_t attributes, int32_t version_madeby)
     else
         host_system = (uint8_t)(version_madeby >> 8);
 
-    if (host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    if (host_system == MZ_HOST_SYSTEM_MSDOS || host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
     {
         if ((attributes & 0x10) == 0x10) // FILE_ATTRIBUTE_DIRECTORY
             return MZ_OK;
