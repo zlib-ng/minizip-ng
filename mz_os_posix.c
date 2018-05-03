@@ -69,7 +69,6 @@ int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *
     size_t len = 0;
     int32_t err = MZ_INTERNAL_ERROR;
 
-
     memset(&stat_info, 0, sizeof(stat_info));
 
     if (strcmp(path, "-") != 0)
@@ -108,6 +107,7 @@ int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t ac
     ut.actime = accessed_date;
     ut.modtime = modified_date;
     // Creation date not supported
+    (void)creation_date;
 
     if (utime(path, &ut) != 0)
         return MZ_INTERNAL_ERROR;

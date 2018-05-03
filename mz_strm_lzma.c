@@ -28,7 +28,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_lzma_vtbl = {
+static mz_stream_vtbl mz_stream_lzma_vtbl = {
     mz_stream_lzma_open,
     mz_stream_lzma_is_open,
     mz_stream_lzma_read,
@@ -70,6 +70,8 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     uint32_t size = 0;
     uint8_t major = 0;
     uint8_t minor = 0;
+
+    MZ_UNUSED(path);
 
     memset(&opt_lzma, 0, sizeof(opt_lzma));
 
@@ -282,11 +284,17 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 
 int64_t mz_stream_lzma_tell(void *stream)
 {
+    MZ_UNUSED(stream);
+
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
 {
+    MZ_UNUSED(stream);
+    MZ_UNUSED(offset);
+    MZ_UNUSED(origin);
+
     return MZ_STREAM_ERROR;
 }
 
@@ -364,7 +372,7 @@ void *mz_stream_lzma_create(void **stream)
 {
     mz_stream_lzma *lzma = NULL;
 
-    lzma = (mz_stream_lzma *)malloc(sizeof(mz_stream_lzma));
+    lzma = (mz_stream_lzma *)MZ_ALLOC(sizeof(mz_stream_lzma));
     if (lzma != NULL)
     {
         memset(lzma, 0, sizeof(mz_stream_lzma));
@@ -385,7 +393,7 @@ void mz_stream_lzma_delete(void **stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
     if (lzma != NULL)
-        free(lzma);
+        MZ_FREE(lzma);
     *stream = NULL;
 }
 

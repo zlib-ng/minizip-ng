@@ -31,7 +31,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_buffered_vtbl = {
+static mz_stream_vtbl mz_stream_buffered_vtbl = {
     mz_stream_buffered_open,
     mz_stream_buffered_is_open,
     mz_stream_buffered_read,
@@ -41,7 +41,9 @@ mz_stream_vtbl mz_stream_buffered_vtbl = {
     mz_stream_buffered_close,
     mz_stream_buffered_error,
     mz_stream_buffered_create,
-    mz_stream_buffered_delete
+    mz_stream_buffered_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/
@@ -221,7 +223,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
             continue;
         }
 
-        memcpy(buffered->writebuf + buffered->writebuf_pos, (char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
+        memcpy(buffered->writebuf + buffered->writebuf_pos, (const char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
 
         mz_stream_buffered_print(stream, "write copy [remaining %d write %d:%d len %d]\n",
             bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
@@ -361,7 +363,7 @@ void *mz_stream_buffered_create(void **stream)
 {
     mz_stream_buffered *buffered = NULL;
 
-    buffered = (mz_stream_buffered *)malloc(sizeof(mz_stream_buffered));
+    buffered = (mz_stream_buffered *)MZ_ALLOC(sizeof(mz_stream_buffered));
     if (buffered != NULL)
     {
         memset(buffered, 0, sizeof(mz_stream_buffered));
@@ -380,7 +382,7 @@ void mz_stream_buffered_delete(void **stream)
         return;
     buffered = (mz_stream_buffered *)*stream;
     if (buffered != NULL)
-        free(buffered);
+        MZ_FREE(buffered);
     *stream = NULL;
 }
 

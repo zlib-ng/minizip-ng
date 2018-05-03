@@ -83,6 +83,16 @@ extern "C" {
 #define MZ_AES_ENCRYPTION_MODE_192      (0x02)
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
 
+// MZ_UTILITY
+#define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
+
+#ifndef MZ_CUSTOM_ALLOC
+#define MZ_ALLOC(SIZE)                  (malloc(SIZE))
+#endif
+#ifndef MZ_CUSTOM_FREE
+#define MZ_FREE(PTR)                    (free(PTR))
+#endif
+
 /***************************************************************************/
 
 #ifdef __cplusplus

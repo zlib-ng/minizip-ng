@@ -33,7 +33,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_zlib_vtbl = {
+static mz_stream_vtbl mz_stream_zlib_vtbl = {
     mz_stream_zlib_open,
     mz_stream_zlib_is_open,
     mz_stream_zlib_read,
@@ -70,6 +70,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
+    MZ_UNUSED(path);
 
     zlib->zstream.data_type = Z_BINARY;
     zlib->zstream.zalloc = Z_NULL;
@@ -267,11 +268,17 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 
 int64_t mz_stream_zlib_tell(void *stream)
 {
+    MZ_UNUSED(stream);
+
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
 {
+    MZ_UNUSED(stream);
+    MZ_UNUSED(offset);
+    MZ_UNUSED(origin);
+
     return MZ_STREAM_ERROR;
 }
 
@@ -342,7 +349,7 @@ void *mz_stream_zlib_create(void **stream)
 {
     mz_stream_zlib *zlib = NULL;
 
-    zlib = (mz_stream_zlib *)malloc(sizeof(mz_stream_zlib));
+    zlib = (mz_stream_zlib *)MZ_ALLOC(sizeof(mz_stream_zlib));
     if (zlib != NULL)
     {
         memset(zlib, 0, sizeof(mz_stream_zlib));
@@ -362,7 +369,7 @@ void mz_stream_zlib_delete(void **stream)
         return;
     zlib = (mz_stream_zlib *)*stream;
     if (zlib != NULL)
-        free(zlib);
+        MZ_FREE(zlib);
     *stream = NULL;
 }
 

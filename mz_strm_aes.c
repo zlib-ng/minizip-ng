@@ -38,7 +38,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_aes_vtbl = {
+static mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_open,
     mz_stream_aes_is_open,
     mz_stream_aes_read,
@@ -49,7 +49,8 @@ mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_error,
     mz_stream_aes_create,
     mz_stream_aes_delete,
-    mz_stream_aes_get_prop_int64
+    mz_stream_aes_get_prop_int64,
+    NULL
 };
 
 /***************************************************************************/
@@ -319,7 +320,7 @@ void *mz_stream_aes_create(void **stream)
 {
     mz_stream_aes *aes = NULL;
 
-    aes = (mz_stream_aes *)malloc(sizeof(mz_stream_aes));
+    aes = (mz_stream_aes *)MZ_ALLOC(sizeof(mz_stream_aes));
     if (aes != NULL)
     {
         memset(aes, 0, sizeof(mz_stream_aes));
@@ -339,7 +340,7 @@ void mz_stream_aes_delete(void **stream)
         return;
     aes = (mz_stream_aes *)*stream;
     if (aes != NULL)
-        free(aes);
+        MZ_FREE(aes);
     *stream = NULL;
 }
 

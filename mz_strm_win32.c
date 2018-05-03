@@ -40,7 +40,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_win32_vtbl = {
+static mz_stream_vtbl mz_stream_win32_vtbl = {
     mz_stream_win32_open,
     mz_stream_win32_is_open,
     mz_stream_win32_read,
@@ -50,7 +50,9 @@ mz_stream_vtbl mz_stream_win32_vtbl = {
     mz_stream_win32_close,
     mz_stream_win32_error,
     mz_stream_win32_create,
-    mz_stream_win32_delete
+    mz_stream_win32_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/
@@ -99,7 +101,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     }
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    path_wide = (wchar_t *)MZ_ALLOC((path_wide_size + 1) * sizeof(wchar_t));
     memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
@@ -110,7 +112,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
 #endif
 
-    free(path_wide);
+    MZ_FREE(path_wide);
 
     if (mz_stream_win32_is_open(stream) != MZ_OK)
     {
@@ -261,7 +263,7 @@ void *mz_stream_win32_create(void **stream)
 {
     mz_stream_win32 *win32 = NULL;
 
-    win32 = (mz_stream_win32 *)malloc(sizeof(mz_stream_win32));
+    win32 = (mz_stream_win32 *)MZ_ALLOC(sizeof(mz_stream_win32));
     if (win32 != NULL)
     {
         memset(win32, 0, sizeof(mz_stream_win32));
@@ -280,7 +282,7 @@ void mz_stream_win32_delete(void **stream)
         return;
     win32 = (mz_stream_win32 *)*stream;
     if (win32 != NULL)
-        free(win32);
+        MZ_FREE(win32);
     *stream = NULL;
 }
 

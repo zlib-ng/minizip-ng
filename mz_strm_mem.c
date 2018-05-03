@@ -28,7 +28,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_mem_vtbl = {
+static mz_stream_vtbl mz_stream_mem_vtbl = {
     mz_stream_mem_open,
     mz_stream_mem_is_open,
     mz_stream_mem_read,
@@ -38,7 +38,9 @@ mz_stream_vtbl mz_stream_mem_vtbl = {
     mz_stream_mem_close,
     mz_stream_mem_error,
     mz_stream_mem_create,
-    mz_stream_mem_delete
+    mz_stream_mem_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/
@@ -62,11 +64,11 @@ static void mz_stream_mem_set_size(void *stream, int32_t size)
     char *new_buf = NULL;
 
 
-    new_buf = (char *)malloc(new_size);
+    new_buf = (char *)MZ_ALLOC(new_size);
     if (mem->buffer)
     {
         memcpy(new_buf, mem->buffer, mem->size);
-        free(mem->buffer);
+        MZ_FREE(mem->buffer);
     }
 
     mem->buffer = new_buf;
@@ -77,6 +79,7 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
+    MZ_UNUSED(path);
 
     mem->mode = mode;
     mem->limit = 0;
@@ -189,12 +192,16 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_mem_close(void *stream)
 {
+    MZ_UNUSED(stream);
+
     // We never return errors
     return MZ_OK;
 }
 
 int32_t mz_stream_mem_error(void *stream)
 {
+    MZ_UNUSED(stream);
+
     // We never return errors
     return MZ_OK;
 }
@@ -231,7 +238,7 @@ void *mz_stream_mem_create(void **stream)
 {
     mz_stream_mem *mem = NULL;
 
-    mem = (mz_stream_mem *)malloc(sizeof(mz_stream_mem));
+    mem = (mz_stream_mem *)MZ_ALLOC(sizeof(mz_stream_mem));
     if (mem != NULL)
     {
         memset(mem, 0, sizeof(mz_stream_mem));
@@ -253,8 +260,8 @@ void mz_stream_mem_delete(void **stream)
     if (mem != NULL)
     {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer != NULL))
-            free(mem->buffer);
-        free(mem);
+            MZ_FREE(mem->buffer);
+        MZ_FREE(mem);
     }
     *stream = NULL;
 }
