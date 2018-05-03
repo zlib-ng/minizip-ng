@@ -270,7 +270,7 @@ void mz_stream_delete(void **stream)
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_crc32_vtbl = {
+static mz_stream_vtbl mz_stream_crc32_vtbl = {
     mz_stream_crc32_open,
     mz_stream_crc32_is_open,
     mz_stream_crc32_read,
@@ -281,7 +281,8 @@ mz_stream_vtbl mz_stream_crc32_vtbl = {
     mz_stream_crc32_error,
     mz_stream_crc32_create,
     mz_stream_crc32_delete,
-    mz_stream_crc32_get_prop_int64
+    mz_stream_crc32_get_prop_int64,
+    NULL
 };
 
 /***************************************************************************/
@@ -303,6 +304,8 @@ int32_t mz_stream_crc32_open(void *stream, const char *path, int32_t mode)
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     crc32->initialized = 1;
     crc32->value = 0;
+    (void)path;
+    (void)mode;
     return MZ_OK;
 }
 
@@ -434,6 +437,10 @@ typedef struct mz_stream_raw_s {
 
 int32_t mz_stream_raw_open(void *stream, const char *path, int32_t mode)
 {
+    (void)stream;
+    (void)path;
+    (void)mode;
+
     return MZ_OK;
 }
 
@@ -486,6 +493,8 @@ int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_raw_close(void *stream)
 {
+    (void)stream;
+
     return MZ_OK;
 }
 
@@ -524,7 +533,7 @@ int32_t mz_stream_raw_set_prop_int64(void *stream, int32_t prop, int64_t value)
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_raw_vtbl = {
+static mz_stream_vtbl mz_stream_raw_vtbl = {
     mz_stream_raw_open,
     mz_stream_raw_is_open,
     mz_stream_raw_read,

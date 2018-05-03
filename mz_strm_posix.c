@@ -50,7 +50,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_posix_vtbl = {
+static mz_stream_vtbl mz_stream_posix_vtbl = {
     mz_stream_posix_open,
     mz_stream_posix_is_open,
     mz_stream_posix_read,
@@ -60,7 +60,9 @@ mz_stream_vtbl mz_stream_posix_vtbl = {
     mz_stream_posix_close,
     mz_stream_posix_error,
     mz_stream_posix_create,
-    mz_stream_posix_delete
+    mz_stream_posix_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/

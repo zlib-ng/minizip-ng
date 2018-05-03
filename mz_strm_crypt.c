@@ -40,7 +40,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_crypt_vtbl = {
+static mz_stream_vtbl mz_stream_crypt_vtbl = {
     mz_stream_crypt_open,
     mz_stream_crypt_is_open,
     mz_stream_crypt_read,
@@ -51,7 +51,8 @@ mz_stream_vtbl mz_stream_crypt_vtbl = {
     mz_stream_crypt_error,
     mz_stream_crypt_create,
     mz_stream_crypt_delete,
-    mz_stream_crypt_get_prop_int64
+    mz_stream_crypt_get_prop_int64,
+    NULL
 };
 
 /***************************************************************************/
@@ -213,7 +214,7 @@ int32_t mz_stream_crypt_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    uint8_t *buf_ptr = (uint8_t *)buf;
+    const uint8_t *buf_ptr = (const uint8_t *)buf;
     uint32_t written = 0;
     uint16_t t = 0;
     int32_t i = 0;

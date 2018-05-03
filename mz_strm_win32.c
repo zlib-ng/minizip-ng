@@ -40,7 +40,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_win32_vtbl = {
+static mz_stream_vtbl mz_stream_win32_vtbl = {
     mz_stream_win32_open,
     mz_stream_win32_is_open,
     mz_stream_win32_read,
@@ -50,7 +50,9 @@ mz_stream_vtbl mz_stream_win32_vtbl = {
     mz_stream_win32_close,
     mz_stream_win32_error,
     mz_stream_win32_create,
-    mz_stream_win32_delete
+    mz_stream_win32_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/

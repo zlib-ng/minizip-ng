@@ -28,7 +28,7 @@
 
 /***************************************************************************/
 
-mz_stream_vtbl mz_stream_mem_vtbl = {
+static mz_stream_vtbl mz_stream_mem_vtbl = {
     mz_stream_mem_open,
     mz_stream_mem_is_open,
     mz_stream_mem_read,
@@ -38,7 +38,9 @@ mz_stream_vtbl mz_stream_mem_vtbl = {
     mz_stream_mem_close,
     mz_stream_mem_error,
     mz_stream_mem_create,
-    mz_stream_mem_delete
+    mz_stream_mem_delete,
+    NULL,
+    NULL
 };
 
 /***************************************************************************/
@@ -77,6 +79,7 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
+    (void)path;
 
     mem->mode = mode;
     mem->limit = 0;
@@ -189,12 +192,16 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_mem_close(void *stream)
 {
+    (void)stream;
+
     // We never return errors
     return MZ_OK;
 }
 
 int32_t mz_stream_mem_error(void *stream)
 {
+    (void)stream;
+
     // We never return errors
     return MZ_OK;
 }
