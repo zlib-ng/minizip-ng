@@ -87,10 +87,10 @@ extern "C" {
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
 
 #ifndef MZ_CUSTOM_ALLOC
-#define MZ_ALLOC(SIZE)                  (MZ_ALLOC(SIZE))
+#define MZ_ALLOC(SIZE)                  (malloc(SIZE))
 #endif
 #ifndef MZ_CUSTOM_FREE
-#define MZ_MZ_FREE(PTR)                 (MZ_FREE(PTR))
+#define MZ_FREE(PTR)                    (free(PTR))
 #endif
 
 /***************************************************************************/
