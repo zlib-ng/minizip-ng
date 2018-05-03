@@ -342,7 +342,7 @@ void *mz_stream_bzip_create(void **stream)
 {
     mz_stream_bzip *bzip = NULL;
 
-    bzip = (mz_stream_bzip *)malloc(sizeof(mz_stream_bzip));
+    bzip = (mz_stream_bzip *)MZ_ALLOC(sizeof(mz_stream_bzip));
     if (bzip != NULL)
     {
         memset(bzip, 0, sizeof(mz_stream_bzip));
@@ -362,7 +362,7 @@ void mz_stream_bzip_delete(void **stream)
         return;
     bzip = (mz_stream_bzip *)*stream;
     if (bzip != NULL)
-        free(bzip);
+        MZ_FREE(bzip);
     *stream = NULL;
 }
 

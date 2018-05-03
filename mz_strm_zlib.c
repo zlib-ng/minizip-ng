@@ -342,7 +342,7 @@ void *mz_stream_zlib_create(void **stream)
 {
     mz_stream_zlib *zlib = NULL;
 
-    zlib = (mz_stream_zlib *)malloc(sizeof(mz_stream_zlib));
+    zlib = (mz_stream_zlib *)MZ_ALLOC(sizeof(mz_stream_zlib));
     if (zlib != NULL)
     {
         memset(zlib, 0, sizeof(mz_stream_zlib));
@@ -362,7 +362,7 @@ void mz_stream_zlib_delete(void **stream)
         return;
     zlib = (mz_stream_zlib *)*stream;
     if (zlib != NULL)
-        free(zlib);
+        MZ_FREE(zlib);
     *stream = NULL;
 }
 

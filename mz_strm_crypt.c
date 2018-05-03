@@ -296,7 +296,7 @@ void *mz_stream_crypt_create(void **stream)
 {
     mz_stream_crypt *crypt = NULL;
 
-    crypt = (mz_stream_crypt *)malloc(sizeof(mz_stream_crypt));
+    crypt = (mz_stream_crypt *)MZ_ALLOC(sizeof(mz_stream_crypt));
     if (crypt != NULL)
     {
         memset(crypt, 0, sizeof(mz_stream_crypt));
@@ -315,7 +315,7 @@ void mz_stream_crypt_delete(void **stream)
         return;
     crypt = (mz_stream_crypt *)*stream;
     if (crypt != NULL)
-        free(crypt);
+        MZ_FREE(crypt);
     *stream = NULL;
 }
 

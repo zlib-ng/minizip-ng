@@ -312,7 +312,7 @@ static int32_t mz_zip_read_cd(void *handle)
 
     if ((err == MZ_OK) && (comment_size > 0))
     {
-        zip->comment = (char *)malloc(comment_size + 1);
+        zip->comment = (char *)MZ_ALLOC(comment_size + 1);
         if (zip->comment)
         {
             if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
@@ -456,7 +456,7 @@ extern void* mz_zip_open(void *stream, int32_t mode)
     int32_t err = MZ_OK;
 
 
-    zip = (mz_zip *)malloc(sizeof(mz_zip));
+    zip = (mz_zip *)MZ_ALLOC(sizeof(mz_zip));
     if (zip == NULL)
         return NULL;
 
@@ -558,9 +558,9 @@ extern int32_t mz_zip_close(void *handle)
     }
 
     if (zip->comment)
-        free(zip->comment);
+        MZ_FREE(zip->comment);
 
-    free(zip);
+    MZ_FREE(zip);
 
     return err;
 }
@@ -583,9 +583,9 @@ extern int32_t mz_zip_set_comment(void *handle, const char *comment)
     if (zip == NULL || comment == NULL)
         return MZ_PARAM_ERROR;
     if (zip->comment != NULL)
-        free(zip->comment);
+        MZ_FREE(zip->comment);
     comment_size = (uint16_t)(strlen(comment) + 1);
-    zip->comment = (char *)malloc(comment_size);
+    zip->comment = (char *)MZ_ALLOC(comment_size);
     strncpy(zip->comment, comment, comment_size);
     return MZ_OK;
 }

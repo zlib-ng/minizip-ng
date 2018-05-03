@@ -393,7 +393,7 @@ void *mz_stream_crc32_create(void **stream)
 {
     mz_stream_crc32 *crc32 = NULL;
 
-    crc32 = (mz_stream_crc32 *)malloc(sizeof(mz_stream_crc32));
+    crc32 = (mz_stream_crc32 *)MZ_ALLOC(sizeof(mz_stream_crc32));
     if (crc32 != NULL)
     {
         memset(crc32, 0, sizeof(mz_stream_crc32));
@@ -412,7 +412,7 @@ void mz_stream_crc32_delete(void **stream)
         return;
     crc32 = (mz_stream_crc32 *)*stream;
     if (crc32 != NULL)
-        free(crc32);
+        MZ_FREE(crc32);
     *stream = NULL;
 }
 
@@ -545,7 +545,7 @@ void *mz_stream_raw_create(void **stream)
 {
     mz_stream_raw *raw = NULL;
 
-    raw = (mz_stream_raw *)malloc(sizeof(mz_stream_raw));
+    raw = (mz_stream_raw *)MZ_ALLOC(sizeof(mz_stream_raw));
     if (raw != NULL)
     {
         memset(raw, 0, sizeof(mz_stream_raw));
@@ -564,6 +564,6 @@ void mz_stream_raw_delete(void **stream)
         return;
     raw = (mz_stream_raw *)*stream;
     if (raw != NULL)
-        free(raw);
+        MZ_FREE(raw);
     *stream = NULL;
 }

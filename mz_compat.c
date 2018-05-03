@@ -100,7 +100,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     if (globalcomment != NULL)
         mz_zip_get_comment(handle, globalcomment);
 
-    compat = (mz_compat *)malloc(sizeof(mz_compat));
+    compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
     compat->handle = handle;
     compat->stream = stream;
 
@@ -264,7 +264,7 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
         mz_stream_delete(&compat->stream);
     }
 
-    free(compat);
+    MZ_FREE(compat);
 
     return err;
 }
@@ -319,7 +319,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
         return NULL;
     }
 
-    compat = (mz_compat *)malloc(sizeof(mz_compat));
+    compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
     compat->handle = handle;
     compat->stream = stream;
 
@@ -343,7 +343,7 @@ extern int ZEXPORT unzClose(unzFile file)
         mz_stream_delete(&compat->stream);
     }
 
-    free(compat);
+    MZ_FREE(compat);
 
     return err;
 }

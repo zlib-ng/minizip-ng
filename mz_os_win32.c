@@ -75,7 +75,7 @@ wchar_t *mz_win32_unicode_path_create(const char *path)
     uint32_t path_wide_size = 0;
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    path_wide = (wchar_t *)malloc((path_wide_size + 1) * sizeof(wchar_t));
+    path_wide = (wchar_t *)MZ_ALLOC((path_wide_size + 1) * sizeof(wchar_t));
     memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
@@ -87,7 +87,7 @@ void mz_win32_unicode_path_delete(wchar_t **path)
 {
     if (path != NULL)
     {
-        free(*path);
+        MZ_FREE(*path);
         *path = NULL;
     }
 }
@@ -159,7 +159,7 @@ int32_t mz_win32_get_file_date(const char *path, time_t *modified_date, time_t *
 
     path_wide = mz_win32_unicode_path_create(path);
     handle = FindFirstFileW(path_wide, &ff32);
-    free(path_wide);
+    MZ_FREE(path_wide);
 
     if (handle != INVALID_HANDLE_VALUE)
     {
@@ -220,7 +220,7 @@ int32_t mz_win32_get_file_attribs(const char *path, int32_t *attributes)
 
     path_wide = mz_win32_unicode_path_create(path);
     *attributes = GetFileAttributesW(path_wide);
-    free(path_wide);
+    MZ_FREE(path_wide);
 
     if (*attributes == INVALID_FILE_ATTRIBUTES)
         err = MZ_INTERNAL_ERROR;
@@ -236,7 +236,7 @@ int32_t mz_win32_set_file_attribs(const char *path, int32_t attributes)
     path_wide = mz_win32_unicode_path_create(path);
     if (SetFileAttributesW(path_wide, attributes) == 0)
         err = MZ_INTERNAL_ERROR;
-    free(path_wide);
+    MZ_FREE(path_wide);
 
     return err;
 }
@@ -277,7 +277,7 @@ DIR *mz_win32_open_dir(const char *path)
     if (handle == INVALID_HANDLE_VALUE)
         return NULL;
 
-    dir_int = (DIR_int *)malloc(sizeof(DIR_int));
+    dir_int = (DIR_int *)MZ_ALLOC(sizeof(DIR_int));
     dir_int->find_handle = handle;
     dir_int->end = 0;
 
@@ -321,7 +321,7 @@ int32_t mz_win32_close_dir(DIR *dir)
     dir_int = (DIR_int *)dir;
     if (dir_int->find_handle != INVALID_HANDLE_VALUE)
         FindClose(dir_int->find_handle);
-    free(dir_int);
+    MZ_FREE(dir_int);
     return MZ_OK;
 }
 

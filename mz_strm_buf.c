@@ -361,7 +361,7 @@ void *mz_stream_buffered_create(void **stream)
 {
     mz_stream_buffered *buffered = NULL;
 
-    buffered = (mz_stream_buffered *)malloc(sizeof(mz_stream_buffered));
+    buffered = (mz_stream_buffered *)MZ_ALLOC(sizeof(mz_stream_buffered));
     if (buffered != NULL)
     {
         memset(buffered, 0, sizeof(mz_stream_buffered));
@@ -380,7 +380,7 @@ void mz_stream_buffered_delete(void **stream)
         return;
     buffered = (mz_stream_buffered *)*stream;
     if (buffered != NULL)
-        free(buffered);
+        MZ_FREE(buffered);
     *stream = NULL;
 }
 

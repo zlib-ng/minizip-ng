@@ -201,7 +201,7 @@ void *mz_stream_posix_create(void **stream)
 {
     mz_stream_posix *posix = NULL;
 
-    posix = (mz_stream_posix *)malloc(sizeof(mz_stream_posix));
+    posix = (mz_stream_posix *)MZ_ALLOC(sizeof(mz_stream_posix));
     if (posix != NULL)
     {
         memset(posix, 0, sizeof(mz_stream_posix));
@@ -220,7 +220,7 @@ void mz_stream_posix_delete(void **stream)
         return;
     posix = (mz_stream_posix *)*stream;
     if (posix != NULL)
-        free(posix);
+        MZ_FREE(posix);
     *stream = NULL;
 }
 

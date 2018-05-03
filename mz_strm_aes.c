@@ -319,7 +319,7 @@ void *mz_stream_aes_create(void **stream)
 {
     mz_stream_aes *aes = NULL;
 
-    aes = (mz_stream_aes *)malloc(sizeof(mz_stream_aes));
+    aes = (mz_stream_aes *)MZ_ALLOC(sizeof(mz_stream_aes));
     if (aes != NULL)
     {
         memset(aes, 0, sizeof(mz_stream_aes));
@@ -339,7 +339,7 @@ void mz_stream_aes_delete(void **stream)
         return;
     aes = (mz_stream_aes *)*stream;
     if (aes != NULL)
-        free(aes);
+        MZ_FREE(aes);
     *stream = NULL;
 }
 

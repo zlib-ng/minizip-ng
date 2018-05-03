@@ -364,7 +364,7 @@ void *mz_stream_lzma_create(void **stream)
 {
     mz_stream_lzma *lzma = NULL;
 
-    lzma = (mz_stream_lzma *)malloc(sizeof(mz_stream_lzma));
+    lzma = (mz_stream_lzma *)MZ_ALLOC(sizeof(mz_stream_lzma));
     if (lzma != NULL)
     {
         memset(lzma, 0, sizeof(mz_stream_lzma));
@@ -385,7 +385,7 @@ void mz_stream_lzma_delete(void **stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
     if (lzma != NULL)
-        free(lzma);
+        MZ_FREE(lzma);
     *stream = NULL;
 }
 
