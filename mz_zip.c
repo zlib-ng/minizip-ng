@@ -868,14 +868,27 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if (file_info->disk_offset >= UINT32_MAX)
         extrafield_zip64_size += 8;
 
-    // Use 64-bit data descriptor if we don't know uncompressed size ahead of time
-    zip64 = (local && file_info->uncompressed_size == 0) || (extrafield_zip64_size > 0);
+    if (file_info->zip64 == MZ_ZIP64_FORCE)
+    {
+        zip64 = 1;
+    }
+    else if (file_info->zip64 != MZ_ZIP64_DISABLE)
+    {
+        // If we don't know uncompressed size ahead of time, assume Zip64 and use 64-bit data descriptor
+        zip64 = (file_info->uncompressed_size == 0) || (extrafield_zip64_size > 0);
+    }
 
     if (zip64)
     {
         extrafield_size += 4;
         extrafield_size += extrafield_zip64_size;
     }
+    else if (extrafield_zip64_size > 0)
+    {
+        // Zip64 extension is required to zip files greater than UINT32_MAX in size
+        return MZ_PARAM_ERROR;
+    }
+
 #ifdef HAVE_AES
     if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
         extrafield_size += 4 + 7;

@@ -71,6 +71,11 @@ extern "C" {
                                          MZ_ZIP_FLAG_DEFLATE_MAX)
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 
+// MZ_ZIP64
+#define MZ_ZIP64_AUTO                   (0)
+#define MZ_ZIP64_FORCE                  (1)
+#define MZ_ZIP64_DISABLE                (2)
+
 // MZ_HOST_SYSTEM
 #define MZ_HOST_SYSTEM_MSDOS            (0)
 #define MZ_HOST_SYSTEM_UNIX             (3)

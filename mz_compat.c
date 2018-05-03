@@ -146,6 +146,10 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     file_info.version_madeby = version_madeby;
     file_info.comment = (char *)comment;
     file_info.flag = flag_base;
+    if (zip64)
+        file_info.zip64 = MZ_ZIP64_FORCE;
+    else
+        file_info.zip64 = MZ_ZIP64_DISABLE;
 #ifdef HAVE_AES
     if (password)
         file_info.aes_version = MZ_AES_VERSION;
