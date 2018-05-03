@@ -667,4 +667,3 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
     if (pzlib_filefunc_def != NULL)
         *pzlib_filefunc_def = mz_stream_os_get_interface();
 }
-
