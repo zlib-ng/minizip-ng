@@ -79,7 +79,7 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
-    (void)path;
+    MZ_UNUSED(path);
 
     mem->mode = mode;
     mem->limit = 0;
@@ -192,7 +192,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_mem_close(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     // We never return errors
     return MZ_OK;
@@ -200,7 +200,7 @@ int32_t mz_stream_mem_close(void *stream)
 
 int32_t mz_stream_mem_error(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     // We never return errors
     return MZ_OK;

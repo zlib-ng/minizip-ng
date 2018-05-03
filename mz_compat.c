@@ -622,9 +622,9 @@ extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
 
 extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len)  // TODO
 {
-    (void)file;
-    (void)buf;
-    (void)len;
+    MZ_UNUSED(file);
+    MZ_UNUSED(buf);
+    MZ_UNUSED(len);
 
     return 0;
 }

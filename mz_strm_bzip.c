@@ -61,7 +61,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
 
-    (void)path;
+    MZ_UNUSED(path);
 
     bzip->bzstream.bzalloc = 0;
     bzip->bzstream.bzfree = 0;
@@ -266,16 +266,16 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
 
 int64_t mz_stream_bzip_tell(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin)
 {
-    (void)stream;
-    (void)offset;
-    (void)origin;
+    MZ_UNUSED(stream);
+    MZ_UNUSED(offset);
+    MZ_UNUSED(origin);
 
     return MZ_STREAM_ERROR;
 }
@@ -380,5 +380,5 @@ void *mz_stream_bzip_get_interface(void)
 
 extern void bz_internal_error(int errcode)
 {
-    (void)errcode;
+    MZ_UNUSED(errcode);
 }

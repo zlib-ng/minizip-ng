@@ -302,10 +302,12 @@ typedef struct mz_stream_crc32_s {
 int32_t mz_stream_crc32_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
+
+    MZ_UNUSED(path);
+    MZ_UNUSED(mode);
+
     crc32->initialized = 1;
     crc32->value = 0;
-    (void)path;
-    (void)mode;
     return MZ_OK;
 }
 
@@ -437,9 +439,9 @@ typedef struct mz_stream_raw_s {
 
 int32_t mz_stream_raw_open(void *stream, const char *path, int32_t mode)
 {
-    (void)stream;
-    (void)path;
-    (void)mode;
+    MZ_UNUSED(stream);
+    MZ_UNUSED(path);
+    MZ_UNUSED(mode);
 
     return MZ_OK;
 }
@@ -493,7 +495,7 @@ int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_raw_close(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     return MZ_OK;
 }

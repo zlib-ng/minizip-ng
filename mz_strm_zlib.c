@@ -70,7 +70,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
-    (void)path;
+    MZ_UNUSED(path);
 
     zlib->zstream.data_type = Z_BINARY;
     zlib->zstream.zalloc = Z_NULL;
@@ -268,16 +268,16 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 
 int64_t mz_stream_zlib_tell(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
 {
-    (void)stream;
-    (void)offset;
-    (void)origin;
+    MZ_UNUSED(stream);
+    MZ_UNUSED(offset);
+    MZ_UNUSED(origin);
 
     return MZ_STREAM_ERROR;
 }

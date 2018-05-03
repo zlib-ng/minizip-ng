@@ -71,7 +71,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     uint8_t major = 0;
     uint8_t minor = 0;
 
-    (void)path;
+    MZ_UNUSED(path);
 
     memset(&opt_lzma, 0, sizeof(opt_lzma));
 
@@ -284,16 +284,16 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 
 int64_t mz_stream_lzma_tell(void *stream)
 {
-    (void)stream;
+    MZ_UNUSED(stream);
 
     return MZ_STREAM_ERROR;
 }
 
 int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
 {
-    (void)stream;
-    (void)offset;
-    (void)origin;
+    MZ_UNUSED(stream);
+    MZ_UNUSED(offset);
+    MZ_UNUSED(origin);
 
     return MZ_STREAM_ERROR;
 }
