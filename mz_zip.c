@@ -608,26 +608,6 @@ extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
     return MZ_OK;
 }
 
-static int16_t mz_zip_entry_get_version_needed(int16_t zip64, mz_zip_file *file_info)
-{
-    int16_t version_needed = 20;
-
-    if (file_info == NULL)
-        return MZ_PARAM_ERROR;
-
-    if (zip64)
-        version_needed = 45;
-#ifdef HAVE_AES
-    if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
-        version_needed = 51;
-#endif
-#ifdef HAVE_LZMA
-    if (file_info->compression_method == MZ_COMPRESS_METHOD_LZMA)
-        version_needed = 63;
-#endif
-    return version_needed;
-}
-
 // Get info about the current file in the zip file
 static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file *file_info, void *file_info_stream)
 {
@@ -853,12 +833,14 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     uint16_t filename_size = 0;
     uint16_t filename_length = 0;
     uint16_t comment_size = 0;
+    uint16_t version_needed = 0;
     uint8_t zip64 = 0;
     int32_t err = MZ_OK;
 
     if (file_info == NULL)
         return MZ_PARAM_ERROR;
 
+    // Calculate extra field sizes
     extrafield_size = file_info->extrafield_size;
 
     if (file_info->uncompressed_size >= UINT32_MAX)
@@ -868,14 +850,15 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if (file_info->disk_offset >= UINT32_MAX)
         extrafield_zip64_size += 8;
 
-    if (file_info->zip64 == MZ_ZIP64_FORCE)
-    {
+    if (file_info->zip64 == MZ_ZIP64_AUTO)
+        zip64 = (extrafield_zip64_size > 0);
+    else if (file_info->zip64 == MZ_ZIP64_FORCE)
         zip64 = 1;
-    }
-    else if (file_info->zip64 != MZ_ZIP64_DISABLE)
+    else if (file_info->zip64 == MZ_ZIP64_DISABLE)
     {
-        // If we don't know uncompressed size ahead of time, assume Zip64 and use 64-bit data descriptor
-        zip64 = (file_info->uncompressed_size == 0) || (extrafield_zip64_size > 0);
+        // Zip64 extension is required to zip file
+        if (extrafield_zip64_size > 0)
+            return MZ_PARAM_ERROR;
     }
 
     if (zip64)
@@ -883,12 +866,6 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += 4;
         extrafield_size += extrafield_zip64_size;
     }
-    else if (extrafield_zip64_size > 0)
-    {
-        // Zip64 extension is required to zip files greater than UINT32_MAX in size
-        return MZ_PARAM_ERROR;
-    }
-
 #ifdef HAVE_AES
     if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
         extrafield_size += 4 + 7;
@@ -903,9 +880,6 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += extrafield_ntfs_size;
     }
 
-    if (file_info->version_needed == 0)
-        file_info->version_needed = mz_zip_entry_get_version_needed(zip64, file_info);
-
     if (local)
         err = mz_stream_write_uint32(stream, MZ_ZIP_MAGIC_LOCALHEADER);
     else
@@ -915,8 +889,26 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint16(stream, file_info->version_madeby);
     }
 
+    // Calculate version needed to extract
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(stream, file_info->version_needed);
+    {
+        version_needed = file_info->version_needed;
+        if (version_needed == 0)
+        {
+            version_needed = 20;
+            if (zip64)
+                version_needed = 45;
+#ifdef HAVE_AES
+            if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
+                version_needed = 51;
+#endif
+#ifdef HAVE_LZMA
+            if (file_info->compression_method == MZ_COMPRESS_METHOD_LZMA)
+                version_needed = 63;
+#endif
+        }
+        err = mz_stream_write_uint16(stream, version_needed);
+    }
     if (err == MZ_OK)
         err = mz_stream_write_uint16(stream, file_info->flag);
     if (err == MZ_OK)
@@ -953,14 +945,17 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     filename_length = (uint16_t)strlen(file_info->filename);
-    if ((file_info->filename[filename_length - 1] == '/') || 
-        (file_info->filename[filename_length - 1] == '\\'))
-        filename_length -= 1;
     if (err == MZ_OK)
     {
         filename_size = filename_length;
         if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
-            filename_size += 1;
+        {
+            if ((file_info->filename[filename_length - 1] == '/') || 
+                (file_info->filename[filename_length - 1] == '\\'))
+                filename_length -= 1;
+            else
+                filename_size += 1;
+        }
         err = mz_stream_write_uint16(stream, filename_size);
     }
     if (err == MZ_OK)
