@@ -851,7 +851,10 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_zip64_size += 8;
 
     if (file_info->zip64 == MZ_ZIP64_AUTO)
-        zip64 = (extrafield_zip64_size > 0);
+    {
+        // If uncompressed size is unknown, assume zip64 for 64-bit data descriptors
+        zip64 = (local && file_info->uncompressed_size == 0) || (extrafield_zip64_size > 0);
+    }
     else if (file_info->zip64 == MZ_ZIP64_FORCE)
         zip64 = 1;
     else if (file_info->zip64 == MZ_ZIP64_DISABLE)
