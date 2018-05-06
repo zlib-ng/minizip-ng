@@ -32,13 +32,13 @@
 
 /***************************************************************************/
 
-void minizip_banner()
+void minizip_banner(void)
 {
     printf("Minizip %s - https://github.com/nmoinvaz/minizip\n", MZ_VERSION);
     printf("---------------------------------------------------\n");
 }
 
-void minizip_help()
+void minizip_help(void)
 {
     printf("Usage : minizip [-x -d dir|-l] [-o] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
@@ -68,10 +68,10 @@ void minizip_help()
 /***************************************************************************/
 
 typedef struct minizip_opt_s {
-    uint8_t include_path;
+    int16_t include_path;
     int16_t compress_level;
     int16_t compress_method;
-    uint8_t overwrite;
+    int16_t overwrite;
 #ifdef HAVE_AES
     int16_t aes;
 #endif
@@ -105,7 +105,7 @@ int32_t minizip_add_path(void *handle, const char *path, const char *filenameinz
 
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = options->compress_method;
-    file_info.filename = (char *)filenameinzip;
+    file_info.filename = filenameinzip;
     file_info.uncompressed_size = mz_os_get_file_size(path);
 
 #ifdef HAVE_AES
@@ -355,8 +355,8 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
     void *stream = NULL;
-    char *match = NULL;
-    char *filename = NULL;
+    const char *match = NULL;
+    const char *filename = NULL;
     char out_path[512];
     char directory[512];
 
@@ -439,17 +439,8 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
         {
             // Create the directory of the output path
             strncpy(directory, out_path, sizeof(directory));
-            match = directory + strlen(directory) - 1;
-            while (match > directory)
-            {
-                if ((*match == '/') || (*match == '\\'))
-                {
-                    *match = 0;
-                    break;
-                }
-                match -= 1;
-            }
 
+            mz_path_remove_filename(directory);
             mz_make_dir(directory);
 
             mz_stream_os_open(stream, out_path, MZ_OPEN_MODE_CREATE);

@@ -115,7 +115,7 @@ int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t ac
     return MZ_OK;
 }
 
-int32_t mz_posix_get_file_attribs(const char *path, int32_t *attributes)
+int32_t mz_posix_get_file_attribs(const char *path, uint32_t *attributes)
 {
     struct stat stat_info;
     int32_t err = MZ_OK;
@@ -127,7 +127,7 @@ int32_t mz_posix_get_file_attribs(const char *path, int32_t *attributes)
     return err;
 }
 
-int32_t mz_posix_set_file_attribs(const char *path, int32_t attributes)
+int32_t mz_posix_set_file_attribs(const char *path, uint32_t attributes)
 {
     int32_t err = MZ_OK;
 

@@ -146,13 +146,13 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
         filename = "-";
 
     file_info.compression_method = compression_method;
-    file_info.filename = (char *)filename;
+    file_info.filename = filename;
     //file_info.extrafield_local = extrafield_local;
     //file_info.extrafield_local_size = size_extrafield_local;
-    file_info.extrafield = (uint8_t *)extrafield_global;
+    file_info.extrafield = extrafield_global;
     file_info.extrafield_size = size_extrafield_global;
     file_info.version_madeby = version_madeby;
-    file_info.comment = (char *)comment;
+    file_info.comment = comment;
     file_info.flag = flag_base;
     if (zip64)
         file_info.zip64 = MZ_ZIP64_FORCE;

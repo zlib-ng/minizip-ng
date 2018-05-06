@@ -98,6 +98,28 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     return MZ_OK;
 }
 
+int32_t mz_path_remove_filename(char *path)
+{
+    char *path_ptr = NULL;
+
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+
+    path_ptr = path + strlen(path) - 1;
+
+    while (path_ptr > path)
+    {
+        if ((*path_ptr == '/') || (*path_ptr == '\\'))
+        {
+            *path_ptr = 0;
+            break;
+        }
+
+        path_ptr -= 1;
+    }
+    return MZ_OK;
+}
+
 int32_t mz_get_file_crc(const char *path, uint32_t *result_crc)
 {
     void *stream = NULL;
