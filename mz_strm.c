@@ -173,8 +173,8 @@ int32_t mz_stream_copy(void *target, void *source, int32_t len)
     while (len > 0)
     {
         bytes_to_copy = len;
-        if (bytes_to_copy > sizeof(buf))
-            bytes_to_copy = sizeof(buf);
+        if (bytes_to_copy > (int32_t)sizeof(buf))
+            bytes_to_copy = (int32_t)sizeof(buf);
         read = mz_stream_read(source, buf, bytes_to_copy);
         if (read < 0)
             return MZ_STREAM_ERROR;

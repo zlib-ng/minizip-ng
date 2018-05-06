@@ -220,7 +220,7 @@ int32_t mz_stream_aes_write(void *stream, const void *buf, int32_t size)
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     int32_t written = 0;
 
-    if (size > sizeof(aes->buffer))
+    if (size > (int32_t)sizeof(aes->buffer))
         return MZ_STREAM_ERROR;
 
     memcpy(aes->buffer, buf, size);

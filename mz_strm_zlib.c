@@ -139,7 +139,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
             bytes_to_read = sizeof(zlib->buffer);
             if (zlib->max_total_in > 0)
             {
-                if ((zlib->max_total_in - zlib->total_in) < sizeof(zlib->buffer))
+                if ((zlib->max_total_in - zlib->total_in) < (int64_t)sizeof(zlib->buffer))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
             }
 
@@ -256,7 +256,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
 
-    zlib->zstream.next_in = (Bytef*)buf;
+    zlib->zstream.next_in = (Bytef*)MZ_UNCONST(buf);
     zlib->zstream.avail_in = (uInt)size;
 
     mz_stream_zlib_deflate(stream, Z_NO_FLUSH);

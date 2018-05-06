@@ -219,7 +219,7 @@ int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
     uint16_t t = 0;
     int32_t i = 0;
 
-    if (size > sizeof(crypt->buffer))
+    if (size > (int32_t)sizeof(crypt->buffer))
         return MZ_STREAM_ERROR;
 
     for (i = 0; i < size; i++)

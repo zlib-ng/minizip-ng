@@ -91,6 +91,15 @@ extern "C" {
 // MZ_UTILITY
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
 
+#if !defined(_WIN64)
+    #define MZ_PTRUINT  unsigned long
+#elif defined(__GNUC__)
+    #define MZ_PTRUINT  unsigned long long
+#else
+    #define MZ_PTRUINT  unsigned __int64
+#endif
+#define MZ_UNCONST(PTR)                 ((void *)(MZ_PTRUINT)(const void *)(PTR))
+
 #ifndef MZ_CUSTOM_ALLOC
 #define MZ_ALLOC(SIZE)                  (malloc(SIZE))
 #endif
