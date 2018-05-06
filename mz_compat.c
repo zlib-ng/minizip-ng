@@ -117,6 +117,14 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     mz_zip_file file_info;
     uint64_t dos_date = 0;
 
+
+    MZ_UNUSED(strategy);
+    MZ_UNUSED(memLevel);
+    MZ_UNUSED(windowBits);
+    MZ_UNUSED(size_extrafield_local);
+    MZ_UNUSED(extrafield_local);
+    MZ_UNUSED(crc_for_crypting);
+
     if (compat == NULL)
         return ZIP_PARAMERROR;
 
@@ -208,9 +216,11 @@ extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, c
 extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
+    int32_t written = 0;
     if (compat == NULL)
         return ZIP_PARAMERROR;
-    if (mz_zip_entry_write(compat->handle, buf, len) != len)
+    written = mz_zip_entry_write(compat->handle, buf, len);
+    if ((written < 0) || ((uint32_t)written != len))
         return ZIP_ERRNO;
     return ZIP_OK;
 }
