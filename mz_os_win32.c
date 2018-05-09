@@ -328,7 +328,7 @@ int32_t mz_win32_close_dir(DIR *dir)
 int32_t mz_win32_is_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
-    int32_t attribs = 0;
+    uint32_t attribs = 0;
 
     path_wide = mz_win32_unicode_path_create(path);
     attribs = GetFileAttributesW(path_wide);
