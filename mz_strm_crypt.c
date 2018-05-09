@@ -132,7 +132,7 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint16_t t = 0;
     int16_t i = 0;
-    uint8_t verify1 = 0;
+    //uint8_t verify1 = 0;
     uint8_t verify2 = 0;
     uint8_t header[RAND_HEAD_LEN];
     const char *password = path;
@@ -180,7 +180,7 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
             header[i] = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i]);
 
-        verify1 = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i++]);
+        //verify1 = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i++]);
         verify2 = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i++]);
 
         // Older versions used 2 byte check, newer versions use 1 byte check.

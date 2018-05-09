@@ -55,7 +55,6 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
 {
     mz_compat *compat = NULL;
     int32_t mode = MZ_OPEN_MODE_READWRITE;
-    int32_t open_existing = 0;
     void *handle = NULL;
     void *stream = NULL;
 
@@ -79,7 +78,6 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
         mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
         break;
     case APPEND_STATUS_ADDINZIP:
-        open_existing = 1;
         break;
     }
 

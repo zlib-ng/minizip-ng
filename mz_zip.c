@@ -740,7 +740,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             // NTFS extra field
             else if (extra_header_id == MZ_ZIP_EXTENSION_NTFS)
             {
-                err = mz_stream_read_uint32(file_info_stream, &reserved);
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint32(file_info_stream, &reserved);
                 extra_data_size_read = 4;
 
                 while ((err == MZ_OK) && (extra_data_size_read < extra_data_size))
@@ -749,7 +750,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     if (err == MZ_OK)
                         err = mz_stream_read_uint16(file_info_stream, &ntfs_attrib_size);
 
-                    if ((ntfs_attrib_id == 0x01) && (ntfs_attrib_size == 24))
+                    if ((err == MZ_OK) && (ntfs_attrib_id == 0x01) && (ntfs_attrib_size == 24))
                     {
                         err = mz_stream_read_uint64(file_info_stream, &ntfs_time);
                         mz_zip_ntfs_to_unix_time(ntfs_time, &file_info->modified_date);
@@ -767,7 +768,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     }
                     else
                     {
-                        err = mz_stream_seek(file_info_stream, ntfs_attrib_size, MZ_SEEK_CUR);
+                        if (err == MZ_OK)
+                            err = mz_stream_seek(file_info_stream, ntfs_attrib_size, MZ_SEEK_CUR);
                     }
 
                     extra_data_size_read += ntfs_attrib_size + 4;
