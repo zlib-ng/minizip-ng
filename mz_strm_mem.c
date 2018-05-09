@@ -214,12 +214,12 @@ void mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size)
     mem->limit = size;
 }
 
-int32_t mz_stream_mem_get_buffer(void *stream, void **buf)
+int32_t mz_stream_mem_get_buffer(void *stream, const void **buf)
 {
     return mz_stream_mem_get_buffer_at(stream, 0, buf);
 }
 
-int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, void **buf)
+int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void **buf)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     if (buf == NULL || position < 0 || mem->size < position || mem->buffer == NULL)
