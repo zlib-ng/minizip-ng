@@ -9,8 +9,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_STREAM_H
-#define _MZ_STREAM_H
+#ifndef MZ_STREAM_H
+#define MZ_STREAM_H
 
 #include <stdint.h>
 

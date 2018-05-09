@@ -254,7 +254,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
 
 
-    bzip->bzstream.next_in = (char *)buf;
+    bzip->bzstream.next_in = (char *)(intptr_t)buf;
     bzip->bzstream.avail_in = (unsigned int)size;
 
     mz_stream_bzip_compress(stream, BZ_RUN);

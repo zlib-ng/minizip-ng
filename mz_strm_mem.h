@@ -11,8 +11,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_STREAM_MEM_H
-#define _MZ_STREAM_MEM_H
+#ifndef MZ_STREAM_MEM_H
+#define MZ_STREAM_MEM_H
 
 #include <stdint.h>
 
@@ -32,8 +32,8 @@ int32_t mz_stream_mem_close(void *stream);
 int32_t mz_stream_mem_error(void *stream);
 
 void    mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size);
-int32_t mz_stream_mem_get_buffer(void *stream, void **buf);
-int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, void **buf);
+int32_t mz_stream_mem_get_buffer(void *stream, const void **buf);
+int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void **buf);
 void    mz_stream_mem_set_grow_size(void *stream, int32_t grow_size);
 
 void*   mz_stream_mem_create(void **stream);

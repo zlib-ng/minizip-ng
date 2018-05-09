@@ -131,7 +131,7 @@ int32_t mz_posix_set_file_attribs(const char *path, uint32_t attributes)
 {
     int32_t err = MZ_OK;
 
-    if (chmod(path, attributes) == -1)
+    if (chmod(path, (mode_t)attributes) == -1)
         err = MZ_INTERNAL_ERROR;
 
     return err;

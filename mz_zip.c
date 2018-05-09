@@ -54,7 +54,6 @@
 
 #define MZ_ZIP_SIZE_CD_ITEM             (0x2e)
 #define MZ_ZIP_SIZE_CD_LOCATOR64        (0x14)
-#define MZ_ZIP_SIZE_LOCALHEADER         (0x1e)
 
 #define MZ_ZIP_EXTENSION_ZIP64          (0x0001)
 #define MZ_ZIP_EXTENSION_NTFS           (0x000a)

@@ -14,8 +14,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_ZIP_H
-#define _MZ_ZIP_H
+#ifndef MZ_ZIP_H
+#define MZ_ZIP_H
 
 #include <stdint.h>
 #include <time.h>

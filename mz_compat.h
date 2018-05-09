@@ -11,8 +11,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_COMPAT_H
-#define _MZ_COMPAT_H
+#ifndef MZ_COMPAT_H
+#define MZ_COMPAT_H
 
 #include <stdint.h>
 

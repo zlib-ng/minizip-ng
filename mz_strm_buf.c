@@ -340,7 +340,7 @@ int32_t mz_stream_buffered_close(void *stream)
     int32_t bytes_flushed = 0;
 
     mz_stream_buffered_flush(stream, &bytes_flushed);
-    mz_stream_buffered_print(stream, "close\n");
+    mz_stream_buffered_print(stream, "close [flushed %d]\n", bytes_flushed);
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
         mz_stream_buffered_print(stream, "read efficency %.02f%%\n",
