@@ -135,7 +135,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
             bytes_to_read = sizeof(bzip->buffer);
             if (bzip->max_total_in > 0)
             {
-                if ((bzip->max_total_in - bzip->total_in) < sizeof(bzip->buffer))
+                if ((bzip->max_total_in - bzip->total_in) < (int64_t)sizeof(bzip->buffer))
                     bytes_to_read = (int32_t)(bzip->max_total_in - bzip->total_in);
             }
 

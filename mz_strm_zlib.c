@@ -139,7 +139,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
             bytes_to_read = sizeof(zlib->buffer);
             if (zlib->max_total_in > 0)
             {
-                if ((zlib->max_total_in - zlib->total_in) < sizeof(zlib->buffer))
+                if ((zlib->max_total_in - zlib->total_in) < (int64_t)sizeof(zlib->buffer))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
             }
 

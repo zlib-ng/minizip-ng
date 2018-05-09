@@ -40,6 +40,13 @@
 
 /***************************************************************************/
 
+// Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
+#if (ZLIB_VERNUM < 0x1270) || defined(ZLIBNG_VERNUM)
+typedef unsigned long z_crc_t;
+#endif
+
+/***************************************************************************/
+
 static mz_stream_vtbl mz_stream_crypt_vtbl = {
     mz_stream_crypt_open,
     mz_stream_crypt_is_open,
@@ -65,7 +72,7 @@ typedef struct mz_stream_crypt_s {
     int64_t         total_in;
     int64_t         total_out;
     uint32_t        keys[3];          // keys defining the pseudo-random sequence
-    const uint32_t  *crc_32_tab;
+    const z_crc_t   *crc_32_tab;
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
@@ -91,7 +98,7 @@ static uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
 }
 
-static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const uint32_t *crc_32_tab, int32_t c)
+static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
 {
     #define CRC32(c, b) ((*(crc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
@@ -105,7 +112,7 @@ static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const uint32_t *crc_3
     return (uint8_t)c;
 }
 
-static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const uint32_t *crc_32_tab)
+static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
 {
     *(keys+0) = 305419896L;
     *(keys+1) = 591751049L;
@@ -199,8 +206,8 @@ int32_t mz_stream_crypt_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
-    uint32_t read = 0;
-    uint32_t i = 0;
+    int32_t read = 0;
+    int32_t i = 0;
 
     read = mz_stream_read(crypt->stream.base, buf, size);
 
@@ -215,11 +222,11 @@ int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
-    uint32_t written = 0;
-    uint16_t t = 0;
+    int32_t written = 0;
     int32_t i = 0;
+    uint16_t t = 0;
 
-    if (size > sizeof(crypt->buffer))
+    if (size > (int32_t)sizeof(crypt->buffer))
         return MZ_STREAM_ERROR;
 
     for (i = 0; i < size; i++)
