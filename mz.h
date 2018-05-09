@@ -9,8 +9,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_H
-#define _MZ_H
+#ifndef MZ_H
+#define MZ_H
 
 #ifdef __cplusplus
 extern "C" {
