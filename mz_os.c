@@ -98,14 +98,14 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     return MZ_OK;
 }
 
-int32_t mz_path_remove_filename(char *path)
+int32_t mz_path_remove_filename(const char *path)
 {
     char *path_ptr = NULL;
 
     if (path == NULL)
         return MZ_PARAM_ERROR;
 
-    path_ptr = path + strlen(path) - 1;
+    path_ptr = (char *)(path + strlen(path) - 1);
 
     while (path_ptr > path)
     {
@@ -117,6 +117,27 @@ int32_t mz_path_remove_filename(char *path)
 
         path_ptr -= 1;
     }
+    return MZ_OK;
+}
+
+int32_t mz_path_get_filename(const char *path, const char **filename)
+{
+    const char *match = NULL;
+
+    if (path == NULL || filename == NULL)
+        return MZ_PARAM_ERROR;
+
+    *filename = NULL;
+
+    for (match = path; *match != 0; match += 1)
+    {
+        if ((*match == '\\') || (*match == '/'))
+            *filename = match + 1;
+    }
+
+    if (*filename == NULL)
+        return MZ_EXIST_ERROR;
+
     return MZ_OK;
 }
 

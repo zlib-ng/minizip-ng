@@ -182,6 +182,7 @@ int32_t minizip_add(void *handle, const char *path, const char *root_path, const
     int32_t err =  MZ_OK;
     int16_t is_dir = 0;
     char full_path[320];
+    const char *filename = NULL;
     const char *filenameinzip = path;
 
 
@@ -197,17 +198,8 @@ int32_t minizip_add(void *handle, const char *path, const char *root_path, const
     {
         if (!is_dir && root_path == path)
         {
-            const char *match = NULL;
-            const char *last_slash = NULL;
-
-            for (match = filenameinzip; *match; match += 1)
-            {
-                if (*match == '\\' || *match == '/')
-                    last_slash = match;
-            }
-
-            if (last_slash != NULL)
-                filenameinzip = last_slash + 1; // base filename follows last slash
+            if (mz_path_get_filename(filenameinzip, &filename) == MZ_OK)
+                filenameinzip = filename;
         }
         else
         {
@@ -355,7 +347,6 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
     void *stream = NULL;
-    const char *match = NULL;
     const char *filename = NULL;
     char out_path[512];
     char directory[512];
@@ -369,13 +360,8 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
         return err;
     }
 
-    match = filename = file_info->filename;
-    while (*match != 0)
-    {
-        if ((*match == '/') || (*match == '\\'))
-            filename = match + 1;
-        match += 1;
-    }
+    if (mz_path_get_filename(file_info->filename, &filename) != MZ_OK)
+        filename = file_info->filename;
 
     // Construct output path
     out_path[0] = 0;
