@@ -1,5 +1,5 @@
 /* mz_strm_win32.c -- Stream for filesystem access for windows
-   Version 2.3.0, May 3rd, 2018
+   Version 2.3.1, May 9th, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
