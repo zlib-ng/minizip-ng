@@ -14,8 +14,8 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#ifndef _MZ_STREAM_WIN32_H
-#define _MZ_STREAM_WIN32_H
+#ifndef MZ_STREAM_WIN32_H
+#define MZ_STREAM_WIN32_H
 
 #include <stdint.h>
 
