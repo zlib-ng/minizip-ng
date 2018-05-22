@@ -81,7 +81,11 @@ typedef struct tm tm_zip;
 typedef uint64_t ZPOS64_T;
 
 #ifndef ZEXPORT
-#define ZEXPORT __declspec(dllexport)
+#  ifdef _MSC_VER
+#    define ZEXPORT __declspec(dllexport)
+#  else
+#    define ZEXPORT
+#  endif
 #endif
 
 /***************************************************************************/
