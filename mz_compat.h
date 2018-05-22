@@ -58,10 +58,6 @@ extern "C" {
 #  endif
 #endif
 
-#ifndef ZEXPORT
-#define ZEXPORT __declspec(dllexport)
-#endif
-
 /***************************************************************************/
 
 #if defined(STRICTZIP) || defined(STRICTZIPUNZIP)
@@ -83,6 +79,10 @@ typedef struct tm tm_unz;
 typedef struct tm tm_zip;
 
 typedef uint64_t ZPOS64_T;
+
+#ifndef ZEXPORT
+#define ZEXPORT __declspec(dllexport)
+#endif
 
 /***************************************************************************/
 
