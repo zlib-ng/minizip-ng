@@ -22,17 +22,13 @@ extern "C" {
 
 #ifdef HAVE_ZLIB
 #include "zlib.h"
+#else
+#define ZEXPORT
+#define MAX_WBITS     (15)
+#define DEF_MEM_LEVEL (8)
 #endif
 
 /***************************************************************************/
-
-#ifndef DEF_MEM_LEVEL
-#  if MAX_MEM_LEVEL >= 8
-#    define DEF_MEM_LEVEL 8
-#  else
-#    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
-#  endif
-#endif
 
 #if defined(USE_FILE32API)
 #  define MZ_USE_FILE32API
@@ -79,14 +75,6 @@ typedef struct tm tm_unz;
 typedef struct tm tm_zip;
 
 typedef uint64_t ZPOS64_T;
-
-#ifndef ZEXPORT
-#  ifdef _MSC_VER
-#    define ZEXPORT __declspec(dllexport)
-#  else
-#    define ZEXPORT
-#  endif
-#endif
 
 /***************************************************************************/
 
