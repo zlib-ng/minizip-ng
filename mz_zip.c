@@ -1158,8 +1158,10 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
     {
         if (zip->compression_method == MZ_COMPRESS_METHOD_RAW)
             mz_stream_raw_create(&zip->compress_stream);
+#ifdef HAVE_ZLIB
         else if (zip->compression_method == MZ_COMPRESS_METHOD_DEFLATE)
             mz_stream_zlib_create(&zip->compress_stream);
+#endif
 #ifdef HAVE_BZIP2
         else if (zip->compression_method == MZ_COMPRESS_METHOD_BZIP2)
             mz_stream_bzip_create(&zip->compress_stream);
