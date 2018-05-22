@@ -58,7 +58,6 @@ set(MINIZIP_SRC
     mz_strm_mem.c
     mz_strm_posix.c
     mz_strm_split.c
-    mz_strm_zlib.c
     mz_zip.c)
 
 set(MINIZIP_PUBLIC_HEADERS
@@ -70,7 +69,6 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_mem.h
     mz_strm_posix.h
     mz_strm_split.h
-    mz_strm_zlib.h
     mz_zip.h)
 
 if(WIN32)
@@ -156,6 +154,9 @@ endif()
 if(USE_ZLIB)
     add_definitions(-DHAVE_ZLIB)
 
+    list(APPEND MINIZIP_SRC "mz_strm_zlib.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_zlib.h")
+
     include(CheckFunctionExists)
     set(CMAKE_REQUIRED_LIBRARIES ZLIB::ZLIB)
     CHECK_FUNCTION_EXISTS(z_get_crc_table
@@ -165,6 +166,7 @@ if(USE_ZLIB)
         add_definitions(-DZ_PREFIX)
     endif()
 endif()
+
 if(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
     add_definitions(-DBZ_NO_STDIO)
