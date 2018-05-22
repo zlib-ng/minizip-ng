@@ -20,7 +20,9 @@
 extern "C" {
 #endif
 
+#ifdef HAVE_ZLIB
 #include "zlib.h"
+#endif
 
 /***************************************************************************/
 
@@ -56,6 +58,10 @@ extern "C" {
 #  endif
 #endif
 
+#ifndef ZEXPORT
+#define ZEXPORT __declspec(dllexport)
+#endif
+
 /***************************************************************************/
 
 #if defined(STRICTZIP) || defined(STRICTZIPUNZIP)
@@ -64,7 +70,7 @@ extern "C" {
 typedef struct TagzipFile__ { int unused; } zip_file__;
 typedef zip_file__ *zipFile;
 #else
-typedef voidp zipFile;
+typedef void *zipFile;
 #endif
 
 /***************************************************************************/
@@ -92,7 +98,7 @@ typedef struct
 
 #define ZIP_OK                          (0)
 #define ZIP_EOF                         (0)
-#define ZIP_ERRNO                       (Z_ERRNO)
+#define ZIP_ERRNO                       (-1)
 #define ZIP_PARAMERROR                  (-102)
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
@@ -157,14 +163,14 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
 typedef struct TagunzFile__ { int unused; } unz_file__;
 typedef unz_file__ *unzFile;
 #else
-typedef voidp unzFile;
+typedef void *unzFile;
 #endif
 
 /***************************************************************************/
 
 #define UNZ_OK                          (0)
 #define UNZ_END_OF_LIST_OF_FILE         (-100)
-#define UNZ_ERRNO                       (Z_ERRNO)
+#define UNZ_ERRNO                       (-1)
 #define UNZ_EOF                         (0)
 #define UNZ_PARAMERROR                  (-102)
 #define UNZ_BADZIPFILE                  (-103)
@@ -256,7 +262,7 @@ extern int ZEXPORT unzOpenCurrentFile(unzFile file);
 extern int ZEXPORT unzOpenCurrentFilePassword(unzFile file, const char *password);
 extern int ZEXPORT unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw);
 extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password);
-extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len);
+extern int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len);
 extern int ZEXPORT unzCloseCurrentFile(unzFile file);
 
 extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
@@ -271,7 +277,7 @@ extern int64_t ZEXPORT unzGetOffset64(unzFile file);
 extern int32_t ZEXPORT unzGetOffset(unzFile file);
 extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos);
 extern int ZEXPORT unzSetOffset(unzFile file, uint32_t pos);
-extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len);
+extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len);
 
 /***************************************************************************/
 

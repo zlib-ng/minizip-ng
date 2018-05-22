@@ -440,7 +440,7 @@ extern int ZEXPORT unzOpenCurrentFile2(unzFile file, int *method, int *level, in
     return unzOpenCurrentFile3(file, method, level, raw, NULL);
 }
 
-extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
+extern int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -632,7 +632,7 @@ extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
     return (int)mz_zip_goto_entry(compat->handle, pos);
 }
 
-extern int ZEXPORT unzGetLocalExtrafield(unzFile file, voidp buf, unsigned len)  // TODO
+extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)  // TODO
 {
     MZ_UNUSED(file);
     MZ_UNUSED(buf);
