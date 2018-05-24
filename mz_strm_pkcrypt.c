@@ -1,4 +1,4 @@
-/* mz_strm_crypt.c -- Code for traditional PKWARE encryption
+/* mz_strm_pkcrypt.c -- Code for traditional PKWARE encryption
    Version 2.3.1, May 9th, 2018
    part of the MiniZip project
 
@@ -32,7 +32,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
-#include "mz_strm_crypt.h"
+#include "mz_strm_pkcrypt.h"
 
 /***************************************************************************/
 
@@ -47,24 +47,24 @@ typedef unsigned long z_crc_t;
 
 /***************************************************************************/
 
-static mz_stream_vtbl mz_stream_crypt_vtbl = {
-    mz_stream_crypt_open,
-    mz_stream_crypt_is_open,
-    mz_stream_crypt_read,
-    mz_stream_crypt_write,
-    mz_stream_crypt_tell,
-    mz_stream_crypt_seek,
-    mz_stream_crypt_close,
-    mz_stream_crypt_error,
-    mz_stream_crypt_create,
-    mz_stream_crypt_delete,
-    mz_stream_crypt_get_prop_int64,
+static mz_stream_vtbl mz_stream_pkcrypt_vtbl = {
+    mz_stream_pkcrypt_open,
+    mz_stream_pkcrypt_is_open,
+    mz_stream_pkcrypt_read,
+    mz_stream_pkcrypt_write,
+    mz_stream_pkcrypt_tell,
+    mz_stream_pkcrypt_seek,
+    mz_stream_pkcrypt_close,
+    mz_stream_pkcrypt_error,
+    mz_stream_pkcrypt_create,
+    mz_stream_pkcrypt_delete,
+    mz_stream_pkcrypt_get_prop_int64,
     NULL
 };
 
 /***************************************************************************/
 
-typedef struct mz_stream_crypt_s {
+typedef struct mz_stream_pkcrypt_s {
     mz_stream       stream;
     int32_t         error;
     int16_t         initialized;
@@ -76,19 +76,19 @@ typedef struct mz_stream_crypt_s {
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
-} mz_stream_crypt;
+} mz_stream_pkcrypt;
 
 /***************************************************************************/
 
 #define zdecode(keys,crc_32_tab,c) \
-    (mz_stream_crypt_update_keys(keys,crc_32_tab, c ^= mz_stream_crypt_decrypt_byte(keys)))
+    (mz_stream_pkcrypt_update_keys(keys,crc_32_tab, c ^= mz_stream_pkcrypt_decrypt_byte(keys)))
 
 #define zencode(keys,crc_32_tab,c,t) \
-    (t = mz_stream_crypt_decrypt_byte(keys), mz_stream_crypt_update_keys(keys,crc_32_tab,c), t^(c))
+    (t = mz_stream_pkcrypt_decrypt_byte(keys), mz_stream_pkcrypt_update_keys(keys,crc_32_tab,c), t^(c))
 
 /***************************************************************************/
 
-static uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
+static uint8_t mz_stream_pkcrypt_decrypt_byte(uint32_t *keys)
 {
     unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
                      * unpredictable manner on 16-bit systems; not a problem
@@ -98,7 +98,7 @@ static uint8_t mz_stream_crypt_decrypt_byte(uint32_t *keys)
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
 }
 
-static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
+static uint8_t mz_stream_pkcrypt_update_keys(uint32_t *keys, const z_crc_t *crc_32_tab, int32_t c)
 {
     #define CRC32(c, b) ((*(crc_32_tab+(((uint32_t)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
 
@@ -112,7 +112,7 @@ static uint8_t mz_stream_crypt_update_keys(uint32_t *keys, const z_crc_t *crc_32
     return (uint8_t)c;
 }
 
-static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
+static void mz_stream_pkcrypt_init_keys(const char *password, uint32_t *keys, const z_crc_t *crc_32_tab)
 {
     *(keys+0) = 305419896L;
     *(keys+1) = 591751049L;
@@ -120,16 +120,16 @@ static void mz_stream_crypt_init_keys(const char *password, uint32_t *keys, cons
 
     while (*password != 0)
     {
-        mz_stream_crypt_update_keys(keys, crc_32_tab, *password);
+        mz_stream_pkcrypt_update_keys(keys, crc_32_tab, *password);
         password += 1;
     }
 }
 
 /***************************************************************************/
 
-int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
+int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     uint16_t t = 0;
     int16_t i = 0;
     //uint8_t verify1 = 0;
@@ -137,23 +137,23 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
     uint8_t header[RAND_HEAD_LEN];
     const char *password = path;
 
-    crypt->total_in = 0;
-    crypt->total_out = 0;
-    crypt->initialized = 0;
+    pkcrypt->total_in = 0;
+    pkcrypt->total_out = 0;
+    pkcrypt->initialized = 0;
 
-    if (mz_stream_is_open(crypt->stream.base) != MZ_OK)
+    if (mz_stream_is_open(pkcrypt->stream.base) != MZ_OK)
         return MZ_STREAM_ERROR;
 
     if (password == NULL)
-        password = crypt->password;
+        password = pkcrypt->password;
     if (password == NULL)
         return MZ_STREAM_ERROR;
 
-    crypt->crc_32_tab = get_crc_table();
-    if (crypt->crc_32_tab == NULL)
+    pkcrypt->crc_32_tab = get_crc_table();
+    if (pkcrypt->crc_32_tab == NULL)
         return MZ_STREAM_ERROR;
 
-    mz_stream_crypt_init_keys(password, crypt->keys, crypt->crc_32_tab);
+    mz_stream_pkcrypt_init_keys(password, pkcrypt->keys, pkcrypt->crc_32_tab);
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
@@ -162,172 +162,172 @@ int32_t mz_stream_crypt_open(void *stream, const char *path, int32_t mode)
 
         // Encrypt random header (last two bytes is high word of crc)
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
-            header[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, header[i], t);
+            header[i] = (uint8_t)zencode(pkcrypt->keys, pkcrypt->crc_32_tab, header[i], t);
 
-        header[i++] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, crypt->verify1, t);
-        header[i++] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, crypt->verify2, t);
+        header[i++] = (uint8_t)zencode(pkcrypt->keys, pkcrypt->crc_32_tab, pkcrypt->verify1, t);
+        header[i++] = (uint8_t)zencode(pkcrypt->keys, pkcrypt->crc_32_tab, pkcrypt->verify2, t);
 
-        if (mz_stream_write(crypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
+        if (mz_stream_write(pkcrypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
             return MZ_STREAM_ERROR;
 
-        crypt->total_out += RAND_HEAD_LEN;
+        pkcrypt->total_out += RAND_HEAD_LEN;
     }
     else if (mode & MZ_OPEN_MODE_READ)
     {
-        if (mz_stream_read(crypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
+        if (mz_stream_read(pkcrypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
             return MZ_STREAM_ERROR;
 
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
-            header[i] = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i]);
+            header[i] = (uint8_t)zdecode(pkcrypt->keys, pkcrypt->crc_32_tab, header[i]);
 
         //verify1 = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i++]);
-        verify2 = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, header[i++]);
+        verify2 = (uint8_t)zdecode(pkcrypt->keys, pkcrypt->crc_32_tab, header[i++]);
 
         // Older versions used 2 byte check, newer versions use 1 byte check.
-        if ((verify2 != 0) && (verify2 != crypt->verify2))
+        if ((verify2 != 0) && (verify2 != pkcrypt->verify2))
             return MZ_PASSWORD_ERROR;
 
-        crypt->total_in += RAND_HEAD_LEN;
+        pkcrypt->total_in += RAND_HEAD_LEN;
     }
 
-    crypt->initialized = 1;
+    pkcrypt->initialized = 1;
     return MZ_OK;
 }
 
-int32_t mz_stream_crypt_is_open(void *stream)
+int32_t mz_stream_pkcrypt_is_open(void *stream)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    if (crypt->initialized == 0)
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    if (pkcrypt->initialized == 0)
         return MZ_STREAM_ERROR;
     return MZ_OK;
 }
 
-int32_t mz_stream_crypt_read(void *stream, void *buf, int32_t size)
+int32_t mz_stream_pkcrypt_read(void *stream, void *buf, int32_t size)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
     int32_t read = 0;
     int32_t i = 0;
 
-    read = mz_stream_read(crypt->stream.base, buf, size);
+    read = mz_stream_read(pkcrypt->stream.base, buf, size);
 
     for (i = 0; i < read; i++)
-        buf_ptr[i] = (uint8_t)zdecode(crypt->keys, crypt->crc_32_tab, buf_ptr[i]);
+        buf_ptr[i] = (uint8_t)zdecode(pkcrypt->keys, pkcrypt->crc_32_tab, buf_ptr[i]);
 
-    crypt->total_in += read;
+    pkcrypt->total_in += read;
     return read;
 }
 
-int32_t mz_stream_crypt_write(void *stream, const void *buf, int32_t size)
+int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
     int32_t written = 0;
     int32_t i = 0;
     uint16_t t = 0;
 
-    if (size > (int32_t)sizeof(crypt->buffer))
+    if (size > (int32_t)sizeof(pkcrypt->buffer))
         return MZ_STREAM_ERROR;
 
     for (i = 0; i < size; i++)
-        crypt->buffer[i] = (uint8_t)zencode(crypt->keys, crypt->crc_32_tab, buf_ptr[i], t);
+        pkcrypt->buffer[i] = (uint8_t)zencode(pkcrypt->keys, pkcrypt->crc_32_tab, buf_ptr[i], t);
 
-    written = mz_stream_write(crypt->stream.base, crypt->buffer, size);
+    written = mz_stream_write(pkcrypt->stream.base, pkcrypt->buffer, size);
 
     if (written > 0)
-        crypt->total_out += written;
+        pkcrypt->total_out += written;
 
     return written;
 }
 
-int64_t mz_stream_crypt_tell(void *stream)
+int64_t mz_stream_pkcrypt_tell(void *stream)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    return mz_stream_tell(crypt->stream.base);
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    return mz_stream_tell(pkcrypt->stream.base);
 }
 
-int32_t mz_stream_crypt_seek(void *stream, int64_t offset, int32_t origin)
+int32_t mz_stream_pkcrypt_seek(void *stream, int64_t offset, int32_t origin)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    return mz_stream_seek(crypt->stream.base, offset, origin);
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    return mz_stream_seek(pkcrypt->stream.base, offset, origin);
 }
 
-int32_t mz_stream_crypt_close(void *stream)
+int32_t mz_stream_pkcrypt_close(void *stream)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    crypt->initialized = 0;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    pkcrypt->initialized = 0;
     return MZ_OK;
 }
 
-int32_t mz_stream_crypt_error(void *stream)
+int32_t mz_stream_pkcrypt_error(void *stream)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    return crypt->error;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    return pkcrypt->error;
 }
 
-void mz_stream_crypt_set_password(void *stream, const char *password)
+void mz_stream_pkcrypt_set_password(void *stream, const char *password)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    crypt->password = password;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    pkcrypt->password = password;
 }
 
-void mz_stream_crypt_set_verify(void *stream, uint8_t verify1, uint8_t verify2)
+void mz_stream_pkcrypt_set_verify(void *stream, uint8_t verify1, uint8_t verify2)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    crypt->verify1 = verify1;
-    crypt->verify2 = verify2;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    pkcrypt->verify1 = verify1;
+    pkcrypt->verify2 = verify2;
 }
 
-void mz_stream_crypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2)
+void mz_stream_pkcrypt_get_verify(void *stream, uint8_t *verify1, uint8_t *verify2)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
-    *verify1 = crypt->verify1;
-    *verify2 = crypt->verify2;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
+    *verify1 = pkcrypt->verify1;
+    *verify2 = pkcrypt->verify2;
 }
 
-int32_t mz_stream_crypt_get_prop_int64(void *stream, int32_t prop, int64_t *value)
+int32_t mz_stream_pkcrypt_get_prop_int64(void *stream, int32_t prop, int64_t *value)
 {
-    mz_stream_crypt *crypt = (mz_stream_crypt *)stream;
+    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     switch (prop)
     {
     case MZ_STREAM_PROP_TOTAL_IN:
-        *value = crypt->total_in;
+        *value = pkcrypt->total_in;
         return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_OUT:
-        *value = crypt->total_out;
+        *value = pkcrypt->total_out;
         return MZ_OK;
     }
     return MZ_EXIST_ERROR;
 }
 
-void *mz_stream_crypt_create(void **stream)
+void *mz_stream_pkcrypt_create(void **stream)
 {
-    mz_stream_crypt *crypt = NULL;
+    mz_stream_pkcrypt *pkcrypt = NULL;
 
-    crypt = (mz_stream_crypt *)MZ_ALLOC(sizeof(mz_stream_crypt));
-    if (crypt != NULL)
+    pkcrypt = (mz_stream_pkcrypt *)MZ_ALLOC(sizeof(mz_stream_pkcrypt));
+    if (pkcrypt != NULL)
     {
-        memset(crypt, 0, sizeof(mz_stream_crypt));
-        crypt->stream.vtbl = &mz_stream_crypt_vtbl;
+        memset(pkcrypt, 0, sizeof(mz_stream_pkcrypt));
+        pkcrypt->stream.vtbl = &mz_stream_pkcrypt_vtbl;
     }
 
     if (stream != NULL)
-        *stream = crypt;
-    return crypt;
+        *stream = pkcrypt;
+    return pkcrypt;
 }
 
-void mz_stream_crypt_delete(void **stream)
+void mz_stream_pkcrypt_delete(void **stream)
 {
-    mz_stream_crypt *crypt = NULL;
+    mz_stream_pkcrypt *pkcrypt = NULL;
     if (stream == NULL)
         return;
-    crypt = (mz_stream_crypt *)*stream;
-    if (crypt != NULL)
-        MZ_FREE(crypt);
+    pkcrypt = (mz_stream_pkcrypt *)*stream;
+    if (pkcrypt != NULL)
+        MZ_FREE(pkcrypt);
     *stream = NULL;
 }
 
-void *mz_stream_crypt_get_interface(void)
+void *mz_stream_pkcrypt_get_interface(void)
 {
-    return (void *)&mz_stream_crypt_vtbl;
+    return (void *)&mz_stream_pkcrypt_vtbl;
 }
