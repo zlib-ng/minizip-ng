@@ -14,7 +14,8 @@ To generate the project files for your platform and IDE download and run cmake i
 
 ```
 cmake .
-cmake --build . -DBUILD_TEST=ON
+cmake . -DBUILD_TEST=ON
+cmake --build .
 ```
 
 ## Build Options

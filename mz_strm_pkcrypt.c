@@ -27,12 +27,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_ZLIB
 #include "zlib.h"
+#endif
 
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#ifdef HAVE_LZMA
+#include "mz_strm_lzma.h"
+#endif
 #include "mz_strm_pkcrypt.h"
+#ifdef HAVE_ZLIB
+#include "mz_strm_zlib.h"
+#endif
 
 /***************************************************************************/
 
@@ -41,8 +49,12 @@
 /***************************************************************************/
 
 // Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
-#if (ZLIB_VERNUM < 0x1270) || defined(ZLIBNG_VERNUM)
+#if (ZLIB_VERNUM < 0x1270) || defined(ZLIBNG_VERNUM) || !defined(HAVE_ZLIB)
+#ifdef HAVE_ZLIB
 typedef unsigned long z_crc_t;
+#else
+typedef uint32_t z_crc_t;
+#endif
 #endif
 
 /***************************************************************************/
@@ -149,7 +161,14 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     if (password == NULL)
         return MZ_STREAM_ERROR;
 
-    pkcrypt->crc_32_tab = get_crc_table();
+#ifdef HAVE_ZLIB
+    pkcrypt->crc_32_tab = (z_crc_t *)mz_stream_zlib_get_crc32_table();
+#elif defined(HAVE_LZMA)
+    pkcrypt->crc_32_tab = (z_crc_t *)mz_stream_lzma_get_crc32_table();
+#else
+#error ZLIB or LZMA required for CRC32
+#endif
+    
     if (pkcrypt->crc_32_tab == NULL)
         return MZ_STREAM_ERROR;
 
