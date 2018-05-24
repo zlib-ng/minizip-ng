@@ -14,12 +14,13 @@ To generate the project files for your platform and IDE download and run cmake i
 
 ```
 cmake .
-cmake --build .
+cmake --build . -DBUILD_TEST=ON
 ```
 
 ## Build Options
 
 | Name | Description | Default Value |
+|:- |:-|:-:|
 | USE_ZLIB | Enables ZLIB compression | ON |
 | USE_BZIP2 | Enables BZIP2 compression | ON |
 | USE_LZMA | Enables LZMA compression | ON |
