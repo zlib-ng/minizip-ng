@@ -43,6 +43,7 @@ typedef struct DIR_int_s {
 
 /***************************************************************************/
 
+#if defined(HAVE_PKCRYPT) || defined(HAVE_AES)
 int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 {
     HCRYPTPROV provider;
@@ -68,6 +69,7 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 
     return len;
 }
+#endif
 
 wchar_t *mz_win32_unicode_path_create(const char *path)
 {

@@ -34,11 +34,13 @@
 
 /***************************************************************************/
 
+#if defined(HAVE_PKCRYPT) || defined(HAVE_AES)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     arc4random_buf(buf, size);
     return size;
 }
+#endif
 
 int32_t mz_posix_file_exists(const char *path)
 {

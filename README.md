@@ -17,6 +17,16 @@ cmake .
 cmake --build .
 ```
 
+## Build Options
+
+| Name | Description | Default Value |
+| USE_ZLIB | Enables ZLIB compression | ON |
+| USE_BZIP2 | Enables BZIP2 compression | ON |
+| USE_LZMA | Enables LZMA compression | ON |
+| USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
+| USE_AES | Enables AES encryption | ON |
+| BUILD_TEST | Builds minizip test executable | OFF |
+
 ## Contents
 
 | File(s) | Description | Required |
@@ -29,10 +39,10 @@ cmake --build .
 | mz_strm_aes.\* | WinZIP AES stream | No |
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
-| mz_strm_crypt.\* | PKWARE traditional encryption stream | No |
 | mz_strm_lzma.\* | LZMA stream using liblzma | zlib or liblzma |
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
+| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream | No |
 | mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
 | mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
 | mz_strm_zlib.\* | Deflate stream using zlib | zlib or liblzma |
@@ -68,7 +78,7 @@ To disable encryption use the following cmake commands:
 
 ```
 cmake . -DUSE_AES=OFF
-cmake . -DUSE_CRYPT=OFF
+cmake . -DUSE_PKCRYPT=OFF
 ```
 
 ### NTFS Timestamps

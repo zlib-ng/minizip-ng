@@ -5,12 +5,12 @@
 #***************************************************************************
 cmake_minimum_required(VERSION 2.8)
 
-option(USE_ZLIB "Enables building with ZLIB library" ON)
-option(USE_BZIP2 "Enables building with BZIP2 library" ON)
-option(USE_LZMA "Enables building with LZMA library" ON)
-option(USE_CRYPT "Enables building with PKWARE traditional encryption" ON)
-option(USE_AES "Enables building with AES library" ON)
-option(BUILD_TEST "Enables building of minizip executable." OFF)
+option(USE_ZLIB "Enables ZLIB compression" ON)
+option(USE_BZIP2 "Enables BZIP2 compression" ON)
+option(USE_LZMA "Enables LZMA compression" ON)
+option(USE_PKCRYPT "Enables PKWARE traditional encryption" ON)
+option(USE_AES "Enables AES encryption" ON)
+option(BUILD_TEST "Builds minizip executable" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
 # When CMake 2.8.12 is required, change this default to 1.
@@ -115,11 +115,11 @@ if(UNIX)
     endif()
 endif()
 
-if(USE_CRYPT)
-    add_definitions(-DHAVE_CRYPT)
+if(USE_PKCRYPT)
+    add_definitions(-DHAVE_PKCRYPT)
 
-    list(APPEND MINIZIP_SRC "mz_strm_crypt.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_crypt.h")
+    list(APPEND MINIZIP_SRC "mz_strm_pkcrypt.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_pkcrypt.h")
 endif()
 
 if(USE_AES)
