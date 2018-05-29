@@ -1,5 +1,5 @@
 /* mz_strm_mem.h -- Stream for memory access
-   Version 2.3.1, May 9th, 2018
+   Version 2.3.2, May 29, 2018
    part of MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
