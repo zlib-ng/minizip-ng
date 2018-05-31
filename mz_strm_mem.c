@@ -228,6 +228,12 @@ int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void *
     return MZ_OK;
 }
 
+void mz_stream_mem_get_buffer_length(void *stream, int32_t *length)
+{
+    mz_stream_mem *mem = (mz_stream_mem *)stream;
+    *length = mem->limit;
+}
+
 void mz_stream_mem_set_grow_size(void *stream, int32_t grow_size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;

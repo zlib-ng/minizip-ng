@@ -350,6 +350,11 @@ int32_t mz_stream_buffered_close(void *stream)
         mz_stream_buffered_print(stream, "write efficency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
 
+    buffered->readbuf_len = 0;
+    buffered->readbuf_pos = 0;
+    buffered->writebuf_len = 0;
+    buffered->writebuf_pos = 0;
+
     return mz_stream_close(buffered->stream.base);
 }
 
