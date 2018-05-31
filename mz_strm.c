@@ -290,7 +290,7 @@ static mz_stream_vtbl mz_stream_crc32_vtbl = {
 typedef struct mz_stream_crc32_s {
     mz_stream  stream;
     int8_t     initialized;
-    int32_t    value;
+    int64_t    value;
     int64_t    total_in;
     int64_t    total_out;
 
@@ -369,7 +369,7 @@ int32_t mz_stream_crc32_error(void *stream)
 int32_t mz_stream_crc32_get_value(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
-    return crc32->value;
+    return (int32_t)crc32->value;
 }
 
 int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *value)

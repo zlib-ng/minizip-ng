@@ -48,17 +48,6 @@
 
 /***************************************************************************/
 
-// Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
-#if (ZLIB_VERNUM < 0x1270) || defined(ZLIBNG_VERNUM) || !defined(HAVE_ZLIB)
-#ifdef HAVE_ZLIB
-typedef unsigned long z_crc_t;
-#else
-typedef uint32_t z_crc_t;
-#endif
-#endif
-
-/***************************************************************************/
-
 static mz_stream_vtbl mz_stream_pkcrypt_vtbl = {
     mz_stream_pkcrypt_open,
     mz_stream_pkcrypt_is_open,
@@ -73,6 +62,17 @@ static mz_stream_vtbl mz_stream_pkcrypt_vtbl = {
     mz_stream_pkcrypt_get_prop_int64,
     NULL
 };
+
+/***************************************************************************/
+
+// Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
+#if (ZLIB_VERNUM < 0x1270) || defined(ZLIBNG_VERNUM) || !defined(HAVE_ZLIB)
+#ifdef HAVE_ZLIB
+    typedef unsigned long z_crc_t;
+#else
+    typedef uint32_t z_crc_t;
+#endif
+#endif
 
 /***************************************************************************/
 

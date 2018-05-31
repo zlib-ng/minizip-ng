@@ -87,7 +87,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     // Construct disk path
     if (disk_part > 0)
     {
-        for (i = strlen(split->path_disk) - 1; i >= 0; i -= 1)
+        for (i = (int32_t)strlen(split->path_disk) - 1; i >= 0; i -= 1)
         {
             if (split->path_disk[i] != '.')
                 continue;
@@ -180,11 +180,11 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
 
     split->mode = mode;
 
-    split->path_cd_size = strlen(path) + 1;
+    split->path_cd_size = (int32_t)strlen(path) + 1;
     split->path_cd = (char *)MZ_ALLOC(split->path_cd_size);
     strncpy(split->path_cd, path, split->path_cd_size);
 
-    split->path_disk_size = strlen(path) + 10;
+    split->path_disk_size = (int32_t)strlen(path) + 10;
     split->path_disk = (char *)MZ_ALLOC(split->path_disk_size);
     strncpy(split->path_disk, path, split->path_disk_size);
 
