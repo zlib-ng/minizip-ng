@@ -30,7 +30,7 @@ set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory f
 set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installation directory for pkgconfig (.pc) files")
 set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
 
-set(VERSION "2.3.2")
+set(VERSION "2.3.3")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
