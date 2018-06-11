@@ -348,6 +348,7 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     int32_t err_close = MZ_OK;
     void *stream = NULL;
     const char *filename = NULL;
+    char out_name[512];
     char out_path[512];
     char directory[512];
 
@@ -373,7 +374,13 @@ int32_t minizip_extract_currentfile(void *handle, const char *destination, const
     {
         if (destination != NULL)
             mz_path_combine(out_path, destination, sizeof(out_path));
-        mz_path_combine(out_path, file_info->filename, sizeof(out_path));
+        err = mz_path_resolve(file_info->filename, out_name, sizeof(out_name));
+        if (err != MZ_OK)
+        {
+            printf("Error %d resolving output path\n", err);
+            return err;
+        }
+        mz_path_combine(out_path, out_name, sizeof(out_path));
     }
 
     // If zip entry is a directory then create it on disk

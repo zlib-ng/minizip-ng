@@ -98,6 +98,82 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     return MZ_OK;
 }
 
+int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
+{
+    const char *source = path;
+    char *target = output;
+    int16_t slash_count = 0;
+
+    if (max_output <= 0)
+        return MZ_PARAM_ERROR;
+
+    while (*source != 0 && max_output > 1)
+    {
+        // Skip double paths
+        if ((source[0] == '\\' || source[0] == '/') &&
+            (source[1] == '\\' || source[1] == '/'))
+        {
+            source += 1;
+            continue;
+        }
+        // Skip current directory .\ or ./
+        if ((source[0] == '.') &&
+            (source[1] == 0 || source[1] == '\\' || source[1] == '/'))
+        {
+            if (source[1] == 0)
+            {
+                source += 1;
+                break;
+            }
+            source += 2;
+            continue;
+        }
+        // Go back for parent directory ..\ or ../
+        if ((source[0] == '.') && (source[1] != 0 && source[1] == '.') &&
+            (source[2] == 0 || source[2] == '\\' || source[2] == '/'))
+        {
+            slash_count = 0;
+            while (target >= output)
+            {
+                if (*target == '\\' || *target == '/')
+                {
+                    slash_count += 1;
+                    if (slash_count == 2)
+                        break;
+                }
+
+                if (target == output)
+                    break;
+
+                target -= 1;
+                max_output += 1;
+            }
+
+            if (source[2] == 0)
+                target += 1;
+            if (target == output)
+                source += 1;
+
+            source += 2;
+            *target = 0;
+            continue;
+        }
+
+        *target = *source;
+
+        source += 1;
+        target += 1;
+        max_output -= 1;
+    }
+
+    *target = 0;
+
+    if (*path == 0)
+        return MZ_INTERNAL_ERROR;
+
+    return MZ_OK;
+}
+
 int32_t mz_path_remove_filename(const char *path)
 {
     char *path_ptr = NULL;
