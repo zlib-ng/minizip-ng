@@ -71,6 +71,8 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_split.h
     mz_zip.h)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 if(WIN32)
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_win32.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_win32.h" "mz_strm_win32.h")

@@ -101,62 +101,85 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
 int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
 {
     const char *source = path;
+    const char *check = output;
     char *target = output;
-    int16_t slash_count = 0;
 
     if (max_output <= 0)
         return MZ_PARAM_ERROR;
 
     while (*source != 0 && max_output > 1)
     {
-        // Skip double paths
-        if ((source[0] == '\\' || source[0] == '/') &&
-            (source[1] == '\\' || source[1] == '/'))
+        check = source;
+        if ((*check == '\\') || (*check == '/'))
+            check += 1;
+
+        if ((source == path) || (check != source) || (*target == 0))
         {
-            source += 1;
-            continue;
-        }
-        // Skip current directory .\ or ./
-        if ((source[0] == '.') &&
-            (source[1] == 0 || source[1] == '\\' || source[1] == '/'))
-        {
-            if (source[1] == 0)
+            // Skip double paths
+            if ((*check == '\\') || (*check == '/'))
             {
                 source += 1;
-                break;
+                continue;
             }
-            source += 2;
-            continue;
-        }
-        // Go back for parent directory ..\ or ../
-        if ((source[0] == '.') && (source[1] != 0 && source[1] == '.') &&
-            (source[2] == 0 || source[2] == '\\' || source[2] == '/'))
-        {
-            slash_count = 0;
-            while (target >= output)
+            if ((*check != 0) && (*check == '.'))
             {
-                if (*target == '\\' || *target == '/')
+                check += 1;
+
+                // Remove current directory . if at end of stirng
+                if ((*check == 0) && (source != path))
                 {
-                    slash_count += 1;
-                    if (slash_count == 2)
-                        break;
+                    // Copy last slash
+                    *target = *source;
+                    target += 1;
+                    max_output -= 1;
+                    source += (check - source);
+                    continue;
                 }
 
-                if (target == output)
-                    break;
+                // Remove current directory . if not at end of stirng
+                if ((*check == 0) || (*check == '\\' || *check == '/'))
+                {                   
+                    // Only proceed if .\ is not entire string
+                    if (check[1] != 0 || (path != source))
+                    {
+                        source += (check - source);
+                        continue;
+                    }
+                }
 
-                target -= 1;
-                max_output += 1;
+                // Go to parent directory ..
+                if ((*check != 0) || (*check == '.'))
+                {
+                    check += 1;
+                    if ((*check == 0) || (*check == '\\' || *check == '/'))
+                    {
+                        source += (check - source);
+
+                        // Search backwards for previous slash
+                        if (target != output)
+                        {
+                            target -= 1;
+                            do
+                            {
+                                if ((*target == '\\') || (*target == '/'))
+                                    break;
+
+                                target -= 1;
+                                max_output += 1;
+                            }
+                            while (target > output);
+                        }
+                        
+                        if ((target == output) && (*source != 0))
+                            source += 1;
+                        if ((*target == '\\' || *target == '/') && (*source == 0))
+                            target += 1;
+
+                        *target = 0;
+                        continue;
+                    }
+                }
             }
-
-            if (source[2] == 0)
-                target += 1;
-            if (target == output)
-                source += 1;
-
-            source += 2;
-            *target = 0;
-            continue;
         }
 
         *target = *source;

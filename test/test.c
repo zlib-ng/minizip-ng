@@ -9,13 +9,71 @@
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
+#ifdef HAVE_BZIP
 #include "mz_strm_bzip.h"
-#include "mz_strm_crypt.h"
+#endif
+#ifdef HAVE_PKCRYPT
+#include "mz_strm_pkcrypt.h"
+#endif
+#ifdef HAVE_AES
 #include "mz_strm_aes.h"
+#endif
+#ifdef HAVE_ZLIB
 #include "mz_strm_zlib.h"
+#endif
 #include "mz_zip.h"
 
 /***************************************************************************/
+
+void test_path_resolve(void)
+{
+    char output[256];
+    int32_t ok = 0;
+
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\.", output, sizeof(output));
+    ok = (strcmp(output, "c:\\test\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\.\\", output, sizeof(output));
+    ok = (strcmp(output, "c:\\test\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\..", output, sizeof(output));
+    ok = (strcmp(output, "c:\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\..\\", output, sizeof(output));
+    ok = (strcmp(output, "c:\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\.\\..", output, sizeof(output));
+    ok = (strcmp(output, "c:\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\.\\\\..", output, sizeof(output));
+    ok = (strcmp(output, "c:\\") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve(".", output, sizeof(output));
+    ok = (strcmp(output, ".") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve(".\\", output, sizeof(output));
+    ok = (strcmp(output, "") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("..", output, sizeof(output));
+    ok = (strcmp(output, "") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("..\\", output, sizeof(output));
+    ok = (strcmp(output, "") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\123\\.\\abc.txt", output, sizeof(output));
+    ok = (strcmp(output, "c:\\test\\123\\abc.txt") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\123\\..\\abc.txt", output, sizeof(output));
+    ok = (strcmp(output, "c:\\test\\abc.txt") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\123\\..\\..\\abc.txt", output, sizeof(output));
+    ok = (strcmp(output, "c:\\abc.txt") == 0);
+    memset(output, 'z', sizeof(output));
+    mz_path_resolve("c:\\test\\123\\..\\..\\..\\abc.txt", output, sizeof(output));
+    ok = (strcmp(output, "abc.txt") == 0);
+    memset(output, 'z', sizeof(output));
+}
 
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
 {
@@ -206,25 +264,30 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
 /***************************************************************************/
 
+#ifdef HAVE_AES
 void test_aes()
 {
     test_encrypt("aes", mz_stream_aes_create, "hello");
 }
-
+#endif
+#ifdef HAVE_PKCRYPT
 void test_crypt()
 {
-    test_encrypt("crypt", mz_stream_crypt_create, "hello");
+    test_encrypt("pkcrypt", mz_stream_pkcrypt_create, "hello");
 }
-
+#endif
+#ifdef HAVE_ZLIB
 void test_zlib()
 {
     test_compress("zlib", mz_stream_zlib_create);
 }
-
+#endif
+#ifdef HAVE_BZIP
 void test_bzip()
 {
     test_compress("bzip", mz_stream_bzip_create);
 }
+#endif
 
 /***************************************************************************/
 
@@ -262,7 +325,9 @@ void test_zip_mem()
         file_info.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
         file_info.filename = text_name;
         file_info.uncompressed_size = text_size;
+#ifdef HAVE_AES
         file_info.aes_version = MZ_AES_VERSION;
+#endif
 
         err = mz_zip_entry_write_open(zip_handle, &file_info, MZ_COMPRESS_LEVEL_DEFAULT, password);
         if (err == MZ_OK)
