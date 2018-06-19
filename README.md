@@ -21,6 +21,17 @@ cmake . -DBUILD_TEST=ON
 cmake --build .
 ```
 
+## Build Options
+
+| Name | Description | Default Value |
+|:- |:-|:-:|
+| USE_ZLIB | Enables ZLIB compression | ON |
+| USE_BZIP2 | Enables BZIP2 compression | ON |
+| USE_LZMA | Enables LZMA compression | ON |
+| USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
+| USE_AES | Enables AES encryption | ON |
+| BUILD_TEST | Builds minizip test executable | OFF |
+
 ### Zlib Installation (Windows)
 
 Option 1. Install the zlib package to the Program Files directory with an Administrator command prompt.
@@ -42,17 +53,6 @@ Navigate back to the minizip directory and before building run:
 ```
 cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zlib\
 ```
-
-## Build Options
-
-| Name | Description | Default Value |
-|:- |:-|:-:|
-| USE_ZLIB | Enables ZLIB compression | ON |
-| USE_BZIP2 | Enables BZIP2 compression | ON |
-| USE_LZMA | Enables LZMA compression | ON |
-| USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
-| USE_AES | Enables AES encryption | ON |
-| BUILD_TEST | Builds minizip test executable | OFF |
 
 ## Contents
 
