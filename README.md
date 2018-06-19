@@ -10,12 +10,37 @@ For the original work maintained by Mark Adler checkout the zlib minizip  [contr
 
 ## Build
 
-To generate the project files for your platform and IDE download and run cmake in the project directory.
+To generate project files for your platform:
+
+1. [Download and install](https://cmake.org/install/) cmake.
+2. [Download](https://zlib.net/) and install zlib if it is not installed on your system.
+3. Run cmake in the minizip directory.
+
+```
+cmake . -DBUILD_TEST=ON
+cmake --build .
+```
+
+### Zlib Installation (Windows)
+
+Option 1. Install the zlib package to the Program Files directory with an Administrator command prompt.
+
+```
+cmake . -DCMAKE_INSTALL_PREFIX=%PROGRAMFILES%\zlib
+cmake --build . --config Release --target INSTALL
+```
+
+Option 2. Compile zlib in minizip's lib directory. 
 
 ```
 cmake .
-cmake . -DBUILD_TEST=ON
-cmake --build .
+cmake --build . --config Release
+```
+
+Navigate back to the minizip directory and before building run:
+
+```
+cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zlib\
 ```
 
 ## Build Options
