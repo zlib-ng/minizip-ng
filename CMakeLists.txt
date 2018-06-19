@@ -10,6 +10,8 @@ option(USE_BZIP2 "Enables BZIP2 compression" ON)
 option(USE_LZMA "Enables LZMA compression" ON)
 option(USE_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(USE_AES "Enables AES encryption" ON)
+option(COMPRESS_ONLY "Only support compression" OFF)
+option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
 
 # Set a consistent MACOSX_RPATH default across all CMake versions.
@@ -71,6 +73,13 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_split.h
     mz_zip.h)
 
+if(COMPRESS_ONLY)
+    add_definitions(-DMZ_ZIP_COMPRESS_ONLY)
+endif()
+if(DECOMPRESS_ONLY)
+    add_definitions(-DMZ_ZIP_DECOMPRESS_ONLY)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
@@ -81,7 +90,7 @@ if(WIN32)
 endif()
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
-    add_definitions(-DMZ_USE_WINRT_API)
+    add_definitions(-DMZ_WINRT_API)
 endif()
 
 if(UNIX)

@@ -83,6 +83,10 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
+#ifdef MZ_ZIP_DECOMPRESS_ONLY
+        MZ_UNUSED(filters);
+        return MZ_SUPPORT_ERROR;
+#else
         lzma->lstream.next_out = lzma->buffer;
         lzma->lstream.avail_out = sizeof(lzma->buffer);
 
@@ -104,9 +108,13 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
         lzma->total_out += MZ_LZMA_HEADER_SIZE;
 
         lzma->error = lzma_alone_encoder(&lzma->lstream, &opt_lzma);
+#endif
     }
     else if (mode & MZ_OPEN_MODE_READ)
     {
+#ifdef MZ_ZIP_COMPRESS_ONLY
+        return MZ_SUPPORT_ERROR;
+#else
         lzma->lstream.next_in = lzma->buffer;
         lzma->lstream.avail_in = 0;
 
@@ -117,6 +125,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
         lzma->total_in += MZ_LZMA_HEADER_SIZE;
 
         lzma->error = lzma_alone_decoder(&lzma->lstream, UINT64_MAX);
+#endif
     }
 
     if (lzma->error != LZMA_OK)
@@ -137,6 +146,9 @@ int32_t mz_stream_lzma_is_open(void *stream)
 
 int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 {
+#ifdef MZ_ZIP_COMPRESS_ONLY
+    return MZ_SUPPORT_ERROR;
+#else
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     uint64_t total_in_before = 0;
     uint64_t total_out_before = 0;
@@ -212,6 +224,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
         return lzma->error;
 
     return total_out;
+#endif
 }
 
 static int32_t mz_stream_lzma_flush(void *stream)
@@ -270,16 +283,20 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
+    int32_t err = size;
 
-
+#ifdef MZ_ZIP_DECOMPRESS_ONLY
+    MZ_UNUSED(lzma);
+    err = MZ_SUPPORT_ERROR;
+#else
     lzma->lstream.next_in = (uint8_t*)(intptr_t)buf;
     lzma->lstream.avail_in = (size_t)size;
 
     mz_stream_lzma_code(stream, LZMA_RUN);
 
     lzma->total_in += size;
-
-    return size;
+#endif
+    return err;
 }
 
 int64_t mz_stream_lzma_tell(void *stream)
@@ -304,14 +321,22 @@ int32_t mz_stream_lzma_close(void *stream)
 
     if (lzma->mode & MZ_OPEN_MODE_WRITE)
     {
+#ifdef MZ_ZIP_DECOMPRESS_ONLY
+        return MZ_SUPPORT_ERROR;
+#else
         mz_stream_lzma_code(stream, LZMA_FINISH);
         mz_stream_lzma_flush(stream);
 
         lzma_end(&lzma->lstream);
+#endif
     }
     else if (lzma->mode & MZ_OPEN_MODE_READ)
     {
+#ifdef MZ_ZIP_COMPRESS_ONLY
+        return MZ_SUPPORT_ERROR;
+#else
         lzma_end(&lzma->lstream);
+#endif
     }
 
     lzma->initialized = 0;

@@ -1260,6 +1260,10 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     if (raw)
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
+#ifdef MZ_ZIP_COMPRESS_ONLY
+    if (compression_method != MZ_COMPRESS_METHOD_RAW)
+        err = MZ_SUPPORT_ERROR;
+#endif 
     if (err == MZ_OK)
         err = mz_zip_entry_open_int(handle, compression_method, 0, password);
 
@@ -1328,6 +1332,10 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     if ((compress_level == 0) || (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK))
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
+#ifdef MZ_ZIP_DECOMPRESS_ONLY
+    if (compression_method != MZ_COMPRESS_METHOD_RAW)
+        err = MZ_SUPPORT_ERROR;
+#endif
     if (err == MZ_OK)
         err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
     if (err == MZ_OK)
@@ -1356,9 +1364,12 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
 extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
+    int32_t written = 0;
+
     if (zip == NULL || zip->entry_opened == 0)
         return MZ_PARAM_ERROR;
-    return mz_stream_write(zip->crc32_stream, buf, len);
+    written = mz_stream_write(zip->crc32_stream, buf, len);
+    return written;
 }
 
 extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
