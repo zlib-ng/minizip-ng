@@ -32,7 +32,7 @@ cmake --build .
 | USE_AES | Enables AES encryption | ON |
 | BUILD_TEST | Builds minizip test executable | OFF |
 
-### Zlib Installation (Windows)
+## Zlib Installation (Windows)
 
 Option 1. Install the zlib package to the Program Files directory with an Administrator command prompt.
 
