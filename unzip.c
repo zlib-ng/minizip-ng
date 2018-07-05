@@ -1325,7 +1325,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, voidp buf, uint32_t len)
                     s->pfile_in_zip_read->stream.next_in);
             bytes_to_read -= bytes_not_read;
             if (bytes_not_read > 0)
-                memcpy(s->pfile_in_zip_read->read_buffer, s->pfile_in_zip_read->stream.next_in, bytes_not_read);
+                memmove(s->pfile_in_zip_read->read_buffer, s->pfile_in_zip_read->stream.next_in, bytes_not_read);
             if (s->pfile_in_zip_read->rest_read_compressed < bytes_to_read)
                 bytes_to_read = (uint16_t)s->pfile_in_zip_read->rest_read_compressed;
 
