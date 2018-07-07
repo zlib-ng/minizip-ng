@@ -275,7 +275,7 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
         lzma->buffer_len += out_bytes;
         lzma->total_out += out_bytes;
     }
-    while (lzma->lstream.avail_in > 0);
+    while ((lzma->lstream.avail_in > 0) || (flush == LZMA_FINISH && err == LZMA_OK));
 
     return MZ_OK;
 }
