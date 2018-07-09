@@ -1075,7 +1075,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t max_total_in = 0;
-    int64_t total_in = 0;
+    int64_t header_size = 0;
     int64_t footer_size = 0;
     int32_t err = MZ_OK;
 
@@ -1185,10 +1185,13 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
             if (zip->compression_method == MZ_COMPRESS_METHOD_RAW || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
+                mz_stream_set_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
+
+                if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_HEADER_SIZE, &header_size) == MZ_OK)
+                    max_total_in -= header_size;
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
                     max_total_in -= footer_size;
-                if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in) == MZ_OK)
-                    max_total_in -= total_in;
+
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
             }
             if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)

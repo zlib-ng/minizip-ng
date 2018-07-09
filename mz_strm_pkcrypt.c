@@ -44,7 +44,7 @@
 
 /***************************************************************************/
 
-#define RAND_HEAD_LEN  12
+#define RAND_HEAD_LEN  (12)
 
 /***************************************************************************/
 
@@ -314,6 +314,12 @@ int32_t mz_stream_pkcrypt_get_prop_int64(void *stream, int32_t prop, int64_t *va
         return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = pkcrypt->total_out;
+        return MZ_OK;
+    case MZ_STREAM_PROP_HEADER_SIZE:
+        *value = RAND_HEAD_LEN;
+        return MZ_OK;
+    case MZ_STREAM_PROP_FOOTER_SIZE:
+        *value = 0;
         return MZ_OK;
     }
     return MZ_EXIST_ERROR;
