@@ -4,14 +4,6 @@
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Copyright (C) 1998-2005 Gilles Vollant
-     Modifications for Info-ZIP crypting
-     http://www.winimage.com/zLibDll/minizip.html
-   Copyright (C) 2003 Terry Thorsen
-
-   This code is a modified version of crypting code in Info-ZIP distribution
-
-   Copyright (C) 1990-2000 Info-ZIP.  All rights reserved.
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
