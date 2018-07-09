@@ -50,7 +50,7 @@ static mz_stream_vtbl mz_stream_aes_vtbl = {
     mz_stream_aes_create,
     mz_stream_aes_delete,
     mz_stream_aes_get_prop_int64,
-    NULL
+    mz_stream_aes_set_prop_int64
 };
 
 /***************************************************************************/
@@ -62,6 +62,7 @@ typedef struct mz_stream_aes_s {
     int16_t         initialized;
     uint8_t         buffer[INT16_MAX];
     int64_t         total_in;
+    int64_t         max_total_in;
     int64_t         total_out;
     int16_t         encryption_mode;
     const char      *password;
@@ -269,6 +270,7 @@ int32_t mz_stream_aes_close(void *stream)
 
         aes->total_in += MZ_AES_AUTHCODE_SIZE;
 
+        // If entire entry was not read this will fail
         if (memcmp(authcode, verify_authcode, MZ_AES_AUTHCODE_SIZE) != 0)
             return MZ_CRC_ERROR;
     }
@@ -306,11 +308,26 @@ int32_t mz_stream_aes_get_prop_int64(void *stream, int32_t prop, int64_t *value)
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = aes->total_out;
         return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        *value = aes->max_total_in;
+        return MZ_OK;
     case MZ_STREAM_PROP_HEADER_SIZE:
         *value = MZ_AES_SALT_LENGTH(aes->encryption_mode) + MZ_AES_PW_VERIFY_SIZE;
         return MZ_OK;
     case MZ_STREAM_PROP_FOOTER_SIZE:
         *value = MZ_AES_AUTHCODE_SIZE;
+        return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
+}
+
+int32_t mz_stream_aes_set_prop_int64(void *stream, int32_t prop, int64_t value)
+{
+    mz_stream_aes *aes = (mz_stream_aes *)stream;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        aes->max_total_in = value;
         return MZ_OK;
     }
     return MZ_EXIST_ERROR;

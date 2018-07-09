@@ -1412,6 +1412,7 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
 #endif
         {
             mz_stream_crc32_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+            // If entire entry was not read this will fail
             if ((total_in > 0) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
             {
                 if (crc32 != zip->file_info.crc)
