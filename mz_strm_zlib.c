@@ -347,6 +347,9 @@ int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = zlib->total_in;
         return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        *value = zlib->max_total_in;
+        return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = zlib->total_out;
         return MZ_OK;

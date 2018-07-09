@@ -344,6 +344,9 @@ int32_t mz_stream_bzip_get_prop_int64(void *stream, int32_t prop, int64_t *value
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = bzip->total_in;
         return MZ_OK;
+    case MZ_STREAM_PROP_TOTAL_IN_MAX:
+        *value = bzip->max_total_in;
+        return MZ_OK;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = bzip->total_out;
         return MZ_OK;

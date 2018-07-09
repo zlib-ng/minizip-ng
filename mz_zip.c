@@ -86,7 +86,6 @@ typedef struct mz_zip_s
 
     uint16_t entry_scanned;
     uint16_t entry_opened;          // 1 if a file in the zip is currently writ.
-    uint64_t entry_read;
 
     int64_t  number_entry;
 
@@ -1359,8 +1358,6 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
     if (len == 0 || zip->file_info.uncompressed_size == 0)
         return 0;
     read = mz_stream_read(zip->crc32_stream, buf, len);
-    if (read > 0)
-        zip->entry_read += read;
     return read;
 }
 
@@ -1397,6 +1394,7 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t compressed_size = 0;
+    int64_t total_in = 0;
     int32_t err = MZ_OK;
 
     if (zip == NULL || zip->entry_opened == 0)
@@ -1413,7 +1411,8 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
         if (zip->file_info.aes_version <= 0x0001)
 #endif
         {
-            if ((zip->entry_read > 0) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
+            mz_stream_crc32_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+            if ((total_in > 0) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
             {
                 if (crc32 != zip->file_info.crc)
                     err = MZ_CRC_ERROR;
