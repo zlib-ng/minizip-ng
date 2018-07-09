@@ -324,8 +324,11 @@ int32_t mz_stream_lzma_close(void *stream)
 #ifdef MZ_ZIP_DECOMPRESS_ONLY
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_lzma_code(stream, LZMA_FINISH);
-        mz_stream_lzma_flush(stream);
+        if (lzma->total_in > 0)
+        {
+            mz_stream_lzma_code(stream, LZMA_FINISH);
+            mz_stream_lzma_flush(stream);
+        }
 
         lzma_end(&lzma->lstream);
 #endif

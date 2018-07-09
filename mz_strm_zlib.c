@@ -308,8 +308,11 @@ int32_t mz_stream_zlib_close(void *stream)
 #ifdef MZ_ZIP_DECOMPRESS_ONLY
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_zlib_deflate(stream, Z_FINISH);
-        mz_stream_zlib_flush(stream);
+        if (zlib->total_in > 0)
+        {
+            mz_stream_zlib_deflate(stream, Z_FINISH);
+            mz_stream_zlib_flush(stream);
+        }
 
         deflateEnd(&zlib->zstream);
 #endif
