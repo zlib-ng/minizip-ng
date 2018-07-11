@@ -67,6 +67,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_strm_aes.\* | WinZIP AES stream | No |
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
+| mz_strm_crc32.\* | CRC32 stream | Yes |
 | mz_strm_lzma.\* | LZMA stream using liblzma | zlib or liblzma |
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
