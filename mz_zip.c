@@ -1349,6 +1349,9 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
     if (len == 0)
         return MZ_PARAM_ERROR;
 
+    if (zip->file_info.compressed_size == 0)
+        return 0;
+
     // Read entire entry even if uncompressed_size = 0, otherwise
     // aes encryption validation will fail if compressed_size > 0
     read = mz_stream_read(zip->crc32_stream, buf, len);
