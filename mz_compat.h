@@ -1,5 +1,5 @@
 /* mz_compat.h -- Backwards compatible interface for older versions
-   Version 2.3.5, July 9, 2018
+   Version 2.3.6, July 11, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri

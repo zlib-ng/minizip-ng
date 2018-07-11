@@ -1,5 +1,5 @@
 /* mz.h -- Errors codes, zip flags and magic
-   Version 2.3.5, July 9, 2018
+   Version 2.3.6, July 11, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
@@ -19,7 +19,7 @@ extern "C" {
 /***************************************************************************/
 
 // MZ_VERSION
-#define MZ_VERSION                      ("2.3.5")
+#define MZ_VERSION                      ("2.3.6")
 
 // MZ_ERROR
 #define MZ_OK                           (0)
