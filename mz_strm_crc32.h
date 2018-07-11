@@ -39,7 +39,7 @@ void*   mz_stream_crc32_create(void **stream);
 void    mz_stream_crc32_delete(void **stream);
 
 void*   mz_stream_crc32_get_interface(void);
-void*   mz_stream_crc32_get_table(void);
+int32_t mz_stream_crc32_get_update_func(mz_stream_crc32_update *update);
 
 /***************************************************************************/
 

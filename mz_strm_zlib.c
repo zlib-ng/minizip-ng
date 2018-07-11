@@ -23,6 +23,15 @@
 
 /***************************************************************************/
 
+// Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
+#if defined(ZLIBNG_VERNUM)
+typedef uint32_t z_crc_t;
+#elif (ZLIB_VERNUM < 0x1270) 
+typedef unsigned long z_crc_t;
+#endif
+
+/***************************************************************************/
+
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
@@ -308,11 +317,8 @@ int32_t mz_stream_zlib_close(void *stream)
 #ifdef MZ_ZIP_DECOMPRESS_ONLY
         return MZ_SUPPORT_ERROR;
 #else
-        if (zlib->total_in > 0)
-        {
-            mz_stream_zlib_deflate(stream, Z_FINISH);
-            mz_stream_zlib_flush(stream);
-        }
+        mz_stream_zlib_deflate(stream, Z_FINISH);
+        mz_stream_zlib_flush(stream);
 
         deflateEnd(&zlib->zstream);
 #endif
@@ -411,11 +417,6 @@ void *mz_stream_zlib_get_interface(void)
 static int64_t mz_stream_zlib_crc32(int64_t value, const void *buf, int32_t size)
 {
     return crc32((z_crc_t)value, buf, size);
-}
-
-void *mz_stream_zlib_get_crc32_table(void)
-{
-    return (void *)get_crc_table();
 }
 
 void *mz_stream_zlib_get_crc32_update(void)

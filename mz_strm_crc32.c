@@ -13,6 +13,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef HAVE_ZLIB
+#include "zlib.h"
+#endif
+
 #include <time.h>
 
 #include "mz.h"
@@ -189,13 +193,18 @@ void *mz_stream_crc32_get_interface(void)
     return (void *)&mz_stream_crc32_vtbl;
 }
 
-void *mz_stream_crc32_get_table(void)
+int32_t mz_stream_crc32_get_update_func(mz_stream_crc32_update *update)
 {
+    if (update == NULL)
+        return MZ_PARAM_ERROR;
 #ifdef HAVE_ZLIB
-    return mz_stream_zlib_get_crc32_table();
+    *update = 
+        (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
 #elif defined(HAVE_LZMA)
-    return mz_stream_lzma_get_crc32_table();
+    *update = 
+        (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
 #else
 #error ZLIB or LZMA required for CRC32
 #endif
+    return MZ_OK;
 }

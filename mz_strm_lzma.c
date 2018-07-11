@@ -324,11 +324,8 @@ int32_t mz_stream_lzma_close(void *stream)
 #ifdef MZ_ZIP_DECOMPRESS_ONLY
         return MZ_SUPPORT_ERROR;
 #else
-        if (lzma->total_in > 0)
-        {
-            mz_stream_lzma_code(stream, LZMA_FINISH);
-            mz_stream_lzma_flush(stream);
-        }
+        mz_stream_lzma_code(stream, LZMA_FINISH);
+        mz_stream_lzma_flush(stream);
 
         lzma_end(&lzma->lstream);
 #endif
@@ -439,12 +436,6 @@ void *mz_stream_lzma_get_interface(void)
 static int64_t mz_stream_lzma_crc32(int64_t value, const void *buf, int32_t size)
 {
     return (int32_t)lzma_crc32(buf, size, (int32_t)value);
-}
-
-void *mz_stream_lzma_get_crc32_table(void)
-{
-    extern const uint32_t lzma_crc32_table;
-    return (void *)lzma_crc32_table;
 }
 
 void *mz_stream_lzma_get_crc32_update(void)

@@ -36,7 +36,6 @@ void*   mz_stream_lzma_create(void **stream);
 void    mz_stream_lzma_delete(void **stream);
 
 void*   mz_stream_lzma_get_interface(void);
-void*   mz_stream_lzma_get_crc32_table(void);
 void*   mz_stream_lzma_get_crc32_update(void);
 
 /***************************************************************************/

@@ -36,7 +36,6 @@ void*   mz_stream_zlib_create(void **stream);
 void    mz_stream_zlib_delete(void **stream);
 
 void*   mz_stream_zlib_get_interface(void);
-void*   mz_stream_zlib_get_crc32_table(void);
 void*   mz_stream_zlib_get_crc32_update(void);
 
 /***************************************************************************/

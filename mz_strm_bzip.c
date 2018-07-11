@@ -305,11 +305,8 @@ int32_t mz_stream_bzip_close(void *stream)
 #ifdef MZ_ZIP_DECOMPRESS_ONLY
         return MZ_SUPPORT_ERROR;
 #else
-        if (bzip->total_in > 0)
-        {
-            mz_stream_bzip_compress(stream, BZ_FINISH);
-            mz_stream_bzip_flush(stream);
-        }
+        mz_stream_bzip_compress(stream, BZ_FINISH);
+        mz_stream_bzip_flush(stream);
 
         BZ2_bzCompressEnd(&bzip->bzstream);
 #endif
