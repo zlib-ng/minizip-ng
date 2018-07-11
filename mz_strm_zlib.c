@@ -352,18 +352,20 @@ int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value
     {
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = zlib->total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         *value = zlib->max_total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = zlib->total_out;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_HEADER_SIZE:
         *value = 0;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
@@ -373,12 +375,14 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
     {
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
         zlib->level = (int16_t)value;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         zlib->max_total_in = value;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 void *mz_stream_zlib_create(void **stream)

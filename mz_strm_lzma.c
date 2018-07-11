@@ -359,21 +359,23 @@ int32_t mz_stream_lzma_get_prop_int64(void *stream, int32_t prop, int64_t *value
     {
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = lzma->total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         *value = lzma->max_total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = lzma->total_out;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT_MAX:
         *value = lzma->max_total_out;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_HEADER_SIZE:
         *value = MZ_LZMA_HEADER_SIZE;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
@@ -386,17 +388,19 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
             lzma->preset = LZMA_PRESET_EXTREME;
         else
             lzma->preset = LZMA_PRESET_DEFAULT;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         lzma->max_total_in = value;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT_MAX:
         if (value < -1)
             return MZ_PARAM_ERROR;
         lzma->max_total_out = value;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 void *mz_stream_lzma_create(void **stream)

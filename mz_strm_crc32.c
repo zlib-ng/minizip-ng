@@ -17,8 +17,6 @@
 #include "zlib.h"
 #endif
 
-#include <time.h>
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_crc32.h"
@@ -142,12 +140,14 @@ int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *valu
     {
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = crc32->total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = crc32->total_out;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 void *mz_stream_crc32_create(void **stream)
@@ -160,16 +160,6 @@ void *mz_stream_crc32_create(void **stream)
         memset(crc32, 0, sizeof(mz_stream_crc32));
         crc32->stream.vtbl = &mz_stream_crc32_vtbl;
     }
-
-#ifdef HAVE_ZLIB
-    crc32->update = 
-        (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
-#elif defined(HAVE_LZMA)
-    crc32->update = 
-        (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
-#else
-#error ZLIB or LZMA required for CRC32
-#endif
 
     if (stream != NULL)
         *stream = crc32;

@@ -136,7 +136,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     int16_t i = 0;
     //uint8_t verify1 = 0;
     uint8_t verify2 = 0;
-    uint8_t header[RAND_HEAD_LEN] = { 0 };
+    uint8_t header[RAND_HEAD_LEN];
     const char *password = path;
 
     pkcrypt->total_in = 0;
@@ -293,18 +293,20 @@ int32_t mz_stream_pkcrypt_get_prop_int64(void *stream, int32_t prop, int64_t *va
     {
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = pkcrypt->total_in;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_TOTAL_OUT:
         *value = pkcrypt->total_out;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_HEADER_SIZE:
         *value = RAND_HEAD_LEN;
-        return MZ_OK;
+        break;
     case MZ_STREAM_PROP_FOOTER_SIZE:
         *value = 0;
-        return MZ_OK;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
     }
-    return MZ_EXIST_ERROR;
+    return MZ_OK;
 }
 
 void *mz_stream_pkcrypt_create(void **stream)
