@@ -30,16 +30,17 @@
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
 #endif
+#include "mz_strm_crc32.h"
 #ifdef HAVE_LZMA
 #  include "mz_strm_lzma.h"
 #endif
+#include "mz_strm_mem.h"
 #ifdef HAVE_PKCRYPT
 #  include "mz_strm_pkcrypt.h"
 #endif
 #ifdef HAVE_ZLIB
 #  include "mz_strm_zlib.h"
 #endif
-#include "mz_strm_mem.h"
 
 #include "mz_zip.h"
 
@@ -1207,16 +1208,6 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
     if (err == MZ_OK)
     {
         mz_stream_crc32_create(&zip->crc32_stream);
-#ifdef HAVE_ZLIB
-        mz_stream_crc32_set_update_func(zip->crc32_stream,
-            (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update());
-#elif defined(HAVE_LZMA)
-        mz_stream_crc32_set_update_func(zip->crc32_stream,
-            (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update());
-#else
-        #error ZLIB or LZMA required for CRC32
-#endif
-
         mz_stream_set_base(zip->crc32_stream, zip->compress_stream);
 
         err = mz_stream_open(zip->crc32_stream, NULL, zip->open_mode);

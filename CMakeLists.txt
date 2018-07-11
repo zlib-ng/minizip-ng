@@ -57,6 +57,7 @@ set(MINIZIP_SRC
     mz_compat.c
     mz_strm.c
     mz_strm_buf.c
+    mz_strm_crc32.c
     mz_strm_mem.c
     mz_strm_posix.c
     mz_strm_split.c
@@ -68,6 +69,7 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_compat.h
     mz_strm.h
     mz_strm_buf.h
+    mz_strm_crc32.h
     mz_strm_mem.h
     mz_strm_posix.h
     mz_strm_split.h

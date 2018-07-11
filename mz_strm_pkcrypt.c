@@ -34,13 +34,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
-#ifdef HAVE_LZMA
-#include "mz_strm_lzma.h"
-#endif
 #include "mz_strm_pkcrypt.h"
-#ifdef HAVE_ZLIB
-#include "mz_strm_zlib.h"
-#endif
 
 /***************************************************************************/
 
@@ -161,13 +155,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     if (password == NULL)
         return MZ_STREAM_ERROR;
 
-#ifdef HAVE_ZLIB
-    pkcrypt->crc_32_tab = (z_crc_t *)mz_stream_zlib_get_crc32_table();
-#elif defined(HAVE_LZMA)
-    pkcrypt->crc_32_tab = (z_crc_t *)mz_stream_lzma_get_crc32_table();
-#else
-#error ZLIB or LZMA required for CRC32
-#endif
+    pkcrypt->crc_32_tab = (z_crc_t *)mz_stream_crc32_get_table();
     
     if (pkcrypt->crc_32_tab == NULL)
         return MZ_STREAM_ERROR;
