@@ -161,6 +161,16 @@ void *mz_stream_crc32_create(void **stream)
         crc32->stream.vtbl = &mz_stream_crc32_vtbl;
     }
 
+#ifdef HAVE_ZLIB
+    crc32->update =
+        (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
+#elif defined(HAVE_LZMA)
+    crc32->update =
+        (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
+#else
+#error ZLIB or LZMA required for CRC32
+#endif
+
     if (stream != NULL)
         *stream = crc32;
 
