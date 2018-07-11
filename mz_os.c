@@ -18,6 +18,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_strm_crc32.h"
 
 /***************************************************************************/
 
