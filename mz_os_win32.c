@@ -14,7 +14,6 @@
 #include <string.h>
 #include <time.h>
 #include <direct.h>
-#include <errno.h>
 
 #include <windows.h>
 #include <wincrypt.h>

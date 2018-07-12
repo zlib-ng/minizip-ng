@@ -13,10 +13,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef HAVE_ZLIB
-#include "zlib.h"
-#endif
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_crc32.h"

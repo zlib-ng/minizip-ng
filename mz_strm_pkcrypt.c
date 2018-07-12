@@ -1,25 +1,25 @@
 /* mz_strm_pkcrypt.c -- Code for traditional PKWARE encryption
-Version 2.3.6, July 11, 2018
-part of the MiniZip project
+   Version 2.3.6, July 11, 2018
+   part of the MiniZip project
 
-Copyright (C) 2010-2018 Nathan Moinvaziri
-https://github.com/nmoinvaz/minizip
-Copyright (C) 1998-2005 Gilles Vollant
-Modifications for Info-ZIP crypting
-http://www.winimage.com/zLibDll/minizip.html
-Copyright (C) 2003 Terry Thorsen
+   Copyright (C) 2010-2018 Nathan Moinvaziri
+      https://github.com/nmoinvaz/minizip
+   Copyright (C) 1998-2005 Gilles Vollant
+      Modifications for Info-ZIP crypting
+      http://www.winimage.com/zLibDll/minizip.html
+   Copyright (C) 2003 Terry Thorsen
 
-This code is a modified version of crypting code in Info-ZIP distribution
+   This code is a modified version of crypting code in Info-ZIP distribution
 
-Copyright (C) 1990-2000 Info-ZIP.  All rights reserved.
+   Copyright (C) 1990-2000 Info-ZIP.  All rights reserved.
 
-This program is distributed under the terms of the same license as zlib.
-See the accompanying LICENSE file for the full text of the license.
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
 
-This encryption code is a direct transcription of the algorithm from
-Roger Schlafly, described by Phil Katz in the file appnote.txt. This
-file (appnote.txt) is distributed with the PKZIP program (even in the
-version without encryption capabilities).
+   This encryption code is a direct transcription of the algorithm from
+   Roger Schlafly, described by Phil Katz in the file appnote.txt. This
+   file (appnote.txt) is distributed with the PKZIP program (even in the
+   version without encryption capabilities).
 */
 
 
@@ -68,7 +68,7 @@ typedef struct mz_stream_pkcrypt_s {
     uint8_t         verify2;
     const char      *password;
     mz_stream_crc32_update
-        crc32_update;
+                    crc32_update;
 } mz_stream_pkcrypt;
 
 /***************************************************************************/
@@ -87,9 +87,9 @@ static uint8_t mz_stream_pkcrypt_decrypt_byte(void *stream)
 {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
 
-    unsigned temp;  /* POTENTIAL BUG:  temp*(temp^1) may overflow in an
-                    * unpredictable manner on 16-bit systems; not a problem
-                    * with any known compiler so far, though */
+    unsigned temp; // POTENTIAL BUG:  temp*(temp^1) may overflow in an
+                   // unpredictable manner on 16-bit systems; not a problem
+                   // with any known compiler so far, though.
 
     temp = pkcrypt->keys[2] | 2;
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
