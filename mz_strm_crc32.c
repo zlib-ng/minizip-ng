@@ -48,8 +48,8 @@ typedef struct mz_stream_crc32_s {
     int64_t    value;
     int64_t    total_in;
     int64_t    total_out;
-
-    mz_stream_crc32_update update;
+    mz_stream_crc32_update 
+               update;
 } mz_stream_crc32;
 
 /***************************************************************************/

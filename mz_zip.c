@@ -79,6 +79,7 @@ typedef struct mz_zip_s
     int32_t  open_mode;
 
     uint32_t disk_number_with_cd;   // number of the disk with the central dir
+    uint64_t disk_offset_shift;     // correction for zips that have wrong offset start of cd
 
     uint64_t cd_start_pos;          // pos of the first file in the central dir stream
     uint64_t cd_current_pos;        // pos of the current file in the central dir
@@ -249,7 +250,8 @@ static int32_t mz_zip_read_cd(void *handle)
         // Offset of start of central directory with respect to the starting disk number
         if (err == MZ_OK)
             err = mz_stream_read_uint32(zip->stream, &value32);
-        zip->cd_offset = value32;
+        if (err == MZ_OK)
+            zip->cd_offset = value32;
         // Zip file global comment length
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &comment_size);
@@ -307,6 +309,28 @@ static int32_t mz_zip_read_cd(void *handle)
     {
         if (eocd_pos < zip->cd_offset + zip->cd_size)
             err = MZ_FORMAT_ERROR;
+    }
+
+    if (err == MZ_OK)
+    {
+        // Verify central directory signature exists at offset
+        err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
+        if (err == MZ_OK)
+            err = mz_stream_read_uint32(zip->stream, &value32);
+        if (value32 != MZ_ZIP_MAGIC_CENTRALHEADER)
+        {
+            // If not found attempt to seek backward to find it
+            err = mz_stream_seek(zip->stream, eocd_pos - zip->cd_size, MZ_SEEK_SET);
+            if (err == MZ_OK)
+                err = mz_stream_read_uint32(zip->stream, &value32);
+            if (value32 == MZ_ZIP_MAGIC_CENTRALHEADER)
+            {
+                // If found compensate for incorrect locations
+                value64 = zip->cd_offset;
+                zip->cd_offset = eocd_pos - zip->cd_size;
+                zip->disk_offset_shift = zip->cd_offset - value64;
+            }
+        }
     }
 
     if ((err == MZ_OK) && (comment_size > 0))
@@ -1100,10 +1124,8 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         return MZ_PARAM_ERROR;
     }
 
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
-        return MZ_PARAM_ERROR;
-
-    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && 
+        (zip->compression_method != MZ_COMPRESS_METHOD_RAW || password != NULL))
     {
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
@@ -1245,7 +1267,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     else
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
 
-    err = mz_stream_seek(zip->stream, zip->file_info.disk_offset, MZ_SEEK_SET);
+    err = mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
 
