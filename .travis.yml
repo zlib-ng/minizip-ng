@@ -7,13 +7,8 @@ compiler:
     - clang
     - gcc
 
-python:
-    - "2.7"
-
 before_install:
     - sudo apt-get install libbsd-dev
-    - sudo pip install --upgrade pip
-    - sudo pip install numpy
 
 before_script:
     - mkdir build
@@ -22,5 +17,3 @@ before_script:
 
 script:
     - make
-    - cd ../test
-    - travis_wait 30 python test.py --exe_dir=../build
