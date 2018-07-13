@@ -1,5 +1,5 @@
 /* minizip.c
-   Version 2.3.6, July 11, 2018
+   Version 2.3.7, July 13, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
