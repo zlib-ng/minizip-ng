@@ -18,6 +18,10 @@
 #include <windows.h>
 #include <wincrypt.h>
 
+#if !defined(EEXIST)
+#  define EEXIST 17
+#endif
+
 #include "mz.h"
 
 #include "mz_os.h"
