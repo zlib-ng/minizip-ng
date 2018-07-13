@@ -684,11 +684,15 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         if (err == MZ_OK)
             err = mz_stream_read_uint32(stream, &file_info->crc);
         if (err == MZ_OK)
+        {
             err = mz_stream_read_uint32(stream, &value32);
-        file_info->compressed_size = value32;
+            file_info->compressed_size = value32;
+        }
         if (err == MZ_OK)
+        {
             err = mz_stream_read_uint32(stream, &value32);
-        file_info->uncompressed_size = value32;
+            file_info->uncompressed_size = value32;
+        }
         if (err == MZ_OK)
             err = mz_stream_read_uint16(stream, &file_info->filename_size);
         if (err == MZ_OK)
@@ -698,15 +702,19 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             if (err == MZ_OK)
                 err = mz_stream_read_uint16(stream, &file_info->comment_size);
             if (err == MZ_OK)
+            {
                 err = mz_stream_read_uint16(stream, &value16);
-            file_info->disk_number = value16;
+                file_info->disk_number = value16;
+            }
             if (err == MZ_OK)
                 err = mz_stream_read_uint16(stream, &file_info->internal_fa);
             if (err == MZ_OK)
                 err = mz_stream_read_uint32(stream, &file_info->external_fa);
             if (err == MZ_OK)
+            {
                 err = mz_stream_read_uint32(stream, &value32);
-            file_info->disk_offset = value32;
+                file_info->disk_offset = value32;
+            }
         }
     }
 
@@ -755,8 +763,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 if ((err == MZ_OK) && (file_info->compressed_size == UINT32_MAX))
                     err = mz_stream_read_uint64(file_info_stream, &file_info->compressed_size);
                 if ((err == MZ_OK) && (file_info->disk_offset == UINT32_MAX))
-                    err = mz_stream_read_uint64(file_info_stream, &value64);
-                file_info->disk_offset = value64;
+                    err = mz_stream_read_uint64(file_info_stream, &file_info->disk_offset);
                 if ((err == MZ_OK) && (file_info->disk_number == UINT16_MAX))
                     err = mz_stream_read_uint32(file_info_stream, &file_info->disk_number);
             }
@@ -819,11 +826,15 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     err = MZ_FORMAT_ERROR;
                 // Get AES encryption strength and actual compression method
                 if (err == MZ_OK)
+                {
                     err = mz_stream_read_uint8(file_info_stream, &value8);
-                file_info->aes_encryption_mode = value8;
+                    file_info->aes_encryption_mode = value8;
+                }
                 if (err == MZ_OK)
+                {
                     err = mz_stream_read_uint16(file_info_stream, &value16);
-                file_info->compression_method = value16;
+                    file_info->compression_method = value16;
+                }
             }
 #endif
             else
