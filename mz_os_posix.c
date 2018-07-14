@@ -1,5 +1,5 @@
 /* mz_os_posix.c -- System functions for posix
-   Version 2.3.7, July 13, 2018
+   Version 2.3.8, July 14, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri

@@ -1,5 +1,5 @@
 /* mz_strm_split.h -- Stream for split files
-   Version 2.3.7, July 13, 2018
+   Version 2.3.8, July 14, 2018
    part of MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri

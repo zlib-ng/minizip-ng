@@ -1,5 +1,5 @@
 /* mz_strm_crc32.h -- Stream for CRC32 hashing
-   Version 2.3.7, July 13, 2018
+   Version 2.3.8, July 14, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri

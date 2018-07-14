@@ -1,5 +1,5 @@
 /* minizip.c
-   Version 2.3.7, July 13, 2018
+   Version 2.3.8, July 14, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
@@ -533,7 +533,7 @@ int32_t minizip_extract_onefile(void *handle, const char *filename, const char *
 
 /***************************************************************************/
 
-#ifndef NOMAIN
+#if 0
 int main(int argc, char *argv[])
 {
     void *handle = NULL;
@@ -760,3 +760,90 @@ int main(int argc, char *argv[])
     return err;
 }
 #endif
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "mz.h"
+#include "mz_zip.h"
+#include "mz_compat.h"
+
+static void myextract(const char * zip, const char * fn)
+{
+    unz_file_info64 ufi;
+    unzFile hUnzip;
+    void * buffer;
+    int iRead;
+    int found;
+
+    printf("uopen : %p\n", (void *)(hUnzip = unzOpen2_64(zip, NULL)));
+
+    // find requested file
+    printf("ufi1st: %d\n", unzGoToFirstFile(hUnzip));
+    found = 0;
+    for (;;)
+    {
+        char fnz[256];
+
+        printf("ufinfo: %d\n", unzGetCurrentFileInfo64(hUnzip, &ufi, (char *)&fnz, sizeof(fnz) - 1, NULL, 0, NULL, 0));
+        if (strcmp(fnz, fn) == 0)
+        {
+            printf("FOUND!: %s\n", fn);
+            printf("uoffst: %lld\n", unzGetOffset64(hUnzip));
+            printf("ufopen: %d\n", unzOpenCurrentFile3(hUnzip, NULL, NULL, 0, NULL));
+            buffer = malloc(ufi.uncompressed_size);
+            printf("uread : %d\n", iRead = unzReadCurrentFile(hUnzip, buffer, ufi.uncompressed_size));
+            printf("READ  : %s\n", buffer);  /* WITH ZIP64, IT'S RETURNING THE CONTENT OF THE FIRST FILE WHILE POSITIONED ON THE 2ND */
+            free(buffer);
+            printf("ufclos: %d\n", unzCloseCurrentFile(hUnzip));
+            found = 1;
+            break;
+        }
+
+        printf("ufinxt: %d\n", unzGoToNextFile(hUnzip));
+    }
+
+    if (found == 0)
+        printf("not found: %s\n", fn);
+
+    printf("uclose: %d\n", unzClose(hUnzip));
+}
+
+int main(void)
+{
+    int zip64;
+
+    // create two .zip files, one regular and one with ZIP64 enabled, with two file entries each
+    /*for (zip64 = 0; zip64 <= 1; zip64++)
+    {
+        static const unsigned char content1[] = "11.txt-first file";
+        static const unsigned char content2[] = "22.txt-second file";
+
+        zipFile hZip;
+        zip_fileinfo zfi;
+
+        printf("zcreat: %p\n", (void *)(hZip = zipOpen2_64(zip64 ? "test_64.zip" : "test_32.zip", APPEND_STATUS_CREATE, NULL, NULL)));
+        memset(&zfi, 0, sizeof(zfi));
+        printf("zaddfi: %d\n", zipOpenNewFileInZip4_64(hZip, "11.txt", &zfi, NULL, 0, NULL, 0, NULL,
+            MZ_COMPRESS_METHOD_DEFLATE, 6, 0,
+            -MAX_WBITS, 8, 0,
+            NULL, 0xD7681E40,
+            0, 0, zip64));
+        printf("zwrite: %d\n", zipWriteInFileInZip(hZip, content1, sizeof(content1)));
+        printf("zfclos: %d\n", zipCloseFileInZip(hZip));
+        printf("zaddfi: %d\n", zipOpenNewFileInZip4_64(hZip, "22.txt", &zfi, NULL, 0, NULL, 0, NULL,
+            MZ_COMPRESS_METHOD_DEFLATE, 6, 0,
+            -MAX_WBITS, 8, 0,
+            NULL, 0x7A416084,
+            0, 0, zip64));
+        printf("zwrite: %d\n", zipWriteInFileInZip(hZip, content2, sizeof(content2)));
+        printf("zfclos: %d\n", zipCloseFileInZip(hZip));
+        printf("zclose: %d\n", zipClose(hZip, NULL));
+    }*/
+
+    // try extracting the last (= second) file from each .zip
+    //myextract("test_32.zip", "22.txt");
+    myextract("test_64.zip", "22.txt");
+
+    return 0;
+}
