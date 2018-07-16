@@ -22,6 +22,13 @@ extern "C" {
 
 #ifdef HAVE_ZLIB
 #include "zlib.h"
+#ifndef DEF_MEM_LEVEL
+#  if MAX_MEM_LEVEL >= 8
+#    define DEF_MEM_LEVEL 8
+#  else
+#    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+#  endif
+#endif
 #else
 #define ZEXPORT
 #define MAX_WBITS     (15)
