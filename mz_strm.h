@@ -97,6 +97,8 @@ int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value);
 void*   mz_stream_create(void **stream, mz_stream_vtbl *vtbl);
 void    mz_stream_delete(void **stream);
 
+const void* mz_stream_get_interface(const void *stream);
+
 /***************************************************************************/
 
 int32_t mz_stream_raw_open(void *stream, const char *filename, int32_t mode);
