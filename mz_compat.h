@@ -22,6 +22,13 @@ extern "C" {
 
 #ifdef HAVE_ZLIB
 #include "zlib.h"
+#ifndef DEF_MEM_LEVEL
+#  if MAX_MEM_LEVEL >= 8
+#    define DEF_MEM_LEVEL 8
+#  else
+#    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
+#  endif
+#endif
 #else
 #define ZEXPORT
 #define MAX_WBITS     (15)
@@ -97,9 +104,9 @@ typedef struct
 
 #define Z_BZIP2ED                       (12)
 
-#define APPEND_STATUS_CREATE            (1)
-#define APPEND_STATUS_CREATEAFTER       (2)
-#define APPEND_STATUS_ADDINZIP          (3)
+#define APPEND_STATUS_CREATE            (0)
+#define APPEND_STATUS_CREATEAFTER       (1)
+#define APPEND_STATUS_ADDINZIP          (2)
 
 /***************************************************************************/
 
