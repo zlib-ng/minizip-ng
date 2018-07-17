@@ -75,7 +75,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
         mode |= MZ_OPEN_MODE_CREATE;
         break;
     case APPEND_STATUS_CREATEAFTER:
-        mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND | MZ_OPEN_MODE_READ;
+        mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
         break;
     case APPEND_STATUS_ADDINZIP:
         mode |= MZ_OPEN_MODE_READ;

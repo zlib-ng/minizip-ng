@@ -501,7 +501,8 @@ extern void* mz_zip_open(void *stream, int32_t mode)
 
     if ((mode & MZ_OPEN_MODE_READ) || (mode & MZ_OPEN_MODE_APPEND))
     {
-        err = mz_zip_read_cd(zip);
+        if ((mode & MZ_OPEN_MODE_CREATE) == 0)
+            err = mz_zip_read_cd(zip);
 
         if ((err == MZ_OK) && (mode & MZ_OPEN_MODE_APPEND))
         {
