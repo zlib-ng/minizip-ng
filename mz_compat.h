@@ -104,9 +104,9 @@ typedef struct
 
 #define Z_BZIP2ED                       (12)
 
-#define APPEND_STATUS_CREATE            (1)
-#define APPEND_STATUS_CREATEAFTER       (2)
-#define APPEND_STATUS_ADDINZIP          (3)
+#define APPEND_STATUS_CREATE            (0)
+#define APPEND_STATUS_CREATEAFTER       (1)
+#define APPEND_STATUS_ADDINZIP          (2)
 
 /***************************************************************************/
 
