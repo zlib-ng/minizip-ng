@@ -1341,8 +1341,6 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
 
     if (password != NULL)
         zip->file_info.flag |= MZ_ZIP_FLAG_ENCRYPTED;
-    else
-        zip->file_info.flag &= ~MZ_ZIP_FLAG_ENCRYPTED;
 
     mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
     zip->file_info.disk_number = (uint32_t)disk_number;
