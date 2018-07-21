@@ -1431,7 +1431,7 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
 
     mz_stream_close(zip->compress_stream);
 
-    if ((raw == 0) && (crc32 == 0))
+    if (raw == 0)
         crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
@@ -1452,7 +1452,7 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
     }
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
-    if ((raw == 0) && ((zip->compression_method != MZ_COMPRESS_METHOD_RAW) || (uncompressed_size == 0)))
+    if (raw == 0)
         mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
