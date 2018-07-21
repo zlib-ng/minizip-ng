@@ -1419,7 +1419,7 @@ extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_fil
     return MZ_OK;
 }
 
-extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
+static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t compressed_size = 0;
@@ -1430,7 +1430,8 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
         return MZ_PARAM_ERROR;
 
     mz_stream_close(zip->compress_stream);
-    if (crc32 == 0)
+
+    if ((raw == 0) && (crc32 == 0))
         crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
@@ -1440,7 +1441,7 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
         if (zip->file_info.aes_version <= 0x0001)
 #endif
         {
-            mz_stream_crc32_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+            mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
             // If entire entry was not read this will fail
             if ((total_in > 0) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
             {
@@ -1451,7 +1452,7 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
     }
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
-    if ((zip->compression_method != MZ_COMPRESS_METHOD_RAW) || (uncompressed_size == 0))
+    if ((raw == 0) && ((zip->compression_method != MZ_COMPRESS_METHOD_RAW) || (uncompressed_size == 0)))
         mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
@@ -1507,7 +1508,12 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
 
 extern int32_t mz_zip_entry_close(void *handle)
 {
-    return mz_zip_entry_close_raw(handle, 0, 0);
+    return mz_zip_entry_close_int(handle, 0, 0, 0);
+}
+
+extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
+{
+    return mz_zip_entry_close_int(handle, 1, uncompressed_size, crc32);
 }
 
 static int32_t mz_zip_goto_next_entry_int(void *handle)
