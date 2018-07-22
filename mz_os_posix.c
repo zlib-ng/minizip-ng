@@ -48,6 +48,24 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     arc4random_buf(buf, size);
     return size;
 }
+#elif defined(HAVE_ARC4RANDOM)
+int32_t mz_posix_rand(uint8_t *buf, int32_t size)
+{
+    int32_t left = size;
+    for (; left > 2; left -= 3, buf += 3)
+    {
+        uint32_t val = arc4random();
+
+        buf[0] = (val) & 0xFF;
+        buf[1] = (val >> 8) & 0xFF;
+        buf[2] = (val >> 16) & 0xFF;
+    }
+    for (; left > 0; left--, buf++)
+    {
+        *buf = arc4random() & 0xFF;
+    }
+    return size - left;
+}
 #elif defined(HAVE_GETRANDOM)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
@@ -64,6 +82,27 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
         left -= written;
     }
     return size - left;
+}
+#else
+#if !defined(FORCE_LOWQUALITY_ENTROPY)
+#  error "Low quality entropy function used for encryption"
+#endif
+int32_t mz_posix_rand(uint8_t *buf, int32_t size)
+{
+    static unsigned calls = 0;
+    int32_t i = 0;
+
+    // Ensure different random header each time
+    if (++calls == 1)
+    {
+        #define PI_SEED 3141592654UL
+        srand((unsigned)(time(NULL) ^ PI_SEED));
+    }
+
+    while (i < size)
+        buf[i++] = (rand() >> 7) & 0xff;
+
+    return size;
 }
 #endif
 #endif
