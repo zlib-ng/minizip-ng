@@ -108,12 +108,20 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
+#ifdef MZ_ZIP_DECOMPRESS_ONLY
+        return MZ_SUPPORT_ERROR;
+#else
         mz_os_rand(salt_value, salt_length);
+#endif
     }
     else if (mode & MZ_OPEN_MODE_READ)
     {
+#ifdef MZ_ZIP_COMPRESS_ONLY
+        return MZ_SUPPORT_ERROR;
+#else
         if (mz_stream_read(aes->stream.base, salt_value, salt_length) != salt_length)
             return MZ_STREAM_ERROR;
+#endif
     }
 
     key_length = MZ_AES_KEY_LENGTH(aes->encryption_mode);
