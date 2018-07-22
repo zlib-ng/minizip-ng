@@ -16,8 +16,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/random.h>
-
+#ifdef HAVE_GETRANDOM
+#  include <sys/random.h>
+#endif
 #if defined unix || defined __APPLE__
 #  include <unistd.h>
 #  include <utime.h>
@@ -47,7 +48,7 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
     arc4random_buf(buf, size);
     return size;
 }
-#else
+#elif defined(HAVE_GETRANDOM)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     int32_t left = size;
