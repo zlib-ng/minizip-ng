@@ -22,7 +22,8 @@
 #  include <utime.h>
 #endif
 #if defined __linux__
-#  if defined(HAVE_PKCRYPT) || defined(HAVE_AES)
+#  if !defined(MZ_ZIP_DECOMPRESS_ONLY) && \
+      (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
 #    include <bsd/stdlib.h> // arc4random_buf
 #  endif
 #else
@@ -36,7 +37,8 @@
 
 /***************************************************************************/
 
-#if defined(HAVE_PKCRYPT) || defined(HAVE_AES)
+#if !defined(MZ_ZIP_DECOMPRESS_ONLY) && \
+    (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     arc4random_buf(buf, size);
