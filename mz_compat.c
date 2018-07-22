@@ -18,6 +18,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_strm_mem.h"
 #include "mz_strm_zlib.h"
 #include "mz_zip.h"
 
@@ -703,4 +704,10 @@ void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
     // NOTE: You should no longer pass in widechar string to open function
     if (pzlib_filefunc_def != NULL)
         *pzlib_filefunc_def = mz_stream_os_get_interface();
+}
+
+void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
+{
+    if (pzlib_filefunc_def != NULL)
+        *pzlib_filefunc_def = mz_stream_mem_get_interface();
 }
