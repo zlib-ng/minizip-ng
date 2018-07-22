@@ -258,6 +258,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
 extern unzFile ZEXPORT unzOpenStream(void *stream);
 
 extern int ZEXPORT unzClose(unzFile file);
+extern int ZEXPORT unzCloseStream(unzFile file);
 extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
 extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
 extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_size);

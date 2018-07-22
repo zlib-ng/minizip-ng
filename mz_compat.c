@@ -395,10 +395,7 @@ extern int ZEXPORT unzClose(unzFile file)
         return UNZ_PARAMERROR;
 
     if (compat->handle != NULL)
-    {
-        err = mz_zip_close(compat->handle);
-        compat->handle = NULL;
-    }
+        err = unzCloseStream(file);
 
     if (compat->stream != NULL)
     {
@@ -407,6 +404,20 @@ extern int ZEXPORT unzClose(unzFile file)
     }
 
     MZ_FREE(compat);
+
+    return err;
+}
+
+extern int ZEXPORT unzCloseStream(unzFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
+
+    if (compat == NULL)
+        return UNZ_PARAMERROR;
+
+    err = mz_zip_close(compat->handle);
+    compat->handle = NULL;
 
     return err;
 }
