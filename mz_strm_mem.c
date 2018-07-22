@@ -255,7 +255,8 @@ void *mz_stream_mem_create(void **stream)
     {
         memset(mem, 0, sizeof(mz_stream_mem));
         mem->stream.vtbl = &mz_stream_mem_vtbl;
-        mem->grow_size = 4096;
+        // Large grow size to prevent fragmentation
+        mem->grow_size = 128 * 1024;
     }
     if (stream != NULL)
         *stream = mem;
