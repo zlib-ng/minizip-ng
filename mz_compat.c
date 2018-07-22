@@ -239,12 +239,15 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
 
 extern int ZEXPORT zipCloseFileInZip(zipFile file)
 {
-    return zipCloseFileInZipRaw(file, 0, 0);
+    return zipCloseFileInZip64(file);
 }
 
 extern int ZEXPORT zipCloseFileInZip64(zipFile file)
 {
-    return zipCloseFileInZipRaw(file, 0, 0);
+    mz_compat *compat = (mz_compat *)file;
+    if (compat == NULL)
+        return ZIP_PARAMERROR;
+    return mz_zip_entry_close(compat->handle);
 }
 
 extern int ZEXPORT zipClose(zipFile file, const char *global_comment)
