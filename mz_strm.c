@@ -274,6 +274,14 @@ void mz_stream_delete(void **stream)
     *stream = NULL;
 }
 
+const void* mz_stream_get_interface(const void *stream)
+{
+    const mz_stream *strm = (const mz_stream *)stream;
+    if (strm == NULL || strm->vtbl == NULL)
+        return MZ_STREAM_ERROR;
+    return strm->vtbl;
+}
+
 /***************************************************************************/
 
 typedef struct mz_stream_raw_s {

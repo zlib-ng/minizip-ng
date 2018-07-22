@@ -63,6 +63,10 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     {
         if (mz_stream_create(&stream, (mz_stream_vtbl *)*pzlib_filefunc_def) == NULL)
             return NULL;
+
+        // Configure a reasonable grow size if the stream is a memory one
+        if (pzlib_filefunc_def == mz_stream_mem_get_interface())
+            mz_stream_mem_set_grow_size(stream, 128 * 1024);
     }
     else
     {
@@ -288,6 +292,53 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     MZ_FREE(compat);
 
     return err;
+}
+
+extern void* ZEXPORT zipGetStream_MZ(zipFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+
+    return (void *)compat->stream;
+}
+
+// Similar to classic zipClose(), but will not destroy internal MZ
+// objects, e.g. allowing to retrieve the memory buffer via zipGetStream_MZ().
+// You must subsequently call zipCloseFree_MZ() to free those objects.
+extern int ZEXPORT zipClosePrepare_MZ(zipFile file, const char *global_comment)
+{
+    return zipClosePrepare2_MZ(file, global_comment, MZ_VERSION_MADEBY);
+}
+
+extern int ZEXPORT zipClosePrepare2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby)
+{
+    mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
+
+    if (compat == NULL)
+        return ZIP_PARAMERROR;
+
+    if (global_comment != NULL)
+        mz_zip_set_comment(compat->handle, global_comment);
+
+    mz_zip_set_version_madeby(compat->handle, version_madeby);
+    err = mz_zip_close(compat->handle);
+
+    return err;
+}
+
+extern int ZEXPORT zipCloseFree_MZ(zipFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+
+    if (compat->stream != NULL)
+    {
+        mz_stream_close(compat->stream);
+        mz_stream_delete(&compat->stream);
+    }
+
+    MZ_FREE(compat);
+
+    return MZ_OK;
 }
 
 /***************************************************************************/
