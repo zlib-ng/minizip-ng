@@ -93,7 +93,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         zlib->zstream.next_out = zlib->buffer;
@@ -104,7 +104,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
     }
     else if (mode & MZ_OPEN_MODE_READ)
     {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         zlib->zstream.next_in = zlib->buffer;
@@ -132,7 +132,7 @@ int32_t mz_stream_zlib_is_open(void *stream)
 
 int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
     return MZ_SUPPORT_ERROR;
 #else
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
@@ -277,7 +277,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     int32_t err = size;
 
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(zlib);
     err = MZ_SUPPORT_ERROR;
 #else
@@ -314,7 +314,7 @@ int32_t mz_stream_zlib_close(void *stream)
 
     if (zlib->mode & MZ_OPEN_MODE_WRITE)
     {
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         mz_stream_zlib_deflate(stream, Z_FINISH);
@@ -325,7 +325,7 @@ int32_t mz_stream_zlib_close(void *stream)
     }
     else if (zlib->mode & MZ_OPEN_MODE_READ)
     {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         inflateEnd(&zlib->zstream);

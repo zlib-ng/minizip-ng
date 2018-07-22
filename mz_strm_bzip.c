@@ -76,7 +76,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         bzip->bzstream.next_out = (char *)bzip->buffer;
@@ -87,7 +87,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
     }
     else if (mode & MZ_OPEN_MODE_READ)
     {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         bzip->bzstream.next_in = (char *)bzip->buffer;
@@ -116,7 +116,7 @@ int32_t mz_stream_bzip_is_open(void *stream)
 
 int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
     return MZ_SUPPORT_ERROR;
 #else
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
@@ -266,7 +266,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     int32_t err = size;
 
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(bzip);
     err = MZ_SUPPORT_ERROR;
 #else
@@ -302,7 +302,7 @@ int32_t mz_stream_bzip_close(void *stream)
 
     if (bzip->mode & MZ_OPEN_MODE_WRITE)
     {
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         mz_stream_bzip_compress(stream, BZ_FINISH);
@@ -313,7 +313,7 @@ int32_t mz_stream_bzip_close(void *stream)
     }
     else if (bzip->mode & MZ_OPEN_MODE_READ)
     {
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         BZ2_bzDecompressEnd(&bzip->bzstream);

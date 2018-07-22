@@ -76,10 +76,10 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_zip.h)
 
 if(COMPRESS_ONLY)
-    add_definitions(-DMZ_ZIP_COMPRESS_ONLY)
+    add_definitions(-DMZ_ZIP_NO_DECOMPRESSION)
 endif()
 if(DECOMPRESS_ONLY)
-    add_definitions(-DMZ_ZIP_DECOMPRESS_ONLY)
+    add_definitions(-DMZ_ZIP_NO_COMPRESSION)
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

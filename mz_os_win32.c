@@ -17,7 +17,7 @@
 #include <errno.h>
 
 #include <windows.h>
-#if !defined(MZ_ZIP_DECOMPRESS_ONLY) && \
+#if !defined(MZ_ZIP_NO_COMPRESSION) && \
     (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
 #  include <wincrypt.h>
 #endif
@@ -46,7 +46,7 @@ typedef struct DIR_int_s {
 
 /***************************************************************************/
 
-#if !defined(MZ_ZIP_DECOMPRESS_ONLY) && \
+#if !defined(MZ_ZIP_NO_COMPRESSION) && \
     (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
 int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 {

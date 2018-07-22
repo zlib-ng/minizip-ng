@@ -1287,7 +1287,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     if (raw)
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
-#ifdef MZ_ZIP_COMPRESS_ONLY
+#ifdef MZ_ZIP_NO_DECOMPRESSION
     if (compression_method != MZ_COMPRESS_METHOD_RAW)
         err = MZ_SUPPORT_ERROR;
 #endif 
@@ -1357,7 +1357,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     if ((compress_level == 0) || (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK))
         compression_method = MZ_COMPRESS_METHOD_RAW;
 
-#ifdef MZ_ZIP_DECOMPRESS_ONLY
+#ifdef MZ_ZIP_NO_COMPRESSION
     if (compression_method != MZ_COMPRESS_METHOD_RAW)
         err = MZ_SUPPORT_ERROR;
 #endif
