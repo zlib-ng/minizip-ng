@@ -271,6 +271,30 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
 
+    if (compat->handle != NULL)
+        err = zipCloseStream2(file, global_comment, version_madeby);
+
+    if (compat->stream != NULL)
+    {
+        mz_stream_close(compat->stream);
+        mz_stream_delete(&compat->stream);
+    }
+
+    MZ_FREE(compat);
+
+    return err;
+}
+
+extern int ZEXPORT zipCloseStream(zipFile file, const char *global_comment)
+{
+    return zipCloseStream2(file, global_comment, MZ_VERSION_MADEBY);
+}
+
+extern int ZEXPORT zipCloseStream2(zipFile file, const char *global_comment, uint16_t version_madeby)
+{
+    mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
+
     if (compat == NULL)
         return ZIP_PARAMERROR;
 
@@ -280,13 +304,7 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     mz_zip_set_version_madeby(compat->handle, version_madeby);
     err = mz_zip_close(compat->handle);
 
-    if (compat->stream != NULL)
-    {
-        mz_stream_close(compat->stream);
-        mz_stream_delete(&compat->stream);
-    }
-
-    MZ_FREE(compat);
+    compat->handle = NULL;
 
     return err;
 }
@@ -365,7 +383,11 @@ extern int ZEXPORT unzClose(unzFile file)
     if (compat == NULL)
         return UNZ_PARAMERROR;
 
-    err = mz_zip_close(compat->handle);
+    if (compat->handle != NULL)
+    {
+        err = mz_zip_close(compat->handle);
+        compat->handle = NULL;
+    }
 
     if (compat->stream != NULL)
     {

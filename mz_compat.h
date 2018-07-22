@@ -153,7 +153,8 @@ extern int ZEXPORT zipCloseFileInZip64(zipFile file);
 extern int ZEXPORT zipClose(zipFile file, const char *global_comment);
 extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment);
 extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
-
+extern int ZEXPORT zipCloseStream(zipFile file, const char *global_comment);
+extern int ZEXPORT zipCloseStream2(zipFile file, const char *global_comment, uint16_t version_madeby);
 extern void* ZEXPORT zipGetStream(zipFile file);
 
 /***************************************************************************/
