@@ -55,9 +55,9 @@ extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globa
 extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def)
 {
-    mz_compat *compat = NULL;
+    zipFile zip = NULL;
     int32_t mode = MZ_OPEN_MODE_WRITE;
-    void *handle = NULL;
+
     void *stream = NULL;
 
     if (pzlib_filefunc_def)
@@ -90,13 +90,26 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
         return NULL;
     }
 
-    handle = mz_zip_open(stream, mode);
+    zip = zipOpen_MZ(stream, mode, globalcomment);
 
-    if (handle == NULL)
+    if (zip == NULL)
     {
         mz_stream_delete(&stream);
         return NULL;
     }
+
+    return zip;
+}
+
+extern zipFile ZEXPORT zipOpen_MZ(void *stream, int32_t mode, const char **globalcomment)
+{
+    mz_compat *compat = NULL;
+    void *handle = NULL;
+
+    handle = mz_zip_open(stream, mode);
+
+    if (handle == NULL)
+        return NULL;
 
     if (globalcomment != NULL)
         mz_zip_get_comment(handle, globalcomment);
@@ -272,7 +285,7 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     int32_t err = MZ_OK;
 
     if (compat->handle != NULL)
-        err = zipCloseStream2(file, global_comment, version_madeby);
+        err = zipClose2_MZ(file, global_comment, version_madeby);
 
     if (compat->stream != NULL)
     {
@@ -285,18 +298,22 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     return err;
 }
 
-extern int ZEXPORT zipCloseStream(zipFile file, const char *global_comment)
+// Only closes the zip handle, does not close the stream
+extern int ZEXPORT zipClose_MZ(zipFile file, const char *global_comment)
 {
-    return zipCloseStream2(file, global_comment, MZ_VERSION_MADEBY);
+    return zipClose2_MZ(file, global_comment, MZ_VERSION_MADEBY);
 }
 
-extern int ZEXPORT zipCloseStream2(zipFile file, const char *global_comment, uint16_t version_madeby)
+// Only closes the zip handle, does not close the stream
+extern int ZEXPORT zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
 
     if (compat == NULL)
         return ZIP_PARAMERROR;
+    if (compat->handle == NULL)
+        return err;
 
     if (global_comment != NULL)
         mz_zip_set_comment(compat->handle, global_comment);
@@ -358,7 +375,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
         return NULL;
     }
 
-    unz = unzOpenStream(stream);
+    unz = unzOpen_MZ(stream, mode);
     if (unz == NULL)
     {
         mz_stream_delete(&stream);
@@ -367,10 +384,9 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     return unz;
 }
 
-extern unzFile ZEXPORT unzOpenStream(void *stream)
+extern unzFile ZEXPORT unzOpen_MZ(void *stream, int32_t mode)
 {
     mz_compat *compat = NULL;
-    int32_t mode = MZ_OPEN_MODE_READ;
     void *handle = NULL;
 
     handle = mz_zip_open(stream, mode);
@@ -395,7 +411,7 @@ extern int ZEXPORT unzClose(unzFile file)
         return UNZ_PARAMERROR;
 
     if (compat->handle != NULL)
-        err = unzCloseStream(file);
+        err = unzClose_MZ(file);
 
     if (compat->stream != NULL)
     {
@@ -408,7 +424,8 @@ extern int ZEXPORT unzClose(unzFile file)
     return err;
 }
 
-extern int ZEXPORT unzCloseStream(unzFile file)
+// Only closes the zip handle, does not close the stream
+extern int ZEXPORT unzClose_MZ(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
