@@ -22,7 +22,9 @@
 #  include <utime.h>
 #endif
 #if defined __linux__
-#  include <bsd/stdlib.h>
+#  if defined(HAVE_PKCRYPT) || defined(HAVE_AES)
+#    include <bsd/stdlib.h> // arc4random_buf
+#  endif
 #else
 #  include <stdlib.h>
 #endif
