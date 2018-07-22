@@ -255,6 +255,7 @@ extern unzFile ZEXPORT unzOpen(const char *path);
 extern unzFile ZEXPORT unzOpen64(const void *path);
 extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
+extern unzFile ZEXPORT unzOpenStream(void *stream);
 
 extern int ZEXPORT unzClose(unzFile file);
 extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);

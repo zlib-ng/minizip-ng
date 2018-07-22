@@ -337,9 +337,8 @@ extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filef
 
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
 {
-    mz_compat *compat = NULL;
+    unzFile unz = NULL;
     int32_t mode = MZ_OPEN_MODE_READ;
-    void *handle = NULL;
     void *stream = NULL;
 
     if (pzlib_filefunc_def)
@@ -352,20 +351,32 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
         if (mz_stream_os_create(&stream) == NULL)
             return NULL;
     }
-
+    
     if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
         mz_stream_delete(&stream);
         return NULL;
     }
 
-    handle = mz_zip_open(stream, mode);
-
-    if (handle == NULL)
+    unz = unzOpenStream(stream);
+    if (unz == NULL)
     {
         mz_stream_delete(&stream);
         return NULL;
     }
+    return unz;
+}
+
+extern unzFile ZEXPORT unzOpenStream(void *stream)
+{
+    mz_compat *compat = NULL;
+    int32_t mode = MZ_OPEN_MODE_READ;
+    void *handle = NULL;
+
+    handle = mz_zip_open(stream, mode);
+
+    if (handle == NULL)
+        return NULL;
 
     compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
     compat->handle = handle;
