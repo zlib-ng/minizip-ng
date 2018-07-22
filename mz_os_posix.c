@@ -16,14 +16,17 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/random.h>
 
 #if defined unix || defined __APPLE__
 #  include <unistd.h>
 #  include <utime.h>
+#  define HAVE_ARC4RANDOM_BUF
 #endif
 #if defined __linux__
 #  if !defined(MZ_ZIP_NO_COMPRESSION) && \
-      (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
+      !defined(MZ_ZIP_NO_ENCRYPTION) && \
+       defined(HAVE_LIBBSD)
 #    include <bsd/stdlib.h> // arc4random_buf
 #  endif
 #else
@@ -37,13 +40,31 @@
 
 /***************************************************************************/
 
-#if !defined(MZ_ZIP_NO_COMPRESSION) && \
-    (defined(HAVE_PKCRYPT) || defined(HAVE_AES))
+#if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_ENCRYPTION)
+#if defined(HAVE_LIBBSD) || defined(HAVE_ARC4RANDOM_BUF)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     arc4random_buf(buf, size);
     return size;
 }
+#else
+int32_t mz_posix_rand(uint8_t *buf, int32_t size)
+{
+    int32_t left = size;
+    int32_t written = 0;
+
+    while (left > 0)
+    {
+        written = getrandom(buf, left, 0);
+        if (written < 0)
+            return MZ_INTERNAL_ERROR;
+
+        buf += written;
+        left -= written;
+    }
+    return size - left;
+}
+#endif
 #endif
 
 int32_t mz_posix_file_exists(const char *path)

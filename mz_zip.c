@@ -1261,7 +1261,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     int16_t compression_method = 0;
     int32_t err = MZ_OK;
 
-#if !defined(HAVE_PKCRYPT) && !defined(HAVE_AES)
+#if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
         return MZ_PARAM_ERROR;
 #endif
@@ -1305,7 +1305,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     int16_t compression_method = 0;
 
 
-#if !defined(HAVE_PKCRYPT) && !defined(HAVE_AES)
+#if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
         return MZ_PARAM_ERROR;
 #endif

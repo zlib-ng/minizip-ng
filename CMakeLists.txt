@@ -81,6 +81,9 @@ endif()
 if(DECOMPRESS_ONLY)
     add_definitions(-DMZ_ZIP_NO_COMPRESSION)
 endif()
+if(NOT USE_PKCRYPT AND NOT USE_AES)
+    add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -121,10 +124,12 @@ if(UNIX)
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         find_package(PkgConfig REQUIRED)
 
-        pkg_check_modules(LIBBSD libbsd REQUIRED)
-
-        include_directories(${LIBBSD_INCLUDE_DIRS})
-        link_directories(${LIBBSD_LIBRARY_DIRS})
+        pkg_check_modules(LIBBSD libbsd)
+        if (LIBBSD_FOUND)
+            add_definitions(-DHAVE_LIBBSD)
+            include_directories(${LIBBSD_INCLUDE_DIRS})
+            link_directories(${LIBBSD_LIBRARY_DIRS})
+        endif()
     endif()
 endif()
 
