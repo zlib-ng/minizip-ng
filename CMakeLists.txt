@@ -3,7 +3,7 @@
 # E-Mail:     schmieder.matthias@gmail.com
 # Year:       2016
 #***************************************************************************
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0.2)
 
 option(USE_ZLIB "Enables ZLIB compression" ON)
 option(USE_BZIP2 "Enables BZIP2 compression" ON)
@@ -13,13 +13,6 @@ option(USE_AES "Enables AES encryption" ON)
 option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
-
-# Set a consistent MACOSX_RPATH default across all CMake versions.
-# When CMake 2.8.12 is required, change this default to 1.
-# When CMake 3.0.0 is required, remove this block (see CMP0042).
-if(NOT DEFINED CMAKE_MACOSX_RPATH)
-    set(CMAKE_MACOSX_RPATH 0)
-endif()
 
 project("minizip")
 
@@ -33,7 +26,8 @@ set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory f
 set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installation directory for pkgconfig (.pc) files")
 set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
 
-set(VERSION "3.0.2")
+# Minizip library version
+set(VERSION "2.3.8")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
