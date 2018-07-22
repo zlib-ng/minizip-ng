@@ -154,6 +154,8 @@ extern int ZEXPORT zipClose(zipFile file, const char *global_comment);
 extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment);
 extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
 
+extern void* ZEXPORT zipGetStream(zipFile file);
+
 /***************************************************************************/
 
 #if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)
@@ -277,6 +279,7 @@ extern int32_t ZEXPORT unzGetOffset(unzFile file);
 extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos);
 extern int ZEXPORT unzSetOffset(unzFile file, uint32_t pos);
 extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len);
+extern void* ZEXPORT unzGetStream(unzFile file);
 
 /***************************************************************************/
 

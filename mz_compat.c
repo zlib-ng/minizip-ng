@@ -290,6 +290,14 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     return err;
 }
 
+extern void* ZEXPORT zipGetStream(zipFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    if (compat == NULL)
+        return NULL;
+    return (void *)compat->stream;
+}
+
 /***************************************************************************/
 
 extern unzFile ZEXPORT unzOpen(const char *path)
@@ -648,6 +656,14 @@ extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len) 
     MZ_UNUSED(len);
 
     return 0;
+}
+
+extern void* ZEXPORT unzGetStream(unzFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    if (compat == NULL)
+        return NULL;
+    return (void *)compat->stream;
 }
 
 /***************************************************************************/
