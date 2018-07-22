@@ -23,6 +23,7 @@ endif()
 
 project("minizip")
 
+include(CheckSymbolExists)
 include(GNUInstallDirs)
 
 set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables")
@@ -32,7 +33,7 @@ set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory f
 set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installation directory for pkgconfig (.pc) files")
 set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
 
-set(VERSION "2.3.8")
+set(VERSION "3.0.2")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
@@ -121,20 +122,7 @@ if(UNIX)
         add_definitions(-D_FILE_OFFSET_BITS=64)
     endif()
 
-    check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
-    if (HAVE_GETRANDOM)
-        add_definitions(-DHAVE_GETRANDOM)
-    endif()
-    check_symbol_exists("arc4random_buf" "stdlib.h;bsd/stdlib.h" HAVE_ARC4RANDOM_BUF)
-    if (HAVE_ARC4RANDOM_BUF)
-        add_definitions(-DHAVE_ARC4RANDOM_BUF)
-    else()
-        check_symbol_exists("arc4random" "stdlib.h;bsd/stdlib.h" HAVE_ARC4RANDOM)
-        if (HAVE_ARC4RANDOM)
-            add_definitions(-DHAVE_ARC4RANDOM)
-        endif()
-    endif()
-
+    set(_bsd "")
     if(CMAKE_SYSTEM_NAME MATCHES "Linux")
         find_package(PkgConfig REQUIRED)
 
@@ -143,8 +131,24 @@ if(UNIX)
             add_definitions(-DHAVE_LIBBSD)
             include_directories(${LIBBSD_INCLUDE_DIRS})
             link_directories(${LIBBSD_LIBRARY_DIRS})
+            set(_bsd "bsd/")
         endif()
     endif()
+
+    check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
+    if (HAVE_GETRANDOM)
+        add_definitions(-DHAVE_GETRANDOM)
+    endif()
+    check_symbol_exists("arc4random_buf" "${_bsd}stdlib.h" HAVE_ARC4RANDOM_BUF)
+    if (HAVE_ARC4RANDOM_BUF)
+        add_definitions(-DHAVE_ARC4RANDOM_BUF)
+    else()
+        check_symbol_exists("arc4random" "${_bsd}stdlib.h" HAVE_ARC4RANDOM)
+        if (HAVE_ARC4RANDOM)
+            add_definitions(-DHAVE_ARC4RANDOM)
+        endif()
+    endif()
+
 endif()
 
 if(USE_PKCRYPT)
