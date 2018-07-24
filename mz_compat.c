@@ -34,6 +34,24 @@ typedef struct mz_compat_s {
 
 /***************************************************************************/
 
+static int32_t zipConvertAppendToStreamMode(int append)
+{
+    int32_t mode = MZ_OPEN_MODE_WRITE;
+    switch (append)
+    {
+    case APPEND_STATUS_CREATE:
+        mode |= MZ_OPEN_MODE_CREATE;
+        break;
+    case APPEND_STATUS_CREATEAFTER:
+        mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
+        break;
+    case APPEND_STATUS_ADDINZIP:
+        mode |= MZ_OPEN_MODE_READ;
+        break;
+    }
+    return mode;
+}
+
 extern zipFile ZEXPORT zipOpen(const char *path, int append)
 {
     zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
@@ -56,8 +74,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     zlib_filefunc64_def *pzlib_filefunc_def)
 {
     zipFile zip = NULL;
-    int32_t mode = MZ_OPEN_MODE_WRITE;
-
+    int32_t mode = zipConvertAppendToStreamMode(append);
     void *stream = NULL;
 
     if (pzlib_filefunc_def)
@@ -71,18 +88,6 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
             return NULL;
     }
 
-    switch (append)
-    {
-    case APPEND_STATUS_CREATE:
-        mode |= MZ_OPEN_MODE_CREATE;
-        break;
-    case APPEND_STATUS_CREATEAFTER:
-        mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
-        break;
-    case APPEND_STATUS_ADDINZIP:
-        mode |= MZ_OPEN_MODE_READ;
-        break;
-    }
 
     if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
@@ -101,9 +106,10 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     return zip;
 }
 
-extern zipFile ZEXPORT zipOpen_MZ(void *stream, int32_t mode, const char **globalcomment)
+extern zipFile ZEXPORT zipOpen_MZ(void *stream, int append, const char **globalcomment)
 {
     mz_compat *compat = NULL;
+    int32_t mode = zipConvertAppendToStreamMode(append);
     void *handle = NULL;
 
     handle = mz_zip_open(stream, mode);
@@ -355,7 +361,6 @@ extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filef
 extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
 {
     unzFile unz = NULL;
-    int32_t mode = MZ_OPEN_MODE_READ;
     void *stream = NULL;
 
     if (pzlib_filefunc_def)
@@ -369,13 +374,13 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
             return NULL;
     }
     
-    if (mz_stream_open(stream, path, mode) != MZ_OK)
+    if (mz_stream_open(stream, path, MZ_OPEN_MODE_READ) != MZ_OK)
     {
         mz_stream_delete(&stream);
         return NULL;
     }
 
-    unz = unzOpen_MZ(stream, mode);
+    unz = unzOpen_MZ(stream);
     if (unz == NULL)
     {
         mz_stream_delete(&stream);
@@ -384,12 +389,12 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     return unz;
 }
 
-extern unzFile ZEXPORT unzOpen_MZ(void *stream, int32_t mode)
+extern unzFile ZEXPORT unzOpen_MZ(void *stream)
 {
     mz_compat *compat = NULL;
     void *handle = NULL;
 
-    handle = mz_zip_open(stream, mode);
+    handle = mz_zip_open(stream, MZ_OPEN_MODE_READ);
 
     if (handle == NULL)
         return NULL;
