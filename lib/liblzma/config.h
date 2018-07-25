@@ -146,10 +146,9 @@
 /* #undef HAVE_ICONV */
 
 /* Define to 1 if you have the <immintrin.h> header file. */
-#if (defined(__GNUC__) && defined(__SSE2_MATH__)) \
-			|| (defined(__INTEL_COMPILER) && defined(__SSE2__)) \
-			|| (defined(_MSC_VER) && defined(_M_IX86_FP) \
-				&& _M_IX86_FP >= 2)
+#if (defined(__GNUC__) && defined(__SSE2_MATH__)) || \
+    (defined(__INTEL_COMPILER) && defined(__SSE2__)) || \
+    (defined(_MSC_VER) && defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #define HAVE_IMMINTRIN_H 1
 #endif
 
