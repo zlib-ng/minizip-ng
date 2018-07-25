@@ -95,7 +95,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
         return NULL;
     }
 
-    zip = zipOpen_MZ(stream, mode, globalcomment);
+    zip = zipOpen_MZ(stream, append, globalcomment);
 
     if (zip == NULL)
     {
