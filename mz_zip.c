@@ -305,6 +305,17 @@ static int32_t mz_zip_read_cd(void *handle)
         }
     }
 
+    if ((err == MZ_OK) && (comment_size > 0))
+    {
+        zip->comment = (char *)MZ_ALLOC(comment_size + 1);
+        if (zip->comment)
+        {
+            if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
+                err = MZ_STREAM_ERROR;
+            zip->comment[comment_size] = 0;
+        }
+    }
+
     if (err == MZ_OK)
     {
         if (eocd_pos < zip->cd_offset + zip->cd_size)
@@ -330,17 +341,6 @@ static int32_t mz_zip_read_cd(void *handle)
                 zip->cd_offset = eocd_pos - zip->cd_size;
                 zip->disk_offset_shift = zip->cd_offset - value64;
             }
-        }
-    }
-
-    if ((err == MZ_OK) && (comment_size > 0))
-    {
-        zip->comment = (char *)MZ_ALLOC(comment_size + 1);
-        if (zip->comment)
-        {
-            if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
-                err = MZ_STREAM_ERROR;
-            zip->comment[comment_size] = 0;
         }
     }
 
