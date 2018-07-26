@@ -255,6 +255,16 @@ static int32_t mz_zip_read_cd(void *handle)
         // Zip file global comment length
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &comment_size);
+        if ((err == MZ_OK) && (comment_size > 0))
+        {
+            zip->comment = (char *)MZ_ALLOC(comment_size + 1);
+            if (zip->comment)
+            {
+                if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
+                    err = MZ_STREAM_ERROR;
+                zip->comment[comment_size] = 0;
+            }
+        }
 
         if ((err == MZ_OK) && ((number_entry_cd == UINT16_MAX) || (zip->cd_offset == UINT32_MAX)))
         {
@@ -302,17 +312,6 @@ static int32_t mz_zip_read_cd(void *handle)
             {
                 err = MZ_FORMAT_ERROR;
             }
-        }
-    }
-
-    if ((err == MZ_OK) && (comment_size > 0))
-    {
-        zip->comment = (char *)MZ_ALLOC(comment_size + 1);
-        if (zip->comment)
-        {
-            if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
-                err = MZ_STREAM_ERROR;
-            zip->comment[comment_size] = 0;
         }
     }
 
