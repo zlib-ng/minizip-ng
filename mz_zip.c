@@ -99,7 +99,7 @@ typedef struct mz_zip_s
 
 /***************************************************************************/
 
-// Locate the central directory of a zip file (at the end, just before the global comment)
+// Locate the end of central directory of a zip file (at the end, just before the global comment)
 static int32_t mz_zip_search_eocd(void *stream, uint64_t *central_pos)
 {
     uint8_t buf[1024 + 4];
@@ -154,7 +154,7 @@ static int32_t mz_zip_search_eocd(void *stream, uint64_t *central_pos)
     return MZ_EXIST_ERROR;
 }
 
-// Locate the central directory 64 of a zip file (at the end, just before the global comment)
+// Locate the central directory 64 of a zip file
 static int32_t mz_zip_search_zip64_eocd(void *stream, const uint64_t end_central_offset, uint64_t *central_pos)
 {
     uint64_t offset = 0;
