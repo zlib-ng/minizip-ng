@@ -500,13 +500,46 @@ extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t com
 extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password)
 {
     mz_compat *compat = (mz_compat *)file;
+    mz_zip_file *file_info = NULL;
+    int err = MZ_OK;
+
     if (compat == NULL)
         return UNZ_PARAMERROR;
     if (method != NULL)
         *method = 0;
     if (level != NULL)
         *level = 0;
-    return mz_zip_entry_read_open(compat->handle, (int16_t)raw, password);
+
+    err = mz_zip_entry_read_open(compat->handle, (int16_t)raw, password);
+    if (err == MZ_OK)
+        err = mz_zip_entry_get_info(compat->handle, &file_info);
+    if (err == MZ_OK)
+    {
+        if (method != NULL)
+        {
+            if (file_info->compression_method == MZ_COMPRESS_METHOD_AES)
+                *method = file_info->compression_method;
+        }
+
+        if (level != NULL)
+        {
+            *level = 6;
+            switch (file_info->flag & 0x06)
+            {
+            case MZ_ZIP_FLAG_DEFLATE_SUPER_FAST: 
+                *level = 1;
+                break;
+            case MZ_ZIP_FLAG_DEFLATE_FAST:
+                *level = 2;
+                break;
+            case MZ_ZIP_FLAG_DEFLATE_MAX:
+                *level = 9;
+                break;
+            }
+        }
+    }
+
+    return err;
 }
 
 extern int ZEXPORT unzOpenCurrentFile(unzFile file)
