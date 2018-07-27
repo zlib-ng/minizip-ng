@@ -16,7 +16,11 @@
 #include "common.h"
 
 #ifdef HAVE_IMMINTRIN_H
+#if (defined(__GNUC__) && defined(__SSE2_MATH__)) || \
+    (defined(__INTEL_COMPILER) && defined(__SSE2__)) || \
+    (defined(_MSC_VER) && defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #	include <immintrin.h>
+#endif
 #endif
 
 
