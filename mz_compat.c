@@ -517,8 +517,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
     {
         if (method != NULL)
         {
-            if (file_info->compression_method == MZ_COMPRESS_METHOD_AES)
-                *method = file_info->compression_method;
+            *method = file_info->compression_method;
         }
 
         if (level != NULL)
