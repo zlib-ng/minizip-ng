@@ -602,7 +602,7 @@ int32_t minizip_copy_specific_entries(void *src_handle, void *target_handle, int
         {
             filename_in_zip = args[i];
 
-            if (_strcmpi(filename_in_zip, file_info->filename) != 0)
+            if (strcmpi(filename_in_zip, file_info->filename) != 0)
             {
                 printf("Copying %s\n", file_info->filename);
                 err = minizip_copy_current_entry(src_handle, target_handle);
@@ -839,7 +839,7 @@ int main(int argc, char *argv[])
         else if (do_erase)
         {
             strncpy(tmp_path, path, sizeof(tmp_path));
-            strncat(tmp_path, ".tmp", sizeof(tmp_path));
+            strncat(tmp_path, ".tmp", sizeof(tmp_path) - strlen(tmp_path) - 1);
 
             mz_stream_os_create(&tmp_file_stream);
             mz_stream_buffered_create(&tmp_buf_stream);
@@ -908,7 +908,7 @@ int main(int argc, char *argv[])
     {
         // Swap zip with temporary zip, backup old zip if possible
         strncpy(bak_path, path, sizeof(bak_path));
-        strncat(bak_path, ".bak", sizeof(bak_path));
+        strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
 
         if (mz_os_file_exists(bak_path) == MZ_OK)
             mz_os_delete(bak_path);
