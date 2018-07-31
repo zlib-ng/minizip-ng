@@ -182,37 +182,49 @@ int32_t minizip_add(void *handle, const char *path, const char *root_path, const
     struct dirent *entry = NULL;
     int32_t err =  MZ_OK;
     int16_t is_dir = 0;
-    char full_path[320];
     const char *filename = NULL;
     const char *filenameinzip = path;
+    char *wildcard_ptr = NULL;
+    char full_path[320];
+    char path_dir[320];
 
 
     if (mz_os_is_dir(path) == MZ_OK)
         is_dir = 1;
 
-    // Construct the filename that our file will be stored in the zip as
-    if (root_path == NULL)
-        root_path = path;
-
-    // Should the file be stored with any path info at all?
-    if (!options->include_path)
+    if (strrchr(path, '*') != NULL)
     {
-        if (!is_dir && root_path == path)
-        {
-            if (mz_path_get_filename(filenameinzip, &filename) == MZ_OK)
-                filenameinzip = filename;
-        }
-        else
-        {
-            filenameinzip += strlen(root_path);
-        }
+        strncpy(path_dir, path, sizeof(path_dir));
+        mz_path_remove_filename(path_dir);
+        wildcard_ptr = path_dir + strlen(path_dir) + 1;
+        root_path = path = path_dir;
     }
+    else
+    {
+        // Construct the filename that our file will be stored in the zip as
+        if (root_path == NULL)
+            root_path = path;
 
-    if (*filenameinzip != 0)
-        err = minizip_add_path(handle, path, filenameinzip, password, is_dir, options);
+        // Should the file be stored with any path info at all?
+        if (!options->include_path)
+        {
+            if (!is_dir && root_path == path)
+            {
+                if (mz_path_get_filename(filenameinzip, &filename) == MZ_OK)
+                    filenameinzip = filename;
+            }
+            else
+            {
+                filenameinzip += strlen(root_path);
+            }
+        }
 
-    if (!is_dir)
-        return err;
+        if (*filenameinzip != 0)
+            err = minizip_add_path(handle, path, filenameinzip, password, is_dir, options);
+
+        if (!is_dir)
+            return err;
+    }
 
     dir = mz_os_open_dir(path);
 
@@ -232,6 +244,8 @@ int32_t minizip_add(void *handle, const char *path, const char *root_path, const
         mz_path_combine(full_path, entry->d_name, sizeof(full_path));
 
         if (!recursive && mz_os_is_dir(full_path))
+            continue;
+        if ((wildcard_ptr != NULL) && (mz_path_compare_wc(entry->d_name, wildcard_ptr, 1) != MZ_OK))
             continue;
 
         err = minizip_add(handle, full_path, root_path, password, options, recursive);
@@ -629,6 +643,7 @@ int32_t minizip_copy_specific_entries(void *src_handle, void *target_handle, int
 
 /***************************************************************************/
 
+#if !defined(MZ_NO_MAIN)
 int main(int argc, const char *argv[])
 {
     minizip_opt options;
@@ -922,3 +937,4 @@ int main(int argc, const char *argv[])
 
     return err;
 }
+#endif
