@@ -528,9 +528,13 @@ extern void* mz_zip_open(void *stream, int32_t mode)
 
     if (err == MZ_OK)
     {
+        // Memory streams used to store variable length file info data
         mz_stream_mem_create(&zip->file_info_stream);
+        mz_stream_mem_set_grow_size(zip->file_info_stream, 4096);
         mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
+        
         mz_stream_mem_create(&zip->local_file_info_stream);
+        mz_stream_mem_set_grow_size(zip->local_file_info_stream, 4096);
         mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
     }
 
@@ -870,15 +874,18 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     uint16_t filename_length = 0;
     uint16_t comment_size = 0;
     uint16_t version_needed = 0;
-    uint8_t zip64 = 0;
+    uint16_t field_type = 0;
+    uint16_t field_length = 0;
     int32_t err = MZ_OK;
+    int32_t err_mem = MZ_OK;
+    uint8_t zip64 = 0;
+    uint8_t skip_aes = 0;
+    void *extrafield_ms = NULL;
 
     if (file_info == NULL)
         return MZ_PARAM_ERROR;
 
     // Calculate extra field sizes
-    extrafield_size = file_info->extrafield_size;
-
     if (file_info->uncompressed_size >= UINT32_MAX)
         extrafield_zip64_size += 8;
     if (file_info->compressed_size >= UINT32_MAX)
@@ -892,7 +899,9 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         zip64 = (local && file_info->uncompressed_size == 0) || (extrafield_zip64_size > 0);
     }
     else if (file_info->zip64 == MZ_ZIP64_FORCE)
+    {
         zip64 = 1;
+    }
     else if (file_info->zip64 == MZ_ZIP64_DISABLE)
     {
         // Zip64 extension is required to zip file
@@ -905,9 +914,41 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         extrafield_size += 4;
         extrafield_size += extrafield_zip64_size;
     }
+
+    // Calculate extra field size and check for duplicates
+    if (file_info->extrafield_size > 0)
+    {
+        mz_stream_mem_create(&extrafield_ms);
+        mz_stream_mem_set_buffer(extrafield_ms, (void *)file_info->extrafield, file_info->extrafield_size);
+
+        do
+        {
+            err_mem = mz_stream_read_uint16(extrafield_ms, &field_type);
+            if (err_mem == MZ_OK)
+                err_mem = mz_stream_read_uint16(extrafield_ms, &field_length);
+            if (err_mem != MZ_OK)
+                break;
+
+            // Prefer incoming ntfs, aes extensions over ours
+            if (field_type == MZ_ZIP_EXTENSION_AES)
+                skip_aes = 1;
+
+            // Prefer our zip64, ntfs extension over incoming
+            if (field_type != MZ_ZIP_EXTENSION_ZIP64 && field_type != MZ_ZIP_EXTENSION_NTFS)
+                extrafield_size += 4 + field_length;
+
+            if (err_mem == MZ_OK)
+                err_mem = mz_stream_seek(extrafield_ms, field_length, SEEK_CUR);
+        }
+        while (err_mem == MZ_OK);
+    }
+
 #ifdef HAVE_AES
-    if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
-        extrafield_size += 4 + 7;
+    if (!skip_aes)
+    {
+        if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
+            extrafield_size += 4 + 7;
+    }
 #endif
     // NTFS timestamps
     if ((file_info->modified_date != 0) &&
@@ -989,7 +1030,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         filename_size = filename_length;
         if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
         {
-            if ((file_info->filename[filename_length - 1] == '/') || 
+            if ((file_info->filename[filename_length - 1] == '/') ||
                 (file_info->filename[filename_length - 1] == '\\'))
                 filename_length -= 1;
             else
@@ -1032,11 +1073,35 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
                 err = mz_stream_write_uint8(stream, '/');
         }
     }
-    if (err == MZ_OK)
+
+    if (file_info->extrafield_size > 0)
     {
-        if (mz_stream_write(stream, file_info->extrafield, file_info->extrafield_size) != file_info->extrafield_size)
-            err = MZ_STREAM_ERROR;
+        err_mem = mz_stream_mem_seek(extrafield_ms, 0, SEEK_SET);
+        while (err == MZ_OK && err_mem == MZ_OK)
+        {
+            err_mem = mz_stream_read_uint16(extrafield_ms, &field_type);
+            if (err_mem == MZ_OK)
+                err_mem = mz_stream_read_uint16(extrafield_ms, &field_length);
+            if (err_mem != MZ_OK)
+                break;
+
+            // Prefer our zip 64, ntfs extensions over incoming
+            if (field_type == MZ_ZIP_EXTENSION_ZIP64 || field_type == MZ_ZIP_EXTENSION_NTFS)
+            {
+                err_mem = mz_stream_seek(extrafield_ms, field_length, SEEK_CUR);
+                continue;
+            }
+
+            err = mz_stream_write_uint16(stream, field_type);
+            if (err == MZ_OK)
+                err = mz_stream_write_uint16(stream, field_length);
+            if (err == MZ_OK)
+                err = mz_stream_copy(stream, extrafield_ms, field_length);
+        }
+
+        mz_stream_mem_delete(&extrafield_ms);
     }
+
     // Add ZIP64 extra info header to central directory
     if ((err == MZ_OK) && (zip64))
     {
@@ -1080,7 +1145,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 #ifdef HAVE_AES
     // Write AES extra info header to central directory
-    if ((err == MZ_OK) && (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
+    if ((err == MZ_OK) && (!skip_aes) && (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
     {
         err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_AES);
         if (err == MZ_OK)
@@ -1097,7 +1162,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint16(stream, file_info->compression_method);
     }
 #endif
-    if ((err == MZ_OK) && (file_info->comment != NULL))
+    if ((err == MZ_OK) && (!local) && (file_info->comment != NULL))
     {
         if (mz_stream_write(stream, file_info->comment, file_info->comment_size) != MZ_OK)
             err = MZ_STREAM_ERROR;
@@ -1474,8 +1539,10 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
             err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_DATADESCRIPTOR);
             if (err == MZ_OK)
                 err = mz_stream_write_uint32(zip->stream, crc32);
+            // Store data descriptor as 8 bytes if zip 64 extension enabled
             if (err == MZ_OK)
             {
+                // Zip 64 extension is enabled when uncompressed size is > UINT32_mAX
                 if (zip->file_info.uncompressed_size <= UINT32_MAX)
                     err = mz_stream_write_uint32(zip->stream, (uint32_t)compressed_size);
                 else
