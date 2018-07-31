@@ -602,7 +602,7 @@ int32_t minizip_copy_specific_entries(void *src_handle, void *target_handle, int
         {
             filename_in_zip = args[i];
 
-            if (strcmpi(filename_in_zip, file_info->filename) != 0)
+            if (mz_path_compare_wc(file_info->filename, filename_in_zip, 1) != MZ_OK)
             {
                 printf("Copying %s\n", file_info->filename);
                 err = minizip_copy_current_entry(src_handle, target_handle);
