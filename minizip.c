@@ -40,7 +40,7 @@ void minizip_banner(void)
 
 void minizip_help(void)
 {
-    printf("Usage : minizip [-x -d dir|-l] [-o] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
+    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
@@ -533,28 +533,129 @@ int32_t minizip_extract_onefile(void *handle, const char *filename, const char *
 
 /***************************************************************************/
 
-#if 0
+int32_t minizip_copy_current_entry(void *src_handle, void *target_handle)
+{
+    int32_t err = MZ_OK;
+    mz_zip_file *file_info = NULL;
+    int32_t read = 0;
+    int32_t written = 0;
+    uint8_t buf[INT16_MAX];
+
+    err = mz_zip_entry_get_info(src_handle, &file_info);
+    if (err != MZ_OK)
+        return err;
+
+    err = mz_zip_entry_read_open(src_handle, 1, NULL);
+    if (err != MZ_OK)
+        return err;
+
+    err = mz_zip_entry_write_open(target_handle, file_info, 0, NULL);
+    if (err == MZ_OK)
+    {
+        while (1)
+        {
+            read = mz_zip_entry_read(src_handle, buf, sizeof(buf));
+            if (read < 0)
+            {
+                err = read;
+                printf("Error %d reading entry in zip file\n", err);
+                break;
+            }
+            if (read == 0)
+                break;
+
+            mz_zip_entry_write(target_handle, buf, read);
+        }
+
+        mz_zip_entry_close_raw(target_handle, file_info->uncompressed_size, file_info->crc);
+    }
+
+    mz_zip_entry_close(src_handle);
+
+    return err;
+}
+
+int32_t minizip_copy_specific_entries(void *src_handle, void *target_handle, int32_t arg_count, const char **args)
+{
+    mz_zip_file *file_info = NULL;
+    const char *filename_in_zip = NULL;
+    int32_t err = MZ_OK;
+    int32_t i = 0;
+
+    err = mz_zip_goto_first_entry(src_handle);
+
+    if (err == MZ_END_OF_LIST)
+        return MZ_OK;
+    if (err != MZ_OK)
+        printf("Error %d going to first entry in zip file\n", err);
+
+    while (err == MZ_OK)
+    {
+        err = mz_zip_entry_get_info(src_handle, &file_info);
+        if (err != MZ_OK)
+        {
+            printf("Error %d getting entry info in zip file\n", err);
+            break;
+        }
+
+        for (i = 0; i < arg_count; i += 1)
+        {
+            filename_in_zip = args[i];
+
+            if (_strcmpi(filename_in_zip, file_info->filename) != 0)
+            {
+                printf("Copying %s\n", file_info->filename);
+                err = minizip_copy_current_entry(src_handle, target_handle);
+            }
+            else
+            {
+                printf("Skipping %s\n", file_info->filename);
+            }
+        }
+
+        if (err != MZ_OK)
+            break;
+
+        err = mz_zip_goto_next_entry(src_handle);
+
+        if (err == MZ_END_OF_LIST)
+            return MZ_OK;
+        if (err != MZ_OK)
+            printf("Error %d going to next entry in zip file\n", err);
+    }
+
+    return err;
+}
+
+/***************************************************************************/
+
 int main(int argc, char *argv[])
 {
+    minizip_opt options;
     void *handle = NULL;
+    void *target_handle = NULL;
     void *file_stream = NULL;
     void *split_stream = NULL;
     void *buf_stream = NULL;
+    void *tmp_file_stream = NULL;
+    int64_t disk_size = 0;
+    int32_t path_arg = 0;
+    int32_t err_close = 0;
+    int32_t err = 0;
+    int32_t i = 0;
+    int16_t mode = 0;
+    uint8_t do_list = 0;
+    uint8_t do_extract = 0;
+    uint8_t do_erase = 0;
+    uint8_t buffered = 0;
+    uint8_t append = 0;
+    char bak_path[256];
+    char tmp_path[256];
     char *path = NULL;
     char *password = NULL;
     char *destination = NULL;
     char *filename_to_extract = NULL;
-    minizip_opt options;
-    int64_t disk_size = 0;
-    int32_t path_arg = 0;
-    uint8_t do_list = 0;
-    uint8_t do_extract = 0;
-    uint8_t buffered = 0;
-    int16_t mode = 0;
-    uint8_t append = 0;
-    int32_t err_close = 0;
-    int32_t err = 0;
-    int32_t i = 0;
+
 
     minizip_banner();
     if (argc == 1)
@@ -578,6 +679,8 @@ int main(int argc, char *argv[])
                 do_list = 1;
             if ((c == 'x') || (c == 'X'))
                 do_extract = 1;
+            if ((c == 'e') || (c == 'E'))
+                do_erase = 1;
             if ((c == 'a') || (c == 'A'))
                 append = 1;
             if ((c == 'u') || (c == 'U'))
@@ -635,7 +738,7 @@ int main(int argc, char *argv[])
 
     mode = MZ_OPEN_MODE_READ;
 
-    if ((do_list == 0) && (do_extract == 0))
+    if ((do_list == 0) && (do_extract == 0) && (do_erase == 0))
     {
         mode |= MZ_OPEN_MODE_WRITE;
 
@@ -701,7 +804,7 @@ int main(int argc, char *argv[])
 
     if (err != MZ_OK)
     {
-        printf("Error opening file %s\n", path);
+        printf("Error opening file %s (%d)\n", path, err);
     }
     else
     {
@@ -731,6 +834,33 @@ int main(int argc, char *argv[])
             else
                 err = minizip_extract_onefile(handle, filename_to_extract, destination, password, &options);
         }
+        else if (do_erase)
+        {
+            strncpy(tmp_path, path, sizeof(tmp_path));
+            strncat(tmp_path, ".tmp.zip", sizeof(tmp_path));
+
+            mz_stream_os_create(&tmp_file_stream);
+            err = mz_stream_os_open(tmp_file_stream, tmp_path, MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
+
+            if (err != MZ_OK)
+            {
+                printf("Error creating temp file %s (%d)\n", tmp_path, err);
+            }
+            else
+            {
+                target_handle = mz_zip_open(tmp_file_stream, MZ_OPEN_MODE_WRITE);
+
+                if (target_handle != NULL)
+                {
+                    err = minizip_copy_specific_entries(handle, target_handle, argc - (path_arg + 1), &argv[path_arg + 1]);
+                    mz_zip_close(target_handle);
+                }
+
+                mz_stream_os_close(tmp_file_stream);
+            }
+
+            mz_stream_os_delete(&tmp_file_stream);
+        }
         else
         {
             printf("Creating %s\n", path);
@@ -757,93 +887,21 @@ int main(int argc, char *argv[])
     mz_stream_buffered_delete(&buf_stream);
     mz_stream_os_delete(&file_stream);
 
-    return err;
-}
-#endif
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include "mz.h"
-#include "mz_zip.h"
-#include "mz_compat.h"
-
-static void myextract(const char * zip, const char * fn)
-{
-    unz_file_info64 ufi;
-    unzFile hUnzip;
-    void * buffer;
-    int iRead;
-    int found;
-
-    printf("uopen : %p\n", (void *)(hUnzip = unzOpen2_64(zip, NULL)));
-
-    // find requested file
-    printf("ufi1st: %d\n", unzGoToFirstFile(hUnzip));
-    found = 0;
-    for (;;)
+    if (err == MZ_OK && do_erase)
     {
-        char fnz[256];
+        // Swap zip with temporary zip, backup old zip if possible
+        strncpy(bak_path, path, sizeof(bak_path));
+        strncat(bak_path, ".bak", sizeof(bak_path));
 
-        printf("ufinfo: %d\n", unzGetCurrentFileInfo64(hUnzip, &ufi, (char *)&fnz, sizeof(fnz) - 1, NULL, 0, NULL, 0));
-        if (strcmp(fnz, fn) == 0)
-        {
-            printf("FOUND!: %s\n", fn);
-            printf("uoffst: %lld\n", unzGetOffset64(hUnzip));
-            printf("ufopen: %d\n", unzOpenCurrentFile3(hUnzip, NULL, NULL, 0, NULL));
-            buffer = malloc(ufi.uncompressed_size);
-            printf("uread : %d\n", iRead = unzReadCurrentFile(hUnzip, buffer, ufi.uncompressed_size));
-            printf("READ  : %s\n", buffer);  /* WITH ZIP64, IT'S RETURNING THE CONTENT OF THE FIRST FILE WHILE POSITIONED ON THE 2ND */
-            free(buffer);
-            printf("ufclos: %d\n", unzCloseCurrentFile(hUnzip));
-            found = 1;
-            break;
-        }
+        if (mz_os_file_exists(bak_path) == MZ_OK)
+            mz_os_delete(bak_path);
 
-        printf("ufinxt: %d\n", unzGoToNextFile(hUnzip));
+        if (mz_os_rename(path, bak_path) != MZ_OK)
+            printf("Error backing up zip before replacing %s\n", bak_path);
+
+        if (mz_os_rename(tmp_path, path) != MZ_OK)
+            printf("Error replacing zip with temp %s\n", tmp_path);
     }
 
-    if (found == 0)
-        printf("not found: %s\n", fn);
-
-    printf("uclose: %d\n", unzClose(hUnzip));
-}
-
-int main(void)
-{
-    int zip64;
-
-    // create two .zip files, one regular and one with ZIP64 enabled, with two file entries each
-    /*for (zip64 = 0; zip64 <= 1; zip64++)
-    {
-        static const unsigned char content1[] = "11.txt-first file";
-        static const unsigned char content2[] = "22.txt-second file";
-
-        zipFile hZip;
-        zip_fileinfo zfi;
-
-        printf("zcreat: %p\n", (void *)(hZip = zipOpen2_64(zip64 ? "test_64.zip" : "test_32.zip", APPEND_STATUS_CREATE, NULL, NULL)));
-        memset(&zfi, 0, sizeof(zfi));
-        printf("zaddfi: %d\n", zipOpenNewFileInZip4_64(hZip, "11.txt", &zfi, NULL, 0, NULL, 0, NULL,
-            MZ_COMPRESS_METHOD_DEFLATE, 6, 0,
-            -MAX_WBITS, 8, 0,
-            NULL, 0xD7681E40,
-            0, 0, zip64));
-        printf("zwrite: %d\n", zipWriteInFileInZip(hZip, content1, sizeof(content1)));
-        printf("zfclos: %d\n", zipCloseFileInZip(hZip));
-        printf("zaddfi: %d\n", zipOpenNewFileInZip4_64(hZip, "22.txt", &zfi, NULL, 0, NULL, 0, NULL,
-            MZ_COMPRESS_METHOD_DEFLATE, 6, 0,
-            -MAX_WBITS, 8, 0,
-            NULL, 0x7A416084,
-            0, 0, zip64));
-        printf("zwrite: %d\n", zipWriteInFileInZip(hZip, content2, sizeof(content2)));
-        printf("zfclos: %d\n", zipCloseFileInZip(hZip));
-        printf("zclose: %d\n", zipClose(hZip, NULL));
-    }*/
-
-    // try extracting the last (= second) file from each .zip
-    //myextract("test_32.zip", "22.txt");
-    myextract("test_64.zip", "22.txt");
-
-    return 0;
+    return err;
 }
