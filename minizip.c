@@ -629,7 +629,7 @@ int32_t minizip_copy_specific_entries(void *src_handle, void *target_handle, int
 
 /***************************************************************************/
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
     minizip_opt options;
     void *handle = NULL;
@@ -653,10 +653,10 @@ int main(int argc, char *argv[])
     uint8_t append = 0;
     char bak_path[256];
     char tmp_path[256];
-    char *path = NULL;
-    char *password = NULL;
-    char *destination = NULL;
-    char *filename_to_extract = NULL;
+    const char *path = NULL;
+    const char *password = NULL;
+    const char *destination = NULL;
+    const char *filename_to_extract = NULL;
 
 
     minizip_banner();
