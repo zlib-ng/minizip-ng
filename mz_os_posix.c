@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -106,6 +107,22 @@ int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 }
 #endif
 #endif
+
+int32_t mz_posix_rename(const char *source_path, const char *target_path)
+{
+    if (rename(source_path, target_path) == -1)
+        return MZ_EXIST_ERROR;
+
+    return MZ_OK;
+}
+
+int32_t mz_posix_delete(const char *path)
+{
+    if (unlink(path) == -1)
+        return MZ_EXIST_ERROR;
+
+    return MZ_OK;
+}
 
 int32_t mz_posix_file_exists(const char *path)
 {

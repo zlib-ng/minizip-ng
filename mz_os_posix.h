@@ -31,6 +31,8 @@ extern "C" {
 /***************************************************************************/
 
 int32_t mz_posix_rand(uint8_t *buf, int32_t size);
+int32_t mz_posix_rename(const char *source_path, const char *target_path);
+int32_t mz_posix_delete(const char *path);
 int32_t mz_posix_file_exists(const char *path);
 int64_t mz_posix_get_file_size(const char *path);
 int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
@@ -47,6 +49,8 @@ int32_t mz_posix_is_dir(const char *path);
 /***************************************************************************/
 
 #define mz_os_rand              mz_posix_rand
+#define mz_os_rename            mz_posix_rename
+#define mz_os_delete            mz_posix_delete
 #define mz_os_file_exists       mz_posix_file_exists
 #define mz_os_get_file_size     mz_posix_get_file_size
 #define mz_os_get_file_date     mz_posix_get_file_date

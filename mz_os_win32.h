@@ -32,6 +32,8 @@ typedef void* DIR;
 /***************************************************************************/
 
 int32_t mz_win32_rand(uint8_t *buf, int32_t size);
+int32_t mz_win32_rename(const char *source_path, const char *target_path);
+int32_t mz_win32_delete(const char *path);
 int32_t mz_win32_file_exists(const char *path);
 int64_t mz_win32_get_file_size(const char *path);
 int32_t mz_win32_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
@@ -48,6 +50,8 @@ int32_t mz_win32_is_dir(const char *path);
 /***************************************************************************/
 
 #define mz_os_rand              mz_win32_rand
+#define mz_os_rename            mz_win32_rename
+#define mz_os_delete            mz_win32_delete
 #define mz_os_file_exists       mz_win32_file_exists
 #define mz_os_get_file_size     mz_win32_get_file_size
 #define mz_os_get_file_date     mz_win32_get_file_date
