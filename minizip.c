@@ -638,6 +638,8 @@ int main(int argc, char *argv[])
     void *split_stream = NULL;
     void *buf_stream = NULL;
     void *tmp_file_stream = NULL;
+    void *tmp_split_stream = NULL;
+    void *tmp_buf_stream = NULL;
     int64_t disk_size = 0;
     int32_t path_arg = 0;
     int32_t err_close = 0;
@@ -837,10 +839,23 @@ int main(int argc, char *argv[])
         else if (do_erase)
         {
             strncpy(tmp_path, path, sizeof(tmp_path));
-            strncat(tmp_path, ".tmp.zip", sizeof(tmp_path));
+            strncat(tmp_path, ".tmp", sizeof(tmp_path));
 
             mz_stream_os_create(&tmp_file_stream);
-            err = mz_stream_os_open(tmp_file_stream, tmp_path, MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
+            mz_stream_buffered_create(&tmp_buf_stream);
+            mz_stream_split_create(&tmp_split_stream);
+
+            if (buffered)
+            {
+                mz_stream_set_base(tmp_buf_stream, tmp_file_stream);
+                mz_stream_set_base(tmp_split_stream, tmp_buf_stream);
+            }
+            else
+            {
+                mz_stream_set_base(tmp_split_stream, tmp_file_stream);
+            }
+
+            err = mz_stream_open(tmp_split_stream, tmp_path, MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
 
             if (err != MZ_OK)
             {
@@ -848,7 +863,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                target_handle = mz_zip_open(tmp_file_stream, MZ_OPEN_MODE_WRITE);
+                target_handle = mz_zip_open(tmp_split_stream, MZ_OPEN_MODE_WRITE);
 
                 if (target_handle != NULL)
                 {
@@ -856,9 +871,11 @@ int main(int argc, char *argv[])
                     mz_zip_close(target_handle);
                 }
 
-                mz_stream_os_close(tmp_file_stream);
+                mz_stream_close(tmp_split_stream);
             }
 
+            mz_stream_split_delete(&tmp_split_stream);
+            mz_stream_buffered_delete(&tmp_buf_stream);
             mz_stream_os_delete(&tmp_file_stream);
         }
         else
