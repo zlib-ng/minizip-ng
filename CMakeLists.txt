@@ -29,6 +29,9 @@ set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installa
 # Minizip library version
 set(VERSION "2.3.9")
 
+# Minizip library SOVERSION
+set(SOVERSION "2")
+
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
 
@@ -357,6 +360,8 @@ add_library(${PROJECT_NAME}
 if (MINGW AND BUILD_SHARED_LIBS)
   set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
 endif ()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${VERSION} SOVERSION ${SOVERSION})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)
