@@ -29,7 +29,7 @@ set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installa
 # Minizip library version
 set(VERSION "2.3.9")
 
-# Minizip library SOVERSION
+# Minizip api version
 set(SOVERSION "2")
 
 # Set cmake debug postfix to d
