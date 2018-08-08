@@ -185,7 +185,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
         file_info.aes_version = MZ_AES_VERSION;
 #endif
 
-    return mz_zip_entry_write_open(compat->handle, &file_info, (uint8_t)raw, (int16_t)level, password);
+    return mz_zip_entry_write_open(compat->handle, &file_info, (int16_t)level, (uint8_t)raw, password);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,

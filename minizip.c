@@ -119,7 +119,7 @@ int32_t minizip_add_path(void *handle, const char *path, const char *filenameinz
     printf("Adding: %s\n", file_info.filename);
 
     // Add to zip
-    err = mz_zip_entry_write_open(handle, &file_info, options->compress_level, password);
+    err = mz_zip_entry_write_open(handle, &file_info, options->compress_level, 0, password);
     if (err != MZ_OK)
     {
         printf("Error in opening %s in zip file (%d)\n", filenameinzip, err);
@@ -301,7 +301,7 @@ int32_t minizip_list(void *handle)
 
         switch (file_info->compression_method)
         {
-        case MZ_COMPRESS_METHOD_RAW:
+        case MZ_COMPRESS_METHOD_STORE:
             string_method = "Stored";
             break;
         case MZ_COMPRESS_METHOD_DEFLATE:
@@ -563,7 +563,7 @@ int32_t minizip_copy_current_entry(void *src_handle, void *target_handle)
     if (err != MZ_OK)
         return err;
 
-    err = mz_zip_entry_write_open(target_handle, file_info, 0, NULL);
+    err = mz_zip_entry_write_open(target_handle, file_info, 0, 1, NULL);
     if (err == MZ_OK)
     {
         while (1)
@@ -710,7 +710,7 @@ int main(int argc, const char *argv[])
             {
                 options.compress_level = (c - '0');
                 if (options.compress_level == 0)
-                    options.compress_method = MZ_COMPRESS_METHOD_RAW;
+                    options.compress_method = MZ_COMPRESS_METHOD_STORE;
             }
 
 #ifdef HAVE_BZIP2

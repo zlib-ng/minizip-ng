@@ -1370,7 +1370,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *pas
     return err;
 }
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, uint8_t raw, int16_t compress_level, const char *password)
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t compress_level, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
