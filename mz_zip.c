@@ -1169,7 +1169,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     return err;
 }
 
-static int32_t mz_zip_entry_open_int(void *handle, int16_t raw, int16_t compress_level, const char *password)
+static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t max_total_in = 0;
@@ -1333,7 +1333,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t raw, int16_t compress
     return err;
 }
 
-extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *password)
+extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1370,7 +1370,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     return err;
 }
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t raw, int16_t compress_level, const char *password)
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, uint8_t raw, int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
@@ -1489,7 +1489,7 @@ extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_fil
     return MZ_OK;
 }
 
-static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncompressed_size, uint32_t crc32)
+static int32_t mz_zip_entry_close_int(void *handle, uint8_t raw, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t compressed_size = 0;
