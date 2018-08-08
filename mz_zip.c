@@ -1266,7 +1266,9 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t raw, int16_t compress
 
     if (err == MZ_OK)
     {
-        if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
+        if (raw)
+            mz_stream_raw_create(&zip->compress_stream);
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
 #ifdef HAVE_ZLIB
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
