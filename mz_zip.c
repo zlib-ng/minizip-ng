@@ -4,7 +4,7 @@
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Copyright (C) 2009-2010 Mathias Svensson
+   Copyright (C) 2009-2010 Mathias Svensson & Even Rouault
      Modifications for Zip64 support
      http://result42.com
    Copyright (C) 1998-2010 Gilles Vollant
@@ -90,8 +90,6 @@ typedef struct mz_zip_s
     uint16_t entry_opened;          // 1 if a file in the zip is currently writ.
 
     int64_t  number_entry;
-
-    int16_t  compression_method;
 
     uint16_t version_madeby;
     char     *comment;
@@ -1171,22 +1169,21 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     return err;
 }
 
-static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, int16_t compress_level, const char *password)
+static int32_t mz_zip_entry_open_int(void *handle, int16_t raw, int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t max_total_in = 0;
     int64_t header_size = 0;
     int64_t footer_size = 0;
     int32_t err = MZ_OK;
+    uint8_t use_crypt = 0;
 
     if (zip == NULL)
         return MZ_PARAM_ERROR;
 
-    zip->compression_method = compression_method;
-
-    switch (zip->compression_method)
+    switch (zip->file_info.compression_method)
     {
-    case MZ_COMPRESS_METHOD_RAW:
+    case MZ_COMPRESS_METHOD_STORE:
     case MZ_COMPRESS_METHOD_DEFLATE:
 #ifdef HAVE_BZIP2
     case MZ_COMPRESS_METHOD_BZIP2:
@@ -1200,8 +1197,23 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         return MZ_PARAM_ERROR;
     }
 
-    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && 
-        (zip->compression_method != MZ_COMPRESS_METHOD_RAW || password != NULL))
+    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password != NULL))
+    {
+        if (zip->open_mode & MZ_OPEN_MODE_WRITE)
+        {
+            // Encrypt only when we are not trying to write raw and password is supplied.
+            if (!raw)
+                use_crypt = 1;
+        }
+        else if (zip->open_mode & MZ_OPEN_MODE_READ)
+        {
+            // Decrypt only when password is supplied. Don't error when password
+            // is not supplied as we may want to read the raw encrypted data.
+            use_crypt = 1;
+        }
+    }
+
+    if ((err == MZ_OK) && (use_crypt))
     {
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
@@ -1254,18 +1266,18 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 
     if (err == MZ_OK)
     {
-        if (zip->compression_method == MZ_COMPRESS_METHOD_RAW)
+        if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
 #ifdef HAVE_ZLIB
-        else if (zip->compression_method == MZ_COMPRESS_METHOD_DEFLATE)
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
             mz_stream_zlib_create(&zip->compress_stream);
 #endif
 #ifdef HAVE_BZIP2
-        else if (zip->compression_method == MZ_COMPRESS_METHOD_BZIP2)
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_BZIP2)
             mz_stream_bzip_create(&zip->compress_stream);
 #endif
 #ifdef HAVE_LZMA
-        else if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA)
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA)
             mz_stream_lzma_create(&zip->compress_stream);
 #endif
         else
@@ -1280,7 +1292,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
         }
         else
         {
-            if (zip->compression_method == MZ_COMPRESS_METHOD_RAW || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
+            if (raw || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
                 mz_stream_set_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
@@ -1292,7 +1304,7 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
             }
-            if (zip->compression_method == MZ_COMPRESS_METHOD_LZMA && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)
+            if ((zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA) && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0)
             {
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
@@ -1322,7 +1334,6 @@ static int32_t mz_zip_entry_open_int(void *handle, int16_t compression_method, i
 extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
-    int16_t compression_method = 0;
     int32_t err = MZ_OK;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
@@ -1347,26 +1358,21 @@ extern int32_t mz_zip_entry_read_open(void *handle, int16_t raw, const char *pas
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
 
-    compression_method = zip->file_info.compression_method;
-    if (raw)
-        compression_method = MZ_COMPRESS_METHOD_RAW;
-
 #ifdef MZ_ZIP_NO_DECOMPRESSION
-    if (compression_method != MZ_COMPRESS_METHOD_RAW)
+    if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
         err = MZ_SUPPORT_ERROR;
 #endif 
     if (err == MZ_OK)
-        err = mz_zip_entry_open_int(handle, compression_method, 0, password);
+        err = mz_zip_entry_open_int(handle, raw, 0, password);
 
     return err;
 }
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t compress_level, const char *password)
+extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t raw, int16_t compress_level, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
     int32_t err = MZ_OK;
-    int16_t compression_method = 0;
 
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
@@ -1385,9 +1391,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
 
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
 
-    compression_method = zip->file_info.compression_method;
-
-    if (compression_method == MZ_COMPRESS_METHOD_DEFLATE)
+    if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
     {
         if ((compress_level == 8) || (compress_level == 9))
             zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_MAX;
@@ -1397,7 +1401,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
             zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
     }
 #ifdef HAVE_LZMA
-    else if (compression_method == MZ_COMPRESS_METHOD_LZMA)
+    else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA)
         zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
 #endif
 
@@ -1419,16 +1423,16 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
 #endif
 
     if ((compress_level == 0) || (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK))
-        compression_method = MZ_COMPRESS_METHOD_RAW;
+        zip->file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
 
 #ifdef MZ_ZIP_NO_COMPRESSION
-    if (compression_method != MZ_COMPRESS_METHOD_RAW)
+    if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
         err = MZ_SUPPORT_ERROR;
 #endif
     if (err == MZ_OK)
         err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
     if (err == MZ_OK)
-        err = mz_zip_entry_open_int(handle, compression_method, compress_level, password);
+        err = mz_zip_entry_open_int(handle, raw, compress_level, password);
 
     return err;
 }
@@ -1495,7 +1499,7 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
 
     mz_stream_close(zip->compress_stream);
 
-    if (raw == 0)
+    if (!raw)
         crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
@@ -1507,7 +1511,7 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
         {
             mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
             // If entire entry was not read this will fail
-            if ((total_in > 0) && (zip->compression_method != MZ_COMPRESS_METHOD_RAW))
+            if ((total_in > 0) && (!raw))
             {
                 if (crc32 != zip->file_info.crc)
                     err = MZ_CRC_ERROR;
@@ -1516,7 +1520,7 @@ static int32_t mz_zip_entry_close_int(void *handle, int16_t raw, uint64_t uncomp
     }
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
-    if (raw == 0)
+    if (!raw)
         mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)

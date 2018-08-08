@@ -80,7 +80,7 @@ extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 // Set the version made by used for writing zip file
 
 extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
-    int16_t compress_level, const char *password);
+    int16_t raw, int16_t compress_level, const char *password);
 // Open for writing the current file in the zip file
 
 extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len);

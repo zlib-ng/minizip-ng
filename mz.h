@@ -51,7 +51,7 @@ extern "C" {
 #define MZ_SEEK_END                     (2)
 
 // MZ_COMPRESS
-#define MZ_COMPRESS_METHOD_RAW          (0)
+#define MZ_COMPRESS_METHOD_STORE        (0)
 #define MZ_COMPRESS_METHOD_DEFLATE      (8)
 #define MZ_COMPRESS_METHOD_BZIP2        (12)
 #define MZ_COMPRESS_METHOD_LZMA         (14)
