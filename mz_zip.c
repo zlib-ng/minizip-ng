@@ -217,7 +217,8 @@ static int32_t mz_zip_read_cd(void *handle)
         return MZ_PARAM_ERROR;
 
     // Read and cache central directory records
-    if (mz_zip_search_eocd(zip->stream, &eocd_pos) == MZ_OK)
+    err = mz_zip_search_eocd(zip->stream, &eocd_pos);
+    if (err == MZ_OK)
     {
         // Read end of central directory info
         err = mz_stream_seek(zip->stream, eocd_pos, MZ_SEEK_SET);
@@ -556,7 +557,7 @@ extern int32_t mz_zip_close(void *handle)
     if (zip == NULL)
         return MZ_PARAM_ERROR;
 
-    if (zip->entry_opened == 1)
+    if (mz_zip_entry_is_open(handle) == MZ_OK)
     {
         err = mz_zip_entry_close(handle);
         if (err != MZ_OK)
@@ -1334,6 +1335,16 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     return err;
 }
 
+extern int32_t mz_zip_entry_is_open(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    if (zip->entry_scanned == 0 || zip->entry_opened == 0)
+        return MZ_EXIST_ERROR;
+    return MZ_OK;
+}
+
 extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
@@ -1385,7 +1396,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     if (zip == NULL || file_info == NULL || file_info->filename == NULL)
         return MZ_PARAM_ERROR;
 
-    if (zip->entry_opened == 1)
+    if (mz_zip_entry_is_open(handle) == MZ_OK)
     {
         err = mz_zip_entry_close(handle);
         if (err != MZ_OK)
@@ -1445,7 +1456,7 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
     mz_zip *zip = (mz_zip *)handle;
     int32_t read = 0;
 
-    if (zip == NULL || zip->entry_opened == 0)
+    if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
     if (UINT_MAX == UINT16_MAX && len > UINT16_MAX) // Zlib limitation
         return MZ_PARAM_ERROR;
@@ -1466,7 +1477,7 @@ extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
     mz_zip *zip = (mz_zip *)handle;
     int32_t written = 0;
 
-    if (zip == NULL || zip->entry_opened == 0)
+    if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
     written = mz_stream_write(zip->crc32_stream, buf, len);
     return written;
@@ -1475,7 +1486,7 @@ extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
 extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || zip->entry_scanned == 0)
+    if (zip == NULL || !zip->entry_scanned)
         return MZ_PARAM_ERROR;
     *file_info = &zip->file_info;
     return MZ_OK;
@@ -1484,7 +1495,7 @@ extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
 extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || zip->entry_scanned == 0 || zip->entry_opened == 0)
+    if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
     *local_file_info = &zip->local_file_info;
     return MZ_OK;
@@ -1502,7 +1513,7 @@ extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, 
     int64_t total_in = 0;
     int32_t err = MZ_OK;
 
-    if (zip == NULL || zip->entry_opened == 0)
+    if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
     mz_stream_close(zip->compress_stream);
@@ -1672,23 +1683,53 @@ extern int32_t mz_zip_goto_next_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
+static int32_t mz_zip_locate_entry_default_cb(void *handle, const char *filename1, const char *filename2)
+{
+    do
+    {
+        if ((*filename1 == '\\' && *filename2 == '/') ||
+            (*filename1 == '/' && *filename2 == '\\'))
+        {
+            // ignore comparison of path slashes
+        }
+        else if (*filename1 != *filename2)
+        {
+            break;
+        }
+
+        filename1 += 1;
+        filename2 += 1;
+    }
+    while (*filename1 != 0 && *filename2 != 0);
+
+    return (int32_t)(*filename1 - *filename2);
+}
+
 extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filename_compare_cb filename_compare_cb)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
     int32_t result = 0;
 
-    if (zip == NULL)
+    if (zip == NULL || filename == NULL)
         return MZ_PARAM_ERROR;
 
+    if (filename_compare_cb == NULL)
+        filename_compare_cb = mz_zip_locate_entry_default_cb;
+
+    // if we are already on the current entry, no need to search
+    if ((zip->entry_scanned) && (zip->file_info.filename != NULL))
+    {
+        result = filename_compare_cb(handle, zip->file_info.filename, filename);
+        if (result == 0)
+            return MZ_OK;
+    }
+
+    // search all entries starting at the first
     err = mz_zip_goto_first_entry(handle);
     while (err == MZ_OK)
     {
-        if (filename_compare_cb != NULL)
-            result = filename_compare_cb(handle, zip->file_info.filename, filename);
-        else
-            result = strcmp(zip->file_info.filename, filename);
-
+        result = filename_compare_cb(handle, zip->file_info.filename, filename);
         if (result == 0)
             return MZ_OK;
 

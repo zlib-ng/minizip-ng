@@ -86,6 +86,9 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
 extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
 // Write bytes from the current file in the zip file
 
+extern int32_t mz_zip_entry_is_open(void *handle);
+// Check to see if entry is open for read/write
+
 extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
 // Open for reading the current file in the zip file
 
