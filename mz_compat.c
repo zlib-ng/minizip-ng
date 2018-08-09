@@ -29,7 +29,6 @@
 typedef struct mz_compat_s {
     void    *stream;
     void    *handle;
-    int     raw;
 } mz_compat;
 
 /***************************************************************************/
@@ -148,8 +147,6 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     if (compat == NULL)
         return ZIP_PARAMERROR;
 
-    compat->raw = raw;
-
     memset(&file_info, 0, sizeof(file_info));
 
     if (zipfi != NULL)
@@ -254,8 +251,6 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
         return ZIP_PARAMERROR;
-    if (compat->raw == 0)
-        return mz_zip_entry_close(compat->handle);
     return mz_zip_entry_close_raw(compat->handle, uncompressed_size, crc32);
 }
 
