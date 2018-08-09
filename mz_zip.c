@@ -1182,8 +1182,6 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     if (zip == NULL)
         return MZ_PARAM_ERROR;
 
-    zip->entry_raw = raw;
-
     switch (zip->file_info.compression_method)
     {
     case MZ_COMPRESS_METHOD_STORE:
@@ -1200,12 +1198,14 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         return MZ_PARAM_ERROR;
     }
 
+    zip->entry_raw = raw;
+
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password != NULL))
     {
         if (zip->open_mode & MZ_OPEN_MODE_WRITE)
         {
             // Encrypt only when we are not trying to write raw and password is supplied.
-            if (!raw)
+            if (!zip->entry_raw)
                 use_crypt = 1;
         }
         else if (zip->open_mode & MZ_OPEN_MODE_READ)
@@ -1269,9 +1269,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
     if (err == MZ_OK)
     {
-        if (raw)
-            mz_stream_raw_create(&zip->compress_stream);
-        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
+        if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
 #ifdef HAVE_ZLIB
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
@@ -1297,7 +1295,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         }
         else
         {
-            if (raw || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
+            if (zip->entry_raw || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
                 mz_stream_set_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
