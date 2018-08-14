@@ -101,6 +101,9 @@ extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
 extern int32_t mz_zip_entry_is_open(void *handle);
 // Check to see if entry is open for read/write
 
+extern int32_t mz_zip_entry_is_dir(void *handle);
+// Checks to see if the entry is a directory
+
 extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
 // Open for reading the current file in the zip file
 

@@ -1218,7 +1218,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         err = MZ_OK;
         break;
     default:
-        return MZ_PARAM_ERROR;
+        return MZ_SUPPORT_ERROR;
     }
 
     zip->entry_raw = raw;
@@ -1366,6 +1366,28 @@ extern int32_t mz_zip_entry_is_open(void *handle)
     if (zip->entry_opened == 0)
         return MZ_EXIST_ERROR;
     return MZ_OK;
+}
+
+extern int32_t mz_zip_entry_is_dir(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int32_t filename_length = 0;
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    if (zip->entry_scanned == 0)
+        return MZ_PARAM_ERROR;
+    if (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK)
+        return MZ_OK;
+
+    filename_length = (int32_t )strlen(zip->file_info.filename);
+    if (filename_length > 0)
+    {
+        if ((zip->file_info.filename[filename_length - 1] == '/') ||
+            (zip->file_info.filename[filename_length - 1] == '\\'))
+            return MZ_OK;
+    }
+    return MZ_EXIST_ERROR;
 }
 
 extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)

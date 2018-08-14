@@ -118,7 +118,7 @@ int32_t minizip_list(const char *path)
 
     do
     {
-        err = mz_zip_reader_get_info(reader, &file_info);
+        err = mz_zip_reader_entry_get_info(reader, &file_info);
 
         if (err != MZ_OK)
         {
@@ -296,7 +296,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
 
 /***************************************************************************/
 
-int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file_info)
+int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path)
 {
     printf("Extracting %s\n", file_info->filename);
     return MZ_OK;
@@ -424,7 +424,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 
     while (err == MZ_OK)
     {
-        err = mz_zip_reader_get_info(reader, &file_info);
+        err = mz_zip_reader_entry_get_info(reader, &file_info);
         if (err != MZ_OK)
         {
             printf("Error %d getting info from zip\n", err);
