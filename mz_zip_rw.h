@@ -25,7 +25,7 @@ extern "C" {
 typedef int32_t (*mz_zip_reader_overwrite_cb)(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
 typedef int32_t (*mz_zip_reader_password_cb)(void *handle, void *userdata, mz_zip_file *file_info, char *password, int32_t max_password);
 typedef int32_t (*mz_zip_reader_progress_cb)(void *handle, void *userdata, mz_zip_file *file_info, uint64_t position);
-typedef int32_t (*mz_zip_reader_entry_cb)(void *handle, void *userdata, mz_zip_file *file_info);
+typedef int32_t (*mz_zip_reader_entry_cb)(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
 
 /***************************************************************************/
 
@@ -55,9 +55,6 @@ int32_t mz_zip_reader_goto_first_entry(void *handle);
 int32_t mz_zip_reader_goto_next_entry(void *handle);
 // Goto the next entry in the zip file that matches the pattern
 
-int32_t mz_zip_reader_get_info(void *handle, mz_zip_file **file_info);
-// Gets the current entry file info
-
 int32_t mz_zip_reader_locate_entry(void *handle, const char *filename, uint8_t ignore_case);
 // Locates an entry by filename
 
@@ -69,6 +66,9 @@ int32_t mz_zip_reader_entry_close(void *handle);
 
 int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len);
 // Reads and entry after being opened
+
+int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info);
+// Gets the current entry file info
 
 int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb write_cb);
 // Save the current entry to a steam
