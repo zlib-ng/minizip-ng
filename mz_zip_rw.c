@@ -447,7 +447,7 @@ int32_t mz_zip_reader_save_file(void *handle, const char *path)
     return err;
 }
 
-int32_t mz_zip_reader_save_buffer(void *handle, const void *buf, int32_t len)
+int32_t mz_zip_reader_save_buffer(void *handle, void *buf, int32_t len)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     void *mem_stream = NULL;
@@ -940,7 +940,7 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
     return err;
 }
 
-int32_t mz_zip_writer_add_buffer(void *handle, const void *buf, int32_t len, mz_zip_file *file_info)
+int32_t mz_zip_writer_add_buffer(void *handle, void *buf, int32_t len, mz_zip_file *file_info)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     void *mem_stream = NULL;

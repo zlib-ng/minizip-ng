@@ -61,10 +61,10 @@ static void mz_stream_mem_set_size(void *stream, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int32_t new_size = size;
-    char *new_buf = NULL;
+    uint8_t *new_buf = NULL;
 
 
-    new_buf = (char *)MZ_ALLOC(new_size);
+    new_buf = (uint8_t *)MZ_ALLOC(new_size);
     if (mem->buffer)
     {
         memcpy(new_buf, mem->buffer, mem->size);
@@ -206,7 +206,7 @@ int32_t mz_stream_mem_error(void *stream)
     return MZ_OK;
 }
 
-void mz_stream_mem_set_buffer(void *stream, const void *buf, int32_t size)
+void mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->buffer = (uint8_t *)buf;
