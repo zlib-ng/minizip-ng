@@ -516,10 +516,10 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
 
         if (err == MZ_OK)
             err = mz_zip_reader_goto_next(handle);
-
-        if (err == MZ_END_OF_LIST)
-            return MZ_OK;
     }
+
+    if (err == MZ_END_OF_LIST)
+        return MZ_OK;
 
     return err;
 }
