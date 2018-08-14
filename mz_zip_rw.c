@@ -264,7 +264,13 @@ int32_t mz_zip_reader_locate_entry(void *handle, const char *filename, uint8_t i
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
+
     err = mz_zip_locate_entry(reader->zip_handle, filename, ignore_case);
+
+    reader->file_info = NULL;
+    if (err == MZ_OK)
+        err = mz_zip_entry_get_info(reader->zip_handle, &reader->file_info);
+
     return err;
 }
 
@@ -431,6 +437,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     void *file_stream = NULL;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
+    int32_t path_length = 0;
     char directory[512];
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
@@ -443,6 +450,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
 
     strncpy(directory, path, sizeof(directory));
     mz_path_remove_filename(directory);
+    path_length = (int32_t)strlen(path);
 
     // If it is a directory entry then create a directory instead of writing file
     if (mz_zip_entry_is_dir(reader->zip_handle) == MZ_OK)
