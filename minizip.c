@@ -176,8 +176,7 @@ int32_t minizip_list(const char *path)
         if (err != MZ_OK && err != MZ_END_OF_LIST)
         {
             printf("Error %d going to next entry in zip file\n", err);
-            mz_zip_reader_delete(&reader);
-            return err;
+            break;
         }
     }
     while (err == MZ_OK);

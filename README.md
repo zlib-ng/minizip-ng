@@ -75,7 +75,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
 | mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
 | mz_strm_zlib.\* | Deflate stream using zlib | zlib or liblzma |
-| mz_zip.\* | Zip functionality | Yes |
+| mz_zip.\* | Zip format | Yes |
 | mz_zip_rw.\* | Zip reader/writer | No |
 
 ## Features
