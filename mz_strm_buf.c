@@ -66,10 +66,24 @@ typedef struct mz_stream_buffered_s {
 
 /***************************************************************************/
 
+static int32_t mz_stream_buffered_reset(void *stream)
+{
+    mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
+
+    buffered->readbuf_len = 0;
+    buffered->readbuf_pos = 0;
+    buffered->writebuf_len = 0;
+    buffered->writebuf_pos = 0;
+    buffered->position = 0;
+
+    return MZ_OK;
+}
+
 int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     mz_stream_buffered_print(buffered, "open [mode %d]\n", mode);
+    mz_stream_buffered_reset(buffered);
     return mz_stream_open(buffered->stream.base, path, mode);
 }
 
@@ -350,10 +364,7 @@ int32_t mz_stream_buffered_close(void *stream)
         mz_stream_buffered_print(stream, "write efficency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
 
-    buffered->readbuf_len = 0;
-    buffered->readbuf_pos = 0;
-    buffered->writebuf_len = 0;
-    buffered->writebuf_pos = 0;
+    mz_stream_buffered_reset(buffered);
 
     return mz_stream_close(buffered->stream.base);
 }

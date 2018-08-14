@@ -57,11 +57,21 @@ typedef struct mz_zip_file_s
     uint16_t aes_version;               // winzip aes extension if not 0
     uint8_t  aes_encryption_mode;       // winzip aes encryption mode
 #endif
-} mz_zip_file;
+} mz_zip_file, mz_zip_entry;
 
 /***************************************************************************/
 
-extern void *  mz_zip_open(void *stream, int32_t mode);
+typedef int32_t (*mz_zip_locate_entry_cb)(void *handle, void *userdata, mz_zip_file *file_info);
+
+/***************************************************************************/
+
+extern void *  mz_zip_create(void **handle);
+// Create zip instance for opening
+
+extern void    mz_zip_delete(void **handle);
+// Delete zip object
+
+extern int32_t mz_zip_open(void *handle, void *stream, int32_t mode);
 // Create a zip file, no delete file in zip functionality
 
 extern int32_t mz_zip_close(void *handle);
@@ -79,11 +89,13 @@ extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
 extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 // Set the version made by used for writing zip file
 
+/***************************************************************************/
+
 extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
     int16_t compress_level, uint8_t raw, const char *password);
 // Open for writing the current file in the zip file
 
-extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len);
+extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
 // Write bytes from the current file in the zip file
 
 extern int32_t mz_zip_entry_is_open(void *handle);
@@ -92,7 +104,7 @@ extern int32_t mz_zip_entry_is_open(void *handle);
 extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
 // Open for reading the current file in the zip file
 
-extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len);
+extern int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
 // Read bytes from the current file in the zip file
 
 extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
@@ -127,10 +139,14 @@ extern int32_t mz_zip_goto_first_entry(void *handle);
 extern int32_t mz_zip_goto_next_entry(void *handle);
 // Go to the next entry in the zip file or MZ_END_OF_LIST if reaching the end
 
-typedef int32_t (*mz_filename_compare_cb)(void *handle, const char *filename1, const char *filename2);
-extern int32_t mz_zip_locate_entry(void *handle, const char *filename,
-    mz_filename_compare_cb filename_compare_cb);
+extern int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case);
 // Locate the file with the specified name in the zip file or MZ_END_LIST if not found
+
+extern int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
+// Locate the first matching entry based on a match callback
+
+extern int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
+// LOcate the next matching entry based on a match callback
 
 /***************************************************************************/
 
@@ -157,6 +173,9 @@ int32_t  mz_zip_ntfs_to_unix_time(uint64_t ntfs_time, time_t *unix_time);
 
 int32_t  mz_zip_unix_to_ntfs_time(time_t unix_time, uint64_t *ntfs_time);
 // Convert unix time to ntfs time
+
+int32_t  mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignore_case);
+// Compare two paths without regard to slashes
 
 /***************************************************************************/
 

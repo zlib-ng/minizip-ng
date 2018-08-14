@@ -22,10 +22,12 @@ extern "C" {
 #define MZ_VERSION                      ("2.4.0")
 
 // MZ_ERROR
-#define MZ_OK                           (0)
-#define MZ_STREAM_ERROR                 (-1)
-#define MZ_DATA_ERROR                   (-3)
-#define MZ_MEM_ERROR                    (-4)
+#define MZ_OK                           (0)  // zlib
+#define MZ_STREAM_ERROR                 (-1) // zlib
+#define MZ_DATA_ERROR                   (-3) // zlib
+#define MZ_MEM_ERROR                    (-4) // zlib
+#define MZ_BUF_ERROR                    (-5) // zlib
+#define MZ_VERSION_ERROR                (-6) // zlib
 #define MZ_END_OF_LIST                  (-100)
 #define MZ_END_OF_STREAM                (-101)
 #define MZ_PARAM_ERROR                  (-102)

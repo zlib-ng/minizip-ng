@@ -48,7 +48,7 @@ static mz_stream_vtbl mz_stream_mem_vtbl = {
 typedef struct mz_stream_mem_s {
     mz_stream   stream;
     int32_t     mode;
-    char        *buffer;    // Memory buffer pointer
+    uint8_t     *buffer;    // Memory buffer pointer
     int32_t     size;       // Size of the memory buffer
     int32_t     limit;      // Furthest we've written
     int32_t     position;   // Current position in the memory
@@ -206,10 +206,10 @@ int32_t mz_stream_mem_error(void *stream)
     return MZ_OK;
 }
 
-void mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size)
+void mz_stream_mem_set_buffer(void *stream, const void *buf, int32_t size)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    mem->buffer = buf;
+    mem->buffer = (uint8_t *)buf;
     mem->size = size;
     mem->limit = size;
 }
@@ -255,8 +255,7 @@ void *mz_stream_mem_create(void **stream)
     {
         memset(mem, 0, sizeof(mz_stream_mem));
         mem->stream.vtbl = &mz_stream_mem_vtbl;
-        // Large grow size to prevent fragmentation
-        mem->grow_size = 128 * 1024;
+        mem->grow_size = 4096;
     }
     if (stream != NULL)
         *stream = mem;

@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <errno.h>
 #include <limits.h>
@@ -472,17 +473,42 @@ static int32_t mz_zip_write_cd(void *handle)
     return err;
 }
 
-extern void* mz_zip_open(void *stream, int32_t mode)
+extern void *mz_zip_create(void **handle)
 {
     mz_zip *zip = NULL;
+
+    zip = (mz_zip *)MZ_ALLOC(sizeof(mz_zip));
+    if (zip != NULL)
+    {
+        memset(zip, 0, sizeof(mz_zip));
+    }
+    if (handle != NULL)
+        *handle = zip;
+
+    return zip;
+}
+
+extern void mz_zip_delete(void **handle)
+{
+    mz_zip *zip = NULL;
+    if (handle == NULL)
+        return;
+    zip = (mz_zip *)*handle;
+    if (zip != NULL)
+    {
+        MZ_FREE(zip);
+    }
+    *handle = NULL;
+}
+
+extern int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
+{
+    mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
 
 
-    zip = (mz_zip *)MZ_ALLOC(sizeof(mz_zip));
     if (zip == NULL)
-        return NULL;
-
-    memset(zip, 0, sizeof(mz_zip));
+        return MZ_PARAM_ERROR;
 
     zip->stream = stream;
 
@@ -530,23 +556,21 @@ extern void* mz_zip_open(void *stream, int32_t mode)
     {
         // Memory streams used to store variable length file info data
         mz_stream_mem_create(&zip->file_info_stream);
-        mz_stream_mem_set_grow_size(zip->file_info_stream, 4096);
         mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
         
         mz_stream_mem_create(&zip->local_file_info_stream);
-        mz_stream_mem_set_grow_size(zip->local_file_info_stream, 4096);
         mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
     }
 
     if (err != MZ_OK)
     {
         mz_zip_close(zip);
-        return NULL;
+        return err;
     }
 
     zip->open_mode = mode;
 
-    return zip;
+    return err;
 }
 
 extern int32_t mz_zip_close(void *handle)
@@ -586,8 +610,6 @@ extern int32_t mz_zip_close(void *handle)
 
     if (zip->comment)
         MZ_FREE(zip->comment);
-
-    MZ_FREE(zip);
 
     return err;
 }
@@ -1296,7 +1318,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         }
         else
         {
-            if (zip->entry_raw || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
+            if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
             {
                 max_total_in = zip->file_info.compressed_size;
                 mz_stream_set_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
@@ -1319,6 +1341,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
         err = mz_stream_open(zip->compress_stream, NULL, zip->open_mode);
     }
+
     if (err == MZ_OK)
     {
         mz_stream_crc32_create(&zip->crc32_stream);
@@ -1340,7 +1363,7 @@ extern int32_t mz_zip_entry_is_open(void *handle)
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL)
         return MZ_PARAM_ERROR;
-    if (zip->entry_scanned == 0 || zip->entry_opened == 0)
+    if (zip->entry_opened == 0)
         return MZ_EXIST_ERROR;
     return MZ_OK;
 }
@@ -1451,14 +1474,14 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     return err;
 }
 
-extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
+extern int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t read = 0;
 
     if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
-    if (UINT_MAX == UINT16_MAX && len > UINT16_MAX) // Zlib limitation
+    if (UINT_MAX == UINT16_MAX && len > UINT16_MAX) // zlib limitation
         return MZ_PARAM_ERROR;
     if (len == 0)
         return MZ_PARAM_ERROR;
@@ -1472,7 +1495,7 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, uint32_t len)
     return read;
 }
 
-extern int32_t mz_zip_entry_write(void *handle, const void *buf, uint32_t len)
+extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t written = 0;
@@ -1683,29 +1706,7 @@ extern int32_t mz_zip_goto_next_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-static int32_t mz_zip_locate_entry_default_cb(void *handle, const char *filename1, const char *filename2)
-{
-    do
-    {
-        if ((*filename1 == '\\' && *filename2 == '/') ||
-            (*filename1 == '/' && *filename2 == '\\'))
-        {
-            // ignore comparison of path slashes
-        }
-        else if (*filename1 != *filename2)
-        {
-            break;
-        }
-
-        filename1 += 1;
-        filename2 += 1;
-    }
-    while (*filename1 != 0 && *filename2 != 0);
-
-    return (int32_t)(*filename1 - *filename2);
-}
-
-extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filename_compare_cb filename_compare_cb)
+extern int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1714,22 +1715,57 @@ extern int32_t mz_zip_locate_entry(void *handle, const char *filename, mz_filena
     if (zip == NULL || filename == NULL)
         return MZ_PARAM_ERROR;
 
-    if (filename_compare_cb == NULL)
-        filename_compare_cb = mz_zip_locate_entry_default_cb;
-
-    // if we are already on the current entry, no need to search
+    // If we are already on the current entry, no need to search
     if ((zip->entry_scanned) && (zip->file_info.filename != NULL))
     {
-        result = filename_compare_cb(handle, zip->file_info.filename, filename);
+        result = mz_zip_path_compare(zip->file_info.filename, filename, ignore_case);
         if (result == 0)
             return MZ_OK;
     }
 
-    // search all entries starting at the first
+    // Search all entries starting at the first
     err = mz_zip_goto_first_entry(handle);
     while (err == MZ_OK)
     {
-        result = filename_compare_cb(handle, zip->file_info.filename, filename);
+        result = mz_zip_path_compare(zip->file_info.filename, filename, ignore_case);
+        if (result == 0)
+            return MZ_OK;
+
+        err = mz_zip_goto_next_entry(handle);
+    }
+
+    return err;
+}
+
+extern int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int32_t err = MZ_OK;
+    int32_t result = 0;
+
+    // Search first entry looking for match
+    err = mz_zip_goto_first_entry(handle);
+    if (err != MZ_OK)
+        return err;
+
+    result = cb(handle, userdata, &zip->file_info);
+    if (result == 0)
+        return MZ_OK;
+
+    return mz_zip_locate_next_entry(handle, userdata, cb);
+}
+
+extern int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int32_t err = MZ_OK;
+    int32_t result = 0;
+
+    // Search next entries looking for match
+    err = mz_zip_goto_next_entry(handle);
+    while (err == MZ_OK)
+    {
+        result = cb(handle, userdata, &zip->file_info);
         if (result == 0)
             return MZ_OK;
 
@@ -1869,3 +1905,35 @@ int32_t mz_zip_unix_to_ntfs_time(time_t unix_time, uint64_t *ntfs_time)
     *ntfs_time = ((uint64_t)unix_time * 10000000) + 116444736000000000LL;
     return MZ_OK;
 }
+
+int32_t mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignore_case)
+{
+    do
+    {
+        if ((*path1 == '\\' && *path2 == '/') ||
+            (*path2 == '\\' && *path1 == '/'))
+        {
+            // Ignore comparison of path slashes
+        }
+        else if (ignore_case)
+        {
+            if (tolower(*path1) != tolower(*path2))
+                break;
+        }
+        else if (*path1 != *path2)
+        {
+            break;
+        }
+
+        path1 += 1;
+        path2 += 1;
+    }
+    while (*path1 != 0 && *path2 != 0);
+
+    if (ignore_case)
+        return (int32_t)(tolower(*path1) - tolower(*path2));
+
+    return (int32_t)(*path1 - *path2);
+}
+
+/***************************************************************************/

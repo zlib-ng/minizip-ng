@@ -59,7 +59,8 @@ set(MINIZIP_SRC
     mz_strm_mem.c
     mz_strm_posix.c
     mz_strm_split.c
-    mz_zip.c)
+    mz_zip.c
+    mz_zip_rw.c)
 
 set(MINIZIP_PUBLIC_HEADERS
     mz.h
@@ -71,7 +72,8 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_mem.h
     mz_strm_posix.h
     mz_strm_split.h
-    mz_zip.h)
+    mz_zip.h
+    mz_zip_rw.h)
 
 if(COMPRESS_ONLY)
     add_definitions(-DMZ_ZIP_NO_DECOMPRESSION)
