@@ -104,7 +104,7 @@ int32_t minizip_list(const char *path)
         return err;
     }
 
-    err = mz_zip_reader_goto_first(reader);
+    err = mz_zip_reader_goto_first_entry(reader);
         
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
@@ -171,7 +171,7 @@ int32_t minizip_list(const char *path)
                 (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
                 file_info->crc, file_info->filename);
 
-        err = mz_zip_reader_goto_next(reader);
+        err = mz_zip_reader_goto_next_entry(reader);
 
         if (err != MZ_OK && err != MZ_END_OF_LIST)
         {
@@ -417,7 +417,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
         return err;
     }
 
-    err = mz_zip_reader_goto_first(reader);
+    err = mz_zip_reader_goto_first_entry(reader);
 
     if (err != MZ_OK && err != MZ_END_OF_LIST)
         printf("Error %d going to first entry in zip file\n", err);
@@ -452,7 +452,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
             break;
         }
 
-        err = mz_zip_reader_goto_next(reader);
+        err = mz_zip_reader_goto_next_entry(reader);
 
         if (err != MZ_OK && err != MZ_END_OF_LIST)
             printf("Error %d going to next entry in zip file\n", err);

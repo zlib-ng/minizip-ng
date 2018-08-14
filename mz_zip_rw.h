@@ -49,31 +49,43 @@ int32_t mz_zip_reader_close(void *handle);
 
 /***************************************************************************/
 
-int32_t mz_zip_reader_goto_first(void *handle);
+int32_t mz_zip_reader_goto_first_entry(void *handle);
 // Goto the first entry in the zip file that matches the pattern
 
-int32_t mz_zip_reader_goto_next(void *handle);
+int32_t mz_zip_reader_goto_next_entry(void *handle);
 // Goto the next entry in the zip file that matches the pattern
 
 int32_t mz_zip_reader_get_info(void *handle, mz_zip_file **file_info);
 // Gets the current entry file info
 
-/***************************************************************************/
+int32_t mz_zip_reader_locate_entry(void *handle, const char *filename, uint8_t ignore_case);
+// Locates an entry by filename
 
-int32_t mz_zip_reader_save(void *handle, void *stream, mz_stream_write_cb write_cb);
+int32_t mz_zip_reader_entry_open(void *handle);
+// Opens an entry for reading
+
+int32_t mz_zip_reader_entry_close(void *handle);
+// Closes an entry
+
+int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len);
+// Reads and entry after being opened
+
+int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb write_cb);
 // Save the current entry to a steam
 
-int32_t mz_zip_reader_save_process(void *handle, void *stream, mz_stream_write_cb write_cb);
+int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_write_cb write_cb);
 // Saves a portion of the current entry to a stream callback
 
-int32_t mz_zip_reader_save_file(void *handle, const char *path);
+int32_t mz_zip_reader_entry_save_file(void *handle, const char *path);
 // Save the current entry to a file
 
-int32_t mz_zip_reader_save_buffer(void *handle, void *buf, int32_t len);
+int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len);
 // Save the current entry to a memory buffer
 
-int32_t mz_zip_reader_save_buffer_length(void *handle);
+int32_t mz_zip_reader_entry_save_buffer_length(void *handle);
 // Gets the length of the buffer required to save
+
+/***************************************************************************/
 
 int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir);
 // Save all files into a directory
@@ -136,6 +148,17 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path);
 
 int32_t mz_zip_writer_close(void *handle);
 // Closes the zip file
+
+/***************************************************************************/
+
+int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
+// Opens an entry in the zip file for writing
+
+int32_t mz_zip_writer_entry_close(void *handle);
+// Closes entry in zip file 
+
+int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
+// Writes data into entry for zip
 
 /***************************************************************************/
 
