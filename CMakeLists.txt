@@ -27,10 +27,10 @@ set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installa
 set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
 
 # Minizip library version
-set(VERSION "2.4.0")
+set(VERSION "2.5.0")
 
 # Minizip api version
-set(SOVERSION "2")
+set(SOVERSION "2.5")
 
 # Set cmake debug postfix to d
 set(CMAKE_DEBUG_POSTFIX "d")
