@@ -228,6 +228,12 @@ int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void *
     return MZ_OK;
 }
 
+int32_t mz_stream_mem_get_buffer_at_current(void *stream, const void **buf)
+{
+    mz_stream_mem *mem = (mz_stream_mem *)stream;
+    return mz_stream_mem_get_buffer_at(stream, mem->position, buf);
+}
+
 void mz_stream_mem_get_buffer_length(void *stream, int32_t *length)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;

@@ -1432,7 +1432,8 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
     int32_t err = MZ_OK;
-
+    int32_t len = 0;
+    const char *buf_ptr = NULL;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
@@ -1449,6 +1450,35 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     }
 
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
+
+    mz_stream_seek(zip->file_info_stream, 0, SEEK_SET);
+    mz_stream_write(zip->file_info_stream, file_info, sizeof(mz_zip_file));
+
+    // Copy filename, extrafield, and comment internally
+    if (file_info->filename != NULL)
+    {
+        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
+        if (err == MZ_OK)
+            err = mz_stream_write_chars(zip->file_info_stream, file_info->filename, 1);
+        if (err == MZ_OK)
+            zip->file_info.filename = buf_ptr;
+    }
+    if (file_info->extrafield != NULL)
+    {
+        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
+        if (err == MZ_OK)
+            err = mz_stream_write(zip->file_info_stream, file_info->extrafield, file_info->extrafield_size);
+        if (err == MZ_OK)
+            zip->file_info.extrafield = buf_ptr;
+    }
+    if (file_info->comment != NULL)
+    {
+        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
+        if (err == MZ_OK)
+            err = mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
+        if (err == MZ_OK)
+            zip->file_info.comment = buf_ptr;
+    }
 
     if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
     {
