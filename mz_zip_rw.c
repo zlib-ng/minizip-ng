@@ -320,7 +320,7 @@ int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t read = 0;
-    read = mz_zip_entry_read(reader->zip_handle, reader->buffer, sizeof(reader->buffer));
+    read = mz_zip_entry_read(reader->zip_handle, (void *)buf, len);
     return read;
 }
 
@@ -504,7 +504,9 @@ int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len)
         return MZ_PARAM_ERROR;
     if (reader->file_info == NULL)
         return MZ_PARAM_ERROR;
-    if (len != reader->file_info->uncompressed_size)
+    if (reader->file_info->uncompressed_size > INT32_MAX)
+        return MZ_PARAM_ERROR;
+    if (len != (int32_t)reader->file_info->uncompressed_size)
         return MZ_PARAM_ERROR;
 
     // Create a memory stream backed by our buffer and save to it 
@@ -1033,7 +1035,7 @@ int32_t mz_zip_writer_add_buffer(void *handle, void *buf, int32_t len, mz_zip_fi
 
     err = mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
     if (err == MZ_OK)
-        err = mz_zip_writer_add_info(handle, mem_stream, mz_stream_mem_write, file_info);
+        err = mz_zip_writer_add_info(handle, mem_stream, mz_stream_mem_read, file_info);
 
     mz_stream_mem_delete(&mem_stream);
     return err;
