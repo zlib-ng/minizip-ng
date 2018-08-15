@@ -1075,6 +1075,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = writer->compress_method;
     file_info.filename = filename;
+    file_info.filename_size = (uint16_t)strlen(filename);
     file_info.uncompressed_size = mz_os_get_file_size(path);
 
 #ifdef HAVE_AES

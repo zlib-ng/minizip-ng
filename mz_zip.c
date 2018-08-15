@@ -1186,7 +1186,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 #endif
     if ((err == MZ_OK) && (!local) && (file_info->comment != NULL))
     {
-        if (mz_stream_write(stream, file_info->comment, file_info->comment_size) != MZ_OK)
+        if (mz_stream_write(stream, file_info->comment, file_info->comment_size) != file_info->comment_size)
             err = MZ_STREAM_ERROR;
     }
 
@@ -1433,7 +1433,6 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     int64_t disk_number = 0;
     int32_t err = MZ_OK;
     int32_t len = 0;
-    const char *buf_ptr = NULL;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
@@ -1457,27 +1456,18 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     // Copy filename, extrafield, and comment internally
     if (file_info->filename != NULL)
     {
-        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
-        if (err == MZ_OK)
-            err = mz_stream_write_chars(zip->file_info_stream, file_info->filename, 1);
-        if (err == MZ_OK)
-            zip->file_info.filename = buf_ptr;
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.filename);
+        mz_stream_write_chars(zip->file_info_stream, file_info->filename, 1);
     }
     if (file_info->extrafield != NULL)
     {
-        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
-        if (err == MZ_OK)
-            err = mz_stream_write(zip->file_info_stream, file_info->extrafield, file_info->extrafield_size);
-        if (err == MZ_OK)
-            zip->file_info.extrafield = buf_ptr;
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.extrafield);
+        mz_stream_write(zip->file_info_stream, file_info->extrafield, file_info->extrafield_size);
     }
     if (file_info->comment != NULL)
     {
-        err = mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &buf_ptr);
-        if (err == MZ_OK)
-            err = mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
-        if (err == MZ_OK)
-            zip->file_info.comment = buf_ptr;
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.comment);
+        mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
     }
 
     if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
