@@ -13,6 +13,7 @@ option(USE_AES "Enables AES encryption" ON)
 option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
+option(USE_SYSTEM_BZIP2 "Uses system bzip2 instead of the bundled one" OFF)
 
 project("minizip")
 
@@ -43,6 +44,16 @@ if(USE_ZLIB)
         include_directories(${ZLIB_INCLUDE_DIRS})
     endif()
     add_definitions(-DHAVE_ZLIB)
+endif()
+
+# Ensure correct version of zlib is referenced
+if(USE_SYSTEM_BZIP2)
+    set(BZIP2_ROOT ${DEF_BZIP2_ROOT} CACHE PATH "Parent directory of bzip2 installation")
+    find_package(BZip2 REQUIRED)
+    if(BZIP2_FOUND)
+        include_directories(${BZIP2_INCLUDE_DIRS})
+    endif()
+    add_definitions(-DHAVE_BZIP2)
 endif()
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
@@ -202,7 +213,14 @@ if(USE_ZLIB)
     endif()
 endif()
 
-if(USE_BZIP2)
+if(USE_SYSTEM_BZIP2)
+    add_definitions(-DHAVE_BZIP2)
+
+    list(APPEND MINIZIP_SRC "mz_strm_bzip.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_bzip.h")
+
+    set(CMAKE_REQUIRED_LIBRARIES BZip2::BZip2)
+elseif(USE_BZIP2)
     add_definitions(-DHAVE_BZIP2)
     add_definitions(-DBZ_NO_STDIO)
 
@@ -369,6 +387,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)
 if(USE_ZLIB)
     target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
+endif()
+if(USE_SYSTEM_BZIP2)
+    target_link_libraries(${PROJECT_NAME} BZip2::BZip2)
 endif()
 if(USE_LZMA)
     set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
