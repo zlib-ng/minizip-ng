@@ -1,5 +1,5 @@
 /* mz.h -- Errors codes, zip flags and magic
-   Version 2.5.0, August 15, 2018
+   Version 2.4.0, August 5, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
@@ -19,7 +19,7 @@ extern "C" {
 /***************************************************************************/
 
 // MZ_VERSION
-#define MZ_VERSION                      ("2.5.0")
+#define MZ_VERSION                      ("2.4.0")
 
 // MZ_ERROR
 #define MZ_OK                           (0)  // zlib
@@ -85,11 +85,16 @@ extern "C" {
 #define MZ_HOST_SYSTEM_WINDOWS_NTFS     (10)
 #define MZ_HOST_SYSTEM_OSX_DARWIN       (19)
 
+// MZ_PKCRYPT
+#define MZ_PKCRYPT_HEADER_SIZE          (12)
+
 // MZ_AES
 #define MZ_AES_VERSION                  (1)
 #define MZ_AES_ENCRYPTION_MODE_128      (0x01)
 #define MZ_AES_ENCRYPTION_MODE_192      (0x02)
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
+#define MZ_AES_HEADER_SIZE(MODE)        ((4 * (MODE & 3) + 4) + 2)
+#define MZ_AES_FOOTER_SIZE              (10)
 
 // MZ_UTILITY
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
