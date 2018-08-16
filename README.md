@@ -32,6 +32,7 @@ cmake --build .
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
+| USE_SYSTEM_BZIP2 | Uses system bzip2 instead of the bundled one | OFF |
 
 ## Zlib Installation (Windows)
 
