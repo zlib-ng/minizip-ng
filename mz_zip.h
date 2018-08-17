@@ -65,90 +65,90 @@ typedef int32_t (*mz_zip_locate_entry_cb)(void *handle, void *userdata, mz_zip_f
 
 /***************************************************************************/
 
-extern void *  mz_zip_create(void **handle);
+void *  mz_zip_create(void **handle);
 // Create zip instance for opening
 
-extern void    mz_zip_delete(void **handle);
+void    mz_zip_delete(void **handle);
 // Delete zip object
 
-extern int32_t mz_zip_open(void *handle, void *stream, int32_t mode);
+int32_t mz_zip_open(void *handle, void *stream, int32_t mode);
 // Create a zip file, no delete file in zip functionality
 
-extern int32_t mz_zip_close(void *handle);
+int32_t mz_zip_close(void *handle);
 // Close the zip file
 
-extern int32_t mz_zip_get_comment(void *handle, const char **comment);
+int32_t mz_zip_get_comment(void *handle, const char **comment);
 // Get a pointer to the global comment
 
-extern int32_t mz_zip_set_comment(void *handle, const char *comment);
+int32_t mz_zip_set_comment(void *handle, const char *comment);
 // Set the global comment used for writing zip file
 
-extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby);
+int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby);
 // Get the version made by
 
-extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
+int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 // Set the version made by used for writing zip file
 
 /***************************************************************************/
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
+int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
     int16_t compress_level, uint8_t raw, const char *password);
 // Open for writing the current file in the zip file
 
-extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
+int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
 // Write bytes from the current file in the zip file
 
-extern int32_t mz_zip_entry_is_open(void *handle);
+int32_t mz_zip_entry_is_open(void *handle);
 // Check to see if entry is open for read/write
 
-extern int32_t mz_zip_entry_is_dir(void *handle);
+int32_t mz_zip_entry_is_dir(void *handle);
 // Checks to see if the entry is a directory
 
-extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
+int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
 // Open for reading the current file in the zip file
 
-extern int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
+int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
 // Read bytes from the current file in the zip file
 
-extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
+int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 // Get info about the current file, only valid while current entry is open
 
-extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
+int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
 // Get local info about the current file, only valid while current entry is being read
 
-extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
+int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
 // Close the current file in the zip file where raw is compressed data
 
-extern int32_t mz_zip_entry_close(void *handle);
+int32_t mz_zip_entry_close(void *handle);
 // Close the current file in the zip file
 
 /***************************************************************************/
 
-extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry);
+int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry);
 // Get the total number of entries
 
-extern int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
+int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
 // Get the the disk number containing the central directory record
 
-extern int64_t mz_zip_get_entry(void *handle);
+int64_t mz_zip_get_entry(void *handle);
 // Return offset of the current entry in the zip file
 
-extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos);
+int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos);
 // Go to specified entry in the zip file
 
-extern int32_t mz_zip_goto_first_entry(void *handle);
+int32_t mz_zip_goto_first_entry(void *handle);
 // Go to the first entry in the zip file
 
-extern int32_t mz_zip_goto_next_entry(void *handle);
+int32_t mz_zip_goto_next_entry(void *handle);
 // Go to the next entry in the zip file or MZ_END_OF_LIST if reaching the end
 
-extern int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case);
+int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case);
 // Locate the file with the specified name in the zip file or MZ_END_LIST if not found
 
-extern int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
+int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
 // Locate the first matching entry based on a match callback
 
-extern int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
+int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
 // LOcate the next matching entry based on a match callback
 
 /***************************************************************************/

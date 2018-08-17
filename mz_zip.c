@@ -473,7 +473,7 @@ static int32_t mz_zip_write_cd(void *handle)
     return err;
 }
 
-extern void *mz_zip_create(void **handle)
+void *mz_zip_create(void **handle)
 {
     mz_zip *zip = NULL;
 
@@ -488,7 +488,7 @@ extern void *mz_zip_create(void **handle)
     return zip;
 }
 
-extern void mz_zip_delete(void **handle)
+void mz_zip_delete(void **handle)
 {
     mz_zip *zip = NULL;
     if (handle == NULL)
@@ -501,7 +501,7 @@ extern void mz_zip_delete(void **handle)
     *handle = NULL;
 }
 
-extern int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
+int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -573,7 +573,7 @@ extern int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
     return err;
 }
 
-extern int32_t mz_zip_close(void *handle)
+int32_t mz_zip_close(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -614,7 +614,7 @@ extern int32_t mz_zip_close(void *handle)
     return err;
 }
 
-extern int32_t mz_zip_get_comment(void *handle, const char **comment)
+int32_t mz_zip_get_comment(void *handle, const char **comment)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || comment == NULL)
@@ -625,7 +625,7 @@ extern int32_t mz_zip_get_comment(void *handle, const char **comment)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_set_comment(void *handle, const char *comment)
+int32_t mz_zip_set_comment(void *handle, const char *comment)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint16_t comment_size = 0;
@@ -639,7 +639,7 @@ extern int32_t mz_zip_set_comment(void *handle, const char *comment)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
+int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || version_madeby == NULL)
@@ -648,7 +648,7 @@ extern int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
+int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL)
@@ -1358,7 +1358,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     return err;
 }
 
-extern int32_t mz_zip_entry_is_open(void *handle)
+int32_t mz_zip_entry_is_open(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL)
@@ -1368,7 +1368,7 @@ extern int32_t mz_zip_entry_is_open(void *handle)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_entry_is_dir(void *handle)
+int32_t mz_zip_entry_is_dir(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t filename_length = 0;
@@ -1390,7 +1390,7 @@ extern int32_t mz_zip_entry_is_dir(void *handle)
     return MZ_EXIST_ERROR;
 }
 
-extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
+int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1427,7 +1427,7 @@ extern int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *pas
     return err;
 }
 
-extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t compress_level, uint8_t raw, const char *password)
+int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int16_t compress_level, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
@@ -1516,7 +1516,7 @@ extern int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_inf
     return err;
 }
 
-extern int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
+int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t read = 0;
@@ -1537,7 +1537,7 @@ extern int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
     return read;
 }
 
-extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
+int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t written = 0;
@@ -1548,7 +1548,7 @@ extern int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
     return written;
 }
 
-extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
+int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || !zip->entry_scanned)
@@ -1557,7 +1557,7 @@ extern int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
+int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
@@ -1566,12 +1566,12 @@ extern int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_fil
     return MZ_OK;
 }
 
-extern int32_t mz_zip_entry_close(void *handle)
+int32_t mz_zip_entry_close(void *handle)
 {
     return mz_zip_entry_close_raw(handle, 0, 0);
 }
 
-extern int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
+int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t compressed_size = 0;
@@ -1680,7 +1680,7 @@ static int32_t mz_zip_goto_next_entry_int(void *handle)
     return err;
 }
 
-extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
+int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || number_entry == NULL)
@@ -1689,7 +1689,7 @@ extern int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry)
     return MZ_OK;
 }
 
-extern int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd)
+int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd)
 {
     mz_zip *zip = (mz_zip *)handle;
     if (zip == NULL || disk_number_with_cd == NULL)
@@ -1698,7 +1698,7 @@ extern int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_numbe
     return MZ_OK;
 }
 
-extern int64_t mz_zip_get_entry(void *handle)
+int64_t mz_zip_get_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1708,7 +1708,7 @@ extern int64_t mz_zip_get_entry(void *handle)
     return zip->cd_current_pos;
 }
 
-extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos)
+int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1723,7 +1723,7 @@ extern int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-extern int32_t mz_zip_goto_first_entry(void *handle)
+int32_t mz_zip_goto_first_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1735,7 +1735,7 @@ extern int32_t mz_zip_goto_first_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-extern int32_t mz_zip_goto_next_entry(void *handle)
+int32_t mz_zip_goto_next_entry(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
 
@@ -1748,7 +1748,7 @@ extern int32_t mz_zip_goto_next_entry(void *handle)
     return mz_zip_goto_next_entry_int(handle);
 }
 
-extern int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case)
+int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t ignore_case)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1779,7 +1779,7 @@ extern int32_t mz_zip_locate_entry(void *handle, const char *filename, uint8_t i
     return err;
 }
 
-extern int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
+int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1797,7 +1797,7 @@ extern int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_lo
     return mz_zip_locate_next_entry(handle, userdata, cb);
 }
 
-extern int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
+int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
