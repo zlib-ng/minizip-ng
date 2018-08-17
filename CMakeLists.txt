@@ -1,8 +1,10 @@
 #***************************************************************************
-# Copyright:  Matthias Schmieder,
-# E-Mail:     schmieder.matthias@gmail.com
-# Year:       2016
+# Copyright (C) 2017-2018 Nathan Moinvaziri
+#                         https://github.com/nmoinvaz/minizip
+# Copyright (C)      2016 Matthias Schmieder
+#                         schmieder.matthias@gmail.com
 #***************************************************************************
+
 cmake_minimum_required(VERSION 3.0.2)
 
 option(USE_ZLIB "Enables ZLIB compression" ON)

@@ -4,11 +4,6 @@
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
-   Copyright (C) 2009-2010 Mathias Svensson
-     Modifications for Zip64 support
-     http://result42.com
-   Copyright (C) 2007-2008 Even Rouault
-     Modifications of Unzip for Zip64
    Copyright (C) 1998-2010 Gilles Vollant
      http://www.winimage.com/zLibDll/minizip.html
 

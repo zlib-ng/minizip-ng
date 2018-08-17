@@ -90,7 +90,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 #### LZMA
 
 + Requires ``cmake . -DUSE_LZMA=ON`` or ``#define HAVE_LZMA``
-+ Requires [liblzma](https://tukaani.org/xz/) library
++ Requires [liblzma](https://tukaani.org/xz/) library with modifications
 
 ### Encryption
 
