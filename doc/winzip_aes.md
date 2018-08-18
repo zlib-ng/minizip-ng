@@ -23,31 +23,6 @@ WinZip Computing makes no warranties regarding the information provided in this 
 
 ----------
 
-**Contents**
-
-1.  [Encryption services](https://www.winzip.com/aes_info.htm#encryption)
-2.  [Zip file format](https://www.winzip.com/aes_info.htm#zip-format)
-    1.  [Base format reference](https://www.winzip.com/aes_info.htm#base-format)
-    2.  [Compression method and encryption flag](https://www.winzip.com/aes_info.htm#comp-method)
-    3.  [CRC value](https://www.winzip.com/aes_info.htm#CRC)
-    4.  [AES extra data field](https://www.winzip.com/aes_info.htm#extra-data)
-3.  [Encrypted file storage format](https://www.winzip.com/aes_info.htm#file-format1)
-    1.  [File format](https://www.winzip.com/aes_info.htm#file-format2)
-    2.  [Salt value](https://www.winzip.com/aes_info.htm#salt)
-    3.  [Password verification value](https://www.winzip.com/aes_info.htm#pwd-verify)
-    4.  [Encrypted file data](https://www.winzip.com/aes_info.htm#encrypted-data)
-    5.  [Authentication code](https://www.winzip.com/aes_info.htm#authentication-code)
-4.  [Changes in WinZip 11](https://www.winzip.com/aes_info.htm#winzip11)
-5.  [Notes](https://www.winzip.com/aes_info.htm#notes)
-    1.  [Non-files and zero-length files](https://www.winzip.com/aes_info.htm#non-files)
-    2.  ["Mixed" Zip files](https://www.winzip.com/aes_info.htm#mixed-zip)
-    3.  [Key generation](https://www.winzip.com/aes_info.htm#key-generation)
-6.  [FAQs](https://www.winzip.com/aes_info.htm#FAQ)
-7.  [Change history](https://www.winzip.com/aes_info.htm#changes)
-8.  [Mailing list signup](https://www.winzip.com/aes_info.htm#mailing-list)
-
-  
-
 **I. Encryption services**
 
 To perform AES encryption and decryption, WinZip uses AES functions written by Dr. Brian Gladman. The source code for these functions is available in C/C++ and Pentium family assembler for anyone to use under an open source BSD or GPL license from  [the AES project page](https://www.winzip.com/gladman.cgi)  on Dr. Gladman's web site. The  [AES Coding Tips](https://www.winzip.com/aes_tips.html)  page also has some information on the use of these functions. WinZip Computing thanks Dr. Gladman for making his AES functions available to anyone under liberal license terms.
