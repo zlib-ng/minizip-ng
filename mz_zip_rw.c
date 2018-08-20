@@ -452,6 +452,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     void *file_stream = NULL;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
+    int32_t err_attrib = 0;
+    int32_t target_attrib = 0;
     char directory[512];
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
@@ -504,6 +506,15 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
         // Set the time of the file that has been created
         mz_os_set_file_date(path, reader->file_info->modified_date, 
             reader->file_info->accessed_date, reader->file_info->creation_date);
+    }
+
+    if (err == MZ_OK)
+    {
+        // Set file attributes for the correct system
+        err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), reader->file_info->external_fa,
+            MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+        if (err_attrib == MZ_OK)
+            err_attrib = mz_os_set_file_attribs(path, target_attrib);
     }
 
     return err;
@@ -1023,7 +1034,8 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
         return MZ_PARAM_ERROR;
     if (file_info == NULL)
         return MZ_PARAM_ERROR;
-
+    file_info->linkname = "hello world";
+    file_info->linkname = 
     // Add to zip
     err = mz_zip_writer_entry_open(handle, file_info);
     if (err != MZ_OK)
@@ -1098,6 +1110,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     file_info.filename = filename;
     file_info.filename_size = (uint16_t)strlen(filename);
     file_info.uncompressed_size = mz_os_get_file_size(path);
+    file_info.flag = MZ_ZIP_FLAG_UTF8;
 
 #ifdef HAVE_AES
     if (writer->aes)

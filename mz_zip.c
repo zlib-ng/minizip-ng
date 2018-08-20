@@ -62,6 +62,7 @@
 #define MZ_ZIP_EXTENSION_ZIP64          (0x0001)
 #define MZ_ZIP_EXTENSION_NTFS           (0x000a)
 #define MZ_ZIP_EXTENSION_AES            (0x9901)
+#define MZ_ZIP_EXTENSION_UNIX1          (0x000d)
 
 /***************************************************************************/
 
@@ -783,7 +784,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             if (err == MZ_OK)
                 err = mz_stream_read_uint16(file_info_stream, &extra_data_size);
 
-            // ZIP64 extra field
+            // Read ZIP64 extra field
             if (extra_header_id == MZ_ZIP_EXTENSION_ZIP64)
             {
                 if ((err == MZ_OK) && (file_info->uncompressed_size == UINT32_MAX))
@@ -795,7 +796,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 if ((err == MZ_OK) && (file_info->disk_number == UINT16_MAX))
                     err = mz_stream_read_uint32(file_info_stream, &file_info->disk_number);
             }
-            // NTFS extra field
+            // Read NTFS extra field
             else if (extra_header_id == MZ_ZIP_EXTENSION_NTFS)
             {
                 if (err == MZ_OK)
@@ -833,8 +834,31 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     extra_data_size_read += ntfs_attrib_size + 4;
                 }
             }
+            // Read UNIX1 extra field
+            else if (extra_header_id == MZ_ZIP_EXTENSION_UNIX1)
+            {
+                if (err == MZ_OK && file_info->accessed_date == 0)
+                {
+                    err = mz_stream_read_uint32(file_info_stream, &value32);
+                    if (err == MZ_OK)
+                        file_info->accessed_date = value32;
+                }
+                if (err == MZ_OK && file_info->modified_date == 0)
+                {
+                    err = mz_stream_read_uint32(file_info_stream, &value32);
+                    if (err == MZ_OK)
+                        file_info->modified_date = value32;
+                }
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint16(file_info_stream, &value16); // User id
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint16(file_info_stream, &value16); // Group id
+
+                // Skip variable data
+                mz_stream_seek(file_info_stream, extra_data_size - (4 + 4 + 2 + 2), SEEK_CUR);
+            }
 #ifdef HAVE_AES
-            // AES extra field
+            // Read AES extra field
             else if (extra_header_id == MZ_ZIP_EXTENSION_AES)
             {
                 uint8_t value8 = 0;
@@ -953,7 +977,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             if (err_mem != MZ_OK)
                 break;
 
-            // Prefer incoming ntfs, aes extensions over ours
+            // Prefer incoming aes extensions over ours
             if (field_type == MZ_ZIP_EXTENSION_AES)
                 skip_aes = 1;
 
@@ -1126,7 +1150,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         mz_stream_mem_delete(&extrafield_ms);
     }
 
-    // Add ZIP64 extra info header to central directory
+    // Write ZIP64 extra field
     if ((err == MZ_OK) && (zip64))
     {
         err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_ZIP64);
@@ -1139,7 +1163,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         if ((err == MZ_OK) && (file_info->disk_offset >= UINT32_MAX))
             err = mz_stream_write_uint64(stream, file_info->disk_offset);
     }
-    // Write NTFS timestamps
+    // Write NTFS extra field
     if ((err == MZ_OK) && (extrafield_ntfs_size > 0))
     {
         err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_NTFS);
@@ -1168,7 +1192,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         }
     }
 #ifdef HAVE_AES
-    // Write AES extra info header to central directory
+    // Write AES extra field
     if ((err == MZ_OK) && (!skip_aes) && (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
     {
         err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_AES);
@@ -1821,22 +1845,91 @@ int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_ent
 
 /***************************************************************************/
 
-int32_t mz_zip_attrib_is_dir(int32_t attributes, int32_t version_madeby)
+int32_t mz_zip_attrib_is_dir(int32_t attrib, int32_t version_madeby)
 {
-    int32_t host_system = (uint8_t)(version_madeby >> 8);
+    int32_t system = MZ_HOST_SYSTEM(version_madeby);
+    int32_t posix_attrib = 0;
+    int32_t err = MZ_OK;
 
-    if (host_system == MZ_HOST_SYSTEM_MSDOS || host_system == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    err = mz_zip_attrib_convert(system, attrib, MZ_HOST_SYSTEM_UNIX, &posix_attrib);
+    if (err == MZ_OK)
     {
-        if ((attributes & 0x10) == 0x10) // FILE_ATTRIBUTE_DIRECTORY
-            return MZ_OK;
-    }
-    else if (host_system == MZ_HOST_SYSTEM_UNIX || host_system == MZ_HOST_SYSTEM_OSX_DARWIN)
-    {
-        if ((attributes & 00170000) == 0040000) // S_ISDIR
+        if ((posix_attrib & 00170000) == 0040000) // S_ISDIR
             return MZ_OK;
     }
 
     return MZ_EXIST_ERROR;
+}
+
+int32_t mz_zip_attrib_convert(uint8_t src_sys, int32_t src_attrib, uint8_t target_sys, int32_t *target_attrib)
+{
+    if (target_attrib == NULL)
+        return MZ_PARAM_ERROR;
+
+    *target_attrib = 0;
+
+    if (src_sys == MZ_HOST_SYSTEM_MSDOS || src_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    {
+        if (target_sys == MZ_HOST_SYSTEM_MSDOS || target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+        {
+            *target_attrib = src_attrib;
+            return MZ_OK;
+        }
+        if (target_sys == MZ_HOST_SYSTEM_UNIX || target_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+            return mz_zip_attrib_win32_to_posix(src_attrib, target_attrib);
+    }
+    else if (src_sys == MZ_HOST_SYSTEM_UNIX || src_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+    {
+        if (target_sys == MZ_HOST_SYSTEM_UNIX || target_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+        {
+            *target_attrib = src_attrib;
+            return MZ_OK;
+        }
+        if (target_sys == MZ_HOST_SYSTEM_MSDOS || target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+            return mz_zip_attrib_posix_to_win32(src_attrib, target_attrib);
+    }
+
+    return MZ_SUPPORT_ERROR;
+}
+
+int32_t mz_zip_attrib_posix_to_win32(int32_t posix_attrib, int32_t *win32_attrib)
+{
+    if (win32_attrib == NULL)
+        return MZ_PARAM_ERROR;
+
+    // S_IWUSR | S_IWGRP | S_IWOTH | S_IXUSR | S_IXGRP | S_IXOTH
+    if ((posix_attrib & 0000333) == 0 && (posix_attrib & 0000444) != 0)
+        *win32_attrib = 0x01;       // FILE_ATTRIBUTE_READONLY
+    // S_IFDIR
+    if ((posix_attrib & 0040000) == 0040000)
+        *win32_attrib |= 0x10;      // FILE_ATTRIBUTE_DIRECTORY
+    else if ((posix_attrib & 0120000) == 0120000)
+        *win32_attrib |= 0x400;     // FILE_ATTRIBUTE_REPARSE_POINT
+    else
+        *win32_attrib |= 0x80;      // FILE_ATTRIBUTE_NORMAL
+
+    return MZ_OK;
+}
+
+int32_t mz_zip_attrib_win32_to_posix(int32_t win32_attrib, int32_t *posix_attrib)
+{
+    if (posix_attrib == NULL)
+        return MZ_PARAM_ERROR;
+
+    *posix_attrib = 0000444;        // S_IRUSR | S_IRGRP | S_IROTH
+    // FILE_ATTRIBUTE_READONLY
+    if ((win32_attrib & 0x01) == 0)
+        *posix_attrib |= 0000222;   // S_IWUSR | S_IWGRP | S_IWOTH
+    // FILE_ATTRIBUTE_DIRECTORY
+    if ((win32_attrib & 0x10) == 0x10)
+        *posix_attrib |= 0040111;   // S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH
+    // FILE_ATTRIBUTE_REPARSE_POINT
+    else if ((win32_attrib & 0x400) == 0x400)
+        *posix_attrib |= 0120000;   // S_ISLNK
+    else
+        *posix_attrib |= 0100000;   // S_IFREG
+
+    return MZ_OK;
 }
 
 /***************************************************************************/
@@ -1949,6 +2042,8 @@ int32_t mz_zip_unix_to_ntfs_time(time_t unix_time, uint64_t *ntfs_time)
     *ntfs_time = ((uint64_t)unix_time * 10000000) + 116444736000000000LL;
     return MZ_OK;
 }
+
+/***************************************************************************/
 
 int32_t mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignore_case)
 {
