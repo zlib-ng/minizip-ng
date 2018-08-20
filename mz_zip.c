@@ -614,6 +614,9 @@ int32_t mz_zip_close(void *handle)
     if (zip->comment)
         MZ_FREE(zip->comment);
 
+    zip->stream = NULL;
+    zip->cd_stream = NULL;
+
     return err;
 }
 
@@ -657,6 +660,17 @@ int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
     if (zip == NULL)
         return MZ_PARAM_ERROR;
     zip->version_madeby = version_madeby;
+    return MZ_OK;
+}
+
+int32_t mz_zip_get_stream(void *handle, void **stream)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || stream == NULL)
+        return MZ_PARAM_ERROR;
+    *stream = zip->stream;
+    if (*stream == NULL)
+        return MZ_EXIST_ERROR;
     return MZ_OK;
 }
 

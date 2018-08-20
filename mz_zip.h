@@ -89,6 +89,9 @@ int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby);
 int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 // Set the version made by used for writing zip file
 
+int32_t mz_zip_get_stream(void *handle, void **stream);
+// Get a pointer to the stream used to open
+
 /***************************************************************************/
 
 int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
