@@ -1496,17 +1496,17 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     // Copy filename, extrafield, and comment internally
     if (file_info->filename != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.filename);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.filename);
         mz_stream_write_chars(zip->file_info_stream, file_info->filename, 1);
     }
     if (file_info->extrafield != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.extrafield);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.extrafield);
         mz_stream_write(zip->file_info_stream, file_info->extrafield, file_info->extrafield_size);
     }
     if (file_info->comment != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.comment);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.comment);
         mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
     }
 

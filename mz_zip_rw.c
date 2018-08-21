@@ -1034,8 +1034,7 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
         return MZ_PARAM_ERROR;
     if (file_info == NULL)
         return MZ_PARAM_ERROR;
-    file_info->linkname = "hello world";
-    file_info->linkname = 
+
     // Add to zip
     err = mz_zip_writer_entry_open(handle, file_info);
     if (err != MZ_OK)
