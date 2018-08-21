@@ -1917,8 +1917,10 @@ int32_t mz_zip_attrib_posix_to_win32(int32_t posix_attrib, int32_t *win32_attrib
     // S_IFDIR
     if ((posix_attrib & 0040000) == 0040000)
         *win32_attrib |= 0x10;      // FILE_ATTRIBUTE_DIRECTORY
+    // S_ISLNK
     else if ((posix_attrib & 0120000) == 0120000)
         *win32_attrib |= 0x400;     // FILE_ATTRIBUTE_REPARSE_POINT
+    // S_IFREG
     else
         *win32_attrib |= 0x80;      // FILE_ATTRIBUTE_NORMAL
 
