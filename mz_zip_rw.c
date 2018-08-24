@@ -898,8 +898,8 @@ int32_t mz_zip_writer_close(void *handle)
 
     if (writer->mem_stream != NULL)
     {
-        mz_stream_mem_close(writer->file_stream);
-        mz_stream_mem_delete(&writer->file_stream);
+        mz_stream_mem_close(writer->mem_stream);
+        mz_stream_mem_delete(&writer->mem_stream);
     }
 
     return err;
