@@ -695,6 +695,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     int32_t err = MZ_OK;
 
 
+    MZ_UNUSED(value64);
+
     memset(file_info, 0, sizeof(mz_zip_file));
 
     // Check the magic
