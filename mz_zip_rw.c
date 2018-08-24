@@ -351,6 +351,14 @@ int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info)
     return err;
 }
 
+int32_t mz_zip_reader_entry_is_dir(void *handle)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    if (mz_zip_reader_is_open(handle) != MZ_OK)
+        return MZ_PARAM_ERROR;
+    return mz_zip_entry_is_dir(reader->zip_handle);
+}
+
 int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_write_cb write_cb)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;

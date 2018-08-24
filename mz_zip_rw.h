@@ -70,6 +70,9 @@ int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len);
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info);
 // Gets the current entry file info
 
+int32_t mz_zip_reader_entry_is_dir(void *handle);
+// Gets the current entry is a directory
+
 int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb write_cb);
 // Save the current entry to a steam
 
