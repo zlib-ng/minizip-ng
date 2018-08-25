@@ -21,7 +21,6 @@ extern "C" {
 #endif
 
 #ifdef HAVE_ZLIB
-#include "zlib.h"
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
@@ -30,7 +29,6 @@ extern "C" {
 #  endif
 #endif
 #else
-#define ZEXPORT
 #define MAX_WBITS     (15)
 #define DEF_MEM_LEVEL (8)
 #endif
@@ -110,53 +108,53 @@ typedef struct
 
 /***************************************************************************/
 
-extern zipFile ZEXPORT zipOpen(const char *path, int append);
-extern zipFile ZEXPORT zipOpen64(const void *path, int append);
-extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment,
+zipFile zipOpen(const char *path, int append);
+zipFile zipOpen64(const void *path, int append);
+zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     zlib_filefunc_def *pzlib_filefunc_def);
-extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment,
+zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def);
-extern zipFile ZEXPORT zipOpen_MZ(void *stream, int append, const char **globalcomment);
+zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
 
-extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting);
-extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting, int zip64);
-extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base);
-extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64);
-extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting, uint16_t version_madeby, uint16_t flag_base, int zip64);
 
-extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
+int zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
 
-extern int ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32);
-extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32);
-extern int ZEXPORT zipCloseFileInZip(zipFile file);
-extern int ZEXPORT zipCloseFileInZip64(zipFile file);
+int zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32);
+int zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32);
+int zipCloseFileInZip(zipFile file);
+int zipCloseFileInZip64(zipFile file);
 
-extern int ZEXPORT zipClose(zipFile file, const char *global_comment);
-extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment);
-extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
-extern int ZEXPORT zipClose_MZ(zipFile file, const char *global_comment);
-extern int ZEXPORT zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
-extern void* ZEXPORT zipGetStream(zipFile file);
+int zipClose(zipFile file, const char *global_comment);
+int zipClose_64(zipFile file, const char *global_comment);
+int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
+int zipClose_MZ(zipFile file, const char *global_comment);
+int zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
+void* zipGetStream(zipFile file);
 
 /***************************************************************************/
 
@@ -252,38 +250,38 @@ typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, c
 
 /***************************************************************************/
 
-extern unzFile ZEXPORT unzOpen(const char *path);
-extern unzFile ZEXPORT unzOpen64(const void *path);
-extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
-extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
-extern unzFile ZEXPORT unzOpen_MZ(void *stream);
+unzFile unzOpen(const char *path);
+unzFile unzOpen64(const void *path);
+unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
+unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
+unzFile unzOpen_MZ(void *stream);
 
-extern int ZEXPORT unzClose(unzFile file);
-extern int ZEXPORT unzClose_MZ(unzFile file);
-extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
-extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
-extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_size);
-extern int ZEXPORT unzOpenCurrentFile(unzFile file);
-extern int ZEXPORT unzOpenCurrentFilePassword(unzFile file, const char *password);
-extern int ZEXPORT unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw);
-extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password);
-extern int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len);
-extern int ZEXPORT unzCloseCurrentFile(unzFile file);
+int unzClose(unzFile file);
+int unzClose_MZ(unzFile file);
+int unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
+int unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
+int unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_size);
+int unzOpenCurrentFile(unzFile file);
+int unzOpenCurrentFilePassword(unzFile file, const char *password);
+int unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw);
+int unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password);
+int unzReadCurrentFile(unzFile file, void *buf, uint32_t len);
+int unzCloseCurrentFile(unzFile file);
 
-extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
+int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
     uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size);
-extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
+int unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
     uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size);
-extern int ZEXPORT unzGoToFirstFile(unzFile file);
-extern int ZEXPORT unzGoToNextFile(unzFile file);
-extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func);
+int unzGoToFirstFile(unzFile file);
+int unzGoToNextFile(unzFile file);
+int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func);
 
-extern int64_t ZEXPORT unzGetOffset64(unzFile file);
-extern int32_t ZEXPORT unzGetOffset(unzFile file);
-extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos);
-extern int ZEXPORT unzSetOffset(unzFile file, uint32_t pos);
-extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len);
-extern void* ZEXPORT unzGetStream(unzFile file);
+int64_t unzGetOffset64(unzFile file);
+int32_t unzGetOffset(unzFile file);
+int unzSetOffset64(unzFile file, uint64_t pos);
+int unzSetOffset(unzFile file, uint32_t pos);
+int unzGetLocalExtrafield(unzFile file, void *buf, unsigned len);
+void* unzGetStream(unzFile file);
 
 /***************************************************************************/
 

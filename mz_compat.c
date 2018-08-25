@@ -51,25 +51,25 @@ static int32_t zipConvertAppendToStreamMode(int append)
     return mode;
 }
 
-extern zipFile ZEXPORT zipOpen(const char *path, int append)
+zipFile zipOpen(const char *path, int append)
 {
     zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
     return zipOpen2(path, append, NULL, &pzlib);
 }
 
-extern zipFile ZEXPORT zipOpen64(const void *path, int append)
+zipFile zipOpen64(const void *path, int append)
 {
     zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
     return zipOpen2(path, append, NULL, &pzlib);
 }
 
-extern zipFile ZEXPORT zipOpen2(const char *path, int append, const char **globalcomment,
+zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     zlib_filefunc_def *pzlib_filefunc_def)
 {
     return zipOpen2_64(path, append, globalcomment, pzlib_filefunc_def);
 }
 
-extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcomment,
+zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def)
 {
     zipFile zip = NULL;
@@ -105,7 +105,7 @@ extern zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **gl
     return zip;
 }
 
-extern zipFile ZEXPORT zipOpen_MZ(void *stream, int append, const char **globalcomment)
+zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment)
 {
     mz_compat *compat = NULL;
     int32_t err = MZ_OK;
@@ -131,7 +131,7 @@ extern zipFile ZEXPORT zipOpen_MZ(void *stream, int append, const char **globalc
     return (zipFile)compat;
 }
 
-extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
@@ -190,7 +190,7 @@ extern int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, cons
     return mz_zip_entry_write_open(compat->handle, &file_info, (int16_t)level, (uint8_t)raw, password);
 }
 
-extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel,   int strategy, const char *password,
@@ -201,7 +201,7 @@ extern int ZEXPORT zipOpenNewFileInZip4_64(zipFile file, const char *filename, c
         memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, zip64);
 }
 
-extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
@@ -212,7 +212,7 @@ extern int ZEXPORT zipOpenNewFileInZip4(zipFile file, const char *filename, cons
         memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, 0);
 }
 
-extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
@@ -223,7 +223,7 @@ extern int ZEXPORT zipOpenNewFileInZip3(zipFile file, const char *filename, cons
         memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, 0);
 }
 
-extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+int zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
@@ -234,7 +234,7 @@ extern int ZEXPORT zipOpenNewFileInZip3_64(zipFile file, const char *filename, c
         memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, zip64);
 }
 
-extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len)
+int zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t written = 0;
@@ -246,12 +246,12 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
     return ZIP_OK;
 }
 
-extern int ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32)
+int zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32)
 {
     return zipCloseFileInZipRaw64(file, uncompressed_size, crc32);
 }
 
-extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32)
+int zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -259,12 +259,12 @@ extern int ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_si
     return mz_zip_entry_close_raw(compat->handle, uncompressed_size, crc32);
 }
 
-extern int ZEXPORT zipCloseFileInZip(zipFile file)
+int zipCloseFileInZip(zipFile file)
 {
     return zipCloseFileInZip64(file);
 }
 
-extern int ZEXPORT zipCloseFileInZip64(zipFile file)
+int zipCloseFileInZip64(zipFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -272,17 +272,17 @@ extern int ZEXPORT zipCloseFileInZip64(zipFile file)
     return mz_zip_entry_close(compat->handle);
 }
 
-extern int ZEXPORT zipClose(zipFile file, const char *global_comment)
+int zipClose(zipFile file, const char *global_comment)
 {
     return zipClose_64(file, global_comment);
 }
 
-extern int ZEXPORT zipClose_64(zipFile file, const char *global_comment)
+int zipClose_64(zipFile file, const char *global_comment)
 {
     return zipClose2_64(file, global_comment, MZ_VERSION_MADEBY);
 }
 
-extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby)
+int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
@@ -302,13 +302,13 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
 }
 
 // Only closes the zip handle, does not close the stream
-extern int ZEXPORT zipClose_MZ(zipFile file, const char *global_comment)
+int zipClose_MZ(zipFile file, const char *global_comment)
 {
     return zipClose2_MZ(file, global_comment, MZ_VERSION_MADEBY);
 }
 
 // Only closes the zip handle, does not close the stream
-extern int ZEXPORT zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby)
+int zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
@@ -328,7 +328,7 @@ extern int ZEXPORT zipClose2_MZ(zipFile file, const char *global_comment, uint16
     return err;
 }
 
-extern void* ZEXPORT zipGetStream(zipFile file)
+void* zipGetStream(zipFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -338,23 +338,23 @@ extern void* ZEXPORT zipGetStream(zipFile file)
 
 /***************************************************************************/
 
-extern unzFile ZEXPORT unzOpen(const char *path)
+unzFile unzOpen(const char *path)
 {
     return unzOpen64(path);
 }
 
-extern unzFile ZEXPORT unzOpen64(const void *path)
+unzFile unzOpen64(const void *path)
 {
     zlib_filefunc64_def pzlib = mz_stream_os_get_interface();
     return unzOpen2(path, &pzlib);
 }
 
-extern unzFile ZEXPORT unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def)
+unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def)
 {
     return unzOpen2_64(path, pzlib_filefunc_def);
 }
 
-extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
+unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
 {
     unzFile unz = NULL;
     void *stream = NULL;
@@ -385,7 +385,7 @@ extern unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_
     return unz;
 }
 
-extern unzFile ZEXPORT unzOpen_MZ(void *stream)
+unzFile unzOpen_MZ(void *stream)
 {
     mz_compat *compat = NULL;
     int32_t err = MZ_OK;
@@ -408,7 +408,7 @@ extern unzFile ZEXPORT unzOpen_MZ(void *stream)
     return (unzFile)compat;
 }
 
-extern int ZEXPORT unzClose(unzFile file)
+int unzClose(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
@@ -431,7 +431,7 @@ extern int ZEXPORT unzClose(unzFile file)
 }
 
 // Only closes the zip handle, does not close the stream
-extern int ZEXPORT unzClose_MZ(unzFile file)
+int unzClose_MZ(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
@@ -445,7 +445,7 @@ extern int ZEXPORT unzClose_MZ(unzFile file)
     return err;
 }
 
-extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32)
+int unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32)
 {
     mz_compat *compat = (mz_compat *)file;
     unz_global_info64 global_info64;
@@ -465,7 +465,7 @@ extern int ZEXPORT unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info3
     return err;
 }
 
-extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info)
+int unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info)
 {
     mz_compat *compat = (mz_compat *)file;
     const char *comment_ptr = NULL;
@@ -484,7 +484,7 @@ extern int ZEXPORT unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_i
     return err;
 }
 
-extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_size)
+int unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_size)
 {
     mz_compat *compat = (mz_compat *)file;
     const char *comment_ptr = NULL;
@@ -498,7 +498,7 @@ extern int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t com
     return err;
 }
 
-extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password)
+int unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password)
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
@@ -542,22 +542,22 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
     return err;
 }
 
-extern int ZEXPORT unzOpenCurrentFile(unzFile file)
+int unzOpenCurrentFile(unzFile file)
 {
     return unzOpenCurrentFile3(file, NULL, NULL, 0, NULL);
 }
 
-extern int ZEXPORT unzOpenCurrentFilePassword(unzFile file, const char *password)
+int unzOpenCurrentFilePassword(unzFile file, const char *password)
 {
     return unzOpenCurrentFile3(file, NULL, NULL, 0, password);
 }
 
-extern int ZEXPORT unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw)
+int unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw)
 {
     return unzOpenCurrentFile3(file, method, level, raw, NULL);
 }
 
-extern int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
+int unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -565,7 +565,7 @@ extern int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
     return mz_zip_entry_read(compat->handle, buf, len);
 }
 
-extern int ZEXPORT unzCloseCurrentFile(unzFile file)
+int unzCloseCurrentFile(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -573,7 +573,7 @@ extern int ZEXPORT unzCloseCurrentFile(unzFile file)
     return mz_zip_entry_close(compat->handle);
 }
 
-extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
+int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
     uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size)
 {
     mz_compat *compat = (mz_compat *)file;
@@ -633,7 +633,7 @@ extern int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info
     return err;
 }
 
-extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
+int unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
     uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size)
 {
     mz_compat *compat = (mz_compat *)file;
@@ -699,7 +699,7 @@ extern int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile
     return err;
 }
 
-extern int ZEXPORT unzGoToFirstFile(unzFile file)
+int unzGoToFirstFile(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -707,7 +707,7 @@ extern int ZEXPORT unzGoToFirstFile(unzFile file)
     return mz_zip_goto_first_entry(compat->handle);
 }
 
-extern int ZEXPORT unzGoToNextFile(unzFile file)
+int unzGoToNextFile(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -715,7 +715,7 @@ extern int ZEXPORT unzGoToNextFile(unzFile file)
     return mz_zip_goto_next_entry(compat->handle);
 }
 
-extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func)
+int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func)
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
@@ -746,12 +746,12 @@ extern int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileName
     return err;
 }
 
-extern int32_t ZEXPORT unzGetOffset(unzFile file)
+int32_t unzGetOffset(unzFile file)
 {
     return (int32_t)unzGetOffset64(file);
 }
 
-extern int64_t ZEXPORT unzGetOffset64(unzFile file)
+int64_t unzGetOffset64(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -759,12 +759,12 @@ extern int64_t ZEXPORT unzGetOffset64(unzFile file)
     return mz_zip_get_entry(compat->handle);
 }
 
-extern int ZEXPORT unzSetOffset(unzFile file, uint32_t pos)
+int unzSetOffset(unzFile file, uint32_t pos)
 {
     return unzSetOffset64(file, pos);
 }
 
-extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
+int unzSetOffset64(unzFile file, uint64_t pos)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
@@ -772,7 +772,7 @@ extern int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
     return (int)mz_zip_goto_entry(compat->handle, pos);
 }
 
-extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)  // TODO
+int unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)  // TODO
 {
     MZ_UNUSED(file);
     MZ_UNUSED(buf);
@@ -781,7 +781,7 @@ extern int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len) 
     return 0;
 }
 
-extern void* ZEXPORT unzGetStream(unzFile file)
+void* unzGetStream(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
