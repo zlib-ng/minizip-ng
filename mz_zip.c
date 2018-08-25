@@ -689,13 +689,10 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint16_t ntfs_attrib_size = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
-    uint64_t value64 = 0;
     int64_t max_seek = 0;
     int64_t seek = 0;
     int32_t err = MZ_OK;
 
-
-    MZ_UNUSED(value64);
 
     memset(file_info, 0, sizeof(mz_zip_file));
 
