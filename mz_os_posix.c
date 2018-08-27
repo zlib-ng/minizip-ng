@@ -25,12 +25,10 @@
 #  include <utime.h>
 #  define HAVE_ARC4RANDOM_BUF
 #endif
-#if defined __linux__
-#  if !defined(MZ_ZIP_NO_COMPRESSION) && \
-      !defined(MZ_ZIP_NO_ENCRYPTION) && \
-       defined(HAVE_LIBBSD)
-#    include <bsd/stdlib.h> // arc4random_buf
-#  endif
+#if  defined(HAVE_LIBBSD) && \
+    !defined(MZ_ZIP_NO_COMPRESSION) && \
+    !defined(MZ_ZIP_NO_ENCRYPTION)
+#  include <bsd/stdlib.h> // arc4random_buf
 #else
 #  include <stdlib.h>
 #endif
