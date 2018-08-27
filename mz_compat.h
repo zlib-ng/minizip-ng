@@ -303,8 +303,8 @@ void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 #define change_file_date        mz_os_set_file_date
 #define get_file_date           mz_os_get_file_date
 #define is_large_file(x)        (mz_os_get_file_size(x) >= UINT32_MAX)
-#define makedir                 mz_make_dir
-#define get_file_crc(p,b,bs,rc) mz_get_file_crc(p,rc)
+#define makedir                 mz_dir_make
+#define get_file_crc(p,b,bs,rc) mz_file_get_crc(p,rc)
 
 #define MKDIR                   mz_os_make_dir
 #define CHDIR                   chdir

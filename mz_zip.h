@@ -49,9 +49,9 @@ typedef struct mz_zip_file_s
     uint32_t external_fa;               // external file attributes
     uint16_t zip64;                     // zip64 extension mode
 
-    const char     *filename;           // filename string
+    const char     *filename;           // filename utf8 null-terminated string
     const uint8_t  *extrafield;         // extrafield data
-    const char     *comment;            // comment string
+    const char     *comment;            // comment utf8 null-terminated string
 
 #ifdef HAVE_AES
     uint16_t aes_version;               // winzip aes extension if not 0

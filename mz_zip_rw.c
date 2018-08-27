@@ -478,7 +478,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     // If it is a directory entry then create a directory instead of writing file
     if (mz_zip_entry_is_dir(reader->zip_handle) == MZ_OK)
     {
-        err = mz_make_dir(directory);
+        err = mz_dir_make(directory);
         return err;
     }
 
@@ -493,7 +493,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     // Create the output directory if it doesn't already exist
     if (mz_os_is_dir(directory) != MZ_OK)
     {
-        err = mz_make_dir(directory);
+        err = mz_dir_make(directory);
         if (err != MZ_OK)
             return err;
     }
@@ -577,6 +577,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
     char path[512];
+    char utf8_name[256];
     char resolved_name[256];
 
     err = mz_zip_reader_goto_first_entry(handle);
@@ -586,7 +587,14 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
         // Construct output path
         path[0] = 0;
 
-        err = mz_path_resolve(reader->file_info->filename, resolved_name, sizeof(resolved_name));
+#ifdef MZ_LEGACY_ENCODING
+        if ((reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
+            mz_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
+        else
+#endif
+            strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name));
+
+        err = mz_path_resolve(utf8_name, resolved_name, sizeof(resolved_name));
         if (err != MZ_OK)
             break;
 
@@ -1115,7 +1123,6 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = writer->compress_method;
     file_info.filename = filename;
-    file_info.filename_size = (uint16_t)strlen(filename);
     file_info.uncompressed_size = mz_os_get_file_size(path);
     file_info.flag = MZ_ZIP_FLAG_UTF8;
 

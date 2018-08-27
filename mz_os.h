@@ -45,9 +45,6 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_make_dir(const char *path);
-// Creates a directory recursively
-
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
 // Combines two paths
 
@@ -63,8 +60,14 @@ int32_t mz_path_remove_filename(const char *path);
 int32_t mz_path_get_filename(const char *path, const char **filename);
 // Get the filename from a path
 
-int32_t mz_get_file_crc(const char *path, uint32_t *result_crc);
+int32_t mz_dir_make(const char *path);
+// Creates a directory recursively
+
+int32_t mz_file_get_crc(const char *path, uint32_t *result_crc);
 // Gets the crc32 hash of a file
+
+int32_t mz_encoding_cp437_to_utf8(char *source, char *target, int32_t max_target);
+// Converts ibm cp437 encoded string to utf8
 
 /***************************************************************************/
 

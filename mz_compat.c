@@ -608,12 +608,14 @@ int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char 
         pfile_info->compressed_size = (uint32_t)file_info->compressed_size;
         pfile_info->uncompressed_size = (uint32_t)file_info->uncompressed_size;
 
-        if (filename_size > 0 && filename != NULL)
+        if (filename_size > 0 && filename != NULL && file_info->filename != NULL)
         {
             bytes_to_copy = filename_size;
             if (bytes_to_copy > file_info->filename_size)
                 bytes_to_copy = file_info->filename_size;
             memcpy(filename, file_info->filename, bytes_to_copy);
+            if (bytes_to_copy < filename_size)
+                filename[bytes_to_copy] = 0;
         }
         if (extrafield_size > 0 && extrafield != NULL)
         {
@@ -622,12 +624,14 @@ int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char 
                 bytes_to_copy = file_info->extrafield_size;
             memcpy(extrafield, file_info->extrafield, bytes_to_copy);
         }
-        if (comment_size > 0 && comment != NULL)
+        if (comment_size > 0 && comment != NULL && file_info->comment != NULL)
         {
             bytes_to_copy = comment_size;
             if (bytes_to_copy > file_info->comment_size)
                 bytes_to_copy = file_info->comment_size;
             memcpy(comment, file_info->comment, bytes_to_copy);
+            if (bytes_to_copy < comment_size)
+                comment[bytes_to_copy] = 0;
         }
     }
     return err;
@@ -668,14 +672,14 @@ int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, 
         pfile_info->compressed_size = file_info->compressed_size;
         pfile_info->uncompressed_size = file_info->uncompressed_size;
 
-        if (filename_size > 0 && filename != NULL)
+        if (filename_size > 0 && filename != NULL && file_info->filename != NULL)
         {
             bytes_to_copy = filename_size;
             if (bytes_to_copy > file_info->filename_size)
                 bytes_to_copy = file_info->filename_size;
             memcpy(filename, file_info->filename, bytes_to_copy);
-            if (file_info->filename_size < filename_size)
-                filename[file_info->filename_size] = 0;
+            if (bytes_to_copy < filename_size)
+                filename[bytes_to_copy] = 0;
         }
 
         if (extrafield_size > 0 && extrafield != NULL)
@@ -686,14 +690,14 @@ int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, 
             memcpy(extrafield, file_info->extrafield, bytes_to_copy);
         }
 
-        if (comment_size > 0 && comment != NULL)
+        if (comment_size > 0 && comment != NULL && file_info->comment != NULL)
         {
             bytes_to_copy = comment_size;
             if (bytes_to_copy > file_info->comment_size)
                 bytes_to_copy = file_info->comment_size;
             memcpy(comment, file_info->comment, bytes_to_copy);
-            if (file_info->comment_size < comment_size)
-                comment[file_info->comment_size] = 0;
+            if (bytes_to_copy < comment_size)
+                comment[bytes_to_copy] = 0;
         }
     }
     return err;

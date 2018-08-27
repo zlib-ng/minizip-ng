@@ -56,8 +56,9 @@
 #define MZ_ZIP_MAGIC_ENDLOCHEADER64     (0x07064b50)
 #define MZ_ZIP_MAGIC_DATADESCRIPTOR     (0x08074b50)
 
-#define MZ_ZIP_SIZE_CD_ITEM             (0x2e)
-#define MZ_ZIP_SIZE_CD_LOCATOR64        (0x14)
+#define MZ_ZIP_SIZE_LD_ITEM             (32)
+#define MZ_ZIP_SIZE_CD_ITEM             (46)
+#define MZ_ZIP_SIZE_CD_LOCATOR64        (20)
 
 #define MZ_ZIP_EXTENSION_ZIP64          (0x0001)
 #define MZ_ZIP_EXTENSION_NTFS           (0x000a)
@@ -770,15 +771,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     {
         mz_stream_mem_get_buffer(file_info_stream, (const void **)&file_info->filename);
 
-#ifdef MZ_ENCODING_CODEPAGE437
-        if (file_info->flag & MZ_ZIP_FLAG_UTF8)
-            err = mz_stream_copy(file_info_stream, stream, file_info->filename_size);
-        else
-            err = mz_stream_copy_cp437(file_info_stream, stream, file_info->filename_size); 
-#else
         err = mz_stream_copy(file_info_stream, stream, file_info->filename_size);
-#endif
-
         if (err == MZ_OK)
             err = mz_stream_write_uint8(file_info_stream, 0);
 
@@ -923,15 +916,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     {
         mz_stream_mem_get_buffer_at(file_info_stream, seek, (const void **)&file_info->comment);
 
-#ifdef MZ_ENCODING_CODEPAGE437
-        if (file_info->flag & MZ_ZIP_FLAG_UTF8)
-            err = mz_stream_copy(file_info_stream, stream, file_info->comment_size);
-        else
-            err = mz_stream_copy_cp437(file_info_stream, stream, file_info->comment_size);
-#else
         err = mz_stream_copy(file_info_stream, stream, file_info->comment_size);
-#endif
-
         if (err == MZ_OK)
             err = mz_stream_write_uint8(file_info_stream, 0);
     }
