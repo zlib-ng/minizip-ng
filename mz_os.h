@@ -20,7 +20,7 @@ extern "C" {
 
 /***************************************************************************/
 
-#if !defined(_WIN32) && !defined(MZ_USE_WIN32_API)
+#if !defined(_WIN32) && !defined(MZ_WIN32_API)
 #include "mz_os_posix.h"
 #include "mz_strm_posix.h"
 #else

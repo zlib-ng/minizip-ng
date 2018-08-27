@@ -25,7 +25,7 @@
 
 /***************************************************************************/
 
-#if defined(MZ_USE_FILE32API)
+#if defined(MZ_FILE32_API)
 #  define fopen64 fopen
 #  define ftello64 ftell
 #  define fseeko64 fseek

@@ -36,7 +36,7 @@ void*   mz_stream_win32_get_interface(void);
 
 /***************************************************************************/
 
-#if defined(_WIN32) || defined(MZ_USE_WIN32_API)
+#if defined(_WIN32) || defined(MZ_WIN32_API)
 #define mz_stream_os_open    mz_stream_win32_open
 #define mz_stream_os_is_open mz_stream_win32_is_open
 #define mz_stream_os_read    mz_stream_win32_read
