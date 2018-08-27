@@ -159,6 +159,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     if (mode & MZ_OPEN_MODE_WRITE)
     {
 #ifdef MZ_ZIP_NO_COMPRESSION
+        MZ_UNUSED(t);
         return MZ_SUPPORT_ERROR;
 #else
         // First generate RAND_HEAD_LEN - 2 random bytes.
