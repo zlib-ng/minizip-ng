@@ -66,7 +66,7 @@ int32_t mz_dir_make(const char *path);
 int32_t mz_file_get_crc(const char *path, uint32_t *result_crc);
 // Gets the crc32 hash of a file
 
-int32_t mz_encoding_cp437_to_utf8(char *source, char *target, int32_t max_target);
+int32_t mz_encoding_cp437_to_utf8(const char *source, char *target, int32_t max_target);
 // Converts ibm cp437 encoded string to utf8
 
 /***************************************************************************/

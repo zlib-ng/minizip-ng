@@ -36,11 +36,12 @@ void minizip_banner(void)
 
 void minizip_help(void)
 {
-    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
+    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
            "  -o  Overwrite existing files\n" \
+           "  -c  File names use cp437 encoding\n" \
            "  -a  Append to existing zip file\n" \
            "  -i  Include full path of files\n" \
            "  -0  Store only\n" \
@@ -72,6 +73,7 @@ typedef struct minizip_opt_s {
 #ifdef HAVE_AES
     uint8_t aes;
 #endif
+    uint8_t legacy_encoding;
 } minizip_opt;
 
 /***************************************************************************/
@@ -352,6 +354,7 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     mz_zip_reader_create(&reader);
     mz_zip_reader_set_pattern(reader, pattern, 1);
     mz_zip_reader_set_password(reader, password);
+    mz_zip_reader_set_legacy_encoding(reader, options->legacy_encoding);
     mz_zip_reader_set_entry_cb(reader, options, minizip_extract_entry_cb);
     mz_zip_reader_set_progress_cb(reader, options, minizip_extract_progress_cb);
     mz_zip_reader_set_overwrite_cb(reader, options, minizip_extract_overwrite_cb);
@@ -516,17 +519,17 @@ int main(int argc, const char *argv[])
             char c = argv[i][1];
             if ((c == 'l') || (c == 'L'))
                 do_list = 1;
-            if ((c == 'x') || (c == 'X'))
+            else if ((c == 'x') || (c == 'X'))
                 do_extract = 1;
-            if ((c == 'e') || (c == 'E'))
+            else if ((c == 'e') || (c == 'E'))
                 do_erase = 1;
-            if ((c == 'a') || (c == 'A'))
+            else if ((c == 'a') || (c == 'A'))
                 options.append = 1;
-            if ((c == 'o') || (c == 'O'))
+            else if ((c == 'o') || (c == 'O'))
                 options.overwrite = 1;
-            if ((c == 'i') || (c == 'I'))
+            else if ((c == 'i') || (c == 'I'))
                 options.include_path = 1;
-            if ((c >= '0') && (c <= '9'))
+            else if ((c >= '0') && (c <= '9'))
             {
                 options.compress_level = (c - '0');
                 if (options.compress_level == 0)
@@ -534,28 +537,30 @@ int main(int argc, const char *argv[])
             }
 
 #ifdef HAVE_BZIP2
-            if ((c == 'b') || (c == 'B'))
+            else if ((c == 'b') || (c == 'B'))
                 options.compress_method = MZ_COMPRESS_METHOD_BZIP2;
 #endif
 #ifdef HAVE_LZMA
-            if ((c == 'm') || (c == 'M'))
+            else if ((c == 'm') || (c == 'M'))
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
 #endif
 #ifdef HAVE_AES
-            if ((c == 's') || (c == 'S'))
+            else if ((c == 's') || (c == 'S'))
                 options.aes = 1;
 #endif
-            if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
+            else if ((c == 'c') || (c == 'C'))
+                options.legacy_encoding = 1;
+            else if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
             {
                 options.disk_size = atoi(argv[i + 1]) * 1024;
                 i += 1;
             }
-            if (((c == 'd') || (c == 'D')) && (i + 1 < argc))
+            else if (((c == 'd') || (c == 'D')) && (i + 1 < argc))
             {
                 destination = argv[i + 1];
                 i += 1;
             }
-            if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
+            else if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
             {
                 password = argv[i + 1];
                 i += 1;

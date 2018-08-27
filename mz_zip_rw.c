@@ -51,6 +51,7 @@ typedef struct mz_zip_reader_s {
                 entry_cb;
     uint8_t     raw;
     uint8_t     buffer[UINT16_MAX];
+    uint8_t     legacy_encoding;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -587,11 +588,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
         // Construct output path
         path[0] = 0;
 
-#ifdef MZ_LEGACY_ENCODING
-        if ((reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
+        if ((reader->legacy_encoding) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
             mz_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
         else
-#endif
             strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name));
 
         err = mz_path_resolve(utf8_name, resolved_name, sizeof(resolved_name));
@@ -644,6 +643,12 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw)
         return MZ_PARAM_ERROR;
     *raw = reader->raw;
     return MZ_OK;
+}
+
+void mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    reader->legacy_encoding = legacy_encoding;
 }
 
 void mz_zip_reader_set_overwrite_cb(void *handle, void *userdata, mz_zip_reader_overwrite_cb cb)
