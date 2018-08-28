@@ -8,6 +8,23 @@ Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branc
 For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
 For the original work maintained by Mark Adler checkout the zlib minizip  [contrib](https://github.com/madler/zlib/tree/master/contrib/minizip).
 
+## Features
+
++ Creating and extracting zip archives.
++ Adding and removing entries from zip archives.
++ Read and write raw zip entry data.
++ Reading and writing zip archives from memory.
++ Zlib, BZIP2, and LZMA compression methods.
++ Password protection through Traditional PKWARE encryption and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
++ Buffered streaming for improved I/O performance.
++ NTFS timestamp support for UTC last modified, last accessed, and creation dates.
++ Disk split support for splitting zip archives into multiple files.
++ IBM Codepage 437 legacy character encoding support.
++ Turn off compilation of compression, decompression, or encryption.
++ Windows (Win32 & WinRT), Mac and Linux platform support.
++ Streaming interface for easily implementation of additional platforms.
++ Example minizip command line tool.
+
 ## Build
 
 To generate project files for your platform:
@@ -78,54 +95,12 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_zip.\* | Zip format | Yes |
 | mz_zip_rw.\* | Zip reader/writer | No |
 
-## Features
+## Third-Party Libraries
 
-+ Creating and extracting zip archives.
-+ Adding and removing entries from zip archives.
-+ Read and write raw zip entry data.
-+ Reading and writing zip archives from memory.
-+ Zlib, BZIP2, and LZMA compression methods.
-+ Password protection through Traditional PKWARE encryption and AES encryption.
-+ Buffered streaming for improved I/O performance.
-+ NTFS timestamp support for UTC last modified, last accessed, and creation dates.
-+ Disk split support for splitting zip archives into multiple files.
-+ IBM Codepage 437 legacy character encoding support.
-+ Windows, Mac, and Linux platform support.
-
-### Compression Methods
-
-#### BZIP2
-
-+ Requires ``cmake . -DUSE_BZIP2=ON`` or ``#define HAVE_BZIP2``
-+ Requires [BZIP2](http://www.bzip.org/) library
-
-#### LZMA
-
-+ Requires ``cmake . -DUSE_LZMA=ON`` or ``#define HAVE_LZMA``
-+ Requires [liblzma](https://tukaani.org/xz/) library with modifications
-
-### Encryption
-
-#### [WinZIP AES Encryption](https://www.winzip.com/aes_info.htm)
-
-+ Requires ``cmake . -DUSE_AES=ON`` or ``#define HAVE_AES``
-+ Requires Brian Gladman's [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries
-
-When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary.
-
-#### Disabling All Encryption
-
-To disable encryption use the following cmake commands:
-
-```
-cmake . -DUSE_AES=OFF
-cmake . -DUSE_PKCRYPT=OFF
-```
-
-### Windows RT
-
-+ Requires ``#define MZ_WINRT_API``
++ [BZIP2](http://www.sourceware.org/bzip2/) written by Julian Seward.
++ [liblzma](https://tukaani.org/xz/) written by Lasse Collin 
+  + Minor modifications were made to support the ZIP format specification
++ [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
 
 ## Limitations
 
@@ -133,3 +108,4 @@ cmake . -DUSE_PKCRYPT=OFF
 + Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
 + Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
 + Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
+
