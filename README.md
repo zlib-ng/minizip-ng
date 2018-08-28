@@ -37,6 +37,7 @@ Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?
 + Turn off compilation of compression, decompression, or encryption.
 + Windows (Win32 & WinRT), macOS and Linux platform support.
 + Streaming interface for easy implementation of additional platforms.
++ Compatibility interface for older versions of minizip.
 + Example minizip command line tool.
 
 ## Build
