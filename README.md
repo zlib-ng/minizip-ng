@@ -15,7 +15,7 @@ For the original work maintained by Mark Adler checkout the zlib minizip  [contr
 + Read and write raw zip entry data.
 + Reading and writing zip archives from memory.
 + Zlib, BZIP2, and LZMA compression methods.
-+ Password protection through Traditional PKWARE encryption and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
++ Password protection through Traditional PKWARE and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
 + Buffered streaming for improved I/O performance.
 + NTFS timestamp support for UTC last modified, last accessed, and creation dates.
 + Disk split support for splitting zip archives into multiple files.
@@ -100,6 +100,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 
 + [zlib](https://zlib.net/) written by Mark Adler and Jean-loup Gailly.
   + Not included in this repository
+  + Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach
 + [BZIP2](http://www.sourceware.org/bzip2/) written by Julian Seward.
 + [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
   + Modifications were made to support the ZIP file format specification
