@@ -1,6 +1,6 @@
 # minizip 2.5.2
 
-minizip is a popular zip manipulation library written in C and supported on Windows, macOS, and Linux. 
+minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux. 
 
 ## Fork Motivation and History
 
@@ -15,7 +15,7 @@ original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) f
 In 2010, I began implementing disk splitting and started submitting bugs that I found in the library
 to Gilles Vollant via email. Over time the work that I did necessitated setting up a public repository. 
 For the good of humanity I have been maintaining this fork of the project ever since. In 2017, I began 
-the task of refactoring the entire library as it had become more difficult to maintain and code 
+the task of refactoring the entire library as it had become difficult to maintain and code 
 readability had suffered over the years.
 
 Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
