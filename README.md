@@ -8,7 +8,7 @@ It is based on the original work of
 [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been
 contributed to by many people over the years.
 
-Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev])](https://travis-ci.org/nmoinvaz/minizip/branches)
+Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
 Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
 
 For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
