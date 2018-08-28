@@ -1,18 +1,25 @@
-# Minizip 2.5.2
+# minizip 2.5.2
 
-This library is a refactoring of the minizip contribution found in the zlib
-distribution and is supported on Windows, macOS, and Linux. The motivation
-for this work has been the inclusion of advanced features, improvements in
-code maintainability and readability, and the reduction of duplicate code.
-It is based on the original work of
-[Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been
-contributed to by many people over the years.
+minizip is a popular zip manipulation library written in C and supported on Windows, macOS, and Linux. 
 
 Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
 Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
 
-For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
-For the original work maintained by Mark Adler checkout the zlib minizip  [contrib](https://github.com/madler/zlib/tree/master/contrib/minizip).
+## Fork Motivation and History
+
+This library is a complete refactoring of the minizip contribution found in the zlib
+distribution. The motivation for this fork has been the inclusion of advanced features, 
+improvements in code maintainability and readability, and the reduction of duplicate code.
+
+Minizip was originally developed by [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and 
+had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
+original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) fork.
+
+In 2010, I began implementing disk splitting and started submitting bugs that I found in the library
+to Gilles Vollant via email. Over time the work that I did necessitated setting up a public repository. 
+For the good of humanity I have been maintaining this fork of the project ever since. In 2017, I began 
+the task of refactoring the entire library as it had become more difficult to maintain and code 
+readability had suffered over the years.
 
 ## Features
 
@@ -119,3 +126,11 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 + Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
 + Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
 + Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
+
+## Acknowledgments
+
+Thanks to [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
+
+Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. Minizip would not have been nearly as good without you.
+
+The [ZIP format](https://github.com/nmoinvaz/minizip/blob/master/doc/appnote.txt) was defined by Phil Katz of PKWARE.
