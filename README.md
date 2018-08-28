@@ -47,6 +47,7 @@ cmake --build .
 | USE_BZIP2 | Enables BZIP2 compression | ON |
 | USE_LZMA | Enables LZMA compression | ON |
 | USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
+| USE_AES | Enables WinZIP AES encryption | ON |
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
