@@ -115,83 +115,13 @@ cmake . -DUSE_PKCRYPT=OFF
 
 Support has been added for UTC last modified, last accessed, and creation dates.
 
-### Streams
+### Buffered I/O
 
-This library has been refactored around streams.
+Support has been added for buffered streaming of I/O to and from the disk.
 
-#### Memory Streaming
+### Disk Splitting
 
-To unzip from a zip file in memory pass the memory stream to the open function.
-```
-uint8_t *zip_buffer = NULL;
-int32_t zip_buffer_size = 0;
-void *mem_stream = NULL;
-
-// fill zip_buffer with zip contents
-mz_stream_mem_create(&mem_stream);
-mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
-mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
-
-void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_READ);
-// do unzip operations
-
-mz_stream_mem_delete(&mem_stream);
-```
-
-To create a zip file in memory first create a growable memory stream and pass it to the open function.
-
-```
-void *mem_stream = NULL;
-
-mz_stream_mem_create(&mem_stream);
-mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
-mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
-
-void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_WRITE);
-// do unzip operations
-
-mz_stream_mem_delete(&mem_stream);
-```
-
-For a complete example, see test_zip_mem() in [test.c](https://github.com/nmoinvaz/minizip/blob/master/test/test.c).
-
-#### Buffered Streaming
-
-By default the library will read bytes typically one at a time. The buffered stream allows for buffered read and write operations to improve I/O performance.
-
-```
-void *stream = NULL;
-void *buf_stream = NULL;
-
-mz_stream_os_create(&stream)
-// do open os stream
-
-mz_stream_buffered_create(&buf_stream);
-mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ);
-mz_stream_buffered_set_base(buf_stream, stream);
-
-void *zip_handle = mz_zip_open(buf_stream, MZ_OPEN_MODE_READ);
-```
-
-#### Disk Splitting Stream
-
-To create an archive with multiple disks use the disk splitting stream and supply a disk size value in bytes.
-
-```
-void *stream = NULL;
-void *split_stream = NULL;
-
-mz_stream_os_create(&stream);
-
-mz_stream_split_create(&split_stream);
-mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, 64 * 1024);
-
-mz_stream_set_base(split_stream, stream);
-
-mz_stream_open(split_stream, path..
-
-void *zip_handle = mz_zip_open(split_stream, MZ_OPEN_MODE_WRITE);
-```
+Support has been added for PKWARE's disk splitting.
 
 ### Windows RT
 
