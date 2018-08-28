@@ -2,9 +2,6 @@
 
 minizip is a popular zip manipulation library written in C and supported on Windows, macOS, and Linux. 
 
-Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
-Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
-
 ## Fork Motivation and History
 
 This library is a complete refactoring of the minizip contribution found in the zlib
@@ -20,6 +17,9 @@ to Gilles Vollant via email. Over time the work that I did necessitated setting 
 For the good of humanity I have been maintaining this fork of the project ever since. In 2017, I began 
 the task of refactoring the entire library as it had become more difficult to maintain and code 
 readability had suffered over the years.
+
+Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
+Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
 
 ## Features
 
@@ -131,6 +131,6 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 
 Thanks to [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
 
-Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. Minizip would not have been nearly as good without you.
+Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been nearly as good without you.
 
 The [ZIP format](https://github.com/nmoinvaz/minizip/blob/master/doc/appnote.txt) was defined by Phil Katz of PKWARE.
