@@ -22,7 +22,7 @@ For the original work maintained by Mark Adler checkout the zlib minizip  [contr
 + IBM Codepage 437 legacy character encoding support.
 + Turn off compilation of compression, decompression, or encryption.
 + Windows (Win32 & WinRT), Mac and Linux platform support.
-+ Streaming interface for easily implementation of additional platforms.
++ Streaming interface for easy implementation of additional platforms.
 + Example minizip command line tool.
 
 ## Build
