@@ -97,9 +97,11 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 
 ## Third-Party Libraries
 
++ [zlib](https://zlib.net/) written by Mark Adler and Jean-loup Gailly.
+  + Not included in this repository
 + [BZIP2](http://www.sourceware.org/bzip2/) written by Julian Seward.
-+ [liblzma](https://tukaani.org/xz/) written by Lasse Collin 
-  + Minor modifications were made to support the ZIP format specification
++ [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
+  + Modifications were made to support the ZIP file format specification
 + [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
 
 ## Limitations
