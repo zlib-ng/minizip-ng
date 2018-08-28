@@ -41,7 +41,7 @@
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_ENCRYPTION)
-#if defined(HAVE_LIBBSD) || defined(HAVE_ARC4RANDOM_BUF)
+#if defined(HAVE_ARC4RANDOM_BUF)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
     arc4random_buf(buf, size);
