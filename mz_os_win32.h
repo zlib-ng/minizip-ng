@@ -1,5 +1,5 @@
 /* mz_os_win32.h -- System functions for Windows
-   Version 2.5.1, August 18, 2018
+   Version 2.5.2, August 27, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
