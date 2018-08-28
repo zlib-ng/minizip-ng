@@ -1,9 +1,15 @@
 # Minizip 2.5.2
 
-This library is a refactoring of the minizip contribution found in the zlib distribution and is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
+This library is a refactoring of the minizip contribution found in the zlib
+distribution and is supported on Windows, macOS, and Linux. The motivation
+for this work has been the inclusion of advanced features, improvements in
+code maintainability and readability, and the reduction of duplicate code.
+It is based on the original work of
+[Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been
+contributed to by many people over the years.
 
-Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
-Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
+Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev])](https://travis-ci.org/nmoinvaz/minizip/branches)
+Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
 
 For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
 For the original work maintained by Mark Adler checkout the zlib minizip  [contrib](https://github.com/madler/zlib/tree/master/contrib/minizip).
@@ -102,7 +108,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 + [zlib](https://zlib.net/) written by Mark Adler and Jean-loup Gailly.
   + Not included in this repository
   + Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach
-+ [BZIP2](http://www.sourceware.org/bzip2/) written by Julian Seward.
++ [BZIP2](https://www.sourceware.org/bzip2/) written by Julian Seward.
 + [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
   + Modifications were made to support the ZIP file format specification
 + [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
@@ -113,4 +119,3 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 + Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
 + Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
 + Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
-
