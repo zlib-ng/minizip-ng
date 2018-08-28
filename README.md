@@ -13,8 +13,8 @@ had been contributed to by many people. As part of the zlib distribution, Mark A
 original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) fork.
 
 In 2010, I began implementing disk splitting and started submitting bugs that I found in the library
-to Gilles Vollant via email. Over time the work that I did necessitated setting up a public repository. 
-For the good of humanity I have been maintaining this fork of the project ever since. In 2017, I began 
+to Gilles Vollant via email. Over time the continued work that I did necessitated setting up a public 
+repository. I have been maintaining this fork of the project ever since. In 2017, I began 
 the task of refactoring the entire library as it had become difficult to maintain and code 
 readability had suffered over the years.
 
