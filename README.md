@@ -80,6 +80,18 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 
 ## Features
 
++ Creating and extracting zip archives.
++ Adding and removing entries from zip archives.
++ Read and write raw zip entry data.
++ Reading and writing zip archives from memory.
++ Zlib, BZIP2, and LZMA compression methods.
++ Password protection through Traditional PKWARE encryption and AES encryption.
++ Buffered streaming for improved I/O performance.
++ NTFS timestamp support for UTC last modified, last accessed, and creation dates.
++ Disk split support for splitting zip archives into multiple files.
++ IBM Codepage 437 legacy character encoding support.
++ Windows, Mac, and Linux platform support.
+
 ### Compression Methods
 
 #### BZIP2
@@ -110,18 +122,6 @@ To disable encryption use the following cmake commands:
 cmake . -DUSE_AES=OFF
 cmake . -DUSE_PKCRYPT=OFF
 ```
-
-### NTFS Timestamps
-
-Support has been added for UTC last modified, last accessed, and creation dates.
-
-### Buffered I/O
-
-Support has been added for buffered streaming of I/O to and from the disk.
-
-### Disk Splitting
-
-Support has been added for PKWARE's disk splitting.
 
 ### Windows RT
 
