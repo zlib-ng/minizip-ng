@@ -14,9 +14,9 @@ original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) f
 
 In 2010, I began implementing disk splitting and started submitting bugs that I found in the library
 to Gilles Vollant via email. Over time the continued work that I did necessitated setting up a public 
-repository. I have been maintaining this fork of the project ever since. In 2017, I began 
-the task of refactoring the entire library as it had become difficult to maintain and code 
-readability had suffered over the years.
+repository so I could share my improvements with the rest of the world. I have been maintaining this 
+fork of the project ever since. In 2017, I began the task of refactoring the entire library as it had 
+become difficult to maintain and code readability had suffered over the years.
 
 Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
 Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
