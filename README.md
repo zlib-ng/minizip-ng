@@ -21,7 +21,7 @@ For the original work maintained by Mark Adler checkout the zlib minizip  [contr
 + Disk split support for splitting zip archives into multiple files.
 + IBM Codepage 437 legacy character encoding support.
 + Turn off compilation of compression, decompression, or encryption.
-+ Windows (Win32 & WinRT), Mac and Linux platform support.
++ Windows (Win32 & WinRT), macOS and Linux platform support.
 + Streaming interface for easy implementation of additional platforms.
 + Example minizip command line tool.
 
