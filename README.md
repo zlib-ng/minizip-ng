@@ -19,6 +19,7 @@ For the original work maintained by Mark Adler checkout the zlib minizip  [contr
 + Buffered streaming for improved I/O performance.
 + NTFS timestamp support for UTC last modified, last accessed, and creation dates.
 + Disk split support for splitting zip archives into multiple files.
++ Unicode filename support through UTF-8 encoding.
 + IBM Codepage 437 legacy character encoding support.
 + Turn off compilation of compression, decompression, or encryption.
 + Windows (Win32 & WinRT), macOS and Linux platform support.
