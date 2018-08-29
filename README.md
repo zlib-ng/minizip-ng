@@ -4,6 +4,8 @@ minizip is a zip manipulation library written in C that is supported on Windows,
 
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
 
+Maintained by Nathan Moinvaziri.
+
 ## Fork Motivation and History
 
 This library is a complete refactoring of the minizip contribution found in the zlib
@@ -12,13 +14,13 @@ improvements in code maintainability and readability, and the reduction of dupli
 
 Minizip was originally developed by [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and 
 had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
-original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) fork.
+original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project.
 
-In 2010, I began implementing disk splitting and started submitting bugs that I found in the library
-to Gilles Vollant via email. Over time the continued work that I did necessitated setting up a public 
-repository so I could share my improvements with the rest of the world. I have been maintaining this 
-fork of the project ever since. In 2017, I began the task of refactoring the entire library as it had 
-become difficult to maintain and code readability had suffered over the years.
+In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
+Gilles Vollant via e-mail. In 2010, I implemented disk splitting and I/O buffering and my continued work 
+necessitated setting up a public repository so I could share my improvements with the rest of the world. 
+I have been maintaining this fork of the project ever since. In 2017, I began the task of refactoring and 
+rewriting most of library as it had become difficult to maintain and code readability had suffered over the years.
 
 Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
 Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
