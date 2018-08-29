@@ -16,7 +16,7 @@ option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
 
-project("minizip")
+project("minizip" C)
 
 include(CheckLibraryExists)
 include(CheckSymbolExists)
