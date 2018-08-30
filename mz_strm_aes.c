@@ -320,7 +320,7 @@ int32_t mz_stream_aes_get_prop_int64(void *stream, int32_t prop, int64_t *value)
         *value = aes->max_total_in;
         break;
     case MZ_STREAM_PROP_HEADER_SIZE:
-        *value = MZ_AES_SALT_LENGTH(aes->encryption_mode) + MZ_AES_PW_VERIFY_SIZE;
+        *value = MZ_AES_SALT_LENGTH((int64_t)aes->encryption_mode) + MZ_AES_PW_VERIFY_SIZE;
         break;
     case MZ_STREAM_PROP_FOOTER_SIZE:
         *value = MZ_AES_AUTHCODE_SIZE;

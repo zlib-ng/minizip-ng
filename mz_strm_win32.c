@@ -102,6 +102,10 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
 
     path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
     path_wide = (wchar_t *)MZ_ALLOC((path_wide_size + 1) * sizeof(wchar_t));
+
+    if (path_wide == NULL)
+        return MZ_MEM_ERROR;
+
     memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
 
     MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);

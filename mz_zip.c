@@ -642,6 +642,8 @@ int32_t mz_zip_set_comment(void *handle, const char *comment)
         MZ_FREE(zip->comment);
     comment_size = (uint16_t)(strlen(comment) + 1);
     zip->comment = (char *)MZ_ALLOC(comment_size);
+    if (zip->comment == NULL)
+        return MZ_MEM_ERROR;
     strncpy(zip->comment, comment, comment_size);
     return MZ_OK;
 }
@@ -761,7 +763,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         }
     }
 
-    max_seek = file_info->filename_size + file_info->extrafield_size + file_info->comment_size + 3;
+    max_seek = (int64_t)file_info->filename_size + file_info->extrafield_size + file_info->comment_size + 3;
     if (err == MZ_OK)
         err = mz_stream_seek(file_info_stream, max_seek, MZ_SEEK_SET);
     if (err == MZ_OK)
@@ -775,7 +777,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         if (err == MZ_OK)
             err = mz_stream_write_uint8(file_info_stream, 0);
 
-        seek += file_info->filename_size + 1;
+        seek += (int64_t)file_info->filename_size + 1;
     }
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
@@ -790,7 +792,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         if (err == MZ_OK)
             err = mz_stream_seek(file_info_stream, seek, MZ_SEEK_SET);
 
-        seek += file_info->extrafield_size + 1;
+        seek += (int64_t)file_info->extrafield_size + 1;
 
         while ((err == MZ_OK) && (extra_pos < file_info->extrafield_size))
         {
@@ -1782,7 +1784,7 @@ int32_t mz_zip_goto_next_entry(void *handle)
     if (zip == NULL)
         return MZ_PARAM_ERROR;
 
-    zip->cd_current_pos += MZ_ZIP_SIZE_CD_ITEM + zip->file_info.filename_size +
+    zip->cd_current_pos += (uint64_t)MZ_ZIP_SIZE_CD_ITEM + zip->file_info.filename_size +
         zip->file_info.extrafield_size + zip->file_info.comment_size;
 
     return mz_zip_goto_next_entry_int(handle);

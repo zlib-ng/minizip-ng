@@ -264,7 +264,7 @@ int64_t mz_stream_buffered_tell(void *stream)
         buffered->position, buffered->readbuf_pos, buffered->writebuf_pos, errno);
 
     if (buffered->readbuf_len > 0)
-        position -= (buffered->readbuf_len - buffered->readbuf_pos);
+        position -= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos);
     if (buffered->writebuf_len > 0)
         position += buffered->writebuf_pos;
     return position;
@@ -307,17 +307,17 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
 
             if (buffered->readbuf_len > 0)
             {
-                if (offset <= (buffered->readbuf_len - buffered->readbuf_pos))
+                if (offset <= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos))
                 {
                     buffered->readbuf_pos += (uint32_t)offset;
                     return MZ_OK;
                 }
-                offset -= (buffered->readbuf_len - buffered->readbuf_pos);
+                offset -= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos);
                 buffered->position += offset;
             }
             if (buffered->writebuf_len > 0)
             {
-                if (offset <= (buffered->writebuf_len - buffered->writebuf_pos))
+                if (offset <= ((int64_t)buffered->writebuf_len - buffered->writebuf_pos))
                 {
                     buffered->writebuf_pos += (uint32_t)offset;
                     return MZ_OK;

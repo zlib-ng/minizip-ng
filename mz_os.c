@@ -329,7 +329,7 @@ int32_t mz_file_get_crc(const char *path, uint32_t *result_crc)
     void *crc32_stream = NULL;
     int32_t read = 0;
     int32_t err = MZ_OK;
-    uint8_t buf[INT16_MAX];
+    uint8_t buf[16384];
 
     mz_stream_os_create(&stream);
 

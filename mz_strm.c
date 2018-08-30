@@ -171,7 +171,7 @@ int32_t mz_stream_write_chars(void *stream, const char *value, uint8_t null_term
 
 int32_t mz_stream_copy(void *target, void *source, int32_t len)
 {
-    uint8_t buf[INT16_MAX];
+    uint8_t buf[16384];
     int32_t bytes_to_copy = 0;
     int32_t read = 0;
     int32_t written = 0;
