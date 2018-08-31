@@ -122,7 +122,7 @@ if(UNIX)
     if(ANDROID)
         string(REGEX REPLACE "android-([0-9+])" "\\1"
             android_api "${ANDROID_PLATFORM}")
-        if(${android_api} LESS 24)
+        if(android_api LESS 24)
             set(define_lfs_macros FALSE)
         endif()
     endif()
