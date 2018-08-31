@@ -29,8 +29,6 @@
     !defined(MZ_ZIP_NO_COMPRESSION) && \
     !defined(MZ_ZIP_NO_ENCRYPTION)
 #  include <bsd/stdlib.h> // arc4random_buf
-#else
-#  include <stdlib.h>
 #endif
 
 #include "mz.h"
