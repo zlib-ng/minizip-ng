@@ -1,12 +1,49 @@
-# Minizip 2.5.2
+# minizip 2.5.2
 
-This library is a refactoring of the minizip contribution found in the zlib distribution and is supported on Windows, macOS, and Linux. The motivation for this work has been the inclusion of advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. It is based on the original work of [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) that has been contributed to by many people over the years.
+minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux. 
 
-Dev: ![Dev Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=dev)
-Master: ![Master Branch Status](https://travis-ci.org/nmoinvaz/minizip.svg?branch=master)
+[![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
 
-For my older fork of this library checkout the [1.2](https://github.com/nmoinvaz/minizip/tree/1.2) branch.
-For the original work maintained by Mark Adler checkout the zlib minizip  [contrib](https://github.com/madler/zlib/tree/master/contrib/minizip).
+Maintained by Nathan Moinvaziri.
+
+## Fork Motivation and History
+
+This library is a complete refactoring of the minizip contribution found in the zlib
+distribution. The motivation for this fork has been the inclusion of advanced features, 
+improvements in code maintainability and readability, and the reduction of duplicate code.
+
+Minizip was originally developed by [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and 
+had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
+original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project.
+
+In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
+Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting and I/O buffering.
+My continued work on the project necessitated setting up a public repository so I could share my improvements
+with the rest of the world. I have been maintaining this fork of the project ever since. In 2017, I began the 
+task of refactoring and rewriting most of library as it had become difficult to maintain and code readability 
+had suffered over the years.
+
+Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
+Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
+
+## Features
+
++ Creating and extracting zip archives.
++ Adding and removing entries from zip archives.
++ Read and write raw zip entry data.
++ Reading and writing zip archives from memory.
++ Zlib, BZIP2, and LZMA compression methods.
++ Password protection through Traditional PKWARE and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
++ Buffered streaming for improved I/O performance.
++ NTFS timestamp support for UTC last modified, last accessed, and creation dates.
++ Disk split support for splitting zip archives into multiple files.
++ Unicode filename support through UTF-8 encoding.
++ IBM Codepage 437 legacy character encoding support.
++ Turn off compilation of compression, decompression, or encryption.
++ Windows (Win32 & WinRT), macOS and Linux platform support.
++ Streaming interface for easy implementation of additional platforms.
++ Compatibility interface for older versions of minizip.
++ Example minizip command line tool.
 
 ## Build
 
@@ -29,6 +66,7 @@ cmake --build .
 | USE_BZIP2 | Enables BZIP2 compression | ON |
 | USE_LZMA | Enables LZMA compression | ON |
 | USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
+| USE_AES | Enables WinZIP AES encryption | ON |
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
@@ -78,124 +116,15 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_zip.\* | Zip format | Yes |
 | mz_zip_rw.\* | Zip reader/writer | No |
 
-## Features
+## Third-Party Libraries
 
-### Compression Methods
-
-#### BZIP2
-
-+ Requires ``cmake . -DUSE_BZIP2=ON`` or ``#define HAVE_BZIP2``
-+ Requires [BZIP2](http://www.bzip.org/) library
-
-#### LZMA
-
-+ Requires ``cmake . -DUSE_LZMA=ON`` or ``#define HAVE_LZMA``
-+ Requires [liblzma](https://tukaani.org/xz/) library with modifications
-
-### Encryption
-
-#### [WinZIP AES Encryption](https://www.winzip.com/aes_info.htm)
-
-+ Requires ``cmake . -DUSE_AES=ON`` or ``#define HAVE_AES``
-+ Requires Brian Gladman's [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries
-
-When zipping with a password it will always use AES 256-bit encryption.
-When unzipping it will use AES decryption only if necessary.
-
-#### Disabling All Encryption
-
-To disable encryption use the following cmake commands:
-
-```
-cmake . -DUSE_AES=OFF
-cmake . -DUSE_PKCRYPT=OFF
-```
-
-### NTFS Timestamps
-
-Support has been added for UTC last modified, last accessed, and creation dates.
-
-### Streams
-
-This library has been refactored around streams.
-
-#### Memory Streaming
-
-To unzip from a zip file in memory pass the memory stream to the open function.
-```
-uint8_t *zip_buffer = NULL;
-int32_t zip_buffer_size = 0;
-void *mem_stream = NULL;
-
-// fill zip_buffer with zip contents
-mz_stream_mem_create(&mem_stream);
-mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
-mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
-
-void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_READ);
-// do unzip operations
-
-mz_stream_mem_delete(&mem_stream);
-```
-
-To create a zip file in memory first create a growable memory stream and pass it to the open function.
-
-```
-void *mem_stream = NULL;
-
-mz_stream_mem_create(&mem_stream);
-mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
-mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
-
-void *zip_handle = mz_zip_open(mem_stream, MZ_OPEN_MODE_WRITE);
-// do unzip operations
-
-mz_stream_mem_delete(&mem_stream);
-```
-
-For a complete example, see test_zip_mem() in [test.c](https://github.com/nmoinvaz/minizip/blob/master/test/test.c).
-
-#### Buffered Streaming
-
-By default the library will read bytes typically one at a time. The buffered stream allows for buffered read and write operations to improve I/O performance.
-
-```
-void *stream = NULL;
-void *buf_stream = NULL;
-
-mz_stream_os_create(&stream)
-// do open os stream
-
-mz_stream_buffered_create(&buf_stream);
-mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ);
-mz_stream_buffered_set_base(buf_stream, stream);
-
-void *zip_handle = mz_zip_open(buf_stream, MZ_OPEN_MODE_READ);
-```
-
-#### Disk Splitting Stream
-
-To create an archive with multiple disks use the disk splitting stream and supply a disk size value in bytes.
-
-```
-void *stream = NULL;
-void *split_stream = NULL;
-
-mz_stream_os_create(&stream);
-
-mz_stream_split_create(&split_stream);
-mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, 64 * 1024);
-
-mz_stream_set_base(split_stream, stream);
-
-mz_stream_open(split_stream, path..
-
-void *zip_handle = mz_zip_open(split_stream, MZ_OPEN_MODE_WRITE);
-```
-
-### Windows RT
-
-+ Requires ``#define MZ_WINRT_API``
++ [zlib](https://zlib.net/) written by Mark Adler and Jean-loup Gailly.
+  + Not included in this repository
+  + Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach
++ [BZIP2](https://www.sourceware.org/bzip2/) written by Julian Seward.
++ [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
+  + Modifications were made to support the ZIP file format specification
++ [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
 
 ## Limitations
 
@@ -203,3 +132,11 @@ void *zip_handle = mz_zip_open(split_stream, MZ_OPEN_MODE_WRITE);
 + Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
 + Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
 + Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
+
+## Acknowledgments
+
+Thanks to [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
+
+Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been nearly as good without you.
+
+The [ZIP format](https://github.com/nmoinvaz/minizip/blob/master/doc/appnote.txt) was defined by Phil Katz of PKWARE.
