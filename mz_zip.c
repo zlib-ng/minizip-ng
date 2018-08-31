@@ -16,13 +16,12 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <errno.h>
 #include <limits.h>
 
 #include "mz.h"
@@ -263,7 +262,7 @@ static int32_t mz_zip_read_cd(void *handle)
         if ((err == MZ_OK) && (comment_size > 0))
         {
             zip->comment = (char *)MZ_ALLOC(comment_size + 1);
-            if (zip->comment)
+            if (zip->comment != NULL)
             {
                 if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
                     err = MZ_STREAM_ERROR;

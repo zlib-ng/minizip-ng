@@ -125,8 +125,15 @@ zipFile ZEXPORT zipOpen_MZ(void *stream, int append, const char **globalcomment)
         mz_zip_get_comment(handle, globalcomment);
 
     compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
-    compat->handle = handle;
-    compat->stream = stream;
+    if (compat != NULL)
+    {
+        compat->handle = handle;
+        compat->stream = stream;
+    }
+    else
+    {
+        mz_zip_delete(&handle);
+    }
 
     return (zipFile)compat;
 }
@@ -401,10 +408,18 @@ unzFile ZEXPORT unzOpen_MZ(void *stream)
     }
 
     compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
-    compat->handle = handle;
-    compat->stream = stream;
+    if (compat != NULL)
+    {
+        compat->handle = handle;
+        compat->stream = stream;
 
-    mz_zip_goto_first_entry(compat->handle);
+        mz_zip_goto_first_entry(compat->handle);
+    }
+    else
+    {
+        mz_zip_delete(&handle);
+    }
+
     return (unzFile)compat;
 }
 

@@ -11,11 +11,11 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "mz.h"
 #include "mz_strm.h"

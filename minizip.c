@@ -11,12 +11,11 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #include <time.h>
-#include <errno.h>
 
 #include "mz.h"
 #include "mz_os.h"
@@ -552,7 +551,7 @@ int main(int argc, const char *argv[])
                 options.legacy_encoding = 1;
             else if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
             {
-                options.disk_size = atoi(argv[i + 1]) * 1024;
+                options.disk_size = (int64_t)atoi(argv[i + 1]) * 1024;
                 i += 1;
             }
             else if (((c == 'd') || (c == 'D')) && (i + 1 < argc))
