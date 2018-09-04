@@ -173,7 +173,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
 
                 // Remove current directory . if not at end of stirng
                 if ((*check == 0) || (*check == '\\' || *check == '/'))
-                {                   
+                {
                     // Only proceed if .\ is not entire string
                     if (check[1] != 0 || (path != source))
                     {
@@ -204,7 +204,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                             }
                             while (target > output);
                         }
-                        
+
                         if ((target == output) && (*source != 0))
                             source += 1;
                         if ((*target == '\\' || *target == '/') && (*source == 0))
@@ -232,14 +232,14 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
     return MZ_OK;
 }
 
-int32_t mz_path_remove_filename(const char *path)
+int32_t mz_path_remove_filename(char *path)
 {
     char *path_ptr = NULL;
 
     if (path == NULL)
         return MZ_PARAM_ERROR;
 
-    path_ptr = (char *)(path + strlen(path) - 1);
+    path_ptr = path + strlen(path) - 1;
 
     while (path_ptr > path)
     {
@@ -371,11 +371,10 @@ int32_t mz_encoding_cp437_to_utf8(const char *source, char *target, int32_t max_
     uint32_t utf8_char = 0;
     uint8_t utf8_byte = 0;
     uint8_t cp437_char = 0;
-    int32_t i = 0;
     int32_t x = 0;
     int32_t written = 0;
 
-    // Convert ibm codepage 437 encoding to utf-8 
+    // Convert ibm codepage 437 encoding to utf-8
     while (*source != 0)
     {
         cp437_char = *source;

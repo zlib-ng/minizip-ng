@@ -83,6 +83,8 @@ lzma_check_size(lzma_check type)
 extern void
 lzma_check_init(lzma_check_state *check, lzma_check type)
 {
+	(void)check;
+
 	switch (type) {
 	case LZMA_CHECK_NONE:
 		break;
@@ -117,6 +119,10 @@ extern void
 lzma_check_update(lzma_check_state *check, lzma_check type,
 		const uint8_t *buf, size_t size)
 {
+	(void)check;
+	(void)buf;
+	(void)size;
+
 	switch (type) {
 #ifdef HAVE_CHECK_CRC32
 	case LZMA_CHECK_CRC32:
@@ -147,6 +153,8 @@ lzma_check_update(lzma_check_state *check, lzma_check type,
 extern void
 lzma_check_finish(lzma_check_state *check, lzma_check type)
 {
+	(void)check;
+
 	switch (type) {
 #ifdef HAVE_CHECK_CRC32
 	case LZMA_CHECK_CRC32:

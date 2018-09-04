@@ -23,7 +23,9 @@
 #if defined unix || defined __APPLE__
 #  include <unistd.h>
 #  include <utime.h>
-#  define HAVE_ARC4RANDOM_BUF
+#  ifndef HAVE_ARC4RANDOM_BUF
+#    define HAVE_ARC4RANDOM_BUF
+#  endif
 #endif
 #if  defined(HAVE_LIBBSD) && \
     !defined(MZ_ZIP_NO_COMPRESSION) && \

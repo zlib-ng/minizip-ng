@@ -161,7 +161,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
 // Opens an entry in the zip file for writing
 
 int32_t mz_zip_writer_entry_close(void *handle);
-// Closes entry in zip file 
+// Closes entry in zip file
 
 int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
 // Writes data into entry for zip
@@ -187,7 +187,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
 // Enumerates a directory or pattern and adds entries to the zip
 
 int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
-// Adds an entry from a zip reader instance 
+// Adds an entry from a zip reader instance
 
 /***************************************************************************/
 
