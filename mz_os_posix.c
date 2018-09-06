@@ -158,7 +158,7 @@ int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *
         // Not all systems allow stat'ing a file with / appended
         len = strlen(path);
         name = (char *)malloc(len + 1);
-        strncpy(name, path, len + 1);
+        strncpy(name, path, len);
         name[len] = 0;
         if (name[len - 1] == '/')
             name[len - 1] = 0;

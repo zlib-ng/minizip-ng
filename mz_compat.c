@@ -509,7 +509,10 @@ int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_si
         return UNZ_PARAMERROR;
     err = mz_zip_get_comment(compat->handle, &comment_ptr);
     if (err == MZ_OK)
-        strncpy(comment, comment_ptr, comment_size);
+    {
+        strncpy(comment, comment_ptr, comment_size - 1);
+        comment[comment_size - 1] = '\0';
+    }
     return err;
 }
 

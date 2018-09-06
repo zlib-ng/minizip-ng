@@ -71,7 +71,8 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
 
     if (path_len == 0)
     {
-        strncpy(path, join, max_path);
+        strncpy(path, join, max_path - 1);
+        path[max_path - 1] = '\0';
     }
     else
     {
