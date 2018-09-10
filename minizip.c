@@ -591,7 +591,7 @@ int main(int argc, const char *argv[])
     else if (do_erase)
     {
         strncpy(tmp_path, path, sizeof(tmp_path) - 1);
-        tmp_path[sizeof(tmp_path) - 1] = '\0';
+        tmp_path[sizeof(tmp_path) - 1] = 0;
         strncat(tmp_path, ".tmp", sizeof(tmp_path) - strlen(tmp_path) - 1);
 
         err = minizip_erase(path, tmp_path, argc - (path_arg + 1), &argv[path_arg + 1]);
@@ -605,7 +605,7 @@ int main(int argc, const char *argv[])
     {
         // Swap zip with temporary zip, backup old zip if possible
         strncpy(bak_path, path, sizeof(bak_path) - 1);
-        bak_path[sizeof(bak_path) - 1] = '\0';
+        bak_path[sizeof(bak_path) - 1] = 0;
         strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
 
         if (mz_os_file_exists(bak_path) == MZ_OK)
