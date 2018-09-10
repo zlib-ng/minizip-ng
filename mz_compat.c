@@ -511,7 +511,7 @@ int ZEXPORT unzGetGlobalComment(unzFile file, char *comment, uint16_t comment_si
     if (err == MZ_OK)
     {
         strncpy(comment, comment_ptr, comment_size - 1);
-        comment[comment_size - 1] = '\0';
+        comment[comment_size - 1] = 0;
     }
     return err;
 }
