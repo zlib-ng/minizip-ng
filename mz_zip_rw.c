@@ -475,7 +475,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
         reader->entry_cb(handle, reader->entry_userdata, reader->file_info, path);
 
     strncpy(directory, path, sizeof(directory) - 1);
-    directory[sizeof(directory) - 1] = '\0';
+    directory[sizeof(directory) - 1] = 0;
     mz_path_remove_filename(directory);
 
     // If it is a directory entry then create a directory instead of writing file
@@ -595,7 +595,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
         else
         {
             strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name) - 1);
-            utf8_name[sizeof(utf8_name) - 1] = '\0';
+            utf8_name[sizeof(utf8_name) - 1] = 0;
         }
 
         err = mz_path_resolve(utf8_name, resolved_name, sizeof(resolved_name));
@@ -1182,7 +1182,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     if (strrchr(path, '*') != NULL)
     {
         strncpy(path_dir, path, sizeof(path_dir) - 1);
-        path_dir[sizeof(path_dir) - 1] = '\0';
+        path_dir[sizeof(path_dir) - 1] = 0;
         mz_path_remove_filename(path_dir);
         wildcard_ptr = path_dir + strlen(path_dir) + 1;
         root_path = path = path_dir;
