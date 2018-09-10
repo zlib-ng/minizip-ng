@@ -140,8 +140,10 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
     mz_stream_buffered_print(stream, "read [size %ld pos %lld]\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0)
+    {
         mz_stream_buffered_print(stream, "switch from write to read, not yet supported [%lld]\n",
             buffered->position);
+    }
 
     while (bytes_left_to_read > 0)
     {
@@ -357,12 +359,16 @@ int32_t mz_stream_buffered_close(void *stream)
     mz_stream_buffered_print(stream, "close [flushed %d]\n", bytes_flushed);
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
+    {
         mz_stream_buffered_print(stream, "read efficency %.02f%%\n",
             (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
+    }
 
     if (buffered->writebuf_hits + buffered->writebuf_misses > 0)
+    {
         mz_stream_buffered_print(stream, "write efficency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
+    }
 
     mz_stream_buffered_reset(buffered);
 

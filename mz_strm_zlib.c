@@ -25,7 +25,7 @@
 // Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
 #if defined(ZLIBNG_VERNUM)
 typedef uint32_t z_crc_t;
-#elif (ZLIB_VERNUM < 0x1270) 
+#elif (ZLIB_VERNUM < 0x1270)
 typedef unsigned long z_crc_t;
 #endif
 
