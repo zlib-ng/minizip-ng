@@ -154,6 +154,7 @@ int32_t minizip_list(const char *path)
             string_method = "LZMA";
             break;
         default:
+            // we want string_method to be 6 characters max for printf
             string_method = "Unknwn";
         }
 
