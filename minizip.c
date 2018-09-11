@@ -154,7 +154,7 @@ int32_t minizip_list(const char *path)
             string_method = "LZMA";
             break;
         default:
-            string_method = "Unknwn";
+            string_method = "?";
         }
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);

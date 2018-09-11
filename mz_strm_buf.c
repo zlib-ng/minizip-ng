@@ -357,11 +357,11 @@ int32_t mz_stream_buffered_close(void *stream)
     mz_stream_buffered_print(stream, "close [flushed %d]\n", bytes_flushed);
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
-        mz_stream_buffered_print(stream, "read efficency %.02f%%\n",
+        mz_stream_buffered_print(stream, "read efficiency %.02f%%\n",
             (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
 
     if (buffered->writebuf_hits + buffered->writebuf_misses > 0)
-        mz_stream_buffered_print(stream, "write efficency %.02f%%\n",
+        mz_stream_buffered_print(stream, "write efficiency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
 
     mz_stream_buffered_reset(buffered);

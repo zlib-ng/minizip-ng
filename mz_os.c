@@ -160,7 +160,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
             {
                 check += 1;
 
-                // Remove current directory . if at end of stirng
+                // Remove current directory . if at end of string
                 if ((*check == 0) && (source != path))
                 {
                     // Copy last slash
@@ -171,7 +171,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                     continue;
                 }
 
-                // Remove current directory . if not at end of stirng
+                // Remove current directory . if not at end of string
                 if ((*check == 0) || (*check == '\\' || *check == '/'))
                 {                   
                     // Only proceed if .\ is not entire string
