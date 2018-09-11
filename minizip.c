@@ -154,8 +154,7 @@ int32_t minizip_list(const char *path)
             string_method = "LZMA";
             break;
         default:
-            // we want string_method to be 6 characters max for printf
-            string_method = "Unknwn";
+            string_method = "?";
         }
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
