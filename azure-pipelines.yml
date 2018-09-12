@@ -4,7 +4,8 @@
 # https://docs.microsoft.com/vsts/pipelines/apps/c-cpp/gcc
 
 jobs:
-- job: Build Ubuntu
+- job: BuildUbuntu
+  displayName: Build Ubuntu
   pool: 
     vmImage: ubuntu-16.04
   steps:
