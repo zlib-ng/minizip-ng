@@ -13,7 +13,7 @@ jobs:
   - script: cmake .. -DBUILD_TEST=ON
   - script: make
   - task: PublishBuildArtifacts@1
-  - inputs: 
+    inputs: 
       pathToPublish: '$(System.DefaultWorkingDirectory)'
       artifactName: CommandLine
 
