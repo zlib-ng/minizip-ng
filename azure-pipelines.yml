@@ -16,6 +16,6 @@ jobs:
       make
   - task: PublishBuildArtifacts@1
     inputs: 
-      pathToPublish: '$(System.DefaultWorkingDirectory)'
-      artifactName: CommandLine
+      pathToPublish: '$(System.DefaultWorkingDirectory)/build/minizip'
+      artifactName: Binaries
 
