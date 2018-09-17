@@ -15,9 +15,10 @@
 #define MZ_COMPAT_H
 
 #include <stdint.h>
+#include <time.h>
 
 #ifdef __cplusplus
-"C" {
+extern "C" {
 #endif
 
 #ifdef HAVE_ZLIB

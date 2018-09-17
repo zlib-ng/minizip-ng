@@ -439,7 +439,7 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
 
         // Every 1 second lets update the progress
         current_time = time(NULL);
-        if ((current_time - update_time) > 1)
+        if (current_time > update_time)
         {
             if (reader->progress_cb != NULL)
                 reader->progress_cb(handle, reader->progress_userdata, reader->file_info, current_pos);
@@ -1033,7 +1033,7 @@ int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb)
 
         // Every 1 second lets update the progress
         current_time = time(NULL);
-        if ((current_time - update_time) > 1)
+        if (current_time > update_time)
         {
             if (writer->progress_cb != NULL)
                 writer->progress_cb(handle, writer->progress_userdata, &writer->file_info, current_pos);
