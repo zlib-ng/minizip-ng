@@ -205,7 +205,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
     else if (!raw && file_info->uncompressed_size > 0)
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
-    printf("%s - %lld / %lld (%.02f%%)\n", file_info->filename, position, file_info->uncompressed_size, progress);
+    printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, file_info->uncompressed_size, progress);
     return MZ_OK;
 
 }
@@ -310,7 +310,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
     else if (!raw && file_info->uncompressed_size > 0)
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
-    printf("%s - %lld / %lld (%.02f%%)\n", file_info->filename, position, file_info->uncompressed_size, progress);
+    printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, file_info->uncompressed_size, progress);
     return MZ_OK;
 
 }
