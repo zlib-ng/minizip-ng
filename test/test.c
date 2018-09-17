@@ -8,16 +8,17 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
-#include "mz_strm_mem.h"
+#ifdef HAVE_AES
+#include "mz_strm_aes.h"
+#endif
+#include "mz_strm_crc32.h"
 #ifdef HAVE_BZIP
 #include "mz_strm_bzip.h"
 #endif
 #ifdef HAVE_PKCRYPT
 #include "mz_strm_pkcrypt.h"
 #endif
-#ifdef HAVE_AES
-#include "mz_strm_aes.h"
-#endif
+#include "mz_strm_mem.h"
 #ifdef HAVE_ZLIB
 #include "mz_strm_zlib.h"
 #endif
@@ -317,9 +318,10 @@ void test_zip_mem()
     mz_stream_mem_set_grow_size(write_mem_stream, 128 * 1024);
     mz_stream_open(write_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-    zip_handle = mz_zip_open(write_mem_stream, MZ_OPEN_MODE_READWRITE);
+    mz_zip_create(&zip_handle);
+    err = mz_zip_open(zip_handle, write_mem_stream, MZ_OPEN_MODE_READWRITE);
 
-    if (zip_handle != NULL)
+    if (err == MZ_OK)
     {
         file_info.version_madeby = MZ_VERSION_MADEBY;
         file_info.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
@@ -329,7 +331,7 @@ void test_zip_mem()
         file_info.aes_version = MZ_AES_VERSION;
 #endif
 
-        err = mz_zip_entry_write_open(zip_handle, &file_info, MZ_COMPRESS_LEVEL_DEFAULT, password);
+        err = mz_zip_entry_write_open(zip_handle, &file_info, MZ_COMPRESS_LEVEL_DEFAULT, 0, password);
         if (err == MZ_OK)
         {
             written = mz_zip_entry_write(zip_handle, text_ptr, text_size);
@@ -344,6 +346,8 @@ void test_zip_mem()
     {
         err = MZ_INTERNAL_ERROR;
     }
+
+    mz_zip_delete(&zip_handle);
 
     mz_stream_mem_get_buffer(write_mem_stream, (void **)&buffer_ptr);
     mz_stream_mem_seek(write_mem_stream, 0, MZ_SEEK_END);
@@ -366,9 +370,10 @@ void test_zip_mem()
         mz_stream_mem_set_buffer(read_mem_stream, buffer_ptr, buffer_size);
         mz_stream_open(read_mem_stream, NULL, MZ_OPEN_MODE_READ);
 
-        zip_handle = mz_zip_open(read_mem_stream, MZ_OPEN_MODE_READ);
+        mz_zip_create(&zip_handle);
+        err = mz_zip_open(zip_handle, read_mem_stream, MZ_OPEN_MODE_READ);
 
-        if (zip_handle != NULL)
+        if (err == MZ_OK)
         {
             err = mz_zip_goto_first_entry(zip_handle);
             if (err == MZ_OK)
@@ -379,6 +384,8 @@ void test_zip_mem()
             mz_zip_entry_close(zip_handle);
             mz_zip_close(zip_handle);
         }
+
+        mz_zip_delete(&zip_handle);
 
         mz_stream_mem_close(&read_mem_stream);
         mz_stream_mem_delete(&read_mem_stream);
