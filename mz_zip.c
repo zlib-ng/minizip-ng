@@ -644,7 +644,7 @@ int32_t mz_zip_set_comment(void *handle, const char *comment)
     if (zip->comment == NULL)
         return MZ_MEM_ERROR;
     strncpy(zip->comment, comment, comment_size - 1);
-    zip->comment[comment_size - 1] = '\0';
+    zip->comment[comment_size - 1] = 0;
     return MZ_OK;
 }
 

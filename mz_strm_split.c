@@ -97,7 +97,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     else
     {
         strncpy(split->path_disk, split->path_cd, split->path_disk_size - 1);
-        split->path_disk[split->path_disk_size - 1] = '\0';
+        split->path_disk[split->path_disk_size - 1] = 0;
     }
 
     // If disk part doesn't exist during reading then return MZ_EXIST_ERROR
@@ -187,7 +187,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
         return MZ_MEM_ERROR;
 
     strncpy(split->path_cd, path, split->path_cd_size - 1);
-    split->path_cd[split->path_cd_size - 1] = '\0';
+    split->path_cd[split->path_cd_size - 1] = 0;
 
     split->path_disk_size = (int32_t)strlen(path) + 10;
     split->path_disk = (char *)MZ_ALLOC(split->path_disk_size);
@@ -199,7 +199,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
     }
 
     strncpy(split->path_disk, path, split->path_disk_size - 1);
-    split->path_disk[split->path_disk_size - 1] = '\0';
+    split->path_disk[split->path_disk_size - 1] = 0;
 
     if (mode & MZ_OPEN_MODE_WRITE)
     {
