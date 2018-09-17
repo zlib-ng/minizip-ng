@@ -111,6 +111,10 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
     add_definitions(-DMZ_WINRT_API)
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    add_compile_options(-W -Wall)
+endif()
+
 if(UNIX)
     add_compile_options(-O3)
 

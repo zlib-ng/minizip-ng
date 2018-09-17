@@ -101,7 +101,7 @@ int32_t minizip_list(const char *path)
     }
 
     err = mz_zip_reader_goto_first_entry(reader);
-        
+
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
         printf("Error %d going to first entry in zip file\n", err);
@@ -278,7 +278,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     {
         printf("Error %d opening zip for writing\n", err);
     }
-    
+
     err_close = mz_zip_writer_close(writer);
     if (err_close != MZ_OK)
     {
@@ -302,7 +302,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
 {
     double progress = 0;
     uint8_t raw = 0;
-    
+
     mz_zip_reader_get_raw(handle, &raw);
 
     if (raw && file_info->compressed_size > 0)
@@ -590,7 +590,8 @@ int main(int argc, const char *argv[])
     }
     else if (do_erase)
     {
-        strncpy(tmp_path, path, sizeof(tmp_path));
+        strncpy(tmp_path, path, sizeof(tmp_path) - 1);
+        tmp_path[sizeof(tmp_path) - 1] = 0;
         strncat(tmp_path, ".tmp", sizeof(tmp_path) - strlen(tmp_path) - 1);
 
         err = minizip_erase(path, tmp_path, argc - (path_arg + 1), &argv[path_arg + 1]);
@@ -603,7 +604,8 @@ int main(int argc, const char *argv[])
     if (err == MZ_OK && do_erase)
     {
         // Swap zip with temporary zip, backup old zip if possible
-        strncpy(bak_path, path, sizeof(bak_path));
+        strncpy(bak_path, path, sizeof(bak_path) - 1);
+        bak_path[sizeof(bak_path) - 1] = 0;
         strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
 
         if (mz_os_file_exists(bak_path) == MZ_OK)

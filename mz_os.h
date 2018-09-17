@@ -54,7 +54,7 @@ int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignor
 int32_t mz_path_resolve(const char *path, char *target, int32_t max_target);
 // Resolves path
 
-int32_t mz_path_remove_filename(const char *path);
+int32_t mz_path_remove_filename(char *path);
 // Remove the filename from a path
 
 int32_t mz_path_get_filename(const char *path, const char **filename);

@@ -560,7 +560,7 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
         // Memory streams used to store variable length file info data
         mz_stream_mem_create(&zip->file_info_stream);
         mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
-        
+
         mz_stream_mem_create(&zip->local_file_info_stream);
         mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
     }
@@ -643,7 +643,8 @@ int32_t mz_zip_set_comment(void *handle, const char *comment)
     zip->comment = (char *)MZ_ALLOC(comment_size);
     if (zip->comment == NULL)
         return MZ_MEM_ERROR;
-    strncpy(zip->comment, comment, comment_size);
+    strncpy(zip->comment, comment, comment_size - 1);
+    zip->comment[comment_size - 1] = '\0';
     return MZ_OK;
 }
 
@@ -1461,7 +1462,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 #ifdef MZ_ZIP_NO_DECOMPRESSION
     if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
         err = MZ_SUPPORT_ERROR;
-#endif 
+#endif
     if (err == MZ_OK)
         err = mz_zip_entry_open_int(handle, raw, 0, password);
 
@@ -1473,7 +1474,6 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
     int32_t err = MZ_OK;
-    int32_t len = 0;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)

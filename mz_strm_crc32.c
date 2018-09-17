@@ -48,7 +48,7 @@ typedef struct mz_stream_crc32_s {
     int64_t    value;
     int64_t    total_in;
     int64_t    total_out;
-    mz_stream_crc32_update 
+    mz_stream_crc32_update
                update;
 } mz_stream_crc32;
 
@@ -194,10 +194,10 @@ int32_t mz_stream_crc32_get_update_func(mz_stream_crc32_update *update)
     if (update == NULL)
         return MZ_PARAM_ERROR;
 #ifdef HAVE_ZLIB
-    *update = 
+    *update =
         (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
 #elif defined(HAVE_LZMA)
-    *update = 
+    *update =
         (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
 #else
 #error ZLIB or LZMA required for CRC32
