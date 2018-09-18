@@ -119,6 +119,9 @@ void    mz_zip_reader_set_password_cb(void *handle, void *userdata, mz_zip_reade
 void    mz_zip_reader_set_progress_cb(void *handle, void *userdata, mz_zip_reader_progress_cb cb);
 // Callback for extraction progress
 
+void    mz_zip_reader_set_progress_interval(void *handle, uint32_t milliseconds);
+// Let at least milliseconds pass between calls to progress callback
+
 void    mz_zip_reader_set_entry_cb(void *handle, void *userdata, mz_zip_reader_entry_cb cb);
 // Callback for zip file entries
 
@@ -161,7 +164,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
 // Opens an entry in the zip file for writing
 
 int32_t mz_zip_writer_entry_close(void *handle);
-// Closes entry in zip file 
+// Closes entry in zip file
 
 int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
 // Writes data into entry for zip
@@ -187,7 +190,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
 // Enumerates a directory or pattern and adds entries to the zip
 
 int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
-// Adds an entry from a zip reader instance 
+// Adds an entry from a zip reader instance
 
 /***************************************************************************/
 
@@ -217,6 +220,9 @@ void    mz_zip_writer_set_password_cb(void *handle, void *userdata, mz_zip_write
 
 void    mz_zip_writer_set_progress_cb(void *handle, void *userdata, mz_zip_writer_progress_cb cb);
 // Callback for compression progress
+
+void    mz_zip_writer_set_progress_interval(void *handle, uint32_t milliseconds);
+// Let at least milliseconds pass between calls to progress callback
 
 void    mz_zip_writer_set_entry_cb(void *handle, void *userdata, mz_zip_writer_entry_cb cb);
 // Callback for zip file entries

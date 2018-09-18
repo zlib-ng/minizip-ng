@@ -381,3 +381,13 @@ int32_t mz_win32_is_dir(const char *path)
 
     return MZ_EXIST_ERROR;
 }
+
+uint64_t mz_win32_ms_time(void) {
+    SYSTEMTIME system_time;
+    GetSystemTime(&system_time);
+
+    FILETIME file_time;
+    SystemTimeToFileTime(&system_time, &file_time);
+
+    return ((((ULONGLONG) file_time.dwHighDateTime) << 32) + file_time.dwLowDateTime)/10000 - 11644473600000;
+}

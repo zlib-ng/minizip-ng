@@ -45,6 +45,7 @@ struct
 dirent* mz_posix_read_dir(DIR *dir);
 int32_t mz_posix_close_dir(DIR *dir);
 int32_t mz_posix_is_dir(const char *path);
+uint64_t mz_posix_ms_time(void);
 
 /***************************************************************************/
 
@@ -62,6 +63,7 @@ int32_t mz_posix_is_dir(const char *path);
 #define mz_os_read_dir          mz_posix_read_dir
 #define mz_os_close_dir         mz_posix_close_dir
 #define mz_os_is_dir            mz_posix_is_dir
+#define mz_os_ms_time           mz_posix_ms_time
 
 /***************************************************************************/
 
