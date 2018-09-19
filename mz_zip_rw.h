@@ -64,7 +64,7 @@ int32_t mz_zip_reader_entry_open(void *handle);
 int32_t mz_zip_reader_entry_close(void *handle);
 // Closes an entry
 
-int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len);
+int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len);
 // Reads and entry after being opened
 
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info);
