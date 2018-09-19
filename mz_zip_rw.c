@@ -27,6 +27,10 @@
 
 /***************************************************************************/
 
+#define MZ_DEFAULT_PROGRESS_INTERVAL (1000u)
+
+/***************************************************************************/
+
 typedef struct mz_zip_reader_s {
     void        *zip_handle;
     void        *file_stream;
@@ -56,8 +60,6 @@ typedef struct mz_zip_reader_s {
 } mz_zip_reader;
 
 /***************************************************************************/
-
-#define DEFAULT_PROGRESS_INTERVAL 1000u
 
 int32_t mz_zip_reader_is_open(void *handle)
 {
@@ -441,7 +443,7 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
 
         // Update progress if enough time have passed
         current_time = mz_os_ms_time();
-        if (current_time - update_time > reader->progress_cb_interval_ms)
+        if ((current_time - update_time) > reader->progress_cb_interval_ms)
         {
             if (reader->progress_cb != NULL)
                 reader->progress_cb(handle, reader->progress_userdata, reader->file_info, current_pos);
@@ -709,7 +711,7 @@ void *mz_zip_reader_create(void **handle)
     if (reader != NULL)
     {
         memset(reader, 0, sizeof(mz_zip_reader));
-        reader->progress_cb_interval_ms = DEFAULT_PROGRESS_INTERVAL;
+        reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
         *handle = reader;
     }
 
@@ -1037,7 +1039,7 @@ int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb)
 
         // Update progress if enough time have passed
         current_time = mz_os_ms_time();
-        if (current_time - update_time > writer->progress_cb_interval_ms)
+        if ((current_time - update_time) > writer->progress_cb_interval_ms)
         {
             if (writer->progress_cb != NULL)
                 writer->progress_cb(handle, writer->progress_userdata, &writer->file_info, current_pos);
@@ -1381,7 +1383,7 @@ void *mz_zip_writer_create(void **handle)
 
         writer->compress_method = MZ_COMPRESS_METHOD_DEFLATE;
         writer->compress_level = MZ_COMPRESS_LEVEL_BEST;
-        writer->progress_cb_interval_ms = DEFAULT_PROGRESS_INTERVAL;
+        writer->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
 
         *handle = writer;
     }

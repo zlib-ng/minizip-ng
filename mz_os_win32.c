@@ -382,12 +382,17 @@ int32_t mz_win32_is_dir(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-uint64_t mz_win32_ms_time(void) {
+uint64_t mz_win32_ms_time(void)
+{
     SYSTEMTIME system_time;
-    GetSystemTime(&system_time);
-
     FILETIME file_time;
+    uint64_t quad_file_time = 0;
+
+    GetSystemTime(&system_time);
     SystemTimeToFileTime(&system_time, &file_time);
 
-    return ((((ULONGLONG) file_time.dwHighDateTime) << 32) + file_time.dwLowDateTime)/10000 - 11644473600000;
+    quad_file_time = file_time.dwLowDateTime;
+    quad_file_time |= ((uint64_t)file_time.dwHighDateTime << 32);
+
+    return quad_file_time / 10000 - 11644473600000LL;
 }
