@@ -825,7 +825,7 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     else
     {
         if (writer->overwrite_cb != NULL)
-            err_cb = writer->overwrite_cb(handle, writer->overwrite_cb, path);
+            err_cb = writer->overwrite_cb(handle, writer->overwrite_userdata, path);
 
         if (err_cb == MZ_INTERNAL_ERROR)
             return err;
