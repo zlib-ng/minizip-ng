@@ -338,7 +338,7 @@ int32_t mz_zip_reader_entry_close(void *handle)
     return err;
 }
 
-int32_t mz_zip_reader_entry_read(void *handle, const void *buf, int32_t len)
+int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t read = 0;
