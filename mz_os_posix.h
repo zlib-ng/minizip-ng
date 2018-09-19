@@ -30,21 +30,22 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_posix_rand(uint8_t *buf, int32_t size);
-int32_t mz_posix_rename(const char *source_path, const char *target_path);
-int32_t mz_posix_delete(const char *path);
-int32_t mz_posix_file_exists(const char *path);
-int64_t mz_posix_get_file_size(const char *path);
-int32_t mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
-int32_t mz_posix_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date);
-int32_t mz_posix_get_file_attribs(const char *path, uint32_t *attributes);
-int32_t mz_posix_set_file_attribs(const char *path, uint32_t attributes);
-int32_t mz_posix_make_dir(const char *path);
-DIR*    mz_posix_open_dir(const char *path);
+int32_t  mz_posix_rand(uint8_t *buf, int32_t size);
+int32_t  mz_posix_rename(const char *source_path, const char *target_path);
+int32_t  mz_posix_delete(const char *path);
+int32_t  mz_posix_file_exists(const char *path);
+int64_t  mz_posix_get_file_size(const char *path);
+int32_t  mz_posix_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
+int32_t  mz_posix_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date);
+int32_t  mz_posix_get_file_attribs(const char *path, uint32_t *attributes);
+int32_t  mz_posix_set_file_attribs(const char *path, uint32_t attributes);
+int32_t  mz_posix_make_dir(const char *path);
+DIR*     mz_posix_open_dir(const char *path);
 struct
-dirent* mz_posix_read_dir(DIR *dir);
-int32_t mz_posix_close_dir(DIR *dir);
-int32_t mz_posix_is_dir(const char *path);
+dirent*  mz_posix_read_dir(DIR *dir);
+int32_t  mz_posix_close_dir(DIR *dir);
+int32_t  mz_posix_is_dir(const char *path);
+uint64_t mz_posix_ms_time(void);
 
 /***************************************************************************/
 
@@ -62,6 +63,7 @@ int32_t mz_posix_is_dir(const char *path);
 #define mz_os_read_dir          mz_posix_read_dir
 #define mz_os_close_dir         mz_posix_close_dir
 #define mz_os_is_dir            mz_posix_is_dir
+#define mz_os_ms_time           mz_posix_ms_time
 
 /***************************************************************************/
 

@@ -11,8 +11,8 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 #include <time.h>
 
 #include "mz.h"
@@ -24,6 +24,10 @@
 #include "mz_zip.h"
 
 #include "mz_zip_rw.h"
+
+/***************************************************************************/
+
+#define MZ_DEFAULT_PROGRESS_INTERVAL (1000u)
 
 /***************************************************************************/
 
@@ -46,6 +50,7 @@ typedef struct mz_zip_reader_s {
     void        *progress_userdata;
     mz_zip_reader_progress_cb
                 progress_cb;
+    uint32_t    progress_cb_interval_ms;
     void        *entry_userdata;
     mz_zip_reader_entry_cb
                 entry_cb;
@@ -410,12 +415,12 @@ int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_w
 int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb write_cb)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
+    uint64_t current_time = 0;
+    uint64_t update_time = 0;
     int64_t current_pos = 0;
     int64_t update_pos = 0;
     int32_t err = MZ_OK;
     int32_t written = 0;
-    time_t current_time = time(NULL);
-    time_t update_time = 0;
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -437,9 +442,9 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
         if (written < 0)
             err = written;
 
-        // Every 1 second lets update the progress
-        current_time = time(NULL);
-        if (current_time > update_time)
+        // Update progress if enough time have passed
+        current_time = mz_os_ms_time();
+        if ((current_time - update_time) > reader->progress_cb_interval_ms)
         {
             if (reader->progress_cb != NULL)
                 reader->progress_cb(handle, reader->progress_userdata, reader->file_info, current_pos);
@@ -591,7 +596,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
         path[0] = 0;
 
         if ((reader->legacy_encoding) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
+        {
             mz_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
+        }
         else
         {
             strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name) - 1);
@@ -677,6 +684,12 @@ void mz_zip_reader_set_progress_cb(void *handle, void *userdata, mz_zip_reader_p
     reader->progress_userdata = userdata;
 }
 
+void mz_zip_reader_set_progress_interval(void *handle, uint32_t milliseconds)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    reader->progress_cb_interval_ms = milliseconds;
+}
+
 void mz_zip_reader_set_entry_cb(void *handle, void *userdata, mz_zip_reader_entry_cb cb)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
@@ -705,9 +718,9 @@ void *mz_zip_reader_create(void **handle)
     if (reader != NULL)
     {
         memset(reader, 0, sizeof(mz_zip_reader));
-    }
-    if (reader != NULL)
+        reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
         *handle = reader;
+    }
 
     return reader;
 }
@@ -744,6 +757,7 @@ typedef struct mz_zip_writer_s {
     void        *progress_userdata;
     mz_zip_writer_progress_cb
                 progress_cb;
+    uint32_t    progress_cb_interval_ms;
     void        *entry_userdata;
     mz_zip_writer_entry_cb
                 entry_cb;
@@ -1008,13 +1022,12 @@ int32_t mz_zip_writer_add_process(void *handle, void *stream, mz_stream_read_cb 
 int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
+    uint64_t current_time = 0;
+    uint64_t update_time = 0;
     int64_t current_pos = 0;
     int64_t update_pos = 0;
     int32_t err = MZ_OK;
     int32_t written = 0;
-    time_t current_time = time(NULL);
-    time_t update_time = 0;
-
 
     // Update the progress at the beginning
     if (writer->progress_cb != NULL)
@@ -1031,9 +1044,9 @@ int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb)
         if (written < 0)
             err = written;
 
-        // Every 1 second lets update the progress
-        current_time = time(NULL);
-        if (current_time > update_time)
+        // Update progress if enough time have passed
+        current_time = mz_os_ms_time();
+        if ((current_time - update_time) > writer->progress_cb_interval_ms)
         {
             if (writer->progress_cb != NULL)
                 writer->progress_cb(handle, writer->progress_userdata, &writer->file_info, current_pos);
@@ -1342,6 +1355,12 @@ void mz_zip_writer_set_progress_cb(void *handle, void *userdata, mz_zip_writer_p
     writer->progress_userdata = userdata;
 }
 
+void mz_zip_writer_set_progress_interval(void *handle, uint32_t milliseconds)
+{
+    mz_zip_writer *writer = (mz_zip_writer *)handle;
+    writer->progress_cb_interval_ms = milliseconds;
+}
+
 void mz_zip_writer_set_entry_cb(void *handle, void *userdata, mz_zip_writer_entry_cb cb)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
@@ -1373,9 +1392,10 @@ void *mz_zip_writer_create(void **handle)
 
         writer->compress_method = MZ_COMPRESS_METHOD_DEFLATE;
         writer->compress_level = MZ_COMPRESS_LEVEL_BEST;
-    }
-    if (writer != NULL)
+        writer->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
+
         *handle = writer;
+    }
 
     return writer;
 }

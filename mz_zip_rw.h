@@ -119,6 +119,9 @@ void    mz_zip_reader_set_password_cb(void *handle, void *userdata, mz_zip_reade
 void    mz_zip_reader_set_progress_cb(void *handle, void *userdata, mz_zip_reader_progress_cb cb);
 // Callback for extraction progress
 
+void    mz_zip_reader_set_progress_interval(void *handle, uint32_t milliseconds);
+// Let at least milliseconds pass between calls to progress callback
+
 void    mz_zip_reader_set_entry_cb(void *handle, void *userdata, mz_zip_reader_entry_cb cb);
 // Callback for zip file entries
 
@@ -217,6 +220,9 @@ void    mz_zip_writer_set_password_cb(void *handle, void *userdata, mz_zip_write
 
 void    mz_zip_writer_set_progress_cb(void *handle, void *userdata, mz_zip_writer_progress_cb cb);
 // Callback for compression progress
+
+void    mz_zip_writer_set_progress_interval(void *handle, uint32_t milliseconds);
+// Let at least milliseconds pass between calls to progress callback
 
 void    mz_zip_writer_set_entry_cb(void *handle, void *userdata, mz_zip_writer_entry_cb cb);
 // Callback for zip file entries
