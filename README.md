@@ -17,9 +17,10 @@ had been contributed to by many people. As part of the zlib distribution, Mark A
 original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project.
 
 In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
-Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting and I/O buffering.
-My continued work on the project necessitated setting up a public repository so I could share my improvements
-with the rest of the world. I have been maintaining this fork of the project ever since. In 2017, I began the 
+Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting, 
+I/O buffering, and AES encryption.
+My continued work on the project necessitated setting up a public repository so I could share these and other improvements
+with the rest of the world. I have been maintaining and actively developing this fork of the project ever since. In 2017, I began the 
 task of refactoring and rewriting most of library as it had become difficult to maintain and code readability 
 had suffered over the years.
 
