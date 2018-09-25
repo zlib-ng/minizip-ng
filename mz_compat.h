@@ -332,6 +332,7 @@ void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 
 /***************************************************************************/
 
+#define unztell                 unzTell64
 #define check_file_exists       mz_os_file_exists
 #define dosdate_to_tm           mz_zip_dosdate_to_tm
 #define change_file_date        mz_os_set_file_date
