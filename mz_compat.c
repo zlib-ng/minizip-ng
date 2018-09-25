@@ -12,6 +12,7 @@
 */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -27,8 +28,11 @@
 /***************************************************************************/
 
 typedef struct mz_compat_s {
-    void    *stream;
-    void    *handle;
+    void     *stream;
+    void     *handle;
+    int64_t  entry_index;
+    int64_t  entry_pos;
+    int64_t  total_out;
 } mz_compat;
 
 /***************************************************************************/
@@ -86,7 +90,6 @@ zipFile ZEXPORT zipOpen2_64(const void *path, int append, const char **globalcom
         if (mz_stream_os_create(&stream) == NULL)
             return NULL;
     }
-
 
     if (mz_stream_open(stream, path, mode) != MZ_OK)
     {
@@ -520,7 +523,8 @@ int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, 
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
-    int err = MZ_OK;
+    int32_t err = MZ_OK;
+    void *stream = NULL;
 
     if (compat == NULL)
         return UNZ_PARAMERROR;
@@ -529,6 +533,7 @@ int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, 
     if (level != NULL)
         *level = 0;
 
+    compat->total_out = 0;
     err = mz_zip_entry_read_open(compat->handle, (uint8_t)raw, password);
     if (err == MZ_OK)
         err = mz_zip_entry_get_info(compat->handle, &file_info);
@@ -556,7 +561,10 @@ int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, 
             }
         }
     }
-
+    if (err == MZ_OK)
+        err = mz_zip_get_stream(compat->handle, &stream);
+    if (err == MZ_OK)
+        compat->entry_pos = mz_stream_tell(stream);
     return err;
 }
 
@@ -578,17 +586,23 @@ int ZEXPORT unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw)
 int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
     if (compat == NULL)
         return UNZ_PARAMERROR;
-    return mz_zip_entry_read(compat->handle, buf, len);
+    err = mz_zip_entry_read(compat->handle, buf, len);
+    if (err > 0)
+        compat->total_out += err;
+    return err;
 }
 
 int ZEXPORT unzCloseCurrentFile(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
     if (compat == NULL)
         return UNZ_PARAMERROR;
-    return mz_zip_entry_close(compat->handle);
+    err = mz_zip_entry_close(compat->handle);
+    return err;
 }
 
 int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
@@ -726,26 +740,34 @@ int ZEXPORT unzGoToFirstFile(unzFile file)
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
         return UNZ_PARAMERROR;
+    compat->entry_index = 0;
     return mz_zip_goto_first_entry(compat->handle);
 }
 
 int ZEXPORT unzGoToNextFile(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
     if (compat == NULL)
         return UNZ_PARAMERROR;
-    return mz_zip_goto_next_entry(compat->handle);
+    err = mz_zip_goto_next_entry(compat->handle);
+    if (err != MZ_END_OF_LIST)
+        compat->entry_index += 1;
+    return err;
 }
 
 int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func)
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
+    int64_t preserve_index = 0;
     int32_t err = MZ_OK;
     int32_t result = 0;
 
     if (compat == NULL)
         return UNZ_PARAMERROR;
+
+    preserve_index = compat->entry_index;
 
     err = mz_zip_goto_first_entry(compat->handle);
     while (err == MZ_OK)
@@ -765,6 +787,61 @@ int ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileNameCompare
         err = mz_zip_goto_next_entry(compat->handle);
     }
 
+    compat->entry_index = preserve_index;
+    return err;
+}
+
+/***************************************************************************/
+
+int ZEXPORT unzGetFilePos(unzFile file, unz_file_pos *file_pos)
+{
+    mz_compat *compat = (mz_compat *)file;
+
+    if (compat == NULL || file_pos == NULL)
+        return UNZ_PARAMERROR;
+
+    file_pos->pos_in_zip_directory = unzGetOffset(file);
+    file_pos->num_of_file = (int32_t)compat->entry_index;
+    return MZ_OK;
+}
+
+int ZEXPORT unzGoToFilePos(unzFile file, unz_file_pos *file_pos)
+{
+    mz_compat *compat = (mz_compat *)file;
+    unz64_file_pos file_pos64;
+
+    if (compat == NULL || file_pos == NULL)
+        return UNZ_PARAMERROR;
+
+    file_pos64.pos_in_zip_directory = file_pos->pos_in_zip_directory;
+    file_pos64.num_of_file = file_pos->num_of_file;
+
+    return unzGoToFilePos64(file, &file_pos64);
+}
+
+int ZEXPORT unzGetFilePos64(unzFile file, unz64_file_pos *file_pos)
+{
+    mz_compat *compat = (mz_compat *)file;
+
+    if (compat == NULL || file_pos == NULL)
+        return UNZ_PARAMERROR;
+
+    file_pos->pos_in_zip_directory = unzGetOffset64(file);
+    file_pos->num_of_file = compat->entry_index;
+    return UNZ_OK;
+}
+
+int ZEXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos *file_pos)
+{
+    mz_compat *compat = (mz_compat *)file;
+    int32_t err = MZ_OK;
+
+    if (compat == NULL || file_pos == NULL)
+        return UNZ_PARAMERROR;
+
+    err = mz_zip_goto_entry(compat->handle, file_pos->pos_in_zip_directory);
+    if (err == MZ_OK)
+        compat->entry_index = file_pos->num_of_file;
     return err;
 }
 
@@ -794,12 +871,97 @@ int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
     return (int)mz_zip_goto_entry(compat->handle, pos);
 }
 
-int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)  // TODO
+int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)
 {
-    MZ_UNUSED(file);
-    MZ_UNUSED(buf);
-    MZ_UNUSED(len);
+    mz_compat *compat = (mz_compat *)file;
+    mz_zip_file *file_info = NULL;
+    int32_t err = MZ_OK;
+    int32_t bytes_to_copy = len;
 
+    if (compat == NULL || buf == NULL)
+        return UNZ_PARAMERROR;
+
+    err = mz_zip_entry_get_local_info(compat->handle, &file_info);
+
+    if (bytes_to_copy > file_info->extrafield_size)
+        bytes_to_copy = file_info->extrafield_size;
+
+    memcpy(buf, file_info->extrafield, bytes_to_copy);
+    return MZ_OK;
+}
+
+int32_t ZEXPORT unzTell(unzFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    if (compat == NULL)
+        return UNZ_PARAMERROR;
+    return (int32_t)compat->total_out;
+}
+
+int64_t ZEXPORT unzTell64(unzFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    if (compat == NULL)
+        return UNZ_PARAMERROR;
+    return compat->total_out;
+}
+
+int ZEXPORT unzSeek(unzFile file, uint32_t offset, int origin)
+{
+    return unzSeek64(file, offset, origin);
+}
+
+int ZEXPORT unzSeek64(unzFile file, uint64_t offset, int origin)
+{
+    mz_compat *compat = (mz_compat *)file;
+    mz_zip_file *file_info = NULL;
+    uint64_t stream_pos_begin = 0;
+    uint64_t stream_pos_end = 0;
+    uint64_t position = 0;
+    int32_t err = MZ_OK;
+    void *stream = NULL;
+
+    if (compat == NULL)
+        return UNZ_PARAMERROR;
+    err = mz_zip_entry_get_info(compat->handle, &file_info);
+    if (err != MZ_OK)
+        return err;
+    if (file_info->compression_method != MZ_COMPRESS_METHOD_STORE)
+        return UNZ_ERRNO;
+
+    if (origin == SEEK_SET)
+        position = offset;
+    else if (origin == SEEK_CUR)
+        position = compat->total_out + offset;
+    else if (origin == SEEK_END)
+        position = file_info->compressed_size + offset;
+    else
+        return UNZ_PARAMERROR;
+
+    if (position > file_info->compressed_size)
+        return UNZ_PARAMERROR;
+
+    err = mz_zip_get_stream(compat->handle, &stream);
+    if (err == MZ_OK)
+        err = mz_stream_seek(stream, compat->entry_pos + position, SEEK_SET);
+    if (err == MZ_OK)
+        compat->total_out = position;
+    return err;
+}
+
+int ZEXPORT unzEndOfFile(unzFile file)
+{
+    mz_compat *compat = (mz_compat *)file;
+    mz_zip_file *file_info = NULL;
+    int32_t err = MZ_OK;
+
+    if (compat == NULL)
+        return UNZ_PARAMERROR;
+    err = mz_zip_entry_get_info(compat->handle, &file_info);
+    if (err != MZ_OK)
+        return err;
+    if (compat->total_out == file_info->uncompressed_size)
+        return 1;
     return 0;
 }
 
