@@ -32,7 +32,7 @@ typedef struct mz_compat_s {
     void     *handle;
     int64_t  entry_index;
     int64_t  entry_pos;
-    int64_t  total_out;
+    uint64_t total_out;
 } mz_compat;
 
 /***************************************************************************/
@@ -903,7 +903,7 @@ int64_t ZEXPORT unzTell64(unzFile file)
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
         return UNZ_PARAMERROR;
-    return compat->total_out;
+    return (int64_t)compat->total_out;
 }
 
 int ZEXPORT unzSeek(unzFile file, uint32_t offset, int origin)
@@ -915,8 +915,6 @@ int ZEXPORT unzSeek64(unzFile file, uint64_t offset, int origin)
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
-    uint64_t stream_pos_begin = 0;
-    uint64_t stream_pos_end = 0;
     uint64_t position = 0;
     int32_t err = MZ_OK;
     void *stream = NULL;
