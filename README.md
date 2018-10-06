@@ -18,11 +18,10 @@ original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) p
 
 In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
 Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting, 
-I/O buffering, and AES encryption.
-My continued work on the project necessitated setting up a public repository so I could share these and other improvements
-with the rest of the world. I have been maintaining and actively developing this fork of the project ever since. In 2017, I began the 
-task of refactoring and rewriting most of library as it had become difficult to maintain and code readability 
-had suffered over the years.
+I/O buffering, and AES encryption. My continued work on the project necessitated setting up a public 
+repository so I could share these and other improvements with the rest of the world. I have been maintaining 
+and actively developing this fork of the project ever since. In 2017, I refactored and rewrote most of 
+library as it had become difficult to maintain and code readability had suffered over the years.
 
 Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
 Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
