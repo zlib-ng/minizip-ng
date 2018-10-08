@@ -612,7 +612,10 @@ int32_t mz_zip_close(void *handle)
     }
 
     if (zip->comment)
+    {
         MZ_FREE(zip->comment);
+        zip->comment = NULL;
+    }
 
     zip->stream = NULL;
     zip->cd_stream = NULL;
