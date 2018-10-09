@@ -1901,7 +1901,7 @@ int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t targ
     {
         if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN))
         {
-            // If high byte is set, it contains unix specific attributes
+            // If high bytes are set, it contains unix specific attributes
             if ((src_attrib >> 16) != 0)
                 src_attrib >>= 16;
             

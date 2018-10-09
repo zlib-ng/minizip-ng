@@ -1169,7 +1169,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     
     if ((src_sys != MZ_HOST_SYSTEM_MSDOS) && (src_sys != MZ_HOST_SYSTEM_WINDOWS_NTFS))
     {
-        // High byte is OS specific attributes, low byte is always DOS attributes
+        // High bytes are OS specific attributes, low byte is always DOS attributes
         if (mz_zip_attrib_convert(src_sys, src_attrib, MZ_HOST_SYSTEM_MSDOS, &target_attrib) == MZ_OK)
             file_info.external_fa = target_attrib;
         file_info.external_fa |= (src_attrib << 16);
