@@ -68,6 +68,7 @@ cmake --build .
 | USE_LZMA | Enables LZMA compression | ON |
 | USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
 | USE_AES | Enables WinZIP AES encryption | ON |
+| USE_LIBCOMP | Enables Apple compression | OFF |
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
@@ -107,6 +108,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
 | mz_strm_crc32.\* | CRC32 stream | Yes |
+| mz_strm_libcomp.\* | Apple compression stream | No |
 | mz_strm_lzma.\* | LZMA stream using liblzma | zlib or liblzma |
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
