@@ -29,6 +29,7 @@ extern "C" {
 #define MZ_STREAM_PROP_DISK_SIZE            (7)
 #define MZ_STREAM_PROP_DISK_NUMBER          (8)
 #define MZ_STREAM_PROP_COMPRESS_LEVEL       (9)
+#define MZ_STREAM_PROP_COMPRESS_ALGORITHM   (10)
 
 /***************************************************************************/
 
