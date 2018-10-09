@@ -155,7 +155,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
                 buffered->readbuf_len = 0;
             }
 
-            bytes_to_read = sizeof(buffered->readbuf) - (buffered->readbuf_len - buffered->readbuf_pos);
+            bytes_to_read = (int32_t)sizeof(buffered->readbuf) - (buffered->readbuf_len - buffered->readbuf_pos);
             bytes_read = mz_stream_read(buffered->stream.base, buffered->readbuf + buffered->readbuf_pos, bytes_to_read);
             if (bytes_read < 0)
                 return bytes_read;
@@ -173,7 +173,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
 
         if ((buffered->readbuf_len - buffered->readbuf_pos) > 0)
         {
-            bytes_to_copy = (uint32_t)(buffered->readbuf_len - buffered->readbuf_pos);
+            bytes_to_copy = buffered->readbuf_len - buffered->readbuf_pos;
             if (bytes_to_copy > bytes_left_to_read)
                 bytes_to_copy = bytes_left_to_read;
 
@@ -225,7 +225,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
         bytes_used = buffered->writebuf_len;
         if (bytes_used > buffered->writebuf_pos)
             bytes_used = buffered->writebuf_pos;
-        bytes_to_copy = (uint32_t)(sizeof(buffered->writebuf) - bytes_used);
+        bytes_to_copy = (int32_t)sizeof(buffered->writebuf) - bytes_used;
         if (bytes_to_copy > bytes_left_to_write)
             bytes_to_copy = bytes_left_to_write;
 
@@ -287,7 +287,7 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
             {
                 if ((offset >= buffered->position) && (offset <= buffered->position + buffered->writebuf_len))
                 {
-                    buffered->writebuf_pos = (uint32_t)(offset - buffered->position);
+                    buffered->writebuf_pos = (int32_t)(offset - buffered->position);
                     return MZ_OK;
                 }
             }
@@ -295,7 +295,7 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
             if ((buffered->readbuf_len > 0) && (offset < buffered->position) &&
                 (offset >= buffered->position - buffered->readbuf_len))
             {
-                buffered->readbuf_pos = (uint32_t)(offset - (buffered->position - buffered->readbuf_len));
+                buffered->readbuf_pos = (int32_t)(offset - (buffered->position - buffered->readbuf_len));
                 return MZ_OK;
             }
 
