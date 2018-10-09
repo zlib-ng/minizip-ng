@@ -762,7 +762,7 @@ typedef struct mz_zip_writer_s {
     mz_zip_writer_entry_cb
                 entry_cb;
     const char  *password;
-    int16_t     compress_method;
+    uint16_t    compress_method;
     int16_t     compress_level;
     uint8_t     aes;
     uint8_t     raw;
@@ -1343,7 +1343,7 @@ void mz_zip_writer_set_aes(void *handle, uint8_t aes)
     writer->aes = aes;
 }
 
-void mz_zip_writer_set_compress_method(void *handle, int16_t compress_method)
+void mz_zip_writer_set_compress_method(void *handle, uint16_t compress_method)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     writer->compress_method = compress_method;

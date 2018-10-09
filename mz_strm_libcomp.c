@@ -89,7 +89,9 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
 #endif
     }
     
-    err = compression_stream_init(&libcomp->cstream, operation, libcomp->algorithm);
+    err = compression_stream_init(&libcomp->cstream, (compression_stream_operation)operation,
+        (compression_algorithm)libcomp->algorithm);
+    
     if (err == COMPRESSION_STATUS_ERROR)
     {
         libcomp->error = err;
@@ -119,17 +121,17 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     uint64_t total_in_after = 0;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
-    uint32_t total_in = 0;
-    uint32_t total_out = 0;
-    uint32_t in_bytes = 0;
-    uint32_t out_bytes = 0;
+    int32_t total_in = 0;
+    int32_t total_out = 0;
+    int32_t in_bytes = 0;
+    int32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int32_t err = Z_OK;
 
 
     libcomp->cstream.dst_ptr = buf;
-    libcomp->cstream.dst_size = size;
+    libcomp->cstream.dst_size = (size_t)size;
 
     do
     {
@@ -153,7 +155,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
                 break;
 
             libcomp->cstream.src_ptr = libcomp->buffer;
-            libcomp->cstream.src_size = read;
+            libcomp->cstream.src_size = (size_t)read;
         }
 
         total_in_before = libcomp->cstream.src_size;
@@ -169,8 +171,8 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
         total_in_after = libcomp->cstream.src_size;
         total_out_after = libcomp->cstream.dst_size;
 
-        in_bytes = (uint32_t)(total_in_before - total_in_after);
-        out_bytes = (uint32_t)(total_out_before - total_out_after);
+        in_bytes = (int32_t)(total_in_before - total_in_after);
+        out_bytes = (int32_t)(total_out_before - total_out_after);
 
         total_in += in_bytes;
         total_out += out_bytes;
@@ -209,7 +211,7 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
-    int32_t out_bytes = 0;
+    uint32_t out_bytes = 0;
     int32_t err = Z_OK;
 
 
@@ -262,7 +264,7 @@ int32_t mz_stream_libcomp_write(void *stream, const void *buf, int32_t size)
     err = MZ_SUPPORT_ERROR;
 #else
     libcomp->cstream.src_ptr = buf;
-    libcomp->cstream.src_size = size;
+    libcomp->cstream.src_size = (size_t)size;
 
     mz_stream_libcomp_deflate(stream, 0);
 
@@ -393,9 +395,7 @@ void mz_stream_libcomp_delete(void **stream)
 /***************************************************************************/
 
 // Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
-#if defined(ZLIBNG_VERNUM)
-typedef uint32_t z_crc_t;
-#elif (ZLIB_VERNUM < 0x1270)
+#if (ZLIB_VERNUM < 0x1270)
 typedef unsigned long z_crc_t;
 #endif
 
@@ -439,7 +439,7 @@ void *mz_stream_zlib_get_interface(void)
 
 static int64_t mz_stream_zlib_crc32(int64_t value, const void *buf, int32_t size)
 {
-    return crc32((z_crc_t)value, buf, size);
+    return (int64_t)crc32((z_crc_t)value, buf, (uint32_t)size);
 }
 
 void *mz_stream_zlib_get_crc32_update(void)

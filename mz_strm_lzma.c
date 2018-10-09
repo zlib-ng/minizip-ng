@@ -153,10 +153,10 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
     uint64_t total_out_before = 0;
     uint64_t total_in_after = 0;
     uint64_t total_out_after = 0;
-    uint32_t total_in = 0;
-    uint32_t total_out = 0;
-    uint32_t in_bytes = 0;
-    uint32_t out_bytes = 0;
+    int32_t total_in = 0;
+    int32_t total_out = 0;
+    int32_t in_bytes = 0;
+    int32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
     int32_t err = LZMA_OK;
@@ -187,7 +187,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
                 break;
 
             lzma->lstream.next_in = lzma->buffer;
-            lzma->lstream.avail_in = read;
+            lzma->lstream.avail_in = (size_t)read;
         }
 
         total_in_before = lzma->lstream.avail_in;
@@ -198,10 +198,10 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
         total_in_after = lzma->lstream.avail_in;
         total_out_after = lzma->lstream.total_out;
         if ((lzma->max_total_out != -1) && (int64_t)total_out_after > lzma->max_total_out)
-            total_out_after = lzma->max_total_out;
+            total_out_after = (uint64_t)lzma->max_total_out;
 
-        in_bytes = (uint32_t)(total_in_before - total_in_after);
-        out_bytes = (uint32_t)(total_out_after - total_out_before);
+        in_bytes = (int32_t)(total_in_before - total_in_after);
+        out_bytes = (int32_t)(total_out_after - total_out_before);
 
         total_in += in_bytes;
         total_out += out_bytes;
@@ -260,7 +260,7 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
         }
 
         total_out_before = lzma->lstream.total_out;
-        err = lzma_code(&lzma->lstream, flush);
+        err = lzma_code(&lzma->lstream, (lzma_action)flush);
         total_out_after = lzma->lstream.total_out;
 
         out_bytes = (uint32_t)(total_out_after - total_out_before);
@@ -438,7 +438,7 @@ void *mz_stream_lzma_get_interface(void)
 
 static int64_t mz_stream_lzma_crc32(int64_t value, const void *buf, int32_t size)
 {
-    return (int32_t)lzma_crc32(buf, size, (int32_t)value);
+    return (int64_t)lzma_crc32(buf, (size_t)size, (uint32_t)value);
 }
 
 void *mz_stream_lzma_get_crc32_update(void)

@@ -100,6 +100,11 @@ int32_t mz_stream_read_uint32(void *stream, uint32_t *value)
     return err;
 }
 
+int32_t mz_stream_read_int64(void *stream, int64_t *value)
+{
+    return mz_stream_read_value(stream, (uint64_t *)value, sizeof(uint64_t));
+}
+
 int32_t mz_stream_read_uint64(void *stream, uint64_t *value)
 {
     return mz_stream_read_value(stream, value, sizeof(uint64_t));
@@ -154,6 +159,11 @@ int32_t mz_stream_write_uint16(void *stream, uint16_t value)
 int32_t mz_stream_write_uint32(void *stream, uint32_t value)
 {
     return mz_stream_write_value(stream, value, sizeof(uint32_t));
+}
+
+int32_t mz_stream_write_int64(void *stream, int64_t value)
+{
+    return mz_stream_write_value(stream, (uint64_t)value, sizeof(uint64_t));
 }
 
 int32_t mz_stream_write_uint64(void *stream, uint64_t value)

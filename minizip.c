@@ -48,12 +48,12 @@ int32_t minizip_help(void);
 int32_t minizip_list(const char *path);
 
 int32_t minizip_add_entry_cb(void *handle, void *userdata, mz_zip_file *file_info);
-int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, uint64_t position);
+int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position);
 int32_t minizip_add_overwrite_cb(void *handle, void *userdata, const char *path);
 int32_t minizip_add(const char *path, const char *password, minizip_opt *options, int32_t arg_count, const char **args);
 
 int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
-int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, uint64_t position);
+int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position);
 int32_t minizip_extract_overwrite_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
 int32_t minizip_extract(const char *path, const char *pattern, const char *destination, const char *password, minizip_opt *options);
 
@@ -217,7 +217,7 @@ int32_t minizip_add_entry_cb(void *handle, void *userdata, mz_zip_file *file_inf
     return MZ_OK;
 }
 
-int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, uint64_t position)
+int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position)
 {
     double progress = 0;
     uint8_t raw = 0;
@@ -330,7 +330,7 @@ int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file
     return MZ_OK;
 }
 
-int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, uint64_t position)
+int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position)
 {
     double progress = 0;
     uint8_t raw = 0;

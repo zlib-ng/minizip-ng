@@ -150,7 +150,7 @@ int     ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, const z
 int     ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
 
 int     ZEXPORT zipCloseFileInZipRaw(zipFile file, uint32_t uncompressed_size, uint32_t crc32);
-int     ZEXPORT zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, uint32_t crc32);
+int     ZEXPORT zipCloseFileInZipRaw64(zipFile file, int64_t uncompressed_size, uint32_t crc32);
 int     ZEXPORT zipCloseFileInZip(zipFile file);
 int     ZEXPORT zipCloseFileInZip64(zipFile file);
 
@@ -302,7 +302,7 @@ int     ZEXPORT unzGoToFilePos(unzFile file, unz_file_pos *file_pos);
 
 typedef struct unz64_file_pos_s
 {
-    uint64_t pos_in_zip_directory;   // offset in zip file directory 
+    int64_t  pos_in_zip_directory;   // offset in zip file directory 
     uint64_t num_of_file;            // # of file
 } unz64_file_pos;
 
@@ -311,12 +311,12 @@ int     ZEXPORT unzGoToFilePos64(unzFile file, const unz64_file_pos *file_pos);
 
 int64_t ZEXPORT unzGetOffset64(unzFile file);
 int32_t ZEXPORT unzGetOffset(unzFile file);
-int     ZEXPORT unzSetOffset64(unzFile file, uint64_t pos);
+int     ZEXPORT unzSetOffset64(unzFile file, int64_t pos);
 int     ZEXPORT unzSetOffset(unzFile file, uint32_t pos);
 int32_t ZEXPORT unzTell(unzFile file);
 int64_t ZEXPORT unzTell64(unzFile file);
-int     ZEXPORT unzSeek(unzFile file, uint32_t offset, int origin);
-int     ZEXPORT unzSeek64(unzFile file, uint64_t offset, int origin);
+int     ZEXPORT unzSeek(unzFile file, int32_t offset, int origin);
+int     ZEXPORT unzSeek64(unzFile file, int64_t offset, int origin);
 int     ZEXPORT unzEndOfFile(unzFile file);
 void*   ZEXPORT unzGetStream(unzFile file);
 

@@ -38,13 +38,13 @@ typedef struct mz_zip_file_s
     time_t   accessed_date;             // last accessed date in unix time
     time_t   creation_date;             // creation date in unix time
     uint32_t crc;                       // crc-32
-    uint64_t compressed_size;           // compressed size
-    uint64_t uncompressed_size;         // uncompressed size
+    int64_t  compressed_size;           // compressed size
+    int64_t  uncompressed_size;         // uncompressed size
     uint16_t filename_size;             // filename length
     uint16_t extrafield_size;           // extra field length
     uint16_t comment_size;              // file comment length
     uint32_t disk_number;               // disk number start
-    uint64_t disk_offset;               // relative offset of local header
+    int64_t  disk_offset;               // relative offset of local header
     uint16_t internal_fa;               // internal file attributes
     uint32_t external_fa;               // external file attributes
     uint16_t zip64;                     // zip64 extension mode
@@ -119,7 +119,7 @@ int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
 // Get local info about the current file, only valid while current entry is being read
 
-int32_t mz_zip_entry_close_raw(void *handle, uint64_t uncompressed_size, uint32_t crc32);
+int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t crc32);
 // Close the current file in the zip file where raw is compressed data
 
 int32_t mz_zip_entry_close(void *handle);
@@ -127,7 +127,7 @@ int32_t mz_zip_entry_close(void *handle);
 
 /***************************************************************************/
 
-int32_t mz_zip_get_number_entry(void *handle, int64_t *number_entry);
+int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry);
 // Get the total number of entries
 
 int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
@@ -136,7 +136,7 @@ int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_
 int64_t mz_zip_get_entry(void *handle);
 // Return offset of the current entry in the zip file
 
-int32_t mz_zip_goto_entry(void *handle, uint64_t cd_pos);
+int32_t mz_zip_goto_entry(void *handle, int64_t cd_pos);
 // Go to specified entry in the zip file
 
 int32_t mz_zip_goto_first_entry(void *handle);
