@@ -530,7 +530,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
         err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), reader->file_info->external_fa,
             MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
         if (err_attrib == MZ_OK)
-            err_attrib = mz_os_set_file_attribs(path, target_attrib);
+            mz_os_set_file_attribs(path, target_attrib);
     }
 
     return err;
@@ -1082,7 +1082,11 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
     if (stream != NULL)
     {
         if (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK)
+        {
             err = mz_zip_writer_add(handle, stream, read_cb);
+            if (err != MZ_OK)
+                return err;
+        }
     }
 
     err = mz_zip_writer_entry_close(handle);

@@ -72,13 +72,13 @@ typedef struct mz_stream_pkcrypt_s {
 
 /***************************************************************************/
 
-#define mz_stream_pkcrypt_decode(strm, c)           \
-    (mz_stream_pkcrypt_update_keys(strm,            \
+#define mz_stream_pkcrypt_decode(strm, c)                                   \
+    (mz_stream_pkcrypt_update_keys(strm,                                    \
         c ^= mz_stream_pkcrypt_decrypt_byte(strm)))
 
-#define mz_stream_pkcrypt_encode(strm, c, t)        \
-    (t = mz_stream_pkcrypt_decrypt_byte(strm),      \
-        mz_stream_pkcrypt_update_keys(strm, c), t^(c))
+#define mz_stream_pkcrypt_encode(strm, c, t)                                \
+    (t = mz_stream_pkcrypt_decrypt_byte(strm),                              \
+        mz_stream_pkcrypt_update_keys(strm, (uint8_t)c), (uint8_t)(t^(c)))
 
 /***************************************************************************/
 
@@ -121,7 +121,7 @@ static void mz_stream_pkcrypt_init_keys(void *stream, const char *password)
 
     while (*password != 0)
     {
-        mz_stream_pkcrypt_update_keys(stream, *password);
+        mz_stream_pkcrypt_update_keys(stream, (uint8_t)*password);
         password += 1;
     }
 }

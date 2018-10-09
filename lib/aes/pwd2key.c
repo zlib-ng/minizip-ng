@@ -43,7 +43,7 @@ void derive_key(const unsigned char pwd[],  /* the PASSWORD     */
     hmac_ctx c1[1], c2[1], c3[1];
 
     /* set HMAC context (c1) for password               */
-    h_size = hmac_sha_begin(HMAC_SHA1, c1);
+    h_size = (unsigned int)hmac_sha_begin(HMAC_SHA1, c1);
     hmac_sha_key(pwd, pwd_len, c1);
 
     /* set HMAC context (c2) for password and salt      */

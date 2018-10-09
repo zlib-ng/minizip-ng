@@ -77,14 +77,14 @@ typedef struct mz_stream_aes_s {
 int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_aes *aes = (mz_stream_aes *)stream;
+    uint16_t salt_length = 0;
+    uint16_t password_length = 0;
+    uint16_t key_length = 0;
     uint8_t kbuf[2 * MZ_AES_KEY_LENGTH_MAX + MZ_AES_PW_VERIFY_SIZE];
     uint8_t verify[MZ_AES_PW_VERIFY_SIZE];
     uint8_t verify_expected[MZ_AES_PW_VERIFY_SIZE];
     uint8_t salt_value[MZ_AES_SALT_LENGTH_MAX];
-    int32_t salt_length = 0;
     const char *password = path;
-    int32_t password_length = 0;
-    int32_t key_length = 0;
 
     aes->total_in = 0;
     aes->total_out = 0;
@@ -97,7 +97,7 @@ int32_t mz_stream_aes_open(void *stream, const char *path, int32_t mode)
         password = aes->password;
     if (password == NULL)
         return MZ_PARAM_ERROR;
-    password_length = (int32_t)strlen(password);
+    password_length = (uint16_t)strlen(password);
     if (password_length > MZ_AES_PW_LENGTH_MAX)
         return MZ_PARAM_ERROR;
 
@@ -215,7 +215,7 @@ int32_t mz_stream_aes_read(void *stream, void *buf, int32_t size)
     read = mz_stream_read(aes->stream.base, buf, size);
     if (read > 0)
     {
-        hmac_sha_data((uint8_t *)buf, read, aes->auth_ctx);
+        hmac_sha_data((uint8_t *)buf, (uint32_t)read, aes->auth_ctx);
         mz_stream_aes_encrypt_data(stream, (uint8_t *)buf, read);
     }
 
@@ -228,12 +228,14 @@ int32_t mz_stream_aes_write(void *stream, const void *buf, int32_t size)
     mz_stream_aes *aes = (mz_stream_aes *)stream;
     int32_t written = 0;
 
+    if (size < 0)
+        return MZ_PARAM_ERROR;
     if (size > (int32_t)sizeof(aes->buffer))
         return MZ_STREAM_ERROR;
 
     memcpy(aes->buffer, buf, size);
     mz_stream_aes_encrypt_data(stream, (uint8_t *)aes->buffer, size);
-    hmac_sha_data((uint8_t *)aes->buffer, size, aes->auth_ctx);
+    hmac_sha_data((uint8_t *)aes->buffer, (uint32_t)size, aes->auth_ctx);
 
     written = mz_stream_write(aes->stream.base, aes->buffer, size);
     if (written > 0)

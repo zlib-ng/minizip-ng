@@ -55,9 +55,9 @@ typedef struct mz_stream_split_s {
     int64_t     total_out_disk;
     int32_t     mode;
     char        *path_cd;
-    int32_t     path_cd_size;
+    uint32_t    path_cd_size;
     char        *path_disk;
-    int32_t     path_disk_size;
+    uint32_t    path_disk_size;
     int32_t     number_disk;
     int32_t     current_disk;
     int32_t     reached_end;
@@ -90,7 +90,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
         {
             if (split->path_disk[i] != '.')
                 continue;
-            snprintf(&split->path_disk[i], split->path_disk_size - i, ".z%02d", number_disk + 1);
+            snprintf(&split->path_disk[i], split->path_disk_size - (uint32_t)i, ".z%02d", number_disk + 1);
             break;
         }
     }
@@ -180,7 +180,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
 
     split->mode = mode;
 
-    split->path_cd_size = (int32_t)strlen(path) + 1;
+    split->path_cd_size = (uint32_t)strlen(path) + 1;
     split->path_cd = (char *)MZ_ALLOC(split->path_cd_size);
 
     if (split->path_cd == NULL)
@@ -189,7 +189,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
     strncpy(split->path_cd, path, split->path_cd_size - 1);
     split->path_cd[split->path_cd_size - 1] = 0;
 
-    split->path_disk_size = (int32_t)strlen(path) + 10;
+    split->path_disk_size = (uint32_t)strlen(path) + 10;
     split->path_disk = (char *)MZ_ALLOC(split->path_disk_size);
 
     if (split->path_disk == NULL)

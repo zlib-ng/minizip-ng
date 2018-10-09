@@ -123,10 +123,10 @@ int32_t mz_stream_crc32_error(void *stream)
     return mz_stream_error(crc32->stream.base);
 }
 
-int32_t mz_stream_crc32_get_value(void *stream)
+uint32_t mz_stream_crc32_get_value(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
-    return (int32_t)crc32->value;
+    return crc32->value;
 }
 
 int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *value)
@@ -155,17 +155,16 @@ void *mz_stream_crc32_create(void **stream)
     {
         memset(crc32, 0, sizeof(mz_stream_crc32));
         crc32->stream.vtbl = &mz_stream_crc32_vtbl;
-    }
-
 #ifdef HAVE_ZLIB
-    crc32->update =
-        (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
+        crc32->update =
+            (mz_stream_crc32_update)mz_stream_zlib_get_crc32_update();
 #elif defined(HAVE_LZMA)
-    crc32->update =
-        (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
+        crc32->update =
+            (mz_stream_crc32_update)mz_stream_lzma_get_crc32_update();
 #else
 #error ZLIB or LZMA required for CRC32
 #endif
+    }
 
     if (stream != NULL)
         *stream = crc32;
