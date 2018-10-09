@@ -62,7 +62,7 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     int32_t err = 0;
-    int32_t operation = 0;
+    int16_t operation = 0;
     
     MZ_UNUSED(path);
 
@@ -394,7 +394,7 @@ void mz_stream_libcomp_delete(void **stream)
 
 /***************************************************************************/
 
-// Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
+// Define z_crc_t in zlib 1.2.5 and less
 #if (ZLIB_VERNUM < 0x1270)
 typedef unsigned long z_crc_t;
 #endif
