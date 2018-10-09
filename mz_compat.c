@@ -806,7 +806,7 @@ int ZEXPORT unzGetFilePos(unzFile file, unz_file_pos *file_pos)
         return offset;
     
     file_pos->pos_in_zip_directory = (uint32_t)offset;
-    file_pos->num_of_file = compat->entry_index;
+    file_pos->num_of_file = (uint32_t)compat->entry_index;
     return MZ_OK;
 }
 
@@ -834,7 +834,7 @@ int ZEXPORT unzGetFilePos64(unzFile file, unz64_file_pos *file_pos)
     
     offset = unzGetOffset64(file);
     if (offset < 0)
-        return offset;
+        return (int)offset;
     
     file_pos->pos_in_zip_directory = offset;
     file_pos->num_of_file = compat->entry_index;

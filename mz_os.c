@@ -67,7 +67,7 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     if (path == NULL || join == NULL || max_path == 0)
         return MZ_PARAM_ERROR;
 
-    path_len = strlen(path);
+    path_len = (int32_t)strlen(path);
 
     if (path_len == 0)
     {

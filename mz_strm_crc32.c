@@ -126,7 +126,7 @@ int32_t mz_stream_crc32_error(void *stream)
 uint32_t mz_stream_crc32_get_value(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
-    return crc32->value;
+    return (uint32_t)crc32->value;
 }
 
 int32_t mz_stream_crc32_get_prop_int64(void *stream, int32_t prop, int64_t *value)
