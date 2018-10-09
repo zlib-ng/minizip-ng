@@ -49,7 +49,9 @@
 #if defined(HAVE_ARC4RANDOM_BUF)
 int32_t mz_posix_rand(uint8_t *buf, int32_t size)
 {
-    arc4random_buf(buf, size);
+    if (size < 0)
+        return 0;
+    arc4random_buf(buf, (uint32_t)size);
     return size;
 }
 #elif defined(HAVE_ARC4RANDOM)
@@ -284,5 +286,5 @@ uint64_t mz_posix_ms_time(void)
     clock_gettime(CLOCK_MONOTONIC, &ts);
 #endif
 
-    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+    return ((uint64_t)ts.tv_sec * 1000) + ((uint64_t)ts.tv_nsec / 1000000);
 }

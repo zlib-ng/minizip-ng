@@ -248,9 +248,9 @@ int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t written = 0;
-    if (compat == NULL)
+    if (compat == NULL || len >= INT32_MAX)
         return ZIP_PARAMERROR;
-    written = mz_zip_entry_write(compat->handle, buf, len);
+    written = mz_zip_entry_write(compat->handle, buf, (int32_t)len);
     if ((written < 0) || ((uint32_t)written != len))
         return ZIP_ERRNO;
     return ZIP_OK;
@@ -587,11 +587,11 @@ int ZEXPORT unzReadCurrentFile(unzFile file, void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
     int32_t err = MZ_OK;
-    if (compat == NULL)
+    if (compat == NULL || len >= INT32_MAX)
         return UNZ_PARAMERROR;
-    err = mz_zip_entry_read(compat->handle, buf, len);
+    err = mz_zip_entry_read(compat->handle, buf, (int32_t)len);
     if (err > 0)
-        compat->total_out += err;
+        compat->total_out += (uint32_t)err;
     return err;
 }
 
@@ -610,7 +610,7 @@ int ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char 
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
-    int16_t bytes_to_copy = 0;
+    uint16_t bytes_to_copy = 0;
     int32_t err = MZ_OK;
 
     if (compat == NULL)
@@ -674,7 +674,7 @@ int ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, 
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
-    int16_t bytes_to_copy = 0;
+    uint16_t bytes_to_copy = 0;
     int32_t err = MZ_OK;
 
     if (compat == NULL)
@@ -871,18 +871,21 @@ int ZEXPORT unzSetOffset64(unzFile file, uint64_t pos)
     return (int)mz_zip_goto_entry(compat->handle, pos);
 }
 
-int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len)
+int ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len)
 {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
     int32_t err = MZ_OK;
-    int32_t bytes_to_copy = len;
+    int32_t bytes_to_copy = 0;
 
-    if (compat == NULL || buf == NULL)
+    if (compat == NULL || buf == NULL || len >= INT32_MAX)
         return UNZ_PARAMERROR;
-
+    
     err = mz_zip_entry_get_local_info(compat->handle, &file_info);
-
+    if (err != MZ_OK)
+        return err;
+    
+    bytes_to_copy = (int32_t)len;
     if (bytes_to_copy > file_info->extrafield_size)
         bytes_to_copy = file_info->extrafield_size;
 
