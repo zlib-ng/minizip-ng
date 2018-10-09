@@ -473,20 +473,9 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 int main(int argc, const char *argv[])
 {
     minizip_opt options;
-    void *handle = NULL;
-    void *target_handle = NULL;
-    void *file_stream = NULL;
-    void *split_stream = NULL;
-    void *buf_stream = NULL;
-    void *tmp_file_stream = NULL;
-    void *tmp_split_stream = NULL;
-    void *tmp_buf_stream = NULL;
-    int64_t disk_size = 0;
     int32_t path_arg = 0;
-    int32_t err_close = 0;
     int32_t err = 0;
     int32_t i = 0;
-    int16_t mode = 0;
     uint8_t do_list = 0;
     uint8_t do_extract = 0;
     uint8_t do_erase = 0;
