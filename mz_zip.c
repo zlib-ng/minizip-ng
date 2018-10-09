@@ -1860,67 +1860,70 @@ int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_ent
 
 /***************************************************************************/
 
-int32_t mz_zip_attrib_is_dir(int32_t attrib, int32_t version_madeby)
+int32_t mz_zip_attrib_is_dir(uint32_t attrib, int32_t version_madeby)
 {
+    uint32_t posix_attrib = 0;
     int32_t system = MZ_HOST_SYSTEM(version_madeby);
-    int32_t posix_attrib = 0;
     int32_t err = MZ_OK;
 
     err = mz_zip_attrib_convert(system, attrib, MZ_HOST_SYSTEM_UNIX, &posix_attrib);
     if (err == MZ_OK)
     {
-        if ((posix_attrib & 00170000) == 0040000) // S_ISDIR
+        if ((posix_attrib & 0170000) == 0040000) // S_ISDIR
             return MZ_OK;
     }
 
     return MZ_EXIST_ERROR;
 }
 
-int32_t mz_zip_attrib_convert(uint8_t src_sys, int32_t src_attrib, uint8_t target_sys, int32_t *target_attrib)
+int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, uint32_t *target_attrib)
 {
     if (target_attrib == NULL)
         return MZ_PARAM_ERROR;
 
     *target_attrib = 0;
 
-    if (src_sys == MZ_HOST_SYSTEM_MSDOS || src_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+    if ((src_sys == MZ_HOST_SYSTEM_MSDOS) || (src_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS))
     {
-        if (target_sys == MZ_HOST_SYSTEM_MSDOS || target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+        if ((target_sys == MZ_HOST_SYSTEM_MSDOS) || (target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS))
         {
             *target_attrib = src_attrib;
             return MZ_OK;
         }
-        if (target_sys == MZ_HOST_SYSTEM_UNIX || target_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+        if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN))
             return mz_zip_attrib_win32_to_posix(src_attrib, target_attrib);
     }
-    else if (src_sys == MZ_HOST_SYSTEM_UNIX || src_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+    else if ((src_sys == MZ_HOST_SYSTEM_UNIX) || (src_sys == MZ_HOST_SYSTEM_OSX_DARWIN))
     {
-        if (target_sys == MZ_HOST_SYSTEM_UNIX || target_sys == MZ_HOST_SYSTEM_OSX_DARWIN)
+        if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN))
         {
+            // If high byte is set, it contains unix specific attributes
+            if ((src_attrib >> 16) != 0)
+                src_attrib >>= 16;
+            
             *target_attrib = src_attrib;
             return MZ_OK;
         }
-        if (target_sys == MZ_HOST_SYSTEM_MSDOS || target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS)
+        if ((target_sys == MZ_HOST_SYSTEM_MSDOS) || (target_sys == MZ_HOST_SYSTEM_WINDOWS_NTFS))
             return mz_zip_attrib_posix_to_win32(src_attrib, target_attrib);
     }
 
     return MZ_SUPPORT_ERROR;
 }
 
-int32_t mz_zip_attrib_posix_to_win32(int32_t posix_attrib, int32_t *win32_attrib)
+int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attrib)
 {
     if (win32_attrib == NULL)
         return MZ_PARAM_ERROR;
-
+    
+    *win32_attrib = 0;
+    
     // S_IWUSR | S_IWGRP | S_IWOTH | S_IXUSR | S_IXGRP | S_IXOTH
     if ((posix_attrib & 0000333) == 0 && (posix_attrib & 0000444) != 0)
-        *win32_attrib = 0x01;       // FILE_ATTRIBUTE_READONLY
+        *win32_attrib |= 0x01;      // FILE_ATTRIBUTE_READONLY
     // S_IFDIR
-    if ((posix_attrib & 0040000) == 0040000)
+    if ((posix_attrib & 0170000) == 0040000)
         *win32_attrib |= 0x10;      // FILE_ATTRIBUTE_DIRECTORY
-    // S_ISLNK
-    else if ((posix_attrib & 0120000) == 0120000)
-        *win32_attrib |= 0x400;     // FILE_ATTRIBUTE_REPARSE_POINT
     // S_IFREG
     else
         *win32_attrib |= 0x80;      // FILE_ATTRIBUTE_NORMAL
@@ -1928,7 +1931,7 @@ int32_t mz_zip_attrib_posix_to_win32(int32_t posix_attrib, int32_t *win32_attrib
     return MZ_OK;
 }
 
-int32_t mz_zip_attrib_win32_to_posix(int32_t win32_attrib, int32_t *posix_attrib)
+int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attrib)
 {
     if (posix_attrib == NULL)
         return MZ_PARAM_ERROR;
@@ -1940,9 +1943,6 @@ int32_t mz_zip_attrib_win32_to_posix(int32_t win32_attrib, int32_t *posix_attrib
     // FILE_ATTRIBUTE_DIRECTORY
     if ((win32_attrib & 0x10) == 0x10)
         *posix_attrib |= 0040111;   // S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH
-    // FILE_ATTRIBUTE_REPARSE_POINT
-    else if ((win32_attrib & 0x400) == 0x400)
-        *posix_attrib |= 0120000;   // S_ISLNK
     else
         *posix_attrib |= 0100000;   // S_IFREG
 

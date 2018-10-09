@@ -156,16 +156,16 @@ int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_ent
 
 /***************************************************************************/
 
-int32_t mz_zip_attrib_is_dir(int32_t attrib, int32_t version_madeby);
+int32_t mz_zip_attrib_is_dir(uint32_t attrib, int32_t version_madeby);
 // Checks to see if the attribute is a directory based on platform
 
-int32_t mz_zip_attrib_convert(uint8_t src_sys, int32_t src_attrib, uint8_t target_sys, int32_t *target_attrib);
+int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, uint32_t *target_attrib);
 // Converts file attributes from one host system to another
 
-int32_t mz_zip_attrib_posix_to_win32(int32_t posix_attrib, int32_t *win32_attrib);
+int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attrib);
 // Converts posix file attributes to win32 file attributes
 
-int32_t mz_zip_attrib_win32_to_posix(int32_t win32_attrib, int32_t *posix_attrib);
+int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attrib);
 // Converts win32 file attributes to posix file attributes
 
 /***************************************************************************/
