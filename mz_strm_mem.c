@@ -63,7 +63,7 @@ static void mz_stream_mem_set_size(void *stream, int32_t size)
     uint8_t *new_buf = NULL;
 
 
-    new_buf = (uint8_t *)MZ_ALLOC(new_size);
+    new_buf = (uint8_t *)MZ_ALLOC((uint32_t)new_size);
     if (mem->buffer)
     {
         memcpy(new_buf, mem->buffer, mem->size);
@@ -107,7 +107,7 @@ int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size)
     if (size > mem->size - mem->position)
         size = mem->size - mem->position;
 
-    if ((size == 0) || (mem->position + size > mem->limit))
+    if ((size <= 0) || (mem->position + size > mem->limit))
         return 0;
 
     memcpy(buf, mem->buffer + mem->position, size);
@@ -185,7 +185,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
         mz_stream_mem_set_size(stream, (int32_t)new_pos);
     }
 
-    mem->position = (uint32_t)new_pos;
+    mem->position = (int32_t)new_pos;
     return MZ_OK;
 }
 
