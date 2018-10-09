@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'Minizip'
-  s.version  = '2.5.4'
+  s.version  = '2.6.0'
   s.license  = 'zlib'
   s.summary  = 'Minizip contrib in zlib with the latest bug fixes and advanced features'
   s.description = <<-DESC
