@@ -152,10 +152,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
             read = mz_stream_read(bzip->stream.base, bzip->buffer, bytes_to_read);
 
             if (read < 0)
-            {
-                bzip->error = BZ_IO_ERROR;
-                break;
-            }
+                return read;
             if (read == 0)
                 break;
 
@@ -196,7 +193,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     while (bzip->bzstream.avail_out > 0);
 
     if (bzip->error != 0)
-        return bzip->error;
+        return MZ_DATA_ERROR;
 
     return total_out;
 #endif

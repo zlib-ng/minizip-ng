@@ -147,10 +147,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
             read = mz_stream_read(libcomp->stream.base, libcomp->buffer, bytes_to_read);
 
             if (read < 0)
-            {
-                libcomp->error = read;
-                break;
-            }
+                return read;
             if (read == 0)
                 break;
 
@@ -182,7 +179,6 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
 
         if (err == COMPRESSION_STATUS_END)
             break;
-
         if (err != COMPRESSION_STATUS_OK)
         {
             libcomp->error = err;
@@ -192,7 +188,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     while (libcomp->cstream.dst_size > 0);
 
     if (libcomp->error != 0)
-        return libcomp->error;
+        return MZ_DATA_ERROR;
 
     return total_out;
 #endif

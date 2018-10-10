@@ -179,10 +179,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
             read = mz_stream_read(lzma->stream.base, lzma->buffer, bytes_to_read);
 
             if (read < 0)
-            {
-                lzma->error = MZ_STREAM_ERROR;
-                break;
-            }
+                return read;
             if (read == 0)
                 break;
 
@@ -220,7 +217,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
     while (lzma->lstream.avail_out > 0);
 
     if (lzma->error != 0)
-        return lzma->error;
+        return MZ_DATA_ERROR;
 
     return total_out;
 #endif

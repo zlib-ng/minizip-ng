@@ -165,10 +165,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
             read = mz_stream_read(zlib->stream.base, zlib->buffer, bytes_to_read);
 
             if (read < 0)
-            {
-                zlib->error = Z_STREAM_ERROR;
-                break;
-            }
+                return read;
+
             if (read == 0)
                 break;
 
@@ -200,7 +198,6 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
         if (err == Z_STREAM_END)
             break;
-
         if (err != Z_OK)
         {
             zlib->error = err;
@@ -210,7 +207,10 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     while (zlib->zstream.avail_out > 0);
 
     if (zlib->error != 0)
+    {
+        // Zlib errors are compatible with MZ
         return zlib->error;
+    }
 
     return total_out;
 #endif
