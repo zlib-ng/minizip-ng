@@ -6,7 +6,7 @@
       https://github.com/nmoinvaz/minizip
    Copyright (C) 1998-2005 Gilles Vollant
       Modifications for Info-ZIP crypting
-      http://www.winimage.com/zLibDll/minizip.html
+      https://www.winimage.com/zLibDll/minizip.html
    Copyright (C) 2003 Terry Thorsen
 
    This code is a modified version of crypting code in Info-ZIP distribution
