@@ -12,7 +12,7 @@ This library is a complete refactoring of the minizip contribution found in the 
 distribution. The motivation for this fork has been the inclusion of advanced features, 
 improvements in code maintainability and readability, and the reduction of duplicate code.
 
-Minizip was originally developed by [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) and 
+Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) and 
 had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
 original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project.
 
@@ -139,7 +139,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 
 ## Acknowledgments
 
-Thanks to [Gilles Vollant](http://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
+Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
 
 Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been nearly as good without you.
 

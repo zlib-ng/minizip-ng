@@ -10,7 +10,7 @@
    Copyright (C) 2007-2008 Even Rouault
      Modifications of Unzip for Zip64
    Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+     https://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
