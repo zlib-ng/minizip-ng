@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "mz.h"
 #include "mz_os.h"
@@ -90,7 +91,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
         {
             if (split->path_disk[i] != '.')
                 continue;
-            snprintf(&split->path_disk[i], split->path_disk_size - (uint32_t)i, ".z%02d", number_disk + 1);
+            snprintf(&split->path_disk[i], split->path_disk_size - (uint32_t)i, ".z%02"PRId32, number_disk + 1);
             break;
         }
     }

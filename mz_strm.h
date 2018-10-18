@@ -89,6 +89,7 @@ int32_t mz_stream_write_int64(void *stream, int64_t value);
 int32_t mz_stream_write_uint64(void *stream, uint64_t value);
 int32_t mz_stream_write_chars(void *stream, const char *value, uint8_t null_terminate);
 int32_t mz_stream_copy(void *target, void *source, int32_t len);
+int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb, int32_t len);
 int64_t mz_stream_tell(void *stream);
 int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_close(void *stream);
