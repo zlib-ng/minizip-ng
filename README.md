@@ -130,13 +130,6 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
   + Modifications were made to support the ZIP file format specification
 + [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
 
-## Limitations
-
-+ Archives are required to have a central directory.
-+ Central directory header values should be correct and it is necessary for the compressed size to be accurate for AES encryption.
-+ Central directory encryption is not supported due to licensing restrictions mentioned by PKWARE in their zip appnote.
-+ Central directory is the only data stored on the last disk of a split-disk archive and doesn't follow disk size restrictions.
-
 ## Acknowledgments
 
 Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
