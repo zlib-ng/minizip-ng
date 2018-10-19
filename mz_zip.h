@@ -92,6 +92,12 @@ int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 int32_t mz_zip_get_stream(void *handle, void **stream);
 // Get a pointer to the stream used to open
 
+int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream);
+// Sets the stream to use for reading the central dir
+
+int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream);
+// Get a pointer to the stream used to store the central dir in memory
+
 /***************************************************************************/
 
 int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
@@ -126,6 +132,9 @@ int32_t mz_zip_entry_close(void *handle);
 // Close the current file in the zip file
 
 /***************************************************************************/
+
+int32_t mz_zip_set_number_entry(void *handle, uint64_t number_entry);
+// Sets the total number of entries
 
 int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry);
 // Get the total number of entries

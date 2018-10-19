@@ -74,6 +74,7 @@ extern "C" {
                                          MZ_ZIP_FLAG_DEFLATE_MAX)
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 #define MZ_ZIP_FLAG_UTF8                (1 << 11)
+#define MZ_ZIP_FLAG_MASK_LOCAL_INFO     (1 << 13)
 
 // MZ_ZIP64
 #define MZ_ZIP64_AUTO                   (0)
