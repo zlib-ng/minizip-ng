@@ -68,6 +68,10 @@
 #define MZ_ZIP_EXTENSION_NTFS           (0x000a)
 #define MZ_ZIP_EXTENSION_AES            (0x9901)
 #define MZ_ZIP_EXTENSION_UNIX1          (0x000d)
+#define MZ_ZIP_EXTENSION_HASH           (0x1a51)
+
+#define MZ_ZIP_HASH_MD5                 (10)
+#define MZ_ZIP_HASH_SHA1                (20)
 
 /***************************************************************************/
 
@@ -81,6 +85,8 @@ typedef struct mz_zip_s
     void *cd_mem_stream;            // memory stream for central directory
     void *compress_stream;          // compression stream
     void *crc32_stream;             // crc32 stream
+    void *sha1_stream;              // sha1 stream
+    void *hash_stream;              // hash stream
     void *crypt_stream;             // encryption stream
     void *file_info_stream;         // memory stream for storing file info
     void *local_file_info_stream;   // memory stream for storing local file info
@@ -88,12 +94,12 @@ typedef struct mz_zip_s
     int32_t  open_mode;
 
     uint32_t disk_number_with_cd;   // number of the disk with the central dir
-    int64_t disk_offset_shift;      // correction for zips that have wrong offset start of cd
+    int64_t  disk_offset_shift;     // correction for zips that have wrong offset start of cd
 
-    int64_t cd_start_pos;           // pos of the first file in the central dir stream
-    int64_t cd_current_pos;         // pos of the current file in the central dir
-    int64_t cd_offset;              // offset of start of central directory
-    int64_t cd_size;                // size of the central directory
+    int64_t  cd_start_pos;          // pos of the first file in the central dir stream
+    int64_t  cd_current_pos;        // pos of the current file in the central dir
+    int64_t  cd_offset;             // offset of start of central directory
+    int64_t  cd_size;               // size of the central directory
 
     uint8_t  entry_scanned;         // entry header information read ok
     uint8_t  entry_opened;          // entry is open for read/write
@@ -720,6 +726,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint16_t extra_data_size = 0;
     uint16_t ntfs_attrib_id = 0;
     uint16_t ntfs_attrib_size = 0;
+    uint16_t digest_size = 0;
+    uint16_t algorithm = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
     int64_t max_seek = 0;
@@ -903,6 +911,22 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 // Skip variable data
                 mz_stream_seek(file_info_stream, extra_data_size - (4 + 4 + 2 + 2), SEEK_CUR);
             }
+            // Read hash extension
+            else if (extra_header_id == MZ_ZIP_EXTENSION_HASH)
+            {
+                err = mz_stream_read_uint16(file_info_stream, &algorithm);
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint16(file_info_stream, &digest_size);
+                if ((algorithm == MZ_ZIP_HASH_SHA1) && (digest_size == MZ_SHA1_DIGEST_SIZE))
+                {
+                    if (mz_stream_read(file_info_stream, file_info->sha1, sizeof(file_info->sha1)) != digest_size)
+                        err = MZ_FORMAT_ERROR;
+                }
+                else
+                {
+                    mz_stream_seek(file_info_stream, digest_size, SEEK_CUR);
+                }
+            }
 #ifdef HAVE_AES
             // Read AES extra field
             else if (extra_header_id == MZ_ZIP_EXTENSION_AES)
@@ -964,6 +988,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
     uint16_t extrafield_size = 0;
     uint16_t extrafield_zip64_size = 0;
     uint16_t extrafield_ntfs_size = 0;
+    uint16_t extrafield_aes_size = 0;
+    uint16_t extrafield_hash_size = 0;
     uint16_t filename_size = 0;
     uint16_t filename_length = 0;
     uint16_t comment_size = 0;
@@ -1048,7 +1074,15 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
     if (!skip_aes)
     {
         if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
-            extrafield_size += 4 + 7;
+        {
+            extrafield_aes_size = 1 + 1 + 1 + 2 + 2;
+            extrafield_size += 4 + extrafield_aes_size;
+        }
+    }
+    if (!local)
+    {
+        extrafield_hash_size = 4 + MZ_SHA1_DIGEST_SIZE;
+        extrafield_size += 4 + extrafield_hash_size;
     }
 #endif
     // NTFS timestamps
@@ -1057,8 +1091,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
         (file_info->creation_date != 0) && (!mask))
     {
         extrafield_ntfs_size = 8 + 8 + 8 + 4 + 2 + 2;
-        extrafield_size += 4;
-        extrafield_size += extrafield_ntfs_size;
+        extrafield_size += 4 + extrafield_ntfs_size;
     }
 
     if (local)
@@ -1095,7 +1128,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
     if (err == MZ_OK)
     {
 #ifdef HAVE_AES
-        if (file_info->aes_version)
+        if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
             err = mz_stream_write_uint16(stream, MZ_COMPRESS_METHOD_AES);
         else
 #endif
@@ -1268,7 +1301,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
     {
         err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_AES);
         if (err == MZ_OK)
-            err = mz_stream_write_uint16(stream, 7);
+            err = mz_stream_write_uint16(stream, extrafield_aes_size);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, file_info->aes_version);
         if (err == MZ_OK)
@@ -1279,6 +1312,22 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
             err = mz_stream_write_uint8(stream, file_info->aes_encryption_mode);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, file_info->compression_method);
+    }
+    // Write hash extra field with SHA1
+    if ((err == MZ_OK) && (!local))
+    {
+        err = mz_stream_write_uint16(stream, MZ_ZIP_EXTENSION_HASH);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(stream, extrafield_hash_size);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(stream, MZ_ZIP_HASH_SHA1);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(stream, MZ_SHA1_DIGEST_SIZE);
+        if (err == MZ_OK)
+        {
+            if (mz_stream_write(stream, file_info->sha1, MZ_SHA1_DIGEST_SIZE) != MZ_SHA1_DIGEST_SIZE)
+                err = MZ_STREAM_ERROR;
+        }
     }
 #endif
     if ((err == MZ_OK) && (!local) && (file_info->comment != NULL))
@@ -1443,8 +1492,18 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     {
         mz_stream_crc32_create(&zip->crc32_stream);
         mz_stream_set_base(zip->crc32_stream, zip->compress_stream);
-
+        zip->hash_stream = zip->crc32_stream;
         err = mz_stream_open(zip->crc32_stream, NULL, zip->open_mode);
+        
+#ifdef HAVE_AES
+        if (err == MZ_OK)
+        {
+            mz_stream_sha1_create(&zip->sha1_stream);
+            mz_stream_set_base(zip->sha1_stream, zip->crc32_stream);
+            zip->hash_stream = zip->sha1_stream;
+            err = mz_stream_open(zip->sha1_stream, NULL, zip->open_mode);
+        }
+#endif
     }
 
     if (err == MZ_OK)
@@ -1629,7 +1688,7 @@ int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
 
     // Read entire entry even if uncompressed_size = 0, otherwise
     // aes encryption validation will fail if compressed_size > 0
-    read = mz_stream_read(zip->crc32_stream, buf, len);
+    read = mz_stream_read(zip->hash_stream, buf, len);
     return read;
 }
 
@@ -1640,7 +1699,7 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
 
     if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
-    written = mz_stream_write(zip->crc32_stream, buf, len);
+    written = mz_stream_write(zip->hash_stream, buf, len);
     return written;
 }
 
@@ -1678,20 +1737,34 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
         return MZ_PARAM_ERROR;
 
     mz_stream_close(zip->compress_stream);
+    mz_stream_close(zip->hash_stream);
 
     if (!zip->entry_raw)
         crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
     {
-#ifdef HAVE_AES
-        // AES zip version AE-1 will expect a valid crc as well
-        if (zip->file_info.aes_version <= 0x0001)
-#endif
+        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+
+        // If entire entry was not read verification will fail
+        if ((total_in > 0) && (!zip->entry_raw))
         {
-            mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
-            // If entire entry was not read this will fail
-            if ((total_in > 0) && (!zip->entry_raw))
+#ifdef HAVE_AES
+            uint8_t sha1[MZ_SHA1_DIGEST_SIZE];
+            uint8_t zerosha1[MZ_SHA1_DIGEST_SIZE];
+            memset(zerosha1, 0, sizeof(zerosha1));
+
+            mz_stream_sha1_get_digest(zip->sha1_stream, sha1, sizeof(sha1));
+
+            if (memcmp(zip->file_info.sha1, zerosha1, MZ_SHA1_DIGEST_SIZE) != 0)
+            {
+                if (memcmp(zip->file_info.sha1, sha1, MZ_SHA1_DIGEST_SIZE) != 0)
+                    err = MZ_CRC_ERROR;
+            }
+
+            // AES zip version AE-1 will expect a valid crc as well
+            if (zip->file_info.aes_version <= 0x0001)
+#endif
             {
                 if (crc32 != zip->file_info.crc)
                     err = MZ_CRC_ERROR;
@@ -1701,7 +1774,7 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
     if (!zip->entry_raw)
-        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, &uncompressed_size);
+        mz_stream_get_prop_int64(zip->hash_stream, MZ_STREAM_PROP_TOTAL_OUT, &uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
     {
@@ -1715,6 +1788,10 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
 
     mz_stream_delete(&zip->compress_stream);
     mz_stream_crc32_delete(&zip->crc32_stream);
+#ifdef HAVE_AES
+    mz_stream_sha1_get_digest(zip->sha1_stream, zip->file_info.sha1, sizeof(zip->file_info.sha1));
+    mz_stream_sha1_delete(&zip->sha1_stream);
+#endif
 
     if (zip->open_mode & MZ_OPEN_MODE_WRITE)
     {

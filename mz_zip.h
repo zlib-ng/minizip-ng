@@ -56,6 +56,7 @@ typedef struct mz_zip_file_s
 #ifdef HAVE_AES
     uint16_t aes_version;               // winzip aes extension if not 0
     uint8_t  aes_encryption_mode;       // winzip aes encryption mode
+    uint8_t  sha1[20];                  // sha1 hash
 #endif
 } mz_zip_file, mz_zip_entry;
 

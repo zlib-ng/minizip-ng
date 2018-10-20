@@ -415,13 +415,13 @@ int32_t mz_stream_sha1_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
 
-    sha1_begin(&sha1->hash_ctx);
-
     sha1->total_in = 0;
     sha1->total_out = 0;
     sha1->initialized = 1;
 
     memset(sha1->hash, 0, sizeof(sha1->hash));
+
+    sha1_begin(&sha1->hash_ctx);
     return MZ_OK;
 }
 
