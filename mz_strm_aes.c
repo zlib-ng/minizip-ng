@@ -378,3 +378,184 @@ void *mz_stream_aes_get_interface(void)
 {
     return (void *)&mz_stream_aes_vtbl;
 }
+
+/***************************************************************************/
+
+static mz_stream_vtbl mz_stream_sha1_vtbl = {
+    mz_stream_sha1_open,
+    mz_stream_sha1_is_open,
+    mz_stream_sha1_read,
+    mz_stream_sha1_write,
+    mz_stream_sha1_tell,
+    mz_stream_sha1_seek,
+    mz_stream_sha1_close,
+    mz_stream_sha1_error,
+    mz_stream_sha1_create,
+    mz_stream_sha1_delete,
+    mz_stream_sha1_get_prop_int64,
+    NULL
+};
+
+/***************************************************************************/
+
+typedef struct mz_stream_sha1_s {
+    mz_stream       stream;
+    int32_t         mode;
+    int32_t         error;
+    int16_t         initialized;
+    int64_t         total_in;
+    int64_t         total_out;
+    sha1_ctx        hash_ctx;
+    uint8_t         hash[SHA1_DIGEST_SIZE];
+} mz_stream_sha1;
+
+/***************************************************************************/
+
+int32_t mz_stream_sha1_open(void *stream, const char *path, int32_t mode)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+
+    sha1_begin(&sha1->hash_ctx);
+
+    sha1->total_in = 0;
+    sha1->total_out = 0;
+    sha1->initialized = 1;
+
+    memset(sha1->hash, 0, sizeof(sha1->hash));
+    return MZ_OK;
+}
+
+int32_t mz_stream_sha1_is_open(void *stream)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    if (sha1->initialized == 0)
+        return MZ_STREAM_ERROR;
+    return MZ_OK;
+}
+
+int32_t mz_stream_sha1_read(void *stream, void *buf, int32_t size)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    int32_t read = 0;
+    read = mz_stream_read(sha1->stream.base, buf, size);
+    if (read > 0)
+    {
+        sha1_hash(buf, read, &sha1->hash_ctx);
+        sha1->total_in += read;
+    }
+    return read;
+}
+
+int32_t mz_stream_sha1_write(void *stream, const void *buf, int32_t size)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    int32_t written = 0;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
+    written = mz_stream_write(sha1->stream.base, buf, size);
+    if (written > 0)
+    {
+        sha1_hash(buf, written, &sha1->hash_ctx);
+        sha1->total_out += written;
+    }
+    return written;
+}
+
+int64_t mz_stream_sha1_tell(void *stream)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    return mz_stream_tell(sha1->stream.base);
+}
+
+int32_t mz_stream_sha1_seek(void *stream, int64_t offset, int32_t origin)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    return mz_stream_seek(sha1->stream.base, offset, origin);
+}
+
+int32_t mz_stream_sha1_close(void *stream)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+
+    sha1_end(sha1->hash, &sha1->hash_ctx);
+    sha1->initialized = 0;
+    return MZ_OK;
+}
+
+int32_t mz_stream_sha1_error(void *stream)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    return sha1->error;
+}
+
+int32_t mz_stream_sha1_get_digest(void *stream, uint8_t *digest, int32_t digest_size)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    int32_t copy = digest_size;
+    if (digest == NULL || copy < SHA1_DIGEST_SIZE)
+        return MZ_PARAM_ERROR;
+    if (copy > SHA1_DIGEST_SIZE)
+        copy = SHA1_DIGEST_SIZE;
+    memcpy(digest, sha1->hash, copy);
+    return MZ_OK;
+}
+
+int32_t mz_stream_sha1_get_digest_size(void *stream, int32_t *digest_size)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    if (digest_size == NULL)
+        return MZ_PARAM_ERROR;
+    *digest_size = SHA1_DIGEST_SIZE;
+    return MZ_OK;
+}
+
+int32_t mz_stream_sha1_get_prop_int64(void *stream, int32_t prop, int64_t *value)
+{
+    mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
+    switch (prop)
+    {
+    case MZ_STREAM_PROP_TOTAL_IN:
+        *value = sha1->total_in;
+        break;
+    case MZ_STREAM_PROP_TOTAL_OUT:
+        *value = sha1->total_out;
+        break;
+    default:
+        return MZ_EXIST_ERROR;
+    }
+    return MZ_OK;
+}
+
+void *mz_stream_sha1_create(void **stream)
+{
+    mz_stream_sha1 *sha1 = NULL;
+
+    sha1 = (mz_stream_sha1 *)MZ_ALLOC(sizeof(mz_stream_sha1));
+    if (sha1 != NULL)
+    {
+        memset(sha1, 0, sizeof(mz_stream_sha1));
+        sha1->stream.vtbl = &mz_stream_sha1_vtbl;
+    }
+    if (stream != NULL)
+        *stream = sha1;
+
+    return sha1;
+}
+
+void mz_stream_sha1_delete(void **stream)
+{
+    mz_stream_sha1 *sha1 = NULL;
+    if (stream == NULL)
+        return;
+    sha1 = (mz_stream_sha1 *)*stream;
+    if (sha1 != NULL)
+        MZ_FREE(sha1);
+    *stream = NULL;
+}
+
+void *mz_stream_sha1_get_interface(void)
+{
+    return (void *)&mz_stream_sha1_vtbl;
+}

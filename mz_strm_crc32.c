@@ -93,7 +93,8 @@ int32_t mz_stream_crc32_write(void *stream, const void *buf, int32_t size)
     int32_t written = 0;
     crc32x->value = crc32x->update(crc32x->value, buf, size);
     written = mz_stream_write(crc32x->stream.base, buf, size);
-    crc32x->total_out += written;
+    if (written > 0)
+        crc32x->total_out += written;
     return written;
 }
 
