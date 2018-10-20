@@ -980,7 +980,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     return err;
 }
 
-static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t entry_index, mz_zip_file *file_info)
+static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_file *file_info)
 {
     uint64_t ntfs_time = 0;
     uint32_t reserved = 0;
@@ -1003,7 +1003,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
     uint8_t mask = 0;
     uint8_t write_end_slash = 0;
     const char *filename = NULL;
-    char indexname[32];
+    char masked_name[64];
     void *extrafield_ms = NULL;
 
     if (file_info == NULL)
@@ -1167,8 +1167,9 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, uint64_t e
 
     if (mask)
     {
-        snprintf(indexname, sizeof(indexname), "%"PRIx64, entry_index + 1);
-        filename = indexname;
+        snprintf(masked_name, sizeof(masked_name), "%"PRIx32"_%"PRIx64, 
+            file_info->disk_number, file_info->disk_offset);
+        filename = masked_name;
     }
     else
     {
@@ -1587,6 +1588,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_number = 0;
+    uint8_t is_dir = 0;
     int32_t err = MZ_OK;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
@@ -1639,10 +1641,15 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
 #endif
 
-    zip->file_info.flag |= MZ_ZIP_FLAG_DATA_DESCRIPTOR;
+    if (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK)
+        is_dir = 1;
 
-    if (password != NULL)
-        zip->file_info.flag |= MZ_ZIP_FLAG_ENCRYPTED;
+    if (!is_dir)
+    {
+        zip->file_info.flag |= MZ_ZIP_FLAG_DATA_DESCRIPTOR;
+        if (password != NULL)
+            zip->file_info.flag |= MZ_ZIP_FLAG_ENCRYPTED;
+    }
 
     mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
     zip->file_info.disk_number = (uint32_t)disk_number;
@@ -1656,7 +1663,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
 
-    if ((compress_level == 0) || (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK))
+    if ((compress_level == 0) || (is_dir))
         zip->file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
 
 #ifdef MZ_ZIP_NO_COMPRESSION
@@ -1664,7 +1671,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         err = MZ_SUPPORT_ERROR;
 #endif
     if (err == MZ_OK)
-        err = mz_zip_entry_write_header(zip->stream, 1, zip->number_entry, &zip->file_info);
+        err = mz_zip_entry_write_header(zip->stream, 1, &zip->file_info);
     if (err == MZ_OK)
         err = mz_zip_entry_open_int(handle, raw, compress_level, password);
 
@@ -1838,7 +1845,7 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
         zip->file_info.uncompressed_size = uncompressed_size;
 
         if (err == MZ_OK)
-            err = mz_zip_entry_write_header(zip->cd_mem_stream, 0, 0, &zip->file_info);
+            err = mz_zip_entry_write_header(zip->cd_mem_stream, 0, &zip->file_info);
 
         zip->number_entry += 1;
     }

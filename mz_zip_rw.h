@@ -49,6 +49,11 @@ int32_t mz_zip_reader_close(void *handle);
 
 /***************************************************************************/
 
+int32_t mz_zip_reader_unzip_cd(void *handle);
+// Unzip the central directory
+
+/***************************************************************************/
+
 int32_t mz_zip_reader_goto_first_entry(void *handle);
 // Goto the first entry in the zip file that matches the pattern
 
@@ -160,6 +165,11 @@ int32_t mz_zip_writer_close(void *handle);
 
 /***************************************************************************/
 
+int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t flags);
+// Zip the central directory
+
+/***************************************************************************/
+
 int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
 // Opens an entry in the zip file for writing
 
@@ -211,6 +221,9 @@ void    mz_zip_writer_set_compress_method(void *handle, uint16_t compress_method
 
 void    mz_zip_writer_set_compress_level(void *handle, int16_t compress_level);
 // Sets the compression level when adding files in zip
+
+void    mz_zip_writer_set_flags(void *handle, int32_t flags);
+// Sets additional flags to be set when adding files in zip
 
 void    mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb);
 // Callback for what to do when zip file already exists

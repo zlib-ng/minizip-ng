@@ -34,6 +34,7 @@ typedef struct minizip_opt_s {
     uint8_t overwrite;
     uint8_t append;
     int64_t disk_size;
+    uint8_t zip_cd;
 #ifdef HAVE_AES
     uint8_t aes;
 #endif
@@ -82,6 +83,7 @@ int32_t minizip_help(void)
            "  -1  Compress faster\n" \
            "  -9  Compress better\n" \
            "  -k  Disk size in KB\n" \
+           "  -z  Zip central directory" \
            "  -p  Encryption password\n");
 #ifdef HAVE_AES
     printf("  -s  AES encryption\n");
@@ -113,7 +115,8 @@ int32_t minizip_list(const char *path)
 
     mz_zip_reader_create(&reader);
     err = mz_zip_reader_open_file(reader, path);
-
+    if (err == MZ_OK)
+        err = mz_zip_reader_unzip_cd(reader);
     if (err != MZ_OK)
     {
         printf("Error %d opening zip file %s\n", err, path);
@@ -277,6 +280,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
     int32_t i = 0;
+    int32_t flags = 0;
     const char *filename_in_zip = NULL;
 
 
@@ -288,6 +292,8 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_compress_level(writer, options->compress_level);
     mz_zip_writer_set_overwrite_cb(writer, options, minizip_add_overwrite_cb);
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
+    if (options->zip_cd)
+        mz_zip_writer_set_flags(writer, MZ_ZIP_FLAG_MASK_LOCAL_INFO);
 
     err = mz_zip_writer_open_file(writer, path, options->disk_size, options->append);
 
@@ -305,6 +311,13 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     else
     {
         printf("Error %d opening zip for writing\n", err);
+    }
+
+    if (options->zip_cd)
+    {
+        if (password != NULL)
+            flags = MZ_ZIP_FLAG_ENCRYPTED;
+        mz_zip_writer_zip_cd(writer, options->compress_method, flags);
     }
 
     err_close = mz_zip_writer_close(writer);
@@ -403,12 +416,15 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     }
     else
     {
-        err = mz_zip_reader_save_all(reader, destination);
+        err = mz_zip_reader_unzip_cd(reader);
+        if (err == MZ_OK)
+            err = mz_zip_reader_save_all(reader, destination);
         if (err == MZ_END_OF_LIST && pattern != NULL)
             printf("Files matching %s not found in zip file\n", pattern);
         if (err != MZ_OK)
             printf("Error %d saving zip entries to disk %s\n", err, path);
     }
+
     err_close = mz_zip_reader_close(reader);
     if (err_close != MZ_OK)
     {
@@ -435,6 +451,8 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     mz_zip_writer_create(&writer);
 
     err = mz_zip_reader_open_file(reader, src_path);
+    if (err == MZ_OK)
+        err = mz_zip_reader_unzip_cd(reader);
     if (err != MZ_OK)
     {
         printf("Error %d opening zip for reading %s\n", err, src_path);
@@ -554,6 +572,8 @@ int main(int argc, const char *argv[])
                 options.overwrite = 1;
             else if ((c == 'i') || (c == 'I'))
                 options.include_path = 1;
+            else if ((c == 'z') || (c == 'Z'))
+                options.zip_cd = 1;
             else if ((c >= '0') && (c <= '9'))
             {
                 options.compress_level = (c - '0');
