@@ -56,7 +56,6 @@ typedef struct mz_zip_file_s
 #ifdef HAVE_AES
     uint16_t aes_version;               // winzip aes extension if not 0
     uint8_t  aes_encryption_mode;       // winzip aes encryption mode
-    uint8_t  sha1[20];                  // sha1 hash
 #endif
 } mz_zip_file, mz_zip_entry;
 
@@ -177,6 +176,17 @@ int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attr
 
 int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attrib);
 // Converts win32 file attributes to posix file attributes
+
+/***************************************************************************/
+
+int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length);
+// Seeks to extra field by its type and returns its length
+
+int32_t mz_zip_extrafield_read(void *stream, uint16_t *type, uint16_t *length);
+// Reads and extrafield header from a stream
+
+int32_t mz_zip_extrafield_write(void *stream, uint32_t type, uint16_t length);
+// Writes an extrafield header to a stream
 
 /***************************************************************************/
 

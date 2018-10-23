@@ -19,6 +19,7 @@
 #include <windows.h>
 
 #include "mz.h"
+#include "mz_os_win32.h"
 #include "mz_strm.h"
 #include "mz_strm_win32.h"
 
@@ -100,15 +101,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
         return MZ_STREAM_ERROR;
     }
 
-    path_wide_size = MultiByteToWideChar(CP_UTF8, 0, path, -1, NULL, 0);
-    path_wide = (wchar_t *)MZ_ALLOC((path_wide_size + 1) * sizeof(wchar_t));
-
-    if (path_wide == NULL)
-        return MZ_MEM_ERROR;
-
-    memset(path_wide, 0, sizeof(wchar_t) * (path_wide_size + 1));
-
-    MultiByteToWideChar(CP_UTF8, 0, path, -1, path_wide, path_wide_size);
+    path_wide = mz_win32_unicode_string_create(path);
 
 #ifdef MZ_WINRT_API
     win32->handle = CreateFile2W(path_wide, desired_access, share_mode, creation_disposition, NULL);
@@ -116,7 +109,7 @@ int32_t mz_stream_win32_open(void *stream, const char *path, int32_t mode)
     win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
 #endif
 
-    MZ_FREE(path_wide);
+    mz_win32_unicode_string_delete(&path_wide);
 
     if (mz_stream_win32_is_open(stream) != MZ_OK)
     {
@@ -159,7 +152,7 @@ int32_t mz_stream_win32_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_win32_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
-    uint32_t written = 0;
+    int32_t written = 0;
 
     if (mz_stream_win32_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
@@ -179,8 +172,11 @@ static int32_t mz_stream_win32_seekinternal(HANDLE handle, LARGE_INTEGER large_p
 #ifdef MZ_WINRT_API
     return SetFilePointerEx(handle, pos, newPos, dwMoveMethod);
 #else
-    LONG high_part = large_pos.HighPart;
-    uint32_t pos = SetFilePointer(handle, large_pos.LowPart, &high_part, move_method);
+    LONG high_part = 0;
+    uint32_t pos = 0;
+
+    high_part = large_pos.HighPart;
+    pos = SetFilePointer(handle, large_pos.LowPart, &high_part, move_method);
 
     if ((pos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
         return MZ_STREAM_ERROR;
@@ -247,7 +243,7 @@ int32_t mz_stream_win32_seek(void *stream, int64_t offset, int32_t origin)
     return MZ_OK;
 }
 
-int mz_stream_win32_close(void *stream)
+int32_t mz_stream_win32_close(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
 
@@ -257,7 +253,7 @@ int mz_stream_win32_close(void *stream)
     return MZ_OK;
 }
 
-int mz_stream_win32_error(void *stream)
+int32_t mz_stream_win32_error(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     return win32->error;

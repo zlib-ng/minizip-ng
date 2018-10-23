@@ -436,8 +436,9 @@ int32_t mz_stream_sha1_is_open(void *stream)
 int32_t mz_stream_sha1_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
-    int32_t read = 0;
-    read = mz_stream_read(sha1->stream.base, buf, size);
+    int32_t read = size;
+    if (sha1->stream.base)
+        read = mz_stream_read(sha1->stream.base, buf, size);
     if (read > 0)
     {
         sha1_hash(buf, read, &sha1->hash_ctx);
@@ -449,12 +450,12 @@ int32_t mz_stream_sha1_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_sha1_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_sha1 *sha1 = (mz_stream_sha1 *)stream;
-    int32_t written = 0;
+    int32_t written = size;
 
     if (size < 0)
         return MZ_PARAM_ERROR;
-
-    written = mz_stream_write(sha1->stream.base, buf, size);
+    if (sha1->stream.base)
+        written = mz_stream_write(sha1->stream.base, buf, size);
     if (written > 0)
     {
         sha1_hash(buf, written, &sha1->hash_ctx);

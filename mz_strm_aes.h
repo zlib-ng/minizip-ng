@@ -42,8 +42,6 @@ void*   mz_stream_aes_get_interface(void);
 
 /***************************************************************************/
 
-#define MZ_SHA1_DIGEST_SIZE (20)
-
 int32_t mz_stream_sha1_open(void *stream, const char *filename, int32_t mode);
 int32_t mz_stream_sha1_is_open(void *stream);
 int32_t mz_stream_sha1_read(void *stream, void *buf, int32_t size);

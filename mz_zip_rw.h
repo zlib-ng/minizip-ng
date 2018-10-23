@@ -72,6 +72,15 @@ int32_t mz_zip_reader_entry_close(void *handle);
 int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len);
 // Reads and entry after being opened
 
+int32_t mz_zip_reader_entry_has_sign(void *handle);
+// Checks to see if the entry has a signature 
+
+int32_t mz_zip_reader_entry_sign_verify(void *handle);
+// Verifies a signature stored with the entry
+
+int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *digest, int32_t digest_size);
+// Gets a hash algorithm from the entry's extra field
+
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info);
 // Gets the current entry file info
 
@@ -179,6 +188,9 @@ int32_t mz_zip_writer_entry_close(void *handle);
 int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
 // Writes data into entry for zip
 
+int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url);
+// Signs uncompressed content of entry, call before closing
+
 /***************************************************************************/
 
 int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb);
@@ -224,6 +236,9 @@ void    mz_zip_writer_set_compress_level(void *handle, int16_t compress_level);
 
 void    mz_zip_writer_set_flags(void *handle, int32_t flags);
 // Sets additional flags to be set when adding files in zip
+
+void    mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url);
+// Sets the certificate and timestamp url to use for signing when adding files in zip
 
 void    mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb);
 // Callback for what to do when zip file already exists

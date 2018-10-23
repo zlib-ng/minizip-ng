@@ -31,7 +31,9 @@ typedef void* DIR;
 
 /***************************************************************************/
 
-int32_t  mz_win32_rand(uint8_t *buf, int32_t size);
+wchar_t *mz_win32_unicode_string_create(const char *string);
+void     mz_win32_unicode_string_delete(wchar_t **string);
+
 int32_t  mz_win32_rename(const char *source_path, const char *target_path);
 int32_t  mz_win32_delete(const char *path);
 int32_t  mz_win32_file_exists(const char *path);
@@ -48,9 +50,13 @@ int32_t  mz_win32_close_dir(DIR *dir);
 int32_t  mz_win32_is_dir(const char *path);
 uint64_t mz_win32_ms_time(void);
 
+int32_t  mz_win32_rand(uint8_t *buf, int32_t size);
+int32_t  mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd, 
+                       const char *timestamp_url, uint8_t **signature, int32_t *signature_size);
+int32_t  mz_win32_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size);
+
 /***************************************************************************/
 
-#define mz_os_rand              mz_win32_rand
 #define mz_os_rename            mz_win32_rename
 #define mz_os_delete            mz_win32_delete
 #define mz_os_file_exists       mz_win32_file_exists
@@ -65,6 +71,10 @@ uint64_t mz_win32_ms_time(void);
 #define mz_os_close_dir         mz_win32_close_dir
 #define mz_os_is_dir            mz_win32_is_dir
 #define mz_os_ms_time           mz_win32_ms_time
+
+#define mz_os_rand              mz_win32_rand
+#define mz_os_sign              mz_win32_sign
+#define mz_os_sign_verify       mz_win32_sign_verify
 
 /***************************************************************************/
 

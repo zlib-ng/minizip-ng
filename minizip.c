@@ -37,6 +37,9 @@ typedef struct minizip_opt_s {
     uint8_t zip_cd;
 #ifdef HAVE_AES
     uint8_t aes;
+    const char *cert_path;
+    const char *cert_pwd;
+    const char *timestamp_url;
 #endif
     uint8_t legacy_encoding;
 } minizip_opt;
@@ -86,7 +89,10 @@ int32_t minizip_help(void)
            "  -z  Zip central directory" \
            "  -p  Encryption password\n");
 #ifdef HAVE_AES
-    printf("  -s  AES encryption\n");
+    printf("  -s  AES encryption\n" \
+           "  -h  Certificate path\n" \
+           "  -w  Certificate password\n" \
+           "  -t  Timestamp url\n");
 #endif
 #ifdef HAVE_BZIP2
     printf("  -b  BZIP2 compression\n");
@@ -294,6 +300,8 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
     if (options->zip_cd)
         mz_zip_writer_set_flags(writer, MZ_ZIP_FLAG_MASK_LOCAL_INFO);
+    if (options->cert_path != NULL)
+        mz_zip_writer_set_certificate(writer, options->cert_path, options->cert_pwd, options->timestamp_url);
 
     err = mz_zip_writer_open_file(writer, path, options->disk_size, options->append);
 
@@ -592,6 +600,21 @@ int main(int argc, const char *argv[])
 #ifdef HAVE_AES
             else if ((c == 's') || (c == 'S'))
                 options.aes = 1;
+            else if (((c == 'h') || (c == 'H')) && (i + 1 < argc))
+            {
+                options.cert_path = argv[i + 1];
+                i += 1;
+            }
+            else if (((c == 'w') || (c == 'W')) && (i + 1 < argc))
+            {
+                options.cert_pwd = argv[i + 1];
+                i += 1;
+            }
+            else if (((c == 't') || (c == 'T')) && (i + 1 < argc))
+            {
+                options.timestamp_url = argv[i + 1];
+                i += 1;
+            }
 #endif
             else if ((c == 'c') || (c == 'C'))
                 options.legacy_encoding = 1;

@@ -64,7 +64,7 @@ extern "C" {
 #define MZ_COMPRESS_LEVEL_NORMAL        (6)
 #define MZ_COMPRESS_LEVEL_BEST          (9)
 
-// MZ_ZIP
+// MZ_ZIP_FLAG
 #define MZ_ZIP_FLAG_ENCRYPTED           (1 << 0)
 #define MZ_ZIP_FLAG_LZMA_EOS_MARKER     (1 << 1)
 #define MZ_ZIP_FLAG_DEFLATE_MAX         (1 << 1)
@@ -75,6 +75,15 @@ extern "C" {
 #define MZ_ZIP_FLAG_DATA_DESCRIPTOR     (1 << 3)
 #define MZ_ZIP_FLAG_UTF8                (1 << 11)
 #define MZ_ZIP_FLAG_MASK_LOCAL_INFO     (1 << 13)
+
+// MZ_ZIP_EXTENSION
+#define MZ_ZIP_EXTENSION_ZIP64          (0x0001)
+#define MZ_ZIP_EXTENSION_NTFS           (0x000a)
+#define MZ_ZIP_EXTENSION_AES            (0x9901)
+#define MZ_ZIP_EXTENSION_UNIX1          (0x000d)
+#define MZ_ZIP_EXTENSION_SIGN           (0x10c5)
+#define MZ_ZIP_EXTENSION_HASH           (0x1a51)
+#define MZ_ZIP_EXTENSION_CDCD           (0xcdcd)
 
 // MZ_ZIP64
 #define MZ_ZIP64_AUTO                   (0)
@@ -98,6 +107,14 @@ extern "C" {
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
 #define MZ_AES_HEADER_SIZE(MODE)        ((4 * (MODE & 3) + 4) + 2)
 #define MZ_AES_FOOTER_SIZE              (10)
+
+// MZ_HASH
+#define MZ_HASH_MD5                     (10)
+#define MZ_HASH_MD5_SIZE                (16)
+#define MZ_HASH_SHA1                    (20)
+#define MZ_HASH_SHA1_SIZE               (20)
+#define MZ_HASH_SHA256                  (23)
+#define MZ_HASH_SHA256_SIZE             (32)
 
 // MZ_UTILITY
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
