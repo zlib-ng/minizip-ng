@@ -373,7 +373,6 @@ uint64_t mz_win32_ms_time(void)
 }
 
 /***************************************************************************/
-
 #if !defined(MZ_ZIP_NO_ENCRYPTION)
 #if !defined(MZ_ZIP_NO_COMPRESSION)
 int32_t mz_win32_rand(uint8_t *buf, int32_t size)
@@ -384,7 +383,8 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
     int32_t result = 0;
 
 
-    if (CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
+    result = CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    if (result)
     {
         result = CryptGenRandom(provider, size, buf);
         CryptReleaseContext(provider, 0);
@@ -403,10 +403,510 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 }
 #endif
 
-int32_t mz_win32_sha1_create(void *sha1)
-{
+/***************************************************************************/
 
+typedef struct mz_win32_sha_s {
+    HCRYPTPROV provider;
+    HCRYPTHASH hash;
+    int32_t    error;
+    uint16_t   algorithm;
+} mz_win32_sha;
+
+/***************************************************************************/
+
+void mz_win32_sha_reset(void *handle)
+{
+    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    if (sha->hash)
+        CryptDestroyHash(sha->hash);
+    sha->hash = 0;
+    if (sha->provider)
+        CryptReleaseContext(sha->provider, 0);
+    sha->provider = 0;
+    sha->error = 0;
 }
+
+int32_t mz_win32_sha_begin(void *handle)
+{
+    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    ALG_ID alg_id = 0;
+    int32_t result = 0;
+    int32_t err = MZ_OK;
+
+
+    if (sha == NULL)
+        return MZ_PARAM_ERROR;
+
+    if (sha->algorithm == MZ_HASH_SHA1)
+        alg_id = CALG_SHA1;
+    else
+        alg_id = CALG_SHA_256;
+
+    result = CryptAcquireContext(&sha->provider, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    if (!result)
+    {
+        sha->error = GetLastError();
+        err = MZ_CRYPT_ERROR;
+    }
+
+    if (result)
+    {
+        result = CryptCreateHash(sha->provider, alg_id, 0, 0, &sha->hash);
+        if (!result)
+        {
+            sha->error = GetLastError();
+            err = MZ_HASH_ERROR;
+        }
+    }
+
+    return err;
+}
+
+int32_t mz_win32_sha_update(void *handle, const void *buf, int32_t size)
+{
+    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    int32_t result = 0;
+
+    if (sha == NULL || buf == NULL)
+        return MZ_PARAM_ERROR;
+    result = CryptHashData(sha->hash, buf, size, 0);
+    if (!result)
+    {
+        sha->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return size;
+}
+
+int32_t mz_win32_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
+{
+    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    int32_t result = 0;
+    int32_t expected_size = 0;
+
+    if (sha == NULL || digest == NULL)
+        return MZ_PARAM_ERROR;
+    result = CryptGetHashParam(sha->hash, HP_HASHVAL, NULL, &expected_size, 0);
+    if (expected_size != digest_size)
+        return MZ_BUF_ERROR;
+    if (!result)
+        return MZ_HASH_ERROR;
+    result = CryptGetHashParam(sha->hash, HP_HASHVAL, digest, &digest_size, 0);
+    if (!result)
+    {
+        sha->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return MZ_OK;
+}
+
+void mz_win32_sha_set_algorithm(void *handle, uint16_t algorithm)
+{
+    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    sha->algorithm = algorithm;
+}
+
+void *mz_win32_sha_create(void **handle)
+{
+    mz_win32_sha *sha = NULL;
+
+    sha = (mz_win32_sha *)MZ_ALLOC(sizeof(mz_win32_sha));
+    if (sha != NULL)
+    {
+        memset(sha, 0, sizeof(mz_win32_sha));
+        sha->algorithm = MZ_HASH_SHA256;
+    }
+    if (handle != NULL)
+        *handle = sha;
+
+    return sha;
+}
+
+void mz_win32_sha_delete(void **handle)
+{
+    mz_win32_sha *sha = NULL;
+    if (handle == NULL)
+        return;
+    sha = (mz_win32_sha *)*handle;
+    if (sha != NULL)
+    {
+        mz_win32_sha_reset(*handle);
+        MZ_FREE(sha);
+    }
+    *handle = NULL;
+}
+
+/***************************************************************************/
+
+typedef struct mz_win32_aes_s {
+    HCRYPTPROV provider;
+    HCRYPTKEY  key;
+    int32_t    mode;
+    int32_t    error;
+    uint16_t   algorithm;
+} mz_win32_aes;
+
+/***************************************************************************/
+
+static void mz_win32_aes_free(void *handle)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    if (aes->key)
+        CryptDestroyKey(aes->key);
+    aes->key = 0;
+    if (aes->provider)
+        CryptReleaseContext(aes->provider, 0);
+    aes->provider = 0;
+}
+
+void mz_win32_aes_reset(void *handle)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_win32_aes_free(handle);
+}
+
+int32_t mz_win32_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    int32_t result = 0;
+    int32_t buf_len = size;
+
+    if (aes == NULL || buf == NULL)
+        return MZ_PARAM_ERROR;
+    if (final)
+        buf_len = 0;
+    result = CryptEncrypt(aes->key, 0, final, 0, buf, &buf_len, size);
+    if (!result)
+    {
+        aes->error = GetLastError();
+        return MZ_CRYPT_ERROR;
+    }
+    return size;
+}
+
+int32_t mz_win32_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    int32_t result = 0;
+    if (aes == NULL || buf == NULL)
+        return MZ_PARAM_ERROR;
+    result = CryptDecrypt(aes->key, 0, final, 0, buf, &size);
+    if (!result)
+    {
+        aes->error = GetLastError();
+        return MZ_CRYPT_ERROR;
+    }
+    return size;
+}
+
+int32_t mz_win32_aes_set_key(void *handle, const void *key, int32_t key_length)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    HCRYPTHASH hash = 0;
+    ALG_ID alg_id = 0;
+    ALG_ID hash_alg_id = 0;
+    int32_t result = 0;
+    int32_t err = MZ_OK;
+
+
+    if (aes == NULL || key == NULL)
+        return MZ_PARAM_ERROR;
+    
+    mz_win32_aes_reset(handle);
+    
+    if (aes->mode == MZ_AES_ENCRYPTION_MODE_128)
+        alg_id = CALG_AES_128;
+    else if (aes->mode == MZ_AES_ENCRYPTION_MODE_192)
+        alg_id = CALG_AES_192;
+    else
+        alg_id = CALG_AES_256;
+    
+    if (aes->algorithm == MZ_HASH_SHA1)
+        hash_alg_id = CALG_SHA1;
+    else
+        hash_alg_id = CALG_SHA_256;
+
+    result = CryptAcquireContext(&aes->provider, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    if (!result)
+    {
+        aes->error = GetLastError();
+        err = MZ_CRYPT_ERROR;
+    }
+    if (result)
+    {
+        result = CryptCreateHash(aes->provider, hash_alg_id, 0, 0, &hash);
+        if (!result)
+        {
+            aes->error = GetLastError();
+            err = MZ_HASH_ERROR;
+        }
+    }
+    if (result)
+    {
+        result = CryptHashData(hash, key, key_length, 0);
+        if (!result)
+        {
+            aes->error = GetLastError();
+            err = MZ_HASH_ERROR;
+        }
+    }
+    if (result)
+    {
+        result = CryptDeriveKey(aes->provider, alg_id, hash, 0, &aes->key);
+        if (!result)
+        {
+            aes->error = GetLastError();
+            err = MZ_CRYPT_ERROR;
+        }
+    }
+    if (hash)
+        CryptDestroyHash(hash);
+
+    return err;
+}
+
+void mz_win32_aes_set_mode(void *handle, int32_t mode)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    aes->mode = mode;
+}
+
+void mz_win32_aes_set_algorithm(void *handle, uint16_t algorithm)
+{
+    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    aes->algorithm = algorithm;
+}
+
+void *mz_win32_aes_create(void **handle)
+{
+    mz_win32_aes *aes = NULL;
+
+    aes = (mz_win32_aes *)MZ_ALLOC(sizeof(mz_win32_aes));
+    if (aes != NULL)
+    {
+        aes->algorithm = MZ_HASH_SHA256;
+        memset(aes, 0, sizeof(mz_win32_aes));
+    }
+    if (handle != NULL)
+        *handle = aes;
+
+    return aes;
+}
+
+void mz_win32_aes_delete(void **handle)
+{
+    mz_win32_aes *aes = NULL;
+    if (handle == NULL)
+        return;
+    aes = (mz_win32_aes *)*handle;
+    if (aes != NULL)
+    {
+        mz_win32_aes_free(*handle);
+        MZ_FREE(aes);
+    }
+    *handle = NULL;
+}
+
+/***************************************************************************/
+
+typedef struct mz_win32_hmac_s {
+    HCRYPTPROV provider;
+    HCRYPTHASH hash;
+    HCRYPTKEY  key;
+    HMAC_INFO  info;
+    int32_t    mode;
+    int32_t    error;
+    uint16_t   algorithm;
+} mz_win32_hmac;
+
+/***************************************************************************/
+
+static void mz_win32_hmac_free(void *handle)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    if (hmac->key)
+        CryptDestroyKey(hmac->key);
+    hmac->key = 0;
+    if (hmac->hash)
+        CryptDestroyHash(hmac->hash);
+    hmac->hash = 0;
+    if (hmac->provider)
+        CryptReleaseContext(hmac->provider, 0);
+    hmac->provider = 0;
+    memset(&hmac->info, 0, sizeof(hmac->info));
+}
+
+void mz_win32_hmac_reset(void *handle)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_win32_hmac_free(handle);
+}
+
+int32_t mz_win32_hmac_begin(void *handle)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    int32_t result = 0;
+    int32_t err = MZ_OK;
+
+    if (hmac == NULL || hmac->provider == 0)
+        return MZ_PARAM_ERROR;
+    result = CryptCreateHash(hmac->provider, CALG_HMAC, hmac->key, 0, &hmac->hash);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        err = MZ_HASH_ERROR;
+    }
+    if (result)
+    {
+        result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
+        if (!result)
+        {
+            hmac->error = GetLastError();
+            err = MZ_HASH_ERROR;
+        }
+    }
+    return err;
+}
+
+int32_t mz_win32_hmac_update(void *handle, const void *buf, int32_t size)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    int32_t result = 0;
+
+    if (hmac == NULL || buf == NULL || hmac->hash == 0)
+        return MZ_PARAM_ERROR;
+
+    result = CryptHashData(hmac->hash, buf, size, 0);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return MZ_OK;
+}
+
+int32_t mz_win32_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    int32_t result = 0;
+    int32_t expected_size = 0;
+    int32_t err = MZ_OK;
+
+    if (hmac == NULL || digest == NULL || hmac->hash == 0)
+        return MZ_PARAM_ERROR;
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, &expected_size, 0);
+    if (expected_size != digest_size)
+        return MZ_BUF_ERROR;
+    if (!result)
+        return MZ_HASH_ERROR;
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, digest, &digest_size, 0);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return MZ_OK;
+}
+
+int32_t mz_win32_hmac_set_key(void *handle, const void *key, int32_t key_length)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    HCRYPTHASH hash = 0;
+    ALG_ID alg_id = 0;
+    typedef struct key_blob_header_s {
+	    BLOBHEADER hdr;
+	    uint32_t   key_length;
+	} key_blob_header_s;
+    key_blob_header_s *key_blob_s = NULL;
+    uint8_t *key_blob = NULL;
+    int32_t key_blob_size = 0;
+    int32_t result = 0;
+    int32_t err = MZ_OK;
+
+
+    if (hmac == NULL || key == NULL)
+        return MZ_PARAM_ERROR;
+    
+    mz_win32_hmac_reset(handle);
+    
+    if (hmac->algorithm == MZ_HASH_SHA1)
+        alg_id = CALG_SHA1;
+    else
+        alg_id = CALG_SHA_256;
+
+    hmac->info.HashAlgid = alg_id;
+
+    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        err = MZ_CRYPT_ERROR;
+    }
+
+    key_blob_size = sizeof(key_blob_header_s) + key_length;
+    key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+
+    key_blob_s = (key_blob_header_s *)key_blob;
+    key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
+    key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
+    key_blob_s->hdr.aiKeyAlg = CALG_RC4;
+    key_blob_s->hdr.reserved = 0;
+    key_blob_s->key_length = key_length;
+
+    memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
+
+    result = CryptImportKey(hmac->provider, key_blob, key_blob_size, 0, 0, &hmac->key);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        err = MZ_CRYPT_ERROR;
+    }
+
+    MZ_FREE(key_blob);
+
+    if (err != MZ_OK)
+        mz_win32_hmac_free(handle);
+
+    return err;
+}
+
+void mz_win32_hmac_set_algorithm(void *handle, uint16_t algorithm)
+{
+    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    hmac->algorithm = algorithm;
+}
+
+void *mz_win32_hmac_create(void **handle)
+{
+    mz_win32_hmac *hmac = NULL;
+
+    hmac = (mz_win32_hmac *)MZ_ALLOC(sizeof(mz_win32_hmac));
+    if (hmac != NULL)
+    {
+        memset(hmac, 0, sizeof(mz_win32_hmac));
+        hmac->algorithm = MZ_HASH_SHA256;
+    }
+    if (handle != NULL)
+        *handle = hmac;
+
+    return hmac;
+}
+
+void mz_win32_hmac_delete(void **handle)
+{
+    mz_win32_hmac *hmac = NULL;
+    if (handle == NULL)
+        return;
+    hmac = (mz_win32_hmac *)*handle;
+    if (hmac != NULL)
+    {
+        mz_win32_hmac_free(*handle);
+        MZ_FREE(hmac);
+    }
+    *handle = NULL;
+}
+
+/***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_COMPRESSION)
 int32_t mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
