@@ -38,6 +38,7 @@ extern "C" {
 #define MZ_EXIST_ERROR                  (-107)
 #define MZ_PASSWORD_ERROR               (-108)
 #define MZ_SUPPORT_ERROR                (-109)
+#define MZ_HASH_ERROR                   (-110)
 
 // MZ_OPEN
 #define MZ_OPEN_MODE_READ               (0x01)

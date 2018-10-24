@@ -25,7 +25,8 @@
 #include "mz.h"
 
 #include "mz_os.h"
-#include "mz_os_win32.h"
+#include "mz_strm_os.h"
+#include "mz_util.h"
 
 /***************************************************************************/
 
@@ -46,7 +47,7 @@ typedef struct DIR_int_s {
 
 /***************************************************************************/
 
-wchar_t *mz_win32_unicode_string_create(const char *string)
+wchar_t *mz_os_unicode_string_create(const char *string)
 {
     wchar_t *string_wide = NULL;
     uint32_t string_wide_size = 0;
@@ -60,7 +61,7 @@ wchar_t *mz_win32_unicode_string_create(const char *string)
     return string_wide;
 }
 
-void mz_win32_unicode_string_delete(wchar_t **string)
+void mz_os_unicode_string_delete(wchar_t **string)
 {
     if (string != NULL)
     {
@@ -71,18 +72,18 @@ void mz_win32_unicode_string_delete(wchar_t **string)
 
 /***************************************************************************/
 
-int32_t mz_win32_rename(const char *source_path, const char *target_path)
+int32_t mz_os_rename(const char *source_path, const char *target_path)
 {
     wchar_t *source_path_wide = NULL;
     wchar_t *target_path_wide = NULL;
     int32_t result = 0;
 
 
-    source_path_wide = mz_win32_unicode_string_create(source_path);
-    target_path_wide = mz_win32_unicode_string_create(target_path);
+    source_path_wide = mz_os_unicode_string_create(source_path);
+    target_path_wide = mz_os_unicode_string_create(target_path);
     result = MoveFileW(source_path_wide, target_path_wide);
-    mz_win32_unicode_string_delete(&source_path_wide);
-    mz_win32_unicode_string_delete(&target_path_wide);
+    mz_os_unicode_string_delete(&source_path_wide);
+    mz_os_unicode_string_delete(&target_path_wide);
 
     if (result == 0)
         return MZ_EXIST_ERROR;
@@ -90,15 +91,15 @@ int32_t mz_win32_rename(const char *source_path, const char *target_path)
     return MZ_OK;
 }
 
-int32_t mz_win32_delete(const char *path)
+int32_t mz_os_delete(const char *path)
 {
     wchar_t *path_wide = NULL;
     int32_t result = 0;
 
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     result = DeleteFileW(path_wide);
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (result == 0)
         return MZ_EXIST_ERROR;
@@ -106,15 +107,15 @@ int32_t mz_win32_delete(const char *path)
     return MZ_OK;
 }
 
-int32_t mz_win32_file_exists(const char *path)
+int32_t mz_os_file_exists(const char *path)
 {
     wchar_t *path_wide = NULL;
     DWORD attribs = 0;
 
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     attribs = GetFileAttributesW(path_wide);
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (attribs == 0xFFFFFFFF)
         return MZ_EXIST_ERROR;
@@ -122,20 +123,20 @@ int32_t mz_win32_file_exists(const char *path)
     return MZ_OK;
 }
 
-int64_t mz_win32_get_file_size(const char *path)
+int64_t mz_os_get_file_size(const char *path)
 {
     HANDLE handle = NULL;
     LARGE_INTEGER large_size;
     wchar_t *path_wide = NULL;
 
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
 #ifdef MZ_WINRT_API
     handle = CreateFile2W(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     large_size.QuadPart = 0;
 
@@ -148,7 +149,7 @@ int64_t mz_win32_get_file_size(const char *path)
     return large_size.QuadPart;
 }
 
-static void mz_win32_file_to_unix_time(FILETIME file_time, time_t *unix_time)
+static void mz_os_file_to_unix_time(FILETIME file_time, time_t *unix_time)
 {
     uint64_t quad_file_time = 0;
     quad_file_time = file_time.dwLowDateTime;
@@ -156,7 +157,7 @@ static void mz_win32_file_to_unix_time(FILETIME file_time, time_t *unix_time)
     *unix_time = (time_t)((quad_file_time - 116444736000000000LL) / 10000000);
 }
 
-static void mz_win32_unix_to_file_time(time_t unix_time, FILETIME *file_time)
+static void mz_os_unix_to_file_time(time_t unix_time, FILETIME *file_time)
 {
     uint64_t quad_file_time = 0;
     quad_file_time = ((uint64_t)unix_time * 10000000) + 116444736000000000LL;
@@ -164,25 +165,25 @@ static void mz_win32_unix_to_file_time(time_t unix_time, FILETIME *file_time)
     file_time->dwLowDateTime = (uint32_t)(quad_file_time);
 }
 
-int32_t mz_win32_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
+int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
 {
     WIN32_FIND_DATAW ff32;
     HANDLE handle = NULL;
     wchar_t *path_wide = NULL;
     int32_t err = MZ_INTERNAL_ERROR;
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     handle = FindFirstFileW(path_wide, &ff32);
     MZ_FREE(path_wide);
 
     if (handle != INVALID_HANDLE_VALUE)
     {
         if (modified_date != NULL)
-            mz_win32_file_to_unix_time(ff32.ftLastWriteTime, modified_date);
+            mz_os_file_to_unix_time(ff32.ftLastWriteTime, modified_date);
         if (accessed_date != NULL)
-            mz_win32_file_to_unix_time(ff32.ftLastAccessTime, accessed_date);
+            mz_os_file_to_unix_time(ff32.ftLastAccessTime, accessed_date);
         if (creation_date != NULL)
-            mz_win32_file_to_unix_time(ff32.ftCreationTime, creation_date);
+            mz_os_file_to_unix_time(ff32.ftCreationTime, creation_date);
 
         FindClose(handle);
         err = MZ_OK;
@@ -191,7 +192,7 @@ int32_t mz_win32_get_file_date(const char *path, time_t *modified_date, time_t *
     return err;
 }
 
-int32_t mz_win32_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date)
+int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date)
 {
     HANDLE handle = NULL;
     FILETIME ftm_creation, ftm_accessed, ftm_modified;
@@ -199,24 +200,24 @@ int32_t mz_win32_set_file_date(const char *path, time_t modified_date, time_t ac
     int32_t err = MZ_OK;
 
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
 #ifdef MZ_WINRT_API
     handle = CreateFile2W(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #endif
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (handle != INVALID_HANDLE_VALUE)
     {
         GetFileTime(handle, &ftm_creation, &ftm_accessed, &ftm_modified);
 
         if (modified_date != 0)
-            mz_win32_unix_to_file_time(modified_date, &ftm_modified);
+            mz_os_unix_to_file_time(modified_date, &ftm_modified);
         if (accessed_date != 0)
-            mz_win32_unix_to_file_time(accessed_date, &ftm_accessed);
+            mz_os_unix_to_file_time(accessed_date, &ftm_accessed);
         if (creation_date != 0)
-            mz_win32_unix_to_file_time(creation_date, &ftm_creation);
+            mz_os_unix_to_file_time(creation_date, &ftm_creation);
 
         if (SetFileTime(handle, &ftm_creation, &ftm_accessed, &ftm_modified) == 0)
             err = MZ_INTERNAL_ERROR;
@@ -227,12 +228,12 @@ int32_t mz_win32_set_file_date(const char *path, time_t modified_date, time_t ac
     return err;
 }
 
-int32_t mz_win32_get_file_attribs(const char *path, uint32_t *attributes)
+int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes)
 {
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     *attributes = GetFileAttributesW(path_wide);
     MZ_FREE(path_wide);
 
@@ -242,12 +243,12 @@ int32_t mz_win32_get_file_attribs(const char *path, uint32_t *attributes)
     return err;
 }
 
-int32_t mz_win32_set_file_attribs(const char *path, uint32_t attributes)
+int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes)
 {
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     if (SetFileAttributesW(path_wide, attributes) == 0)
         err = MZ_INTERNAL_ERROR;
     MZ_FREE(path_wide);
@@ -255,15 +256,15 @@ int32_t mz_win32_set_file_attribs(const char *path, uint32_t attributes)
     return err;
 }
 
-int32_t mz_win32_make_dir(const char *path)
+int32_t mz_os_make_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
     int32_t err = 0;
 
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     err = _wmkdir(path_wide);
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (err != 0 && errno != EEXIST)
         return MZ_INTERNAL_ERROR;
@@ -271,7 +272,7 @@ int32_t mz_win32_make_dir(const char *path)
     return MZ_OK;
 }
 
-DIR *mz_win32_open_dir(const char *path)
+DIR *mz_os_open_dir(const char *path)
 {
     WIN32_FIND_DATAW find_data;
     DIR_int *dir_int = NULL;
@@ -284,9 +285,9 @@ DIR *mz_win32_open_dir(const char *path)
     mz_path_combine(fixed_path, path, sizeof(fixed_path));
     mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
-    path_wide = mz_win32_unicode_string_create(fixed_path);
+    path_wide = mz_os_unicode_string_create(fixed_path);
     handle = FindFirstFileW(path_wide, &find_data);
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (handle == INVALID_HANDLE_VALUE)
         return NULL;
@@ -300,7 +301,7 @@ DIR *mz_win32_open_dir(const char *path)
     return (DIR *)dir_int;
 }
 
-struct dirent* mz_win32_read_dir(DIR *dir)
+struct dirent* mz_os_read_dir(DIR *dir)
 {
     DIR_int *dir_int;
 
@@ -325,7 +326,7 @@ struct dirent* mz_win32_read_dir(DIR *dir)
     return &dir_int->entry;
 }
 
-int32_t mz_win32_close_dir(DIR *dir)
+int32_t mz_os_close_dir(DIR *dir)
 {
     DIR_int *dir_int;
 
@@ -339,14 +340,14 @@ int32_t mz_win32_close_dir(DIR *dir)
     return MZ_OK;
 }
 
-int32_t mz_win32_is_dir(const char *path)
+int32_t mz_os_is_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
     uint32_t attribs = 0;
 
-    path_wide = mz_win32_unicode_string_create(path);
+    path_wide = mz_os_unicode_string_create(path);
     attribs = GetFileAttributesW(path_wide);
-    mz_win32_unicode_string_delete(&path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (attribs != 0xFFFFFFFF)
     {
@@ -357,7 +358,7 @@ int32_t mz_win32_is_dir(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-uint64_t mz_win32_ms_time(void)
+uint64_t mz_os_ms_time(void)
 {
     SYSTEMTIME system_time;
     FILETIME file_time;
@@ -375,7 +376,7 @@ uint64_t mz_win32_ms_time(void)
 /***************************************************************************/
 #if !defined(MZ_ZIP_NO_ENCRYPTION)
 #if !defined(MZ_ZIP_NO_COMPRESSION)
-int32_t mz_win32_rand(uint8_t *buf, int32_t size)
+int32_t mz_os_rand(uint8_t *buf, int32_t size)
 {
     HCRYPTPROV provider;
     unsigned __int64 pentium_tsc[1];
@@ -405,18 +406,18 @@ int32_t mz_win32_rand(uint8_t *buf, int32_t size)
 
 /***************************************************************************/
 
-typedef struct mz_win32_sha_s {
+typedef struct mz_os_sha_s {
     HCRYPTPROV provider;
     HCRYPTHASH hash;
     int32_t    error;
     uint16_t   algorithm;
-} mz_win32_sha;
+} mz_os_sha;
 
 /***************************************************************************/
 
-void mz_win32_sha_reset(void *handle)
+void mz_os_sha_reset(void *handle)
 {
-    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    mz_os_sha *sha = (mz_os_sha *)handle;
     if (sha->hash)
         CryptDestroyHash(sha->hash);
     sha->hash = 0;
@@ -426,9 +427,9 @@ void mz_win32_sha_reset(void *handle)
     sha->error = 0;
 }
 
-int32_t mz_win32_sha_begin(void *handle)
+int32_t mz_os_sha_begin(void *handle)
 {
-    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    mz_os_sha *sha = (mz_os_sha *)handle;
     ALG_ID alg_id = 0;
     int32_t result = 0;
     int32_t err = MZ_OK;
@@ -462,9 +463,9 @@ int32_t mz_win32_sha_begin(void *handle)
     return err;
 }
 
-int32_t mz_win32_sha_update(void *handle, const void *buf, int32_t size)
+int32_t mz_os_sha_update(void *handle, const void *buf, int32_t size)
 {
-    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    mz_os_sha *sha = (mz_os_sha *)handle;
     int32_t result = 0;
 
     if (sha == NULL || buf == NULL)
@@ -478,9 +479,9 @@ int32_t mz_win32_sha_update(void *handle, const void *buf, int32_t size)
     return size;
 }
 
-int32_t mz_win32_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
+int32_t mz_os_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
-    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    mz_os_sha *sha = (mz_os_sha *)handle;
     int32_t result = 0;
     int32_t expected_size = 0;
 
@@ -500,20 +501,20 @@ int32_t mz_win32_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
     return MZ_OK;
 }
 
-void mz_win32_sha_set_algorithm(void *handle, uint16_t algorithm)
+void mz_os_sha_set_algorithm(void *handle, uint16_t algorithm)
 {
-    mz_win32_sha *sha = (mz_win32_sha *)handle;
+    mz_os_sha *sha = (mz_os_sha *)handle;
     sha->algorithm = algorithm;
 }
 
-void *mz_win32_sha_create(void **handle)
+void *mz_os_sha_create(void **handle)
 {
-    mz_win32_sha *sha = NULL;
+    mz_os_sha *sha = NULL;
 
-    sha = (mz_win32_sha *)MZ_ALLOC(sizeof(mz_win32_sha));
+    sha = (mz_os_sha *)MZ_ALLOC(sizeof(mz_os_sha));
     if (sha != NULL)
     {
-        memset(sha, 0, sizeof(mz_win32_sha));
+        memset(sha, 0, sizeof(mz_os_sha));
         sha->algorithm = MZ_HASH_SHA256;
     }
     if (handle != NULL)
@@ -522,15 +523,15 @@ void *mz_win32_sha_create(void **handle)
     return sha;
 }
 
-void mz_win32_sha_delete(void **handle)
+void mz_os_sha_delete(void **handle)
 {
-    mz_win32_sha *sha = NULL;
+    mz_os_sha *sha = NULL;
     if (handle == NULL)
         return;
-    sha = (mz_win32_sha *)*handle;
+    sha = (mz_os_sha *)*handle;
     if (sha != NULL)
     {
-        mz_win32_sha_reset(*handle);
+        mz_os_sha_reset(*handle);
         MZ_FREE(sha);
     }
     *handle = NULL;
@@ -538,19 +539,19 @@ void mz_win32_sha_delete(void **handle)
 
 /***************************************************************************/
 
-typedef struct mz_win32_aes_s {
+typedef struct mz_os_aes_s {
     HCRYPTPROV provider;
     HCRYPTKEY  key;
     int32_t    mode;
     int32_t    error;
     uint16_t   algorithm;
-} mz_win32_aes;
+} mz_os_aes;
 
 /***************************************************************************/
 
-static void mz_win32_aes_free(void *handle)
+static void mz_os_aes_free(void *handle)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     if (aes->key)
         CryptDestroyKey(aes->key);
     aes->key = 0;
@@ -559,15 +560,15 @@ static void mz_win32_aes_free(void *handle)
     aes->provider = 0;
 }
 
-void mz_win32_aes_reset(void *handle)
+void mz_os_aes_reset(void *handle)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
-    mz_win32_aes_free(handle);
+    mz_os_aes *aes = (mz_os_aes *)handle;
+    mz_os_aes_free(handle);
 }
 
-int32_t mz_win32_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+int32_t mz_os_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     int32_t result = 0;
     int32_t buf_len = size;
 
@@ -584,9 +585,9 @@ int32_t mz_win32_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t f
     return size;
 }
 
-int32_t mz_win32_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+int32_t mz_os_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     int32_t result = 0;
     if (aes == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
@@ -599,9 +600,9 @@ int32_t mz_win32_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t f
     return size;
 }
 
-int32_t mz_win32_aes_set_key(void *handle, const void *key, int32_t key_length)
+int32_t mz_os_aes_set_key(void *handle, const void *key, int32_t key_length)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
     ALG_ID hash_alg_id = 0;
@@ -612,7 +613,7 @@ int32_t mz_win32_aes_set_key(void *handle, const void *key, int32_t key_length)
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
     
-    mz_win32_aes_reset(handle);
+    mz_os_aes_reset(handle);
     
     if (aes->mode == MZ_AES_ENCRYPTION_MODE_128)
         alg_id = CALG_AES_128;
@@ -665,27 +666,27 @@ int32_t mz_win32_aes_set_key(void *handle, const void *key, int32_t key_length)
     return err;
 }
 
-void mz_win32_aes_set_mode(void *handle, int32_t mode)
+void mz_os_aes_set_mode(void *handle, int32_t mode)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     aes->mode = mode;
 }
 
-void mz_win32_aes_set_algorithm(void *handle, uint16_t algorithm)
+void mz_os_aes_set_algorithm(void *handle, uint16_t algorithm)
 {
-    mz_win32_aes *aes = (mz_win32_aes *)handle;
+    mz_os_aes *aes = (mz_os_aes *)handle;
     aes->algorithm = algorithm;
 }
 
-void *mz_win32_aes_create(void **handle)
+void *mz_os_aes_create(void **handle)
 {
-    mz_win32_aes *aes = NULL;
+    mz_os_aes *aes = NULL;
 
-    aes = (mz_win32_aes *)MZ_ALLOC(sizeof(mz_win32_aes));
+    aes = (mz_os_aes *)MZ_ALLOC(sizeof(mz_os_aes));
     if (aes != NULL)
     {
         aes->algorithm = MZ_HASH_SHA256;
-        memset(aes, 0, sizeof(mz_win32_aes));
+        memset(aes, 0, sizeof(mz_os_aes));
     }
     if (handle != NULL)
         *handle = aes;
@@ -693,15 +694,15 @@ void *mz_win32_aes_create(void **handle)
     return aes;
 }
 
-void mz_win32_aes_delete(void **handle)
+void mz_os_aes_delete(void **handle)
 {
-    mz_win32_aes *aes = NULL;
+    mz_os_aes *aes = NULL;
     if (handle == NULL)
         return;
-    aes = (mz_win32_aes *)*handle;
+    aes = (mz_os_aes *)*handle;
     if (aes != NULL)
     {
-        mz_win32_aes_free(*handle);
+        mz_os_aes_free(*handle);
         MZ_FREE(aes);
     }
     *handle = NULL;
@@ -709,7 +710,7 @@ void mz_win32_aes_delete(void **handle)
 
 /***************************************************************************/
 
-typedef struct mz_win32_hmac_s {
+typedef struct mz_os_hmac_s {
     HCRYPTPROV provider;
     HCRYPTHASH hash;
     HCRYPTKEY  key;
@@ -717,13 +718,13 @@ typedef struct mz_win32_hmac_s {
     int32_t    mode;
     int32_t    error;
     uint16_t   algorithm;
-} mz_win32_hmac;
+} mz_os_hmac;
 
 /***************************************************************************/
 
-static void mz_win32_hmac_free(void *handle)
+static void mz_os_hmac_free(void *handle)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     if (hmac->key)
         CryptDestroyKey(hmac->key);
     hmac->key = 0;
@@ -736,15 +737,15 @@ static void mz_win32_hmac_free(void *handle)
     memset(&hmac->info, 0, sizeof(hmac->info));
 }
 
-void mz_win32_hmac_reset(void *handle)
+void mz_os_hmac_reset(void *handle)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
-    mz_win32_hmac_free(handle);
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
+    mz_os_hmac_free(handle);
 }
 
-int32_t mz_win32_hmac_begin(void *handle)
+int32_t mz_os_hmac_begin(void *handle)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     int32_t result = 0;
     int32_t err = MZ_OK;
 
@@ -768,9 +769,9 @@ int32_t mz_win32_hmac_begin(void *handle)
     return err;
 }
 
-int32_t mz_win32_hmac_update(void *handle, const void *buf, int32_t size)
+int32_t mz_os_hmac_update(void *handle, const void *buf, int32_t size)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     int32_t result = 0;
 
     if (hmac == NULL || buf == NULL || hmac->hash == 0)
@@ -785,9 +786,9 @@ int32_t mz_win32_hmac_update(void *handle, const void *buf, int32_t size)
     return MZ_OK;
 }
 
-int32_t mz_win32_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
+int32_t mz_os_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     int32_t result = 0;
     int32_t expected_size = 0;
     int32_t err = MZ_OK;
@@ -808,9 +809,9 @@ int32_t mz_win32_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     return MZ_OK;
 }
 
-int32_t mz_win32_hmac_set_key(void *handle, const void *key, int32_t key_length)
+int32_t mz_os_hmac_set_key(void *handle, const void *key, int32_t key_length)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
     typedef struct key_blob_header_s {
@@ -827,7 +828,7 @@ int32_t mz_win32_hmac_set_key(void *handle, const void *key, int32_t key_length)
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
     
-    mz_win32_hmac_reset(handle);
+    mz_os_hmac_reset(handle);
     
     if (hmac->algorithm == MZ_HASH_SHA1)
         alg_id = CALG_SHA1;
@@ -865,25 +866,25 @@ int32_t mz_win32_hmac_set_key(void *handle, const void *key, int32_t key_length)
     MZ_FREE(key_blob);
 
     if (err != MZ_OK)
-        mz_win32_hmac_free(handle);
+        mz_os_hmac_free(handle);
 
     return err;
 }
 
-void mz_win32_hmac_set_algorithm(void *handle, uint16_t algorithm)
+void mz_os_hmac_set_algorithm(void *handle, uint16_t algorithm)
 {
-    mz_win32_hmac *hmac = (mz_win32_hmac *)handle;
+    mz_os_hmac *hmac = (mz_os_hmac *)handle;
     hmac->algorithm = algorithm;
 }
 
-void *mz_win32_hmac_create(void **handle)
+void *mz_os_hmac_create(void **handle)
 {
-    mz_win32_hmac *hmac = NULL;
+    mz_os_hmac *hmac = NULL;
 
-    hmac = (mz_win32_hmac *)MZ_ALLOC(sizeof(mz_win32_hmac));
+    hmac = (mz_os_hmac *)MZ_ALLOC(sizeof(mz_os_hmac));
     if (hmac != NULL)
     {
-        memset(hmac, 0, sizeof(mz_win32_hmac));
+        memset(hmac, 0, sizeof(mz_os_hmac));
         hmac->algorithm = MZ_HASH_SHA256;
     }
     if (handle != NULL)
@@ -892,15 +893,15 @@ void *mz_win32_hmac_create(void **handle)
     return hmac;
 }
 
-void mz_win32_hmac_delete(void **handle)
+void mz_os_hmac_delete(void **handle)
 {
-    mz_win32_hmac *hmac = NULL;
+    mz_os_hmac *hmac = NULL;
     if (handle == NULL)
         return;
-    hmac = (mz_win32_hmac *)*handle;
+    hmac = (mz_os_hmac *)*handle;
     if (hmac != NULL)
     {
-        mz_win32_hmac_free(*handle);
+        mz_os_hmac_free(*handle);
         MZ_FREE(hmac);
     }
     *handle = NULL;
@@ -909,7 +910,7 @@ void mz_win32_hmac_delete(void **handle)
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_COMPRESSION)
-int32_t mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
+int32_t mz_os_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
     const char *timestamp_url, uint8_t **signature, int32_t *signature_size)
 {
     CRYPT_SIGN_MESSAGE_PARA sign_params;
@@ -955,9 +956,9 @@ int32_t mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
     if ((err == MZ_OK) && (cert_pwd != NULL))
     {
-        password_wide = mz_win32_unicode_string_create(cert_pwd);
+        password_wide = mz_os_unicode_string_create(cert_pwd);
         cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
-        mz_win32_unicode_string_delete(&password_wide);
+        mz_os_unicode_string_delete(&password_wide);
     }
 
     if (cert_store == NULL)
@@ -991,14 +992,14 @@ int32_t mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_p
         messages_sizes[0] = message_size;
 
         if (timestamp_url != NULL)
-            timestamp_url_wide = mz_win32_unicode_string_create(timestamp_url);
+            timestamp_url_wide = mz_os_unicode_string_create(timestamp_url);
         if (timestamp_url_wide != NULL)
         {
             result = CryptRetrieveTimeStamp(timestamp_url_wide, 
                 TIMESTAMP_NO_AUTH_RETRIEVAL | TIMESTAMP_VERIFY_CONTEXT_SIGNATURE, 0, szOID_NIST_sha256, 
                 NULL, message, message_size, &ts_context, NULL, NULL);
 
-            mz_win32_unicode_string_delete(&timestamp_url_wide);
+            mz_os_unicode_string_delete(&timestamp_url_wide);
 
             if ((result) && (ts_context != NULL))
             {
@@ -1041,7 +1042,7 @@ int32_t mz_win32_sign(uint8_t *message, int32_t message_size, const char *cert_p
 }
 #endif
 
-int32_t mz_win32_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
+int32_t mz_os_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
     CRYPT_VERIFY_MESSAGE_PARA verify_params;
     CRYPT_TIMESTAMP_CONTEXT *crypt_context = NULL;

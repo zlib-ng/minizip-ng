@@ -65,14 +65,13 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONL
 set(PROJECT_NAME libminizip)
 
 set(MINIZIP_SRC
-    mz_os.c
     mz_compat.c
     mz_strm.c
     mz_strm_buf.c
     mz_strm_crc32.c
     mz_strm_mem.c
-    mz_strm_posix.c
     mz_strm_split.c
+    mz_util.c
     mz_zip.c
     mz_zip_rw.c)
 
@@ -84,8 +83,8 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_buf.h
     mz_strm_crc32.h
     mz_strm_mem.h
-    mz_strm_posix.h
-    mz_strm_split.h
+    mz_strm_os.h
+    mz_util.h
     mz_zip.h
     mz_zip_rw.h)
 
@@ -102,8 +101,7 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
-    list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_win32.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_win32.h" "mz_strm_win32.h")
+    list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
 
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
@@ -119,8 +117,7 @@ endif()
 if(UNIX)
     add_compile_options(-O3)
 
-    list(APPEND MINIZIP_SRC "mz_os_posix.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_os_posix.h")
+    list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
 
     set(define_lfs_macros TRUE)
 
@@ -179,8 +176,8 @@ endif()
 if(USE_AES)
     add_definitions(-DHAVE_AES)
 
-    list(APPEND MINIZIP_SRC "mz_strm_aes.c")
-    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_aes.h")
+    list(APPEND MINIZIP_SRC "mz_strm_wzaes.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_wzaes.h")
 
     set(AES_SRC
         lib/aes/aescrypt.c

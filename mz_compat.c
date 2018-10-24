@@ -20,6 +20,7 @@
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
+#include "mz_strm_os.h"
 #include "mz_strm_zlib.h"
 #include "mz_zip.h"
 

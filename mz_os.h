@@ -20,15 +20,13 @@ extern "C" {
 
 /***************************************************************************/
 
-#if !defined(_WIN32) && !defined(MZ_WIN32_API)
-#include "mz_os_posix.h"
-#include "mz_strm_posix.h"
-#else
-#include "mz_os_win32.h"
-#include "mz_strm_win32.h"
+#if defined(__APPLE__)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_OSX_DARWIN)
+#elif defined(unix)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_UNIX)
+#elif defined(_WIN32)
+#define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_WINDOWS_NTFS)
 #endif
-
-/***************************************************************************/
 
 #ifdef HAVE_LZMA
 #define MZ_VERSION_MADEBY_ZIP_VERSION (63)
@@ -45,29 +43,65 @@ extern "C" {
 
 /***************************************************************************/
 
-int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
-// Combines two paths
+#if defined(_WIN32)
+struct dirent {
+    char d_name[256];
+};
+typedef void* DIR;
+#endif
 
-int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignore_case);
-// Compare two paths with wildcard
+/***************************************************************************/
 
-int32_t mz_path_resolve(const char *path, char *target, int32_t max_target);
-// Resolves path
+wchar_t *mz_os_unicode_string_create(const char *string);
+void     mz_os_unicode_string_delete(wchar_t **string);
 
-int32_t mz_path_remove_filename(char *path);
-// Remove the filename from a path
+int32_t  mz_os_rename(const char *source_path, const char *target_path);
+int32_t  mz_os_delete(const char *path);
+int32_t  mz_os_file_exists(const char *path);
+int64_t  mz_os_get_file_size(const char *path);
+int32_t  mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date);
+int32_t  mz_os_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date);
+int32_t  mz_os_get_file_attribs(const char *path, uint32_t *attributes);
+int32_t  mz_os_set_file_attribs(const char *path, uint32_t attributes);
+int32_t  mz_os_make_dir(const char *path);
+DIR*     mz_os_open_dir(const char *path);
+struct
+dirent*  mz_os_read_dir(DIR *dir);
+int32_t  mz_os_close_dir(DIR *dir);
+int32_t  mz_os_is_dir(const char *path);
+uint64_t mz_os_ms_time(void);
 
-int32_t mz_path_get_filename(const char *path, const char **filename);
-// Get the filename from a path
+int32_t  mz_os_rand(uint8_t *buf, int32_t size);
 
-int32_t mz_dir_make(const char *path);
-// Creates a directory recursively
+void     mz_os_sha_reset(void *handle);
+int32_t  mz_os_sha_begin(void *handle);
+int32_t  mz_os_sha_update(void *handle, const void *buf, int32_t size);
+int32_t  mz_os_sha_end(void *handle, uint8_t *digest, int32_t digest_size);
+void     mz_os_sha_set_algorithm(void *handle, uint16_t algorithm);
+void*    mz_os_sha_create(void **handle);
+void     mz_os_sha_delete(void **handle);
 
-int32_t mz_file_get_crc(const char *path, uint32_t *result_crc);
-// Gets the crc32 hash of a file
+void     mz_os_aes_reset(void *handle);
+int32_t  mz_os_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t final);
+int32_t  mz_os_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t final);
+int32_t  mz_os_aes_set_key(void *handle, const void *key, int32_t key_length);
+void     mz_os_aes_set_mode(void *handle, int32_t mode);
+void     mz_os_aes_set_algorithm(void *handle, uint16_t algorithm);
+void*    mz_os_aes_create(void **handle);
+void     mz_os_aes_delete(void **handle);
 
-int32_t mz_encoding_cp437_to_utf8(const char *source, char *target, int32_t max_target);
-// Converts ibm cp437 encoded string to utf8
+void     mz_os_hmac_reset(void *handle);
+int32_t  mz_os_hmac_begin(void *handle);
+int32_t  mz_os_hmac_update(void *handle, const void *buf, int32_t size);
+int32_t  mz_os_hmac_end(void *handle, uint8_t *digest, int32_t digest_size);
+int32_t  mz_os_hmac_set_key(void *handle, const void *key, int32_t key_length);
+void     mz_os_hmac_set_algorithm(void *handle, uint16_t algorithm);
+void*    mz_os_hmac_create(void **handle);
+void     mz_os_hmac_delete(void **handle);
+
+int32_t  mz_os_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
+    const char *timestamp_url, uint8_t **signature, int32_t *signature_size);
+int32_t  mz_os_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size);
 
 /***************************************************************************/
 

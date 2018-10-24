@@ -20,8 +20,10 @@
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
 #include "mz_strm_mem.h"
-#include "mz_strm_aes.h"
+#include "mz_strm_os.h"
 #include "mz_strm_split.h"
+#include "mz_strm_wzaes.h"
+#include "mz_util.h"
 #include "mz_zip.h"
 
 #include "mz_zip_rw.h"
@@ -40,7 +42,7 @@ typedef struct mz_zip_reader_s {
     void        *buffered_stream;
     void        *split_stream;
     void        *mem_stream;
-    void        *sha1_stream;
+    void        *sha256;
     mz_zip_file *file_info;
     const char  *pattern;
     uint8_t     pattern_ignore_case;
@@ -388,8 +390,8 @@ int32_t mz_zip_reader_entry_open(void *handle)
 
         if (err == MZ_OK)
         {
-            mz_stream_sha1_create(&reader->sha1_stream);
-            mz_stream_sha1_open(reader->sha1_stream, NULL, MZ_OPEN_MODE_READ);
+            mz_os_sha_create(&reader->sha256);
+            mz_os_sha_set_algorithm(reader->sha256, MZ_HASH_SHA256);
 
             if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
                 err = mz_zip_reader_entry_sign_verify(handle);
@@ -412,8 +414,7 @@ int32_t mz_zip_reader_entry_close(void *handle)
     uint8_t expected_sha1[MZ_HASH_SHA1_SIZE];
 
 
-    mz_stream_sha1_close(reader->sha1_stream);
-    mz_stream_sha1_get_digest(reader->sha1_stream, computed_sha1, sizeof(computed_sha1));
+    mz_os_sha_end(reader->sha256, computed_sha1, sizeof(computed_sha1));
 
     err_hash = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA1, expected_sha1, sizeof(expected_sha1));
     err = mz_zip_entry_close(reader->zip_handle);
@@ -425,7 +426,7 @@ int32_t mz_zip_reader_entry_close(void *handle)
             err = MZ_CRC_ERROR;
     }
 
-    mz_stream_sha1_delete(&reader->sha1_stream);
+    mz_os_sha_delete(&reader->sha256);
     return err;
 }
 
@@ -435,7 +436,7 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
     int32_t read = 0;
     read = mz_zip_entry_read(reader->zip_handle, buf, len);
     if (read > 0)
-        mz_stream_sha1_read(reader->sha1_stream, buf, read);
+        mz_os_sha_update(reader->sha256, buf, read);
     return read;
 }
 
@@ -937,7 +938,7 @@ typedef struct mz_zip_writer_s {
     void        *file_stream;
     void        *buffered_stream;
     void        *split_stream;
-    void        *sha1_stream;
+    void        *sha256;
     void        *mem_stream;
     void        *file_extra_stream;
     mz_zip_file file_info;
@@ -1215,8 +1216,8 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
     }
 
     // Start calculating sha1 
-    mz_stream_sha1_create(&writer->sha1_stream);
-    mz_stream_sha1_open(writer->sha1_stream, NULL, MZ_OPEN_MODE_WRITE);
+    mz_os_sha_create(&writer->sha256);
+    mz_os_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
 
     // Open entry in zip
     err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level, writer->raw, password);
@@ -1234,10 +1235,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
     uint8_t sha1[MZ_HASH_SHA1_SIZE];
 
 
-    if (mz_stream_sha1_is_open(writer->sha1_stream) == MZ_OK)
-        mz_stream_sha1_close(writer->sha1_stream);
-
-    mz_stream_sha1_get_digest(writer->sha1_stream, sha1, sizeof(sha1));
+    mz_os_sha_end(writer->sha256, sha1, sizeof(sha1));
 
     // Copy extrafield so we can append our own fields before close
     mz_stream_mem_create(&writer->file_extra_stream);
@@ -1274,7 +1272,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
     else
         err = mz_zip_entry_close(writer->zip_handle);
 
-    mz_stream_sha1_delete(&writer->sha1_stream);
+    mz_os_sha_delete(&writer->sha256);
 
     return err;
 }
@@ -1285,7 +1283,7 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
     int32_t written = 0;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
     if (written > 0)
-        mz_stream_sha1_write(writer->sha1_stream, buf, written);
+        mz_os_sha_update(writer->sha256, buf, written);
     return written;
 }
 
@@ -1303,10 +1301,7 @@ int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char
     if (writer == NULL || mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    if (mz_stream_sha1_is_open(writer->sha1_stream) == MZ_OK)
-        mz_stream_sha1_close(writer->sha1_stream);
-
-    mz_stream_sha1_get_digest(writer->sha1_stream, sha1, sizeof(sha1));
+    mz_os_sha_end(writer->sha256, sha1, sizeof(sha1));
 
     if (err == MZ_OK)
         err = mz_os_sign(sha1, sizeof(sha1), writer->cert_path, writer->cert_pwd, writer->timestamp_url, 

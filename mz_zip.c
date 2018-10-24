@@ -27,9 +27,6 @@
 
 #include "mz.h"
 #include "mz_strm.h"
-#ifdef HAVE_AES
-#  include "mz_strm_aes.h"
-#endif
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
 #endif
@@ -40,6 +37,9 @@
 #include "mz_strm_mem.h"
 #ifdef HAVE_PKCRYPT
 #  include "mz_strm_pkcrypt.h"
+#endif
+#ifdef HAVE_AES
+#  include "mz_strm_wzaes.h"
 #endif
 #ifdef HAVE_ZLIB
 #  include "mz_strm_zlib.h"
@@ -1335,9 +1335,9 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_AES
         if (zip->file_info.aes_version)
         {
-            mz_stream_aes_create(&zip->crypt_stream);
-            mz_stream_aes_set_password(zip->crypt_stream, password);
-            mz_stream_aes_set_encryption_mode(zip->crypt_stream, zip->file_info.aes_encryption_mode);
+            mz_stream_wzaes_create(&zip->crypt_stream);
+            mz_stream_wzaes_set_password(zip->crypt_stream, password);
+            mz_stream_wzaes_set_encryption_mode(zip->crypt_stream, zip->file_info.aes_encryption_mode);
         }
         else
 #endif
