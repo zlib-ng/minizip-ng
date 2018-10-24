@@ -7,12 +7,15 @@ extern "C" {
 
 /***************************************************************************/
 
-void test_aes();
-void test_crypt();
-void test_inflate();
-void test_deflate();
-void test_bzip();
-void test_zip_mem();
+void test_stream_bzip(void);
+void test_stream_pkcrypt(void);
+void test_stream_wzaes(void);
+void test_stream_zlib(void);
+void test_stream_mem(void);
+
+void test_crypt_sha(void);
+void test_crypt_aes(void);
+void test_crypt_hmac(void);
 
 /***************************************************************************/
 

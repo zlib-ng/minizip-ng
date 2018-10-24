@@ -8,9 +8,6 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
-#ifdef HAVE_AES
-#include "mz_strm_aes.h"
-#endif
 #include "mz_strm_crc32.h"
 #ifdef HAVE_BZIP
 #include "mz_strm_bzip.h"
@@ -19,6 +16,9 @@
 #include "mz_strm_pkcrypt.h"
 #endif
 #include "mz_strm_mem.h"
+#ifdef HAVE_AES
+#include "mz_strm_wzaes.h"
+#endif
 #ifdef HAVE_ZLIB
 #include "mz_strm_zlib.h"
 #endif
@@ -265,34 +265,34 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
 /***************************************************************************/
 
-#ifdef HAVE_AES
-void test_aes()
+#ifdef HAVE_BZIP
+void test_stream_bzip(void)
 {
-    test_encrypt("aes", mz_stream_aes_create, "hello");
+    test_compress("bzip", mz_stream_bzip_create);
 }
 #endif
 #ifdef HAVE_PKCRYPT
-void test_crypt()
+void test_stream_pkcrypt(void)
 {
     test_encrypt("pkcrypt", mz_stream_pkcrypt_create, "hello");
 }
 #endif
-#ifdef HAVE_ZLIB
-void test_zlib()
+#ifdef HAVE_AES
+void test_stream_wzaes(void)
 {
-    test_compress("zlib", mz_stream_zlib_create);
+    test_encrypt("aes", mz_stream_wzaes_create, "hello");
 }
 #endif
-#ifdef HAVE_BZIP
-void test_bzip()
+#ifdef HAVE_ZLIB
+void test_stream_zlib(void)
 {
-    test_compress("bzip", mz_stream_bzip_create);
+    test_compress("zlib", mz_stream_zlib_create);
 }
 #endif
 
 /***************************************************************************/
 
-void test_zip_mem()
+void test_stream_mem(void)
 {
     mz_zip_file file_info = { 0 };
     void *read_mem_stream = NULL;
@@ -397,5 +397,159 @@ void test_zip_mem()
     write_mem_stream = NULL;
 }
 
+/***************************************************************************/
+
+void test_crypt_sha(void)
+{
+    void *sha1 = NULL;
+    void *sha256 = NULL;
+    char *test = "the quick and lazy fox did his thang";
+    char computed_hash[320];
+    int32_t i = 0;
+    int32_t p = 0;
+    uint8_t hash[MZ_HASH_SHA1_SIZE];
+    uint8_t hash256[MZ_HASH_SHA256_SIZE];
+
+    printf("Sha hash input - %s\n", test);
+
+    memset(hash, 0, sizeof(hash));
+
+    mz_os_sha_create(&sha1);
+    mz_os_sha_set_algorithm(sha1, MZ_HASH_SHA1);
+    mz_os_sha_begin(sha1);
+    mz_os_sha_update(sha1, test, strlen(test));
+    mz_os_sha_end(sha1, hash, sizeof(hash));
+    mz_os_sha_delete(&sha1);
+
+    computed_hash[0] = 0;
+    for (i = 0, p = 0; i < sizeof(hash); i += 1, p += 2)
+        snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash[i]);
+    computed_hash[p] = 0;
+    
+    printf("Sha1 hash computed - %s\n", computed_hash);
+    printf("Sha1 hash expected - 3efb8392b6cd8e14bd76bd08081521dc73df418c\n");
+
+    memset(hash256, 0, sizeof(hash256));
+
+    mz_os_sha_create(&sha256);
+    mz_os_sha_set_algorithm(sha256, MZ_HASH_SHA256);
+    mz_os_sha_begin(sha256);
+    mz_os_sha_update(sha256, test, strlen(test));
+    mz_os_sha_end(sha256, hash256, sizeof(hash256));
+    mz_os_sha_delete(&sha256);
+
+    computed_hash[0] = 0;
+    for (i = 0, p = 0; i < sizeof(hash256); i += 1, p += 2)
+        snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash256[i]);
+    computed_hash[p] = 0;
+    
+    printf("Sha256 hash computed - %s\n", computed_hash);
+    printf("Sha256 hash expected - 7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c\n");
+}
+
+void test_crypt_aes(void)
+{
+    void *aes = NULL;
+    char *key = "awesomekey";
+    char *test = "youknowitsogrowi";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    uint8_t buf[120];
+    int32_t i = 0;
+    uint8_t hash[MZ_HASH_SHA256_SIZE];
+
+    printf("Aes key - %s\n", key);
+    printf("Aes input - %s\n", test);
+
+    memset(hash, 0, sizeof(hash));
+
+    key_length = strlen(key);
+    test_length = strlen(test);
+
+    strncpy(buf, test, test_length);
+
+    printf("Aes input hex\n");
+    for (i = 0; i < test_length; i += 1)
+        printf("%02x", buf[i]);
+    printf("\n");
+
+    mz_os_aes_create(&aes);
+    mz_os_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
+    mz_os_aes_set_key(aes, key, key_length);
+    mz_os_aes_encrypt(aes, buf, test_length, 0);
+    mz_os_aes_encrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_os_aes_delete(&aes);
+
+    printf("Aes encrypted\n");
+    for (i = 0; i < test_length; i += 1)
+        printf("%02x", buf[i]);
+    printf("\n");
+    for (i = 0; i < test_length + MZ_AES_BLOCK_SIZE; i += 1)
+        printf("%02x", buf[i]);
+    printf("\n");
+
+    mz_os_aes_create(&aes);
+    mz_os_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
+    mz_os_aes_set_key(aes, key, key_length);
+    mz_os_aes_decrypt(aes, buf, test_length, 0);
+    mz_os_aes_decrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_os_aes_delete(&aes);
+
+    printf("Aes decrypted\n");
+    for (i = 0; i < test_length + MZ_AES_BLOCK_SIZE; i += 1)
+        printf("%02x", buf[i]);
+    printf("\n");
+}
+
+void test_crypt_hmac(void)
+{
+    void *hmac;
+    char *key = "hm123";
+    char *test = "12345678";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    int32_t i = 0;
+    uint8_t hash[MZ_HASH_SHA1_SIZE];
+    uint8_t hash256[MZ_HASH_SHA256_SIZE];
+
+    key_length = strlen(key);
+    test_length = strlen(test);
+
+    printf("Hmac sha1 key - %s\n", key);
+    printf("Hmac sha1 input - %s\n", test);
+
+    mz_win32_hmac_create(&hmac);
+    mz_win32_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
+    mz_win32_hmac_set_key(hmac, key, key_length);
+    mz_win32_hmac_begin(hmac);
+    mz_win32_hmac_update(hmac, test, test_length);
+    mz_win32_hmac_end(hmac, hash, sizeof(hash));
+    mz_win32_hmac_delete(&hmac);
+
+    printf("Hmac sha1 output hash hex\n");
+    for (i = 0; i < sizeof(hash); i += 1)
+        printf("%02x", hash[i]);
+    printf("\n");
+    printf("Hmac sha1 expected\n");
+    printf("c785a02ff303c886c304d9a4c06073dfe4c24aa9\n");
+
+    printf("Hmac sha256 key - %s\n", key);
+    printf("Hmac sha256 input - %s\n", test);
+
+    mz_win32_hmac_create(&hmac);
+    mz_win32_hmac_set_algorithm(hmac, MZ_HASH_SHA256);
+    mz_win32_hmac_set_key(hmac, key, key_length);
+    mz_win32_hmac_begin(hmac);
+    mz_win32_hmac_update(hmac, test, test_length);
+    mz_win32_hmac_end(hmac, hash256, sizeof(hash256));
+    mz_win32_hmac_delete(&hmac);
+
+    printf("Hmac sha256 output hash hex\n");
+    for (i = 0; i < sizeof(hash256); i += 1)
+        printf("%02x", hash256[i]);
+    printf("\n");
+    printf("Hmac sha256 expected\n");
+    printf("fb22a9c715a47a06bad4f6cee9badc31c921562f5d6b24adf2be009f73181f7a\n");
+}
 
 /***************************************************************************/
