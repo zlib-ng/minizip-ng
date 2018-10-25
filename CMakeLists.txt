@@ -7,6 +7,7 @@
 
 cmake_minimum_required(VERSION 3.0.2)
 
+option(USE_COMPAT "Enables compatibility layer" ON)
 option(USE_ZLIB "Enables ZLIB compression" ON)
 option(USE_BZIP2 "Enables BZIP2 compression" ON)
 option(USE_LZMA "Enables LZMA compression" ON)
@@ -65,13 +66,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONL
 set(PROJECT_NAME libminizip)
 
 set(MINIZIP_SRC
-    mz_compat.c
+    mz_os.c
     mz_strm.c
     mz_strm_buf.c
     mz_strm_crc32.c
     mz_strm_mem.c
     mz_strm_split.c
-    mz_util.c
     mz_zip.c
     mz_zip_rw.c)
 
@@ -79,13 +79,11 @@ set(MINIZIP_PUBLIC_HEADERS
     mz.h
     mz_os.h
     mz_crypt.h
-    mz_compat.h
     mz_strm.h
     mz_strm_buf.h
     mz_strm_crc32.h
     mz_strm_mem.h
     mz_strm_os.h
-    mz_util.h
     mz_zip.h
     mz_zip_rw.h)
 
@@ -101,6 +99,10 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+if(USE_COMPAT)
+    list(APPEND MINIZIP_SRC "mz_compat.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_compat.h")
+endif()
 if(WIN32)
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
     if (USE_PKCRYPT OR USE_AES)

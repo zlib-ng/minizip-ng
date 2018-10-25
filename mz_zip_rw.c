@@ -24,7 +24,6 @@
 #include "mz_strm_os.h"
 #include "mz_strm_split.h"
 #include "mz_strm_wzaes.h"
-#include "mz_util.h"
 #include "mz_zip.h"
 
 #include "mz_zip_rw.h"
@@ -794,7 +793,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
 
         if ((reader->legacy_encoding) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
         {
-            mz_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
+            mz_zip_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
         }
         else
         {

@@ -216,6 +216,9 @@ int32_t  mz_zip_unix_to_ntfs_time(time_t unix_time, uint64_t *ntfs_time);
 int32_t  mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignore_case);
 // Compare two paths without regard to slashes
 
+int32_t  mz_zip_encoding_cp437_to_utf8(const char *source, char *target, int32_t max_target);
+// Converts ibm cp437 encoded string to utf8
+
 /***************************************************************************/
 
 #ifdef __cplusplus

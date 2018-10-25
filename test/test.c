@@ -24,7 +24,6 @@
 #ifdef HAVE_ZLIB
 #include "mz_strm_zlib.h"
 #endif
-#include "mz_util.h"
 #include "mz_zip.h"
 
 /***************************************************************************/

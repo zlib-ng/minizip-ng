@@ -1,4 +1,4 @@
-/* mz_crypt_win32.c -- System functions for Windows
+/* mz_crypt_win32.c -- Cryptographic functions for Windows
    Version 2.6.0, October 8, 2018
    part of the MiniZip project
 

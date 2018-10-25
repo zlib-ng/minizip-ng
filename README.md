@@ -64,6 +64,7 @@ cmake --build .
 
 | Name | Description | Default Value |
 |:- |:-|:-:|
+| USE_COMPAT | Enables compatibility layer | ON |
 | USE_ZLIB | Enables ZLIB compression | ON |
 | USE_BZIP2 | Enables BZIP2 compression | ON |
 | USE_LZMA | Enables LZMA compression | ON |
