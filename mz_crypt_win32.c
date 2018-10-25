@@ -9,15 +9,14 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+#pragma comment(lib, "crypt32.lib")
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 
 #include <windows.h>
-#if !defined(MZ_ZIP_NO_ENCRYPTION)
-#  pragma comment(lib, "crypt32.lib")
-#  include <wincrypt.h>
-#endif
+#include <wincrypt.h>
 
 #include "mz.h"
 

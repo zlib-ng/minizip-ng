@@ -20,6 +20,9 @@ extern "C" {
 
 /***************************************************************************/
 
+int32_t mz_stream_wzaes_pbkdf2(uint8_t *password, int32_t password_length, uint8_t *salt, 
+    int32_t salt_length, int32_t iteration_count, uint8_t *key, int32_t key_length);
+
 int32_t mz_stream_wzaes_open(void *stream, const char *filename, int32_t mode);
 int32_t mz_stream_wzaes_is_open(void *stream);
 int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size);
