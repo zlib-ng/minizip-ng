@@ -78,6 +78,7 @@ set(MINIZIP_SRC
 set(MINIZIP_PUBLIC_HEADERS
     mz.h
     mz_os.h
+    mz_crypt.h
     mz_compat.h
     mz_strm.h
     mz_strm_buf.h
@@ -102,6 +103,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
+    if (USE_PKCRYPT OR USE_AES)
+        list(APPEND MINIZIP_SRC "mz_crypt_win32.c")
+    endif()
 
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
@@ -118,6 +122,9 @@ if(UNIX)
     add_compile_options(-O3)
 
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
+    if (USE_PKCRYPT OR USE_AES)
+        list(APPEND MINIZIP_SRC "mz_crypt_posix.c")
+    endif()
 
     set(define_lfs_macros TRUE)
 

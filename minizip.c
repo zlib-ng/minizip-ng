@@ -557,7 +557,11 @@ int main(int argc, const char *argv[])
         minizip_help();
         return 0;
     }
-
+    test_crypt_sha();
+    test_crypt_aes();
+    test_crypt_hmac();
+    test_stream_wzaes();
+    return 0;
     memset(&options, 0, sizeof(options));
 
     options.compress_method = MZ_COMPRESS_METHOD_DEFLATE;

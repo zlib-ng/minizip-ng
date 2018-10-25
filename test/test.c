@@ -6,6 +6,7 @@
 #include <fcntl.h>
 
 #include "mz.h"
+#include "mz_crypt.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_crc32.h"
@@ -16,12 +17,14 @@
 #include "mz_strm_pkcrypt.h"
 #endif
 #include "mz_strm_mem.h"
+#include "mz_strm_os.h"
 #ifdef HAVE_AES
 #include "mz_strm_wzaes.h"
 #endif
 #ifdef HAVE_ZLIB
 #include "mz_strm_zlib.h"
 #endif
+#include "mz_util.h"
 #include "mz_zip.h"
 
 /***************************************************************************/
@@ -84,7 +87,11 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     void *out_stream = NULL;
     void *in_stream = NULL;
     void *crypt_out_stream = NULL;
-    char filename[120];
+    char encrypt_path[120];
+    char decrypt_path[120];
+    
+    snprintf(encrypt_path, sizeof(encrypt_path), "LICENSE.encrypt.%s", method);
+    snprintf(decrypt_path, sizeof(decrypt_path), "LICENSE.decrypt.%s", method);
 
     mz_stream_os_create(&in_stream);
 
@@ -97,8 +104,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     mz_stream_os_delete(&in_stream);
     mz_stream_os_create(&out_stream);
 
-    snprintf(filename, sizeof(filename), "LICENSE.encrypt.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
+    if (mz_stream_os_open(out_stream, encrypt_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
     {
         crypt_create(&crypt_out_stream);
 
@@ -114,13 +120,13 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
         mz_stream_os_close(out_stream);
 
-        printf("%s encrypted %d\n", filename, written);
+        printf("%s encrypted %d\n", encrypt_path, written);
     }
     
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
-    if (mz_stream_os_open(in_stream, filename, MZ_OPEN_MODE_READ) == MZ_OK)
+    if (mz_stream_os_open(in_stream, encrypt_path, MZ_OPEN_MODE_READ) == MZ_OK)
     {
         crypt_create(&crypt_out_stream);
 
@@ -136,14 +142,14 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
         mz_stream_os_close(in_stream);
 
-        printf("%s decrypted %d\n", filename, read);
+
+        printf("%s decrypted %d\n", decrypt_path, read);
     }
 
     mz_stream_os_delete(&in_stream);
     mz_stream_os_create(&out_stream);
-
-    snprintf(filename, sizeof(filename), "LICENSE.decrypt.%s", method);
-    if (mz_stream_os_open(out_stream, filename, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
+    
+    if (mz_stream_os_open(out_stream, decrypt_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
     {
         mz_stream_os_write(out_stream, buf, read);
         mz_stream_os_close(out_stream);
@@ -280,6 +286,24 @@ void test_stream_pkcrypt(void)
 #ifdef HAVE_AES
 void test_stream_wzaes(void)
 {
+    int32_t iteration_count = 1000;
+    int32_t err = MZ_OK;
+    int32_t i = 0;
+    uint8_t *password = "passwordpasswordpasswordpassword";
+    uint8_t *salt = "8F3472E4EA57F56E36F30246DC22C173";
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+   
+
+    printf("Pbkdf2 password - %s\n", password);
+    printf("Pbkdf2 salt - %s\n", salt);
+
+    err = mz_stream_wzaes_pbkdf2(password, strlen(password), salt, strlen(salt), iteration_count, key, sizeof(key));
+
+    printf("Pbkdf2 key hex\n");
+    for (i = 0; i < sizeof(key); i += 1)
+        printf("%02x", key[i]);
+    printf("\n");
+
     test_encrypt("aes", mz_stream_wzaes_create, "hello");
 }
 #endif
@@ -414,12 +438,12 @@ void test_crypt_sha(void)
 
     memset(hash, 0, sizeof(hash));
 
-    mz_os_sha_create(&sha1);
-    mz_os_sha_set_algorithm(sha1, MZ_HASH_SHA1);
-    mz_os_sha_begin(sha1);
-    mz_os_sha_update(sha1, test, strlen(test));
-    mz_os_sha_end(sha1, hash, sizeof(hash));
-    mz_os_sha_delete(&sha1);
+    mz_crypt_sha_create(&sha1);
+    mz_crypt_sha_set_algorithm(sha1, MZ_HASH_SHA1);
+    mz_crypt_sha_begin(sha1);
+    mz_crypt_sha_update(sha1, test, strlen(test));
+    mz_crypt_sha_end(sha1, hash, sizeof(hash));
+    mz_crypt_sha_delete(&sha1);
 
     computed_hash[0] = 0;
     for (i = 0, p = 0; i < sizeof(hash); i += 1, p += 2)
@@ -431,12 +455,12 @@ void test_crypt_sha(void)
 
     memset(hash256, 0, sizeof(hash256));
 
-    mz_os_sha_create(&sha256);
-    mz_os_sha_set_algorithm(sha256, MZ_HASH_SHA256);
-    mz_os_sha_begin(sha256);
-    mz_os_sha_update(sha256, test, strlen(test));
-    mz_os_sha_end(sha256, hash256, sizeof(hash256));
-    mz_os_sha_delete(&sha256);
+    mz_crypt_sha_create(&sha256);
+    mz_crypt_sha_set_algorithm(sha256, MZ_HASH_SHA256);
+    mz_crypt_sha_begin(sha256);
+    mz_crypt_sha_update(sha256, test, strlen(test));
+    mz_crypt_sha_end(sha256, hash256, sizeof(hash256));
+    mz_crypt_sha_delete(&sha256);
 
     computed_hash[0] = 0;
     for (i = 0, p = 0; i < sizeof(hash256); i += 1, p += 2)
@@ -473,12 +497,12 @@ void test_crypt_aes(void)
         printf("%02x", buf[i]);
     printf("\n");
 
-    mz_os_aes_create(&aes);
-    mz_os_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
-    mz_os_aes_set_key(aes, key, key_length);
-    mz_os_aes_encrypt(aes, buf, test_length, 0);
-    mz_os_aes_encrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
-    mz_os_aes_delete(&aes);
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
+    mz_crypt_aes_set_key(aes, key, key_length);
+    mz_crypt_aes_encrypt(aes, buf, test_length, 0);
+    mz_crypt_aes_encrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_crypt_aes_delete(&aes);
 
     printf("Aes encrypted\n");
     for (i = 0; i < test_length; i += 1)
@@ -488,12 +512,12 @@ void test_crypt_aes(void)
         printf("%02x", buf[i]);
     printf("\n");
 
-    mz_os_aes_create(&aes);
-    mz_os_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
-    mz_os_aes_set_key(aes, key, key_length);
-    mz_os_aes_decrypt(aes, buf, test_length, 0);
-    mz_os_aes_decrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
-    mz_os_aes_delete(&aes);
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
+    mz_crypt_aes_set_key(aes, key, key_length);
+    mz_crypt_aes_decrypt(aes, buf, test_length, 0);
+    mz_crypt_aes_decrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_crypt_aes_delete(&aes);
 
     printf("Aes decrypted\n");
     for (i = 0; i < test_length + MZ_AES_BLOCK_SIZE; i += 1)
@@ -518,13 +542,13 @@ void test_crypt_hmac(void)
     printf("Hmac sha1 key - %s\n", key);
     printf("Hmac sha1 input - %s\n", test);
 
-    mz_win32_hmac_create(&hmac);
-    mz_win32_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
-    mz_win32_hmac_set_key(hmac, key, key_length);
-    mz_win32_hmac_begin(hmac);
-    mz_win32_hmac_update(hmac, test, test_length);
-    mz_win32_hmac_end(hmac, hash, sizeof(hash));
-    mz_win32_hmac_delete(&hmac);
+    mz_crypt_hmac_create(&hmac);
+    mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
+    mz_crypt_hmac_set_key(hmac, key, key_length);
+    mz_crypt_hmac_begin(hmac);
+    mz_crypt_hmac_update(hmac, test, test_length);
+    mz_crypt_hmac_end(hmac, hash, sizeof(hash));
+    mz_crypt_hmac_delete(&hmac);
 
     printf("Hmac sha1 output hash hex\n");
     for (i = 0; i < sizeof(hash); i += 1)
@@ -536,13 +560,13 @@ void test_crypt_hmac(void)
     printf("Hmac sha256 key - %s\n", key);
     printf("Hmac sha256 input - %s\n", test);
 
-    mz_win32_hmac_create(&hmac);
-    mz_win32_hmac_set_algorithm(hmac, MZ_HASH_SHA256);
-    mz_win32_hmac_set_key(hmac, key, key_length);
-    mz_win32_hmac_begin(hmac);
-    mz_win32_hmac_update(hmac, test, test_length);
-    mz_win32_hmac_end(hmac, hash256, sizeof(hash256));
-    mz_win32_hmac_delete(&hmac);
+    mz_crypt_hmac_create(&hmac);
+    mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA256);
+    mz_crypt_hmac_set_key(hmac, key, key_length);
+    mz_crypt_hmac_begin(hmac);
+    mz_crypt_hmac_update(hmac, test, test_length);
+    mz_crypt_hmac_end(hmac, hash256, sizeof(hash256));
+    mz_crypt_hmac_delete(&hmac);
 
     printf("Hmac sha256 output hash hex\n");
     for (i = 0; i < sizeof(hash256); i += 1)

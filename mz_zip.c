@@ -26,6 +26,7 @@
 #include <limits.h>
 
 #include "mz.h"
+#include "mz_crypt.h"
 #include "mz_strm.h"
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"

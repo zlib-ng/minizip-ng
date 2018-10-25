@@ -16,6 +16,7 @@
 #include <time.h>
 
 #include "mz.h"
+#include "mz_crypt.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
@@ -387,15 +388,16 @@ int32_t mz_zip_reader_entry_open(void *handle)
         }
 
         err = mz_zip_entry_read_open(reader->zip_handle, reader->raw, password);
-
+#ifndef MZ_ZIP_NO_ENCRYPTION
         if (err == MZ_OK)
         {
-            mz_os_sha_create(&reader->sha256);
-            mz_os_sha_set_algorithm(reader->sha256, MZ_HASH_SHA256);
+            mz_crypt_sha_create(&reader->sha256);
+            mz_crypt_sha_set_algorithm(reader->sha256, MZ_HASH_SHA256);
 
             if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
                 err = mz_zip_reader_entry_sign_verify(handle);
         }
+#endif
     }
 
     return err;
@@ -404,8 +406,9 @@ int32_t mz_zip_reader_entry_open(void *handle)
 int32_t mz_zip_reader_entry_close(void *handle)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
-    void *file_extra_stream = NULL;
     int32_t err = MZ_OK;
+    int32_t err_close = MZ_OK;
+#ifndef MZ_ZIP_NO_ENCRYPTION
     int32_t err_hash = MZ_OK;
     uint16_t algorithm = 0;
     uint16_t digest_size = 0;
@@ -414,19 +417,21 @@ int32_t mz_zip_reader_entry_close(void *handle)
     uint8_t expected_sha1[MZ_HASH_SHA1_SIZE];
 
 
-    mz_os_sha_end(reader->sha256, computed_sha1, sizeof(computed_sha1));
+    mz_crypt_sha_end(reader->sha256, computed_sha1, sizeof(computed_sha1));
+    mz_crypt_sha_delete(&reader->sha256);
 
     err_hash = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA1, expected_sha1, sizeof(expected_sha1));
-    err = mz_zip_entry_close(reader->zip_handle);
-    
-    if ((err_hash == MZ_OK) && (err == MZ_OK))
+    if (err_hash == MZ_OK)
     {
         // Verify expected hash against computed hash
         if (memcmp(computed_sha1, expected_sha1, MZ_HASH_SHA1_SIZE) != 0)
             err = MZ_CRC_ERROR;
     }
+#endif
 
-    mz_os_sha_delete(&reader->sha256);
+    err_close = mz_zip_entry_close(reader->zip_handle);
+    if (err == MZ_OK)
+        err = err_close;
     return err;
 }
 
@@ -436,7 +441,7 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
     int32_t read = 0;
     read = mz_zip_entry_read(reader->zip_handle, buf, len);
     if (read > 0)
-        mz_os_sha_update(reader->sha256, buf, read);
+        mz_crypt_sha_update(reader->sha256, buf, read);
     return read;
 }
 
@@ -488,7 +493,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     if (err == MZ_OK)
     {
         // Verify the pkcs signature
-        err = mz_os_sign_verify(sha1, sizeof(sha1), signature, signature_size);
+        err = mz_crypt_sign_verify(sha1, sizeof(sha1), signature, signature_size);
     }
 
     if (signature != NULL)
@@ -1215,9 +1220,11 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
         password = password_buf;
     }
 
+#ifndef MZ_ZIP_NO_ENCRYPTION
     // Start calculating sha1 
-    mz_os_sha_create(&writer->sha256);
-    mz_os_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
+    mz_crypt_sha_create(&writer->sha256);
+    mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
+#endif
 
     // Open entry in zip
     err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level, writer->raw, password);
@@ -1228,14 +1235,15 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
 int32_t mz_zip_writer_entry_close(void *handle)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    mz_zip_file *file_info = NULL;
     int32_t err = MZ_OK;
+#ifndef MZ_ZIP_NO_ENCRYPTION
+    mz_zip_file *file_info = NULL;
     int32_t extrafield_size = 0;
     int32_t field_length_hash = 0;
     uint8_t sha1[MZ_HASH_SHA1_SIZE];
 
 
-    mz_os_sha_end(writer->sha256, sha1, sizeof(sha1));
+    mz_crypt_sha_end(writer->sha256, sha1, sizeof(sha1));
 
     // Copy extrafield so we can append our own fields before close
     mz_stream_mem_create(&writer->file_extra_stream);
@@ -1266,13 +1274,14 @@ int32_t mz_zip_writer_entry_close(void *handle)
     mz_stream_mem_get_buffer(writer->file_extra_stream, &file_info->extrafield);
     mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
     file_info->extrafield_size = (uint16_t)extrafield_size;
+#endif
 
     if (writer->raw)
         err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, writer->file_info.crc);
     else
         err = mz_zip_entry_close(writer->zip_handle);
 
-    mz_os_sha_delete(&writer->sha256);
+    mz_crypt_sha_delete(&writer->sha256);
 
     return err;
 }
@@ -1282,11 +1291,14 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t written = 0;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
+#ifndef MZ_ZIP_NO_ENCRYPTION
     if (written > 0)
-        mz_os_sha_update(writer->sha256, buf, written);
+        mz_crypt_sha_update(writer->sha256, buf, written);
+#endif
     return written;
 }
 
+#ifndef MZ_ZIP_NO_ENCRYPTION
 int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
@@ -1301,10 +1313,10 @@ int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char
     if (writer == NULL || mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    mz_os_sha_end(writer->sha256, sha1, sizeof(sha1));
+    mz_crypt_sha_end(writer->sha256, sha1, sizeof(sha1));
 
     if (err == MZ_OK)
-        err = mz_os_sign(sha1, sizeof(sha1), writer->cert_path, writer->cert_pwd, writer->timestamp_url, 
+        err = mz_crypt_sign(sha1, sizeof(sha1), writer->cert_path, writer->cert_pwd, writer->timestamp_url, 
             &signature, &signature_size);
 
     if ((err == MZ_OK) && (signature != NULL))
@@ -1321,6 +1333,7 @@ int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char
     }
     return err;
 }
+#endif
 
 /***************************************************************************/
 

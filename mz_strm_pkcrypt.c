@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "mz.h"
+#include "mz_crypt.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_crc32.h"
@@ -164,7 +165,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
         return MZ_SUPPORT_ERROR;
 #else
         // First generate RAND_HEAD_LEN - 2 random bytes.
-        mz_os_rand(header, RAND_HEAD_LEN - 2);
+        mz_crypt_rand(header, RAND_HEAD_LEN - 2);
 
         // Encrypt random header (last two bytes is high word of crc)
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)

@@ -106,6 +106,7 @@ extern "C" {
 #define MZ_AES_ENCRYPTION_MODE_128      (0x01)
 #define MZ_AES_ENCRYPTION_MODE_192      (0x02)
 #define MZ_AES_ENCRYPTION_MODE_256      (0x03)
+#define MZ_AES_BLOCK_SIZE               (16)
 #define MZ_AES_HEADER_SIZE(MODE)        ((4 * (MODE & 3) + 4) + 2)
 #define MZ_AES_FOOTER_SIZE              (10)
 
