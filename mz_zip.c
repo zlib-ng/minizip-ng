@@ -947,7 +947,9 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     int32_t err = MZ_OK;
     int32_t err_mem = MZ_OK;
     uint8_t zip64 = 0;
+#ifdef HAVE_AES
     uint8_t skip_aes = 0;
+#endif
     void *extrafield_ms = NULL;
 
     if (file_info == NULL)
@@ -997,10 +999,11 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             if (err_mem != MZ_OK)
                 break;
 
+#ifdef HAVE_AES
             // Prefer incoming aes extensions over ours
             if (field_type == MZ_ZIP_EXTENSION_AES)
                 skip_aes = 1;
-
+#endif
             // Prefer our zip64, ntfs extension over incoming
             if (field_type != MZ_ZIP_EXTENSION_ZIP64 && field_type != MZ_ZIP_EXTENSION_NTFS)
                 extrafield_size += 4 + field_length;
