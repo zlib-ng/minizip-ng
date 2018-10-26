@@ -13,6 +13,7 @@
 #define MZ_OS_H
 
 #include <stdint.h>
+#include <time.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,8 @@ struct dirent {
     char d_name[256];
 };
 typedef void* DIR;
+#else
+#include <dirent.h>
 #endif
 
 /***************************************************************************/
