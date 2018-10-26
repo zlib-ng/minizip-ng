@@ -1276,7 +1276,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
     // Update extra field for central directory after adding extra fields
     mz_zip_entry_get_info(writer->zip_handle, &file_info);
 
-    mz_stream_mem_get_buffer(writer->file_extra_stream, &file_info->extrafield);
+    mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&file_info->extrafield);
     mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
     file_info->extrafield_size = (uint16_t)extrafield_size;
 #endif

@@ -56,6 +56,8 @@ matrix:
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libssl-dev; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then brew install openssl; fi
 
 before_script:
     - mkdir build
