@@ -13,15 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-//#include <unistd.h>
 
 #include <sys/types.h>
 #ifdef HAVE_GETRANDOM
 #  include <sys/random.h>
 #endif
 #if defined(unix) || defined(__APPLE__)
-#  include <unistd.h>
-#  include <utime.h>
 #  ifndef HAVE_ARC4RANDOM_BUF
 #    define HAVE_ARC4RANDOM_BUF
 #  endif
