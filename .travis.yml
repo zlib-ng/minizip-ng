@@ -5,12 +5,36 @@ matrix:
         - os: windows
           compiler: clang
         - os: windows
+          compiler: clang 
+          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF"
+        - os: windows
           compiler: gcc
+        - os: linux
+          compiler: clang
+        - os: linux
+          compiler: clang 
+          env: TOOL="-DCOMPRESS_ONLY=ON"
+        - os: linux
+          compiler: clang 
+          env: TOOL="-DDECOMPRESS_ONLY=ON"
+        - os: linux
+          compiler: clang 
+          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF"
+        - os: linux
+          compiler: gcc
+        - os: osx
+          compiler: clang
+        - os: osx
+          compiler: gcc
+        - os: osx
+          compiler: clang
+          env: TOOL="-DUSE_LIBCOMP=ON"
+        - os: osx
+          compiler: gcc
+          env: TOOL="-DUSE_LIBCOMP=ON"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then brew update;                     fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then brew install zlib;               fi
 
 before_script:
     - mkdir build
