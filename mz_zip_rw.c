@@ -439,8 +439,10 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t read = 0;
     read = mz_zip_entry_read(reader->zip_handle, buf, len);
+#ifndef MZ_ZIP_NO_ENCRYPTION
     if (read > 0)
         mz_crypt_sha_update(reader->sha256, buf, read);
+#endif
     return read;
 }
 
@@ -1244,6 +1246,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
 
 
     mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
+    mz_crypt_sha_delete(&writer->sha256);
 
     // Copy extrafield so we can append our own fields before close
     mz_stream_mem_create(&writer->file_extra_stream);
@@ -1282,8 +1285,6 @@ int32_t mz_zip_writer_entry_close(void *handle)
         err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, writer->file_info.crc);
     else
         err = mz_zip_entry_close(writer->zip_handle);
-
-    mz_crypt_sha_delete(&writer->sha256);
 
     return err;
 }
