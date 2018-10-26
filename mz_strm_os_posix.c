@@ -19,11 +19,6 @@
 #include <string.h>
 #include <errno.h>
 
-#if defined(unix) || defined(__APPLE__)
-#  include <utime.h>
-#  include <unistd.h>
-#endif
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_posix.h"
