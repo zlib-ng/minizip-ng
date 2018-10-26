@@ -511,7 +511,6 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
     int32_t err = MZ_OK;
     uint16_t cur_algorithm = 0;
     uint16_t cur_digest_size = 0;
-    uint8_t *cur_digest = NULL;
 
     mz_stream_mem_create(&file_extra_stream);
     mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, reader->file_info->extrafield_size);

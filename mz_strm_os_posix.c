@@ -21,7 +21,7 @@
 
 #include "mz.h"
 #include "mz_strm.h"
-#include "mz_strm_posix.h"
+#include "mz_strm_os_posix.h"
 
 /***************************************************************************/
 

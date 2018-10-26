@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -210,7 +209,7 @@ uint64_t mz_os_ms_time(void)
 {
     struct timespec ts;
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
     clock_serv_t cclock;
     mach_timespec_t mts;
 

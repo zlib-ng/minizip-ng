@@ -716,8 +716,6 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint32_t field_length_read = 0;
     uint16_t ntfs_attrib_id = 0;
     uint16_t ntfs_attrib_size = 0;
-    uint16_t digest_size = 0;
-    uint16_t algorithm = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
     int64_t max_seek = 0;
@@ -972,8 +970,6 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     uint8_t skip_aes = 0;
     uint8_t mask = 0;
     uint8_t write_end_slash = 0;
-    uint8_t *signature = NULL;
-    int32_t signature_size = 0;
     const char *filename = NULL;
     char masked_name[64];
     void *file_extra_stream = NULL;
@@ -2044,7 +2040,6 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
 int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length)
 {
     int32_t err = MZ_OK;
-    int32_t found = MZ_EXIST_ERROR;
     uint16_t field_type = 0;
     uint16_t field_length = 0;
 
