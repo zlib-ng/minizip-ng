@@ -35,10 +35,14 @@ typedef struct minizip_opt_s {
     uint8_t append;
     int64_t disk_size;
     uint8_t zip_cd;
-    uint8_t aes;
     uint8_t legacy_encoding;
+#ifdef HAVE_AES
+    uint8_t aes;
+#endif
+#ifndef MZ_NO_ZIP_SIGNING
     const char *cert_path;
     const char *cert_pwd;
+#endif
 } minizip_opt;
 
 /***************************************************************************/
