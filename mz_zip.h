@@ -48,15 +48,15 @@ typedef struct mz_zip_file_s
     uint16_t internal_fa;               // internal file attributes
     uint32_t external_fa;               // external file attributes
     uint16_t zip64;                     // zip64 extension mode
+#ifdef HAVE_AES
+    uint16_t aes_version;               // winzip aes extension if not 0
+    uint8_t  aes_encryption_mode;       // winzip aes encryption mode
+#endif
 
     const char     *filename;           // filename utf8 null-terminated string
     const uint8_t  *extrafield;         // extrafield data
     const char     *comment;            // comment utf8 null-terminated string
 
-#ifdef HAVE_AES
-    uint16_t aes_version;               // winzip aes extension if not 0
-    uint8_t  aes_encryption_mode;       // winzip aes encryption mode
-#endif
 } mz_zip_file, mz_zip_entry;
 
 /***************************************************************************/

@@ -1300,7 +1300,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_BZIP2
     case MZ_COMPRESS_METHOD_BZIP2:
 #endif
-#if HAVE_LZMA
+#ifdef HAVE_LZMA
     case MZ_COMPRESS_METHOD_LZMA:
 #endif
         err = MZ_OK;
