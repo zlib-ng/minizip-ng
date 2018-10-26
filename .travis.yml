@@ -16,8 +16,8 @@ matrix:
           compiler: clang
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; tsudo apt-get install libbsd-dev; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; tsudo apt-get install libbsd-dev; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then sudo apt-get install libbsd-dev; fi
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi
 
 before_script:
     - mkdir build
