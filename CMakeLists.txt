@@ -90,6 +90,8 @@ if(USE_ZLIB)
             BUILD_IN_SOURCE 1
             INSTALL_DIR ${ZLIB_INSTALL}
             BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
+            CMAKE_CACHE_ARGS
+                -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL}
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
