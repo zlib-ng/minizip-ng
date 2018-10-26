@@ -1302,19 +1302,25 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
 int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    mz_zip_file *file_info = NULL;
     int32_t err = MZ_OK;
     int32_t signature_size = 0;
     uint8_t *signature = NULL;
 
-    if (cert_path == NULL)
-        return MZ_PARAM_ERROR;
+
     if (writer == NULL || mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
+        return MZ_PARAM_ERROR;
+    if (cert_path == NULL)
+    {
+        cert_path = writer->cert_path;
+        cert_pwd = writer->cert_pwd;
+    }
+    if (cert_path == NULL)
         return MZ_PARAM_ERROR;
 
     if (err == MZ_OK)
-        err = mz_crypt_sign(message, message_size, writer->cert_path, writer->cert_pwd,  
-            &signature, &signature_size);
+    {
+        err = mz_crypt_sign(message, message_size, cert_path, cert_pwd, &signature, &signature_size);
+    }
 
     if ((err == MZ_OK) && (signature != NULL))
     {

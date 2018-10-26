@@ -317,10 +317,15 @@ int32_t mz_crypt_hmac_begin(void *handle)
 int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
+    int32_t result = 0;
 
     if (hmac == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
-    HMAC_Update(&hmac->ctx, buf, size);
+
+    result = HMAC_Update(&hmac->ctx, buf, size);
+    if (!result)
+        return MZ_HASH_ERROR;
+
     return MZ_OK;
 }
 
@@ -328,7 +333,6 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
-    int32_t err = MZ_OK;
 
     if (hmac == NULL || digest == NULL)
         return MZ_PARAM_ERROR;
@@ -337,13 +341,13 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     {
         if (digest_size != MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
-        result = HMAC_Final(&hmac->ctx, digest, &digest_size);
+        result = HMAC_Final(&hmac->ctx, digest, (uint32_t *)digest_size);
     }
     else
     {
         if (digest_size != MZ_HASH_SHA256_SIZE)
             return MZ_BUF_ERROR;
-        result = HMAC_Final(&hmac->ctx, digest, &digest_size);
+        result = HMAC_Final(&hmac->ctx, digest, (uint32_t *)&digest_size);
     }
 
     if (!result)
@@ -355,9 +359,7 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
     const EVP_MD *evp_md = NULL;
-
 
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
