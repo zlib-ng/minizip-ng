@@ -381,7 +381,7 @@ void test_stream_mem(void)
 
     mz_zip_delete(&zip_handle);
 
-    mz_stream_mem_get_buffer(write_mem_stream, &buffer_ptr);
+    mz_stream_mem_get_buffer(write_mem_stream, (const void **)&buffer_ptr);
     mz_stream_mem_seek(write_mem_stream, 0, MZ_SEEK_END);
     buffer_size = (int32_t)mz_stream_mem_tell(write_mem_stream);
 
@@ -412,6 +412,8 @@ void test_stream_mem(void)
                 err = mz_zip_entry_read_open(zip_handle, 0, password);
             if (err == MZ_OK)
                 read = mz_zip_entry_read(zip_handle, temp, sizeof(temp));
+
+            MZ_UNUSED(read);
 
             mz_zip_entry_close(zip_handle);
             mz_zip_close(zip_handle);

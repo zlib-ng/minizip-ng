@@ -344,7 +344,6 @@ int32_t mz_crypt_hmac_begin(void *handle)
 int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
 
     if (hmac == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
@@ -356,7 +355,6 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
 int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t expected_size = 0;
 
     if (hmac == NULL || digest == NULL)
         return MZ_PARAM_ERROR;
