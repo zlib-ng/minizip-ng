@@ -2,6 +2,7 @@ language: c
 
 os:
     - linux
+    - windows
 
 compiler:
     - clang
