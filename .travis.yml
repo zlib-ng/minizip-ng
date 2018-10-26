@@ -18,4 +18,4 @@ before_script:
     - cmake .. -DBUILD_TEST=ON $TOOL
 
 script:
-    - cmake
+    - cmake --build .
