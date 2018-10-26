@@ -188,7 +188,8 @@ int32_t mz_zip_writer_entry_close(void *handle);
 int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
 // Writes data into entry for zip
 
-int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url);
+int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, 
+    const char *cert_path, const char *cert_pwd);
 // Signs uncompressed content of entry, call before closing
 
 /***************************************************************************/
@@ -208,7 +209,8 @@ int32_t mz_zip_writer_add_buffer(void *handle, void *buf, int32_t len, mz_zip_fi
 int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filename_in_zip);
 // Adds an entry to the zip from a file
 
-int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_path, uint8_t include_path, uint8_t recursive);
+int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_path, uint8_t include_path, 
+    uint8_t recursive);
 // Enumerates a directory or pattern and adds entries to the zip
 
 int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
@@ -237,7 +239,7 @@ void    mz_zip_writer_set_compress_level(void *handle, int16_t compress_level);
 void    mz_zip_writer_set_flags(void *handle, int32_t flags);
 // Sets additional flags to be set when adding files in zip
 
-void    mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url);
+void    mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd);
 // Sets the certificate and timestamp url to use for signing when adding files in zip
 
 void    mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb);

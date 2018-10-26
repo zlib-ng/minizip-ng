@@ -16,7 +16,6 @@
 
 #include "aes.h"
 #include "hmac.h"
-#include "pwd2key.h"
 
 #include "mz.h"
 #include "mz_crypt.h"
@@ -289,7 +288,7 @@ static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t 
 
             // Encrypt the nonce to form next xor buffer
             memcpy(wzaes->crypt_block, wzaes->nonce, AES_BLOCK_SIZE);
-            mz_crypt_aes_encrypt(wzaes->aes, wzaes->crypt_block, sizeof(wzaes->crypt_block), 0);
+            mz_crypt_aes_encrypt(wzaes->aes, wzaes->crypt_block, sizeof(wzaes->crypt_block));
             pos = 0;
         }
 

@@ -67,6 +67,21 @@ void mz_os_unicode_string_delete(wchar_t **string)
 
 /***************************************************************************/
 
+int32_t mz_os_rand(uint8_t *buf, int32_t size)
+{
+    unsigned __int64 pentium_tsc[1];
+    int32_t len = 0;
+
+    for (len = 0; len < (int)size; len += 1)
+    {
+        if (len % 8 == 0)
+            QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
+        buf[len] = ((unsigned char*)pentium_tsc)[len % 8];
+    }
+
+    return len;
+}
+
 int32_t mz_os_rename(const char *source_path, const char *target_path)
 {
     wchar_t *source_path_wide = NULL;

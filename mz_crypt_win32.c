@@ -1,4 +1,4 @@
-/* mz_crypt_win32.c -- Cryptographic functions for Windows
+/* mz_crypt_win32.c -- Crypto/hash functions for Windows
    Version 2.6.0, October 8, 2018
    part of the MiniZip project
 
@@ -28,8 +28,6 @@
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size)
 {
     HCRYPTPROV provider;
-    unsigned __int64 pentium_tsc[1];
-    int32_t len = 0;
     int32_t result = 0;
 
 
@@ -42,14 +40,7 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size)
             return size;
     }
 
-    for (len = 0; len < (int)size; len += 1)
-    {
-        if (len % 8 == 0)
-            QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
-        buf[len] = ((unsigned char*)pentium_tsc)[len % 8];
-    }
-
-    return len;
+    return mz_os_rand(buf, size);
 }
 
 /***************************************************************************/
@@ -214,17 +205,16 @@ void mz_crypt_aes_reset(void *handle)
     mz_crypt_aes_free(handle);
 }
 
-int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size)
 {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
-    int32_t buf_len = size;
 
     if (aes == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
-    if (final)
-        buf_len = 0;
-    result = CryptEncrypt(aes->key, 0, final, 0, buf, &buf_len, size);
+    if (size != MZ_AES_BLOCK_SIZE)
+        return MZ_PARAM_ERROR;
+    result = CryptEncrypt(aes->key, 0, 0, 0, buf, &size, size);
     if (!result)
     {
         aes->error = GetLastError();
@@ -233,13 +223,15 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size, int32_t f
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size, int32_t final)
+int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size)
 {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
     if (aes == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
-    result = CryptDecrypt(aes->key, 0, final, 0, buf, &size);
+    if (size != MZ_AES_BLOCK_SIZE)
+        return MZ_PARAM_ERROR;
+    result = CryptDecrypt(aes->key, 0, 0, 0, buf, &size);
     if (!result)
     {
         aes->error = GetLastError();
@@ -575,18 +567,14 @@ void mz_crypt_hmac_delete(void **handle)
 /***************************************************************************/
 
 int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
-    const char *timestamp_url, uint8_t **signature, int32_t *signature_size)
+    uint8_t **signature, int32_t *signature_size)
 {
     CRYPT_SIGN_MESSAGE_PARA sign_params;
     CRYPT_DATA_BLOB cert_data_blob;
     PCCERT_CONTEXT cert_context = NULL;
-    CRYPT_TIMESTAMP_CONTEXT *ts_context = NULL;
-    CRYPT_ATTR_BLOB crypt_blob;
-    CRYPT_ATTRIBUTE unauth_attribs[1];
     HCERTSTORE cert_store = 0;
     void *cert_stream = NULL;
     wchar_t *password_wide = NULL;
-    wchar_t *timestamp_url_wide = NULL;
     int32_t result = 0;
     int32_t err = MZ_OK;
     int32_t cert_size = 0;
@@ -598,7 +586,10 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
     if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
-    
+
+    *signature = NULL;
+    *signature_size = 0;
+
     cert_size = (int32_t)mz_os_get_file_size(cert_path);
     if (cert_size == 0)
         return MZ_PARAM_ERROR;
@@ -655,6 +646,13 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
         messages[0] = message;
         messages_sizes[0] = message_size;
 
+#if 0 // Timestamp support
+        CRYPT_ATTR_BLOB crypt_blob;
+        CRYPT_TIMESTAMP_CONTEXT *ts_context = NULL;
+        CRYPT_ATTRIBUTE unauth_attribs[1];
+        wchar_t *timestamp_url_wide = NULL;
+        const char *timestamp_url = NULL;
+
         if (timestamp_url != NULL)
             timestamp_url_wide = mz_os_unicode_string_create(timestamp_url);
         if (timestamp_url_wide != NULL)
@@ -679,6 +677,10 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
             }
         }
 
+        if (ts_context != NULL)
+            CryptMemFree(ts_context);
+#endif
+
         if (result)
             result = CryptSignMessage(&sign_params, FALSE, 1, messages, messages_sizes,
                 NULL, signature_size);
@@ -692,9 +694,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
         if (!result)
             err = MZ_CRYPT_ERROR;
-
-        if (ts_context != NULL)
-            CryptMemFree(ts_context);
     }
 
     if (cert_context != NULL)
@@ -708,18 +707,11 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
     CRYPT_VERIFY_MESSAGE_PARA verify_params;
-    CRYPT_TIMESTAMP_CONTEXT *crypt_context = NULL;
-    PCRYPT_ATTRIBUTES unauth_attribs = NULL;
     HCRYPTMSG crypt_msg = 0;
-    HCRYPTMSG ts_msg = 0;
     int32_t result = 0;
     int32_t err = MZ_CRYPT_ERROR;
     uint8_t *decoded = NULL;
     int32_t decoded_size = 0;
-    uint8_t *ts_content = NULL;
-    int32_t ts_content_size = 0;
-    uint8_t *ts_signature = NULL;
-    int32_t ts_signature_size = 0;
 
 
     memset(&verify_params, 0, sizeof(verify_params));
@@ -744,6 +736,14 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     crypt_msg = CryptMsgOpenToDecode(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, 0, 0, NULL, NULL);
     if (crypt_msg != NULL)
     {
+#if 0 // Timestamp support
+        PCRYPT_ATTRIBUTES unauth_attribs = NULL;
+        HCRYPTMSG ts_msg = 0;
+        uint8_t *ts_content = NULL;
+        int32_t ts_content_size = 0;
+        uint8_t *ts_signature = NULL;
+        int32_t ts_signature_size = 0;
+
         result = CryptMsgUpdate(crypt_msg, signature, signature_size, 1);
 
         if (result)
@@ -780,6 +780,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
         if (crypt_context != NULL)
             CryptMemFree(crypt_context);
+#endif
     }
 
     if ((crypt_msg != NULL) && (result) && (decoded_size == signature_size))

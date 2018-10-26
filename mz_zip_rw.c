@@ -392,9 +392,10 @@ int32_t mz_zip_reader_entry_open(void *handle)
         {
             mz_crypt_sha_create(&reader->sha256);
             mz_crypt_sha_set_algorithm(reader->sha256, MZ_HASH_SHA256);
-
+#ifndef MZ_ZIP_NO_SIGNING
             if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
                 err = mz_zip_reader_entry_sign_verify(handle);
+#endif
         }
 #endif
     }
@@ -461,6 +462,7 @@ int32_t mz_zip_reader_entry_has_sign(void *handle)
     return err;
 }
 
+#if !defined(MZ_ZIP_NO_ENCRYPTION) && !defined(MZ_ZIP_NO_SIGNING)
 int32_t mz_zip_reader_entry_sign_verify(void *handle)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
@@ -468,7 +470,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     int32_t err = MZ_OK;
     uint8_t *signature = NULL;
     uint16_t signature_size = 0;
-    uint8_t sha1[MZ_HASH_SHA1_SIZE];
+    uint8_t sha256[MZ_HASH_SHA256_SIZE];
 
     if (reader == NULL || mz_zip_entry_is_open(reader->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -487,12 +489,12 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     mz_stream_mem_delete(&file_extra_stream);
 
     if (err == MZ_OK)
-        err = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA1, sha1, sizeof(sha1));
+        err = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA256, sha256, sizeof(sha256));
 
     if (err == MZ_OK)
     {
         // Verify the pkcs signature
-        err = mz_crypt_sign_verify(sha1, sizeof(sha1), signature, signature_size);
+        err = mz_crypt_sign_verify(sha256, sizeof(sha256), signature, signature_size);
     }
 
     if (signature != NULL)
@@ -500,6 +502,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
 
     return err;
 }
+#endif
 
 int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *digest, int32_t digest_size)
 {
@@ -962,7 +965,6 @@ typedef struct mz_zip_writer_s {
     const char  *password;
     const char  *cert_path;
     const char  *cert_pwd;
-    const char  *timestamp_url;
     uint16_t    compress_method;
     int16_t     compress_level;
     int32_t     flags;
@@ -1223,6 +1225,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
     // Start calculating sha1 
     mz_crypt_sha_create(&writer->sha256);
     mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
+    mz_crypt_sha_begin(writer->sha256);
 #endif
 
     // Open entry in zip
@@ -1239,10 +1242,10 @@ int32_t mz_zip_writer_entry_close(void *handle)
     mz_zip_file *file_info = NULL;
     int32_t extrafield_size = 0;
     int32_t field_length_hash = 0;
-    uint8_t sha1[MZ_HASH_SHA1_SIZE];
+    uint8_t sha256[MZ_HASH_SHA256_SIZE];
 
 
-    mz_crypt_sha_end(writer->sha256, sha1, sizeof(sha1));
+    mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
 
     // Copy extrafield so we can append our own fields before close
     mz_stream_mem_create(&writer->file_extra_stream);
@@ -1252,20 +1255,22 @@ int32_t mz_zip_writer_entry_close(void *handle)
         mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield, writer->file_info.extrafield_size);
 
     // Write sha1 hash to extrafield
-    field_length_hash = 4 + MZ_HASH_SHA1_SIZE;
+    field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
     err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA1);
+        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256);
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA1_SIZE);
+        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256_SIZE);
     if (err == MZ_OK)
     {
-        if (mz_stream_write(writer->file_extra_stream, sha1, sizeof(sha1)) != MZ_HASH_SHA1_SIZE)
+        if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
             err = MZ_STREAM_ERROR;
     }
 
+#ifndef MZ_ZIP_NO_SIGNING
     if (writer->cert_path != NULL)
-        err = mz_zip_writer_entry_sign(handle, writer->cert_path, writer->cert_pwd, writer->timestamp_url);
+        err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
+#endif
 
     // Update extra field for central directory after adding extra fields
     mz_zip_entry_get_info(writer->zip_handle, &file_info);
@@ -1297,25 +1302,22 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
     return written;
 }
 
-#ifndef MZ_ZIP_NO_ENCRYPTION
-int32_t mz_zip_writer_entry_sign(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url)
+#if !defined(MZ_ZIP_NO_ENCRYPTION) && !defined(MZ_ZIP_NO_SIGNING)
+int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     mz_zip_file *file_info = NULL;
     int32_t err = MZ_OK;
     int32_t signature_size = 0;
     uint8_t *signature = NULL;
-    uint8_t sha1[MZ_HASH_SHA1_SIZE];
 
     if (cert_path == NULL)
         return MZ_PARAM_ERROR;
     if (writer == NULL || mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    mz_crypt_sha_end(writer->sha256, sha1, sizeof(sha1));
-
     if (err == MZ_OK)
-        err = mz_crypt_sign(sha1, sizeof(sha1), writer->cert_path, writer->cert_pwd, writer->timestamp_url, 
+        err = mz_crypt_sign(message, message_size, writer->cert_path, writer->cert_pwd,  
             &signature, &signature_size);
 
     if ((err == MZ_OK) && (signature != NULL))
@@ -1709,12 +1711,11 @@ void mz_zip_writer_set_flags(void *handle, int32_t flags)
     writer->flags = flags;
 }
 
-void mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd, const char *timestamp_url)
+void mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     writer->cert_path = cert_path;
     writer->cert_pwd = cert_pwd;
-    writer->timestamp_url = timestamp_url;
 }
 
 void mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb)

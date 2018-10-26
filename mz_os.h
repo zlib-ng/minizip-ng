@@ -83,6 +83,9 @@ wchar_t *mz_os_unicode_string_create(const char *string);
 void     mz_os_unicode_string_delete(wchar_t **string);
 // Delete a unicode string that was created
 
+int32_t  mz_os_rand(uint8_t *buf, int32_t size);
+// Random number generator (not cryptographically secure)
+
 int32_t  mz_os_rename(const char *source_path, const char *target_path);
 // Rename a file
 

@@ -499,27 +499,22 @@ void test_crypt_aes(void)
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_key(aes, key, key_length);
-    mz_crypt_aes_encrypt(aes, buf, test_length, 0);
-    mz_crypt_aes_encrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_crypt_aes_encrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
 
     printf("Aes encrypted\n");
     for (i = 0; i < test_length; i += 1)
         printf("%02x", buf[i]);
     printf("\n");
-    for (i = 0; i < test_length + MZ_AES_BLOCK_SIZE; i += 1)
-        printf("%02x", buf[i]);
-    printf("\n");
 
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_key(aes, key, key_length);
-    mz_crypt_aes_decrypt(aes, buf, test_length, 0);
-    mz_crypt_aes_decrypt(aes, buf + test_length, MZ_AES_BLOCK_SIZE, 1);
+    mz_crypt_aes_decrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
 
     printf("Aes decrypted\n");
-    for (i = 0; i < test_length + MZ_AES_BLOCK_SIZE; i += 1)
+    for (i = 0; i < test_length; i += 1)
         printf("%02x", buf[i]);
     printf("\n");
 }
