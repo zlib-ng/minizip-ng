@@ -239,8 +239,7 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
     void *file_extra_stream = NULL;
     uint64_t number_entry = 0;
     int32_t err = MZ_OK;
-    uint16_t field_type = 0;
-    uint16_t field_length = 0;
+
 
     err = mz_zip_reader_goto_first_entry(handle);
     if (err != MZ_OK)
@@ -1176,7 +1175,7 @@ int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t fla
 
     mz_stream_write_uint64(file_extra_stream, number_entry);
 
-    mz_stream_mem_get_buffer(file_extra_stream, &cd_file.extrafield);
+    mz_stream_mem_get_buffer(file_extra_stream, (const void **)&cd_file.extrafield);
     mz_stream_mem_get_buffer_length(file_extra_stream, &extrafield_size);
     cd_file.extrafield_size = (uint16_t)extrafield_size;
 

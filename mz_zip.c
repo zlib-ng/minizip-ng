@@ -797,7 +797,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if ((err == MZ_OK) && (file_info->filename_size > 0))
     {
-        mz_stream_mem_get_buffer(file_extra_stream, (const void **)&file_info->filename);
+        mz_stream_mem_get_buffer(file_extra_stream, &file_info->filename);
 
         err = mz_stream_copy(file_extra_stream, stream, file_info->filename_size);
         if (err == MZ_OK)
@@ -808,7 +808,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
     {
-        mz_stream_mem_get_buffer_at(file_extra_stream, seek, (const void **)&file_info->extrafield);
+        mz_stream_mem_get_buffer_at(file_extra_stream, seek, &file_info->extrafield);
 
         err = mz_stream_copy(file_extra_stream, stream, file_info->extrafield_size);
         if (err == MZ_OK)
@@ -939,7 +939,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if ((err == MZ_OK) && (file_info->comment_size > 0))
     {
-        mz_stream_mem_get_buffer_at(file_extra_stream, seek, (const void **)&file_info->comment);
+        mz_stream_mem_get_buffer_at(file_extra_stream, seek, &file_info->comment);
 
         err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
         if (err == MZ_OK)
@@ -1544,17 +1544,17 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     // Copy filename, extrafield, and comment internally
     if (file_info->filename != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.filename);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.filename);
         mz_stream_write_chars(zip->file_info_stream, file_info->filename, 1);
     }
     if (file_info->extrafield != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.extrafield);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.extrafield);
         mz_stream_write(zip->file_info_stream, file_info->extrafield, file_info->extrafield_size);
     }
     if (file_info->comment != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const void **)&zip->file_info.comment);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.comment);
         mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
     }
 
