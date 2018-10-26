@@ -6,6 +6,7 @@
 #***************************************************************************
 
 cmake_minimum_required(VERSION 3.0.2)
+message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 option(USE_COMPAT "Enables compatibility layer" ON)
 option(USE_ZLIB "Enables ZLIB compression" ON)
@@ -24,6 +25,7 @@ project("minizip" C)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
 include(GNUInstallDirs)
+include(ExternalProject)
 
 set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE PATH "Installation directory for libraries")
@@ -51,10 +53,48 @@ if(USE_ZLIB)
     set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
     find_package(ZLIB)
     if(ZLIB_FOUND)
-        include_directories(${ZLIB_INCLUDE_DIRS})
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
+        include_directories(${ZLIB_INCLUDE_DIRS})
+        add_definitions(-DHAVE_ZLIB)
+    else()
+        message(STATUS "Using external ZLIB")
+
+        set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib/zlib)
+        set(ZLIB_INSTALL ${ZLIB_SOURCE_DIR}/install)
+        set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL}/include)
+        
+        if(WIN32)
+            if(${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
+                set(ZLIB_LIBRARIES
+                    debug ${ZLIB_INSTALL}/lib/zlibstaticd.lib
+                    optimized ${ZLIB_INSTALL}/lib/zlibstatic.lib)
+            else()
+                if(CMAKE_BUILD_TYPE EQUAL Debug)
+                    set(ZLIB_LIBRARIES
+                        ${ZLIB_INSTALL}/lib/zlibstaticd.lib)
+                else()
+                    set(ZLIB_LIBRARIES
+                        ${ZLIB_INSTALL}/lib/zlibstatic.lib)
+                endif()
+            endif()
+        else()
+            set(ZLIB_LIBRARIES
+                ${ZLIB_INSTALL}/lib/libz.a)
+        endif()
+
+        ExternalProject_Add(zlib
+            PREFIX zlib
+            GIT_REPOSITORY https://github.com/madler/zlib
+            GIT_TAG master
+            SOURCE_DIR ${ZLIB_SOURCE_DIR}
+            BUILD_IN_SOURCE 1
+            INSTALL_DIR ${ZLIB_INSTALL}
+            BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
+        )
+
+        include_directories(${ZLIB_INCLUDE_DIRS})
+        add_definitions(-DHAVE_ZLIB)
     endif()
-    add_definitions(-DHAVE_ZLIB)
 endif()
 
 # Check if bzip2 installation is present
@@ -62,10 +102,10 @@ if(USE_BZIP2)
     set(BZIP2_ROOT ${DEF_BZIP2_ROOT} CACHE PATH "Parent directory of bzip2 installation")
     find_package(BZip2)
     if(BZIP2_FOUND)
-        include_directories(${BZIP2_INCLUDE_DIRS})
         message(STATUS "Using BZIP2 ${BZIP2_VERSION}")
+        include_directories(${BZIP2_INCLUDE_DIRS})
+        add_definitions(-DHAVE_BZIP2)
     endif()
-    add_definitions(-DHAVE_BZIP2)
 endif()
 
 # Check to see if openssl installation is present
@@ -73,9 +113,9 @@ if (USE_OPENSSL)
     set(OPENSSL_ROOT ${DEF_OPENSSL_ROOT} CACHE PATH "Parent directory of openssl installation")
     find_package(OPENSSL)
     if (OPENSSL_FOUND)
+        message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
         include_directories(${OPENSSL_INCLUDE_DIRS})
         link_directories(${OPENSSL_LIBRARIES})
-        message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
     endif()
 endif()
 
@@ -125,10 +165,12 @@ if(WIN32)
 
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
+
 # Windows store specific
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
     add_definitions(-DMZ_WINRT_API)
 endif()
+
 # Unix specific
 if(UNIX)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
@@ -248,14 +290,16 @@ if(USE_ZLIB)
     else() 
         list(APPEND MINIZIP_SRC "mz_strm_zlib.c")
         list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_zlib.h")
+        
+        if (ZLIB_FOUND)
+            include(CheckFunctionExists)
+            set(CMAKE_REQUIRED_LIBRARIES ZLIB)
+            CHECK_FUNCTION_EXISTS(z_get_crc_table
+                NEEDS_Z_PREFIX)
     
-        include(CheckFunctionExists)
-        set(CMAKE_REQUIRED_LIBRARIES ZLIB::ZLIB)
-        CHECK_FUNCTION_EXISTS(z_get_crc_table
-            NEEDS_Z_PREFIX)
-
-        if(NEEDS_Z_PREFIX)
-            add_definitions(-DZ_PREFIX)
+            if(NEEDS_Z_PREFIX)
+                add_definitions(-DZ_PREFIX)
+            endif()
         endif()
     endif()
 endif()
@@ -439,7 +483,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
 
 # Link with external libraries
 if(USE_ZLIB AND ZLIB_FOUND)
-    target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
+    target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
 endif()
 if(USE_BZIP2 AND BZIP2_FOUND)
     target_link_libraries(${PROJECT_NAME} ${BZIP2_LIBRARIES})

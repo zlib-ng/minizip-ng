@@ -2,33 +2,10 @@ language: c
 
 matrix:
     include:
-        - os: linux
-          compiler: gcc
-        - os: linux
-          compiler: clang
-        - os: linux
-          compiler: clang 
-          env: TOOL="-DCOMPRESS_ONLY=ON"
-        - os: linux
-          compiler: clang 
-          env: TOOL="-DDECOMPRESS_ONLY=ON"
-        - os: linux
-          compiler: clang 
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF"
-        - os: osx
-          compiler: gcc
-        - os: osx
-          compiler: clang
-        - os: osx
-          compiler: gcc
-          env: TOOL="-DUSE_LIBCOMP=ON"
-        - os: osx
-          compiler: clang
-          env: TOOL="-DUSE_LIBCOMP=ON"
-        - os: windows
-          compiler: gcc
         - os: windows
           compiler: clang
+        - os: windows
+          compiler: gcc
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi

@@ -1,4 +1,4 @@
-/* mz_strm_aes.c -- Stream for WinZip AES encryption
+/* mz_strm_wzaes.c -- Stream for WinZip AES encryption
    Version 2.6.0, October 8, 2018
    part of the MiniZip project
 
@@ -13,9 +13,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#include "aes.h"
-#include "hmac.h"
 
 #include "mz.h"
 #include "mz_crypt.h"
@@ -66,9 +63,9 @@ typedef struct mz_stream_wzaes_s {
     const char      *password;
     void            *aes;
     uint32_t        crypt_pos;
-    uint8_t         crypt_block[AES_BLOCK_SIZE];
+    uint8_t         crypt_block[MZ_AES_BLOCK_SIZE];
     void            *hmac;
-    uint8_t         nonce[AES_BLOCK_SIZE];
+    uint8_t         nonce[MZ_AES_BLOCK_SIZE];
 } mz_stream_wzaes;
 
 /***************************************************************************/
@@ -213,7 +210,7 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode)
         MZ_AES_KEYING_ITERATIONS, kbuf, 2 * key_length + MZ_AES_PW_VERIFY_SIZE);
 
     // Initialize the encryption nonce and buffer pos
-    wzaes->crypt_pos = AES_BLOCK_SIZE;
+    wzaes->crypt_pos = MZ_AES_BLOCK_SIZE;
     memset(wzaes->nonce, 0, sizeof(wzaes->nonce));
 
     // Initialize for encryption using key 1
@@ -278,7 +275,7 @@ static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t 
 
     while (i < (uint32_t)size)
     {
-        if (pos == AES_BLOCK_SIZE)
+        if (pos == MZ_AES_BLOCK_SIZE)
         {
             uint32_t j = 0;
 
@@ -287,7 +284,7 @@ static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t 
                 j += 1;
 
             // Encrypt the nonce to form next xor buffer
-            memcpy(wzaes->crypt_block, wzaes->nonce, AES_BLOCK_SIZE);
+            memcpy(wzaes->crypt_block, wzaes->nonce, MZ_AES_BLOCK_SIZE);
             mz_crypt_aes_encrypt(wzaes->aes, wzaes->crypt_block, sizeof(wzaes->crypt_block));
             pos = 0;
         }

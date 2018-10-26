@@ -433,6 +433,7 @@ void test_stream_mem(void)
 
 /***************************************************************************/
 
+#ifndef MZ_ZIP_NO_ENCRYPTION
 void test_crypt_sha(void)
 {
     void *sha1 = NULL;
@@ -580,5 +581,6 @@ void test_crypt_hmac(void)
     printf("Hmac sha256 expected\n");
     printf("fb22a9c715a47a06bad4f6cee9badc31c921562f5d6b24adf2be009f73181f7a\n");
 }
+#endif
 
 /***************************************************************************/
