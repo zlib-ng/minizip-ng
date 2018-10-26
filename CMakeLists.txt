@@ -60,26 +60,26 @@ if(USE_ZLIB)
         message(STATUS "Using external ZLIB")
 
         set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib/zlib)
-        set(ZLIB_INSTALL ${ZLIB_SOURCE_DIR}/install)
-        set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL}/include)
+        set(ZLIB_INSTALL_DIR ${ZLIB_SOURCE_DIR}/install)
+        set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL_DIR}/include)
         
         if(WIN32)
             if(${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
                 set(ZLIB_LIBRARIES
-                    debug ${ZLIB_INSTALL}/lib/zlibstaticd.lib
-                    optimized ${ZLIB_INSTALL}/lib/zlibstatic.lib)
+                    debug ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib
+                    optimized ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib)
             else()
                 if(CMAKE_BUILD_TYPE EQUAL Debug)
                     set(ZLIB_LIBRARIES
-                        ${ZLIB_INSTALL}/lib/zlibstaticd.lib)
+                        ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib)
                 else()
                     set(ZLIB_LIBRARIES
-                        ${ZLIB_INSTALL}/lib/zlibstatic.lib)
+                        ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib)
                 endif()
             endif()
         else()
             set(ZLIB_LIBRARIES
-                ${ZLIB_INSTALL}/lib/libz.a)
+                ${ZLIB_INSTALL_DIR}/lib/libz.a)
         endif()
 
         ExternalProject_Add(zlib
@@ -88,14 +88,15 @@ if(USE_ZLIB)
             GIT_TAG master
             SOURCE_DIR ${ZLIB_SOURCE_DIR}
             BUILD_IN_SOURCE 1
-            INSTALL_DIR ${ZLIB_INSTALL}
+            INSTALL_DIR ${ZLIB_INSTALL_DIR}
             BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
             CMAKE_CACHE_ARGS
-                -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL}
+                -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
         add_definitions(-DHAVE_ZLIB)
+        
     endif()
 endif()
 
@@ -470,10 +471,12 @@ source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
 add_library(${PROJECT_NAME}
                 ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
+                ${ZLIB_PUBLIC_HEADERS}
                 ${BRG_SRC} ${BRG_PUBLIC_HEADERS}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
+add_dependencies(${PROJECT_NAME} zlib)
 if (MSVC AND BUILD_SHARED_LIBS)
     set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
 endif ()
