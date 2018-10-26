@@ -52,7 +52,7 @@ matrix:
           env: TOOL="-DUSE_LIBCOMP=ON"
         - os: osx
           compiler: clang 
-          env: TOOL="-DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl"
+          env: TOOL="-DUSE_OPENSSL=ON -DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi
