@@ -465,7 +465,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     if (err == MZ_OK)
     {
         if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
-            err = MM_STREAM_ERROR;
+            err = MZ_STREAM_ERROR;
         mz_stream_os_close(cert_stream);
     }
     mz_stream_os_delete(&cert_stream);

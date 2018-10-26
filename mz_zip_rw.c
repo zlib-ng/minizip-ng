@@ -409,9 +409,6 @@ int32_t mz_zip_reader_entry_close(void *handle)
     int32_t err_close = MZ_OK;
 #ifndef MZ_ZIP_NO_ENCRYPTION
     int32_t err_hash = MZ_OK;
-    uint16_t algorithm = 0;
-    uint16_t digest_size = 0;
-    uint8_t *digest = NULL;
     uint8_t computed_sha1[MZ_HASH_SHA1_SIZE];
     uint8_t expected_sha1[MZ_HASH_SHA1_SIZE];
 
