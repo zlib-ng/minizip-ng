@@ -161,8 +161,8 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 {
     char buf[UINT16_MAX];
     int16_t read = 0;
-    uint64_t total_in = 0;
-    uint64_t total_out = 0;
+    int64_t total_in = 0;
+    int64_t total_out = 0;
     void *crc_in_stream = NULL;
     void *in_stream = NULL;
     void *out_stream = NULL;
@@ -288,15 +288,16 @@ void test_stream_wzaes(void)
     int32_t iteration_count = 1000;
     int32_t err = MZ_OK;
     int32_t i = 0;
-    uint8_t *password = "passwordpasswordpasswordpassword";
-    uint8_t *salt = "8F3472E4EA57F56E36F30246DC22C173";
     uint8_t key[MZ_HASH_SHA1_SIZE];
+    const char *password = "passwordpasswordpasswordpassword";
+    const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
    
 
     printf("Pbkdf2 password - %s\n", password);
     printf("Pbkdf2 salt - %s\n", salt);
 
-    err = mz_stream_wzaes_pbkdf2(password, strlen(password), salt, strlen(salt), iteration_count, key, sizeof(key));
+    err = mz_stream_wzaes_pbkdf2((uint8_t *)password, (int32_t)strlen(password), 
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key));
 
     printf("Pbkdf2 key hex\n");
     for (i = 0; i < sizeof(key); i += 1)
@@ -327,7 +328,7 @@ void test_stream_mem(void)
     int32_t text_size = 0;
     int32_t buffer_size = 0;
     int32_t err = MZ_OK;
-    char *buffer_ptr = NULL;
+    const uint8_t *buffer_ptr = NULL;
     char *password = "1234";
     char *text_name = "test";
     char *text_ptr = "test string";
@@ -489,7 +490,7 @@ void test_crypt_aes(void)
     key_length = strlen(key);
     test_length = strlen(test);
 
-    strncpy(buf, test, test_length);
+    strncpy((char *)buf, test, test_length);
 
     printf("Aes input hex\n");
     for (i = 0; i < test_length; i += 1)

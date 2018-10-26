@@ -1175,7 +1175,7 @@ int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t fla
 
     mz_stream_write_uint64(file_extra_stream, number_entry);
 
-    mz_stream_mem_get_buffer(file_extra_stream, (const void **)&cd_file.extrafield);
+    mz_stream_mem_get_buffer(file_extra_stream, &cd_file.extrafield);
     mz_stream_mem_get_buffer_length(file_extra_stream, &extrafield_size);
     cd_file.extrafield_size = (uint16_t)extrafield_size;
 

@@ -424,7 +424,7 @@ source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
 add_library(${PROJECT_NAME}
                 ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
-                ${AES_SRC} ${AES_PUBLIC_HEADERS}
+                ${BRG_SRC} ${BRG_PUBLIC_HEADERS}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 

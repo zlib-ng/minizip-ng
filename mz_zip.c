@@ -797,7 +797,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if ((err == MZ_OK) && (file_info->filename_size > 0))
     {
-        mz_stream_mem_get_buffer(file_extra_stream, &file_info->filename);
+        mz_stream_mem_get_buffer(file_extra_stream, (const uint8_t **)&file_info->filename);
 
         err = mz_stream_copy(file_extra_stream, stream, file_info->filename_size);
         if (err == MZ_OK)
@@ -939,7 +939,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if ((err == MZ_OK) && (file_info->comment_size > 0))
     {
-        mz_stream_mem_get_buffer_at(file_extra_stream, seek, &file_info->comment);
+        mz_stream_mem_get_buffer_at(file_extra_stream, seek, (const uint8_t **)&file_info->comment);
 
         err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
         if (err == MZ_OK)
@@ -1554,7 +1554,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     }
     if (file_info->comment != NULL)
     {
-        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, &zip->file_info.comment);
+        mz_stream_mem_get_buffer_at_current(zip->file_info_stream, (const uint8_t **)&zip->file_info.comment);
         mz_stream_write_chars(zip->file_info_stream, file_info->comment, 1);
     }
 
