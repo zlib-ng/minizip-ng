@@ -8,21 +8,22 @@ matrix:
           compiler: clang
         - os: osx
           compiler: gcc
+          env: TOOL="-DUSE_LIBCOMP=ON"
         - os: osx
           compiler: clang
+          env: TOOL="-DUSE_LIBCOMP=ON"
         - os: windows
           compiler: gcc
         - os: windows
           compiler: clang
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then sudo apt-get install libbsd-dev; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install libbsd-dev; fi
 
 before_script:
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_TEST=ON
+    - cmake .. -DBUILD_TEST=ON $TOOL
 
 script:
     - make

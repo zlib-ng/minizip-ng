@@ -49,7 +49,7 @@ set(PROJECT_NAME libminizip)
 # Ensure correct version of zlib is referenced
 if(USE_ZLIB)
     set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
-    find_package(ZLIB REQUIRED)
+    find_package(ZLIB)
     if(ZLIB_FOUND)
         include_directories(${ZLIB_INCLUDE_DIRS})
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
