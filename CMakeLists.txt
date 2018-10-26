@@ -114,7 +114,7 @@ endif()
 # Check to see if openssl installation is present
 if (USE_OPENSSL)
     set(OPENSSL_ROOT ${DEF_OPENSSL_ROOT} CACHE PATH "Parent directory of openssl installation")
-    find_package(OPENSSL)
+    find_package(OpenSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
         include_directories(${OPENSSL_INCLUDE_DIRS})

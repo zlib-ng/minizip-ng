@@ -117,7 +117,6 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     int32_t result = 0;
-    int32_t expected_size = 0;
 
     if (sha == NULL || digest == NULL || !sha->initialized)
         return MZ_PARAM_ERROR;
@@ -190,6 +189,8 @@ typedef struct mz_crypt_aes_s {
 
 void mz_crypt_aes_reset(void *handle)
 {
+    MZ_UNUSED(handle);
+
     mz_crypt_init();
 }
 
@@ -316,11 +317,10 @@ int32_t mz_crypt_hmac_begin(void *handle)
 int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
 
     if (hmac == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
-    result = HMAC_Update(&hmac->ctx, buf, size);
+    HMAC_Update(&hmac->ctx, buf, size);
     return MZ_OK;
 }
 
@@ -328,7 +328,6 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
-    int32_t expected_size = 0;
     int32_t err = MZ_OK;
 
     if (hmac == NULL || digest == NULL)
@@ -357,7 +356,6 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
-    int32_t err = MZ_OK;
     const EVP_MD *evp_md = NULL;
 
 
@@ -388,8 +386,9 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
 {
     mz_crypt_hmac *source = (mz_crypt_hmac *)src_handle;
     mz_crypt_hmac *target = (mz_crypt_hmac *)target_handle;
-    int32_t result = 0;
-    int32_t err = MZ_OK;
+
+    if (source == NULL || target == NULL)
+        return MZ_PARAM_ERROR;
 
     HMAC_CTX_copy(&target->ctx, &source->ctx);
     return MZ_OK;
@@ -611,7 +610,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         BIO_get_mem_ptr(message_bio, &buf_mem);
 
         // Verify the message
-        if ((buf_mem->length == message_size) && (memcmp(buf_mem->data, message, message_size) == 0))
+        if (((int32_t)buf_mem->length == message_size) && (memcmp(buf_mem->data, message, message_size) == 0))
             err = MZ_OK;
         else
             err = MZ_CRYPT_ERROR;
