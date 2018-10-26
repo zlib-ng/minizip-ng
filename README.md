@@ -79,28 +79,6 @@ cmake --build .
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
 
-## Zlib Installation (Windows)
-
-Option 1. Install the zlib package to the Program Files directory with an Administrator command prompt.
-
-```
-cmake . -DCMAKE_INSTALL_PREFIX=%PROGRAMFILES%\zlib
-cmake --build . --config Release --target INSTALL
-```
-
-Option 2. Compile zlib in minizip's lib directory. 
-
-```
-cmake .
-cmake --build . --config Release
-```
-
-Navigate back to the minizip directory and before building run:
-
-```
-cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zlib\
-```
-
 ## Contents
 
 | File(s) | Description | Required |
