@@ -15,7 +15,7 @@
 #include <errno.h>
 
 #include <sys/types.h>
-#ifdef HAVE_GETRANDOM
+#if defined(HAVE_GETRANDOM)
 #  include <sys/random.h>
 #endif
 #if defined(unix) || defined(__APPLE__)
@@ -23,9 +23,7 @@
 #    define HAVE_ARC4RANDOM_BUF
 #  endif
 #endif
-#if defined(HAVE_LIBBSD) && \
-   !defined(MZ_ZIP_NO_COMPRESSION) && \
-   !defined(MZ_ZIP_NO_ENCRYPTION)
+#if defined(HAVE_LIBBSD)
 #  include <bsd/stdlib.h> // arc4random_buf
 #endif
 
@@ -147,7 +145,6 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size)
 int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
 {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
-    int32_t expected_size = 0;
 
     if (sha == NULL || digest == NULL || !sha->initialized)
         return MZ_PARAM_ERROR;
@@ -218,6 +215,7 @@ typedef struct mz_crypt_aes_s {
 
 void mz_crypt_aes_reset(void *handle)
 {
+    MZ_UNUSED(handle);
 }
 
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size)
@@ -249,7 +247,6 @@ int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
-    int32_t err = MZ_OK;
 
 
     if (aes == NULL || key == NULL)
@@ -383,9 +380,6 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
-    int32_t err = MZ_OK;
-
 
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
@@ -407,6 +401,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
 {
     mz_crypt_hmac *source = (mz_crypt_hmac *)src_handle;
     mz_crypt_hmac *target = (mz_crypt_hmac *)target_handle;
+
     if (target == NULL || source == NULL)
         return MZ_PARAM_ERROR;
 
@@ -446,10 +441,22 @@ void mz_crypt_hmac_delete(void **handle)
 int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
     uint8_t **signature, int32_t *signature_size)
 {
+    MZ_UNUSED(message);
+    MZ_UNUSED(message_size);
+    MZ_UNUSED(cert_path);
+    MZ_UNUSED(cert_pwd);
+    MZ_UNUSED(signature);
+    MZ_UNUSED(signature_size);
+
     return MZ_SUPPORT_ERROR;
 }
 
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
+    MZ_UNUSED(message);
+    MZ_UNUSED(message_size);
+    MZ_UNUSED(signature);
+    MZ_UNUSED(signature_size);
+
     return MZ_SUPPORT_ERROR;
 }

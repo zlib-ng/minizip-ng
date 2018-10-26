@@ -76,6 +76,7 @@ void test_path_resolve(void)
     mz_path_resolve("c:\\test\\123\\..\\..\\..\\abc.txt", output, sizeof(output));
     ok = (strcmp(output, "abc.txt") == 0);
     memset(output, 'z', sizeof(output));
+    printf("ok = %d", ok);
 }
 
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
@@ -299,10 +300,17 @@ void test_stream_wzaes(void)
     err = mz_stream_wzaes_pbkdf2((uint8_t *)password, (int32_t)strlen(password), 
         (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key));
 
-    printf("Pbkdf2 key hex\n");
-    for (i = 0; i < sizeof(key); i += 1)
-        printf("%02x", key[i]);
-    printf("\n");
+    if (err == MZ_OK)
+    {
+        printf("Pbkdf2 key hex\n");
+        for (i = 0; i < (int32_t)sizeof(key); i += 1)
+            printf("%02x", key[i]);
+        printf("\n");
+    }
+    else
+    {
+        printf("Pbkdf2 failed - %d", err);
+    }
 
     test_encrypt("aes", mz_stream_wzaes_create, "hello");
 }
@@ -391,7 +399,7 @@ void test_stream_mem(void)
     {
         // Read from a memory stream
         mz_stream_mem_create(&read_mem_stream);
-        mz_stream_mem_set_buffer(read_mem_stream, buffer_ptr, buffer_size);
+        mz_stream_mem_set_buffer(read_mem_stream, (void *)buffer_ptr, buffer_size);
         mz_stream_open(read_mem_stream, NULL, MZ_OPEN_MODE_READ);
 
         mz_zip_create(&zip_handle);
@@ -446,7 +454,7 @@ void test_crypt_sha(void)
     mz_crypt_sha_delete(&sha1);
 
     computed_hash[0] = 0;
-    for (i = 0, p = 0; i < sizeof(hash); i += 1, p += 2)
+    for (i = 0, p = 0; i < (int32_t)sizeof(hash); i += 1, p += 2)
         snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash[i]);
     computed_hash[p] = 0;
     
@@ -463,7 +471,7 @@ void test_crypt_sha(void)
     mz_crypt_sha_delete(&sha256);
 
     computed_hash[0] = 0;
-    for (i = 0, p = 0; i < sizeof(hash256); i += 1, p += 2)
+    for (i = 0, p = 0; i < (int32_t)sizeof(hash256); i += 1, p += 2)
         snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash256[i]);
     computed_hash[p] = 0;
     
@@ -546,7 +554,7 @@ void test_crypt_hmac(void)
     mz_crypt_hmac_delete(&hmac);
 
     printf("Hmac sha1 output hash hex\n");
-    for (i = 0; i < sizeof(hash); i += 1)
+    for (i = 0; i < (int32_t)sizeof(hash); i += 1)
         printf("%02x", hash[i]);
     printf("\n");
     printf("Hmac sha1 expected\n");
@@ -564,7 +572,7 @@ void test_crypt_hmac(void)
     mz_crypt_hmac_delete(&hmac);
 
     printf("Hmac sha256 output hash hex\n");
-    for (i = 0; i < sizeof(hash256); i += 1)
+    for (i = 0; i < (int32_t)sizeof(hash256); i += 1)
         printf("%02x", hash256[i]);
     printf("\n");
     printf("Hmac sha256 expected\n");
