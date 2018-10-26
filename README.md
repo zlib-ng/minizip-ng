@@ -104,9 +104,9 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | minizip.c | Sample application | No |
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
-| mz_os\* | OS specific helper functions | Encryption, Disk Splitting |
+| mz_os\* | Platform specific file/utility functions | Likely |
+| mz_crypt_*\* | Configuration specific crypto/hashing functions | Encryption, Signing |
 | mz_strm.\* | Stream interface | Yes |
-| mz_strm_aes.\* | WinZIP AES stream | No |
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
 | mz_strm_crc32.\* | CRC32 stream | Yes |
@@ -115,8 +115,8 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
 | mz_strm_pkcrypt.\* | PKWARE traditional encryption stream | No |
-| mz_strm_posix.\* | File stream using Posix functions | Non-windows systems |
-| mz_strm_win32.\* | File stream using Win32 API functions | Windows systems |
+| mz_strm_os_*.\* | Platform specific file stream | Yes |
+| mz_strm_wzaes.\* | WinZIP AES stream | No |
 | mz_strm_zlib.\* | Deflate stream using zlib | zlib or liblzma |
 | mz_zip.\* | Zip format | Yes |
 | mz_zip_rw.\* | Zip reader/writer | No |
