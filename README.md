@@ -44,6 +44,9 @@ Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?
 + Windows (Win32 & WinRT), macOS and Linux platform support.
 + Streaming interface for easy implementation of additional platforms.
 + Support for Apple's compression library ZLIB implementation.
++ Masking of local file header information.
++ Zip/unzip of central directory to reduce size.
++ Ability to generate and verify CMS signature for each entry.
 + Compatibility interface for older versions of minizip.
 + Example minizip command line tool.
 
@@ -71,6 +74,7 @@ cmake --build .
 | USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
 | USE_AES | Enables WinZIP AES encryption | ON |
 | USE_LIBCOMP | Enables Apple compression | OFF |
+| USE_OPENSSL | Enables OpenSSL encryption | OFF |
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
@@ -105,7 +109,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
 | mz_os\* | Platform specific file/utility functions | Likely |
-| mz_crypt_*\* | Configuration specific crypto/hashing functions | Encryption, Signing |
+| mz_crypt\* | Configuration specific crypto/hashing functions | Encryption, Signing |
 | mz_strm.\* | Stream interface | Yes |
 | mz_strm_buf.\* | Buffered stream | No |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
@@ -115,7 +119,7 @@ cmake . -DZLIB_LIBRARY=lib\zlib\release\zlibstatic.lib -DZLIB_INCLUDE_DIR=lib\zl
 | mz_strm_mem.\* | Memory stream | Yes |
 | mz_strm_split.\* | Disk splitting stream | No |
 | mz_strm_pkcrypt.\* | PKWARE traditional encryption stream | No |
-| mz_strm_os_*.\* | Platform specific file stream | Yes |
+| mz_strm_os\* | Platform specific file stream | Yes |
 | mz_strm_wzaes.\* | WinZIP AES stream | No |
 | mz_strm_zlib.\* | Deflate stream using zlib | zlib or liblzma |
 | mz_zip.\* | Zip format | Yes |
