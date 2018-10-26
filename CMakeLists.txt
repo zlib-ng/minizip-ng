@@ -476,7 +476,6 @@ add_library(${PROJECT_NAME}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
-add_dependencies(${PROJECT_NAME} zlib)
 if (MSVC AND BUILD_SHARED_LIBS)
     set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
 endif ()
@@ -487,8 +486,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)
 
 # Link with external libraries
-if(USE_ZLIB AND ZLIB_FOUND)
+if(USE_ZLIB)
     target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
+    if(NOT ZLIB_FOUND)
+        add_dependencies(${PROJECT_NAME} zlib)
+    endif()
 endif()
 if(USE_BZIP2 AND BZIP2_FOUND)
     target_link_libraries(${PROJECT_NAME} ${BZIP2_LIBRARIES})
