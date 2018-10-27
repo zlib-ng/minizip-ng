@@ -69,4 +69,5 @@ before_script:
 
 script:
     - cmake --build .
+    - cd ../test
     - travis_wait 30 python test.py --exe_dir=../build --raw $TEST_TOOL
