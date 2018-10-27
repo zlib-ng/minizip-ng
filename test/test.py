@@ -13,8 +13,14 @@ import pprint
 import hashlib
 from sys import platform
 
-parser = argparse.ArgumentParser(description='Test script')
-parser.add_argument('--exe_dir', help='Built exes directory', default=None, action='store', required=False)
+parser = argparse.ArgumentParser(description='Zip/unzip test script')
+parser.add_argument('--exe_dir', help='Minizip command line tool directory', default=None, action='store', required=False)
+parser.add_argument('--deflate', help='Runs zlib/deflate tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--raw', help='Runs raw tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--bzip2', help='Runs bzip2 tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--lzma', help='Runs lzma tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--pkcrypt', help='Runs pkware traditional encryption tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--wzaes', help='Runs winzip aes encryption tests', action='store_const', const=True, default=None, required=False)
 args, unknown = parser.parse_known_args()
 
 def hash_file_sha1(path):
@@ -39,18 +45,24 @@ def find_files(directory, pattern, recursive = True):
             if fnmatch.fnmatch(basename, pattern):
                 filename = os.path.join(root, basename)
                 yield filename
-
-def erase_file(path):
+    
+def erase_file(path, retries = 10, sleep = 0.1):
     #print('Deleting {0}'.format(path))
-    os.chmod(path, stat.S_IWUSR)
-    os.remove(path)
+    for i in range(retries):
+        try:
+            os.chmod(path, stat.S_IWUSR)
+            os.remove(path)
+        except WindowsError:
+            time.sleep(sleep)
+        else:
+            break
 
 def erase_files(search_pattern):
     search_dir, match = os.path.split(search_pattern)
     for path in find_files(search_dir, match):
         erase_file(path)
 
-def erase_dir(path):
+def erase_dir(path, retries = 10):
     if not os.path.exists(path):
         return
     print('Erasing dir {0}'.format(path))
@@ -58,14 +70,7 @@ def erase_dir(path):
     for root, dirs, files in os.walk(path, topdown=False):
         for name in files:
             filename = os.path.join(root, name)
-            success = False
-            while not success:
-                try:
-                    erase_file(filename)
-                    success = True
-                except:
-                    time.sleep(4)
-                    pass
+            erase_file(filename)
         for name in dirs:
             os.rmdir(os.path.join(root, name))
     os.rmdir(path)
@@ -166,20 +171,25 @@ def file_tests(method, zip_arg = '', unzip_arg = ''):
     print('Testing {0} 1MB file'.format(method))
     create_random_file('1MB.dat', 1 * 1024 * 1024)
     zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['1MB.dat'])
-    print('Testing {0} 50MB file'.format(method))
-    create_random_file('50MB.dat', 50 * 1024 * 1024)
-    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['50MB.dat'])
 
 def compression_method_tests(method = '', zip_arg = '', unzip_arg = ''):
+    global args
     method = method + ' ' if method != '' else ''
-    file_tests(method + 'Deflate', zip_arg, unzip_arg)
-    file_tests(method + 'Raw', '-0 ' + zip_arg, unzip_arg)
-    file_tests(method + 'BZIP2', '-b ' + zip_arg, unzip_arg)
-    file_tests(method + 'LZMA', '-m ' + zip_arg, unzip_arg)
+    if args.deflate:
+        file_tests(method + 'Deflate', zip_arg, unzip_arg)
+    if args.raw:
+        file_tests(method + 'Raw', '-0 ' + zip_arg, unzip_arg)
+    if args.bzip2:
+        file_tests(method + 'BZIP2', '-b ' + zip_arg, unzip_arg)
+    if args.lzma:
+        file_tests(method + 'LZMA', '-m ' + zip_arg, unzip_arg)
 
 def encryption_tests():
-    compression_method_tests('Crypt', '-p 1234567890', '-p 1234567890')
-    compression_method_tests('AES', '-s -p 1234567890', '-p 1234567890')
+    global args
+    if args.pkcrypt:
+        compression_method_tests('PKCrypt', '-p 1234567890', '-p 1234567890')
+    if args.wzaes:
+        compression_method_tests('WinZipAES', '-s -p 1234567890', '-p 1234567890')
 
 def empty_zip_test():
     unzip('empty.zip', 'out')
@@ -194,7 +204,7 @@ if not os.path.exists('repo'):
     os.system('git clone https://github.com/nmoinvaz/minizip repo')
 
 # Run tests
-empty_zip_test()
+#empty_zip_test()
 sfx_zip_test()
 compression_method_tests()
 encryption_tests()
