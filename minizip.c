@@ -303,6 +303,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_compress_level(writer, options->compress_level);
     mz_zip_writer_set_overwrite_cb(writer, options, minizip_add_overwrite_cb);
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
+    mz_zip_writer_set_entry_cb(writer, options, minizip_add_entry_cb);
     if (options->zip_cd)
         mz_zip_writer_set_flags(writer, MZ_ZIP_FLAG_MASK_LOCAL_INFO);
     if (options->cert_path != NULL)

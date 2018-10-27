@@ -473,15 +473,14 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     mz_stream_os_delete(&cert_stream);
 
     cert_bio = BIO_new_mem_buf(cert_data, cert_size);
-    message_bio = BIO_new_mem_buf(message, message_size);
-    
+
     if (d2i_PKCS12_bio(cert_bio, &p12) == NULL)
         err = MZ_CRYPT_ERROR;
     if (err == MZ_OK)
         result = PKCS12_parse(p12, cert_pwd, &evp_pkey, &cert, &ca_stack);
     if (result)
     {
-        cms = CMS_sign(NULL, NULL, ca_stack, message_bio, CMS_BINARY | CMS_PARTIAL);
+        cms = CMS_sign(NULL, NULL, ca_stack, NULL, CMS_BINARY | CMS_PARTIAL);
         if (cms)
             signer_info = CMS_add1_signer(cms, cert, evp_pkey, EVP_sha256(), 0);
         if (signer_info == NULL)
@@ -490,8 +489,10 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
         }
         else
         {
+            message_bio = BIO_new_mem_buf(message, message_size);
             signature_bio = BIO_new(BIO_s_mem());
-            result = CMS_final(cms, message_bio, NULL, 0);
+
+            result = CMS_final(cms, message_bio, NULL, CMS_BINARY);
             if (result)
                 result = i2d_CMS_bio(signature_bio, cms);
             if (result)
@@ -611,11 +612,13 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
         BIO_get_mem_ptr(message_bio, &buf_mem);
 
-        // Verify the message
-        if (((int32_t)buf_mem->length == message_size) && (memcmp(buf_mem->data, message, message_size) == 0))
-            err = MZ_OK;
-        else
-            err = MZ_CRYPT_ERROR;
+        if (err == MZ_OK)
+        {
+            // Verify the message
+            if (((int32_t)buf_mem->length != message_size) || 
+                (memcmp(buf_mem->data, message, message_size) != 0))
+                err = MZ_CRYPT_ERROR;
+        }
     }
 
 #if 0

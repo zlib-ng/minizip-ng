@@ -1307,10 +1307,13 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
     }
 
 #ifndef MZ_ZIP_NO_ENCRYPTION
-    // Start calculating sha256
-    mz_crypt_sha_create(&writer->sha256);
-    mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
-    mz_crypt_sha_begin(writer->sha256);
+    if (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK)
+    {
+        // Start calculating sha256
+        mz_crypt_sha_create(&writer->sha256);
+        mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
+        mz_crypt_sha_begin(writer->sha256);
+    }
 #endif
 
     // Open entry in zip
@@ -1331,40 +1334,44 @@ int32_t mz_zip_writer_entry_close(void *handle)
     uint8_t sha256[MZ_HASH_SHA256_SIZE];
 
 
-    mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
-    mz_crypt_sha_delete(&writer->sha256);
-    // Copy extrafield so we can append our own fields before close
-    mz_stream_mem_create(&writer->file_extra_stream);
-    mz_stream_mem_open(writer->file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
-
-    if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
-        mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield, 
-            writer->file_info.extrafield_size);
-
-    // Write sha256 hash to extrafield
-    field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
-    err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256_SIZE);
-    if (err == MZ_OK)
+    if (writer->sha256 != NULL)
     {
-        if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
-            err = MZ_STREAM_ERROR;
-    }
+        mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
+        mz_crypt_sha_delete(&writer->sha256);
+
+        // Copy extrafield so we can append our own fields before close
+        mz_stream_mem_create(&writer->file_extra_stream);
+        mz_stream_mem_open(writer->file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+        if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
+            mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield,
+                writer->file_info.extrafield_size);
+
+        // Write sha256 hash to extrafield
+        field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
+        err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256_SIZE);
+        if (err == MZ_OK)
+        {
+            if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
+                err = MZ_STREAM_ERROR;
+        }
 
 #ifndef MZ_ZIP_NO_SIGNING
-    if (writer->cert_path != NULL)
-        err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
+        if (writer->cert_path != NULL)
+            err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
 #endif
 
-    // Update extra field for central directory after adding extra fields
-    mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&extrafield);
-    mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
+        // Update extra field for central directory after adding extra fields
+        mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&extrafield);
+        mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
 
-    mz_zip_entry_set_extrafield(writer->zip_handle, extrafield, (uint16_t)extrafield_size);
+        mz_zip_entry_set_extrafield(writer->zip_handle, extrafield, (uint16_t)extrafield_size);
 #endif
+    }
 
     if (writer->raw)
         err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, 
@@ -1381,7 +1388,7 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
     int32_t written = 0;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
 #ifndef MZ_ZIP_NO_ENCRYPTION
-    if (written > 0)
+    if ((written > 0) && (writer->sha256 != NULL))
         mz_crypt_sha_update(writer->sha256, buf, written);
 #endif
     return written;
