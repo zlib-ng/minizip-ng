@@ -36,7 +36,7 @@ typedef struct minizip_opt_s {
     int64_t disk_size;
     uint8_t zip_cd;
     uint8_t legacy_encoding;
-    uint8_t show_progress;
+    uint8_t verbose;
 #ifdef HAVE_AES
     uint8_t aes;
 #endif
@@ -84,7 +84,7 @@ int32_t minizip_help(void)
            "  -c  File names use cp437 encoding\n" \
            "  -a  Append to existing zip file\n" \
            "  -i  Include full path of files\n" \
-           "  -g  Show the progress\n" \
+           "  -v  Verbose info\n" \
            "  -0  Store only\n" \
            "  -1  Compress faster\n" \
            "  -9  Compress better\n" \
@@ -243,7 +243,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
     else if (!raw && file_info->uncompressed_size > 0)
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
-    if (options->show_progress)
+    if (options->verbose)
         printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
     return MZ_OK;
@@ -371,7 +371,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
     else if (!raw && file_info->uncompressed_size > 0)
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
-    if (options->show_progress)
+    if (options->verbose)
         printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
 
@@ -591,8 +591,8 @@ int main(int argc, const char *argv[])
                 options.include_path = 1;
             else if ((c == 'z') || (c == 'Z'))
                 options.zip_cd = 1;
-            else if ((c == 'g') || (c == 'G'))
-                options.show_progress = 1;
+            else if ((c == 'v') || (c == 'V'))
+                options.verbose = 1;
             else if ((c >= '0') && (c <= '9'))
             {
                 options.compress_level = (c - '0');

@@ -21,6 +21,7 @@ parser.add_argument('--lzma', help='Runs lzma tests', action='store_const', cons
 parser.add_argument('--pkcrypt', help='Runs pkware traditional encryption tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--wzaes', help='Runs winzip aes encryption tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--split', help='Runs disk span tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--zipcd', help='Runs zip/unzip central dir tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--rand', help='Runs tests against random generated files', action='store_const', const=True, default=None, required=False)
 args, unknown = parser.parse_known_args()
 
@@ -212,3 +213,5 @@ if args.wzaes:
     compression_method_tests('WinZipAES', '-s -p 1234567890', '-p 1234567890')
 if args.split:
     compression_method_tests('Disk Span', '-k 1024', '')
+if args.zipcd:
+    compression_method_tests('ZipCD', '-z', '')
