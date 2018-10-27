@@ -42,7 +42,9 @@ typedef struct mz_zip_reader_s {
     void        *buffered_stream;
     void        *split_stream;
     void        *mem_stream;
-    void        *sha256;
+    void        *hash;
+    uint16_t    hash_algorithm;
+    uint16_t    hash_digest_size;
     mz_zip_file *file_info;
     const char  *pattern;
     uint8_t     pattern_ignore_case;
@@ -271,7 +273,9 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
     if (mz_stream_mem_is_open(cd_mem_stream) != MZ_OK)
         mz_stream_mem_open(cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-    err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read, (int32_t)cd_info->uncompressed_size);
+    err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read, 
+        (int32_t)cd_info->uncompressed_size);
+
     if (err == MZ_OK)
     {
         mz_zip_set_cd_stream(reader->zip_handle, 0, cd_mem_stream);
@@ -373,31 +377,43 @@ int32_t mz_zip_reader_entry_open(void *handle)
         return MZ_PARAM_ERROR;
 
     // If the entry isn't open for reading, open it
-    if (mz_zip_entry_is_open(reader->zip_handle) != MZ_OK)
+    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK)
+        return MZ_OK;
+
+    password = reader->password;
+
+    // Check if we need a password and ask for it if we need to
+    if ((reader->file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) &&
+        (reader->password_cb != NULL))
     {
-        password = reader->password;
+        reader->password_cb(handle, reader->password_userdata, reader->file_info,
+            password_buf, sizeof(password_buf));
 
-        // Check if we need a password and ask for it if we need to
-        if ((reader->file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) &&
-            (reader->password_cb != NULL))
-        {
-            reader->password_cb(handle, reader->password_userdata, reader->file_info, password_buf, sizeof(password_buf));
-            password = password_buf;
-        }
+        password = password_buf;
+    }
 
-        err = mz_zip_entry_read_open(reader->zip_handle, reader->raw, password);
+    err = mz_zip_entry_read_open(reader->zip_handle, reader->raw, password);
 #ifndef MZ_ZIP_NO_ENCRYPTION
+    if (err != MZ_OK)
+        return err;
+    if (mz_zip_reader_entry_get_best_hash(handle, &reader->hash_algorithm, &reader->hash_digest_size) == MZ_OK)
+    {
+        mz_crypt_sha_create(&reader->hash);
+        if (reader->hash_algorithm == MZ_HASH_SHA1)
+            mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA1);
+        else if (reader->hash_algorithm == MZ_HASH_SHA256)
+            mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
+        else
+            err = MZ_SUPPORT_ERROR;
+
         if (err == MZ_OK)
-        {
-            mz_crypt_sha_create(&reader->sha256);
-            mz_crypt_sha_set_algorithm(reader->sha256, MZ_HASH_SHA256);
+            mz_crypt_sha_begin(reader->hash);
 #ifndef MZ_ZIP_NO_SIGNING
-            if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
-                err = mz_zip_reader_entry_sign_verify(handle);
-#endif
-        }
+        if ((err == MZ_OK) && (mz_zip_reader_entry_has_sign(handle) == MZ_OK))
+            err = mz_zip_reader_entry_sign_verify(handle);
 #endif
     }
+#endif
 
     return err;
 }
@@ -409,19 +425,23 @@ int32_t mz_zip_reader_entry_close(void *handle)
     int32_t err_close = MZ_OK;
 #ifndef MZ_ZIP_NO_ENCRYPTION
     int32_t err_hash = MZ_OK;
-    uint8_t computed_sha1[MZ_HASH_SHA1_SIZE];
-    uint8_t expected_sha1[MZ_HASH_SHA1_SIZE];
+    uint8_t computed_hash[MZ_HASH_MAX_SIZE];
+    uint8_t expected_hash[MZ_HASH_MAX_SIZE];
 
-
-    mz_crypt_sha_end(reader->sha256, computed_sha1, sizeof(computed_sha1));
-    mz_crypt_sha_delete(&reader->sha256);
-
-    err_hash = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA1, expected_sha1, sizeof(expected_sha1));
-    if (err_hash == MZ_OK)
+    if (reader->hash != NULL)
     {
-        // Verify expected hash against computed hash
-        if (memcmp(computed_sha1, expected_sha1, MZ_HASH_SHA1_SIZE) != 0)
-            err = MZ_CRC_ERROR;
+        mz_crypt_sha_end(reader->hash, computed_hash, sizeof(computed_hash));
+        mz_crypt_sha_delete(&reader->hash);
+
+        err_hash = mz_zip_reader_entry_get_hash(handle, reader->hash_algorithm, expected_hash,
+            reader->hash_digest_size);
+
+        if (err_hash == MZ_OK)
+        {
+            // Verify expected hash against computed hash
+            if (memcmp(computed_hash, expected_hash, reader->hash_digest_size) != 0)
+                err = MZ_CRC_ERROR;
+        }
     }
 #endif
 
@@ -437,8 +457,8 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
     int32_t read = 0;
     read = mz_zip_entry_read(reader->zip_handle, buf, len);
 #ifndef MZ_ZIP_NO_ENCRYPTION
-    if (read > 0)
-        mz_crypt_sha_update(reader->sha256, buf, read);
+    if ((read > 0) && (reader->hash != NULL))
+        mz_crypt_sha_update(reader->hash, buf, read);
 #endif
     return read;
 }
@@ -451,7 +471,8 @@ int32_t mz_zip_reader_entry_has_sign(void *handle)
 
 
     mz_stream_mem_create(&file_extra_stream);
-    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, reader->file_info->extrafield_size);
+    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
+        reader->file_info->extrafield_size);
 
     err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, NULL);
 
@@ -468,13 +489,14 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     int32_t err = MZ_OK;
     uint8_t *signature = NULL;
     uint16_t signature_size = 0;
-    uint8_t sha256[MZ_HASH_SHA256_SIZE];
+    uint8_t hash[MZ_HASH_MAX_SIZE];
 
     if (reader == NULL || mz_zip_entry_is_open(reader->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
     mz_stream_mem_create(&file_extra_stream);
-    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, reader->file_info->extrafield_size);
+    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
+        reader->file_info->extrafield_size);
 
     err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, &signature_size);
     if ((err == MZ_OK) && (signature_size > 0))
@@ -487,12 +509,15 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     mz_stream_mem_delete(&file_extra_stream);
 
     if (err == MZ_OK)
-        err = mz_zip_reader_entry_get_hash(handle, MZ_HASH_SHA256, sha256, sizeof(sha256));
+    {
+        // Get most secure hash to verify signature against
+        err = mz_zip_reader_entry_get_hash(handle, reader->hash_algorithm, hash, reader->hash_digest_size);
+    }
 
     if (err == MZ_OK)
     {
         // Verify the pkcs signature
-        err = mz_crypt_sign_verify(sha256, sizeof(sha256), signature, signature_size);
+        err = mz_crypt_sign_verify(hash, reader->hash_digest_size, signature, signature_size);
     }
 
     if (signature != NULL)
@@ -507,11 +532,13 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     void *file_extra_stream = NULL;
     int32_t err = MZ_OK;
+    int32_t return_err = MZ_EXIST_ERROR;
     uint16_t cur_algorithm = 0;
     uint16_t cur_digest_size = 0;
 
     mz_stream_mem_create(&file_extra_stream);
-    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, reader->file_info->extrafield_size);
+    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
+        reader->file_info->extrafield_size);
 
     do
     {
@@ -522,23 +549,82 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
         err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
         if (err == MZ_OK)
             err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
-        if ((cur_algorithm == algorithm) && (cur_digest_size == digest_size))
+        if ((cur_algorithm == algorithm) && (cur_digest_size <= digest_size) &&
+            (cur_digest_size <= MZ_HASH_MAX_SIZE))
         {
-            // Read hash digest into file info
+            // Read hash digest
             if (mz_stream_read(file_extra_stream, digest, digest_size) != cur_digest_size)
                 err = MZ_FORMAT_ERROR;
+            else
+                return_err = MZ_OK;
+
+            break;
         }
         else
         {
-            mz_stream_seek(file_extra_stream, cur_digest_size, SEEK_CUR);
+            err = mz_stream_seek(file_extra_stream, cur_digest_size, SEEK_CUR);
         }
-        break;
     }
     while (err == MZ_OK);
 
     mz_stream_mem_delete(&file_extra_stream);
 
-    return err;
+    return return_err;
+}
+
+int32_t mz_zip_reader_entry_get_best_hash(void *handle, uint16_t *algorithm, uint16_t *digest_size)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    void *file_extra_stream = NULL;
+    int32_t err = MZ_OK;
+    int32_t return_err = MZ_EXIST_ERROR;
+    uint16_t last_algorithm = 0;
+    uint16_t cur_algorithm = 0;
+    uint16_t cur_digest_size = 0;
+
+    if (reader == NULL || algorithm == NULL)
+        return MZ_PARAM_ERROR;
+
+    mz_stream_mem_create(&file_extra_stream);
+    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
+        reader->file_info->extrafield_size);
+
+    do
+    {
+        err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
+        if (err != MZ_OK)
+            break;
+
+        err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
+
+        if ((cur_algorithm > last_algorithm) && (cur_digest_size <= MZ_HASH_MAX_SIZE))
+        {
+            last_algorithm = cur_algorithm;
+            if (algorithm != NULL)
+                *algorithm = cur_algorithm;
+            if (digest_size != NULL)
+                *digest_size = cur_digest_size;
+
+            return_err = MZ_OK;
+        }
+
+        err = mz_stream_seek(file_extra_stream, cur_digest_size, SEEK_CUR);
+    }
+    while (err == MZ_OK);
+
+    mz_stream_mem_delete(&file_extra_stream);
+
+    if (return_err != MZ_OK)
+    {
+        if (digest_size != NULL)
+            *digest_size = 0;
+        if (algorithm != NULL)
+            *algorithm = 0;
+    }
+    
+    return return_err;
 }
 
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info)
@@ -723,8 +809,9 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     if (err == MZ_OK)
     {
         // Set file attributes for the correct system
-        err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), reader->file_info->external_fa,
-            MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+        err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), 
+            reader->file_info->external_fa, MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+
         if (err_attrib == MZ_OK)
             mz_os_set_file_attribs(path, target_attrib);
     }
@@ -1214,19 +1301,21 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info)
     if ((writer->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) &&
         (writer->password_cb != NULL))
     {
-        writer->password_cb(handle, writer->password_userdata, &writer->file_info, password_buf, sizeof(password_buf));
+        writer->password_cb(handle, writer->password_userdata, &writer->file_info, 
+            password_buf, sizeof(password_buf));
         password = password_buf;
     }
 
 #ifndef MZ_ZIP_NO_ENCRYPTION
-    // Start calculating sha1 
+    // Start calculating sha256
     mz_crypt_sha_create(&writer->sha256);
     mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
     mz_crypt_sha_begin(writer->sha256);
 #endif
 
     // Open entry in zip
-    err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level, writer->raw, password);
+    err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level, 
+        writer->raw, password);
 
     return err;
 }
@@ -1236,7 +1325,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
 #ifndef MZ_ZIP_NO_ENCRYPTION
-    mz_zip_file *file_info = NULL;
+    const uint8_t *extrafield = NULL;
     int32_t extrafield_size = 0;
     int32_t field_length_hash = 0;
     uint8_t sha256[MZ_HASH_SHA256_SIZE];
@@ -1244,15 +1333,15 @@ int32_t mz_zip_writer_entry_close(void *handle)
 
     mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
     mz_crypt_sha_delete(&writer->sha256);
-
     // Copy extrafield so we can append our own fields before close
     mz_stream_mem_create(&writer->file_extra_stream);
     mz_stream_mem_open(writer->file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
 
     if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
-        mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield, writer->file_info.extrafield_size);
+        mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield, 
+            writer->file_info.extrafield_size);
 
-    // Write sha1 hash to extrafield
+    // Write sha256 hash to extrafield
     field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
     err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
     if (err == MZ_OK)
@@ -1271,15 +1360,15 @@ int32_t mz_zip_writer_entry_close(void *handle)
 #endif
 
     // Update extra field for central directory after adding extra fields
-    mz_zip_entry_get_info(writer->zip_handle, &file_info);
-
-    mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&file_info->extrafield);
+    mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&extrafield);
     mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
-    file_info->extrafield_size = (uint16_t)extrafield_size;
+
+    mz_zip_entry_set_extrafield(writer->zip_handle, extrafield, (uint16_t)extrafield_size);
 #endif
 
     if (writer->raw)
-        err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, writer->file_info.crc);
+        err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, 
+            writer->file_info.crc);
     else
         err = mz_zip_entry_close(writer->zip_handle);
 
@@ -1299,7 +1388,8 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
 }
 
 #if !defined(MZ_ZIP_NO_ENCRYPTION) && !defined(MZ_ZIP_NO_SIGNING)
-int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd)
+int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, 
+    const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
@@ -1549,7 +1639,8 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     return err;
 }
 
-int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_path, uint8_t include_path, uint8_t recursive)
+int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_path, uint8_t include_path, 
+    uint8_t recursive)
 {
     DIR *dir = NULL;
     struct dirent *entry = NULL;

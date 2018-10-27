@@ -125,6 +125,9 @@ int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info);
 // Get local info about the current file, only valid while current entry is being read
 
+int32_t mz_zip_entry_set_extrafield(void *handle, const uint8_t *extrafield, uint16_t extrafield_size);
+// Sets or updates the extra field for the entry to be used before writing cd
+
 int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t crc32);
 // Close the current file in the zip file where raw is compressed data
 

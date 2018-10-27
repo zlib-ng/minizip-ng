@@ -107,7 +107,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size)
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     int32_t result = 0;
 
-    if (sha == NULL || buf == NULL)
+    if (sha == NULL || buf == NULL || sha->hash == 0)
         return MZ_PARAM_ERROR;
     result = CryptHashData(sha->hash, buf, size, 0);
     if (!result)
@@ -124,10 +124,10 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
     int32_t result = 0;
     int32_t expected_size = 0;
 
-    if (sha == NULL || digest == NULL)
+    if (sha == NULL || digest == NULL || sha->hash == 0)
         return MZ_PARAM_ERROR;
     result = CryptGetHashParam(sha->hash, HP_HASHVAL, NULL, &expected_size, 0);
-    if (expected_size != digest_size)
+    if (expected_size > digest_size)
         return MZ_BUF_ERROR;
     if (!result)
         return MZ_HASH_ERROR;
@@ -436,7 +436,7 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     if (hmac == NULL || digest == NULL || hmac->hash == 0)
         return MZ_PARAM_ERROR;
     result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, &expected_size, 0);
-    if (expected_size != digest_size)
+    if (expected_size > digest_size)
         return MZ_BUF_ERROR;
     if (!result)
         return MZ_HASH_ERROR;
@@ -477,7 +477,9 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
 
     hmac->info.HashAlgid = alg_id;
 
-    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, 
+        CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+
     if (!result)
     {
         hmac->error = GetLastError();
@@ -679,9 +681,10 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
         if (ts_context != NULL)
             CryptMemFree(ts_context);
-#endif
 
         if (result)
+#endif
+
             result = CryptSignMessage(&sign_params, FALSE, 1, messages, messages_sizes,
                 NULL, signature_size);
 
@@ -783,17 +786,18 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 #endif
     }
 
-    if ((crypt_msg != NULL) && (result) && (decoded_size == signature_size))
+    if ((crypt_msg != NULL) && (result) && (decoded_size == message_size))
     {
-        if (memcmp(decoded, signature, signature_size) == 0)
+        // Verify cms message with our stored message
+        if (memcmp(decoded, message, message_size) == 0)
             err = MZ_OK;
     }
 
-    if (decoded != NULL)
-        MZ_FREE(decoded);
-
     if (crypt_msg != NULL)
         CryptMsgClose(crypt_msg);
+
+    if (decoded != NULL)
+        MZ_FREE(decoded);
 
     return err;
 }

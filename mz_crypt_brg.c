@@ -151,13 +151,13 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
 
     if (sha->algorithm == MZ_HASH_SHA1)
     {
-        if (digest_size != MZ_HASH_SHA1_SIZE)
+        if (digest_size < MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
         sha1_end(digest, &sha->ctx1);
     }
     else
     {
-        if (digest_size != MZ_HASH_SHA256_SIZE)
+        if (digest_size < MZ_HASH_SHA256_SIZE)
             return MZ_BUF_ERROR;
         sha256_end(digest, &sha->ctx256);
     }
@@ -361,13 +361,13 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 
     if (hmac->algorithm == MZ_HASH_SHA1)
     {
-        if (digest_size != MZ_HASH_SHA1_SIZE)
+        if (digest_size < MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
         hmac_sha_end(digest, digest_size, &hmac->ctx);
     }
     else
     {
-        if (digest_size != MZ_HASH_SHA256_SIZE)
+        if (digest_size < MZ_HASH_SHA256_SIZE)
             return MZ_BUF_ERROR;
         hmac_sha_end(digest, digest_size, &hmac->ctx);
     }

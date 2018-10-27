@@ -55,7 +55,7 @@ typedef struct mz_stream_wzaes_s {
     int32_t         mode;
     int32_t         error;
     int16_t         initialized;
-    uint8_t         buffer[INT16_MAX];
+    uint8_t         buffer[UINT16_MAX];
     int64_t         total_in;
     int64_t         max_total_in;
     int64_t         total_out;
@@ -299,8 +299,16 @@ static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t 
 int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size)
 {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
+    int64_t max_total_in = 0;
+    int32_t bytes_to_read = size;
     int32_t read = 0;
-    read = mz_stream_read(wzaes->stream.base, buf, size);
+
+    max_total_in = wzaes->max_total_in - MZ_AES_FOOTER_SIZE;
+    if (bytes_to_read + wzaes->total_in > max_total_in)
+        bytes_to_read = (int32_t)(max_total_in - wzaes->total_in);
+
+    read = mz_stream_read(wzaes->stream.base, buf, bytes_to_read);
+
     if (read > 0)
     {
         mz_crypt_hmac_update(wzaes->hmac, (uint8_t *)buf, read);

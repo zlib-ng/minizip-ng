@@ -5,9 +5,6 @@ matrix:
         - os: windows
           compiler: clang
         - os: windows
-          compiler: clang 
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF"
-        - os: windows
           compiler: gcc
         - os: linux
           compiler: clang

@@ -117,6 +117,7 @@ extern "C" {
 #define MZ_HASH_SHA1_SIZE               (20)
 #define MZ_HASH_SHA256                  (23)
 #define MZ_HASH_SHA256_SIZE             (32)
+#define MZ_HASH_MAX_SIZE                (256)
 
 // MZ_UTILITY
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)

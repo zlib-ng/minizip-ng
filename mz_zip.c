@@ -1014,7 +1014,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if (file_info->extrafield_size > 0)
     {
         mz_stream_mem_create(&file_extra_stream);
-        mz_stream_mem_set_buffer(file_extra_stream, (void *)file_info->extrafield, file_info->extrafield_size);
+        mz_stream_mem_set_buffer(file_extra_stream, (void *)file_info->extrafield, 
+            file_info->extrafield_size);
 
         do
         {
@@ -1667,6 +1668,18 @@ int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
     return MZ_OK;
 }
 
+int32_t mz_zip_entry_set_extrafield(void *handle, const uint8_t *extrafield, uint16_t extrafield_size)
+{
+    mz_zip *zip = (mz_zip *)handle;
+
+    if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
+        return MZ_PARAM_ERROR;
+
+    zip->file_info.extrafield = extrafield;
+    zip->file_info.extrafield_size = extrafield_size;
+    return MZ_OK;
+}
+
 int32_t mz_zip_entry_close(void *handle)
 {
     return mz_zip_entry_close_raw(handle, 0, 0);
@@ -1681,12 +1694,11 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
 
     if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
-
+    
     mz_stream_close(zip->compress_stream);
-    mz_stream_close(zip->crc32_stream);
 
     if (!zip->entry_raw)
-        crc32 = zip->file_info.crc;
+        crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
     {
@@ -1721,6 +1733,7 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
     mz_stream_delete(&zip->crypt_stream);
 
     mz_stream_delete(&zip->compress_stream);
+    mz_stream_close(zip->crc32_stream);
     mz_stream_crc32_delete(&zip->crc32_stream);
 
     if (zip->open_mode & MZ_OPEN_MODE_WRITE)

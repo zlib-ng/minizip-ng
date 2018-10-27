@@ -104,9 +104,11 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     path_wide = mz_os_unicode_string_create(path);
 
 #ifdef MZ_WINRT_API
-    win32->handle = CreateFile2W(path_wide, desired_access, share_mode, creation_disposition, NULL);
+    win32->handle = CreateFile2W(path_wide, desired_access, share_mode, 
+        creation_disposition, NULL);
 #else
-    win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, creation_disposition, flags_attribs, NULL);
+    win32->handle = CreateFileW(path_wide, desired_access, share_mode, NULL, 
+        creation_disposition, flags_attribs, NULL);
 #endif
 
     mz_os_unicode_string_delete(&path_wide);
@@ -167,7 +169,8 @@ int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size)
     return written;
 }
 
-static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos, uint32_t move_method)
+static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, 
+    LARGE_INTEGER *new_pos, uint32_t move_method)
 {
 #ifdef MZ_WINRT_API
     return SetFilePointerEx(handle, pos, newPos, dwMoveMethod);
