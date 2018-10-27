@@ -62,7 +62,7 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libssl-dev; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; then brew install openssl; fi
     - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install python2; fi
-    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH="/c/Python27:/c/Python27/Scripts:$PATH"; fi
+    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH="/c/Python27:$PATH"; fi
     
 before_script:
     - mkdir build
@@ -72,4 +72,6 @@ before_script:
 script:
     - cmake --build .
     - cd ../test
-    - python test.py --exe_dir=../build --raw $TEST_TOOL
+    - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; python test.py --exe_dir=../build --raw $TEST_TOOL
+    - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; python test.py --exe_dir=../build --raw $TEST_TOOL
+    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; python test.py --exe_dir=../build/Debug --raw $TEST_TOOL

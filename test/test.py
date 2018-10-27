@@ -81,13 +81,7 @@ def get_exec(name):
     if platform == 'win32':
         name += '.exe'
     if args.exe_dir is not None:
-        path = os.path.join(args.exe_dir, name)
-        if ':' not in path:
-            path = os.path.join(os.getcwd(), path)
-        if platform == 'win32':
-            path = path.replace('/', '\\')
-            #path = path.replace('\\\\', '\\')
-        return path
+        return os.path.join(args.exe_dir, name)
     return name
 
 def get_files_info(path):
