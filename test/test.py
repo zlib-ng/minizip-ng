@@ -65,7 +65,7 @@ def erase_files(search_pattern):
 def erase_dir(path, retries = 10):
     if not os.path.exists(path):
         return
-    print('Erasing dir {0}'.format(path))
+    #print('Erasing dir {0}'.format(path))
     # shutil.rmtree doesn't work well and sometimes can't delete
     for root, dirs, files in os.walk(path, topdown=False):
         for name in files:
@@ -80,7 +80,13 @@ def get_exec(name):
     if platform == 'win32':
         name += '.exe'
     if args.exe_dir is not None:
-        return os.path.join(args.exe_dir, name)
+        path = os.path.join(args.exe_dir, name)
+        if ':' not in path:
+            path = os.path.join(os.getcwd(), path)
+        if platform == 'win32':
+            path = path.replace('/', '\\')
+            path = path.replace('\\\\', '\\')
+        return path
     return name
 
 def get_files_info(path):
@@ -142,7 +148,6 @@ def zip_list_unzip(zip_file, dest_dir, zip_args, unzip_args, files):
     original_infos = {}
     for (i, path) in enumerate(files):
         original_infos.update(get_files_info(path))
-    print original_infos
 
     erase_files(zip_file[0:-2] + "*")
     erase_dir(dest_dir)
