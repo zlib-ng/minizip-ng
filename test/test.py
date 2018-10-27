@@ -7,7 +7,6 @@ import shutil
 import fnmatch
 import time
 import struct
-import numpy
 import random
 import pprint
 import hashlib
@@ -21,6 +20,7 @@ parser.add_argument('--bzip2', help='Runs bzip2 tests', action='store_const', co
 parser.add_argument('--lzma', help='Runs lzma tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--pkcrypt', help='Runs pkware traditional encryption tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--wzaes', help='Runs winzip aes encryption tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--rand', help='Runs tests against random generated files', action='store_const', const=True, default=None, required=False)
 args, unknown = parser.parse_known_args()
 
 def hash_file_sha1(path):
@@ -99,6 +99,7 @@ def get_files_info(path):
     return info
 
 def create_random_file(path, size):
+    import numpy
     if os.path.exists(path):
         return
     with open(path, 'wb') as fout:
@@ -162,15 +163,20 @@ def zip_list_unzip(zip_file, dest_dir, zip_args, unzip_args, files):
         print(new_infos)
 
 def file_tests(method, zip_arg = '', unzip_arg = ''):
+    global args
     print('Testing {0} on Single File'.format(method))
     zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['test.c'])
     print('Testing {0} on Two Files'.format(method))
     zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['test.c', 'test.h'])
     print('Testing {0} Directory'.format(method))
     zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['repo'])
-    print('Testing {0} 1MB file'.format(method))
-    create_random_file('1MB.dat', 1 * 1024 * 1024)
-    zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['1MB.dat'])
+    if args.rand:
+        print('Testing {0} 1MB file'.format(method))
+        create_random_file('1MB.dat', 1 * 1024 * 1024)
+        zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['1MB.dat'])
+        print('Testing {0} 25MB file'.format(method))
+        create_random_file('25MB.dat', 25 * 1024 * 1024)
+        zip_list_unzip('test.zip', 'out', zip_arg, unzip_arg, ['25MB.dat'])
 
 def compression_method_tests(method = '', zip_arg = '', unzip_arg = ''):
     global args
