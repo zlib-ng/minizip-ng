@@ -20,6 +20,7 @@ parser.add_argument('--bzip2', help='Runs bzip2 tests', action='store_const', co
 parser.add_argument('--lzma', help='Runs lzma tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--pkcrypt', help='Runs pkware traditional encryption tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--wzaes', help='Runs winzip aes encryption tests', action='store_const', const=True, default=None, required=False)
+parser.add_argument('--split', help='Runs disk span tests', action='store_const', const=True, default=None, required=False)
 parser.add_argument('--rand', help='Runs tests against random generated files', action='store_const', const=True, default=None, required=False)
 args, unknown = parser.parse_known_args()
 
@@ -85,7 +86,7 @@ def get_exec(name):
             path = os.path.join(os.getcwd(), path)
         if platform == 'win32':
             path = path.replace('/', '\\')
-            path = path.replace('\\\\', '\\')
+            #path = path.replace('\\\\', '\\')
         return path
     return name
 
@@ -195,13 +196,6 @@ def compression_method_tests(method = '', zip_arg = '', unzip_arg = ''):
     if args.lzma:
         file_tests(method + 'LZMA', '-m ' + zip_arg, unzip_arg)
 
-def encryption_tests():
-    global args
-    if args.pkcrypt:
-        compression_method_tests('PKCrypt', '-p 1234567890', '-p 1234567890')
-    if args.wzaes:
-        compression_method_tests('WinZipAES', '-s -p 1234567890', '-p 1234567890')
-
 def empty_zip_test():
     unzip('empty.zip', 'out')
 
@@ -216,7 +210,11 @@ if not os.path.exists('repo'):
 
 # Run tests
 #empty_zip_test()
-sfx_zip_test()
+#sfx_zip_test()
 compression_method_tests()
-encryption_tests()
-compression_method_tests('Disk Span', '-k 1024', '')
+if args.pkcrypt:
+    compression_method_tests('PKCrypt', '-p 1234567890', '-p 1234567890')
+if args.wzaes:
+    compression_method_tests('WinZipAES', '-s -p 1234567890', '-p 1234567890')
+if args.split:
+    compression_method_tests('Disk Span', '-k 1024', '')
