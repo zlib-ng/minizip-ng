@@ -4,58 +4,58 @@ matrix:
     include:
         - os: windows
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
+          env: BUILDDIR="..\build\Debug" TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
         - os: windows
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes"
+          env: BUILDDIR="..\build\Debug" TESTTOOL="--bzip2 --pkcrypt --wzaes"
         - os: linux
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_ZLIB=OFF" TESTTOOL="--lzma --bzip --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_ZLIB=OFF" TESTTOOL="--lzma --bzip --pkcrypt --wzaes"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_BZIP=OFF" TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_BZIP=OFF" TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_LZMA=OFF" TESTTOOL="--deflate --bzip --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_LZMA=OFF" TESTTOOL="--deflate --bzip --pkcrypt --wzaes"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_AES=OFF" TESTTOOL="--deflate --pkcrypt"
+          env: BUILDDIR="../build" TOOL="-DUSE_AES=OFF" TESTTOOL="--deflate --pkcrypt"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_PKCRYPT=OFF" TESTTOOL="--deflate --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_PKCRYPT=OFF" TESTTOOL="--deflate --wzaes"
         - os: linux
           compiler: clang 
-          env: TOOL="-DCOMPRESS_ONLY=ON" TESTTOOL="--deflate"
+          env: BUILDDIR="../build" TOOL="-DCOMPRESS_ONLY=ON" TESTTOOL="--deflate"
         - os: linux
           compiler: clang 
-          env: TOOL="-DDECOMPRESS_ONLY=ON" TESTTOOL="--deflate"
+          env: BUILDDIR="../build" TOOL="-DDECOMPRESS_ONLY=ON" TESTTOOL="--deflate"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" TESTTOOL="--deflate --bzip --lzma"
+          env: BUILDDIR="../build" TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" TESTTOOL="--deflate --bzip --lzma"
         - os: linux
           compiler: clang 
-          env: TOOL="-DUSE_OPENSSL=ON" TESTTOOL="--pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_OPENSSL=ON" TESTTOOL="--pkcrypt --wzaes"
         - os: linux
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes"
+          env: BUILDDIR="../build"  TESTTOOL="--bzip2 --pkcrypt --wzaes"
         - os: osx
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TESTTOOL="--deflate --lzma --pkcrypt --wzaes"
         - os: osx
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TESTTOOL="--bzip2 --pkcrypt --wzaes"
         - os: osx
           compiler: clang
-          env: TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes"
         - os: osx
           compiler: gcc
-          env: TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes"
         - os: osx
           compiler: clang 
-          env: TOOL="-DUSE_OPENSSL=ON -DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" TESTTOOL="--pkcrypt --wzaes"
+          env: BUILDDIR="../build" TOOL="-DUSE_OPENSSL=ON -DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" TESTTOOL="--pkcrypt --wzaes"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
@@ -72,6 +72,4 @@ before_script:
 script:
     - cmake --build .
     - cd ../test
-    - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; python test.py --exe_dir=../build --raw $TEST_TOOL
-    - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; python test.py --exe_dir=../build --raw $TEST_TOOL
-    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; python test.py --exe_dir=../build/Debug --raw $TEST_TOOL
+    - python test.py --raw $TEST_TOOL --exe_dir=$BUILDDIR
