@@ -44,7 +44,7 @@ Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?
 + Windows (Win32 & WinRT), macOS and Linux platform support.
 + Streaming interface for easy implementation of additional platforms.
 + Support for Apple's compression library ZLIB implementation.
-+ Masking of local file header information.
++ Zeroing out of local file header information.
 + Zip/unzip of central directory to reduce size.
 + Ability to generate and verify CMS signature for each entry.
 + Compatibility interface for older versions of minizip.
