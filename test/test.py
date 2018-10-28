@@ -121,7 +121,7 @@ def zip(zip_file, zip_args, files):
     err = os.system(cmd)
     if (err != 0):
         print('Zip returned error code {0}'.format(err))
-        sys.exit(err)
+        exit(err)
 
 def list(zip_file):
     cmd = '{0} -l {1}'.format(get_exec('minizip'), zip_file)
@@ -129,7 +129,7 @@ def list(zip_file):
     err = os.system(cmd)
     if (err != 0):
         print('List returned error code {0}'.format(err))
-        sys.exit(err)
+        exit(err)
 
 def unzip(zip_file, dest_dir, unzip_args = ''):
     cmd = '{0} -x {1} -d {2} {3}'.format(get_exec('minizip'), unzip_args, dest_dir, zip_file)
@@ -137,7 +137,7 @@ def unzip(zip_file, dest_dir, unzip_args = ''):
     err = os.system(cmd)
     if (err != 0):
         print('Unzip returned error code {0}'.format(err))
-        sys.exit(err)
+        exit(err)
 
 def zip_list_unzip(zip_file, dest_dir, zip_args, unzip_args, files):
     # Single test run
