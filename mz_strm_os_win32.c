@@ -217,7 +217,7 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin)
     LARGE_INTEGER large_pos;
 
 
-    if (mz_stream_os_is_open(stream) == MZ_STREAM_ERROR)
+    if (mz_stream_os_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
 
     switch (origin)
