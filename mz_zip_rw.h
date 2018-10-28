@@ -127,6 +127,9 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw);
 void    mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding);
 // Sets whether or not it should support cp437 in zip file names
 
+void    mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required);
+// Sets whether or not it a signature is required 
+
 void    mz_zip_reader_set_overwrite_cb(void *handle, void *userdata, mz_zip_reader_overwrite_cb cb);
 // Callback for what to do when a file is being overwritten
 

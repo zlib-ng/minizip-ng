@@ -603,7 +603,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     if (err == MZ_OK)
     {
         if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
-            err = MM_STREAM_ERROR;
+            err = MZ_READ_ERROR;
         mz_stream_os_close(cert_stream);
     }
     mz_stream_os_delete(&cert_stream);
@@ -696,7 +696,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
                 *signature, signature_size);
 
         if (!result)
-            err = MZ_CRYPT_ERROR;
+            err = MZ_SIGN_ERROR;
     }
 
     if (cert_context != NULL)
@@ -712,7 +712,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     CRYPT_VERIFY_MESSAGE_PARA verify_params;
     HCRYPTMSG crypt_msg = 0;
     int32_t result = 0;
-    int32_t err = MZ_CRYPT_ERROR;
+    int32_t err = MZ_SIGN_ERROR;
     uint8_t *decoded = NULL;
     int32_t decoded_size = 0;
 

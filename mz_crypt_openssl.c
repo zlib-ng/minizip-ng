@@ -467,7 +467,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     if (err == MZ_OK)
     {
         if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
-            err = MZ_STREAM_ERROR;
+            err = MZ_READ_ERROR;
         mz_stream_os_close(cert_stream);
     }
     mz_stream_os_delete(&cert_stream);
@@ -475,7 +475,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     cert_bio = BIO_new_mem_buf(cert_data, cert_size);
 
     if (d2i_PKCS12_bio(cert_bio, &p12) == NULL)
-        err = MZ_CRYPT_ERROR;
+        err = MZ_SIGN_ERROR;
     if (err == MZ_OK)
         result = PKCS12_parse(p12, cert_pwd, &evp_pkey, &cert, &ca_stack);
     if (result)
@@ -485,7 +485,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
             signer_info = CMS_add1_signer(cms, cert, evp_pkey, EVP_sha256(), 0);
         if (signer_info == NULL)
         {
-            err = MZ_CRYPT_ERROR;
+            err = MZ_SIGN_ERROR;
         }
         else
         {
@@ -515,7 +515,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     }
 
     if (!result)
-        err = MZ_CRYPT_ERROR;
+        err = MZ_SIGN_ERROR;
 
     if (cms)
         CMS_ContentInfo_free(cms);
@@ -552,7 +552,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     BIO *signature_bio = NULL;
     BUF_MEM *buf_mem = NULL;
     int32_t result = 0;
-    int32_t err = MZ_CRYPT_ERROR;
+    int32_t err = MZ_SIGN_ERROR;
 
 
     if (message == NULL || message_size == 0 || signature == NULL || signature_size == 0)
@@ -603,7 +603,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
                 if (result)
                     err = MZ_OK;
                 else
-                    err = MZ_CRYPT_ERROR;
+                    err = MZ_SIGN_ERROR;
 
                 if (store_ctx)
                     X509_STORE_CTX_free(store_ctx);
@@ -617,7 +617,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
             // Verify the message
             if (((int32_t)buf_mem->length != message_size) || 
                 (memcmp(buf_mem->data, message, message_size) != 0))
-                err = MZ_CRYPT_ERROR;
+                err = MZ_SIGN_ERROR;
         }
     }
 

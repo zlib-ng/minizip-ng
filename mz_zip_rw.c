@@ -65,6 +65,7 @@ typedef struct mz_zip_reader_s {
     uint8_t     raw;
     uint8_t     buffer[UINT16_MAX];
     uint8_t     legacy_encoding;
+    uint8_t     sign_required;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -410,8 +411,13 @@ int32_t mz_zip_reader_entry_open(void *handle)
         if (err == MZ_OK)
             mz_crypt_sha_begin(reader->hash);
 #ifndef MZ_ZIP_NO_SIGNING
-        if ((err == MZ_OK) && (mz_zip_reader_entry_has_sign(handle) == MZ_OK))
-            err = mz_zip_reader_entry_sign_verify(handle);
+        if (err == MZ_OK)
+        {
+            if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
+                err = mz_zip_reader_entry_sign_verify(handle);
+            else if (reader->sign_required)
+                err = MZ_SIGN_ERROR;
+        }
 #endif
     }
 #endif
@@ -921,6 +927,12 @@ void mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     reader->legacy_encoding = legacy_encoding;
+}
+
+void mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    reader->sign_required = sign_required;
 }
 
 void mz_zip_reader_set_overwrite_cb(void *handle, void *userdata, mz_zip_reader_overwrite_cb cb)
