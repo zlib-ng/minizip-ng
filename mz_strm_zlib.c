@@ -115,7 +115,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
     }
 
     if (zlib->error != Z_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     zlib->initialized = 1;
     zlib->mode = mode;
@@ -126,7 +126,7 @@ int32_t mz_stream_zlib_is_open(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     if (zlib->initialized != 1)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -221,7 +221,7 @@ static int32_t mz_stream_zlib_flush(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     if (mz_stream_write(zlib->stream.base, zlib->buffer, zlib->buffer_len) != zlib->buffer_len)
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
     return MZ_OK;
 }
 
@@ -238,11 +238,9 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush)
     {
         if (zlib->zstream.avail_out == 0)
         {
-            if (mz_stream_zlib_flush(zlib) != MZ_OK)
-            {
-                zlib->error = Z_STREAM_ERROR;
-                return MZ_STREAM_ERROR;
-            }
+            err = mz_stream_zlib_flush(zlib);
+            if (err != MZ_OK)
+                return err;
 
             zlib->zstream.avail_out = sizeof(zlib->buffer);
             zlib->zstream.next_out = zlib->buffer;
@@ -264,7 +262,7 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush)
         if (err != Z_OK)
         {
             zlib->error = err;
-            return MZ_STREAM_ERROR;
+            return MZ_DATA_ERROR;
         }
     }
     while ((zlib->zstream.avail_in > 0) || (flush == Z_FINISH && err == Z_OK));
@@ -295,7 +293,7 @@ int64_t mz_stream_zlib_tell(void *stream)
 {
     MZ_UNUSED(stream);
 
-    return MZ_STREAM_ERROR;
+    return MZ_TELL_ERROR;
 }
 
 int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
@@ -304,7 +302,7 @@ int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin)
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);
 
-    return MZ_STREAM_ERROR;
+    return MZ_SEEK_ERROR;
 }
 
 int32_t mz_stream_zlib_close(void *stream)
@@ -335,7 +333,7 @@ int32_t mz_stream_zlib_close(void *stream)
     zlib->initialized = 0;
 
     if (zlib->error != Z_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_CLOSE_ERROR;
     return MZ_OK;
 }
 

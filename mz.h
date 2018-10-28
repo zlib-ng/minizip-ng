@@ -28,8 +28,10 @@ extern "C" {
 #define MZ_MEM_ERROR                    (-4) // zlib
 #define MZ_BUF_ERROR                    (-5) // zlib
 #define MZ_VERSION_ERROR                (-6) // zlib
+
 #define MZ_END_OF_LIST                  (-100)
 #define MZ_END_OF_STREAM                (-101)
+
 #define MZ_PARAM_ERROR                  (-102)
 #define MZ_FORMAT_ERROR                 (-103)
 #define MZ_INTERNAL_ERROR               (-104)
@@ -39,6 +41,12 @@ extern "C" {
 #define MZ_PASSWORD_ERROR               (-108)
 #define MZ_SUPPORT_ERROR                (-109)
 #define MZ_HASH_ERROR                   (-110)
+#define MZ_OPEN_ERROR                   (-111)
+#define MZ_CLOSE_ERROR                  (-112)
+#define MZ_SEEK_ERROR                   (-113)
+#define MZ_TELL_ERROR                   (-114)
+#define MZ_READ_ERROR                   (-115)
+#define MZ_WRITE_ERROR                  (-116)
 
 // MZ_OPEN
 #define MZ_OPEN_MODE_READ               (0x01)

@@ -142,6 +142,7 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_strm_buf.h
     mz_strm_crc32.h
     mz_strm_mem.h
+    mz_strm_split.h
     mz_strm_os.h
     mz_zip.h
     mz_zip_rw.h)

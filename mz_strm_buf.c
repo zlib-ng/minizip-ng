@@ -109,7 +109,7 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
             buffered->writebuf + (bytes_to_write - bytes_left_to_write), bytes_left_to_write);
 
         if (bytes_written != bytes_left_to_write)
-            return MZ_STREAM_ERROR;
+            return MZ_WRITE_ERROR;
 
         buffered->writebuf_misses += 1;
 
@@ -201,6 +201,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
     int32_t bytes_to_copy = 0;
     int32_t bytes_used = 0;
     int32_t bytes_flushed = 0;
+    int32_t err = MZ_OK;
 
 
     mz_stream_buffered_print(stream, "write [size %ld len %d pos %lld]\n",
@@ -216,8 +217,9 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
 
         mz_stream_buffered_print(stream, "switch from read to write [%lld]\n", buffered->position);
 
-        if (mz_stream_seek(buffered->stream.base, buffered->position, MZ_SEEK_SET) != MZ_OK)
-            return MZ_STREAM_ERROR;
+        err = mz_stream_seek(buffered->stream.base, buffered->position, MZ_SEEK_SET);
+        if (err != MZ_OK)
+            return err;
     }
 
     while (bytes_left_to_write > 0)
@@ -231,8 +233,9 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
 
         if (bytes_to_copy == 0)
         {
-            if (mz_stream_buffered_flush(stream, &bytes_flushed) != MZ_OK)
-                return MZ_STREAM_ERROR;
+            err = mz_stream_buffered_flush(stream, &bytes_flushed);
+            if (err != MZ_OK)
+                return err;
             if (bytes_flushed == 0)
                 return 0;
 
@@ -276,6 +279,7 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t bytes_flushed = 0;
+    int32_t err = MZ_OK;
 
     mz_stream_buffered_print(stream, "seek [origin %d offset %llu pos %lld]\n", origin, offset, buffered->position);
 
@@ -299,8 +303,9 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
                 return MZ_OK;
             }
 
-            if (mz_stream_buffered_flush(stream, &bytes_flushed) != MZ_OK)
-                return MZ_STREAM_ERROR;
+            err = mz_stream_buffered_flush(stream, &bytes_flushed);
+            if (err != MZ_OK)
+                return err;
 
             buffered->position = offset;
             break;
@@ -327,8 +332,9 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
                 //offset -= (buffered->writebuf_len - buffered->writebuf_pos);
             }
 
-            if (mz_stream_buffered_flush(stream, &bytes_flushed) != MZ_OK)
-                return MZ_STREAM_ERROR;
+            err = mz_stream_buffered_flush(stream, &bytes_flushed);
+            if (err != MZ_OK)
+                return err;
 
             break;
 

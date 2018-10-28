@@ -90,7 +90,7 @@ int32_t mz_zip_reader_open(void *handle, void *stream)
     if (err != MZ_OK)
     {
         mz_zip_reader_close(handle);
-        return MZ_STREAM_ERROR;
+        return err;
     }
 
     mz_zip_reader_unzip_cd(reader);
@@ -504,7 +504,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle)
     {
         signature = (uint8_t *)MZ_ALLOC(signature_size);
         if (mz_stream_read(file_extra_stream, signature, signature_size) != signature_size)
-            err = MZ_STREAM_ERROR;
+            err = MZ_READ_ERROR;
     }
 
     mz_stream_mem_delete(&file_extra_stream);
@@ -664,7 +664,7 @@ int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_w
         // Write the data to the specified stream
         written = write_cb(stream, reader->buffer, read);
         if (written != read)
-            return MZ_STREAM_ERROR;
+            return MZ_WRITE_ERROR;
     }
 
     return read;
@@ -1057,7 +1057,7 @@ static int32_t mz_zip_writer_open_int(void *handle, void *stream, int32_t mode)
     if (err != MZ_OK)
     {
         mz_zip_writer_close(handle);
-        return MZ_STREAM_ERROR;
+        return err;
     }
 
     return MZ_OK;
@@ -1341,7 +1341,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
         if (err == MZ_OK)
         {
             if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
-                err = MZ_STREAM_ERROR;
+                err = MZ_WRITE_ERROR;
         }
 
 #ifndef MZ_ZIP_NO_SIGNING
@@ -1411,7 +1411,7 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
         if (err == MZ_OK)
         {
             if (mz_stream_write(writer->file_extra_stream, signature, signature_size) != signature_size)
-                err = MZ_STREAM_ERROR;
+                err = MZ_WRITE_ERROR;
         }
 
         MZ_FREE(signature);
@@ -1448,7 +1448,7 @@ int32_t mz_zip_writer_add_process(void *handle, void *stream, mz_stream_read_cb 
 
     written = mz_zip_writer_entry_write(handle, writer->buffer, read);
     if (written != read)
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
 
     return written;
 }

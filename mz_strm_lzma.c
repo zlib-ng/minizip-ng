@@ -90,7 +90,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
         lzma->lstream.avail_out = sizeof(lzma->buffer);
 
         if (lzma_lzma_preset(&opt_lzma, lzma->preset))
-            return MZ_STREAM_ERROR;
+            return MZ_OPEN_ERROR;
 
         memset(&filters, 0, sizeof(filters));
 
@@ -128,7 +128,7 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     }
 
     if (lzma->error != LZMA_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     lzma->initialized = 1;
     lzma->mode = mode;
@@ -139,7 +139,7 @@ int32_t mz_stream_lzma_is_open(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     if (lzma->initialized != 1)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -227,7 +227,7 @@ static int32_t mz_stream_lzma_flush(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     if (mz_stream_write(lzma->stream.base, lzma->buffer, lzma->buffer_len) != lzma->buffer_len)
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
     return MZ_OK;
 }
 
@@ -244,11 +244,9 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
     {
         if (lzma->lstream.avail_out == 0)
         {
-            if (mz_stream_lzma_flush(lzma) != MZ_OK)
-            {
-                lzma->error = MZ_STREAM_ERROR;
-                return MZ_STREAM_ERROR;
-            }
+            err = mz_stream_lzma_flush(lzma);
+            if (err != MZ_OK)
+                return err;
 
             lzma->lstream.avail_out = sizeof(lzma->buffer);
             lzma->lstream.next_out = lzma->buffer;
@@ -265,7 +263,7 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
         if (err != LZMA_OK && err != LZMA_STREAM_END)
         {
             lzma->error = err;
-            return MZ_STREAM_ERROR;
+            return MZ_DATA_ERROR;
         }
 
         lzma->buffer_len += out_bytes;
@@ -299,7 +297,7 @@ int64_t mz_stream_lzma_tell(void *stream)
 {
     MZ_UNUSED(stream);
 
-    return MZ_STREAM_ERROR;
+    return MZ_TELL_ERROR;
 }
 
 int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
@@ -308,7 +306,7 @@ int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin)
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);
 
-    return MZ_STREAM_ERROR;
+    return MZ_SEEK_ERROR;
 }
 
 int32_t mz_stream_lzma_close(void *stream)
@@ -338,7 +336,7 @@ int32_t mz_stream_lzma_close(void *stream)
     lzma->initialized = 0;
 
     if (lzma->error != LZMA_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_CLOSE_ERROR;
     return MZ_OK;
 }
 

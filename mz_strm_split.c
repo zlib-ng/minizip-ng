@@ -220,9 +220,9 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
 int32_t mz_stream_split_is_open(void *stream)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
-    if (split->is_open == 1)
-        return MZ_OK;
-    return MZ_STREAM_ERROR;
+    if (split->is_open != 1)
+        return MZ_OPEN_ERROR;
+    return MZ_OK;
 }
 
 int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
@@ -299,7 +299,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
 
         written = mz_stream_write(split->stream.base, buf_ptr, bytes_to_write);
         if (written != bytes_to_write)
-            return MZ_STREAM_ERROR;
+            return MZ_WRITE_ERROR;
 
         bytes_left -= written;
         buf_ptr += written;

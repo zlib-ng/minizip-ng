@@ -96,7 +96,7 @@ int32_t mz_stream_mem_is_open(void *stream)
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     if (mem->buffer == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -174,13 +174,13 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
             new_pos = offset;
             break;
         default:
-            return MZ_STREAM_ERROR;
+            return MZ_SEEK_ERROR;
     }
 
     if (new_pos > mem->size)
     {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
-            return MZ_STREAM_ERROR;
+            return MZ_SEEK_ERROR;
 
         mz_stream_mem_set_size(stream, (int32_t)new_pos);
     }
@@ -222,7 +222,7 @@ int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void *
 {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     if (buf == NULL || position < 0 || mem->size < position || mem->buffer == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_SEEK_ERROR;
     *buf = mem->buffer + position;
     return MZ_OK;
 }

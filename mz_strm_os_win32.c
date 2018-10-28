@@ -79,7 +79,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
 
 
     if (path == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_PARAM_ERROR;
 
     if ((mode & MZ_OPEN_MODE_READWRITE) == MZ_OPEN_MODE_READ)
     {
@@ -98,7 +98,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     }
     else
     {
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     }
 
     path_wide = mz_os_unicode_string_create(path);
@@ -116,7 +116,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     if (mz_stream_os_is_open(stream) != MZ_OK)
     {
         win32->error = GetLastError();
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     }
 
     if (mode & MZ_OPEN_MODE_APPEND)
@@ -129,7 +129,7 @@ int32_t mz_stream_os_is_open(void *stream)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     if (win32->handle == NULL || win32->handle == INVALID_HANDLE_VALUE)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -139,7 +139,7 @@ int32_t mz_stream_os_read(void *stream, void *buf, int32_t size)
     uint32_t read = 0;
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     if (!ReadFile(win32->handle, buf, size, (DWORD *)&read, NULL))
     {
@@ -157,7 +157,7 @@ int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size)
     int32_t written = 0;
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     if (!WriteFile(win32->handle, buf, size, (DWORD *)&written, NULL))
     {
@@ -182,7 +182,7 @@ static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos,
     pos = SetFilePointer(handle, large_pos.LowPart, &high_part, move_method);
 
     if ((pos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
-        return MZ_STREAM_ERROR;
+        return MZ_SEEK_ERROR;
 
     if (new_pos != NULL)
     {
@@ -200,7 +200,7 @@ int64_t mz_stream_os_tell(void *stream)
     LARGE_INTEGER large_pos;
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     large_pos.QuadPart = 0;
 
@@ -214,11 +214,12 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin)
 {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t move_method = 0xFFFFFFFF;
+    int32_t err = MZ_OK;
     LARGE_INTEGER large_pos;
 
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     switch (origin)
     {
@@ -232,15 +233,16 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin)
             move_method = FILE_BEGIN;
             break;
         default:
-            return MZ_STREAM_ERROR;
+            return MZ_SEEK_ERROR;
     }
 
     large_pos.QuadPart = offset;
 
-    if (mz_stream_os_seekinternal(win32->handle, large_pos, NULL, move_method) != MZ_OK)
+    err = mz_stream_os_seekinternal(win32->handle, large_pos, NULL, move_method);
+    if (err != MZ_OK)
     {
         win32->error = GetLastError();
-        return MZ_STREAM_ERROR;
+        return err;
     }
 
     return MZ_OK;

@@ -113,11 +113,13 @@ static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
     int32_t read_size = sizeof(buf);
     int64_t read_pos = 0;
     int32_t i = 0;
+    int32_t err = MZ_OK;
 
     *central_pos = 0;
 
-    if (mz_stream_seek(stream, 0, MZ_SEEK_END) != MZ_OK)
-        return MZ_STREAM_ERROR;
+    err = mz_stream_seek(stream, 0, MZ_SEEK_END);
+    if (err != MZ_OK)
+        return err;
 
     file_size = mz_stream_tell(stream);
 
@@ -267,7 +269,7 @@ static int32_t mz_zip_read_cd(void *handle)
             if (zip->comment != NULL)
             {
                 if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
-                    err = MZ_STREAM_ERROR;
+                    err = MZ_READ_ERROR;
                 zip->comment[comment_size] = 0;
             }
         }
@@ -473,7 +475,7 @@ static int32_t mz_zip_write_cd(void *handle)
     if (err == MZ_OK)
     {
         if (mz_stream_write(zip->stream, zip->comment, comment_size) != comment_size)
-            err = MZ_STREAM_ERROR;
+            err = MZ_READ_ERROR;
     }
     return err;
 }
@@ -1181,7 +1183,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if (err == MZ_OK)
     {
         if (mz_stream_write(stream, filename, filename_length) != filename_length)
-            err = MZ_STREAM_ERROR;
+            err = MZ_WRITE_ERROR;
 
         // Ensure that directories have a slash appended to them for compatibility
         if (err == MZ_OK && write_end_slash)
@@ -1278,7 +1280,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if ((err == MZ_OK) && (!local) && (file_info->comment != NULL))
     {
         if (mz_stream_write(stream, file_info->comment, file_info->comment_size) != file_info->comment_size)
-            err = MZ_STREAM_ERROR;
+            err = MZ_WRITE_ERROR;
     }
 
     return err;

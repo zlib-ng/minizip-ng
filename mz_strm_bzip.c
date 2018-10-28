@@ -97,7 +97,7 @@ int32_t mz_stream_bzip_open(void *stream, const char *path, int32_t mode)
     }
 
     if (bzip->error != BZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     bzip->initialized = 1;
     bzip->stream_end = 0;
@@ -109,7 +109,7 @@ int32_t mz_stream_bzip_is_open(void *stream)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     if (bzip->initialized != 1)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -203,7 +203,7 @@ static int32_t mz_stream_bzip_flush(void *stream)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
     if (mz_stream_write(bzip->stream.base, bzip->buffer, bzip->buffer_len) != bzip->buffer_len)
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
     return MZ_OK;
 }
 
@@ -219,11 +219,9 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush)
     {
         if (bzip->bzstream.avail_out == 0)
         {
-            if (mz_stream_bzip_flush(bzip) != MZ_OK)
-            {
-                bzip->error = BZ_DATA_ERROR;
-                return MZ_STREAM_ERROR;
-            }
+            err = mz_stream_bzip_flush(bzip);
+            if (err != MZ_OK)
+                return err;
 
             bzip->bzstream.avail_out = sizeof(bzip->buffer);
             bzip->bzstream.next_out = (char *)bzip->buffer;
@@ -249,7 +247,7 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush)
         if (err < 0)
         {
             bzip->error = err;
-            return MZ_STREAM_ERROR;
+            return MZ_DATA_ERROR;
         }
     }
     while ((bzip->bzstream.avail_in > 0) || (flush == BZ_FINISH && err == BZ_FINISH_OK));
@@ -280,7 +278,7 @@ int64_t mz_stream_bzip_tell(void *stream)
 {
     MZ_UNUSED(stream);
 
-    return MZ_STREAM_ERROR;
+    return MZ_TELL_ERROR;
 }
 
 int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin)
@@ -289,7 +287,7 @@ int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin)
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);
 
-    return MZ_STREAM_ERROR;
+    return MZ_SEEK_ERROR;
 }
 
 int32_t mz_stream_bzip_close(void *stream)
@@ -319,7 +317,7 @@ int32_t mz_stream_bzip_close(void *stream)
     bzip->initialized = 0;
 
     if (bzip->error != BZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_CLOSE_ERROR;
     return MZ_OK;
 }
 

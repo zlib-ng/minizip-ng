@@ -82,7 +82,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     const char *mode_fopen = NULL;
 
     if (path == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_PARAM_ERROR;
 
     if ((mode & MZ_OPEN_MODE_READWRITE) == MZ_OPEN_MODE_READ)
         mode_fopen = "rb";
@@ -91,13 +91,13 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     else if (mode & MZ_OPEN_MODE_CREATE)
         mode_fopen = "wb";
     else
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     posix->handle = fopen64(path, mode_fopen);
     if (posix->handle == NULL)
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     }
 
     return MZ_OK;
@@ -107,7 +107,7 @@ int32_t mz_stream_os_is_open(void *stream)
 {
     mz_stream_posix *posix = (mz_stream_posix*)stream;
     if (posix->handle == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -118,7 +118,7 @@ int32_t mz_stream_os_read(void *stream, void *buf, int32_t size)
     if (read < size && ferror(posix->handle))
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_READ_ERROR;
     }
     return read;
 }
@@ -130,7 +130,7 @@ int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size)
     if (written < size && ferror(posix->handle))
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
     }
     return written;
 }
@@ -142,7 +142,7 @@ int64_t mz_stream_os_tell(void *stream)
     if (position == -1)
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_TELL_ERROR;
     }
     return position;
 }
@@ -164,13 +164,13 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin)
             fseek_origin = SEEK_SET;
             break;
         default:
-            return MZ_STREAM_ERROR;
+            return MZ_SEEK_ERROR;
     }
 
     if (fseeko64(posix->handle, offset, fseek_origin) != 0)
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_SEEK_ERROR;
     }
 
     return MZ_OK;
@@ -188,7 +188,7 @@ int32_t mz_stream_os_close(void *stream)
     if (closed != 0)
     {
         posix->error = errno;
-        return MZ_STREAM_ERROR;
+        return MZ_CLOSE_ERROR;
     }
     return MZ_OK;
 }

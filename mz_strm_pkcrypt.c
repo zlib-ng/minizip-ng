@@ -144,12 +144,12 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     pkcrypt->initialized = 0;
 
     if (mz_stream_is_open(pkcrypt->stream.base) != MZ_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
 
     if (password == NULL)
         password = pkcrypt->password;
     if (password == NULL)
-        return MZ_STREAM_ERROR;
+        return MZ_PARAM_ERROR;
 
     if (mz_stream_crc32_get_update_func(&pkcrypt->crc32_update) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -175,7 +175,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
         header[i++] = mz_stream_pkcrypt_encode(stream, pkcrypt->verify2, t);
 
         if (mz_stream_write(pkcrypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
-            return MZ_STREAM_ERROR;
+            return MZ_WRITE_ERROR;
 
         pkcrypt->total_out += RAND_HEAD_LEN;
 #endif
@@ -191,7 +191,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
         return MZ_SUPPORT_ERROR;
 #else
         if (mz_stream_read(pkcrypt->stream.base, header, RAND_HEAD_LEN) != RAND_HEAD_LEN)
-            return MZ_STREAM_ERROR;
+            return MZ_READ_ERROR;
 
         for (i = 0; i < RAND_HEAD_LEN - 2; i++)
             header[i] = mz_stream_pkcrypt_decode(stream, header[i]);
@@ -216,7 +216,7 @@ int32_t mz_stream_pkcrypt_is_open(void *stream)
 {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     if (pkcrypt->initialized == 0)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -245,7 +245,7 @@ int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size)
     uint16_t t = 0;
 
     if (size > (int32_t)sizeof(pkcrypt->buffer))
-        return MZ_STREAM_ERROR;
+        return MZ_BUF_ERROR;
 
     for (i = 0; i < size; i++)
         pkcrypt->buffer[i] = mz_stream_pkcrypt_encode(stream, buf_ptr[i], t);

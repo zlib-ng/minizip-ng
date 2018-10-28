@@ -70,7 +70,7 @@ int32_t mz_stream_crc32_is_open(void *stream)
 {
     mz_stream_crc32 *crc32 = (mz_stream_crc32 *)stream;
     if (crc32->initialized != 1)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 

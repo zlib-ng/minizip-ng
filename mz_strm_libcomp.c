@@ -95,7 +95,7 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
     if (err == COMPRESSION_STATUS_ERROR)
     {
         libcomp->error = err;
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     }
     
     libcomp->initialized = 1;
@@ -107,7 +107,7 @@ int32_t mz_stream_libcomp_is_open(void *stream)
 {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     if (libcomp->initialized != 1)
-        return MZ_STREAM_ERROR;
+        return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
@@ -198,7 +198,7 @@ static int32_t mz_stream_libcomp_flush(void *stream)
 {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     if (mz_stream_write(libcomp->stream.base, libcomp->buffer, libcomp->buffer_len) != libcomp->buffer_len)
-        return MZ_STREAM_ERROR;
+        return MZ_WRITE_ERROR;
     return MZ_OK;
 }
 
@@ -219,7 +219,7 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
             if (err != MZ_OK)
             {
                 libcomp->error = err;
-                return MZ_STREAM_ERROR;
+                return err;
             }
 
             libcomp->cstream.dst_size = sizeof(libcomp->buffer);
@@ -242,7 +242,7 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
         if (err != COMPRESSION_STATUS_OK)
         {
             libcomp->error = err;
-            return MZ_STREAM_ERROR;
+            return MZ_DATA_ERROR;
         }
     }
     while ((libcomp->cstream.src_size > 0) || (flush == COMPRESSION_STREAM_FINALIZE && err == COMPRESSION_STATUS_OK));
@@ -273,7 +273,7 @@ int64_t mz_stream_libcomp_tell(void *stream)
 {
     MZ_UNUSED(stream);
 
-    return MZ_STREAM_ERROR;
+    return MZ_TELL_ERROR;
 }
 
 int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin)
@@ -282,7 +282,7 @@ int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin)
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);
 
-    return MZ_STREAM_ERROR;
+    return MZ_SEEK_ERROR;
 }
 
 int32_t mz_stream_libcomp_close(void *stream)
@@ -311,7 +311,7 @@ int32_t mz_stream_libcomp_close(void *stream)
     libcomp->initialized = 0;
 
     if (libcomp->error != Z_OK)
-        return MZ_STREAM_ERROR;
+        return MZ_CLOSE_ERROR;
     return MZ_OK;
 }
 
