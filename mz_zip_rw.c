@@ -396,7 +396,8 @@ int32_t mz_zip_reader_entry_open(void *handle)
 #ifndef MZ_ZIP_NO_ENCRYPTION
     if (err != MZ_OK)
         return err;
-    if (mz_zip_reader_entry_get_best_hash(handle, &reader->hash_algorithm, &reader->hash_digest_size) == MZ_OK)
+
+    if (mz_zip_reader_entry_get_first_hash(handle, &reader->hash_algorithm, &reader->hash_digest_size) == MZ_OK)
     {
         mz_crypt_sha_create(&reader->hash);
         if (reader->hash_algorithm == MZ_HASH_SHA1)
@@ -572,13 +573,11 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
     return return_err;
 }
 
-int32_t mz_zip_reader_entry_get_best_hash(void *handle, uint16_t *algorithm, uint16_t *digest_size)
+int32_t mz_zip_reader_entry_get_first_hash(void *handle, uint16_t *algorithm, uint16_t *digest_size)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     void *file_extra_stream = NULL;
     int32_t err = MZ_OK;
-    int32_t return_err = MZ_EXIST_ERROR;
-    uint16_t last_algorithm = 0;
     uint16_t cur_algorithm = 0;
     uint16_t cur_digest_size = 0;
 
@@ -589,42 +588,20 @@ int32_t mz_zip_reader_entry_get_best_hash(void *handle, uint16_t *algorithm, uin
     mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
         reader->file_info->extrafield_size);
 
-    do
-    {
-        err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
-        if (err != MZ_OK)
-            break;
-
-        err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
-
-        if ((cur_algorithm > last_algorithm) && (cur_digest_size <= MZ_HASH_MAX_SIZE))
-        {
-            last_algorithm = cur_algorithm;
-            if (algorithm != NULL)
-                *algorithm = cur_algorithm;
-            if (digest_size != NULL)
-                *digest_size = cur_digest_size;
-
-            return_err = MZ_OK;
-        }
-
-        err = mz_stream_seek(file_extra_stream, cur_digest_size, SEEK_CUR);
-    }
-    while (err == MZ_OK);
+    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
+    if (err == MZ_OK)
+        err = mz_stream_read_uint32(file_extra_stream, &cur_algorithm);
+    if (err == MZ_OK)
+        err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
+    
+    if (algorithm != NULL)
+        *algorithm = cur_algorithm;
+    if (digest_size != NULL)
+        *digest_size = cur_digest_size;
 
     mz_stream_mem_delete(&file_extra_stream);
 
-    if (return_err != MZ_OK)
-    {
-        if (digest_size != NULL)
-            *digest_size = 0;
-        if (algorithm != NULL)
-            *algorithm = 0;
-    }
-    
-    return return_err;
+    return err;
 }
 
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info)
@@ -1369,7 +1346,8 @@ int32_t mz_zip_writer_entry_close(void *handle)
 
 #ifndef MZ_ZIP_NO_SIGNING
         if (writer->cert_path != NULL)
-            err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
+            err = mz_zip_writer_entry_sign(handle, MZ_HASH_SHA256, 
+                sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
 #endif
 
         // Update extra field for central directory after adding extra fields
