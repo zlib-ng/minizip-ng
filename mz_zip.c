@@ -1049,7 +1049,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         }
     }
 #else
-    MZ_UNUSED(skip_aes)
+    MZ_UNUSED(skip_aes);
 #endif
     // NTFS timestamps
     if ((file_info->modified_date != 0) &&
