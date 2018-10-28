@@ -590,7 +590,7 @@ int32_t mz_zip_reader_entry_get_first_hash(void *handle, uint16_t *algorithm, ui
 
     err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
     if (err == MZ_OK)
-        err = mz_stream_read_uint32(file_extra_stream, &cur_algorithm);
+        err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
     if (err == MZ_OK)
         err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
     
@@ -1346,8 +1346,8 @@ int32_t mz_zip_writer_entry_close(void *handle)
 
 #ifndef MZ_ZIP_NO_SIGNING
         if (writer->cert_path != NULL)
-            err = mz_zip_writer_entry_sign(handle, MZ_HASH_SHA256, 
-                sha256, sizeof(sha256), writer->cert_path, writer->cert_pwd);
+            err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), 
+                writer->cert_path, writer->cert_pwd);
 #endif
 
         // Update extra field for central directory after adding extra fields

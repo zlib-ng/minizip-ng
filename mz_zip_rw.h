@@ -81,7 +81,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle);
 int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *digest, int32_t digest_size);
 // Gets a hash algorithm from the entry's extra field
 
-int32_t mz_zip_reader_entry_get_best_hash(void *handle, uint16_t *algorithm, uint16_t *digest_size);
+int32_t mz_zip_reader_entry_get_first_hash(void *handle, uint16_t *algorithm, uint16_t *digest_size);
 // Gets the most secure hash algorithm from the entry's extra field
 
 int32_t mz_zip_reader_entry_get_info(void *handle, mz_zip_file **file_info);
