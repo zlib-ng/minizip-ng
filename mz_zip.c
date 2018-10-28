@@ -1048,6 +1048,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             extrafield_size += 4 + field_length_aes;
         }
     }
+#else
+    MZ_UNUSED(skip_aes)
 #endif
     // NTFS timestamps
     if ((file_info->modified_date != 0) &&
