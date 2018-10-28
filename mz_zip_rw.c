@@ -93,6 +93,7 @@ int32_t mz_zip_reader_open(void *handle, void *stream)
         return MZ_STREAM_ERROR;
     }
 
+    mz_zip_reader_unzip_cd(reader);
     return MZ_OK;
 }
 
@@ -114,7 +115,6 @@ int32_t mz_zip_reader_open_file(void *handle, const char *path)
     err = mz_stream_open(reader->split_stream, path, MZ_OPEN_MODE_READ);
     if (err == MZ_OK)
         err = mz_zip_reader_open(handle, reader->split_stream);
-
     return err;
 }
 
@@ -1051,7 +1051,7 @@ typedef struct mz_zip_writer_s {
     const char  *cert_pwd;
     uint16_t    compress_method;
     int16_t     compress_level;
-    int32_t     flags;
+    uint8_t     zip_cd;
     uint8_t     aes;
     uint8_t     raw;
     uint8_t     buffer[UINT16_MAX];
@@ -1197,6 +1197,10 @@ int32_t mz_zip_writer_close(void *handle)
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
 
+    
+    if (writer->zip_cd)
+        mz_zip_writer_zip_cd(writer);
+
     if (writer->zip_handle != NULL)
     {
         mz_zip_set_version_madeby(writer->zip_handle, MZ_VERSION_MADEBY);
@@ -1227,7 +1231,7 @@ int32_t mz_zip_writer_close(void *handle)
 
 /***************************************************************************/
 
-int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t flags)
+int32_t mz_zip_writer_zip_cd(void *handle)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     mz_zip_file cd_file;
@@ -1250,9 +1254,12 @@ int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t fla
     cd_file.filename = MZ_ZIP_CD_FILENAME;
     cd_file.modified_date = time(NULL);
     cd_file.version_madeby = MZ_VERSION_MADEBY;
-    cd_file.compression_method = compress_method;
+    cd_file.compression_method = writer->compress_method;
     cd_file.uncompressed_size = (int32_t)cd_mem_length;
-    cd_file.flag = MZ_ZIP_FLAG_UTF8 | flags;
+    cd_file.flag = MZ_ZIP_FLAG_UTF8;
+
+    if (writer->password != NULL)
+        cd_file.flag |= MZ_ZIP_FLAG_ENCRYPTED;
 
     mz_stream_mem_create(&file_extra_stream);
     mz_stream_mem_open(file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
@@ -1370,8 +1377,8 @@ int32_t mz_zip_writer_entry_close(void *handle)
         mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
 
         mz_zip_entry_set_extrafield(writer->zip_handle, extrafield, (uint16_t)extrafield_size);
-#endif
     }
+#endif
 
     if (writer->raw)
         err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, 
@@ -1603,7 +1610,10 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     file_info.compression_method = writer->compress_method;
     file_info.filename = filename;
     file_info.uncompressed_size = mz_os_get_file_size(path);
-    file_info.flag = MZ_ZIP_FLAG_UTF8 | writer->flags;
+    file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+    if (writer->zip_cd)
+        file_info.flag |= MZ_ZIP_FLAG_MASK_LOCAL_INFO;
 
 #ifdef HAVE_AES
     if (writer->aes)
@@ -1805,10 +1815,10 @@ void mz_zip_writer_set_compress_level(void *handle, int16_t compress_level)
     writer->compress_level = compress_level;
 }
 
-void mz_zip_writer_set_flags(void *handle, int32_t flags)
+void mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    writer->flags = flags;
+    writer->zip_cd = zip_cd;
 }
 
 void mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd)

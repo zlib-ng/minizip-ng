@@ -117,14 +117,11 @@ int32_t minizip_list(const char *path)
     struct tm tmu_date;
     const char *string_method = NULL;
     char crypt = ' ';
-
     void *reader = NULL;
 
 
     mz_zip_reader_create(&reader);
     err = mz_zip_reader_open_file(reader, path);
-    if (err == MZ_OK)
-        err = mz_zip_reader_unzip_cd(reader);
     if (err != MZ_OK)
     {
         printf("Error %d opening zip file %s\n", err, path);
@@ -304,8 +301,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_overwrite_cb(writer, options, minizip_add_overwrite_cb);
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
     mz_zip_writer_set_entry_cb(writer, options, minizip_add_entry_cb);
-    if (options->zip_cd)
-        mz_zip_writer_set_flags(writer, MZ_ZIP_FLAG_MASK_LOCAL_INFO);
+    mz_zip_writer_set_zip_cd(writer, options->zip_cd);
     if (options->cert_path != NULL)
         mz_zip_writer_set_certificate(writer, options->cert_path, options->cert_pwd);
 
@@ -325,13 +321,6 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     else
     {
         printf("Error %d opening zip for writing\n", err);
-    }
-
-    if (options->zip_cd)
-    {
-        if (password != NULL)
-            flags = MZ_ZIP_FLAG_ENCRYPTED;
-        mz_zip_writer_zip_cd(writer, options->compress_method, flags);
     }
 
     err_close = mz_zip_writer_close(writer);
@@ -434,9 +423,7 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     }
     else
     {
-        err = mz_zip_reader_unzip_cd(reader);
-        if (err == MZ_OK)
-            err = mz_zip_reader_save_all(reader, destination);
+        err = mz_zip_reader_save_all(reader, destination);
         if (err == MZ_END_OF_LIST && pattern != NULL)
             printf("Files matching %s not found in zip file\n", pattern);
         if (err != MZ_OK)
@@ -469,8 +456,6 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     mz_zip_writer_create(&writer);
 
     err = mz_zip_reader_open_file(reader, src_path);
-    if (err == MZ_OK)
-        err = mz_zip_reader_unzip_cd(reader);
     if (err != MZ_OK)
     {
         printf("Error %d opening zip for reading %s\n", err, src_path);

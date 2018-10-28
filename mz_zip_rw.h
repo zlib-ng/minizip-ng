@@ -177,7 +177,7 @@ int32_t mz_zip_writer_close(void *handle);
 
 /***************************************************************************/
 
-int32_t mz_zip_writer_zip_cd(void *handle, uint16_t compress_method, int32_t flags);
+int32_t mz_zip_writer_zip_cd(void *handle);
 // Zip the central directory
 
 /***************************************************************************/
@@ -239,7 +239,7 @@ void    mz_zip_writer_set_compress_method(void *handle, uint16_t compress_method
 void    mz_zip_writer_set_compress_level(void *handle, int16_t compress_level);
 // Sets the compression level when adding files in zip
 
-void    mz_zip_writer_set_flags(void *handle, int32_t flags);
+void    mz_zip_writer_set_zip_cd(void *handle, uint8_t flags);
 // Sets additional flags to be set when adding files in zip
 
 void    mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd);
