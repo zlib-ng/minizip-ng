@@ -55,8 +55,7 @@ Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?
 To generate project files for your platform:
 
 1. [Download and install](https://cmake.org/install/) cmake.
-2. [Download](https://zlib.net/) and install zlib if it is not installed on your system.
-3. Run cmake in the minizip directory.
+2. Run cmake in the minizip directory.
 
 ```
 cmake . -DBUILD_TEST=ON
