@@ -182,7 +182,7 @@ if(UNIX)
     if ((USE_PKCRYPT OR USE_AES) AND (NOT USE_OPENSSL AND NOT OPENSSL_FOUND))
         list(APPEND MINIZIP_SRC "mz_crypt_brg.c")
 
-        add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
+        add_definitions(-DMZ_ZIP_NO_SIGNING)
 
         # Check to see which random generation functions we have 
         check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)

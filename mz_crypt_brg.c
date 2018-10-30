@@ -18,11 +18,6 @@
 #if defined(HAVE_GETRANDOM)
 #  include <sys/random.h>
 #endif
-#if defined(unix) || defined(__APPLE__)
-#  ifndef HAVE_ARC4RANDOM_BUF
-#    define HAVE_ARC4RANDOM_BUF
-#  endif
-#endif
 #if defined(HAVE_LIBBSD)
 #  include <bsd/stdlib.h> // arc4random_buf
 #endif
