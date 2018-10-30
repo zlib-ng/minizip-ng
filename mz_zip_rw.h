@@ -124,7 +124,7 @@ void    mz_zip_reader_set_raw(void *handle, uint8_t raw);
 int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw);
 // Gets whether or not it should save the entry raw
 
-void    mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding);
+void    mz_zip_reader_set_encoding(void *handle, int32_t encoding);
 // Sets whether or not it should support cp437 in zip file names
 
 void    mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required);

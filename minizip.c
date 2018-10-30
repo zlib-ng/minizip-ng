@@ -35,7 +35,7 @@ typedef struct minizip_opt_s {
     uint8_t append;
     int64_t disk_size;
     uint8_t zip_cd;
-    uint8_t legacy_encoding;
+    int32_t encoding;
     uint8_t verbose;
 #ifdef HAVE_AES
     uint8_t aes;
@@ -76,7 +76,7 @@ int32_t minizip_banner(void)
 
 int32_t minizip_help(void)
 {
-    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
+    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c codepage] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
@@ -89,7 +89,7 @@ int32_t minizip_help(void)
            "  -1  Compress faster\n" \
            "  -9  Compress better\n" \
            "  -k  Disk size in KB\n" \
-           "  -z  Zip central directory" \
+           "  -z  Zip central directory\n" \
            "  -p  Encryption password\n");
 #ifdef HAVE_AES
     printf("  -s  AES encryption\n" \
@@ -410,7 +410,7 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     mz_zip_reader_create(&reader);
     mz_zip_reader_set_pattern(reader, pattern, 1);
     mz_zip_reader_set_password(reader, password);
-    mz_zip_reader_set_legacy_encoding(reader, options->legacy_encoding);
+    mz_zip_reader_set_encoding(reader, options->encoding);
     mz_zip_reader_set_entry_cb(reader, options, minizip_extract_entry_cb);
     mz_zip_reader_set_progress_cb(reader, options, minizip_extract_progress_cb);
     mz_zip_reader_set_overwrite_cb(reader, options, minizip_extract_overwrite_cb);
@@ -551,7 +551,7 @@ int main(int argc, const char *argv[])
         minizip_help();
         return 0;
     }
-    
+
     memset(&options, 0, sizeof(options));
 
     options.compress_method = MZ_COMPRESS_METHOD_DEFLATE;
@@ -610,8 +610,11 @@ int main(int argc, const char *argv[])
                 i += 1;
             }
 #endif
-            else if ((c == 'c') || (c == 'C'))
-                options.legacy_encoding = 1;
+            else if (((c == 'c') || (c == 'C')) && (i + 1 < argc))
+            {
+                options.encoding = (int32_t)atoi(argv[i + 1]);
+                i += 1;
+            }
             else if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
             {
                 options.disk_size = (int64_t)atoi(argv[i + 1]) * 1024;

@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <iconv.h>
 
 #include "mz.h"
 #include "mz_strm.h"
@@ -73,6 +74,66 @@ typedef struct mz_stream_posix_s
     int32_t     error;
     FILE        *handle;
 } mz_stream_posix;
+
+/***************************************************************************/
+
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
+{
+    iconv_t cd;
+    const char *from_encoding = NULL;
+    int32_t result = 0;
+    int32_t string_length = 0;
+    int32_t string_utf8_size = 0;
+    uint8_t string_utf8 = NULL;
+
+    if (string == NULL)
+        return NULL;
+
+    if (encoding == MZ_ENCODING_CODEPAGE_437)
+        from_encoding = "CP437";
+    else if (encoding == MZ_ENCODING_CODEPAGE_932)
+        from_encoding = "CP932";
+    else if (encoding == MZ_ENCODING_CODEPAGE_936)
+        from_encoding = "CP936";
+    else if (encoding == MZ_ENCODING_CODEPAGE_950)
+        from_encoding = "CP950";
+    else if (encoding == MZ_ENCODING_UTF8)
+        from_encoding = "UTF-8"
+    else
+        return NULL; 
+
+    cd = iconv_open("UTF-8", from_encoding);
+    if (cd == (iconv_t)-1)
+        return NULL;
+
+    string_length = (int32_t)strlen(string);
+    string_utf8_size = string_length * 2;
+    string_utf8 = (uint8_t *)MZ_ALLOC(string_utf8_size + 1);
+
+    if (string_utf8)
+    {
+        memset(string_utf8, 0, string_utf8_size + 1);
+        result = iconv(cd, string, &string_length, string_utf8, &string_utf8_size);
+        iconv_close(cd);
+    }
+
+    if (result == -1)
+    {
+        MZ_FREE(string_utf8);
+        string_utf8 = NULL;
+    }
+
+    return string_utf8;
+}
+
+void mz_os_utf8_string_delete(uint8_t **string)
+{
+    if (string != NULL)
+    {
+        MZ_FREE(*string);
+        *string = NULL;
+    }
+}
 
 /***************************************************************************/
 

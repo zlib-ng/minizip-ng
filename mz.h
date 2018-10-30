@@ -128,6 +128,13 @@ extern "C" {
 #define MZ_HASH_SHA256_SIZE             (32)
 #define MZ_HASH_MAX_SIZE                (256)
 
+// MZ_ENCODING
+#define MZ_ENCODING_CODEPAGE_437        (437)
+#define MZ_ENCODING_CODEPAGE_932        (932)
+#define MZ_ENCODING_CODEPAGE_936        (936)
+#define MZ_ENCODING_CODEPAGE_950        (950)
+#define MZ_ENCODING_UTF8                (65001)
+
 // MZ_UTILITY
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
 

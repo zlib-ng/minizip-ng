@@ -42,21 +42,56 @@ typedef struct DIR_int_s {
 
 /***************************************************************************/
 
-wchar_t *mz_os_unicode_string_create(const char *string)
+wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding)
 {
     wchar_t *string_wide = NULL;
     uint32_t string_wide_size = 0;
 
-    string_wide_size = MultiByteToWideChar(CP_UTF8, 0, string, -1, NULL, 0);
+    string_wide_size = MultiByteToWideChar(encoding, 0, string, -1, NULL, 0);
+    if (string_wide_size == 0)
+        return NULL;
     string_wide = (wchar_t *)MZ_ALLOC((string_wide_size + 1) * sizeof(wchar_t));
     memset(string_wide, 0, sizeof(wchar_t) * (string_wide_size + 1));
 
-    MultiByteToWideChar(CP_UTF8, 0, string, -1, string_wide, string_wide_size);
+    MultiByteToWideChar(encoding, 0, string, -1, string_wide, string_wide_size);
 
     return string_wide;
 }
 
 void mz_os_unicode_string_delete(wchar_t **string)
+{
+    if (string != NULL)
+    {
+        MZ_FREE(*string);
+        *string = NULL;
+    }
+}
+
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
+{
+    wchar_t *string_wide = NULL;
+    uint8_t *string_utf8 = NULL;
+    uint32_t string_utf8_size = 0;
+
+    string_wide = mz_os_unicode_string_create(string, encoding);
+    if (string_wide)
+    {
+        string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, NULL, 0, NULL, NULL);
+        string_utf8 = (uint8_t *)MZ_ALLOC((string_utf8_size + 1) * sizeof(wchar_t));
+
+        if (string_utf8)
+        {
+            memset(string_utf8, 0, string_utf8_size + 1);
+            WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, string_utf8, string_utf8_size, NULL, NULL);
+        }
+
+        mz_os_unicode_string_delete(&string_wide);
+    }
+
+    return string_utf8;
+}
+
+void mz_os_utf8_string_delete(uint8_t **string)
 {
     if (string != NULL)
     {
@@ -87,18 +122,36 @@ int32_t mz_os_rename(const char *source_path, const char *target_path)
     wchar_t *source_path_wide = NULL;
     wchar_t *target_path_wide = NULL;
     int32_t result = 0;
+    int32_t err = MZ_OK;
 
+    if (source_path == NULL || target_path == NULL)
+        return MZ_PARAM_ERROR;
 
-    source_path_wide = mz_os_unicode_string_create(source_path);
-    target_path_wide = mz_os_unicode_string_create(target_path);
-    result = MoveFileW(source_path_wide, target_path_wide);
-    mz_os_unicode_string_delete(&source_path_wide);
-    mz_os_unicode_string_delete(&target_path_wide);
+    source_path_wide = mz_os_unicode_string_create(source_path, MZ_ENCODING_UTF8);
+    if (source_path_wide == NULL)
+    {
+        err = MZ_PARAM_ERROR;
+    }
+    else
+    {
+        target_path_wide = mz_os_unicode_string_create(target_path, MZ_ENCODING_UTF8);
+        if (target_path_wide == NULL)
+            err = MZ_PARAM_ERROR;
+    }
 
-    if (result == 0)
-        return MZ_EXIST_ERROR;
+    if (err == MZ_OK)
+    {
+        result = MoveFileW(source_path_wide, target_path_wide);
+        if (result == 0)
+            err = MZ_EXIST_ERROR;
+    }
 
-    return MZ_OK;
+    if (target_path_wide)
+        mz_os_unicode_string_delete(&target_path_wide);
+    if (source_path_wide)
+        mz_os_unicode_string_delete(&source_path_wide);
+    
+    return err;
 }
 
 int32_t mz_os_delete(const char *path)
@@ -106,8 +159,12 @@ int32_t mz_os_delete(const char *path)
     wchar_t *path_wide = NULL;
     int32_t result = 0;
 
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
 
-    path_wide = mz_os_unicode_string_create(path);
     result = DeleteFileW(path_wide);
     mz_os_unicode_string_delete(&path_wide);
 
@@ -122,8 +179,12 @@ int32_t mz_os_file_exists(const char *path)
     wchar_t *path_wide = NULL;
     DWORD attribs = 0;
 
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
 
-    path_wide = mz_os_unicode_string_create(path);
     attribs = GetFileAttributesW(path_wide);
     mz_os_unicode_string_delete(&path_wide);
 
@@ -139,8 +200,11 @@ int64_t mz_os_get_file_size(const char *path)
     LARGE_INTEGER large_size;
     wchar_t *path_wide = NULL;
 
-
-    path_wide = mz_os_unicode_string_create(path);
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
 #ifdef MZ_WINRT_API
     handle = CreateFile2W(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #else
@@ -182,7 +246,12 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
     wchar_t *path_wide = NULL;
     int32_t err = MZ_INTERNAL_ERROR;
 
-    path_wide = mz_os_unicode_string_create(path);
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
+
     handle = FindFirstFileW(path_wide, &ff32);
     MZ_FREE(path_wide);
 
@@ -209,8 +278,12 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
 
-    path_wide = mz_os_unicode_string_create(path);
 #ifdef MZ_WINRT_API
     handle = CreateFile2W(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #else
@@ -243,9 +316,14 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes)
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    path_wide = mz_os_unicode_string_create(path);
+    if (path == NULL || attributes == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
+
     *attributes = GetFileAttributesW(path_wide);
-    MZ_FREE(path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     if (*attributes == INVALID_FILE_ATTRIBUTES)
         err = MZ_INTERNAL_ERROR;
@@ -258,10 +336,15 @@ int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes)
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    path_wide = mz_os_unicode_string_create(path);
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
+
     if (SetFileAttributesW(path_wide, attributes) == 0)
         err = MZ_INTERNAL_ERROR;
-    MZ_FREE(path_wide);
+    mz_os_unicode_string_delete(&path_wide);
 
     return err;
 }
@@ -271,8 +354,12 @@ int32_t mz_os_make_dir(const char *path)
     wchar_t *path_wide = NULL;
     int32_t err = 0;
 
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
 
-    path_wide = mz_os_unicode_string_create(path);
     err = _wmkdir(path_wide);
     mz_os_unicode_string_delete(&path_wide);
 
@@ -291,11 +378,17 @@ DIR *mz_os_open_dir(const char *path)
     void *handle = NULL;
 
 
+    if (path == NULL)
+        return NULL;
+
     fixed_path[0] = 0;
     mz_path_combine(fixed_path, path, sizeof(fixed_path));
     mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
-    path_wide = mz_os_unicode_string_create(fixed_path);
+    path_wide = mz_os_unicode_string_create(fixed_path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return NULL;
+
     handle = FindFirstFileW(path_wide, &find_data);
     mz_os_unicode_string_delete(&path_wide);
 
@@ -355,7 +448,12 @@ int32_t mz_os_is_dir(const char *path)
     wchar_t *path_wide = NULL;
     uint32_t attribs = 0;
 
-    path_wide = mz_os_unicode_string_create(path);
+    if (path == NULL)
+        return MZ_PARAM_ERROR;
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (path_wide == NULL)
+        return MZ_PARAM_ERROR;
+
     attribs = GetFileAttributesW(path_wide);
     mz_os_unicode_string_delete(&path_wide);
 

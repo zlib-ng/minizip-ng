@@ -80,11 +80,17 @@ int32_t mz_file_get_crc(const char *path, uint32_t *result_crc);
 /***************************************************************************/
 // Platform specific functions
 
-wchar_t *mz_os_unicode_string_create(const char *string);
+wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding);
 // Create unicode string from a utf8 string
 
 void     mz_os_unicode_string_delete(wchar_t **string);
 // Delete a unicode string that was created
+
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding);
+// Create a utf8 string from a string with another encoding
+
+void     mz_os_utf8_string_delete(uint8_t **string);
+// Delete a utf8 string that was created
 
 int32_t  mz_os_rand(uint8_t *buf, int32_t size);
 // Random number generator (not cryptographically secure)

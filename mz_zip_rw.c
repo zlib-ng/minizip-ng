@@ -64,7 +64,7 @@ typedef struct mz_zip_reader_s {
                 entry_cb;
     uint8_t     raw;
     uint8_t     buffer[UINT16_MAX];
-    uint8_t     legacy_encoding;
+    int32_t     encoding;
     uint8_t     sign_required;
 } mz_zip_reader;
 
@@ -852,6 +852,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
+    uint8_t *utf8_string = NULL;
     char path[512];
     char utf8_name[256];
     char resolved_name[256];
@@ -863,14 +864,17 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
         // Construct output path
         path[0] = 0;
 
-        if ((reader->legacy_encoding) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
+        strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name) - 1);
+        utf8_name[sizeof(utf8_name) - 1] = 0;
+
+        if ((reader->encoding > 0) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
         {
-            mz_zip_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
-        }
-        else
-        {
-            strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name) - 1);
-            utf8_name[sizeof(utf8_name) - 1] = 0;
+            utf8_string = mz_os_utf8_string_create(reader->file_info->filename, reader->encoding);
+            if (utf8_string)
+            {
+                strncpy(utf8_name, utf8_string, sizeof(utf8_name));
+                mz_os_utf8_string_delete(&utf8_string);
+            }
         }
 
         err = mz_path_resolve(utf8_name, resolved_name, sizeof(resolved_name));
@@ -925,10 +929,10 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw)
     return MZ_OK;
 }
 
-void mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding)
+void mz_zip_reader_set_encoding(void *handle, int32_t encoding)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
-    reader->legacy_encoding = legacy_encoding;
+    reader->encoding = encoding;
 }
 
 void mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required)
