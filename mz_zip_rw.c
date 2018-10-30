@@ -420,6 +420,8 @@ int32_t mz_zip_reader_entry_open(void *handle)
         }
 #endif
     }
+    else if (reader->sign_required)
+        err = MZ_SIGN_ERROR;
 #endif
 
     return err;
