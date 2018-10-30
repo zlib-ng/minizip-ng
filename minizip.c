@@ -288,7 +288,6 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
     int32_t i = 0;
-    int32_t flags = 0;
     const char *filename_in_zip = NULL;
 
 

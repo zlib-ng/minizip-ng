@@ -872,7 +872,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
             utf8_string = mz_os_utf8_string_create(reader->file_info->filename, reader->encoding);
             if (utf8_string)
             {
-                strncpy(utf8_name, utf8_string, sizeof(utf8_name));
+                strncpy(utf8_name, (char *)utf8_string, sizeof(utf8_name));
                 mz_os_utf8_string_delete(&utf8_string);
             }
         }
