@@ -386,7 +386,8 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
         return MZ_PARAM_ERROR;
     
     mz_crypt_hmac_reset(handle);
-    hmac->ctx=HMAC_CTX_new();
+
+    hmac->ctx = HMAC_CTX_new();
     if (hmac->algorithm == MZ_HASH_SHA1)
         evp_md = EVP_sha1();
     else
@@ -561,7 +562,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
-	CMS_ContentInfo *cms = NULL;
+    CMS_ContentInfo *cms = NULL;
     STACK_OF(X509) *signers = NULL;
     STACK_OF(X509) *intercerts = NULL;
     X509_STORE *cert_store = NULL;
