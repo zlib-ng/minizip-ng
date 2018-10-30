@@ -283,8 +283,26 @@ void mz_crypt_aes_delete(void **handle)
 
 /***************************************************************************/
 
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined (LIBRESSL_VERSION_NUMBER)
+static HMAC_CTX *HMAC_CTX_new(void)
+{
+    HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
+    if (ctx != NULL)
+        HMAC_CTX_init(ctx);
+    return ctx;
+}
+
+static void HMAC_CTX_free(HMAC_CTX *ctx)
+{
+    if (ctx != NULL) {
+        HMAC_CTX_cleanup(ctx);
+        OPENSSL_free(ctx);
+    }
+}
+#endif
+
 typedef struct mz_crypt_hmac_s {
-    HMAC_CTX   ctx;
+    HMAC_CTX*  ctx;
     int32_t    initialized;
     int32_t    error;
     uint16_t   algorithm;
@@ -295,7 +313,7 @@ typedef struct mz_crypt_hmac_s {
 static void mz_crypt_hmac_free(void *handle)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    HMAC_CTX_cleanup(&hmac->ctx);
+    HMAC_CTX_free(hmac->ctx);
 }
 
 void mz_crypt_hmac_reset(void *handle)
@@ -324,7 +342,7 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
     if (hmac == NULL || buf == NULL)
         return MZ_PARAM_ERROR;
 
-    result = HMAC_Update(&hmac->ctx, buf, size);
+    result = HMAC_Update(hmac->ctx, buf, size);
     if (!result)
         return MZ_HASH_ERROR;
 
@@ -343,13 +361,14 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     {
         if (digest_size < MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
-        result = HMAC_Final(&hmac->ctx, digest, (uint32_t *)&digest_size);
+
+        result = HMAC_Final(hmac->ctx, digest, (uint32_t *)&digest_size);
     }
     else
     {
         if (digest_size < MZ_HASH_SHA256_SIZE)
             return MZ_BUF_ERROR;
-        result = HMAC_Final(&hmac->ctx, digest, (uint32_t *)&digest_size);
+        result = HMAC_Final(hmac->ctx, digest, (uint32_t *)&digest_size);
     }
 
     if (!result)
@@ -368,14 +387,13 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
     
     mz_crypt_hmac_reset(handle);
 
-    HMAC_CTX_init(&hmac->ctx);
-
+    hmac->ctx = HMAC_CTX_new();
     if (hmac->algorithm == MZ_HASH_SHA1)
         evp_md = EVP_sha1();
     else
         evp_md = EVP_sha256();
 
-    HMAC_Init_ex(&hmac->ctx, key, key_length, evp_md, NULL);
+    HMAC_Init(hmac->ctx, key, key_length, evp_md);
 
     return MZ_OK;
 }
@@ -394,7 +412,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
     if (source == NULL || target == NULL)
         return MZ_PARAM_ERROR;
 
-    HMAC_CTX_copy(&target->ctx, &source->ctx);
+    HMAC_CTX_copy(target->ctx, source->ctx);
     return MZ_OK;
 }
 
@@ -544,7 +562,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
-	CMS_ContentInfo *cms = NULL;
+    CMS_ContentInfo *cms = NULL;
     STACK_OF(X509) *signers = NULL;
     STACK_OF(X509) *intercerts = NULL;
     X509_STORE *cert_store = NULL;
