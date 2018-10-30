@@ -27,7 +27,9 @@
 #include "mz_zip.h"
 
 #include "mz_zip_rw.h"
-
+#ifdef _WIN32
+#include "mz_encoding_win32.h"
+#endif
 /***************************************************************************/
 
 #define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
@@ -65,6 +67,7 @@ typedef struct mz_zip_reader_s {
     uint8_t     raw;
     uint8_t     buffer[UINT16_MAX];
     uint8_t     legacy_encoding;
+    uint32_t    code_page;
     uint8_t     sign_required;
 } mz_zip_reader;
 
@@ -863,7 +866,11 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
 
         if ((reader->legacy_encoding) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0)
         {
+#ifdef _WIN32
+            mz_zip_encoding_codepage_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name),reader->code_page);
+#else
             mz_zip_encoding_cp437_to_utf8(reader->file_info->filename, utf8_name, sizeof(utf8_name));
+#endif
         }
         else
         {
@@ -927,7 +934,17 @@ void mz_zip_reader_set_legacy_encoding(void *handle, uint8_t legacy_encoding)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     reader->legacy_encoding = legacy_encoding;
+    reader->code_page = 437;
 }
+
+#ifdef _WIN32
+void mz_zip_reader_set_legacy_encoding_codepage(void *handle, uint8_t legacy_encoding, uint32_t codepage)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    reader->legacy_encoding = legacy_encoding;
+    reader->code_page = codepage;
+}
+#endif
 
 void mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required)
 {

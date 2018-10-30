@@ -36,6 +36,7 @@ typedef struct minizip_opt_s {
     int64_t disk_size;
     uint8_t zip_cd;
     uint8_t legacy_encoding;
+    uint32_t code_page;
     uint8_t verbose;
 #ifdef HAVE_AES
     uint8_t aes;
@@ -76,8 +77,13 @@ int32_t minizip_banner(void)
 
 int32_t minizip_help(void)
 {
-    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" \
-           "  -x  Extract files\n" \
+#ifdef _WIN32
+    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c] [-cp codepage] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n");
+#else
+    printf("Usage : minizip [-x -d dir|-l|-e] [-o] [-c] [-a] [-j] [-0 to -9] [-b|-m] [-k 512] [-p pwd] [-s] file.zip [files]\n\n" ");
+#endif 
+
+        printf("  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
            "  -o  Overwrite existing files\n" \
@@ -89,8 +95,12 @@ int32_t minizip_help(void)
            "  -1  Compress faster\n" \
            "  -9  Compress better\n" \
            "  -k  Disk size in KB\n" \
-           "  -z  Zip central directory" \
+           "  -z  Zip central directory\n" \
            "  -p  Encryption password\n");
+#ifdef _WIN32
+    printf("  -cp File names use custom code page\n");
+#endif
+
 #ifdef HAVE_AES
     printf("  -s  AES encryption\n" \
            "  -h  Certificate path\n" \
@@ -410,7 +420,11 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     mz_zip_reader_create(&reader);
     mz_zip_reader_set_pattern(reader, pattern, 1);
     mz_zip_reader_set_password(reader, password);
+#ifdef _WIN32
+    mz_zip_reader_set_legacy_encoding_codepage(reader, options->legacy_encoding, options->code_page);
+#else
     mz_zip_reader_set_legacy_encoding(reader, options->legacy_encoding);
+#endif
     mz_zip_reader_set_entry_cb(reader, options, minizip_extract_entry_cb);
     mz_zip_reader_set_progress_cb(reader, options, minizip_extract_progress_cb);
     mz_zip_reader_set_overwrite_cb(reader, options, minizip_extract_overwrite_cb);
@@ -611,7 +625,18 @@ int main(int argc, const char *argv[])
             }
 #endif
             else if ((c == 'c') || (c == 'C'))
+            {
                 options.legacy_encoding = 1;
+                if (argv[i][2]!=0 && (argv[i][2]=='p' || argv[i][2]=='P'))
+                {
+                    options.code_page = atoi(argv[i + 1]);
+                    i += 1;
+                }
+                else
+                {
+                    options.code_page = 437;
+                }
+            }
             else if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
             {
                 options.disk_size = (int64_t)atoi(argv[i + 1]) * 1024;
