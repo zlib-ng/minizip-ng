@@ -280,6 +280,7 @@ void mz_crypt_aes_delete(void **handle)
 }
 
 /***************************************************************************/
+
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined (LIBRESSL_VERSION_NUMBER)
 static HMAC_CTX *HMAC_CTX_new(void)
 {
