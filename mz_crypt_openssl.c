@@ -35,8 +35,10 @@ static void mz_crypt_init(void)
     if (openssl_initialized == 0)
     {
         OpenSSL_add_all_algorithms();
+
         ERR_load_BIO_strings();
         ERR_load_crypto_strings();
+
         openssl_initialized = 1;
     }
 }
@@ -359,6 +361,7 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     {
         if (digest_size < MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
+
         result = HMAC_Final(hmac->ctx, digest, (uint32_t *)&digest_size);
     }
     else
