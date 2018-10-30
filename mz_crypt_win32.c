@@ -613,9 +613,12 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
     if ((err == MZ_OK) && (cert_pwd != NULL))
     {
-        password_wide = mz_os_unicode_string_create(cert_pwd);
-        cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
-        mz_os_unicode_string_delete(&password_wide);
+        password_wide = mz_os_unicode_string_create(cert_pwd, MZ_ENCODING_UTF8);
+        if (password_wide)
+        {
+            cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
+            mz_os_unicode_string_delete(&password_wide);
+        }
     }
 
     if (cert_store == NULL)
