@@ -81,6 +81,9 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     if (path == NULL)
         return MZ_PARAM_ERROR;
 
+    // Some use cases require write sharing as well
+    share_mode |= FILE_SHARE_WRITE;
+
     if ((mode & MZ_OPEN_MODE_READWRITE) == MZ_OPEN_MODE_READ)
     {
         desired_access = GENERIC_READ;
