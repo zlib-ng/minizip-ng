@@ -68,7 +68,8 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 		const uint64_t x = *(const uint64_t *)(buf1 + len)
 				- *(const uint64_t *)(buf2 + len);
 		if (x != 0) {
-#	if defined(_M_X64) // MSVC or Intel C compiler on Windows
+#	if defined(_M_X64) && defined(_WIN32) \
+		&& (defined(_MSC_VER) || defined(__INTEL_COMPILER)) // MSVC or Intel C compiler on Windows
 			unsigned long tmp;
 			_BitScanForward64(&tmp, x);
 			len += (uint32_t)tmp >> 3;

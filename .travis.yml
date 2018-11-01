@@ -12,31 +12,31 @@ matrix:
           compiler: clang
           env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes" BUILDDIR="../build" 
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_ZLIB=OFF" TESTTOOL="--lzma --bzip --pkcrypt --wzaes" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_BZIP=OFF" TESTTOOL="--deflate --lzma --pkcrypt --wzaes" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_LZMA=OFF" TESTTOOL="--deflate --bzip --pkcrypt --wzaes" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_AES=OFF" TESTTOOL="--deflate --pkcrypt --zipcd" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_PKCRYPT=OFF" TESTTOOL="--deflate --wzaes" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DCOMPRESS_ONLY=ON" TESTTOOL="--deflate" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DDECOMPRESS_ONLY=ON" TESTTOOL="--deflate" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" TESTTOOL="--deflate --bzip --lzma" BUILDDIR="../build"
         - os: linux
-          compiler: clang 
+          compiler: clang
           env: TOOL="-DUSE_OPENSSL=ON" TESTTOOL="--deflate --pkcrypt --wzaes --sign" BUILDDIR="../build"
         - os: linux
           compiler: gcc
@@ -54,8 +54,8 @@ matrix:
           compiler: gcc
           env: TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes" BUILDDIR="../build"
         - os: osx
-          compiler: clang 
-          env: TOOL="-DUSE_OPENSSL=ON -DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" TESTTOOL="--deflate --pkcrypt --wzaes --sign" BUILDDIR="../build"
+          compiler: clang
+          env: TOOL="-DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" TESTTOOL="--deflate --pkcrypt --wzaes --sign" BUILDDIR="../build"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
@@ -63,7 +63,7 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; then brew install openssl; fi
     - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install python2; fi
     - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH="/c/Python27:$PATH"; fi
-    
+
 before_script:
     - mkdir build
     - cd build
