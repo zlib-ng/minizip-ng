@@ -324,12 +324,23 @@ void mz_crypt_hmac_reset(void *handle)
     hmac->error = 0;
 }
 
-int32_t mz_crypt_hmac_begin(void *handle)
+int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
+    const EVP_MD *evp_md = NULL;
 
-    if (hmac == NULL)
+    if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
+    
+    mz_crypt_hmac_reset(handle);
+
+    hmac->ctx = HMAC_CTX_new();
+    if (hmac->algorithm == MZ_HASH_SHA1)
+        evp_md = EVP_sha1();
+    else
+        evp_md = EVP_sha256();
+
+    HMAC_Init(hmac->ctx, key, key_length, evp_md);
 
     return MZ_OK;
 }
@@ -373,27 +384,6 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 
     if (!result)
         return MZ_HASH_ERROR;
-
-    return MZ_OK;
-}
-
-int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
-{
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    const EVP_MD *evp_md = NULL;
-
-    if (hmac == NULL || key == NULL)
-        return MZ_PARAM_ERROR;
-    
-    mz_crypt_hmac_reset(handle);
-
-    hmac->ctx = HMAC_CTX_new();
-    if (hmac->algorithm == MZ_HASH_SHA1)
-        evp_md = EVP_sha1();
-    else
-        evp_md = EVP_sha256();
-
-    HMAC_Init(hmac->ctx, key, key_length, evp_md);
 
     return MZ_OK;
 }

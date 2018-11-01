@@ -383,73 +383,7 @@ void mz_crypt_hmac_reset(void *handle)
     mz_crypt_hmac_free(handle);
 }
 
-int32_t mz_crypt_hmac_begin(void *handle)
-{
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
-    int32_t err = MZ_OK;
-
-    if (hmac == NULL || hmac->provider == 0)
-        return MZ_PARAM_ERROR;
-    result = CryptCreateHash(hmac->provider, CALG_HMAC, hmac->key, 0, &hmac->hash);
-    if (!result)
-    {
-        hmac->error = GetLastError();
-        err = MZ_HASH_ERROR;
-    }
-    if (result)
-    {
-        result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
-        if (!result)
-        {
-            hmac->error = GetLastError();
-            err = MZ_HASH_ERROR;
-        }
-    }
-    return err;
-}
-
-int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
-{
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
-
-    if (hmac == NULL || buf == NULL || hmac->hash == 0)
-        return MZ_PARAM_ERROR;
-
-    result = CryptHashData(hmac->hash, buf, size, 0);
-    if (!result)
-    {
-        hmac->error = GetLastError();
-        return MZ_HASH_ERROR;
-    }
-    return MZ_OK;
-}
-
-int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
-{
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    int32_t result = 0;
-    int32_t expected_size = 0;
-    int32_t err = MZ_OK;
-
-    if (hmac == NULL || digest == NULL || hmac->hash == 0)
-        return MZ_PARAM_ERROR;
-    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, &expected_size, 0);
-    if (expected_size > digest_size)
-        return MZ_BUF_ERROR;
-    if (!result)
-        return MZ_HASH_ERROR;
-    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, digest, &digest_size, 0);
-    if (!result)
-    {
-        hmac->error = GetLastError();
-        return MZ_HASH_ERROR;
-    }
-    return MZ_OK;
-}
-
-int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
+int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     HCRYPTHASH hash = 0;
@@ -499,6 +433,10 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
     memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
     
     result = CryptImportKey(hmac->provider, key_blob, key_blob_size, 0, CRYPT_IPSEC_HMAC_KEY, &hmac->key);
+    if (result)
+        result = CryptCreateHash(hmac->provider, CALG_HMAC, hmac->key, 0, &hmac->hash);
+    if (result)
+        result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
     if (!result)
     {
         hmac->error = GetLastError();
@@ -511,6 +449,46 @@ int32_t mz_crypt_hmac_set_key(void *handle, const void *key, int32_t key_length)
         mz_crypt_hmac_free(handle);
 
     return err;
+}
+
+int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
+{
+    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
+    int32_t result = 0;
+
+    if (hmac == NULL || buf == NULL || hmac->hash == 0)
+        return MZ_PARAM_ERROR;
+
+    result = CryptHashData(hmac->hash, buf, size, 0);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return MZ_OK;
+}
+
+int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
+{
+    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
+    int32_t result = 0;
+    int32_t expected_size = 0;
+    int32_t err = MZ_OK;
+
+    if (hmac == NULL || digest == NULL || hmac->hash == 0)
+        return MZ_PARAM_ERROR;
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, &expected_size, 0);
+    if (expected_size > digest_size)
+        return MZ_BUF_ERROR;
+    if (!result)
+        return MZ_HASH_ERROR;
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, digest, &digest_size, 0);
+    if (!result)
+    {
+        hmac->error = GetLastError();
+        return MZ_HASH_ERROR;
+    }
+    return MZ_OK;
 }
 
 void mz_crypt_hmac_set_algorithm(void *handle, uint16_t algorithm)

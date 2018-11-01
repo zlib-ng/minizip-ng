@@ -550,8 +550,7 @@ void test_crypt_hmac(void)
 
     mz_crypt_hmac_create(&hmac);
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
-    mz_crypt_hmac_set_key(hmac, key, key_length);
-    mz_crypt_hmac_begin(hmac);
+    mz_crypt_hmac_init(hmac, key, key_length);
     mz_crypt_hmac_update(hmac, test, test_length);
     mz_crypt_hmac_end(hmac, hash, sizeof(hash));
     mz_crypt_hmac_delete(&hmac);
@@ -568,8 +567,7 @@ void test_crypt_hmac(void)
 
     mz_crypt_hmac_create(&hmac);
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA256);
-    mz_crypt_hmac_set_key(hmac, key, key_length);
-    mz_crypt_hmac_begin(hmac);
+    mz_crypt_hmac_init(hmac, key, key_length);
     mz_crypt_hmac_update(hmac, test, test_length);
     mz_crypt_hmac_end(hmac, hash256, sizeof(hash256));
     mz_crypt_hmac_delete(&hmac);

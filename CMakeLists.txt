@@ -180,9 +180,7 @@ if(UNIX)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
     
     if ((USE_PKCRYPT OR USE_AES) AND (NOT USE_OPENSSL AND NOT OPENSSL_FOUND))
-        list(APPEND MINIZIP_SRC "mz_crypt_brg.c")
-
-        add_definitions(-DMZ_ZIP_NO_SIGNING)
+        set(USE_BRG TRUE)
 
         # Check to see which random generation functions we have 
         check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
@@ -213,28 +211,6 @@ if(UNIX)
                 endif()
             endif()
         endif()
-
-        set(BRG_SRC
-            lib/brg/aescrypt.c
-            lib/brg/aeskey.c
-            lib/brg/aestab.c
-            lib/brg/hmac.c
-            lib/brg/sha1.c
-            lib/brg/sha2.c)
-
-        set(BRG_PUBLIC_HEADERS
-            lib/brg/aes.h
-            lib/brg/aesopt.h
-            lib/brg/aestab.h
-            lib/brg/brg_endian.h
-            lib/brg/brg_types.h
-            lib/brg/hmac.h
-            lib/brg/sha1.h)
-
-        include_directories(lib/brg)
-
-        source_group("BRG" FILES ${BRG_SRC} ${BRG_PUBLIC_HEADERS})
-
     endif()
 
     # Setup and use large file macros if necessary
@@ -284,6 +260,34 @@ if(USE_AES)
 
     list(APPEND MINIZIP_SRC "mz_strm_wzaes.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_wzaes.h")
+endif()
+
+# Include BRG
+if(USE_BRG)
+    list(APPEND MINIZIP_SRC "mz_crypt_brg.c")
+
+    add_definitions(-DMZ_ZIP_NO_SIGNING)
+
+    set(BRG_SRC
+        lib/brg/aescrypt.c
+        lib/brg/aeskey.c
+        lib/brg/aestab.c
+        lib/brg/hmac.c
+        lib/brg/sha1.c
+        lib/brg/sha2.c)
+
+    set(BRG_PUBLIC_HEADERS
+        lib/brg/aes.h
+        lib/brg/aesopt.h
+        lib/brg/aestab.h
+        lib/brg/brg_endian.h
+        lib/brg/brg_types.h
+        lib/brg/hmac.h
+        lib/brg/sha1.h)
+
+    include_directories(lib/brg)
+
+    source_group("BRG" FILES ${BRG_SRC} ${BRG_PUBLIC_HEADERS})
 endif()
 
 # Include OpenSSL

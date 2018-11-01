@@ -25,13 +25,16 @@ extern "C" {
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
-#  else
+#  elif defined(MAX_MEM_LEVEL)
 #    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #  endif
 #endif
-#else
+#ifndef MAX_WBITS
 #define MAX_WBITS     (15)
+#endif
+#ifndef DEF_MEM_LEVEL
 #define DEF_MEM_LEVEL (8)
+#endif
 #endif
 
 #ifndef ZEXPORT

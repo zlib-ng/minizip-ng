@@ -97,12 +97,8 @@ int32_t mz_stream_wzaes_pbkdf2(uint8_t *password, int32_t password_length, uint8
     mz_crypt_hmac_set_algorithm(hmac2, MZ_HASH_SHA1);
     mz_crypt_hmac_set_algorithm(hmac3, MZ_HASH_SHA1);
 
-    err = mz_crypt_hmac_set_key(hmac1, password, password_length);
-    if (err == MZ_OK)
-        err = mz_crypt_hmac_begin(hmac1);
-    err = mz_crypt_hmac_set_key(hmac2, password, password_length);
-    if (err == MZ_OK)
-        err = mz_crypt_hmac_begin(hmac2);
+    err = mz_crypt_hmac_init(hmac1, password, password_length);
+    err = mz_crypt_hmac_init(hmac2, password, password_length);
     if (err == MZ_OK)
         err = mz_crypt_hmac_update(hmac2, salt, salt_length);
     
@@ -222,8 +218,7 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode)
     // Initialize for authentication using key 2
     mz_crypt_hmac_reset(wzaes->hmac);
     mz_crypt_hmac_set_algorithm(wzaes->hmac, MZ_HASH_SHA1);
-    mz_crypt_hmac_set_key(wzaes->hmac, kbuf + key_length, key_length);
-    mz_crypt_hmac_begin(wzaes->hmac);
+    mz_crypt_hmac_init(wzaes->hmac, kbuf + key_length, key_length);
 
     memcpy(verify, kbuf + (2 * key_length), MZ_AES_PW_VERIFY_SIZE);
 
