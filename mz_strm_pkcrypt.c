@@ -1,5 +1,5 @@
 /* mz_strm_pkcrypt.c -- Code for traditional PKWARE encryption
-   Version 2.7.0, October 28, 2018
+   Version 2.7.1, November 1, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
