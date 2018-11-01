@@ -21,11 +21,11 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) && defined(MAX_MEM_LEVEL)
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
-#  elif defined(MAX_MEM_LEVEL)
+#  else
 #    define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #  endif
 #endif
