@@ -485,7 +485,7 @@ void test_crypt_sha(void)
 void test_crypt_aes(void)
 {
     void *aes = NULL;
-    char *key = "awesomekey";
+    char *key = "awesomekeythisis";
     char *test = "youknowitsogrowi";
     int32_t key_length = 0;
     int32_t test_length = 0;
@@ -510,7 +510,7 @@ void test_crypt_aes(void)
 
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
-    mz_crypt_aes_set_key(aes, key, key_length);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     mz_crypt_aes_encrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
 
@@ -521,7 +521,7 @@ void test_crypt_aes(void)
 
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
-    mz_crypt_aes_set_key(aes, key, key_length);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     mz_crypt_aes_decrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
 

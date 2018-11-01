@@ -16,6 +16,7 @@ option(USE_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(USE_AES "Enables AES encryption" ON)
 option(USE_LIBCOMP "Enables Apple compression" OFF)
 option(USE_OPENSSL "Enables OpenSSL for encryption" OFF)
+option(USE_BRG "Enables Brian Gladman's encryption library" OFF)
 option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
@@ -163,8 +164,10 @@ endif()
 # Windows specific
 if(WIN32)
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
-    if ((USE_PKCRYPT OR USE_AES) AND (NOT USE_OPENSSL AND NOT OPENSSL_FOUND))
-        list(APPEND MINIZIP_SRC "mz_crypt_win32.c")
+    if (USE_PKCRYPT OR USE_AES)
+        if (NOT USE_OPENSSL AND NOT OPENSSL_FOUND AND NOT USE_BRG)
+            list(APPEND MINIZIP_SRC "mz_crypt_win32.c")
+        endif()
     endif()
 
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -283,7 +286,8 @@ if(USE_BRG)
         lib/brg/brg_endian.h
         lib/brg/brg_types.h
         lib/brg/hmac.h
-        lib/brg/sha1.h)
+        lib/brg/sha1.h
+        lib/brg/sha2.h)
 
     include_directories(lib/brg)
 

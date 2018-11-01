@@ -22,10 +22,8 @@
 
 /***************************************************************************/
 
-#define MZ_AES_KEY_LENGTH(mode)     (8 * (mode & 3) + 8)
-#define MZ_AES_KEY_LENGTH_MAX       (32)
 #define MZ_AES_KEYING_ITERATIONS    (1000)
-#define MZ_AES_SALT_LENGTH(mode)    (4 * (mode & 3) + 4)
+#define MZ_AES_SALT_LENGTH(MODE)    (4 * (MODE & 3) + 4)
 #define MZ_AES_SALT_LENGTH_MAX      (16)
 #define MZ_AES_PW_LENGTH_MAX        (128)
 #define MZ_AES_PW_VERIFY_SIZE       (2)
@@ -211,9 +209,8 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode)
 
     // Initialize for encryption using key 1
     mz_crypt_aes_reset(wzaes->aes);
-    mz_crypt_aes_set_algorithm(wzaes->aes, MZ_HASH_SHA1);
     mz_crypt_aes_set_mode(wzaes->aes, wzaes->encryption_mode);
-    mz_crypt_aes_set_key(wzaes->aes, kbuf, key_length);
+    mz_crypt_aes_set_encrypt_key(wzaes->aes, kbuf, key_length);
 
     // Initialize for authentication using key 2
     mz_crypt_hmac_reset(wzaes->hmac);

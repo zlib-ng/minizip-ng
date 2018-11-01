@@ -94,7 +94,10 @@ int32_t mz_crypt_sha_begin(void *handle)
         result = SHA256_Init(&sha->ctx256);
 
     if (!result)
+    {
+        sha->error = ERR_get_error();
         return MZ_HASH_ERROR;
+    }
 
     sha->initialized = 1;
     return MZ_OK;
@@ -103,14 +106,21 @@ int32_t mz_crypt_sha_begin(void *handle)
 int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size)
 {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
+    int32_t result = 0;
 
     if (sha == NULL || buf == NULL || !sha->initialized)
         return MZ_PARAM_ERROR;
 
     if (sha->algorithm == MZ_HASH_SHA1)
-        SHA1_Update(&sha->ctx1, buf, size);
+        result = SHA1_Update(&sha->ctx1, buf, size);
     else
-        SHA256_Update(&sha->ctx256, buf, size);
+        result = SHA256_Update(&sha->ctx256, buf, size);
+
+    if (!result)
+    {
+        sha->error = ERR_get_error();
+        return MZ_HASH_ERROR;
+    }
 
     return size;
 }
@@ -137,7 +147,10 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
     }
 
     if (!result)
+    {
+        sha->error = ERR_get_error();
         return MZ_HASH_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -184,7 +197,8 @@ typedef struct mz_crypt_aes_s {
     AES_KEY    key;
     int32_t    mode;
     int32_t    error;
-    uint16_t   algorithm;
+    uint8_t    *key_copy;
+    int32_t    key_length;
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -221,10 +235,11 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size)
     return size;
 }
 
-int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length)
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
+    int32_t key_bits = 0;
 
 
     if (aes == NULL || key == NULL)
@@ -232,10 +247,34 @@ int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length)
     
     mz_crypt_aes_reset(handle);
 
-    result = AES_set_encrypt_key(key, key_length, &aes->key);
-    if (!result)
+    key_bits = key_length * 8;
+    result = AES_set_encrypt_key(key, key_bits, &aes->key);
+    if (result)
     {
-        aes->error = result;
+        aes->error = ERR_get_error();
+        return MZ_HASH_ERROR;
+    }
+
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length)
+{
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    int32_t result = 0;
+    int32_t key_bits = 0;
+
+
+    if (aes == NULL || key == NULL)
+        return MZ_PARAM_ERROR;
+    
+    mz_crypt_aes_reset(handle);
+
+    key_bits = key_length * 8;
+    result = AES_set_decrypt_key(key, key_bits, &aes->key);
+    if (result)
+    {
+        aes->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
 
@@ -248,22 +287,13 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode)
     aes->mode = mode;
 }
 
-void mz_crypt_aes_set_algorithm(void *handle, uint16_t algorithm)
-{
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    aes->algorithm = algorithm;
-}
-
 void *mz_crypt_aes_create(void **handle)
 {
     mz_crypt_aes *aes = NULL;
 
     aes = (mz_crypt_aes *)MZ_ALLOC(sizeof(mz_crypt_aes));
     if (aes != NULL)
-    {
-        aes->algorithm = MZ_HASH_SHA256;
         memset(aes, 0, sizeof(mz_crypt_aes));
-    }
     if (handle != NULL)
         *handle = aes;
 
@@ -327,6 +357,7 @@ void mz_crypt_hmac_reset(void *handle)
 int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
+    int32_t result = 0;
     const EVP_MD *evp_md = NULL;
 
     if (hmac == NULL || key == NULL)
@@ -340,7 +371,12 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
     else
         evp_md = EVP_sha256();
 
-    HMAC_Init(hmac->ctx, key, key_length, evp_md);
+    result = HMAC_Init(hmac->ctx, key, key_length, evp_md);
+    if (!result)
+    {
+        hmac->error = ERR_get_error();
+        return MZ_HASH_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -355,7 +391,10 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size)
 
     result = HMAC_Update(hmac->ctx, buf, size);
     if (!result)
+    {
+        hmac->error = ERR_get_error();
         return MZ_HASH_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -383,7 +422,10 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     }
 
     if (!result)
+    {
+        hmac->error = ERR_get_error();
         return MZ_HASH_ERROR;
+    }
 
     return MZ_OK;
 }
@@ -398,11 +440,18 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
 {
     mz_crypt_hmac *source = (mz_crypt_hmac *)src_handle;
     mz_crypt_hmac *target = (mz_crypt_hmac *)target_handle;
+    int32_t result = 0;
 
     if (source == NULL || target == NULL)
         return MZ_PARAM_ERROR;
 
-    HMAC_CTX_copy(target->ctx, source->ctx);
+    result = HMAC_CTX_copy(target->ctx, source->ctx);
+    if (!result)
+    {
+        target->error = ERR_get_error();
+        return MZ_HASH_ERROR;
+    }
+
     return MZ_OK;
 }
 

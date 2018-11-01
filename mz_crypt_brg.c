@@ -79,7 +79,7 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size)
 }
 #else
 #if !defined(FORCE_LOWQUALITY_ENTROPY)
-#error "Low quality entropy function used for encryption"
+#pragma message("Warning: Low quality entropy function used for encryption")
 #endif
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size)
 {
@@ -93,7 +93,6 @@ typedef struct mz_crypt_sha_s {
     sha256_ctx ctx256;
     sha1_ctx   ctx1;
     int32_t    initialized;
-    int32_t    error;
     uint16_t   algorithm;
 } mz_crypt_sha;
 
@@ -102,7 +101,6 @@ typedef struct mz_crypt_sha_s {
 void mz_crypt_sha_reset(void *handle)
 {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
-    sha->error = 0;
     sha->initialized = 0;
 }
 
@@ -203,7 +201,6 @@ typedef struct mz_crypt_aes_s {
     aes_decrypt_ctx decrypt_ctx;
     int32_t         mode;
     int32_t         error;
-    uint16_t        algorithm;
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -222,7 +219,9 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size)
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-    aes_encrypt(buf, buf, &aes->encrypt_ctx);
+    aes->error = aes_encrypt(buf, buf, &aes->encrypt_ctx);
+    if (aes->error)
+        return MZ_CRYPT_ERROR;
     return size;
 }
 
@@ -234,14 +233,15 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size)
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-    aes_decrypt(buf, buf, &aes->decrypt_ctx);
+    aes->error = aes_decrypt(buf, buf, &aes->decrypt_ctx);
+    if (aes->error)
+        return MZ_CRYPT_ERROR;
     return size;
 }
 
-int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length)
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t result = 0;
 
 
     if (aes == NULL || key == NULL)
@@ -249,18 +249,26 @@ int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length)
     
     mz_crypt_aes_reset(handle);
 
-    result = aes_encrypt_key(key, key_length, &aes->encrypt_ctx);
-    if (!result)
-    {
-        aes->error = result;
+    aes->error = aes_encrypt_key(key, key_length, &aes->encrypt_ctx);
+    if (aes->error)
         return MZ_HASH_ERROR;
-    }
-    result = aes_decrypt_key(key, key_length, &aes->decrypt_ctx);
-    if (!result)
-    {
-        aes->error = result;
+
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length)
+{
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+
+
+    if (aes == NULL || key == NULL)
+        return MZ_PARAM_ERROR;
+    
+    mz_crypt_aes_reset(handle);
+
+    aes->error = aes_decrypt_key(key, key_length, &aes->decrypt_ctx);
+    if (aes->error)
         return MZ_HASH_ERROR;
-    }
 
     return MZ_OK;
 }
@@ -271,22 +279,13 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode)
     aes->mode = mode;
 }
 
-void mz_crypt_aes_set_algorithm(void *handle, uint16_t algorithm)
-{
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    aes->algorithm = algorithm;
-}
-
 void *mz_crypt_aes_create(void **handle)
 {
     mz_crypt_aes *aes = NULL;
 
     aes = (mz_crypt_aes *)MZ_ALLOC(sizeof(mz_crypt_aes));
     if (aes != NULL)
-    {
-        aes->algorithm = MZ_HASH_SHA256;
         memset(aes, 0, sizeof(mz_crypt_aes));
-    }
     if (handle != NULL)
         *handle = aes;
 
@@ -329,14 +328,14 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(handle);
-
+    
     if (hmac->algorithm == MZ_HASH_SHA1)
         hmac_sha_begin(HMAC_SHA1, &hmac->ctx);
     else
         hmac_sha_begin(HMAC_SHA256, &hmac->ctx);
     
     hmac_sha_key(key, key_length, &hmac->ctx);
-
+    
     return MZ_OK;
 }
 
