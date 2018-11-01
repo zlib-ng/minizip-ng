@@ -183,8 +183,13 @@ if(UNIX)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
     
     if ((USE_PKCRYPT OR USE_AES) AND (NOT USE_OPENSSL AND NOT OPENSSL_FOUND))
-        set(USE_BRG TRUE)
-
+        
+        if (APPLE AND NOT USE_BRG)
+            list(APPEND MINIZIP_SRC "mz_crypt_apple.c")
+        else()
+            set(USE_BRG TRUE)
+        endif()
+        
         # Check to see which random generation functions we have 
         check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
         if (HAVE_GETRANDOM)
@@ -238,7 +243,6 @@ if(UNIX)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
         include_directories(${Iconv_INCLUDE_DIRS})
-        link_directories(${Iconv_LIBRARIES})
     endif()
 
 endif()
@@ -521,10 +525,15 @@ if(Iconv_FOUND AND NOT Iconv_IS_BUILT_IN)
 endif()
 if(USE_OPENSSL AND OPENSSL_FOUND)
     target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES})
+elif(UNIX)
+    if(APPLE AND NOT USE_BRG)
+        target_link_libraries(${PROJECT_NAME} "-framework Security")
+        set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
+    else()
+        target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
+    endif()
 endif()
-if(UNIX)
-    target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
-endif()
+
 
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>)
 
