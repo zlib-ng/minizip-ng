@@ -6,11 +6,15 @@ minizip is a zip manipulation library written in C that is supported on Windows,
 
 Maintained by Nathan Moinvaziri.
 
-## Fork Motivation and History
+## Branches
 
-This library is a complete refactoring of the minizip contribution found in the zlib
-distribution. The motivation for this fork has been the inclusion of advanced features, 
-improvements in code maintainability and readability, and the reduction of duplicate code.
+| Name | State | Version | Description | Travis CI |
+|:- |:-:|:-:|:-|:-:|
+|[master](https://github.com/nmoinvaz/minizip/tree/master)|Active|2.x|Modern refactoring of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code.|[![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)|
+|[dev](https://github.com/nmoinvaz/minizip/tree/dev)|Active|2.x|Latest development code|[![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)|
+|[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|Stale| 1.x|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.||
+
+## History
 
 Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) and 
 had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
@@ -18,13 +22,10 @@ original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) p
 
 In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
 Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting, 
-I/O buffering, and AES encryption. My continued work on the project necessitated setting up a public 
+I/O buffering, and WinZip AES encryption. My continued work on the project necessitated setting up a public 
 repository so I could share these and other improvements with the rest of the world. I have been maintaining 
-and actively developing this fork of the project ever since. In 2017, I refactored and rewrote most of 
-library as it had become difficult to maintain and code readability had suffered over the years.
-
-Dev: [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)
-Master: [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)
+and actively developing this fork of the library ever since. In 2017, I refactored and rewrote most of 
+the code as version 2 because it had become difficult to maintain and code readability had suffered over the years.
 
 ## Features
 
