@@ -1402,6 +1402,9 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
     const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
+    void *cert_stream = NULL;
+    uint8_t *cert_data = NULL;
+    int32_t cert_data_size = 0;
     int32_t err = MZ_OK;
     int32_t signature_size = 0;
     uint8_t *signature = NULL;
@@ -1417,10 +1420,31 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
     if (cert_path == NULL)
         return MZ_PARAM_ERROR;
 
+    cert_data_size = (int32_t)mz_os_get_file_size(cert_path);
+    if (cert_data_size == 0)
+        return MZ_PARAM_ERROR;
+
+    cert_data = (uint8_t *)MZ_ALLOC(cert_data_size);
+
+    // Read pkcs12 certificate from disk
+    mz_stream_os_create(&cert_stream);
+    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
     if (err == MZ_OK)
     {
-        err = mz_crypt_sign(message, message_size, cert_path, cert_pwd, &signature, &signature_size);
+        if (mz_stream_os_read(cert_stream, cert_data, cert_data_size) != cert_data_size)
+            err = MZ_READ_ERROR;
+        mz_stream_os_close(cert_stream);
     }
+    mz_stream_os_delete(&cert_stream);
+
+    if (err == MZ_OK)
+    {
+        // Sign message with certificate
+        err = mz_crypt_sign(message, message_size, cert_data, cert_data_size, cert_pwd, 
+            &signature, &signature_size);
+    }
+
+    MZ_FREE(cert_data);
 
     if ((err == MZ_OK) && (signature != NULL))
     {

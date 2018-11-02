@@ -541,57 +541,35 @@ void mz_crypt_hmac_delete(void **handle)
 
 /***************************************************************************/
 
-int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
-    uint8_t **signature, int32_t *signature_size)
+int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size, 
+    const char *cert_pwd, uint8_t **signature, int32_t *signature_size)
 {
     CRYPT_SIGN_MESSAGE_PARA sign_params;
     CRYPT_DATA_BLOB cert_data_blob;
     PCCERT_CONTEXT cert_context = NULL;
     HCERTSTORE cert_store = 0;
-    void *cert_stream = NULL;
     wchar_t *password_wide = NULL;
     int32_t result = 0;
     int32_t err = MZ_OK;
-    int32_t cert_size = 0;
-    uint8_t *cert_data = NULL;
     uint32_t key_spec = 0;
     uint32_t messages_sizes[1];
     uint8_t *messages[1];
 
 
-    if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
+    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
     *signature = NULL;
     *signature_size = 0;
 
-    cert_size = (int32_t)mz_os_get_file_size(cert_path);
-    if (cert_size == 0)
-        return MZ_PARAM_ERROR;
-
-    cert_data = (uint8_t *)MZ_ALLOC(cert_size);
-
-    mz_stream_os_create(&cert_stream);
-    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
-    if (err == MZ_OK)
-    {
-        if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
-            err = MZ_READ_ERROR;
-        mz_stream_os_close(cert_stream);
-    }
-    mz_stream_os_delete(&cert_stream);
-
     cert_data_blob.pbData = cert_data;
-    cert_data_blob.cbData = cert_size;
+    cert_data_blob.cbData = cert_data_size;
 
-    if ((err == MZ_OK) && (cert_pwd != NULL))
+    password_wide = mz_os_unicode_string_create(cert_pwd, MZ_ENCODING_UTF8);
+    if (password_wide)
     {
-        password_wide = mz_os_unicode_string_create(cert_pwd, MZ_ENCODING_UTF8);
-        if (password_wide)
-        {
-            cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
-            mz_os_unicode_string_delete(&password_wide);
-        }
+        cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
+        mz_os_unicode_string_delete(&password_wide);
     }
 
     if (cert_store == NULL)
@@ -599,9 +577,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     if (cert_store == NULL)
         cert_store = PFXImportCertStore(&cert_data_blob, NULL, 0);
     if (cert_store == NULL)
-        err = MZ_PARAM_ERROR;
-
-    MZ_FREE(cert_data);
+        return MZ_PARAM_ERROR;
 
     if (err == MZ_OK)
     {

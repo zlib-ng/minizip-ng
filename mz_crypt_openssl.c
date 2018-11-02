@@ -487,8 +487,8 @@ void mz_crypt_hmac_delete(void **handle)
 
 /***************************************************************************/
 
-int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
-    uint8_t **signature, int32_t *signature_size)
+int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size, 
+    const char *cert_pwd, uint8_t **signature, int32_t *signature_size)
 {
     PKCS12 *p12 = NULL;
     EVP_PKEY *evp_pkey = NULL;
@@ -499,12 +499,9 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     CMS_ContentInfo *cms = NULL;
     CMS_SignerInfo *signer_info = NULL;
     STACK_OF(X509) *ca_stack = NULL;
-    void *cert_stream = NULL;
     X509 *cert = NULL;
     int32_t result = 0;
     int32_t err = MZ_OK;
-    int32_t cert_size = 0;
-    uint8_t *cert_data = NULL;
 
 
     if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
@@ -515,23 +512,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     *signature = NULL;
     *signature_size = 0;
 
-    cert_size = (int32_t)mz_os_get_file_size(cert_path);
-    if (cert_size == 0)
-        return MZ_PARAM_ERROR;
-
-    cert_data = (uint8_t *)MZ_ALLOC(cert_size);
-
-    mz_stream_os_create(&cert_stream);
-    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
-    if (err == MZ_OK)
-    {
-        if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
-            err = MZ_READ_ERROR;
-        mz_stream_os_close(cert_stream);
-    }
-    mz_stream_os_delete(&cert_stream);
-
-    cert_bio = BIO_new_mem_buf(cert_data, cert_size);
+    cert_bio = BIO_new_mem_buf(cert_data, cert_data_size);
 
     if (d2i_PKCS12_bio(cert_bio, &p12) == NULL)
         err = MZ_SIGN_ERROR;
@@ -586,8 +567,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
         BIO_free(message_bio);
     if (p12)
         PKCS12_free(p12);
-    if (cert_data)
-        MZ_FREE(cert_data);
 
     if (err != MZ_OK && *signature != NULL)
     {
