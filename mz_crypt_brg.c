@@ -425,7 +425,8 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
 {
     MZ_UNUSED(message);
     MZ_UNUSED(message_size);
-    MZ_UNUSED(cert_path);
+    MZ_UNUSED(cert_data);
+    MZ_UNUSED(cert_data_size);
     MZ_UNUSED(cert_pwd);
     MZ_UNUSED(signature);
     MZ_UNUSED(signature_size);
