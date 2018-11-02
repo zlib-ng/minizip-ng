@@ -610,7 +610,9 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     BIO *message_bio = NULL;
     BIO *signature_bio = NULL;
     BUF_MEM *buf_mem = NULL;
+    int32_t signer_count = 0;
     int32_t result = 0;
+    int32_t i = 0;
     int32_t err = MZ_SIGN_ERROR;
 
 
@@ -652,20 +654,22 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         if (intercerts)
         {
             // Verify signer certificates
-            for (int i = 0; i < sk_X509_num(signers); i++)
+            if (signer_count > 0)
+                err = MZ_OK;
+
+            for (i = 0; i < sk_X509_num(signers); i++)
             {
                 store_ctx = X509_STORE_CTX_new();
-
                 X509_STORE_CTX_init(store_ctx, cert_store, sk_X509_value(signers, i), intercerts);
-
                 result = X509_verify_cert(store_ctx);
-                if (result)
-                    err = MZ_OK;
-                else
-                    err = MZ_SIGN_ERROR;
-
                 if (store_ctx)
                     X509_STORE_CTX_free(store_ctx);
+
+                if (!result)
+                {
+                    err = MZ_SIGN_ERROR;
+                    break;
+                }
             }
         }
 
