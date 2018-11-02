@@ -525,15 +525,16 @@ if(Iconv_FOUND AND NOT Iconv_IS_BUILT_IN)
 endif()
 if(USE_OPENSSL AND OPENSSL_FOUND)
     target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES})
-elif(UNIX)
+elseif(UNIX)
     if(APPLE AND NOT USE_BRG)
+        message(STATUS "Using Security Framework")
+        target_link_libraries(${PROJECT_NAME} "-framework CoreFoundation")
         target_link_libraries(${PROJECT_NAME} "-framework Security")
         set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
     else()
         target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
     endif()
 endif()
-
 
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>)
 

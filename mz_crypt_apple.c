@@ -13,10 +13,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <CoreFoundation/CoreFoundation.h>
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonDigest.h>
 #include <CommonCrypto/CommonHMAC.h>
 #include <CommonCrypto/CommonRandom.h>
+#include <Security/Security.h>
 
 #include "mz.h"
 
@@ -408,10 +410,98 @@ void mz_crypt_hmac_delete(void **handle)
 
 /***************************************************************************/
 
+
+
 int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_path, const char *cert_pwd,
     uint8_t **signature, int32_t *signature_size)
 {
-    return MZ_CRYPT_ERROR;
+    CFStringRef password_ref = NULL;
+    CFDictionaryRef options_dict = NULL;
+    CFDictionaryRef identity_trust = NULL;
+    CFDataRef signature_out = NULL;
+    CFDataRef pkcs12_data = NULL;
+    CFArrayRef items = 0;
+    SecIdentityRef identity = NULL;
+    SecTrustRef trust = NULL;
+    OSStatus status = 0;
+    const void *options_key[2] = { kSecImportExportPassphrase, kSecReturnRef };
+    const void *options_values[2] = { 0, kCFBooleanTrue };
+    void *cert_stream = NULL;
+    int32_t cert_size = 0;
+    uint8_t *cert_data = NULL;
+    int32_t err = MZ_OK;
+    
+    
+    if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
+        return MZ_PARAM_ERROR;
+    
+    *signature = NULL;
+    *signature_size = 0;
+    
+    cert_size = (int32_t)mz_os_get_file_size(cert_path);
+    if (cert_size == 0)
+        return MZ_PARAM_ERROR;
+
+    cert_data = (uint8_t *)MZ_ALLOC(cert_size);
+    
+    mz_stream_os_create(&cert_stream);
+    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
+    if (err == MZ_OK)
+    {
+        if (mz_stream_os_read(cert_stream, cert_data, cert_size) != cert_size)
+            err = MZ_READ_ERROR;
+        mz_stream_os_close(cert_stream);
+    }
+    mz_stream_os_delete(&cert_stream);
+
+    if (err == MZ_OK)
+    {
+        err = MZ_CRYPT_ERROR;
+        
+        password_ref = CFStringCreateWithCString(0, cert_pwd, kCFStringEncodingUTF8);
+        options_values[0] = password_ref;
+        
+        options_dict = CFDictionaryCreate(0, options_key, options_values, 2, 0, 0);
+        if (options_dict)
+            pkcs12_data = CFDataCreate(0, cert_data, cert_size);
+        if (pkcs12_data)
+            status = SecPKCS12Import(pkcs12_data, options_dict, &items);
+        if (status == noErr)
+            identity_trust = CFArrayGetValueAtIndex(items, 0);
+        if (identity_trust)
+            identity = (SecIdentityRef)CFDictionaryGetValue(identity_trust, kSecImportItemIdentity);
+        if (identity)
+            trust = (SecTrustRef)CFDictionaryGetValue(identity_trust, kSecImportItemTrust);
+        if (trust)
+        {
+            status = CMSEncodeContent(identity, NULL, NULL, FALSE, 0, message, message_size, &signature_out);
+            
+            if (status == noErr)
+            {
+                *signature_size = CFDataGetLength(signature_out);
+                *signature = (uint8_t *)MZ_ALLOC(*signature_size);
+                
+                memcpy(*signature, CFDataGetBytePtr(signature_out), *signature_size);
+                
+                err = MZ_OK;
+            }
+        }
+    }
+    
+    MZ_FREE(cert_data);
+    
+    if (signature_out)
+        CFRelease(signature_out);
+    if (items)
+        CFRelease(items);
+    if (pkcs12_data)
+        CFRelease(pkcs12_data);
+    if (options_dict)
+        CFRelease(options_dict);
+    if (password_ref)
+        CFRelease(password_ref);
+
+    return err;
 }
 
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
