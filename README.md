@@ -76,6 +76,7 @@ cmake --build .
 | USE_AES | Enables WinZIP AES encryption | ON |
 | USE_LIBCOMP | Enables Apple compression | OFF |
 | USE_OPENSSL | Enables OpenSSL encryption | OFF |
+| USE_BRG | Enables Brian Gladman's library | OFF |
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
