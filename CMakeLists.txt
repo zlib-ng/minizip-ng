@@ -58,7 +58,14 @@ if(USE_ZLIB)
         include_directories(${ZLIB_INCLUDE_DIRS})
         add_definitions(-DHAVE_ZLIB)
     else()
-        message(STATUS "Using external ZLIB")
+        if (NOT ZLIB_TAG)
+            set(ZLIB_TAG master)
+        endif()
+        if (NOT ZLIB_REPOSITORY)
+            set(ZLIB_REPOSITORY https://github.com/madler/zlib)
+        endif()
+
+        message(STATUS "Using ZLIB ${ZLIB_REPOSITORY} ${ZLIB_TAG}")
 
         set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib/zlib)
         set(ZLIB_INSTALL_DIR ${ZLIB_SOURCE_DIR}/install)
@@ -82,11 +89,11 @@ if(USE_ZLIB)
             set(ZLIB_LIBRARIES
                 ${ZLIB_INSTALL_DIR}/lib/libz.a)
         endif()
-
+        
         ExternalProject_Add(zlib
             PREFIX zlib
-            GIT_REPOSITORY https://github.com/madler/zlib
-            GIT_TAG master
+            GIT_REPOSITORY ${ZLIB_REPOSITORY}
+            GIT_TAG ${ZLIB_TAG}
             SOURCE_DIR ${ZLIB_SOURCE_DIR}
             BUILD_IN_SOURCE 1
             INSTALL_DIR ${ZLIB_INSTALL_DIR}
