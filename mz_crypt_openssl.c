@@ -504,7 +504,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     int32_t err = MZ_OK;
 
 
-    if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
+    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
     mz_crypt_init();
