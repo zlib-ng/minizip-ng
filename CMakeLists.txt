@@ -68,9 +68,9 @@ if(USE_ZLIB)
         message(STATUS "Using ZLIB ${ZLIB_REPOSITORY} ${ZLIB_TAG}")
 
         set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib/zlib)
-        set(ZLIB_INSTALL_DIR ${ZLIB_SOURCE_DIR}/install)
+        set(ZLIB_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install/zlib)
         set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL_DIR}/include)
-        
+
         if(WIN32)
             if(${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
                 set(ZLIB_LIBRARIES
@@ -100,6 +100,7 @@ if(USE_ZLIB)
             BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}
+                -DZLIB_COMPAT:STRING=ON
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
