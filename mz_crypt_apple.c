@@ -423,7 +423,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
     CFArrayRef items = 0;
     SecIdentityRef identity = NULL;
     SecTrustRef trust = NULL;
-    OSStatus status = 0;
+    OSStatus status = noErr;
     const void *options_key[2] = { kSecImportExportPassphrase, kSecReturnRef };
     const void *options_values[2] = { 0, kCFBooleanTrue };
     void *cert_stream = NULL;
@@ -456,7 +456,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
     if (err == MZ_OK)
     {
-        err = MZ_CRYPT_ERROR;
+        err = MZ_SIGN_ERROR;
         
         password_ref = CFStringCreateWithCString(0, cert_pwd, kCFStringEncodingUTF8);
         options_values[0] = password_ref;
@@ -476,7 +476,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
         {
             status = CMSEncodeContent(identity, NULL, NULL, FALSE, 0, message, message_size, &signature_out);
             
-            if (status == noErr)
+            if (status == errSecSuccess)
             {
                 *signature_size = CFDataGetLength(signature_out);
                 *signature = (uint8_t *)MZ_ALLOC(*signature_size);
@@ -503,8 +503,60 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, const char *cert_p
 
     return err;
 }
-
+#include <Security/SecPolicy.h>
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
-    return MZ_CRYPT_ERROR;
+    CMSDecoderRef decoder = NULL;
+    CMSSignerStatus signer_status = 0;
+    CFDataRef message_out = NULL;
+    SecTrustRef trust = NULL;
+    SecPolicyRef trust_policy = NULL;
+    OSStatus status = noErr;
+    OSStatus verify_status = noErr;
+    size_t signer_count = 0;
+    int32_t i = 0;
+    int32_t err = MZ_SIGN_ERROR;
+    SecTrustOptionFlags TrustOptions = kSecTrustOptionAllowExpired|kSecTrustOptionLeafIsCA|kSecTrustOptionAllowExpiredRoot;
+    if (message == NULL || signature == NULL)
+        return MZ_PARAM_ERROR;
+    
+    status = CMSDecoderCreate(&decoder);
+    if (status == errSecSuccess)
+        status = CMSDecoderUpdateMessage(decoder, signature, signature_size);
+    if (status == errSecSuccess)
+        status = CMSDecoderFinalizeMessage(decoder);
+    if (status == errSecSuccess)
+        trust_policy = SecPolicyCreateBasicX509();
+
+    if (status == errSecSuccess && trust_policy)
+    {
+        CMSDecoderGetNumSigners(decoder, &signer_count);
+        if (signer_count > 0)
+            err = MZ_OK;
+        for (i = 0; i < signer_count; i += 1)
+        {
+            status = CMSDecoderCopySignerStatus(decoder, i, trust_policy, TRUE, &signer_status, NULL, &verify_status);
+            if (status != errSecSuccess || verify_status != 0 || signer_status != kCMSSignerValid)
+            {
+                err = MZ_SIGN_ERROR;
+                break;
+            }
+        }
+    }
+    
+    if (err == MZ_OK)
+    {
+        status = CMSDecoderCopyContent(decoder, &message_out);
+        if ((status != errSecSuccess) ||
+            (CFDataGetLength(message_out) != message_size) ||
+            (memcmp(message, CFDataGetBytePtr(message_out), message_size) != 0))
+            err = MZ_SIGN_ERROR;
+    }
+    
+    if (trust_policy)
+        CFRelease(trust_policy);
+    if (decoder)
+        CFRelease(decoder);
+    
+    return err;
 }
