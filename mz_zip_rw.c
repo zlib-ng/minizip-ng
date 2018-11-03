@@ -1345,10 +1345,6 @@ int32_t mz_zip_writer_entry_close(void *handle)
         mz_stream_mem_create(&writer->file_extra_stream);
         mz_stream_mem_open(writer->file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-        if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
-            mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield,
-                writer->file_info.extrafield_size);
-
         // Write sha256 hash to extrafield
         field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
         err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
@@ -1367,6 +1363,10 @@ int32_t mz_zip_writer_entry_close(void *handle)
             err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), 
                 writer->cert_path, writer->cert_pwd);
 #endif
+
+        if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
+            mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield,
+                writer->file_info.extrafield_size);
 
         // Update extra field for central directory after adding extra fields
         mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&extrafield);
