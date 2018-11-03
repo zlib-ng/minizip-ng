@@ -49,7 +49,6 @@ the code as version 2 because it had become difficult to maintain and code reada
 + Zero out local file header information.
 + Zip/unzip of central directory to reduce size.
 + Ability to generate and verify CMS signature for each entry.
-+ Compatibility interface for older versions of minizip.
 + Example minizip command line tool.
 
 ## Build
