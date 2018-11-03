@@ -428,7 +428,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     int32_t err = MZ_SIGN_ERROR;
     
     
-    if (message == NULL || cert_path == NULL || signature == NULL || signature_size == NULL)
+    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
     
     *signature = NULL;
@@ -439,7 +439,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
         
     options_dict = CFDictionaryCreate(0, options_key, options_values, 2, 0, 0);
     if (options_dict)
-        pkcs12_data = CFDataCreate(0, cert_data, cert_size);
+        pkcs12_data = CFDataCreate(0, cert_data, cert_data_size);
     if (pkcs12_data)
         status = SecPKCS12Import(pkcs12_data, options_dict, &items);
     if (status == noErr)
