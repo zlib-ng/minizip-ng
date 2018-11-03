@@ -186,28 +186,6 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
     add_definitions(-DMZ_WINRT_API)
 endif()
 
-# Create compatibility headers
-if (USE_COMPAT)
-    set(COMPAT_HEADER "\
-/* file.h -- Compatibility layer shim\n\
-   part of the MiniZip project\n\n\
-   This program is distributed under the terms of the same license as zlib.\n\
-   See the accompanying LICENSE file for the full text of the license.\n\
-*/\n\n\
-#ifndef MZ_COMPAT_FILE\n\
-#define MZ_COMPAT_FILE\n\
-#include \"mz_compat.h\"\n\
-#endif\n")
-    string(REPLACE "file.h" "zip.h" ZIP_COMPAT_HEADER ${COMPAT_HEADER})
-    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_ZIP" ZIP_COMPAT_HEADER ${ZIP_COMPAT_HEADER})
-    file(WRITE "zip.h" ${ZIP_COMPAT_HEADER})
-    list(APPEND MINIZIP_PUBLIC_HEADERS "zip.h") 
-    string(REPLACE "file.h" "unzip.h" UNZIP_COMPAT_HEADER ${COMPAT_HEADER})
-    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
-    file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
-    list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
-endif()
-
 # Unix specific
 if(UNIX)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
@@ -281,6 +259,27 @@ endif()
 if(USE_COMPAT)
     list(APPEND MINIZIP_SRC "mz_compat.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_compat.h")
+
+    set(COMPAT_HEADER "\
+/* file.h -- Compatibility layer shim\n\
+   part of the MiniZip project\n\n\
+   This program is distributed under the terms of the same license as zlib.\n\
+   See the accompanying LICENSE file for the full text of the license.\n\
+*/\n\n\
+#ifndef MZ_COMPAT_FILE\n\
+#define MZ_COMPAT_FILE\n\
+#include \"mz_compat.h\"\n\
+#endif\n")
+
+    string(REPLACE "file.h" "zip.h" ZIP_COMPAT_HEADER ${COMPAT_HEADER})
+    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_ZIP" ZIP_COMPAT_HEADER ${ZIP_COMPAT_HEADER})
+    file(WRITE "zip.h" ${ZIP_COMPAT_HEADER})
+    list(APPEND MINIZIP_PUBLIC_HEADERS "zip.h") 
+
+    string(REPLACE "file.h" "unzip.h" UNZIP_COMPAT_HEADER ${COMPAT_HEADER})
+    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
+    file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
+    list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
 endif()
 
 # Include PKCRYPT
