@@ -28,22 +28,18 @@
 /***************************************************************************/
 
 typedef struct minizip_opt_s {
-    uint8_t include_path;
-    int16_t compress_level;
-    uint8_t compress_method;
-    uint8_t overwrite;
-    uint8_t append;
-    int64_t disk_size;
-    uint8_t zip_cd;
-    int32_t encoding;
-    uint8_t verbose;
-#ifdef HAVE_AES
-    uint8_t aes;
-#endif
-#ifndef MZ_ZIP_NO_SIGNING
+    uint8_t     include_path;
+    int16_t     compress_level;
+    uint8_t     compress_method;
+    uint8_t     overwrite;
+    uint8_t     append;
+    int64_t     disk_size;
+    uint8_t     zip_cd;
+    int32_t     encoding;
+    uint8_t     verbose;
+    uint8_t     aes;
     const char *cert_path;
     const char *cert_pwd;
-#endif
 } minizip_opt;
 
 /***************************************************************************/
