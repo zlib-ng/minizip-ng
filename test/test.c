@@ -9,7 +9,7 @@
 #include "mz_crypt.h"
 #include "mz_os.h"
 #include "mz_strm.h"
-#ifdef HAVE_BZIP
+#ifdef HAVE_BZIP2
 #include "mz_strm_bzip.h"
 #endif
 #ifdef HAVE_PKCRYPT
@@ -257,7 +257,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
 /***************************************************************************/
 
-#ifdef HAVE_BZIP
+#ifdef HAVE_BZIP2
 void test_stream_bzip(void)
 {
     test_compress("bzip", mz_stream_bzip_create);

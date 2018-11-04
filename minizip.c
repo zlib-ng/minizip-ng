@@ -86,19 +86,12 @@ int32_t minizip_help(void)
            "  -9  Compress better\n" \
            "  -k  Disk size in KB\n" \
            "  -z  Zip central directory\n" \
-           "  -p  Encryption password\n");
-#ifdef HAVE_AES
-    printf("  -s  AES encryption\n" \
-           "  -h  Certificate path\n" \
-           "  -w  Certificate password\n");
-#endif
-#ifdef HAVE_BZIP2
-    printf("  -b  BZIP2 compression\n");
-#endif
-#ifdef HAVE_LZMA
-    printf("  -m  LZMA compression\n");
-#endif
-    printf("\n");
+           "  -p  Encryption password\n" \
+           "  -s  AES encryption\n" \
+           "  -h  Pkcs12 certificate path\n" \
+           "  -w  Pkcs12 certificate password\n" \
+           "  -b  BZIP2 compression\n" \
+           "  -m  LZMA compression\n\n");
     return MZ_OK;
 }
 
@@ -581,19 +574,39 @@ int main(int argc, const char *argv[])
                     options.compress_method = MZ_COMPRESS_METHOD_STORE;
             }
             else if ((c == 'b') || (c == 'B'))
+#ifdef HAVE_BZIP2
                 options.compress_method = MZ_COMPRESS_METHOD_BZIP2;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
             else if ((c == 'm') || (c == 'M'))
+#ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
             else if ((c == 's') || (c == 'S'))
+#ifdef HAVE_AES
                 options.aes = 1;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
             else if (((c == 'h') || (c == 'H')) && (i + 1 < argc))
             {
+#ifndef MZ_ZIP_NO_SIGNING
                 options.cert_path = argv[i + 1];
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
                 i += 1;
             }
             else if (((c == 'w') || (c == 'W')) && (i + 1 < argc))
             {
+#ifndef MZ_ZIP_NO_SIGNING
                 options.cert_pwd = argv[i + 1];
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
                 i += 1;
             }
             else if (((c == 'c') || (c == 'C')) && (i + 1 < argc))
@@ -613,12 +626,22 @@ int main(int argc, const char *argv[])
             }
             else if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
             {
+#ifndef MZ_ZIP_NO_ENCRYPTION
                 password = argv[i + 1];
                 i += 1;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
             }
         }
         else if (path_arg == 0)
             path_arg = i;
+    }
+
+    if (err == MZ_SUPPORT_ERROR)
+    {
+        printf("Feature not supported\n");
+        return err;
     }
 
     if (path_arg == 0)
@@ -626,6 +649,7 @@ int main(int argc, const char *argv[])
         minizip_help();
         return 0;
     }
+
 
     path = argv[path_arg];
 
