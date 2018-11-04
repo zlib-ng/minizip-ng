@@ -21,7 +21,7 @@ Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zL
 had been contributed to by many people. As part of the zlib distribution, Mark Adler still maintains the
 original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project which is included in this repository as a reference.
 
-My work with the minizip library began in 2006 when I started submitting bugs I found in the library to 
+My work with the minizip library began in 2006 when I started submitting bugs I found to 
 Gilles Vollant. In 2010, I implemented some additional features like WinZip AES encryption, disk splitting, and 
 I/O buffering that were necessary for another project I was working on. Shortly after, I created this public repository 
 so I could share these and other improvements with the rest of the world. I have been maintaining and actively 
