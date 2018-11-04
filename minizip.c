@@ -584,20 +584,12 @@ int main(int argc, const char *argv[])
                 if (options.compress_level == 0)
                     options.compress_method = MZ_COMPRESS_METHOD_STORE;
             }
-
-#ifdef HAVE_BZIP2
             else if ((c == 'b') || (c == 'B'))
                 options.compress_method = MZ_COMPRESS_METHOD_BZIP2;
-#endif
-#ifdef HAVE_LZMA
             else if ((c == 'm') || (c == 'M'))
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
-#endif
-#ifdef HAVE_AES
             else if ((c == 's') || (c == 'S'))
                 options.aes = 1;
-#endif
-#ifndef MZ_ZIP_NO_SIGNING
             else if (((c == 'h') || (c == 'H')) && (i + 1 < argc))
             {
                 options.cert_path = argv[i + 1];
@@ -608,7 +600,6 @@ int main(int argc, const char *argv[])
                 options.cert_pwd = argv[i + 1];
                 i += 1;
             }
-#endif
             else if (((c == 'c') || (c == 'C')) && (i + 1 < argc))
             {
                 options.encoding = (int32_t)atoi(argv[i + 1]);
