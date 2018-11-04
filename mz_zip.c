@@ -31,7 +31,6 @@
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
 #endif
-#include "mz_strm_crc32.h"
 #ifdef HAVE_LZMA
 #  include "mz_strm_lzma.h"
 #endif
