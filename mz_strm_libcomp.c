@@ -1,5 +1,5 @@
 /* mz_strm_libcomp.c -- Stream for apple compression
-   Version 2.7.2, November 2, 2018
+   Version 2.7.3, November 4, 2018
    part of the MiniZip project
 
    Copyright (C) 2010-2018 Nathan Moinvaziri
