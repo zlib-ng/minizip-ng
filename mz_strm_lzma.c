@@ -15,7 +15,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <lzma.h>
+#include "lzma.h"
 
 #include "mz.h"
 #include "mz_strm.h"
@@ -429,14 +429,4 @@ void mz_stream_lzma_delete(void **stream)
 void *mz_stream_lzma_get_interface(void)
 {
     return (void *)&mz_stream_lzma_vtbl;
-}
-
-static int64_t mz_stream_lzma_crc32(int64_t value, const void *buf, int32_t size)
-{
-    return (int64_t)lzma_crc32(buf, (size_t)size, (uint32_t)value);
-}
-
-void *mz_stream_lzma_get_crc32_update(void)
-{
-    return (void *)mz_stream_lzma_crc32;
 }

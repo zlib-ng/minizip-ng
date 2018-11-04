@@ -164,7 +164,6 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     int16_t read = 0;
     int64_t total_in = 0;
     int64_t total_out = 0;
-    void *crc_in_stream = NULL;
     void *in_stream = NULL;
     void *out_stream = NULL;
     void *deflate_stream = NULL;
@@ -178,13 +177,9 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
     if (mz_stream_os_open(in_stream, "LICENSE", MZ_OPEN_MODE_READ) == MZ_OK)
     {
-        mz_stream_crc32_create(&crc_in_stream);
-        mz_stream_set_base(crc_in_stream, in_stream);
-        mz_stream_crc32_open(crc_in_stream, NULL, MZ_OPEN_MODE_READ);
-        read = mz_stream_read(crc_in_stream, buf, UINT16_MAX);
-        crc32 = mz_stream_crc32_get_value(crc_in_stream);
-        mz_stream_close(crc_in_stream);
-        mz_stream_crc32_delete(&crc_in_stream);
+        read = mz_stream_os_read(in_stream, buf, UINT16_MAX);
+        if (read > 0)
+            crc32 = mz_crypt_crc32_update(crc32, buf, read);
 
         mz_stream_os_close(in_stream);
     }
@@ -246,20 +241,12 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     mz_stream_os_delete(&in_stream);
     mz_stream_os_create(&out_stream);
 
+    crc32 = 0;
+
     snprintf(filename, sizeof(filename), "LICENSE.inflate.%s", method);
     if (mz_stream_os_open(out_stream, filename, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
     {
-        mz_stream_crc32_create(&crc_in_stream);
-        mz_stream_crc32_open(crc_in_stream, NULL, MZ_OPEN_MODE_WRITE);
-
-        mz_stream_set_base(crc_in_stream, in_stream);
-        if (mz_stream_write(crc_in_stream, buf, read) != read)
-            printf("Failed to write %s\n", filename);
-
-        crc32 = mz_stream_crc32_get_value(crc_in_stream);
-
-        mz_stream_close(crc_in_stream);
-        mz_stream_delete(&crc_in_stream);
+        crc32 = mz_crypt_crc32_update(crc32, buf, read);
 
         mz_stream_os_close(out_stream);
 
@@ -297,7 +284,7 @@ void test_stream_wzaes(void)
     printf("Pbkdf2 password - %s\n", password);
     printf("Pbkdf2 salt - %s\n", salt);
 
-    err = mz_stream_wzaes_pbkdf2((uint8_t *)password, (int32_t)strlen(password), 
+    err = mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password), 
         (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key));
 
     if (err == MZ_OK)

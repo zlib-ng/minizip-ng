@@ -40,7 +40,7 @@ typedef struct minizip_opt_s {
 #ifdef HAVE_AES
     uint8_t aes;
 #endif
-#ifndef MZ_NO_ZIP_SIGNING
+#ifndef MZ_ZIP_NO_SIGNING
     const char *cert_path;
     const char *cert_pwd;
 #endif
@@ -526,7 +526,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 
 /***************************************************************************/
 
-#if !defined(MZ_NO_MAIN)
+#if !defined(MZ_ZIP_NO_MAIN)
 int main(int argc, const char *argv[])
 {
     minizip_opt options;
@@ -597,7 +597,7 @@ int main(int argc, const char *argv[])
             else if ((c == 's') || (c == 'S'))
                 options.aes = 1;
 #endif
-#ifndef MZ_NO_ZIP_SIGNING
+#ifndef MZ_ZIP_NO_SIGNING
             else if (((c == 'h') || (c == 'H')) && (i + 1 < argc))
             {
                 options.cert_path = argv[i + 1];

@@ -76,7 +76,6 @@ typedef struct mz_zip_s
     void *cd_stream;                // pointer to the stream with the cd
     void *cd_mem_stream;            // memory stream for central directory
     void *compress_stream;          // compression stream
-    void *crc32_stream;             // crc32 stream
     void *crypt_stream;             // encryption stream
     void *file_info_stream;         // memory stream for storing file info
     void *local_file_info_stream;   // memory stream for storing local file info
@@ -94,6 +93,7 @@ typedef struct mz_zip_s
     uint8_t  entry_scanned;         // entry header information read ok
     uint8_t  entry_opened;          // entry is open for read/write
     uint8_t  entry_raw;             // entry opened with raw mode
+    uint32_t entry_crc32;           // entry crc32 
 
     uint64_t number_entry;
 
@@ -1437,15 +1437,8 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
     if (err == MZ_OK)
     {
-        mz_stream_crc32_create(&zip->crc32_stream);
-        mz_stream_set_base(zip->crc32_stream, zip->compress_stream);
-
-        err = mz_stream_open(zip->crc32_stream, NULL, zip->open_mode);
-    }
-
-    if (err == MZ_OK)
-    {
         zip->entry_opened = 1;
+        zip->entry_crc32 = 0;
     }
 
     return err;
@@ -1631,7 +1624,9 @@ int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
 
     // Read entire entry even if uncompressed_size = 0, otherwise
     // aes encryption validation will fail if compressed_size > 0
-    read = mz_stream_read(zip->crc32_stream, buf, len);
+    read = mz_stream_read(zip->compress_stream, buf, len);
+    if (read > 0)
+        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, read);
     return read;
 }
 
@@ -1642,7 +1637,9 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
 
     if (zip == NULL || mz_zip_entry_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
-    written = mz_stream_write(zip->crc32_stream, buf, len);
+    written = mz_stream_write(zip->compress_stream, buf, len);
+    if (written > 0)
+        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
     return written;
 }
 
@@ -1702,11 +1699,11 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
     mz_stream_close(zip->compress_stream);
 
     if (!zip->entry_raw)
-        crc32 = mz_stream_crc32_get_value(zip->crc32_stream);
+        crc32 = zip->entry_crc32;
 
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
     {
-        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+        mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
 
         // If entire entry was not read verification will fail
         if ((total_in > 0) && (!zip->entry_raw))
@@ -1724,7 +1721,7 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
     if (!zip->entry_raw)
-        mz_stream_get_prop_int64(zip->crc32_stream, MZ_STREAM_PROP_TOTAL_OUT, &uncompressed_size);
+        mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
     {
@@ -1737,8 +1734,6 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
     mz_stream_delete(&zip->crypt_stream);
 
     mz_stream_delete(&zip->compress_stream);
-    mz_stream_close(zip->crc32_stream);
-    mz_stream_crc32_delete(&zip->crc32_stream);
 
     if (zip->open_mode & MZ_OPEN_MODE_WRITE)
     {

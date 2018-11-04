@@ -67,8 +67,6 @@ typedef struct mz_stream_pkcrypt_s {
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
-    mz_stream_crc32_update
-                    crc32_update;
 } mz_stream_pkcrypt;
 
 /***************************************************************************/
@@ -100,14 +98,14 @@ static uint8_t mz_stream_pkcrypt_update_keys(void *stream, uint8_t c)
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     uint8_t buf = c;
 
-    pkcrypt->keys[0] = (uint32_t)~pkcrypt->crc32_update(~pkcrypt->keys[0], &buf, 1);
+    pkcrypt->keys[0] = (uint32_t)~mz_crypt_crc32_update(~pkcrypt->keys[0], &buf, 1);
 
     pkcrypt->keys[1] += pkcrypt->keys[0] & 0xff;
     pkcrypt->keys[1] *= 134775813L;
     pkcrypt->keys[1] += 1;
 
     buf = (uint8_t)(pkcrypt->keys[1] >> 24);
-    pkcrypt->keys[2] = (uint32_t)~pkcrypt->crc32_update(~pkcrypt->keys[2], &buf, 1);
+    pkcrypt->keys[2] = (uint32_t)~mz_crypt_crc32_update(~pkcrypt->keys[2], &buf, 1);
 
     return (uint8_t)c;
 }
@@ -149,9 +147,6 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
     if (password == NULL)
         password = pkcrypt->password;
     if (password == NULL)
-        return MZ_PARAM_ERROR;
-
-    if (mz_stream_crc32_get_update_func(&pkcrypt->crc32_update) != MZ_OK)
         return MZ_PARAM_ERROR;
 
     mz_stream_pkcrypt_init_keys(stream, password);
