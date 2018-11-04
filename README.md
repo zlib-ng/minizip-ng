@@ -10,7 +10,7 @@ Maintained by Nathan Moinvaziri.
 
 | Name | State | Version | Description | Travis CI |
 |:- |:-:|:-:|:-|:-:|
-|[master](https://github.com/nmoinvaz/minizip/tree/master)|Active|2.x|Modern refactoring of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|[![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)|
+|[master](https://github.com/nmoinvaz/minizip/tree/master)|Active|2.x|Modern rewrite of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|[![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)|
 |[dev](https://github.com/nmoinvaz/minizip/tree/dev)|Active|2.x|Latest development code|[![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)|
 |[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|Stale| 1.x|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.||
 |[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|Stale| 1.x|Original minizip as of zlib 1.2.11.||
@@ -18,15 +18,16 @@ Maintained by Nathan Moinvaziri.
 ## History
 
 Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) and 
-had been contributed to by many people. As part of the zlib distribution, Mark Adler has maintained the
-original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project.
+had been contributed to by many people. As part of the zlib distribution, Mark Adler still maintains the
+original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project which is included in this repository as a reference.
 
-In 2006, I began working with the minizip project and started submitting bugs I found in the library to 
-Gilles Vollant via e-mail. In 2010, I implemented some additional features like disk splitting, 
-I/O buffering, and WinZip AES encryption. My continued work on the project necessitated setting up a public 
-repository so I could share these and other improvements with the rest of the world. I have been maintaining 
-and actively developing this fork of the library ever since. In 2017, I refactored and rewrote most of 
-the code as version 2 because it had become difficult to maintain and code readability had suffered over the years.
+My work with the minizip library began in 2006 when I started submitting bugs I found in the library to 
+Gilles Vollant. In 2010, I implemented some additional features like WinZip AES encryption, disk splitting, and 
+I/O buffering that were necessary for another project I was working on. Sortly after I setup this repository 
+so I could share these and other improvements with the rest of the world. I have been maintaining and actively 
+developing this code base ever since. At the beginning of 2017, I began the work of refactoring and rewroting 
+most of the code as version 2 because the library had become difficult to maintain and code readability 
+continued to suffer over the years.
 
 ## Features
 
