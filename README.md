@@ -26,8 +26,7 @@ Gilles Vollant. In 2010, I implemented some additional features like WinZip AES 
 I/O buffering that were necessary for another project I was working on. Shortly after, I created this public repository 
 so I could share these and other improvements with the rest of the world. I have been maintaining and actively 
 developing this code base ever since. At the beginning of 2017, I began the work to refactor and rewrite 
-the library as version 2 because it had become difficult to maintain and code readability 
-continued to suffer over the years.
+the library as version 2 because it had become difficult to maintain and code readability suffered over the years.
 
 ## Features
 
