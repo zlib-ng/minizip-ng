@@ -87,10 +87,10 @@ cmake --build .
 | minizip.c | Sample application | No |
 | mz_compat.\* | Minizip 1.0 compatibility layer | No |
 | mz.h | Error codes and flags | Yes |
-| mz_os\* | Platform specific file/utility functions | Likely |
+| mz_os\* | Platform specific file/utility functions | Maybe |
 | mz_crypt\* | Configuration specific crypto/hashing functions | Encryption, Signing |
 | mz_strm.\* | Stream interface | Yes |
-| mz_strm_buf.\* | Buffered stream | No |
+| mz_strm_buf.\* | Buffered stream | Yes |
 | mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
 | mz_strm_libcomp.\* | Apple compression stream | No |
 | mz_strm_lzma.\* | LZMA stream using liblzma | No |
