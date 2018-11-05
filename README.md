@@ -95,7 +95,7 @@ cmake --build .
 | mz_strm_libcomp.\* | Apple compression stream | No |
 | mz_strm_lzma.\* | LZMA stream using liblzma | No |
 | mz_strm_mem.\* | Memory stream | Yes |
-| mz_strm_split.\* | Disk splitting stream | No |
+| mz_strm_split.\* | Disk splitting stream | Yes |
 | mz_strm_pkcrypt.\* | PKWARE traditional encryption stream | No |
 | mz_strm_os\* | Platform specific file stream | Yes |
 | mz_strm_wzaes.\* | WinZIP AES stream | No |
