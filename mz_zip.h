@@ -186,7 +186,7 @@ int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length);
 // Seeks to extra field by its type and returns its length
 
 int32_t mz_zip_extrafield_read(void *stream, uint16_t *type, uint16_t *length);
-// Reads and extrafield header from a stream
+// Reads an extrafield header from a stream
 
 int32_t mz_zip_extrafield_write(void *stream, uint32_t type, uint16_t length);
 // Writes an extrafield header to a stream
