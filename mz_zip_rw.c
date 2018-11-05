@@ -66,6 +66,8 @@ typedef struct mz_zip_reader_s {
     uint8_t     buffer[UINT16_MAX];
     int32_t     encoding;
     uint8_t     sign_required;
+    uint8_t     cd_verified;
+    uint8_t     entry_verified;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -84,6 +86,8 @@ int32_t mz_zip_reader_open(void *handle, void *stream)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
+
+    reader->cd_verified = 0;
 
     mz_zip_create(&reader->zip_handle);
     err = mz_zip_open(reader->zip_handle, stream, MZ_OPEN_MODE_READ);
@@ -281,8 +285,11 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
     {
         mz_zip_set_cd_stream(reader->zip_handle, 0, cd_mem_stream);
         mz_zip_set_number_entry(reader->zip_handle, number_entry);
+
         err = mz_zip_reader_goto_first_entry(handle);
     }
+
+    reader->cd_verified = reader->entry_verified;
 
     mz_stream_mem_delete(&new_cd_stream);
     return err;
@@ -372,6 +379,8 @@ int32_t mz_zip_reader_entry_open(void *handle)
     char password_buf[120];
 
 
+    reader->entry_verified = 0;
+
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
     if (reader->file_info == NULL)
@@ -414,13 +423,17 @@ int32_t mz_zip_reader_entry_open(void *handle)
         if (err == MZ_OK)
         {
             if (mz_zip_reader_entry_has_sign(handle) == MZ_OK)
+            {
                 err = mz_zip_reader_entry_sign_verify(handle);
-            else if (reader->sign_required)
+                if (err == MZ_OK)
+                    reader->entry_verified = 1;
+            }
+            else if (reader->sign_required && !reader->cd_verified)
                 err = MZ_SIGN_ERROR;
         }
 #endif
     }
-    else if (reader->sign_required)
+    else if (reader->sign_required && !reader->cd_verified)
         err = MZ_SIGN_ERROR;
 #endif
 
@@ -1042,7 +1055,8 @@ typedef struct mz_zip_writer_s {
     mz_zip_writer_entry_cb
                 entry_cb;
     const char  *password;
-    const char  *cert_path;
+    uint8_t     *cert_data;
+    int32_t     cert_data_size;
     const char  *cert_pwd;
     uint16_t    compress_method;
     int16_t     compress_level;
@@ -1192,12 +1206,12 @@ int32_t mz_zip_writer_close(void *handle)
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
 
-    
-    if (writer->zip_cd)
-        mz_zip_writer_zip_cd(writer);
 
     if (writer->zip_handle != NULL)
     {
+        if (writer->zip_cd)
+            mz_zip_writer_zip_cd(writer);
+
         mz_zip_set_version_madeby(writer->zip_handle, MZ_VERSION_MADEBY);
         err = mz_zip_close(writer->zip_handle);
         mz_zip_delete(&writer->zip_handle);
@@ -1220,7 +1234,7 @@ int32_t mz_zip_writer_close(void *handle)
         mz_stream_mem_close(writer->mem_stream);
         mz_stream_mem_delete(&writer->mem_stream);
     }
-
+    
     return err;
 }
 
@@ -1274,7 +1288,7 @@ int32_t mz_zip_writer_zip_cd(void *handle)
         mz_stream_seek(cd_mem_stream, 0, MZ_SEEK_SET);
         mz_stream_mem_set_buffer_limit(cd_mem_stream, 0);
 
-        err = mz_zip_entry_close(writer->zip_handle);
+        err = mz_zip_writer_entry_close(writer);
     }
 
     mz_stream_mem_delete(&file_extra_stream);
@@ -1359,9 +1373,15 @@ int32_t mz_zip_writer_entry_close(void *handle)
         }
 
 #ifndef MZ_ZIP_NO_SIGNING
-        if (writer->cert_path != NULL)
-            err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256), 
-                writer->cert_path, writer->cert_pwd);
+        if (writer->cert_data != NULL && writer->cert_data_size > 0)
+        {
+            // Sign entry if not zipping cd or if it is cd being zipped
+            if (!writer->zip_cd || strcmp(writer->file_info.filename, MZ_ZIP_CD_FILENAME) == 0)
+            {
+                err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256),
+                    writer->cert_data, writer->cert_data_size, writer->cert_pwd);
+            }
+        }
 #endif
 
         if ((writer->file_info.extrafield != NULL) && (writer->file_info.extrafield_size > 0))
@@ -1399,52 +1419,22 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len)
 
 #if !defined(MZ_ZIP_NO_ENCRYPTION) && !defined(MZ_ZIP_NO_SIGNING)
 int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size, 
-    const char *cert_path, const char *cert_pwd)
+    uint8_t *cert_data, int32_t cert_data_size, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    void *cert_stream = NULL;
-    uint8_t *cert_data = NULL;
-    int32_t cert_data_size = 0;
     int32_t err = MZ_OK;
     int32_t signature_size = 0;
     uint8_t *signature = NULL;
 
 
-    if (writer == NULL || mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
+    if (writer == NULL || cert_data == NULL || cert_data_size <= 0)
         return MZ_PARAM_ERROR;
-    if (cert_path == NULL)
-    {
-        cert_path = writer->cert_path;
-        cert_pwd = writer->cert_pwd;
-    }
-    if (cert_path == NULL)
+    if (mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    cert_data_size = (int32_t)mz_os_get_file_size(cert_path);
-    if (cert_data_size == 0)
-        return MZ_PARAM_ERROR;
-
-    cert_data = (uint8_t *)MZ_ALLOC(cert_data_size);
-
-    // Read pkcs12 certificate from disk
-    mz_stream_os_create(&cert_stream);
-    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
-    if (err == MZ_OK)
-    {
-        if (mz_stream_os_read(cert_stream, cert_data, cert_data_size) != cert_data_size)
-            err = MZ_READ_ERROR;
-        mz_stream_os_close(cert_stream);
-    }
-    mz_stream_os_delete(&cert_stream);
-
-    if (err == MZ_OK)
-    {
-        // Sign message with certificate
-        err = mz_crypt_sign(message, message_size, cert_data, cert_data_size, cert_pwd, 
-            &signature, &signature_size);
-    }
-
-    MZ_FREE(cert_data);
+    // Sign message with certificate
+    err = mz_crypt_sign(message, message_size, cert_data, cert_data_size, cert_pwd, 
+        &signature, &signature_size);
 
     if ((err == MZ_OK) && (signature != NULL))
     {
@@ -1458,6 +1448,7 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
 
         MZ_FREE(signature);
     }
+
     return err;
 }
 #endif
@@ -1841,11 +1832,53 @@ void mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd)
     writer->zip_cd = zip_cd;
 }
 
-void mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd)
+int32_t mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    writer->cert_path = cert_path;
-    writer->cert_pwd = cert_pwd;
+    void *cert_stream = NULL;
+    uint8_t *cert_data = NULL;
+    int32_t cert_data_size = 0;
+    int32_t err = MZ_OK;
+
+    if (cert_path == NULL)
+        return MZ_PARAM_ERROR;
+
+    cert_data_size = (int32_t)mz_os_get_file_size(cert_path);
+
+    if (cert_data_size == 0)
+        return MZ_PARAM_ERROR;
+
+    if (writer->cert_data != NULL)
+    {
+        MZ_FREE(writer->cert_data);
+        writer->cert_data = NULL;
+    }
+
+    cert_data = (uint8_t *)MZ_ALLOC(cert_data_size);
+
+    // Read pkcs12 certificate from disk
+    mz_stream_os_create(&cert_stream);
+    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
+    if (err == MZ_OK)
+    {
+        if (mz_stream_os_read(cert_stream, cert_data, cert_data_size) != cert_data_size)
+            err = MZ_READ_ERROR;
+        mz_stream_os_close(cert_stream);
+    }
+    mz_stream_os_delete(&cert_stream);
+
+    if (err == MZ_OK)
+    {
+        writer->cert_data = cert_data;
+        writer->cert_data_size = cert_data_size;
+        writer->cert_pwd = cert_pwd;
+    }
+    else
+    {
+        MZ_FREE(cert_data);
+    }
+
+    return err;
 }
 
 void mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb)
@@ -1924,6 +1957,13 @@ void mz_zip_writer_delete(void **handle)
     if (writer != NULL)
     {
         mz_zip_writer_close(writer);
+
+        if (writer->cert_data != NULL)
+            MZ_FREE(writer->cert_data);
+
+        writer->cert_data = NULL;
+        writer->cert_data_size = 0;
+
         MZ_FREE(writer);
     }
     *handle = NULL;
