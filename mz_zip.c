@@ -711,7 +711,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint32_t reserved = 0;
     uint32_t magic = 0;
     uint32_t dos_date = 0;
-    uint32_t extra_pos = 0;
+    uint32_t field_pos = 0;
     uint16_t field_type = 0;
     uint16_t field_length = 0;
     uint32_t field_length_read = 0;
@@ -720,10 +720,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint16_t value16 = 0;
     uint32_t value32 = 0;
     int64_t extrafield_pos = -1;
-    int64_t filename_pos = -1;
     int64_t comment_pos = -1;
-    int64_t max_seek = 0;
-    int64_t seek = 0;
     int32_t err = MZ_OK;
 
 
@@ -793,44 +790,52 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         }
     }
 
-    max_seek = (int64_t)file_info->filename_size + file_info->extrafield_size + file_info->comment_size + 3;
     if (err == MZ_OK)
-        err = mz_stream_seek(file_extra_stream, max_seek, MZ_SEEK_SET);
-    if (err == MZ_OK)
-        err = mz_stream_seek(file_extra_stream, 0, MZ_SEEK_SET);
+        err = mz_stream_seek(file_extra_stream, 0, SEEK_SET);
 
+    // Copy variable length data to memory stream for later retrieval
     if ((err == MZ_OK) && (file_info->filename_size > 0))
-    {
-        filename_pos = seek;
-
         err = mz_stream_copy(file_extra_stream, stream, file_info->filename_size);
-        if (err == MZ_OK)
-            err = mz_stream_write_uint8(file_extra_stream, 0);
+    if (err == MZ_OK)
+        err = mz_stream_write_uint8(file_extra_stream, 0);
+    extrafield_pos = (int64_t)file_info->filename_size + 1;
 
-        seek += (int64_t)file_info->filename_size + 1;
-    }
+    if ((err == MZ_OK) && (file_info->extrafield_size > 0))
+        err = mz_stream_copy(file_extra_stream, stream, file_info->extrafield_size);
+    if (err == MZ_OK)
+        err = mz_stream_write_uint8(file_extra_stream, 0);
+
+    comment_pos = extrafield_pos + (int64_t)file_info->extrafield_size + 1;
+    if ((err == MZ_OK) && (file_info->comment_size > 0))
+        err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
+    if (err == MZ_OK)
+        err = mz_stream_write_uint8(file_extra_stream, 0);
+
+    // Get pointers to variable length data
+    mz_stream_mem_get_buffer(file_extra_stream, (const void **)&file_info->filename);
+    if (extrafield_pos >= 0)
+        mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
+    if (comment_pos >= 0)
+        mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
+
+    // Set to empty string just in-case
+    if (file_info->filename == NULL)
+        file_info->filename = "";
+    if (file_info->comment == NULL)
+        file_info->comment = "";
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
     {
-        extrafield_pos = seek;
+        // Seek to and parse the extra field
+        err = mz_stream_seek(file_extra_stream, extrafield_pos, MZ_SEEK_SET);
 
-        err = mz_stream_copy(file_extra_stream, stream, file_info->extrafield_size);
-        if (err == MZ_OK)
-            err = mz_stream_write_uint8(file_extra_stream, 0);
-
-        // Seek back and parse the extra field
-        if (err == MZ_OK)
-            err = mz_stream_seek(file_extra_stream, seek, MZ_SEEK_SET);
-
-        seek += (int64_t)file_info->extrafield_size + 1;
-
-        while ((err == MZ_OK) && (extra_pos < file_info->extrafield_size))
+        while ((err == MZ_OK) && (field_pos < file_info->extrafield_size))
         {
             err = mz_zip_extrafield_read(file_extra_stream, &field_type, &field_length);
 
             // Don't allow field length to exceed size of remaining extrafield
-            if (field_length > (file_info->extrafield_size - extra_pos - 4))
-                field_length = (file_info->extrafield_size - extra_pos - 4);
+            if (field_length > (file_info->extrafield_size - field_pos - 4))
+                field_length = (file_info->extrafield_size - field_pos - 4);
 
             // Read ZIP64 extra field
             if (field_type == MZ_ZIP_EXTENSION_ZIP64)
@@ -942,25 +947,9 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 err = mz_stream_seek(file_extra_stream, field_length, MZ_SEEK_CUR);
             }
 
-            extra_pos += 4 + field_length;
+            field_pos += 4 + field_length;
         }
     }
-
-    if ((err == MZ_OK) && (file_info->comment_size > 0))
-    {
-        comment_pos = seek;
-
-        err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
-        if (err == MZ_OK)
-            err = mz_stream_write_uint8(file_extra_stream, 0);
-    }
-
-    if (filename_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, filename_pos, (const void **)&file_info->filename);
-    if (extrafield_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
-    if (comment_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
 
     return err;
 }
