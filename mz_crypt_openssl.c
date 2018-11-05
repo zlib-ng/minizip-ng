@@ -24,9 +24,6 @@
 
 #include "mz.h"
 
-#include "mz_os.h"
-#include "mz_strm_os.h"
-
 /***************************************************************************/
 
 static void mz_crypt_init(void)

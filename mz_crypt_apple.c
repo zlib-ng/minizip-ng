@@ -23,9 +23,6 @@
 
 #include "mz.h"
 
-#include "mz_os.h"
-#include "mz_strm_os.h"
-
 /***************************************************************************/
 
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size)

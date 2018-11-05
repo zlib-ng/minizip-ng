@@ -16,7 +16,6 @@
 
 #include "mz.h"
 #include "mz_crypt.h"
-#include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_wzaes.h"
 
