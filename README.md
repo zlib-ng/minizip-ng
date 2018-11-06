@@ -85,7 +85,7 @@ cmake --build .
 | File(s) | Description |
 |:- |:-|
 | minizip.c | Sample application |
-| mz_compat.\* | Minizip 1.0 compatibility layer |
+| mz_compat.\* | Minizip 1.x compatibility layer |
 | mz.h | Error codes and flags |
 | mz_os\* | Platform specific file/utility functions |
 | mz_crypt\* | Configuration specific crypto/hashing functions |
