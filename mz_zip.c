@@ -324,12 +324,6 @@ static int32_t mz_zip_read_cd(void *handle)
 
     if (err == MZ_OK)
     {
-        if (eocd_pos < zip->cd_offset + zip->cd_size)
-            err = MZ_FORMAT_ERROR;
-    }
-
-    if (err == MZ_OK)
-    {
         // Verify central directory signature exists at offset
         err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
         if (err == MZ_OK)
@@ -349,6 +343,12 @@ static int32_t mz_zip_read_cd(void *handle)
                 zip->disk_offset_shift = zip->cd_offset - value64i;
             }
         }
+    }
+    
+    if (err == MZ_OK)
+    {
+        if (eocd_pos < zip->cd_offset + zip->cd_size)
+            err = MZ_FORMAT_ERROR;
     }
 
     return err;
