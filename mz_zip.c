@@ -345,6 +345,7 @@ static int32_t mz_zip_read_cd(void *handle)
                 // If found compensate for incorrect locations
                 value64i = zip->cd_offset;
                 zip->cd_offset = eocd_pos - zip->cd_size;
+                // Assume disk has prepended data
                 zip->disk_offset_shift = zip->cd_offset - value64i;
             }
         }
@@ -1483,6 +1484,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
+    int32_t err_shift = MZ_OK;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
@@ -1505,6 +1507,19 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     err = mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
+
+    if (err == MZ_FORMAT_ERROR && zip->disk_offset_shift > 0)
+    {
+        // Perhaps we didn't compensated correctly for incorrect cd offset
+        err_shift = mz_stream_seek(zip->stream, zip->file_info.disk_offset, MZ_SEEK_SET);
+        if (err_shift == MZ_OK)
+            err_shift = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
+        if (err_shift == MZ_OK)
+        {
+            zip->disk_offset_shift = 0;
+            err = err_shift;
+        }
+    }
 
 #ifdef MZ_ZIP_NO_DECOMPRESSION
     if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
