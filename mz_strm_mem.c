@@ -184,6 +184,10 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin)
 
         mz_stream_mem_set_size(stream, (int32_t)new_pos);
     }
+    else if (new_pos < 0)
+    {
+        return MZ_SEEK_ERROR;
+    }
 
     mem->position = (int32_t)new_pos;
     return MZ_OK;
