@@ -217,6 +217,7 @@ static int32_t mz_zip_read_cd(void *handle)
     uint32_t value32 = 0;
     uint64_t value64 = 0;
     uint16_t comment_size = 0;
+    int32_t comment_read = 0;
     int32_t err = MZ_OK;
 
 
@@ -267,9 +268,11 @@ static int32_t mz_zip_read_cd(void *handle)
             zip->comment = (char *)MZ_ALLOC(comment_size + 1);
             if (zip->comment != NULL)
             {
-                if (mz_stream_read(zip->stream, zip->comment, comment_size) != comment_size)
-                    err = MZ_READ_ERROR;
-                zip->comment[comment_size] = 0;
+                comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
+                // Don't fail if incorrect comment length read, not critical
+                if (comment_read < 0)
+                    comment_read = 0;
+                zip->comment[comment_read] = 0;
             }
         }
 
