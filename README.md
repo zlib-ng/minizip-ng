@@ -82,26 +82,26 @@ cmake --build .
 
 ## Contents
 
-| File(s) | Description | Required |
-|:- |:-|:-:|
-| minizip.c | Sample application | No |
-| mz_compat.\* | Minizip 1.0 compatibility layer | No |
-| mz.h | Error codes and flags | Yes |
-| mz_os\* | Platform specific file/utility functions | Yes |
-| mz_crypt\* | Configuration specific crypto/hashing functions | Encryption, Signing |
-| mz_strm.\* | Stream interface | Yes |
-| mz_strm_buf.\* | Buffered stream | Yes |
-| mz_strm_bzip.\* | BZIP2 stream using libbzip2 | No |
-| mz_strm_libcomp.\* | Apple compression stream | No |
-| mz_strm_lzma.\* | LZMA stream using liblzma | No |
-| mz_strm_mem.\* | Memory stream | Yes |
-| mz_strm_split.\* | Disk splitting stream | Yes |
-| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream | No |
-| mz_strm_os\* | Platform specific file stream | Yes |
-| mz_strm_wzaes.\* | WinZIP AES stream | No |
-| mz_strm_zlib.\* | Deflate stream using zlib | No |
-| mz_zip.\* | Zip format | Yes |
-| mz_zip_rw.\* | Zip reader/writer | No |
+| File(s) | Description |
+|:- |:-|
+| minizip.c | Sample application |
+| mz_compat.\* | Minizip 1.x compatibility layer |
+| mz.h | Error codes and flags |
+| mz_os\* | Platform specific file/utility functions |
+| mz_crypt\* | Configuration specific crypto/hashing functions |
+| mz_strm.\* | Stream interface |
+| mz_strm_buf.\* | Buffered stream |
+| mz_strm_bzip.\* | BZIP2 stream using libbzip2 |
+| mz_strm_libcomp.\* | Apple compression stream |
+| mz_strm_lzma.\* | LZMA stream using liblzma |
+| mz_strm_mem.\* | Memory stream |
+| mz_strm_split.\* | Disk splitting stream |
+| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream |
+| mz_strm_os\* | Platform specific file stream |
+| mz_strm_wzaes.\* | WinZIP AES stream |
+| mz_strm_zlib.\* | Deflate stream using zlib |
+| mz_zip.\* | Zip format |
+| mz_zip_rw.\* | Zip reader/writer |
 
 ## Third-Party Libraries
 
