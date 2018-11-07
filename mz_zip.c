@@ -815,19 +815,6 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     if (err == MZ_OK)
         err = mz_stream_write_uint8(file_extra_stream, 0);
 
-    // Get pointers to variable length data
-    mz_stream_mem_get_buffer(file_extra_stream, (const void **)&file_info->filename);
-    if (extrafield_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
-    if (comment_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
-
-    // Set to empty string just in-case
-    if (file_info->filename == NULL)
-        file_info->filename = "";
-    if (file_info->comment == NULL)
-        file_info->comment = "";
-
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
     {
         // Seek to and parse the extra field
@@ -882,10 +869,9 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                             mz_zip_ntfs_to_unix_time(ntfs_time, &file_info->creation_date);
                         }
                     }
-                    else
+                    else if ((err == MZ_OK) && (field_length_read + ntfs_attrib_size <= field_length))
                     {
-                        if (err == MZ_OK)
-                            err = mz_stream_seek(file_extra_stream, ntfs_attrib_size, MZ_SEEK_CUR);
+                        err = mz_stream_seek(file_extra_stream, ntfs_attrib_size, MZ_SEEK_CUR);
                     }
 
                     field_length_read += ntfs_attrib_size + 4;
@@ -954,6 +940,19 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             field_pos += 4 + field_length;
         }
     }
+    
+    // Get pointers to variable length data
+    mz_stream_mem_get_buffer(file_extra_stream, (const void **)&file_info->filename);
+    if (extrafield_pos >= 0)
+        mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
+    if (comment_pos >= 0)
+        mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
+
+    // Set to empty string just in-case
+    if (file_info->filename == NULL)
+        file_info->filename = "";
+    if (file_info->comment == NULL)
+        file_info->comment = "";
 
     return err;
 }
