@@ -829,7 +829,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 field_length = (file_info->extrafield_size - field_pos - 4);
 
             // Read ZIP64 extra field
-            if (field_type == MZ_ZIP_EXTENSION_ZIP64)
+            if ((field_type == MZ_ZIP_EXTENSION_ZIP64) && (field_length >= 8))
             {
                 if ((err == MZ_OK) && (file_info->uncompressed_size == UINT32_MAX))
                     err = mz_stream_read_int64(file_extra_stream, &file_info->uncompressed_size);
@@ -841,7 +841,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     err = mz_stream_read_uint32(file_extra_stream, &file_info->disk_number);
             }
             // Read NTFS extra field
-            else if (field_type == MZ_ZIP_EXTENSION_NTFS)
+            else if ((field_type == MZ_ZIP_EXTENSION_NTFS) && (field_length > 4))
             {
                 if (err == MZ_OK)
                     err = mz_stream_read_uint32(file_extra_stream, &reserved);
@@ -878,7 +878,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 }
             }
             // Read UNIX1 extra field
-            else if (field_type == MZ_ZIP_EXTENSION_UNIX1)
+            else if ((field_type == MZ_ZIP_EXTENSION_UNIX1) && (field_length >= 12))
             {
                 if (err == MZ_OK && file_info->accessed_date == 0)
                 {
@@ -902,7 +902,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             }
 #ifdef HAVE_AES
             // Read AES extra field
-            else if (field_type == MZ_ZIP_EXTENSION_AES)
+            else if ((field_type == MZ_ZIP_EXTENSION_AES) && (field_length == 7))
             {
                 uint8_t value8 = 0;
                 // Verify version info
