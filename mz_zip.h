@@ -142,8 +142,11 @@ int32_t mz_zip_set_number_entry(void *handle, uint64_t number_entry);
 int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry);
 // Get the total number of entries
 
+int32_t mz_zip_set_disk_number_with_cd(void *handle, uint32_t disk_number_with_cd);
+// Sets the disk number containing the central directory record
+
 int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
-// Get the the disk number containing the central directory record
+// Get the disk number containing the central directory record
 
 int64_t mz_zip_get_entry(void *handle);
 // Return offset of the current entry in the zip file

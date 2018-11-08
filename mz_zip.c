@@ -56,9 +56,11 @@
 #define MZ_ZIP_MAGIC_LOCALHEADER        (0x04034b50)
 #define MZ_ZIP_MAGIC_CENTRALHEADER      (0x02014b50)
 #define MZ_ZIP_MAGIC_ENDHEADER          (0x06054b50)
+#define MZ_ZIP_MAGIC_ENDHEADERU8        { 0x50, 0x4b, 0x05, 0x06 }
 #define MZ_ZIP_MAGIC_ENDHEADER64        (0x06064b50)
 #define MZ_ZIP_MAGIC_ENDLOCHEADER64     (0x07064b50)
 #define MZ_ZIP_MAGIC_DATADESCRIPTOR     (0x08074b50)
+#define MZ_ZIP_MAGIC_DATADESCRIPTORU8   { 0x50, 0x4b, 0x07, 0x08 }
 
 #define MZ_ZIP_SIZE_LD_ITEM             (32)
 #define MZ_ZIP_SIZE_CD_ITEM             (46)
@@ -102,61 +104,29 @@ typedef struct mz_zip_s
 
 /***************************************************************************/
 
+#if 0
+#  define mz_zip_print printf
+#else
+#  define mz_zip_print(fmt,...)
+#endif
+
+/***************************************************************************/
+
 // Locate the end of central directory of a zip file (at the end, just before the global comment)
 static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
 {
-    uint8_t buf[1024 + 4];
     int64_t file_size = 0;
-    int64_t back_read = 0;
     int64_t max_back = UINT16_MAX; // maximum size of global comment
-    int32_t read_size = sizeof(buf);
-    int64_t read_pos = 0;
-    int32_t i = 0;
+    uint8_t find[4] = MZ_ZIP_MAGIC_ENDHEADERU8;
     int32_t err = MZ_OK;
 
-    *central_pos = 0;
-
     err = mz_stream_seek(stream, 0, MZ_SEEK_END);
-    if (err != MZ_OK)
-        return err;
 
     file_size = mz_stream_tell(stream);
-
     if (max_back > file_size)
         max_back = file_size;
 
-    while (back_read < max_back)
-    {
-        back_read += (sizeof(buf) - 4);
-        if (back_read > max_back)
-            back_read = max_back;
-
-        read_pos = file_size - back_read;
-        if (read_size > (file_size - read_pos))
-            read_size = (int32_t)(file_size - read_pos);
-
-        if (mz_stream_seek(stream, read_pos, MZ_SEEK_SET) != MZ_OK)
-            break;
-        if (mz_stream_read(stream, buf, read_size) != read_size)
-            break;
-
-        for (i = read_size - 3; (i--) > 0;)
-        {
-            if (((*(buf + i))     == (MZ_ZIP_MAGIC_ENDHEADER & 0xff)) &&
-                ((*(buf + i + 1)) == (MZ_ZIP_MAGIC_ENDHEADER >> 8 & 0xff)) &&
-                ((*(buf + i + 2)) == (MZ_ZIP_MAGIC_ENDHEADER >> 16 & 0xff)) &&
-                ((*(buf + i + 3)) == (MZ_ZIP_MAGIC_ENDHEADER >> 24 & 0xff)))
-            {
-                *central_pos = read_pos + i;
-                return MZ_OK;
-            }
-        }
-
-        if (*central_pos != 0)
-            break;
-    }
-
-    return MZ_EXIST_ERROR;
+    return mz_stream_find_reverse(stream, (const void *)find, sizeof(find), max_back, central_pos);
 }
 
 // Locate the end of central directory 64 of a zip file
@@ -202,518 +172,6 @@ static int32_t mz_zip_search_zip64_eocd(void *stream, const int64_t end_central_
         *central_pos = offset;
 
     return err;
-}
-
-static int32_t mz_zip_read_cd(void *handle)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    uint64_t number_entry_cd64 = 0;
-    uint64_t number_entry = 0;
-    uint64_t number_entry_cd = 0;
-    int64_t eocd_pos = 0;
-    int64_t eocd_pos64 = 0;
-    int64_t value64i = 0;
-    uint16_t value16 = 0;
-    uint32_t value32 = 0;
-    uint64_t value64 = 0;
-    uint16_t comment_size = 0;
-    int32_t comment_read = 0;
-    int32_t err = MZ_OK;
-
-
-    if (zip == NULL)
-        return MZ_PARAM_ERROR;
-
-    // Read and cache central directory records
-    err = mz_zip_search_eocd(zip->stream, &eocd_pos);
-    if (err == MZ_OK)
-    {
-        // Read end of central directory info
-        err = mz_stream_seek(zip->stream, eocd_pos, MZ_SEEK_SET);
-        // The signature, already checked
-        if (err == MZ_OK)
-            err = mz_stream_read_uint32(zip->stream, &value32);
-        // Number of this disk
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(zip->stream, &value16);
-        // Number of the disk with the start of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(zip->stream, &value16);
-        zip->disk_number_with_cd = value16;
-        // Total number of entries in the central dir on this disk
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(zip->stream, &value16);
-        zip->number_entry = value16;
-        // Total number of entries in the central dir
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(zip->stream, &value16);
-        number_entry_cd = value16;
-        if (number_entry_cd != zip->number_entry)
-            err = MZ_FORMAT_ERROR;
-        // Size of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_read_uint32(zip->stream, &value32);
-        if (err == MZ_OK)
-            zip->cd_size = value32;
-        // Offset of start of central directory with respect to the starting disk number
-        if (err == MZ_OK)
-            err = mz_stream_read_uint32(zip->stream, &value32);
-        if (err == MZ_OK)
-            zip->cd_offset = value32;
-        // Zip file global comment length
-        if (err == MZ_OK)
-            err = mz_stream_read_uint16(zip->stream, &comment_size);
-        if ((err == MZ_OK) && (comment_size > 0))
-        {
-            zip->comment = (char *)MZ_ALLOC(comment_size + 1);
-            if (zip->comment != NULL)
-            {
-                comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
-                // Don't fail if incorrect comment length read, not critical
-                if (comment_read < 0)
-                    comment_read = 0;
-                zip->comment[comment_read] = 0;
-            }
-        }
-
-        if ((err == MZ_OK) && ((number_entry_cd == UINT16_MAX) || (zip->cd_offset == UINT32_MAX)))
-        {
-            // Format should be Zip64, as the central directory or file size is too large
-            if (mz_zip_search_zip64_eocd(zip->stream, eocd_pos, &eocd_pos64) == MZ_OK)
-            {
-                eocd_pos = eocd_pos64;
-
-                err = mz_stream_seek(zip->stream, eocd_pos, MZ_SEEK_SET);
-                // The signature, already checked
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint32(zip->stream, &value32);
-                // Size of zip64 end of central directory record
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint64(zip->stream, &value64);
-                // Version made by
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint16(zip->stream, &zip->version_madeby);
-                // Version needed to extract
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint16(zip->stream, &value16);
-                // Number of this disk
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint32(zip->stream, &value32);
-                // Number of the disk with the start of the central directory
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint32(zip->stream, &zip->disk_number_with_cd);
-                // Total number of entries in the central directory on this disk
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint64(zip->stream, &number_entry);
-                // Total number of entries in the central directory
-                if (err == MZ_OK)
-                    err = mz_stream_read_uint64(zip->stream, &number_entry_cd64);
-                if (number_entry == UINT32_MAX)
-                    zip->number_entry = number_entry_cd64;
-                // Size of the central directory
-                if (err == MZ_OK)
-                    err = mz_stream_read_int64(zip->stream, &zip->cd_size);
-                // Offset of start of central directory with respect to the starting disk number
-                if (err == MZ_OK)
-                    err = mz_stream_read_int64(zip->stream, &zip->cd_offset);
-            }
-            else if ((zip->number_entry == UINT16_MAX) || (number_entry_cd != zip->number_entry) ||
-                     (zip->cd_size == UINT16_MAX) || (zip->cd_offset == UINT32_MAX))
-            {
-                err = MZ_FORMAT_ERROR;
-            }
-        }
-    }
-
-    if (err == MZ_OK)
-    {
-        // Verify central directory signature exists at offset
-        err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
-        if (err == MZ_OK)
-            err = mz_stream_read_uint32(zip->stream, &value32);
-        if (value32 != MZ_ZIP_MAGIC_CENTRALHEADER)
-        {
-            // If not found attempt to seek backward to find it
-            err = mz_stream_seek(zip->stream, eocd_pos - zip->cd_size, MZ_SEEK_SET);
-            if (err == MZ_OK)
-                err = mz_stream_read_uint32(zip->stream, &value32);
-            if (value32 == MZ_ZIP_MAGIC_CENTRALHEADER)
-            {
-                // If found compensate for incorrect locations
-                value64i = zip->cd_offset;
-                zip->cd_offset = eocd_pos - zip->cd_size;
-                // Assume disk has prepended data
-                zip->disk_offset_shift = zip->cd_offset - value64i;
-            }
-        }
-    }
-    
-    if (err == MZ_OK)
-    {
-        if (eocd_pos < zip->cd_offset)
-        {
-            // End of central dir should always come after central dir
-            err = MZ_FORMAT_ERROR;
-        }
-        else if (eocd_pos < zip->cd_offset + zip->cd_size)
-        {
-            // Truncate size of cd if incorrect size or offset provided
-            zip->cd_size = eocd_pos - zip->cd_offset;
-        }
-    }
-
-    return err;
-}
-
-static int32_t mz_zip_write_cd(void *handle)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    int64_t zip64_eocd_pos_inzip = 0;
-    uint16_t comment_size = 0;
-    int64_t disk_number = 0;
-    int64_t disk_size = 0;
-    int32_t err = MZ_OK;
-
-
-    if (zip == NULL)
-        return MZ_PARAM_ERROR;
-
-    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
-        zip->disk_number_with_cd = (uint32_t)disk_number;
-    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size) == MZ_OK && disk_size > 0)
-        zip->disk_number_with_cd += 1;
-    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-
-    zip->cd_offset = mz_stream_tell(zip->stream);
-    mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_END);
-    zip->cd_size = (uint32_t)mz_stream_tell(zip->cd_mem_stream);
-    mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_SET);
-
-    err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
-
-    // Write the ZIP64 central directory header
-    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT16_MAX)
-    {
-        zip64_eocd_pos_inzip = mz_stream_tell(zip->stream);
-
-        err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER64);
-
-        // Size of this 'zip64 end of central directory'
-        if (err == MZ_OK)
-            err = mz_stream_write_uint64(zip->stream, (uint64_t)44);
-        // Version made by
-        if (err == MZ_OK)
-            err = mz_stream_write_uint16(zip->stream, zip->version_madeby);
-        // Version needed
-        if (err == MZ_OK)
-            err = mz_stream_write_uint16(zip->stream, (uint16_t)45);
-        // Number of this disk
-        if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
-        // Number of the disk with the start of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
-        // Total number of entries in the central dir on this disk
-        if (err == MZ_OK)
-            err = mz_stream_write_uint64(zip->stream, zip->number_entry);
-        // Total number of entries in the central dir
-        if (err == MZ_OK)
-            err = mz_stream_write_uint64(zip->stream, zip->number_entry);
-        // Size of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_write_int64(zip->stream, zip->cd_size);
-        // Offset of start of central directory with respect to the starting disk number
-        if (err == MZ_OK)
-            err = mz_stream_write_int64(zip->stream, zip->cd_offset);
-        if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDLOCHEADER64);
-
-        // Number of the disk with the start of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
-        // Relative offset to the end of zip64 central directory
-        if (err == MZ_OK)
-            err = mz_stream_write_int64(zip->stream, zip64_eocd_pos_inzip);
-        // Number of the disk with the start of the central directory
-        if (err == MZ_OK)
-            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd + 1);
-    }
-
-    // Write the central directory header
-
-    // Signature
-    if (err == MZ_OK)
-        err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER);
-    // Number of this disk
-    if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
-    // Number of the disk with the start of the central directory
-    if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
-    // Total number of entries in the central dir on this disk
-    if (err == MZ_OK)
-    {
-        if (zip->number_entry >= UINT16_MAX)
-            err = mz_stream_write_uint16(zip->stream, UINT16_MAX);
-        else
-            err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_entry);
-    }
-    // Total number of entries in the central dir
-    if (err == MZ_OK)
-    {
-        if (zip->number_entry >= UINT16_MAX)
-            err = mz_stream_write_uint16(zip->stream, UINT16_MAX);
-        else
-            err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_entry);
-    }
-    // Size of the central directory
-    if (err == MZ_OK)
-        err = mz_stream_write_uint32(zip->stream, (uint32_t)zip->cd_size);
-    // Offset of start of central directory with respect to the starting disk number
-    if (err == MZ_OK)
-    {
-        if (zip->cd_offset >= UINT32_MAX)
-            err = mz_stream_write_uint32(zip->stream, UINT32_MAX);
-        else
-            err = mz_stream_write_uint32(zip->stream, (uint32_t)zip->cd_offset);
-    }
-
-    // Write global comment
-    if (zip->comment != NULL)
-        comment_size = (uint16_t)strlen(zip->comment);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, comment_size);
-    if (err == MZ_OK)
-    {
-        if (mz_stream_write(zip->stream, zip->comment, comment_size) != comment_size)
-            err = MZ_READ_ERROR;
-    }
-    return err;
-}
-
-void *mz_zip_create(void **handle)
-{
-    mz_zip *zip = NULL;
-
-    zip = (mz_zip *)MZ_ALLOC(sizeof(mz_zip));
-    if (zip != NULL)
-    {
-        memset(zip, 0, sizeof(mz_zip));
-    }
-    if (handle != NULL)
-        *handle = zip;
-
-    return zip;
-}
-
-void mz_zip_delete(void **handle)
-{
-    mz_zip *zip = NULL;
-    if (handle == NULL)
-        return;
-    zip = (mz_zip *)*handle;
-    if (zip != NULL)
-    {
-        MZ_FREE(zip);
-    }
-    *handle = NULL;
-}
-
-int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    int32_t err = MZ_OK;
-
-
-    if (zip == NULL)
-        return MZ_PARAM_ERROR;
-
-    zip->stream = stream;
-
-    mz_stream_mem_create(&zip->cd_mem_stream);
-    
-    if (mode & MZ_OPEN_MODE_WRITE)
-    {
-        mz_stream_mem_open(zip->cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
-        zip->cd_stream = zip->cd_mem_stream;
-    }
-    else
-    {
-        zip->cd_stream = stream;
-    }
-
-    if ((mode & MZ_OPEN_MODE_READ) || (mode & MZ_OPEN_MODE_APPEND))
-    {
-        if ((mode & MZ_OPEN_MODE_CREATE) == 0)
-            err = mz_zip_read_cd(zip);
-
-        if ((err == MZ_OK) && (mode & MZ_OPEN_MODE_APPEND))
-        {
-            if (zip->cd_size > 0)
-            {
-                // Store central directory in memory
-                err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
-                if (err == MZ_OK)
-                    err = mz_stream_copy(zip->cd_mem_stream, zip->stream, (int32_t)zip->cd_size);
-                if (err == MZ_OK)
-                    err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
-            }
-            else
-            {
-                // If no central directory, append new zip to end of file
-                err = mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
-            }
-        }
-        else
-        {
-            zip->cd_start_pos = zip->cd_offset;
-        }
-    }
-
-    if (err == MZ_OK)
-    {
-        // Memory streams used to store variable length file info data
-        mz_stream_mem_create(&zip->file_info_stream);
-        mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
-
-        mz_stream_mem_create(&zip->local_file_info_stream);
-        mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
-    }
-
-    if (err != MZ_OK)
-    {
-        mz_zip_close(zip);
-        return err;
-    }
-
-    zip->open_mode = mode;
-
-    return err;
-}
-
-int32_t mz_zip_close(void *handle)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    int32_t err = MZ_OK;
-
-    if (zip == NULL)
-        return MZ_PARAM_ERROR;
-
-    if (mz_zip_entry_is_open(handle) == MZ_OK)
-    {
-        err = mz_zip_entry_close(handle);
-        if (err != MZ_OK)
-            return err;
-    }
-
-    if (zip->open_mode & MZ_OPEN_MODE_WRITE)
-        err = mz_zip_write_cd(handle);
-
-    if (zip->cd_mem_stream != NULL)
-    {
-        mz_stream_close(zip->cd_mem_stream);
-        mz_stream_delete(&zip->cd_mem_stream);
-    }
-
-    if (zip->file_info_stream != NULL)
-    {
-        mz_stream_mem_close(zip->file_info_stream);
-        mz_stream_mem_delete(&zip->file_info_stream);
-    }
-    if (zip->local_file_info_stream != NULL)
-    {
-        mz_stream_mem_close(zip->local_file_info_stream);
-        mz_stream_mem_delete(&zip->local_file_info_stream);
-    }
-
-    if (zip->comment)
-    {
-        MZ_FREE(zip->comment);
-        zip->comment = NULL;
-    }
-
-    zip->stream = NULL;
-    zip->cd_stream = NULL;
-
-    return err;
-}
-
-int32_t mz_zip_get_comment(void *handle, const char **comment)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || comment == NULL)
-        return MZ_PARAM_ERROR;
-    if (zip->comment == NULL)
-        return MZ_EXIST_ERROR;
-    *comment = zip->comment;
-    return MZ_OK;
-}
-
-int32_t mz_zip_set_comment(void *handle, const char *comment)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    uint16_t comment_size = 0;
-    if (zip == NULL || comment == NULL)
-        return MZ_PARAM_ERROR;
-    if (zip->comment != NULL)
-        MZ_FREE(zip->comment);
-    comment_size = (uint16_t)(strlen(comment) + 1);
-    zip->comment = (char *)MZ_ALLOC(comment_size);
-    if (zip->comment == NULL)
-        return MZ_MEM_ERROR;
-    strncpy(zip->comment, comment, comment_size - 1);
-    zip->comment[comment_size - 1] = 0;
-    return MZ_OK;
-}
-
-int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || version_madeby == NULL)
-        return MZ_PARAM_ERROR;
-    *version_madeby = zip->version_madeby;
-    return MZ_OK;
-}
-
-int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL)
-        return MZ_PARAM_ERROR;
-    zip->version_madeby = version_madeby;
-    return MZ_OK;
-}
-
-int32_t mz_zip_get_stream(void *handle, void **stream)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || stream == NULL)
-        return MZ_PARAM_ERROR;
-    *stream = zip->stream;
-    if (*stream == NULL)
-        return MZ_EXIST_ERROR;
-    return MZ_OK;
-}
-
-int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || cd_stream == NULL)
-        return MZ_PARAM_ERROR;
-    zip->cd_stream = cd_stream;
-    zip->cd_start_pos = cd_start_pos;
-    return MZ_OK;
-}
-
-int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream)
-{
-    mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || cd_mem_stream == NULL)
-        return MZ_PARAM_ERROR;
-    *cd_mem_stream = zip->cd_mem_stream;
-    if (*cd_mem_stream == NULL)
-        return MZ_EXIST_ERROR;
-    return MZ_OK;
 }
 
 // Get info about the current file in the zip file
@@ -803,38 +261,36 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     }
 
     if (err == MZ_OK)
-        err = mz_stream_seek(file_extra_stream, 0, SEEK_SET);
+        err = mz_stream_seek(file_extra_stream, 0, MZ_SEEK_SET);
 
     // Copy variable length data to memory stream for later retrieval
     if ((err == MZ_OK) && (file_info->filename_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->filename_size);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint8(file_extra_stream, 0);
+    mz_stream_write_uint8(file_extra_stream, 0);
     extrafield_pos = (int64_t)file_info->filename_size + 1;
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->extrafield_size);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint8(file_extra_stream, 0);
+    mz_stream_write_uint8(file_extra_stream, 0);
 
     comment_pos = extrafield_pos + (int64_t)file_info->extrafield_size + 1;
     if ((err == MZ_OK) && (file_info->comment_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
-    if (err == MZ_OK)
-        err = mz_stream_write_uint8(file_extra_stream, 0);
+    mz_stream_write_uint8(file_extra_stream, 0);
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
     {
         // Seek to and parse the extra field
         err = mz_stream_seek(file_extra_stream, extrafield_pos, MZ_SEEK_SET);
 
-        while ((err == MZ_OK) && (field_pos < file_info->extrafield_size))
+        while ((err == MZ_OK) && (field_pos + 4 <= file_info->extrafield_size))
         {
             err = mz_zip_extrafield_read(file_extra_stream, &field_type, &field_length);
+            field_pos += 4;
 
             // Don't allow field length to exceed size of remaining extrafield
-            if (field_length > (file_info->extrafield_size - field_pos - 4))
-                field_length = (file_info->extrafield_size - field_pos - 4);
+            if (field_length > (file_info->extrafield_size - field_pos))
+                field_length = (file_info->extrafield_size - field_pos);
 
             // Read ZIP64 extra field
             if ((field_type == MZ_ZIP_EXTENSION_ZIP64) && (field_length >= 8))
@@ -855,11 +311,12 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     err = mz_stream_read_uint32(file_extra_stream, &reserved);
                 field_length_read = 4;
 
-                while ((err == MZ_OK) && (field_length_read < field_length))
+                while ((err == MZ_OK) && (field_length_read + 4 <= field_length))
                 {
                     err = mz_stream_read_uint16(file_extra_stream, &ntfs_attrib_id);
                     if (err == MZ_OK)
                         err = mz_stream_read_uint16(file_extra_stream, &ntfs_attrib_size);
+                    field_length_read += 4;
 
                     if ((err == MZ_OK) && (ntfs_attrib_id == 0x01) && (ntfs_attrib_size == 24))
                     {
@@ -882,7 +339,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                         err = mz_stream_seek(file_extra_stream, ntfs_attrib_size, MZ_SEEK_CUR);
                     }
 
-                    field_length_read += ntfs_attrib_size + 4;
+                    field_length_read += ntfs_attrib_size;
                 }
             }
             // Read UNIX1 extra field
@@ -906,7 +363,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                     err = mz_stream_read_uint16(file_extra_stream, &value16); // Group id
 
                 // Skip variable data
-                mz_stream_seek(file_extra_stream, field_length - (4 + 4 + 2 + 2), SEEK_CUR);
+                mz_stream_seek(file_extra_stream, field_length - 12, MZ_SEEK_CUR);
             }
 #ifdef HAVE_AES
             // Read AES extra field
@@ -940,12 +397,12 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 }
             }
 #endif
-            else
+            else if (field_length > 0)
             {
                 err = mz_stream_seek(file_extra_stream, field_length, MZ_SEEK_CUR);
             }
 
-            field_pos += 4 + field_length;
+            field_pos += field_length;
         }
     }
     
@@ -959,8 +416,66 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     // Set to empty string just in-case
     if (file_info->filename == NULL)
         file_info->filename = "";
+    if (file_info->extrafield == NULL)
+        file_info->extrafield_size = 0;
     if (file_info->comment == NULL)
         file_info->comment = "";
+
+    if (err == MZ_OK)
+    {
+        mz_zip_print("Zip - Entry - Read header - %s (local %"PRId8")\n",
+            file_info->filename, local);
+        mz_zip_print("Zip - Entry - Read header compress (ucs %"PRId64" cs %"PRId64" crc 0x%08"PRIx32")\n",
+            file_info->uncompressed_size, file_info->compressed_size, file_info->crc);
+        if (!local)
+            mz_zip_print("Zip - Entry - Read header disk (disk %"PRId32" offset %"PRId64")\n",
+                file_info->disk_number, file_info->disk_offset);
+        mz_zip_print("Zip - Entry - Read header variable (fnl %"PRId32" efs %"PRId32" cms %"PRId32")\n",
+            file_info->filename_size, file_info->extrafield_size, file_info->comment_size);
+    }
+
+    return err;
+}
+
+static int32_t mz_zip_entry_read_descriptor(void *stream, uint8_t zip64, uint32_t *crc32, int64_t *compressed_size, int64_t *uncompressed_size)
+{
+    uint32_t value32 = 0;
+    int64_t value64 = 0;
+    int32_t err = MZ_OK;
+
+
+    err = mz_stream_read_uint32(stream, &value32);
+    if (value32 != MZ_ZIP_MAGIC_DATADESCRIPTOR)
+        err = MZ_FORMAT_ERROR;
+    if (err == MZ_OK)
+        err = mz_stream_read_uint32(stream, &value32);
+    if ((err == MZ_OK) && (crc32 != NULL))
+        *crc32 = value32;
+    if (err == MZ_OK)
+    {
+        // If zip 64 extension is enabled then read as 8 byte
+        if (!zip64)
+        {
+            err = mz_stream_read_uint32(stream, &value32);
+            value64 = value32;
+        }
+        else
+            err = mz_stream_read_int64(stream, &value64);
+        if ((err == MZ_OK) && (compressed_size != NULL))
+            *compressed_size = value64;
+    }
+    if (err == MZ_OK)
+    {
+        if (!zip64)
+        {
+            err = mz_stream_read_uint32(stream, &value32);
+            value64 = value32;
+        }
+        else
+            err = mz_stream_read_int64(stream, &value64);
+        if ((err == MZ_OK) && (uncompressed_size != NULL))
+            *uncompressed_size = value64;
+    }
 
     return err;
 }
@@ -1050,7 +565,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
                 extrafield_size += 4 + field_length;
 
             if (err_mem == MZ_OK)
-                err_mem = mz_stream_seek(file_extra_stream, field_length, SEEK_CUR);
+                err_mem = mz_stream_seek(file_extra_stream, field_length, MZ_SEEK_CUR);
         }
         while (err_mem == MZ_OK);
     }
@@ -1206,7 +721,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     if (file_info->extrafield_size > 0)
     {
-        err_mem = mz_stream_mem_seek(file_extra_stream, 0, SEEK_SET);
+        err_mem = mz_stream_mem_seek(file_extra_stream, 0, MZ_SEEK_SET);
         while (err == MZ_OK && err_mem == MZ_OK)
         {
             err_mem = mz_stream_read_uint16(file_extra_stream, &field_type);
@@ -1218,7 +733,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             // Prefer our zip 64, ntfs extensions over incoming
             if (field_type == MZ_ZIP_EXTENSION_ZIP64 || field_type == MZ_ZIP_EXTENSION_NTFS)
             {
-                err_mem = mz_stream_seek(file_extra_stream, field_length, SEEK_CUR);
+                err_mem = mz_stream_seek(file_extra_stream, field_length, MZ_SEEK_CUR);
                 continue;
             }
 
@@ -1298,6 +813,697 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     return err;
+}
+
+static int32_t mz_zip_entry_write_descriptor(void *stream, uint32_t crc32, int64_t compressed_size, int64_t uncompressed_size)
+{
+    int32_t err = MZ_OK;
+
+    err = mz_stream_write_uint32(stream, MZ_ZIP_MAGIC_DATADESCRIPTOR);
+    if (err == MZ_OK)
+        err = mz_stream_write_uint32(stream, crc32);
+
+    // Store data descriptor as 8 bytes if zip 64 extension enabled
+    if (err == MZ_OK)
+    {
+        // Zip 64 extension is enabled when uncompressed size is > UINT32_MAX
+        if (uncompressed_size <= UINT32_MAX)
+            err = mz_stream_write_uint32(stream, (uint32_t)compressed_size);
+        else
+            err = mz_stream_write_int64(stream, compressed_size);
+    }
+    if (err == MZ_OK)
+    {
+        if (uncompressed_size <= UINT32_MAX)
+            err = mz_stream_write_uint32(stream, (uint32_t)uncompressed_size);
+        else
+            err = mz_stream_write_int64(stream, uncompressed_size);
+    }
+
+    return err;
+}
+
+static int32_t mz_zip_read_cd(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    uint64_t number_entry_cd64 = 0;
+    uint64_t number_entry = 0;
+    uint64_t number_entry_cd = 0;
+    int64_t eocd_pos = 0;
+    int64_t eocd_pos64 = 0;
+    int64_t value64i = 0;
+    uint16_t value16 = 0;
+    uint32_t value32 = 0;
+    uint64_t value64 = 0;
+    uint16_t comment_size = 0;
+    int32_t comment_read = 0;
+    int32_t err = MZ_OK;
+
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+
+    // Read and cache central directory records
+    err = mz_zip_search_eocd(zip->stream, &eocd_pos);
+    if (err == MZ_OK)
+    {
+        // The signature, already checked
+        err = mz_stream_read_uint32(zip->stream, &value32);
+        // Number of this disk
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(zip->stream, &value16);
+        // Number of the disk with the start of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(zip->stream, &value16);
+        zip->disk_number_with_cd = value16;
+        // Total number of entries in the central dir on this disk
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(zip->stream, &value16);
+        zip->number_entry = value16;
+        // Total number of entries in the central dir
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(zip->stream, &value16);
+        number_entry_cd = value16;
+        if (number_entry_cd != zip->number_entry)
+            err = MZ_FORMAT_ERROR;
+        // Size of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_read_uint32(zip->stream, &value32);
+        if (err == MZ_OK)
+            zip->cd_size = value32;
+        // Offset of start of central directory with respect to the starting disk number
+        if (err == MZ_OK)
+            err = mz_stream_read_uint32(zip->stream, &value32);
+        if (err == MZ_OK)
+            zip->cd_offset = value32;
+        // Zip file global comment length
+        if (err == MZ_OK)
+            err = mz_stream_read_uint16(zip->stream, &comment_size);
+        if ((err == MZ_OK) && (comment_size > 0))
+        {
+            zip->comment = (char *)MZ_ALLOC(comment_size + 1);
+            if (zip->comment != NULL)
+            {
+                comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
+                // Don't fail if incorrect comment length read, not critical
+                if (comment_read < 0)
+                    comment_read = 0;
+                zip->comment[comment_read] = 0;
+            }
+        }
+
+        if ((err == MZ_OK) && ((number_entry_cd == UINT16_MAX) || (zip->cd_offset == UINT32_MAX)))
+        {
+            // Format should be Zip64, as the central directory or file size is too large
+            if (mz_zip_search_zip64_eocd(zip->stream, eocd_pos, &eocd_pos64) == MZ_OK)
+            {
+                eocd_pos = eocd_pos64;
+
+                err = mz_stream_seek(zip->stream, eocd_pos, MZ_SEEK_SET);
+                // The signature, already checked
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint32(zip->stream, &value32);
+                // Size of zip64 end of central directory record
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint64(zip->stream, &value64);
+                // Version made by
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint16(zip->stream, &zip->version_madeby);
+                // Version needed to extract
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint16(zip->stream, &value16);
+                // Number of this disk
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint32(zip->stream, &value32);
+                // Number of the disk with the start of the central directory
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint32(zip->stream, &zip->disk_number_with_cd);
+                // Total number of entries in the central directory on this disk
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint64(zip->stream, &number_entry);
+                // Total number of entries in the central directory
+                if (err == MZ_OK)
+                    err = mz_stream_read_uint64(zip->stream, &number_entry_cd64);
+                if (number_entry == UINT32_MAX)
+                    zip->number_entry = number_entry_cd64;
+                // Size of the central directory
+                if (err == MZ_OK)
+                    err = mz_stream_read_int64(zip->stream, &zip->cd_size);
+                // Offset of start of central directory with respect to the starting disk number
+                if (err == MZ_OK)
+                    err = mz_stream_read_int64(zip->stream, &zip->cd_offset);
+            }
+            else if ((zip->number_entry == UINT16_MAX) || (number_entry_cd != zip->number_entry) ||
+                     (zip->cd_size == UINT16_MAX) || (zip->cd_offset == UINT32_MAX))
+            {
+                err = MZ_FORMAT_ERROR;
+            }
+        }
+    }
+
+    if (err == MZ_OK)
+    {
+        mz_zip_print("Zip - Read cd (disk %"PRId32" entries %"PRId64" offset %"PRId64" size %"PRId64")\n",
+            zip->disk_number_with_cd, zip->number_entry, zip->cd_offset, zip->cd_size);
+
+        // Verify central directory signature exists at offset
+        err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
+        if (err == MZ_OK)
+            err = mz_stream_read_uint32(zip->stream, &value32);
+        if (value32 != MZ_ZIP_MAGIC_CENTRALHEADER)
+        {
+            // If not found attempt to seek backward to find it
+            err = mz_stream_seek(zip->stream, eocd_pos - zip->cd_size, MZ_SEEK_SET);
+            if (err == MZ_OK)
+                err = mz_stream_read_uint32(zip->stream, &value32);
+            if (value32 == MZ_ZIP_MAGIC_CENTRALHEADER)
+            {
+                // If found compensate for incorrect locations
+                value64i = zip->cd_offset;
+                zip->cd_offset = eocd_pos - zip->cd_size;
+                // Assume disk has prepended data
+                zip->disk_offset_shift = zip->cd_offset - value64i;
+            }
+        }
+    }
+    
+    if (err == MZ_OK)
+    {
+        if (eocd_pos < zip->cd_offset)
+        {
+            // End of central dir should always come after central dir
+            err = MZ_FORMAT_ERROR;
+        }
+        else if (eocd_pos < zip->cd_offset + zip->cd_size)
+        {
+            // Truncate size of cd if incorrect size or offset provided
+            zip->cd_size = eocd_pos - zip->cd_offset;
+        }
+    }
+
+    return err;
+}
+
+static int32_t mz_zip_write_cd(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int64_t zip64_eocd_pos_inzip = 0;
+    uint16_t comment_size = 0;
+    int64_t disk_number = 0;
+    int64_t disk_size = 0;
+    int32_t err = MZ_OK;
+
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+
+    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number) == MZ_OK)
+        zip->disk_number_with_cd = (uint32_t)disk_number;
+    if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size) == MZ_OK && disk_size > 0)
+        zip->disk_number_with_cd += 1;
+    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
+
+    zip->cd_offset = mz_stream_tell(zip->stream);
+    mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_END);
+    zip->cd_size = (uint32_t)mz_stream_tell(zip->cd_mem_stream);
+    mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_SET);
+
+    err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
+
+    mz_zip_print("Zip - Write cd (disk %"PRId32" entries %"PRId64" offset %"PRId64" size %"PRId64")\n",
+        zip->disk_number_with_cd, zip->number_entry, zip->cd_offset, zip->cd_size);
+
+    // Write the ZIP64 central directory header
+    if (zip->cd_offset >= UINT32_MAX || zip->number_entry > UINT16_MAX)
+    {
+        zip64_eocd_pos_inzip = mz_stream_tell(zip->stream);
+
+        err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER64);
+
+        // Size of this 'zip64 end of central directory'
+        if (err == MZ_OK)
+            err = mz_stream_write_uint64(zip->stream, (uint64_t)44);
+        // Version made by
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(zip->stream, zip->version_madeby);
+        // Version needed
+        if (err == MZ_OK)
+            err = mz_stream_write_uint16(zip->stream, (uint16_t)45);
+        // Number of this disk
+        if (err == MZ_OK)
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+        // Number of the disk with the start of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+        // Total number of entries in the central dir on this disk
+        if (err == MZ_OK)
+            err = mz_stream_write_uint64(zip->stream, zip->number_entry);
+        // Total number of entries in the central dir
+        if (err == MZ_OK)
+            err = mz_stream_write_uint64(zip->stream, zip->number_entry);
+        // Size of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_write_int64(zip->stream, zip->cd_size);
+        // Offset of start of central directory with respect to the starting disk number
+        if (err == MZ_OK)
+            err = mz_stream_write_int64(zip->stream, zip->cd_offset);
+        if (err == MZ_OK)
+            err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDLOCHEADER64);
+
+        // Number of the disk with the start of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd);
+        // Relative offset to the end of zip64 central directory
+        if (err == MZ_OK)
+            err = mz_stream_write_int64(zip->stream, zip64_eocd_pos_inzip);
+        // Number of the disk with the start of the central directory
+        if (err == MZ_OK)
+            err = mz_stream_write_uint32(zip->stream, zip->disk_number_with_cd + 1);
+    }
+
+    // Write the central directory header
+
+    // Signature
+    if (err == MZ_OK)
+        err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_ENDHEADER);
+    // Number of this disk
+    if (err == MZ_OK)
+        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
+    // Number of the disk with the start of the central directory
+    if (err == MZ_OK)
+        err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->disk_number_with_cd);
+    // Total number of entries in the central dir on this disk
+    if (err == MZ_OK)
+    {
+        if (zip->number_entry >= UINT16_MAX)
+            err = mz_stream_write_uint16(zip->stream, UINT16_MAX);
+        else
+            err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_entry);
+    }
+    // Total number of entries in the central dir
+    if (err == MZ_OK)
+    {
+        if (zip->number_entry >= UINT16_MAX)
+            err = mz_stream_write_uint16(zip->stream, UINT16_MAX);
+        else
+            err = mz_stream_write_uint16(zip->stream, (uint16_t)zip->number_entry);
+    }
+    // Size of the central directory
+    if (err == MZ_OK)
+        err = mz_stream_write_uint32(zip->stream, (uint32_t)zip->cd_size);
+    // Offset of start of central directory with respect to the starting disk number
+    if (err == MZ_OK)
+    {
+        if (zip->cd_offset >= UINT32_MAX)
+            err = mz_stream_write_uint32(zip->stream, UINT32_MAX);
+        else
+            err = mz_stream_write_uint32(zip->stream, (uint32_t)zip->cd_offset);
+    }
+
+    // Write global comment
+    if (zip->comment != NULL)
+        comment_size = (uint16_t)strlen(zip->comment);
+    if (err == MZ_OK)
+        err = mz_stream_write_uint16(zip->stream, comment_size);
+    if (err == MZ_OK)
+    {
+        if (mz_stream_write(zip->stream, zip->comment, comment_size) != comment_size)
+            err = MZ_READ_ERROR;
+    }
+    return err;
+}
+
+static int32_t mz_zip_rebuild_cd(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    mz_zip_file local_file_info;
+    void *local_file_info_stream = NULL;
+    void *file_extra_stream = NULL;
+    void *cd_mem_stream = NULL;
+    uint64_t number_entry = 0;
+    int64_t descriptor_pos = 0;
+    int64_t disk_offset = 0;
+    int64_t disk_number = 0;
+    int64_t compressed_size = 0;
+    int64_t uncompressed_size = 0;
+    uint8_t descriptor_magic[4] = MZ_ZIP_MAGIC_DATADESCRIPTORU8;
+    uint32_t crc32 = 0;
+    int32_t disk_number_with_cd = 0;
+    int32_t err = MZ_OK;
+    uint8_t zip64 = 0;
+
+
+    mz_zip_print("Zip - Rebuild cd\n");
+
+    mz_zip_get_cd_mem_stream(handle, &cd_mem_stream);
+
+    // Determine if we are on a split disk or not
+    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, 0);
+    if (mz_stream_tell(zip->stream) < 0)
+    {
+        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
+        mz_stream_seek(zip->stream, 0, MZ_SEEK_SET);
+    }
+    else
+        disk_number_with_cd = 1;
+
+    if (mz_stream_is_open(cd_mem_stream) != MZ_OK)
+        err = mz_stream_mem_open(cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+    
+    mz_stream_mem_create(&local_file_info_stream);
+    mz_stream_mem_open(local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+    while (err == MZ_OK)
+    {
+        memset(&local_file_info, 0, sizeof(local_file_info));
+
+        // Get current offset and disk number for central dir record
+        disk_offset = mz_stream_tell(zip->stream);
+        mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
+
+        // Read local headers
+        err = mz_zip_entry_read_header(zip->stream, 1, &local_file_info, local_file_info_stream);
+
+        local_file_info.disk_offset = disk_offset;
+        if (disk_number < 0)
+            disk_number = 0;
+        local_file_info.disk_number = (uint32_t)disk_number;
+
+        if (err == MZ_OK)
+        {
+            if (local_file_info.compressed_size > 0)
+            {
+                err = mz_stream_seek(zip->stream, local_file_info.compressed_size, MZ_SEEK_CUR);
+            }
+            else if (local_file_info.uncompressed_size > 0)
+            {
+                err = mz_stream_find(zip->stream, (const void *)descriptor_magic, sizeof(descriptor_magic),
+                        INT64_MAX, &descriptor_pos);
+            }
+        }
+
+        // Read descriptor if it exists so we can get to the next local header
+        if ((err == MZ_OK) && (local_file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR))
+        {
+            mz_stream_mem_create(&file_extra_stream);
+            mz_stream_mem_set_buffer(file_extra_stream, (void *)local_file_info.extrafield, 
+                local_file_info.extrafield_size);
+
+            zip64 = 0;
+            if (mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_ZIP64, NULL) == MZ_OK)
+                zip64 = 1;
+
+            mz_stream_mem_delete(&file_extra_stream);
+
+            err = mz_zip_entry_read_descriptor(zip->stream, zip64, &crc32, 
+                &compressed_size, &uncompressed_size);
+
+            if (local_file_info.crc == 0)
+                local_file_info.crc = crc32;
+            if (local_file_info.compressed_size == 0)
+                local_file_info.compressed_size = compressed_size;
+            if (local_file_info.uncompressed_size == 0)
+                local_file_info.uncompressed_size = uncompressed_size;
+        }
+        
+        // Rewrite central dir with local headers and offsets
+        if (err == MZ_OK)
+            err = mz_zip_entry_write_header(cd_mem_stream, 0, &local_file_info);
+
+        if (err == MZ_OK)
+            number_entry += 1;
+    }
+
+    mz_stream_mem_delete(&local_file_info_stream);
+
+    mz_zip_print("Zip - Rebuild cd complete (cddisk %"PRId32" entries %"PRId64")\n", 
+        disk_number_with_cd, number_entry);
+
+    if (number_entry == 0)
+        return err;
+
+    // Set new upper seek boundary for central dir mem stream
+    disk_offset = mz_stream_tell(cd_mem_stream);
+    mz_stream_mem_set_buffer_limit(cd_mem_stream, (int32_t)disk_offset);
+
+    // Set new central directory info
+    mz_zip_set_cd_stream(handle, 0, cd_mem_stream);
+    mz_zip_set_number_entry(handle, number_entry);
+    mz_zip_set_disk_number_with_cd(handle, disk_number_with_cd);
+
+    return MZ_OK;
+}
+
+void *mz_zip_create(void **handle)
+{
+    mz_zip *zip = NULL;
+
+    zip = (mz_zip *)MZ_ALLOC(sizeof(mz_zip));
+    if (zip != NULL)
+        memset(zip, 0, sizeof(mz_zip));
+    if (handle != NULL)
+        *handle = zip;
+
+    return zip;
+}
+
+void mz_zip_delete(void **handle)
+{
+    mz_zip *zip = NULL;
+    if (handle == NULL)
+        return;
+    zip = (mz_zip *)*handle;
+    if (zip != NULL)
+    {
+        MZ_FREE(zip);
+    }
+    *handle = NULL;
+}
+
+int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int32_t err = MZ_OK;
+
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+
+    mz_zip_print("Zip - Open\n");
+
+    zip->stream = stream;
+
+    mz_stream_mem_create(&zip->cd_mem_stream);
+    
+    if (mode & MZ_OPEN_MODE_WRITE)
+    {
+        mz_stream_mem_open(zip->cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+        zip->cd_stream = zip->cd_mem_stream;
+    }
+    else
+    {
+        zip->cd_stream = stream;
+    }
+
+    if ((mode & MZ_OPEN_MODE_READ) || (mode & MZ_OPEN_MODE_APPEND))
+    {
+        if ((mode & MZ_OPEN_MODE_CREATE) == 0)
+        {
+            err = mz_zip_read_cd(zip);
+            if (err != MZ_OK)
+            {
+#if 0
+                mz_zip_print("Zip - Error detected reading cd (%"PRId32")", err);
+                if (mz_zip_rebuild_cd(zip) == MZ_OK)
+                    err = MZ_OK;
+#endif
+            }
+        }
+
+        if ((err == MZ_OK) && (mode & MZ_OPEN_MODE_APPEND))
+        {
+            if (zip->cd_size > 0)
+            {
+                // Store central directory in memory
+                err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
+                if (err == MZ_OK)
+                    err = mz_stream_copy(zip->cd_mem_stream, zip->stream, (int32_t)zip->cd_size);
+                if (err == MZ_OK)
+                    err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
+            }
+            else
+            {
+                // If no central directory, append new zip to end of file
+                err = mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
+            }
+        }
+        else
+        {
+            zip->cd_start_pos = zip->cd_offset;
+        }
+    }
+
+    if (err != MZ_OK)
+    {
+        mz_zip_close(zip);
+        return err;
+    }
+
+    // Memory streams used to store variable length file info data
+    mz_stream_mem_create(&zip->file_info_stream);
+    mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+    mz_stream_mem_create(&zip->local_file_info_stream);
+    mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+    zip->open_mode = mode;
+
+    return err;
+}
+
+int32_t mz_zip_close(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    int32_t err = MZ_OK;
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+        
+    mz_zip_print("Zip - Close\n");
+
+    if (mz_zip_entry_is_open(handle) == MZ_OK)
+    {
+        mz_zip_print("Zip - Entry was not closed properly\n");
+
+        err = mz_zip_entry_close(handle);
+        if (err != MZ_OK)
+            return err;
+    }
+
+    if (zip->open_mode & MZ_OPEN_MODE_WRITE)
+        err = mz_zip_write_cd(handle);
+
+    if (zip->cd_mem_stream != NULL)
+    {
+        mz_stream_close(zip->cd_mem_stream);
+        mz_stream_delete(&zip->cd_mem_stream);
+    }
+
+    if (zip->file_info_stream != NULL)
+    {
+        mz_stream_mem_close(zip->file_info_stream);
+        mz_stream_mem_delete(&zip->file_info_stream);
+    }
+    if (zip->local_file_info_stream != NULL)
+    {
+        mz_stream_mem_close(zip->local_file_info_stream);
+        mz_stream_mem_delete(&zip->local_file_info_stream);
+    }
+
+    if (zip->comment)
+    {
+        MZ_FREE(zip->comment);
+        zip->comment = NULL;
+    }
+
+    zip->stream = NULL;
+    zip->cd_stream = NULL;
+
+    return err;
+}
+
+int32_t mz_zip_get_comment(void *handle, const char **comment)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || comment == NULL)
+        return MZ_PARAM_ERROR;
+    if (zip->comment == NULL)
+        return MZ_EXIST_ERROR;
+    *comment = zip->comment;
+    return MZ_OK;
+}
+
+int32_t mz_zip_set_comment(void *handle, const char *comment)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    uint16_t comment_size = 0;
+    if (zip == NULL || comment == NULL)
+        return MZ_PARAM_ERROR;
+    if (zip->comment != NULL)
+        MZ_FREE(zip->comment);
+    comment_size = (uint16_t)(strlen(comment) + 1);
+    zip->comment = (char *)MZ_ALLOC(comment_size);
+    if (zip->comment == NULL)
+        return MZ_MEM_ERROR;
+    strncpy(zip->comment, comment, comment_size - 1);
+    zip->comment[comment_size - 1] = 0;
+    return MZ_OK;
+}
+
+int32_t mz_zip_get_version_madeby(void *handle, uint16_t *version_madeby)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || version_madeby == NULL)
+        return MZ_PARAM_ERROR;
+    *version_madeby = zip->version_madeby;
+    return MZ_OK;
+}
+
+int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    zip->version_madeby = version_madeby;
+    return MZ_OK;
+}
+
+int32_t mz_zip_get_stream(void *handle, void **stream)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || stream == NULL)
+        return MZ_PARAM_ERROR;
+    *stream = zip->stream;
+    if (*stream == NULL)
+        return MZ_EXIST_ERROR;
+    return MZ_OK;
+}
+
+int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || cd_stream == NULL)
+        return MZ_PARAM_ERROR;
+    zip->cd_stream = cd_stream;
+    zip->cd_start_pos = cd_start_pos;
+    return MZ_OK;
+}
+
+int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL || cd_mem_stream == NULL)
+        return MZ_PARAM_ERROR;
+    *cd_mem_stream = zip->cd_mem_stream;
+    if (*cd_mem_stream == NULL)
+        return MZ_EXIST_ERROR;
+    return MZ_OK;
+}
+
+static int32_t mz_zip_entry_close_int(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+
+    if (zip->crypt_stream != NULL)
+        mz_stream_delete(&zip->crypt_stream);
+    zip->crypt_stream = NULL;
+    if (zip->compress_stream != NULL)
+        mz_stream_delete(&zip->compress_stream);
+    zip->compress_stream = NULL;
+
+    zip->entry_opened = 0;
+
+    return MZ_OK;
 }
 
 static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress_level, const char *password)
@@ -1454,6 +1660,10 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         zip->entry_opened = 1;
         zip->entry_crc32 = 0;
     }
+    else
+    {
+        mz_zip_entry_close_int(handle);
+    }
 
     return err;
 }
@@ -1514,6 +1724,9 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     else
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
 
+    mz_zip_print("Zip - Entry - Read open (disk %d "PRId16" offset %"PRId64")\n", 
+        zip->file_info.disk_number, zip->file_info.disk_offset);
+
     err = mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
@@ -1563,8 +1776,11 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     }
 
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
+    
+    mz_zip_print("Zip - Entry - Write open - %s (level %"PRId16" raw %"PRId8")\n", 
+        zip->file_info.filename, compress_level, raw);
 
-    mz_stream_seek(zip->file_info_stream, 0, SEEK_SET);
+    mz_stream_seek(zip->file_info_stream, 0, MZ_SEEK_SET);
     mz_stream_write(zip->file_info_stream, file_info, sizeof(mz_zip_file));
 
     // Copy filename, extrafield, and comment internally
@@ -1655,6 +1871,9 @@ int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
     read = mz_stream_read(zip->compress_stream, buf, len);
     if (read > 0)
         zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, read);
+
+    mz_zip_print("Zip - Entry - Read - %"PRId32" (max %"PRId32")\n", read, len);
+
     return read;
 }
 
@@ -1668,6 +1887,9 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
     written = mz_stream_write(zip->compress_stream, buf, len);
     if (written > 0)
         zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
+
+    mz_zip_print("Zip - Entry - Write - %"PRId32" (max %"PRId32")\n", written, len);
+
     return written;
 }
 
@@ -1729,6 +1951,8 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
     if (!zip->entry_raw)
         crc32 = zip->entry_crc32;
 
+    mz_zip_print("Zip - Entry - Close (ucs %"PRId64" crc 0x%08"PRIx32")\n", compressed_size, crc32);
+
     if ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0)
     {
         mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
@@ -1742,7 +1966,12 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
 #endif
             {
                 if (crc32 != zip->file_info.crc)
+                {
+                    mz_zip_print("Zip - Entry - Crc failed (actual 0x%08"PRIx32" expected 0x%08"PRIx32")\n",
+                        crc32, zip->file_info.crc);
+
                     err = MZ_CRC_ERROR;
+                }
             }
         }
     }
@@ -1759,61 +1988,30 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
         mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_OUT, (int64_t *)&compressed_size);
     }
 
-    mz_stream_delete(&zip->crypt_stream);
-
-    mz_stream_delete(&zip->compress_stream);
-
     if (zip->open_mode & MZ_OPEN_MODE_WRITE)
     {
         if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR))
         {
-            err = mz_stream_write_uint32(zip->stream, MZ_ZIP_MAGIC_DATADESCRIPTOR);
-            if (err == MZ_OK)
-            {
-                if (zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO)
-                    err = mz_stream_write_uint32(zip->stream, 0);
-                else
-                    err = mz_stream_write_uint32(zip->stream, crc32);
-            }
-            // Store data descriptor as 8 bytes if zip 64 extension enabled
-            if (err == MZ_OK)
-            {
-                // Zip 64 extension is enabled when uncompressed size is > UINT32_MAX
-                if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                    err = mz_stream_write_uint32(zip->stream, (uint32_t)compressed_size);
-                else
-                    err = mz_stream_write_int64(zip->stream, compressed_size);
-            }
-            if (err == MZ_OK)
-            {
-                if (zip->file_info.uncompressed_size <= UINT32_MAX)
-                {
-                    if (zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO)
-                        err = mz_stream_write_uint32(zip->stream, 0);
-                    else
-                        err = mz_stream_write_uint32(zip->stream, (uint32_t)uncompressed_size);
-                }
-                else
-                {
-                    if (zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO)
-                        err = mz_stream_write_int64(zip->stream, 0);
-                    else
-                        err = mz_stream_write_int64(zip->stream, uncompressed_size);
-                }
-            }
+            if (zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO)
+                err = mz_zip_entry_write_descriptor(zip->stream, 0, compressed_size, 0);
+            else
+                err = mz_zip_entry_write_descriptor(zip->stream, crc32, compressed_size, uncompressed_size);
         }
 
         zip->file_info.crc = crc32;
         zip->file_info.compressed_size = compressed_size;
         zip->file_info.uncompressed_size = uncompressed_size;
 
+        mz_zip_print("Zip - Entry - Write cd (ucs %"PRId64" cs %"PRId64" crc 0x%08"PRIx32")\n", 
+            uncompressed_size, compressed_size, crc32);
+
         if (err == MZ_OK)
             err = mz_zip_entry_write_header(zip->cd_mem_stream, 0, &zip->file_info);
 
         zip->number_entry += 1;
-    } 
+    }
 
-    zip->entry_opened = 0;
+    mz_zip_entry_close_int(handle);
 
     return err;
 }
@@ -1853,6 +2051,15 @@ int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry)
     if (zip == NULL || number_entry == NULL)
         return MZ_PARAM_ERROR;
     *number_entry = zip->number_entry;
+    return MZ_OK;
+}
+
+int32_t mz_zip_set_disk_number_with_cd(void *handle, uint32_t disk_number_with_cd)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    zip->disk_number_with_cd = disk_number_with_cd;
     return MZ_OK;
 }
 
@@ -2098,7 +2305,7 @@ int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length)
             return MZ_OK;
         }
 
-        err = mz_stream_seek(stream, field_length, SEEK_CUR);
+        err = mz_stream_seek(stream, field_length, MZ_SEEK_CUR);
     }
     while (err == MZ_OK);
 
