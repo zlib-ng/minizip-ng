@@ -1115,10 +1115,13 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
         mode |= MZ_OPEN_MODE_CREATE;
 
         // Create destination directory if it doesn't already exist
-        strncpy(directory, path, sizeof(directory));
-        mz_path_remove_filename(directory);
-        if (mz_os_file_exists(directory) != MZ_OK)
-            mz_os_make_dir(directory);
+        if (strchr(path, '/') != NULL || strrchr(path, '\\') != NULL)
+        {
+            strncpy(directory, path, sizeof(directory));
+            mz_path_remove_filename(directory);
+            if (mz_os_file_exists(directory) != MZ_OK)
+                mz_os_make_dir(directory);
+        }
     }
     else if (append)
     {
