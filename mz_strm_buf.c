@@ -14,20 +14,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
+#include <inttypes.h>
 #include <errno.h>
 
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
-
-/***************************************************************************/
-
-#if 0
-#  define mz_stream_buffered_print(s,f,...) printf(f,__VA_ARGS__);
-#else
-#  define mz_stream_buffered_print(s,f,...)
-#endif
 
 /***************************************************************************/
 
@@ -66,6 +58,14 @@ typedef struct mz_stream_buffered_s {
 
 /***************************************************************************/
 
+#if 0
+#  define mz_stream_buffered_print printf
+#else
+#  define mz_stream_buffered_print(fmt,...)
+#endif
+
+/***************************************************************************/
+
 static int32_t mz_stream_buffered_reset(void *stream)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
@@ -82,7 +82,7 @@ static int32_t mz_stream_buffered_reset(void *stream)
 int32_t mz_stream_buffered_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
-    mz_stream_buffered_print(buffered, "open [mode %d]\n", mode);
+    mz_stream_buffered_print("Buffered - Open (mode %"PRId32")\n", mode);
     mz_stream_buffered_reset(buffered);
     return mz_stream_open(buffered->stream.base, path, mode);
 }
@@ -113,7 +113,7 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written)
 
         buffered->writebuf_misses += 1;
 
-        mz_stream_buffered_print(stream, "write flush [%d:%d len %d]\n",
+        mz_stream_buffered_print("Buffered - Write flush (%"PRId32":%"PRId32" len %"PRId32")\n",
             bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         total_bytes_written += bytes_written;
@@ -137,11 +137,11 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
     int32_t bytes_left_to_read = size;
     int32_t bytes_read = 0;
 
-    mz_stream_buffered_print(stream, "read [size %ld pos %lld]\n", size, buffered->position);
+    mz_stream_buffered_print("Buffered - Read (size %"PRId32" pos %"PRId64")\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0)
     {
-        mz_stream_buffered_print(stream, "switch from write to read, not yet supported [%lld]\n",
+        mz_stream_buffered_print("Buffered - Switch from write to read, not yet supported (pos %"PRId64")\n",
             buffered->position);
     }
 
@@ -164,7 +164,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
             buffered->readbuf_len += bytes_read;
             buffered->position += bytes_read;
 
-            mz_stream_buffered_print(stream, "filled [read %d/%d buf %d:%d pos %lld]\n",
+            mz_stream_buffered_print("Buffered - Filled (read %"PRId32"/%"PRId32" buf %"PRId32":%"PRId32" pos %"PRId64")\n",
                 bytes_read, bytes_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
 
             if (bytes_read == 0)
@@ -185,7 +185,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size)
             buffered->readbuf_hits += 1;
             buffered->readbuf_pos += bytes_to_copy;
 
-            mz_stream_buffered_print(stream, "emptied [copied %d remaining %d buf %d:%d pos %lld]\n",
+            mz_stream_buffered_print("Buffered - Emptied (copied %"PRId32" remaining %"PRId32" buf %"PRId32":%"PRId32" pos %"PRId64")\n",
                 bytes_to_copy, bytes_left_to_read, buffered->readbuf_pos, buffered->readbuf_len, buffered->position);
         }
     }
@@ -204,7 +204,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
     int32_t err = MZ_OK;
 
 
-    mz_stream_buffered_print(stream, "write [size %ld len %d pos %lld]\n",
+    mz_stream_buffered_print("Buffered - Write (size %"PRId32" len %"PRId32" pos %"PRId64")\n",
         size, buffered->writebuf_len, buffered->position);
 
     if (buffered->readbuf_len > 0)
@@ -215,7 +215,7 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
         buffered->readbuf_len = 0;
         buffered->readbuf_pos = 0;
 
-        mz_stream_buffered_print(stream, "switch from read to write [%lld]\n", buffered->position);
+        mz_stream_buffered_print("Buffered - Switch from read to write (pos %"PRId64")\n", buffered->position);
 
         err = mz_stream_seek(buffered->stream.base, buffered->position, MZ_SEEK_SET);
         if (err != MZ_OK)
@@ -242,9 +242,10 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size)
             continue;
         }
 
-        memcpy(buffered->writebuf + buffered->writebuf_pos, (const char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
+        memcpy(buffered->writebuf + buffered->writebuf_pos, 
+            (const char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
 
-        mz_stream_buffered_print(stream, "write copy [remaining %d write %d:%d len %d]\n",
+        mz_stream_buffered_print("Buffered - Write copy (remaining %"PRId32" write %"PRId32":%"PRId32" len %"PRId32")\n",
             bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);
 
         bytes_left_to_write -= bytes_to_copy;
@@ -265,7 +266,7 @@ int64_t mz_stream_buffered_tell(void *stream)
 
     buffered->position = position;
 
-    mz_stream_buffered_print(stream, "tell [pos %llu readpos %d writepos %d err %d]\n",
+    mz_stream_buffered_print("Buffered - Tell (pos %"PRId64" readpos %"PRId32" writepos %"PRId32" err %"PRId32")\n",
         buffered->position, buffered->readbuf_pos, buffered->writebuf_pos, errno);
 
     if (buffered->readbuf_len > 0)
@@ -281,7 +282,8 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
     int32_t bytes_flushed = 0;
     int32_t err = MZ_OK;
 
-    mz_stream_buffered_print(stream, "seek [origin %d offset %llu pos %lld]\n", origin, offset, buffered->position);
+    mz_stream_buffered_print("Buffered - Seek (origin %"PRId32" offset %"PRId64" pos %"PRId64")\n", 
+        origin, offset, buffered->position);
 
     switch (origin)
     {
@@ -362,17 +364,17 @@ int32_t mz_stream_buffered_close(void *stream)
     int32_t bytes_flushed = 0;
 
     mz_stream_buffered_flush(stream, &bytes_flushed);
-    mz_stream_buffered_print(stream, "close [flushed %d]\n", bytes_flushed);
+    mz_stream_buffered_print("Buffered - Close (flushed %"PRId32")\n", bytes_flushed);
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0)
     {
-        mz_stream_buffered_print(stream, "read efficiency %.02f%%\n",
+        mz_stream_buffered_print("Buffered - Read efficiency %.02f%%\n",
             (buffered->readbuf_hits / ((float)buffered->readbuf_hits + buffered->readbuf_misses)) * 100);
     }
 
     if (buffered->writebuf_hits + buffered->writebuf_misses > 0)
     {
-        mz_stream_buffered_print(stream, "write efficiency %.02f%%\n",
+        mz_stream_buffered_print("Buffered - Write efficiency %.02f%%\n",
             (buffered->writebuf_hits / ((float)buffered->writebuf_hits + buffered->writebuf_misses)) * 100);
     }
 
