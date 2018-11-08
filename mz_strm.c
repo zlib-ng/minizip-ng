@@ -18,6 +18,10 @@
 
 /***************************************************************************/
 
+#define MZ_STREAM_FIND_SIZE (1024)
+
+/***************************************************************************/
+
 int32_t mz_stream_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream *strm = (mz_stream *)stream;
@@ -235,40 +239,44 @@ int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin)
 
 int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position)
 {
-    uint8_t buf[1024];
+    uint8_t buf[MZ_STREAM_FIND_SIZE];
+    int32_t buf_pos = 0;
     int32_t read_size = sizeof(buf);
+    int32_t read = 0;
     int64_t read_pos = 0;
     int64_t start_pos = 0;
-    int64_t disk_offset = 0;
+    int64_t disk_pos = 0;
     int32_t i = 0;
+    uint8_t first = 1;
     int32_t err = MZ_OK;
 
     if (stream == NULL || find == NULL || position == NULL)
         return MZ_PARAM_ERROR;
-    if (find_size < 0 || find_size >= sizeof(buf))
+    if (find_size < 0 || find_size >= (int32_t)sizeof(buf))
         return MZ_PARAM_ERROR;
 
-    *position = 0;
+    *position = -1;
 
     start_pos = mz_stream_tell(stream);
 
-    while (max_seek > 0)
+    while (read_pos < max_seek)
     {
-        if (read_size > max_seek)
-            read_size = (int32_t)max_seek;
+        if (read_size > (int32_t)(max_seek - read_pos - buf_pos))
+            read_size = (int32_t)(max_seek - read_pos - buf_pos);
 
-        if (mz_stream_read(stream, buf, read_size) != read_size)
+        read = mz_stream_read(stream, buf + buf_pos, read_size);
+        if ((read < 0) || (read + buf_pos < find_size))
             break;
 
-        for (i = 0; i < read_size - find_size; i += 1)
+        for (i = 0; i <= read + buf_pos - find_size; i += 1)
         {
             if (memcmp(&buf[i], find, find_size) != 0)
                 continue;
 
-            // Seek to position on disk where the data was found
-            disk_offset = mz_stream_tell(stream);
+            disk_pos = mz_stream_tell(stream);
 
-            err = mz_stream_seek(stream, disk_offset - (read_size - i), MZ_SEEK_SET);
+            // Seek to position on disk where the data was found
+            err = mz_stream_seek(stream, disk_pos - (read + buf_pos - i), MZ_SEEK_SET);
             if (err != MZ_OK)
                 return MZ_EXIST_ERROR;
 
@@ -276,13 +284,16 @@ int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_
             return MZ_OK;
         }
 
-        read_pos += read_size;
-        if (read_size == sizeof(buf))
+        if (first)
+        {
+            read -= find_size;
             read_size -= find_size;
+            buf_pos = find_size;
+            first = 0;
+        }
 
-        memcpy(buf + read_size, buf, find_size);
-
-        max_seek -= read_size;
+        memmove(buf, buf + read, find_size);
+        read_pos += read;
     }
 
     return MZ_EXIST_ERROR;
@@ -290,57 +301,65 @@ int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_
 
 int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position)
 {
-    uint8_t buf[1024];
-    int64_t read_total = 0;
-    int32_t read_size = sizeof(buf);
+    uint8_t buf[MZ_STREAM_FIND_SIZE];
+    int32_t buf_pos = 0;
+    int32_t read_size = MZ_STREAM_FIND_SIZE;
     int64_t read_pos = 0;
+    int32_t read = 0;
     int64_t start_pos = 0;
     int64_t disk_pos = 0;
+    uint8_t first = 1;
     int32_t i = 0;
     int32_t err = MZ_OK;
 
     if (stream == NULL || find == NULL || position == NULL)
         return MZ_PARAM_ERROR;
-    if (find_size < 0 || find_size >= sizeof(buf))
+    if (find_size < 0 || find_size >= (int32_t)sizeof(buf))
         return MZ_PARAM_ERROR;
 
-    *position = 0;
+    *position = -1;
 
     start_pos = mz_stream_tell(stream);
 
-    while (read_total < max_seek)
+    while (read_pos < max_seek)
     {
-        read_total += read_size;
-        if (read_total > max_seek)
-            read_total = max_seek;
-
-        read_pos = start_pos - read_total;
-        if (read_size > (start_pos - read_pos))
-            read_size = (int32_t)(start_pos - read_pos);
+        if (read_size > (int32_t)(max_seek - read_pos))
+            read_size = (int32_t)(max_seek - read_pos);
  
-        if (mz_stream_seek(stream, read_pos, MZ_SEEK_SET) != MZ_OK)
+        if (mz_stream_seek(stream, start_pos - (read_pos + read_size), MZ_SEEK_SET) != MZ_OK)
             break;
-        if (mz_stream_read(stream, buf, read_size) != read_size)
+        read = mz_stream_read(stream, buf, read_size);
+        if ((read < 0) || (read + buf_pos < find_size))
             break;
+        if (read + buf_pos < MZ_STREAM_FIND_SIZE)
+            memmove(buf + MZ_STREAM_FIND_SIZE - (read + buf_pos), buf, read);
 
-        for (i = read_size - find_size; i >= 0; i -= 1)
+        for (i = find_size; i <= (read + buf_pos); i += 1)
         {
-            if (memcmp(&buf[i], find, find_size) != 0)
+            if (memcmp(&buf[MZ_STREAM_FIND_SIZE - i], find, find_size) != 0)
                 continue;
             
-            // Seek to position on disk where the data was found
             disk_pos = mz_stream_tell(stream);
 
-            err = mz_stream_seek(stream, (disk_pos - read_size) + i, MZ_SEEK_SET);
+            // Seek to position on disk where the data was found
+            err = mz_stream_seek(stream, disk_pos + buf_pos - i, MZ_SEEK_SET);
             if (err != MZ_OK)
                 return MZ_EXIST_ERROR;
 
-            *position = read_pos + i;
+            *position = start_pos - (read_pos - buf_pos + i);
             return MZ_OK;
         }
 
-        if (read_size == sizeof(buf))
+        if (first)
+        {
+            read -= find_size;
             read_size -= find_size;
+            buf_pos = find_size;
+            first = 0;
+        }
+
+        memmove(buf + read_size, buf, find_size);
+        read_pos += read;
     }
 
     return MZ_EXIST_ERROR;

@@ -12,6 +12,8 @@ void test_stream_pkcrypt(void);
 void test_stream_wzaes(void);
 void test_stream_zlib(void);
 void test_stream_mem(void);
+void test_stream_find(void);
+void test_stream_find_reverse(void);
 
 void test_crypt_sha(void);
 void test_crypt_aes(void);

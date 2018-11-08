@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -415,6 +416,132 @@ void test_stream_mem(void)
     mz_stream_mem_close(write_mem_stream);
     mz_stream_mem_delete(&write_mem_stream);
     write_mem_stream = NULL;
+}
+
+int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int32_t find_size, mz_stream_find_cb find_cb)
+{
+    void *mem_stream = NULL;
+    int32_t i = 0;
+    int32_t x = 0;
+    int32_t err = MZ_OK;
+    int64_t last_pos = 0;
+    int64_t position = 0;
+
+    if (find == NULL || find_size == 0 || find_cb == NULL)
+        return MZ_PARAM_ERROR;
+
+    for (i = 0; i < count; i += 1)
+    {
+#if 1
+        mz_stream_mem_create(&mem_stream);
+        mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+        for (x = 0; x < find_size; x += 1)
+            mz_stream_write_uint8(mem_stream, find[x]);
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+
+        if (find_cb == mz_stream_find)
+            mz_stream_seek(mem_stream, 0, SEEK_SET);
+
+        err = find_cb(mem_stream, (const void *)find, find_size, i + find_size, &position);
+        last_pos = mz_stream_tell(mem_stream);
+        mz_stream_mem_delete(&mem_stream);
+
+        printf("Find postzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+            name, find_size, position, (position == 0));
+
+        if (position != 0 || last_pos != position)
+            break;
+#endif
+        mz_stream_mem_create(&mem_stream);
+        mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+        for (x = 0; x < find_size; x += 1)
+            mz_stream_write_uint8(mem_stream, find[x]);
+        
+        if (find_cb == mz_stream_find)
+            mz_stream_seek(mem_stream, 0, SEEK_SET);
+
+        err = find_cb(mem_stream, (const void *)find, find_size, i + find_size, &position);
+        last_pos = mz_stream_tell(mem_stream);
+        mz_stream_mem_delete(&mem_stream);
+
+        printf("Find prezero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+            name, find_size, position, (position == i));
+
+        if (position != i || last_pos != position)
+            break;
+
+        mz_stream_mem_create(&mem_stream);
+        mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+        for (x = 0; x < find_size; x += 1)
+            mz_stream_write_uint8(mem_stream, find[x]);
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+
+        if (find_cb == mz_stream_find)
+            mz_stream_seek(mem_stream, 0, SEEK_SET);
+
+        err = find_cb(mem_stream, (const void *)find, find_size, i + find_size + i, &position);
+        last_pos = mz_stream_tell(mem_stream);
+        mz_stream_mem_delete(&mem_stream);
+
+        printf("Find equalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+            name, find_size, position, (position == i));
+
+        if (position != i || last_pos != position)
+            break;
+
+        mz_stream_mem_create(&mem_stream);
+        mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+        for (x = 0; x < find_size; x += 1)
+            mz_stream_write_uint8(mem_stream, find[x]);
+        for (x = 0; x < i; x += 1)
+            mz_stream_write_uint8(mem_stream, 0);
+        mz_stream_write_uint8(mem_stream, 0);
+
+        if (find_cb == mz_stream_find)
+            mz_stream_seek(mem_stream, 0, SEEK_SET);
+
+        err = find_cb(mem_stream, (const void *)find, find_size, i + find_size + i + 1, &position);
+        last_pos = mz_stream_tell(mem_stream);
+        mz_stream_mem_delete(&mem_stream);
+
+        printf("Find unequalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+            name, find_size, position, (position == i));
+
+        if (position != i || last_pos != position)
+            break;
+    }
+
+    return err;
+}
+
+void test_stream_find(void)
+{
+    int32_t c = 1;
+    char *find = "0123456789";
+
+    for (c = 1; c < (int32_t)strlen(find); c += 1)
+        test_stream_find_run("forward", 2096, find, c, mz_stream_find);
+}
+
+void test_stream_find_reverse(void)
+{
+    int32_t c = 1;
+    char *find = "0123456789";
+
+    for (c = 1; c < (int32_t)strlen(find); c += 1)
+        test_stream_find_run("backward", 2096, find, c, mz_stream_find_reverse);
 }
 
 /***************************************************************************/

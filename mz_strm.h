@@ -47,6 +47,9 @@ typedef void    (*mz_stream_destroy_cb)        (void **stream);
 typedef int32_t (*mz_stream_get_prop_int64_cb) (void *stream, int32_t prop, int64_t *value);
 typedef int32_t (*mz_stream_set_prop_int64_cb) (void *stream, int32_t prop, int64_t value);
 
+typedef int32_t (*mz_stream_find_cb)           (void *stream, const void *find, int32_t find_size, 
+                                                int64_t max_seek, int64_t *position);
+
 /***************************************************************************/
 
 typedef struct mz_stream_vtbl_s
