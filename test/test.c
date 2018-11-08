@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -448,7 +447,7 @@ int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int3
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find postzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find postzero - %s (len %d pos %lld ok %d)\n", 
             name, find_size, position, (position == 0));
 
         if (position != 0 || last_pos != position)
@@ -469,7 +468,7 @@ int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int3
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find prezero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find prezero - %s (len %d pos %lld ok %d)\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -492,7 +491,7 @@ int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int3
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find equalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find equalzero - %s (len %d pos %lld ok %d)\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -516,7 +515,7 @@ int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int3
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find unequalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find unequalzero - %s (len %d pos %lld ok %d)\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)

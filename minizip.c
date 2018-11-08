@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
 #include <time.h>
 
 #include "mz.h"
@@ -176,8 +175,8 @@ int32_t minizip_list(const char *path)
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
-        printf("%12"PRIu64" %12"PRIu64"  %3"PRIu32"%% %6s%c %8"PRIx32" %2.2"PRIu32"-%2.2"PRIu32\
-               "-%2.2"PRIu32" %2.2"PRIu32":%2.2"PRIu32" %8.8"PRIx32"   %s\n",
+        printf("%12lld %12lld  %3u%% %6s%c %8x %2.2u-%2.2u" \
+               "-%2.2u %2.2u:%2.2u %8.8x   %s\n",
                 file_info->compressed_size, file_info->uncompressed_size, ratio, 
                 string_method, crypt, file_info->external_fa,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
@@ -230,7 +229,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
     if (options->verbose)
-        printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %lld / %lld (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
     return MZ_OK;
 }
@@ -350,7 +349,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
     if (options->verbose)
-        printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %lld / %lld (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
 
     return MZ_OK;
