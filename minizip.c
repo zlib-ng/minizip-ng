@@ -127,8 +127,8 @@ int32_t minizip_list(const char *path)
         return err;
     }
 
-    printf("  Length  Method     Size  Attribs Ratio   Date    Time   CRC-32     Name\n");
-    printf("  ------  ------     ----  ------- -----   ----    ----   ------     ----\n");
+    printf("      Packed     Unpacked Ratio Method   Attribs Date     Time  CRC-32     Name\n");
+    printf("      ------     -------- ----- ------   ------- ----     ----  ------     ----\n");
 
     do
     {
@@ -176,10 +176,10 @@ int32_t minizip_list(const char *path)
 
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
-        printf(" %7"PRIu64"  %6s%c %7"PRIu64" %8"PRIx32" %3"PRIu32"%%  %2.2"PRIu32"-%2.2"PRIu32\
-               "-%2.2"PRIu32"  %2.2"PRIu32":%2.2"PRIu32"  %8.8"PRIx32"   %s\n",
-                file_info->uncompressed_size, string_method, crypt,
-                file_info->compressed_size, file_info->external_fa, ratio,
+        printf("%12"PRIu64" %12"PRIu64"  %3"PRIu32"%% %6s%c %8"PRIx32" %2.2"PRIu32"-%2.2"PRIu32\
+               "-%2.2"PRIu32" %2.2"PRIu32":%2.2"PRIu32" %8.8"PRIx32"   %s\n",
+                file_info->compressed_size, file_info->uncompressed_size, ratio, 
+                string_method, crypt, file_info->external_fa,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                 (uint32_t)tmu_date.tm_year % 100,
                 (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
