@@ -92,6 +92,8 @@ int32_t mz_stream_copy(void *target, void *source, int32_t len);
 int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb, int32_t len);
 int64_t mz_stream_tell(void *stream);
 int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin);
+int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position);
+int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position);
 int32_t mz_stream_close(void *stream);
 int32_t mz_stream_error(void *stream);
 
