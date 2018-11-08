@@ -112,17 +112,20 @@ typedef struct mz_zip_s
 
 /***************************************************************************/
 
-// Locate the end of central directory of a zip file (at the end, just before the global comment)
+// Locate the end of central directory
 static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
 {
     int64_t file_size = 0;
-    int64_t max_back = UINT16_MAX; // maximum size of global comment
+    int64_t max_back = 0;
     uint8_t find[4] = MZ_ZIP_MAGIC_ENDHEADERU8;
     int32_t err = MZ_OK;
 
     err = mz_stream_seek(stream, 0, MZ_SEEK_END);
 
     file_size = mz_stream_tell(stream);
+
+    // maximum seek is size of global comment + extra
+    max_back = UINT16_MAX + 128;
     if (max_back > file_size)
         max_back = file_size;
 
