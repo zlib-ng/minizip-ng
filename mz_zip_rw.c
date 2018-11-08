@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <stdio.h>
 #include <time.h>
 
 #include "mz.h"
@@ -144,9 +143,9 @@ int32_t mz_zip_reader_open_file_in_memory(void *handle, const char *path)
         return err;
     }
 
-    mz_stream_os_seek(file_stream, 0, SEEK_END);
+    mz_stream_os_seek(file_stream, 0, MZ_SEEK_END);
     file_size = mz_stream_os_tell(file_stream);
-    mz_stream_os_seek(file_stream, 0, SEEK_SET);
+    mz_stream_os_seek(file_stream, 0, MZ_SEEK_SET);
 
     if ((file_size <= 0) || (file_size > UINT32_MAX))
     {
@@ -189,7 +188,7 @@ int32_t mz_zip_reader_open_buffer(void *handle, uint8_t *buf, int32_t len, uint8
         mz_stream_mem_set_grow_size(reader->mem_stream, len);
         mz_stream_mem_open(reader->mem_stream, NULL, MZ_OPEN_MODE_CREATE);
         mz_stream_mem_write(reader->mem_stream, buf, len);
-        mz_stream_mem_seek(reader->mem_stream, 0, SEEK_SET);
+        mz_stream_mem_seek(reader->mem_stream, 0, MZ_SEEK_SET);
     }
     else
     {
@@ -584,7 +583,7 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
         }
         else
         {
-            err = mz_stream_seek(file_extra_stream, cur_digest_size, SEEK_CUR);
+            err = mz_stream_seek(file_extra_stream, cur_digest_size, MZ_SEEK_CUR);
         }
     }
     while (err == MZ_OK);
@@ -1106,7 +1105,7 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     int32_t mode = MZ_OPEN_MODE_READWRITE;
     int32_t err = MZ_OK;
     int32_t err_cb = 0;
-
+    char directory[320];
 
     mz_zip_writer_close(handle);
 
@@ -1114,6 +1113,12 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     {
         // If the file doesn't exist, we don't append file
         mode |= MZ_OPEN_MODE_CREATE;
+
+        // Create destination directory if it doesn't already exist
+        strncpy(directory, path, sizeof(directory));
+        mz_path_remove_filename(directory);
+        if (mz_os_file_exists(directory) != MZ_OK)
+            mz_os_make_dir(directory);
     }
     else if (append)
     {
@@ -1170,9 +1175,9 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path)
         return err;
     }
 
-    mz_stream_os_seek(file_stream, 0, SEEK_END);
+    mz_stream_os_seek(file_stream, 0, MZ_SEEK_END);
     file_size = mz_stream_os_tell(file_stream);
-    mz_stream_os_seek(file_stream, 0, SEEK_SET);
+    mz_stream_os_seek(file_stream, 0, MZ_SEEK_SET);
 
     if ((file_size <= 0) || (file_size > UINT32_MAX))
     {
