@@ -1493,6 +1493,11 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (!raw))
         return MZ_PARAM_ERROR;
 
+    // Guard against seek overflows.
+    if ((zip->disk_offset_shift > 0) &&
+        (zip->file_info.disk_offset > (INT64_MAX - zip->disk_offset_shift)))
+        return MZ_FORMAT_ERROR;
+   
     if (zip->file_info.disk_number == zip->disk_number_with_cd)
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
     else
