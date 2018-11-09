@@ -532,6 +532,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${VERSION} SOVERSION ${
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
                       POSITION_INDEPENDENT_CODE 1)
+set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 
 # Link with external libraries
 if(USE_ZLIB)
@@ -542,9 +543,6 @@ if(USE_ZLIB)
 endif()
 if(USE_BZIP2 AND BZIP2_FOUND)
     target_link_libraries(${PROJECT_NAME} ${BZIP2_LIBRARIES})
-endif()
-if(USE_LZMA)
-    set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 endif()
 if(USE_LIBCOMP)
     target_link_libraries(${PROJECT_NAME} compression)

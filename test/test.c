@@ -159,7 +159,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
 void test_compress(char *method, mz_stream_create_cb create_compress)
 {
-    char buf[UINT16_MAX];
+    uint8_t buf[UINT16_MAX];
     int16_t read = 0;
     int64_t total_in = 0;
     int64_t total_out = 0;
@@ -417,7 +417,7 @@ void test_stream_mem(void)
     write_mem_stream = NULL;
 }
 
-int32_t test_stream_find_run(char *name, int32_t count,const uint8_t *find, int32_t find_size, mz_stream_find_cb find_cb)
+int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int32_t find_size, mz_stream_find_cb find_cb)
 {
     void *mem_stream = NULL;
     int32_t i = 0;
