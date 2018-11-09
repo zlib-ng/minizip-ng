@@ -1718,6 +1718,11 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (!raw))
         return MZ_PARAM_ERROR;
 
+    // Guard against seek overflows.
+    if ((zip->disk_offset_shift > 0) &&
+        (zip->file_info.disk_offset > (INT64_MAX - zip->disk_offset_shift)))
+        return MZ_FORMAT_ERROR;
+   
     if (zip->file_info.disk_number == zip->disk_number_with_cd)
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
     else
@@ -2426,7 +2431,7 @@ uint32_t mz_zip_tm_to_dosdate(const struct tm *ptm)
     if (mz_zip_invalid_date(&fixed_tm))
         return 0;
 
-    return (uint32_t)(((fixed_tm.tm_mday) + (32 * (fixed_tm.tm_mon + 1)) + (512 * fixed_tm.tm_year)) << 16) |
+    return (((uint32_t)fixed_tm.tm_mday + (32 * ((uint32_t)fixed_tm.tm_mon + 1)) + (512 * (uint32_t)fixed_tm.tm_year)) << 16) |
         (((uint32_t)fixed_tm.tm_sec / 2) + (32 * (uint32_t)fixed_tm.tm_min) + (2048 * (uint32_t)fixed_tm.tm_hour));
 }
 
