@@ -128,7 +128,6 @@ if (USE_OPENSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
         include_directories(${OPENSSL_INCLUDE_DIRS})
-        link_directories(${OPENSSL_LIBRARIES})
     endif()
 endif()
 
