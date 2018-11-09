@@ -1379,9 +1379,6 @@ int32_t mz_zip_close(void *handle)
     if ((err == MZ_OK) && (zip->open_mode & MZ_OPEN_MODE_WRITE))
         err = mz_zip_write_cd(handle);
 
-    if (zip->open_mode & MZ_OPEN_MODE_WRITE)
-        err = mz_zip_write_cd(handle);
-
     if (zip->cd_mem_stream != NULL)
     {
         mz_stream_close(zip->cd_mem_stream);
