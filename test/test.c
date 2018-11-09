@@ -178,7 +178,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     {
         read = mz_stream_os_read(in_stream, buf, UINT16_MAX);
         if (read > 0)
-            crc32 = mz_crypt_crc32_update(crc32, buf, read);
+            crc32 = mz_crypt_crc32_update(crc32, (const uint8_t *)buf, read);
 
         mz_stream_os_close(in_stream);
     }
@@ -245,7 +245,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
     snprintf(filename, sizeof(filename), "LICENSE.inflate.%s", method);
     if (mz_stream_os_open(out_stream, filename, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
     {
-        crc32 = mz_crypt_crc32_update(crc32, buf, read);
+        crc32 = mz_crypt_crc32_update(crc32, (const uint8_t *)buf, read);
 
         mz_stream_os_close(out_stream);
 
