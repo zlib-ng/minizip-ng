@@ -528,7 +528,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
 void test_stream_find(void)
 {
     int32_t c = 1;
-    char *find = "0123456789";
+    uint8_t *find = "0123456789";
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
         test_stream_find_run("forward", 2096, find, c, mz_stream_find);
@@ -537,7 +537,7 @@ void test_stream_find(void)
 void test_stream_find_reverse(void)
 {
     int32_t c = 1;
-    char *find = "0123456789";
+    uint8_t *find = "0123456789";
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
         test_stream_find_run("backward", 2096, find, c, mz_stream_find_reverse);
