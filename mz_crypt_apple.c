@@ -479,7 +479,6 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     CMSDecoderRef decoder = NULL;
     CMSSignerStatus signer_status = 0;
     CFDataRef message_out = NULL;
-    SecTrustRef trust = NULL;
     SecPolicyRef trust_policy = NULL;
     OSStatus status = noErr;
     OSStatus verify_status = noErr;
