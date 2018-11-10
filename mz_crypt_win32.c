@@ -199,7 +199,6 @@ static void mz_crypt_aes_free(void *handle)
 
 void mz_crypt_aes_reset(void *handle)
 {
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     mz_crypt_aes_free(handle);
 }
 
@@ -243,7 +242,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
-    ALG_ID hash_alg_id = 0;
     typedef struct key_blob_header_s {
         BLOBHEADER hdr;
         uint32_t   key_length;
@@ -373,14 +371,12 @@ static void mz_crypt_hmac_free(void *handle)
 
 void mz_crypt_hmac_reset(void *handle)
 {
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     mz_crypt_hmac_free(handle);
 }
 
 int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
-    HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
     typedef struct key_blob_header_s {
         BLOBHEADER hdr;
@@ -467,7 +463,6 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
     int32_t expected_size = 0;
-    int32_t err = MZ_OK;
 
     if (hmac == NULL || digest == NULL || hmac->hash == 0)
         return MZ_PARAM_ERROR;
@@ -550,7 +545,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     wchar_t *password_wide = NULL;
     int32_t result = 0;
     int32_t err = MZ_OK;
-    uint32_t key_spec = 0;
     uint32_t messages_sizes[1];
     uint8_t *messages[1];
 

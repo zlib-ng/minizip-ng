@@ -81,8 +81,8 @@ void test_path_resolve(void)
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
 {
     char buf[UINT16_MAX];
-    int16_t read = 0;
-    int16_t written = 0;
+    int32_t read = 0;
+    int32_t written = 0;
     void *out_stream = NULL;
     void *in_stream = NULL;
     void *crypt_out_stream = NULL;
@@ -160,7 +160,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 void test_compress(char *method, mz_stream_create_cb create_compress)
 {
     uint8_t buf[UINT16_MAX];
-    int16_t read = 0;
+    int32_t read = 0;
     int64_t total_in = 0;
     int64_t total_out = 0;
     void *in_stream = NULL;
@@ -528,19 +528,19 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
 void test_stream_find(void)
 {
     int32_t c = 1;
-    uint8_t *find = "0123456789";
+    char *find = "0123456789";
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
-        test_stream_find_run("forward", 2096, find, c, mz_stream_find);
+        test_stream_find_run("forward", 2096, (uint8_t *)find, c, mz_stream_find);
 }
 
 void test_stream_find_reverse(void)
 {
     int32_t c = 1;
-    uint8_t *find = "0123456789";
+    char *find = "0123456789";
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
-        test_stream_find_run("backward", 2096, find, c, mz_stream_find_reverse);
+        test_stream_find_run("backward", 2096, (uint8_t *)find, c, mz_stream_find_reverse);
 }
 
 /***************************************************************************/

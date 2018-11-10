@@ -83,7 +83,6 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
     uint32_t share_mode = FILE_SHARE_READ;
     uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
     wchar_t *path_wide = NULL;
-    uint32_t path_wide_size = 0;
 
 
     if (path == NULL)

@@ -292,7 +292,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
             // Don't allow field length to exceed size of remaining extrafield
             if (field_length > (file_info->extrafield_size - field_pos))
-                field_length = (file_info->extrafield_size - field_pos);
+                field_length = (uint16_t)(file_info->extrafield_size - field_pos);
 
             // Read ZIP64 extra field
             if ((field_type == MZ_ZIP_EXTENSION_ZIP64) && (field_length >= 8))
@@ -2324,7 +2324,7 @@ int32_t mz_zip_extrafield_read(void *stream, uint16_t *type, uint16_t *length)
     return err;
 }
 
-int32_t mz_zip_extrafield_write(void *stream, uint32_t type, uint16_t length)
+int32_t mz_zip_extrafield_write(void *stream, uint16_t type, uint16_t length)
 {
     int32_t err = MZ_OK;
     err = mz_stream_write_uint16(stream, type);
@@ -2351,12 +2351,12 @@ static void mz_zip_dosdate_to_raw_tm(uint64_t dos_date, struct tm *ptm)
 {
     uint64_t date = (uint64_t)(dos_date >> 16);
 
-    ptm->tm_mday = (uint16_t)(date & 0x1f);
-    ptm->tm_mon = (uint16_t)(((date & 0x1E0) / 0x20) - 1);
-    ptm->tm_year = (uint16_t)(((date & 0x0FE00) / 0x0200) + 80);
-    ptm->tm_hour = (uint16_t)((dos_date & 0xF800) / 0x800);
-    ptm->tm_min = (uint16_t)((dos_date & 0x7E0) / 0x20);
-    ptm->tm_sec = (uint16_t)(2 * (dos_date & 0x1f));
+    ptm->tm_mday  = (uint16_t)(date & 0x1f);
+    ptm->tm_mon   = (uint16_t)(((date & 0x1E0) / 0x20) - 1);
+    ptm->tm_year  = (uint16_t)(((date & 0x0FE00) / 0x0200) + 80);
+    ptm->tm_hour  = (uint16_t)((dos_date & 0xF800) / 0x800);
+    ptm->tm_min   = (uint16_t)((dos_date & 0x7E0) / 0x20);
+    ptm->tm_sec   = (uint16_t)(2 * (dos_date & 0x1f));
     ptm->tm_isdst = -1;
 }
 

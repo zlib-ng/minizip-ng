@@ -188,7 +188,8 @@ int32_t mz_stream_copy(void *target, void *source, int32_t len)
     return mz_stream_copy_stream(target, NULL, source, NULL, len);
 }
 
-int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb, int32_t len)
+int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, 
+    mz_stream_read_cb read_cb, int32_t len)
 {
     uint8_t buf[16384];
     int32_t bytes_to_copy = 0;

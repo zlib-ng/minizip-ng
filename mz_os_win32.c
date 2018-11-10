@@ -82,7 +82,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
         if (string_utf8)
         {
             memset(string_utf8, 0, string_utf8_size + 1);
-            WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, string_utf8, string_utf8_size, NULL, NULL);
+            WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, (char *)string_utf8, string_utf8_size, NULL, NULL);
         }
 
         mz_os_unicode_string_delete(&string_wide);
