@@ -227,6 +227,9 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
 void    mz_zip_writer_set_password(void *handle, const char *password);
 // Password to use for encrypting files in the zip
 
+void    mz_zip_writer_set_comment(void *handle, const char *comment);
+// Comment to use for the archive
+
 void    mz_zip_writer_set_raw(void *handle, uint8_t raw);
 // Sets whether or not we should write the entry raw
 

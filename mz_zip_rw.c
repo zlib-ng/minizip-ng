@@ -1054,6 +1054,7 @@ typedef struct mz_zip_writer_s {
     mz_zip_writer_entry_cb
                 entry_cb;
     const char  *password;
+    const char  *comment;
     uint8_t     *cert_data;
     int32_t     cert_data_size;
     const char  *cert_pwd;
@@ -1217,10 +1218,12 @@ int32_t mz_zip_writer_close(void *handle)
 
     if (writer->zip_handle != NULL)
     {
+        mz_zip_set_version_madeby(writer->zip_handle, MZ_VERSION_MADEBY);
+        if (writer->comment)
+            mz_zip_set_comment(writer->zip_handle, writer->comment);
         if (writer->zip_cd)
             mz_zip_writer_zip_cd(writer);
 
-        mz_zip_set_version_madeby(writer->zip_handle, MZ_VERSION_MADEBY);
         err = mz_zip_close(writer->zip_handle);
         mz_zip_delete(&writer->zip_handle);
     }
@@ -1803,6 +1806,12 @@ void mz_zip_writer_set_password(void *handle, const char *password)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     writer->password = password;
+}
+
+void mz_zip_writer_set_comment(void *handle, const char *comment)
+{
+    mz_zip_writer *writer = (mz_zip_writer *)handle;
+    writer->comment = comment;
 }
 
 void mz_zip_writer_set_raw(void *handle, uint8_t raw)
