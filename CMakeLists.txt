@@ -599,10 +599,19 @@ endif()
 
 #Build fuzzer executables
 if(BUILD_FUZZ_TEST)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer")
-    
-    add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c")
-    add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c")
+    if (NOT CMAKE_COMPILER_IS_CLANG)
+        set(FUZZER_SRC "test/fuzz/standalone.c")
+    endif()
+
+    add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c" ${FUZZER_SRC})
+    add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c" ${FUZZER_SRC})
+
+    if (CMAKE_COMPILER_IS_CLANG)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer")
+
+        target_link_libraries(zip_fuzzer "FuzzingEngine")
+        target_link_libraries(unzip_fuzzer "FuzzingEngine")
+    endif()
 
     target_link_libraries(zip_fuzzer ${PROJECT_NAME})
     target_link_libraries(unzip_fuzzer ${PROJECT_NAME})

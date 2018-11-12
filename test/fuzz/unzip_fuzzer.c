@@ -44,6 +44,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     char buffer[1024];
     uint16_t version_madeby = 0;
     uint64_t num_entries = 0;
+    int64_t entry_pos = 0;
     int32_t err = MZ_OK;
     uint8_t encrypted = 0;
 
@@ -84,8 +85,8 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             // what the value will be.
             
             mz_zip_entry_is_dir(handle);
-            err = mz_zip_get_entry(handle);
-            if (err < 0)
+            entry_pos = mz_zip_get_entry(handle);
+            if (entry_pos < 0)
                 break;
 
             err = mz_zip_entry_read(handle, buffer, sizeof(buffer));
