@@ -599,6 +599,8 @@ endif()
 
 #Build fuzzer executables
 if(BUILD_FUZZ_TEST)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer")
+    
     add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c")
     add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c")
 
