@@ -92,7 +92,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         err = mz_zip_entry_write_open(handle, &file_info, compress_level, 0, NULL);
         if (err == MZ_OK)
         {
-            mz_stream_mem_get_buffer_at_current(fuzz_stream, &fuzz_buf);
+            mz_stream_mem_get_buffer_at_current(fuzz_stream, (const void **)&fuzz_buf);
             fuzz_pos = mz_stream_tell(fuzz_stream);
             mz_stream_mem_get_buffer_length(fuzz_stream, &fuzz_length);
 
