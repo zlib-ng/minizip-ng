@@ -254,7 +254,8 @@ typedef struct unz_file_info_s
 typedef int (*unzFileNameComparer)(unzFile file, const char *filename1, const char *filename2);
 typedef int (*unzIteratorFunction)(unzFile file);
 typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, char *filename,
-    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size);
+    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+    uint16_t comment_size);
 
 /***************************************************************************/
 // Opening and close a zip file
@@ -281,15 +282,17 @@ int     ZEXPORT unzCloseCurrentFile(unzFile file);
 
 
 int     ZEXPORT unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
-        uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size);
+        uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+        uint16_t comment_size);
 int     ZEXPORT unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
-        uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, uint16_t comment_size);
+        uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+        uint16_t comment_size);
 
 int     ZEXPORT unzGoToFirstFile(unzFile file);
 int     ZEXPORT unzGoToNextFile(unzFile file);
 int     ZEXPORT unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func);
 
-int     ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned len);
+int     ZEXPORT unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len);
 
 /***************************************************************************/
 // Raw access to zip file
