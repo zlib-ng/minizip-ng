@@ -607,8 +607,6 @@ if(BUILD_FUZZ_TEST)
     add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c" ${FUZZER_SRC})
 
     if (CMAKE_COMPILER_IS_CLANG)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=fuzzer")
-
         target_link_libraries(zip_fuzzer "FuzzingEngine")
         target_link_libraries(unzip_fuzzer "FuzzingEngine")
     endif()
