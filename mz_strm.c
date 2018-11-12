@@ -359,6 +359,9 @@ int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size
             first = 0;
         }
 
+        if (read == 0)
+            break;
+
         memmove(buf + read_size, buf, find_size);
         read_pos += read;
     }
