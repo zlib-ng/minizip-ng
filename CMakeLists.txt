@@ -20,6 +20,7 @@ option(USE_BRG "Enables Brian Gladman's encryption library" OFF)
 option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
+option(BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 
 project("minizip" C)
 
@@ -345,9 +346,7 @@ if(USE_ZLIB)
         if (ZLIB_FOUND)
             include(CheckFunctionExists)
             set(CMAKE_REQUIRED_LIBRARIES ZLIB)
-            CHECK_FUNCTION_EXISTS(z_get_crc_table
-                NEEDS_Z_PREFIX)
-    
+            check_function_exists(z_get_crc_table NEEDS_Z_PREFIX)
             if(NEEDS_Z_PREFIX)
                 add_definitions(-DZ_PREFIX)
             endif()
@@ -513,6 +512,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     add_compile_options(-W -Wall)
     add_compile_options(-O3)
 endif()
+if(MSVC)
+    add_compile_options(/W3)
+endif()
 
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
@@ -523,15 +525,18 @@ add_library(${PROJECT_NAME}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
+set_target_properties(${PROJECT_NAME} PROPERTIES 
+                        VERSION ${VERSION} 
+                        SOVERSION ${SOVERSION}
+                        LINKER_LANGUAGE C
+                        PREFIX ""
+                        POSITION_INDEPENDENT_CODE 1) 
+if(USE_LZMA)
+    set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
+endif()
 if (MSVC AND BUILD_SHARED_LIBS)
     set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
 endif ()
-
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${VERSION} SOVERSION ${SOVERSION})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C PREFIX ""
-                      POSITION_INDEPENDENT_CODE 1)
-set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 
 # Link with external libraries
 if(USE_ZLIB)
@@ -588,7 +593,20 @@ if(BUILD_TEST)
     target_link_libraries(minizip ${PROJECT_NAME})
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-        install(TARGETS minizip
-            RUNTIME DESTINATION "bin")
+        install(TARGETS minizip RUNTIME DESTINATION "bin")
+    endif()
+endif()
+
+#Build fuzzer executables
+if(BUILD_FUZZ_TEST)
+    add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c")
+    add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c")
+
+    target_link_libraries(zip_fuzzer ${PROJECT_NAME})
+    target_link_libraries(unzip_fuzzer ${PROJECT_NAME})
+
+    if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
+        install(TARGETS zip_fuzzer RUNTIME DESTINATION "bin")
+        install(TARGETS unzip_fuzzer RUNTIME DESTINATION "bin")
     endif()
 endif()
