@@ -602,12 +602,15 @@ endif()
 if(BUILD_UNIT_TEST)
     enable_testing()
 
-    macro(create_compress_tests EXTRA_NAME EXTRA_ARGS)
+    function(create_compress_tests EXTRA_NAME EXTRA_ARGS)
+        if(DECOMPRESS_ONLY)
+            return()
+        endif()
         set(COMPRESS_METHOD_NAMES "raw")
         set(COMPRESS_METHOD_ARGS "-0")
-        if (USE_ZLIB)
+        if (USE_ZLIB OR USE_LIBCOMP)
             list(APPEND COMPRESS_METHOD_NAMES "deflate")
-            list(APPEND COMPRESS_METHOD_ARGS "")
+            list(APPEND COMPRESS_METHOD_ARGS " ")
         endif()
         if (USE_BZIP2)
             list(APPEND COMPRESS_METHOD_NAMES "bzip2")
@@ -629,11 +632,13 @@ if(BUILD_UNIT_TEST)
             add_test(NAME ${COMPRESS_METHOD_NAME}-list-${EXTRA_NAME}
                      COMMAND minizip -l ${EXTRA_ARGS} test.zip
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-            add_test(NAME ${COMPRESS_METHOD_NAME}-unzip-${EXTRA_NAME}
-                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out test.zip
-                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+            if(NOT COMPRESS_ONLY)
+                add_test(NAME ${COMPRESS_METHOD_NAME}-unzip-${EXTRA_NAME}
+                         COMMAND minizip -x -o ${EXTRA_ARGS} -d out test.zip
+                         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+            endif()
         endforeach()
-    endmacro()
+    endfunction()
 
     set(TEST_ARGS "")
     create_compress_tests("generic" TEST_ARGS)
