@@ -89,6 +89,8 @@ int32_t mz_zip_reader_open(void *handle, void *stream)
     reader->cd_verified = 0;
 
     mz_zip_create(&reader->zip_handle);
+    mz_zip_set_recover(reader->zip_handle, 1);
+
     err = mz_zip_open(reader->zip_handle, stream, MZ_OPEN_MODE_READ);
 
     if (err != MZ_OK)
@@ -282,7 +284,7 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
 
     if (err == MZ_OK)
     {
-        mz_zip_set_cd_stream(reader->zip_handle, 0, cd_mem_stream);
+        mz_zip_set_cd_start_pos(reader->zip_handle, 0);
         mz_zip_set_number_entry(reader->zip_handle, number_entry);
 
         err = mz_zip_reader_goto_first_entry(handle);
@@ -939,6 +941,16 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw)
         return MZ_PARAM_ERROR;
     *raw = reader->raw;
     return MZ_OK;
+}
+
+int32_t mz_zip_reader_get_comment(void *handle, const char **comment)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    if (mz_zip_reader_is_open(reader) != MZ_OK)
+        return MZ_PARAM_ERROR;
+    if (comment == NULL)
+        return MZ_PARAM_ERROR;
+    return mz_zip_get_comment(reader->zip_handle, comment);
 }
 
 void mz_zip_reader_set_encoding(void *handle, int32_t encoding)

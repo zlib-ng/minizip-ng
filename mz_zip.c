@@ -81,6 +81,7 @@ typedef struct mz_zip_s
     void *local_file_info_stream;   // memory stream for storing local file info
 
     int32_t  open_mode;
+    uint8_t  recover;
 
     uint32_t disk_number_with_cd;   // number of the disk with the central dir
     int64_t  disk_offset_shift;     // correction for zips that have wrong offset start of cd
@@ -495,8 +496,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     uint16_t field_length_aes = 0;
     uint16_t filename_size = 0;
     uint16_t filename_length = 0;
-    uint16_t comment_size = 0;
     uint16_t version_needed = 0;
+    int32_t comment_size = 0;
     int32_t err = MZ_OK;
     int32_t err_mem = MZ_OK;
     uint8_t zip64 = 0;
@@ -693,9 +694,13 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     if (!local)
     {
         if (file_info->comment != NULL)
-            comment_size = (uint16_t)strlen(file_info->comment);
+        {
+            comment_size = (int32_t)strlen(file_info->comment);
+            if (comment_size > UINT16_MAX)
+                comment_size = UINT16_MAX;
+        }
         if (err == MZ_OK)
-            err = mz_stream_write_uint16(stream, comment_size);
+            err = mz_stream_write_uint16(stream, (uint16_t)comment_size);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, (uint16_t)file_info->disk_number);
         if (err == MZ_OK)
@@ -1010,9 +1015,9 @@ static int32_t mz_zip_write_cd(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t zip64_eocd_pos_inzip = 0;
-    uint16_t comment_size = 0;
     int64_t disk_number = 0;
     int64_t disk_size = 0;
+    int32_t comment_size = 0;
     int32_t err = MZ_OK;
 
 
@@ -1124,9 +1129,13 @@ static int32_t mz_zip_write_cd(void *handle)
 
     // Write global comment
     if (zip->comment != NULL)
-        comment_size = (uint16_t)strlen(zip->comment);
+    {
+        comment_size = (int32_t)strlen(zip->comment);
+        if (comment_size > UINT16_MAX)
+            comment_size = UINT16_MAX;
+    }
     if (err == MZ_OK)
-        err = mz_stream_write_uint16(zip->stream, comment_size);
+        err = mz_stream_write_uint16(zip->stream, (uint16_t)comment_size);
     if (err == MZ_OK)
     {
         if (mz_stream_write(zip->stream, zip->comment, comment_size) != comment_size)
@@ -1135,7 +1144,7 @@ static int32_t mz_zip_write_cd(void *handle)
     return err;
 }
 
-static int32_t mz_zip_rebuild_cd(void *handle)
+static int32_t mz_zip_recover_cd(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     mz_zip_file local_file_info;
@@ -1155,7 +1164,7 @@ static int32_t mz_zip_rebuild_cd(void *handle)
     uint8_t zip64 = 0;
 
 
-    mz_zip_print("Zip - Rebuild cd\n");
+    mz_zip_print("Zip - Recover cd\n");
 
     mz_zip_get_cd_mem_stream(handle, &cd_mem_stream);
 
@@ -1238,7 +1247,7 @@ static int32_t mz_zip_rebuild_cd(void *handle)
 
     mz_stream_mem_delete(&local_file_info_stream);
 
-    mz_zip_print("Zip - Rebuild cd complete (cddisk %d entries %lld)\n", 
+    mz_zip_print("Zip - Recover cd complete (cddisk %d entries %lld)\n", 
         disk_number_with_cd, number_entry);
 
     if (number_entry == 0)
@@ -1249,7 +1258,7 @@ static int32_t mz_zip_rebuild_cd(void *handle)
     mz_stream_mem_set_buffer_limit(cd_mem_stream, (int32_t)disk_offset);
 
     // Set new central directory info
-    mz_zip_set_cd_stream(handle, 0, cd_mem_stream);
+    mz_zip_set_cd_start_pos(handle, 0);
     mz_zip_set_number_entry(handle, number_entry);
     mz_zip_set_disk_number_with_cd(handle, disk_number_with_cd);
 
@@ -1314,11 +1323,9 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
             err = mz_zip_read_cd(zip);
             if (err != MZ_OK)
             {
-#if 0
                 mz_zip_print("Zip - Error detected reading cd (%d)", err);
-                if (mz_zip_rebuild_cd(zip) == MZ_OK)
+                if (zip->recover && mz_zip_recover_cd(zip) == MZ_OK)
                     err = MZ_OK;
-#endif
             }
         }
 
@@ -1422,12 +1429,12 @@ int32_t mz_zip_get_comment(void *handle, const char **comment)
 int32_t mz_zip_set_comment(void *handle, const char *comment)
 {
     mz_zip *zip = (mz_zip *)handle;
-    uint16_t comment_size = 0;
+    int32_t comment_size = 0;
     if (zip == NULL || comment == NULL)
         return MZ_PARAM_ERROR;
     if (zip->comment != NULL)
         MZ_FREE(zip->comment);
-    comment_size = (uint16_t)(strlen(comment) + 1);
+    comment_size = (int32_t)(strlen(comment) + 1);
     zip->comment = (char *)MZ_ALLOC(comment_size);
     if (zip->comment == NULL)
         return MZ_MEM_ERROR;
@@ -1454,6 +1461,15 @@ int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby)
     return MZ_OK;
 }
 
+int32_t mz_zip_set_recover(void *handle, uint8_t recover)
+{
+    mz_zip *zip = (mz_zip *)handle;
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    zip->recover = recover;
+    return MZ_OK;
+}
+
 int32_t mz_zip_get_stream(void *handle, void **stream)
 {
     mz_zip *zip = (mz_zip *)handle;
@@ -1465,12 +1481,11 @@ int32_t mz_zip_get_stream(void *handle, void **stream)
     return MZ_OK;
 }
 
-int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream)
+int32_t mz_zip_set_cd_start_pos(void *handle, int64_t cd_start_pos)
 {
     mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL || cd_stream == NULL)
+    if (zip == NULL)
         return MZ_PARAM_ERROR;
-    zip->cd_stream = cd_stream;
     zip->cd_start_pos = cd_start_pos;
     return MZ_OK;
 }
