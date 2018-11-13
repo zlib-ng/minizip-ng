@@ -668,14 +668,14 @@ endif()
 
 #Build fuzzer executables
 if(BUILD_FUZZ_TEST)
-    if (NOT "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    if (NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
         set(FUZZER_SRC "test/fuzz/standalone.c")
     endif()
 
     add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c" ${FUZZER_SRC})
     add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c" ${FUZZER_SRC})
 
-    if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
         enable_language(CXX)
         target_link_libraries(zip_fuzzer "FuzzingEngine")
         set_target_properties(zip_fuzzer PROPERTIES LINKER_LANGUAGE CXX)
