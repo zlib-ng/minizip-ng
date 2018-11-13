@@ -676,6 +676,7 @@ if(BUILD_FUZZ_TEST)
     add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c" ${FUZZER_SRC})
 
     if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+        enable_language(CXX)
         target_link_libraries(zip_fuzzer "FuzzingEngine")
         set_target_properties(zip_fuzzer PROPERTIES LINKER_LANGUAGE CXX)
         target_link_libraries(unzip_fuzzer "FuzzingEngine")
