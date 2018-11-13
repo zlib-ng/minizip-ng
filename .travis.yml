@@ -4,58 +4,58 @@ matrix:
     include:
         - os: windows
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes --zipcd" BUILDDIR="..\build\Debug" 
+          env: BUILDDIR="..\build\Debug" 
         - os: windows
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes --split" BUILDDIR="..\build\Debug"
+          env: BUILDDIR="..\build\Debug"
         - os: linux
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes" BUILDDIR="../build" 
+          env: BUILDDIR="../build" 
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_ZLIB=OFF" TESTTOOL="--lzma --bzip --pkcrypt --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_ZLIB=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_BZIP=OFF" TESTTOOL="--deflate --lzma --pkcrypt --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_BZIP=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_LZMA=OFF" TESTTOOL="--deflate --bzip --pkcrypt --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_LZMA=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_AES=OFF" TESTTOOL="--deflate --pkcrypt --zipcd" BUILDDIR="../build"
+          env: TOOL="-DUSE_AES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_PKCRYPT=OFF" TESTTOOL="--deflate --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_PKCRYPT=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DCOMPRESS_ONLY=ON" TESTTOOL="--deflate" BUILDDIR="../build"
+          env: TOOL="-DCOMPRESS_ONLY=ON" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DDECOMPRESS_ONLY=ON" TESTTOOL="--deflate" BUILDDIR="../build"
+          env: TOOL="-DDECOMPRESS_ONLY=ON" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" TESTTOOL="--deflate --bzip --lzma" BUILDDIR="../build"
+          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_OPENSSL=ON" TESTTOOL="--deflate --pkcrypt --wzaes --sign" BUILDDIR="../build"
+          env: TOOL="-DUSE_OPENSSL=ON" BUILDDIR="../build"
         - os: linux
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes --zipcd" BUILDDIR="../build"
+          env: BUILDDIR="../build"
         - os: osx
           compiler: clang
-          env: TESTTOOL="--deflate --lzma --pkcrypt --wzaes" BUILDDIR="../build"
+          env: BUILDDIR="../build"
         - os: osx
           compiler: gcc
-          env: TESTTOOL="--bzip2 --pkcrypt --wzaes --split" BUILDDIR="../build"
+          env: BUILDDIR="../build"
         - os: osx
           compiler: clang
-          env: TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_LIBCOMP=ON" BUILDDIR="../build"
         - os: osx
           compiler: gcc
-          env: TOOL="-DUSE_LIBCOMP=ON" TESTTOOL="--deflate --pkcrypt --wzaes" BUILDDIR="../build"
+          env: TOOL="-DUSE_LIBCOMP=ON" BUILDDIR="../build"
         - os: osx
           compiler: clang
-          env: TOOL="-DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" TESTTOOL="--deflate --pkcrypt --wzaes --sign" BUILDDIR="../build"
+          env: TOOL="-DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" BUILDDIR="../build"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
