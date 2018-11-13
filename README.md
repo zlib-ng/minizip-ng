@@ -79,6 +79,8 @@ cmake --build .
 | COMPRESS_ONLY | Only support compression | OFF |
 | DECOMPRESS_ONLY | Only support decompression | OFF |
 | BUILD_TEST | Builds minizip test executable | OFF |
+| BUILD_UNIT_TEST | Builds minizip unit test project | OFF |
+| BUILD_FUZZ_TEST | Builds minizip fuzz executables | OFF |
 
 ## Contents
 

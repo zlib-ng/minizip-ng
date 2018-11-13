@@ -20,6 +20,7 @@ option(USE_BRG "Enables Brian Gladman's encryption library" OFF)
 option(COMPRESS_ONLY "Only support compression" OFF)
 option(DECOMPRESS_ONLY "Only support decompression" OFF)
 option(BUILD_TEST "Builds minizip test executable" OFF)
+option(BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 
 project("minizip" C)
@@ -218,7 +219,8 @@ if(UNIX)
 
             pkg_check_modules(LIBBSD libbsd)
             if (LIBBSD_FOUND)
-                check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf" "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
+                check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf" 
+                    "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
                 if (HAVE_LIBBSD_ARC4RANDOM_BUF)
                     add_definitions(-DHAVE_LIBBSD)
                     add_definitions(-DHAVE_ARC4RANDOM_BUF)
@@ -595,6 +597,45 @@ if(BUILD_TEST)
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip RUNTIME DESTINATION "bin")
     endif()
+endif()
+
+if(BUILD_UNIT_TEST)
+    enable_testing()
+
+    macro(create_compress_tests EXTRA_NAME EXTRA_ARGS)
+        set(COMPRESS_METHOD_NAMES "deflate;raw;bzip2;lzma")
+        set(COMPRESS_METHOD_ARGS ";-0;-b;-m")
+        list(LENGTH COMPRESS_METHOD_NAMES COMPRESS_METHOD_COUNT)
+        math(EXPR COMPRESS_METHOD_COUNT "${COMPRESS_METHOD_COUNT}-1")
+        foreach(INDEX RANGE ${COMPRESS_METHOD_COUNT})
+            list(GET COMPRESS_METHOD_NAMES ${INDEX} COMPRESS_METHOD_NAME)
+            list(GET COMPRESS_METHOD_ARGS ${INDEX} COMPRESS_METHOD_ARG)
+            add_test(NAME ${COMPRESS_METHOD_NAME}-zip-${EXTRA_NAME}
+                     COMMAND minizip ${COMPRESS_METHOD_ARG} -o ${EXTRA_ARGS} 
+                        test.zip test.c test.h empty.txt fuzz
+                     WORKING_DIRECTORY test)
+            add_test(NAME ${COMPRESS_METHOD_NAME}-list-${EXTRA_NAME}
+                     COMMAND minizip -l ${EXTRA_ARGS} test.zip
+                     WORKING_DIRECTORY test)
+            add_test(NAME ${COMPRESS_METHOD_NAME}-unzip-${EXTRA_NAME}
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out test.zip
+                     WORKING_DIRECTORY test)
+        endforeach()
+    endmacro()
+
+    set(TEST_ARGS "")
+    create_compress_tests("generic" TEST_ARGS)
+    set(TEST_ARGS "-p 1234567890")
+    create_compress_tests("pkcrypt" TEST_ARGS)
+    set(TEST_ARGS "-s -p 1234567890")
+    create_compress_tests("winzipaes" TEST_ARGS)
+    set(TEST_ARGS "-k 1024")
+    create_compress_tests("span" TEST_ARGS)
+    set(TEST_ARGS "-z")
+    create_compress_tests("zipcd" TEST_ARGS)
+    set(TEST_ARGS "-h ia.p12 -w test")
+    create_compress_tests("signing" TEST_ARGS)
+
 endif()
 
 #Build fuzzer executables
