@@ -61,8 +61,6 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libssl-dev; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; then brew install openssl; fi
-    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install python2; fi
-    - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export PATH="/c/Python27:$PATH"; fi
 
 before_script:
     - mkdir build
