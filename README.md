@@ -49,6 +49,7 @@ the library as version 2 because it had become difficult to maintain and code re
 + Zero out local file header information.
 + Zip/unzip of central directory to reduce size.
 + Ability to generate and verify CMS signature for each entry.
++ Recover the central directory if it is corrupt or missing.
 + Example minizip command line tool.
 
 ## Build
