@@ -640,6 +640,11 @@ if(BUILD_UNIT_TEST)
         endforeach()
     endfunction()
 
+    if(NOT COMPRESS_ONLY)
+        add_test(NAME empty-unzip
+                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out empty.zip
+                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+    endif()
     set(TEST_ARGS "")
     create_compress_tests("generic" TEST_ARGS)
     set(TEST_ARGS "-k 1024")
