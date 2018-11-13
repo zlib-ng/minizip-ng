@@ -613,13 +613,13 @@ if(BUILD_UNIT_TEST)
             add_test(NAME ${COMPRESS_METHOD_NAME}-zip-${EXTRA_NAME}
                      COMMAND minizip ${COMPRESS_METHOD_ARG} -o ${EXTRA_ARGS} 
                         test.zip test.c test.h empty.txt fuzz
-                     WORKING_DIRECTORY test)
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             add_test(NAME ${COMPRESS_METHOD_NAME}-list-${EXTRA_NAME}
                      COMMAND minizip -l ${EXTRA_ARGS} test.zip
-                     WORKING_DIRECTORY test)
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             add_test(NAME ${COMPRESS_METHOD_NAME}-unzip-${EXTRA_NAME}
                      COMMAND minizip -x -o ${EXTRA_ARGS} -d out test.zip
-                     WORKING_DIRECTORY test)
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
         endforeach()
     endmacro()
 
