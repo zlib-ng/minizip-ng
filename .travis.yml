@@ -67,9 +67,8 @@ before_install:
 before_script:
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_TEST=ON $TOOL
+    - cmake .. -DBUILD_TEST=ON -DBUILD_UNIT_TEST=ON $TOOL 
 
 script:
     - cmake --build .
-    - cd ../test
-    - python test.py --raw $TEST_TOOL --exe_dir=$BUILDDIR
+    - ctest --output-on-failure C Debug
