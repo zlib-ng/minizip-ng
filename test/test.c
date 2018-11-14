@@ -313,7 +313,7 @@ void test_stream_zlib(void)
 
 void test_stream_mem(void)
 {
-    mz_zip_file file_info = { 0 };
+    mz_zip_file file_info;
     void *read_mem_stream = NULL;
     void *write_mem_stream = NULL;
     void *os_stream = NULL;
@@ -329,6 +329,8 @@ void test_stream_mem(void)
     char *text_ptr = "test string";
     char temp[120];
 
+
+    memset(&file_info, 0, sizeof(file_info));
 
     text_size = (int32_t)strlen(text_ptr);
 
