@@ -207,6 +207,7 @@ static int32_t mz_stream_bzip_flush(void *stream)
     return MZ_OK;
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_bzip_compress(void *stream, int flush)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
@@ -254,6 +255,7 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush)
 
     return MZ_OK;
 }
+#endif
 
 int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
 {
@@ -262,6 +264,7 @@ int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size)
 
 #ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(bzip);
+    MZ_UNUSED(buf);
     err = MZ_SUPPORT_ERROR;
 #else
     bzip->bzstream.next_in = (char *)(intptr_t)buf;

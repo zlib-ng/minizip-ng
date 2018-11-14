@@ -231,6 +231,7 @@ static int32_t mz_stream_lzma_flush(void *stream)
     return MZ_OK;
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
@@ -273,6 +274,7 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 
     return MZ_OK;
 }
+#endif
 
 int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 {
@@ -281,6 +283,7 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size)
 
 #ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(lzma);
+    MZ_UNUSED(buf);
     err = MZ_SUPPORT_ERROR;
 #else
     lzma->lstream.next_in = (uint8_t*)(intptr_t)buf;

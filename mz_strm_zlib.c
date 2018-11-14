@@ -216,6 +216,7 @@ static int32_t mz_stream_zlib_flush(void *stream)
     return MZ_OK;
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_zlib_deflate(void *stream, int flush)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
@@ -260,6 +261,7 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush)
 
     return MZ_OK;
 }
+#endif
 
 int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 {
@@ -268,6 +270,7 @@ int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size)
 
 #ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(zlib);
+    MZ_UNUSED(buf);
     err = MZ_SUPPORT_ERROR;
 #else
     zlib->zstream.next_in = (Bytef*)(intptr_t)buf;
