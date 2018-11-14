@@ -15,6 +15,7 @@
 */
 
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include <windows.h>
 
@@ -70,7 +71,6 @@ typedef struct mz_stream_win32_s
 #if 0
 #  define mz_stream_os_print printf
 #else
-#  include <inttypes.h>
 #  define mz_stream_os_print(fmt,...)
 #endif
 

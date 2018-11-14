@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 #include <errno.h>
 
 #include "mz.h"
@@ -60,7 +61,6 @@ typedef struct mz_stream_buffered_s {
 #if 0
 #  define mz_stream_buffered_print printf
 #else
-#  include <inttypes.h>
 #  define mz_stream_buffered_print(fmt,...)
 #endif
 
