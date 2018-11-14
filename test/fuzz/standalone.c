@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "mz.h"
 #include "mz_strm.h"
@@ -40,7 +41,7 @@ int main(int argc, char **argv)
     int32_t read = 0;
     int32_t i = 0;
 
-    printf("Running %d inputs\n", argc - 1);
+    printf("Running %"PRId32" inputs\n", argc - 1);
 
     for (i = 1; (i < argc) && (err == MZ_OK); i++)
     {
@@ -51,7 +52,7 @@ int main(int argc, char **argv)
 
         if (err != MZ_OK)
         {
-            printf("Skipping %s (%d)\n", argv[i], err);
+            printf("Skipping %s (%"PRId32")\n", argv[i], err);
         }    
         else
         {
@@ -68,7 +69,7 @@ int main(int argc, char **argv)
 
             if (buf != NULL)
             {
-                printf("Running %s %d\n", argv[i], buf_length);
+                printf("Running %s %"PRId32"\n", argv[i], buf_length);
                 read = mz_stream_os_read(stream, buf, buf_length);
                 if (read == buf_length)
                     LLVMFuzzerTestOneInput(buf, buf_length);
@@ -82,7 +83,7 @@ int main(int argc, char **argv)
         }
 
         mz_stream_os_delete(&stream);
-        printf("Done %s (%d)\n", argv[i], err);
+        printf("Done %s (%"PRId32")\n", argv[i], err);
     }
 
     return 0;

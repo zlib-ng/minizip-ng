@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -75,7 +76,7 @@ void test_path_resolve(void)
     mz_path_resolve("c:\\test\\123\\..\\..\\..\\abc.txt", output, sizeof(output));
     ok = (strcmp(output, "abc.txt") == 0);
     memset(output, 'z', sizeof(output));
-    printf("ok = %d", ok);
+    printf("ok = %"PRId32"", ok);
 }
 
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
@@ -119,7 +120,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
         mz_stream_os_close(out_stream);
 
-        printf("%s encrypted %d\n", encrypt_path, written);
+        printf("%s encrypted %"PRId32"\n", encrypt_path, written);
     }
     
     mz_stream_os_delete(&out_stream);
@@ -142,7 +143,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
         mz_stream_os_close(in_stream);
 
 
-        printf("%s decrypted %d\n", decrypt_path, read);
+        printf("%s decrypted %"PRId32"\n", decrypt_path, read);
     }
 
     mz_stream_os_delete(&in_stream);
@@ -295,7 +296,7 @@ void test_stream_wzaes(void)
     }
     else
     {
-        printf("Pbkdf2 failed - %d", err);
+        printf("Pbkdf2 failed - %"PRId32"", err);
     }
 
     test_encrypt("aes", mz_stream_wzaes_create, "hello");
@@ -447,7 +448,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find postzero - %s (len %d pos %lld ok %d)\n", 
+        printf("Find postzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
             name, find_size, position, (position == 0));
 
         if (position != 0 || last_pos != position)
@@ -468,7 +469,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find prezero - %s (len %d pos %lld ok %d)\n", 
+        printf("Find prezero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -491,7 +492,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find equalzero - %s (len %d pos %lld ok %d)\n", 
+        printf("Find equalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -515,7 +516,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find unequalzero - %s (len %d pos %lld ok %d)\n", 
+        printf("Find unequalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
