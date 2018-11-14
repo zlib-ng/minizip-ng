@@ -18,6 +18,18 @@ extern "C" {
 
 /***************************************************************************/
 
+#if defined(HAVE_INTTYPES_H)
+#  include <inttypes.h>
+#else
+#  define PRId16 "hd"
+#  define PRId32 "d"
+#  define PRIu32 "u"
+#  define PRIx32 "x"
+#  define PRId64 "lld"
+#  define PRIu64 "llu"
+#  define PRIx64 "llx"
+#endif
+
 // MZ_VERSION
 #define MZ_VERSION                      ("2.7.5")
 

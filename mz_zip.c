@@ -20,7 +20,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <inttypes.h>
 #include <ctype.h>
 #include <time.h>
 #include <limits.h>

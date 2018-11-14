@@ -282,21 +282,12 @@ if(USE_COMPAT)
     string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
     file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
     list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
+endif()
 
-    include(CheckIncludeFile)
-    check_include_file(inttypes.h HAVE_INTTYPES_H)
-    if(NOT HAVE_INTTYPES_H)
-        set(COMPAT_INTTYPES "\
-#define PRId16 \"hd\"
-#define PRId32 \"d\"
-#define PRIu32 \"u\"
-#define PRIx32 \"x\"
-#define PRId64 \"lld\"
-#define PRIu64 \"llu\"
-#define PRIx64 \"llx\"
-        ")
-        file(WRITE "inttypes.h" ${COMPAT_INTTYPES})
-    endif()
+include(CheckIncludeFile)
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+if (HAVE_INTTYPES_H)
+    add_definitions(-DHAVE_INTTYPES_H)
 endif()
 
 # Include PKCRYPT

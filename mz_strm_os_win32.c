@@ -15,7 +15,6 @@
 */
 
 #include <stdlib.h>
-#include <inttypes.h>
 
 #include <windows.h>
 
