@@ -483,7 +483,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     OSStatus status = noErr;
     OSStatus verify_status = noErr;
     size_t signer_count = 0;
-    int32_t i = 0;
+    size_t i = 0;
     int32_t err = MZ_SIGN_ERROR;
 
     if (message == NULL || signature == NULL)
