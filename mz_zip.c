@@ -122,6 +122,8 @@ static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
     int32_t err = MZ_OK;
 
     err = mz_stream_seek(stream, 0, MZ_SEEK_END);
+    if (err != MZ_OK)
+        return err;
 
     file_size = mz_stream_tell(stream);
 
@@ -432,8 +434,10 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         mz_zip_print("Zip - Entry - Read header compress (ucs %"PRId64" cs %"PRId64" crc 0x%08"PRIx32")\n",
             file_info->uncompressed_size, file_info->compressed_size, file_info->crc);
         if (!local)
-            mz_zip_print("Zip - Entry - Read header disk (disk %"PRId32" offset %"PRId64")\n",
+        {
+            mz_zip_print("Zip - Entry - Read header disk (disk %"PRIu32" offset %"PRId64")\n",
                 file_info->disk_number, file_info->disk_offset);
+        }
         mz_zip_print("Zip - Entry - Read header variable (fnl %"PRId32" efs %"PRId32" cms %"PRId32")\n",
             file_info->filename_size, file_info->extrafield_size, file_info->comment_size);
     }
