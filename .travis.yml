@@ -69,4 +69,4 @@ before_script:
 
 script:
     - cmake --build .
-    - ctest --output-on-failure -C Debug
+    - ctest --verbose -C Debug
