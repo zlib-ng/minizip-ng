@@ -438,6 +438,9 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
 
     if (source == NULL || target == NULL)
         return MZ_PARAM_ERROR;
+    
+    if (target->ctx == NULL)
+        target->ctx = HMAC_CTX_new();
 
     result = HMAC_CTX_copy(target->ctx, source->ctx);
     if (!result)
