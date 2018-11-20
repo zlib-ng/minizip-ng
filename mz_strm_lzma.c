@@ -175,8 +175,6 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0)
-                break;
 
             lzma->lstream.next_in = lzma->buffer;
             lzma->lstream.avail_in = (size_t)read;

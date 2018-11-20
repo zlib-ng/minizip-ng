@@ -149,8 +149,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0)
-                break;
 
             bzip->bzstream.next_in = (char *)bzip->buffer;
             bzip->bzstream.avail_in = (uint32_t)read;
