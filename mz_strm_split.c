@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <time.h>
 
 #include "mz.h"
 #include "mz_os.h"
