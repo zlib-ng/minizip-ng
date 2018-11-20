@@ -33,8 +33,9 @@ lzma_mf_find(lzma_mf *mf, uint32_t *count_ptr, lzma_match *matches)
 
 	if (count > 0) {
 #ifndef NDEBUG
+		uint32_t i = 0;
 		// Validate the matches.
-		for (uint32_t i = 0; i < count; ++i) {
+		for (i = 0; i < count; ++i) {
 			assert(matches[i].len <= mf->nice_len);
 			assert(matches[i].dist < mf->read_pos);
 			assert(memcmp(mf_ptr(mf) - 1,
@@ -108,14 +109,14 @@ static void
 normalize(lzma_mf *mf)
 {
 	assert(mf->read_pos + mf->offset == MUST_NORMALIZE_POS);
-
+	uint32_t i = 0;
 	// In future we may not want to touch the lowest bits, because there
 	// may be match finders that use larger resolution than one byte.
 	const uint32_t subvalue
 			= (MUST_NORMALIZE_POS - mf->cyclic_size);
 				// & (~(UINT32_C(1) << 10) - 1);
 
-	for (uint32_t i = 0; i < mf->hash_count; ++i) {
+	for (i = 0; i < mf->hash_count; ++i) {
 		// If the distance is greater than the dictionary size,
 		// we can simply mark the hash element as empty.
 		if (mf->hash[i] <= subvalue)
@@ -124,7 +125,7 @@ normalize(lzma_mf *mf)
 			mf->hash[i] -= subvalue;
 	}
 
-	for (uint32_t i = 0; i < mf->sons_count; ++i) {
+	for (i = 0; i < mf->sons_count; ++i) {
 		// Do the same for mf->son.
 		//
 		// NOTE: There may be uninitialized elements in mf->son.
