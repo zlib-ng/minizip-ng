@@ -235,21 +235,35 @@ int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size)
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
     int32_t written = 0;
+    int32_t total_written = 0;
+    int32_t bytes_to_write = (int32_t)sizeof(pkcrypt->buffer);
     int32_t i = 0;
     uint16_t t = 0;
 
-    if (size > (int32_t)sizeof(pkcrypt->buffer))
-        return MZ_BUF_ERROR;
+    do
+    {
+        if (bytes_to_write > (int32_t)(size - total_written))
+            bytes_to_write = (int32_t)(size - total_written);
+        if (bytes_to_write == 0)
+            break;
+        
+        for (i = 0; i < bytes_to_write; i++)
+        {
+            pkcrypt->buffer[i] = mz_stream_pkcrypt_encode(stream, *buf_ptr, t);
+            buf_ptr += 1;
+        }
 
-    for (i = 0; i < size; i++)
-        pkcrypt->buffer[i] = mz_stream_pkcrypt_encode(stream, buf_ptr[i], t);
+        written = mz_stream_write(pkcrypt->stream.base, pkcrypt->buffer, bytes_to_write);
+        if (written < 0)
+            break;
+        
+        total_written += written;
+    }
+    while (total_written < size);
 
-    written = mz_stream_write(pkcrypt->stream.base, pkcrypt->buffer, size);
+    pkcrypt->total_out += total_written;
 
-    if (written > 0)
-        pkcrypt->total_out += written;
-
-    return written;
+    return total_written;
 }
 
 int64_t mz_stream_pkcrypt_tell(void *stream)
