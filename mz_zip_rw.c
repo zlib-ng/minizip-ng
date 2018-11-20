@@ -569,15 +569,12 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
         err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
         if (err == MZ_OK)
             err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
-        if ((cur_algorithm == algorithm) && (cur_digest_size <= digest_size) &&
+        if ((err == MZ_OK) && (cur_algorithm == algorithm) && (cur_digest_size <= digest_size) &&
             (cur_digest_size <= MZ_HASH_MAX_SIZE))
         {
             // Read hash digest
-            if (mz_stream_read(file_extra_stream, digest, digest_size) != cur_digest_size)
-                err = MZ_FORMAT_ERROR;
-            else
+            if (mz_stream_read(file_extra_stream, digest, digest_size) == cur_digest_size)
                 return_err = MZ_OK;
-
             break;
         }
         else
@@ -1395,7 +1392,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
         }
 
 #ifndef MZ_ZIP_NO_SIGNING
-        if (writer->cert_data != NULL && writer->cert_data_size > 0)
+        if ((err == MZ_OK) && (writer->cert_data != NULL) && (writer->cert_data_size > 0))
         {
             // Sign entry if not zipping cd or if it is cd being zipped
             if (!writer->zip_cd || strcmp(writer->file_info.filename, MZ_ZIP_CD_FILENAME) == 0)
@@ -1418,12 +1415,15 @@ int32_t mz_zip_writer_entry_close(void *handle)
     }
 #endif
 
-    if (writer->raw)
-        err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, 
-            writer->file_info.crc);
-    else
-        err = mz_zip_entry_close(writer->zip_handle);
-
+    if (err == MZ_OK)
+    {
+        if (writer->raw)
+            err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size,
+                writer->file_info.crc);
+        else
+            err = mz_zip_entry_close(writer->zip_handle);
+    }
+    
     return err;
 }
 
