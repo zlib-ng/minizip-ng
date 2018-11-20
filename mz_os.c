@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "mz.h"
 #include "mz_crypt.h"
