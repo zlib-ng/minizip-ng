@@ -172,10 +172,6 @@ endif()
 # Check for system includes
 check_include_file(stdint.h   HAVE_STDINT_H)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
-check_include_file(string.h   HAVE_STRING_H)
-check_include_file(strings.h  HAVE_STRINGS_H)
-check_include_file(memory.h   HAVE_MEMORY_H)
-check_include_file(limits.h   HAVE_LIMITS_H)
 
 if(HAVE_STDINT_H)
     add_definitions(-DHAVE_STDINT_H)
@@ -183,18 +179,7 @@ endif()
 if(HAVE_INTTYPES_H)
     add_definitions(-DHAVE_INTTYPES_H)
 endif()
-if(HAVE_STRING_H)
-    add_definitions(-DHAVE_STRING_H)
-endif()
-if(HAVE_STRINGS_H)
-    add_definitions(-DHAVE_STRINGS_H)
-endif()
-if(HAVE_MEMORY_H)
-    add_definitions(-DHAVE_MEMORY_H)
-endif()
-if(HAVE_LIMITS)
-    add_definitions(-DHAVE_LIMITS_H)
-endif()
+
 # Check for large file support
 check_type_size(off64_t OFF64_T)
 if(HAVE_OFF64_T)
@@ -289,8 +274,8 @@ if(USE_COMPAT)
    See the accompanying LICENSE file for the full text of the license.\n\
 */\n\n\
 #ifndef MZ_COMPAT_FILE\n\
-#define MZ_COMPAT_FILE\n\
-#include \"mz_compat.h\"\n\
+#define MZ_COMPAT_FILE\n\n\
+#include \"mz_compat.h\"\n\n\
 #endif\n")
 
     string(REPLACE "file.h" "zip.h" ZIP_COMPAT_HEADER ${COMPAT_HEADER})
@@ -413,8 +398,25 @@ if(USE_LZMA)
     add_definitions(-DLZMA_API_STATIC)
     add_definitions(-DHAVE_CONFIG_H)
 
+    check_include_file(limits.h     HAVE_LIMITS_H)
+    check_include_file(string.h     HAVE_STRING_H)
+    check_include_file(strings.h    HAVE_STRINGS_H)
+    check_include_file(memory.h     HAVE_MEMORY_H)
     check_include_file(stdbool.h    HAVE_STDBOOL_H)
     check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
+
+    if(HAVE_LIMITS_H)
+        add_definitions(-DHAVE_LIMITS_H)
+    endif()
+    if(HAVE_STRING_H)
+        add_definitions(-DHAVE_STRING_H)
+    endif()
+    if(HAVE_STRINGS_H)
+        add_definitions(-DHAVE_STRINGS_H)
+    endif()
+    if(HAVE_MEMORY_H)
+        add_definitions(-DHAVE_MEMORY_H)
+    endif()
     if(HAVE_STDBOOL_H)
         add_definitions(-DHAVE_STDBOOL_H)
     endif()

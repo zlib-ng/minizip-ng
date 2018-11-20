@@ -10,17 +10,13 @@
 */
 
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#include "mz.h"
+#include "mz_strm.h"
+#include "mz_strm_libcomp.h"
 
 #include <compression.h>
 
 #include "zlib.h"
-
-#include "mz.h"
-#include "mz_strm.h"
-#include "mz_strm_libcomp.h"
 
 /***************************************************************************/
 

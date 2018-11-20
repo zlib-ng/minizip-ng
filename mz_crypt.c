@@ -10,17 +10,14 @@
 */
 
 
-#include <stdint.h>
-#include <string.h>
+#include "mz.h"
+#include "mz_crypt.h"
 
 #if defined(HAVE_ZLIB)
 #include "zlib.h"
 #elif defined(HAVE_LZMA)
 #include "lzma.h"
 #endif
-
-#include "mz.h"
-#include "mz_crypt.h"
 
 /***************************************************************************/
 

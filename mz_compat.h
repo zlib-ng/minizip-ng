@@ -14,8 +14,7 @@
 #ifndef MZ_COMPAT_H
 #define MZ_COMPAT_H
 
-#include <stdint.h>
-#include <time.h>
+#include "mz.h"
 
 #ifdef __cplusplus
 extern "C" {

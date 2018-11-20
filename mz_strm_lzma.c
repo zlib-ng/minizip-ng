@@ -10,16 +10,11 @@
 */
 
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-
-#include "lzma.h"
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_lzma.h"
+
+#include "lzma.h"
 
 /***************************************************************************/
 

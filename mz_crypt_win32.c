@@ -11,17 +11,11 @@
 
 #pragma comment(lib, "crypt32.lib")
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <time.h>
+#include "mz.h"
+#include "mz_os.h"
 
 #include <windows.h>
 #include <wincrypt.h>
-
-#include "mz.h"
-
-#include "mz_os.h"
 
 /***************************************************************************/
 

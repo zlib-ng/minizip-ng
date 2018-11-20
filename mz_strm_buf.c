@@ -11,13 +11,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <errno.h>
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
@@ -267,8 +260,8 @@ int64_t mz_stream_buffered_tell(void *stream)
 
     buffered->position = position;
 
-    mz_stream_buffered_print("Buffered - Tell (pos %"PRId64" readpos %"PRId32" writepos %"PRId32" err %"PRId32")\n",
-        buffered->position, buffered->readbuf_pos, buffered->writebuf_pos, errno);
+    mz_stream_buffered_print("Buffered - Tell (pos %"PRId64" readpos %"PRId32" writepos %"PRId32")\n",
+        buffered->position, buffered->readbuf_pos, buffered->writebuf_pos);
 
     if (buffered->readbuf_len > 0)
         position -= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos);

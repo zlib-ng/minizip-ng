@@ -14,16 +14,13 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-
-#include <windows.h>
 
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
 #include "mz_strm_os.h"
+
+#include <windows.h>
 
 /***************************************************************************/
 

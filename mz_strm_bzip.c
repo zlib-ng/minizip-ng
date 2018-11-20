@@ -10,15 +10,11 @@
 */
 
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
-#include "bzlib.h"
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_bzip.h"
+
+#include "bzlib.h"
 
 /***************************************************************************/
 

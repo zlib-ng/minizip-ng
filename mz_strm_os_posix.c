@@ -14,15 +14,12 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
 
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_os.h"
+
+#include <errno.h>
 
 /***************************************************************************/
 

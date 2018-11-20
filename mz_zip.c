@@ -16,14 +16,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <ctype.h>
-#include <time.h>
-#include <limits.h>
 
 #include "mz.h"
 #include "mz_crypt.h"
@@ -46,6 +38,8 @@
 #endif
 
 #include "mz_zip.h"
+
+#include <ctype.h> // tolower
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #  define snprintf _snprintf

@@ -9,12 +9,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <time.h>
 
 #include "mz.h"
 #include "mz_os.h"

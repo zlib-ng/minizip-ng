@@ -12,10 +12,6 @@
 #ifndef MZ_H
 #define MZ_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /***************************************************************************/
 
 // MZ_VERSION
@@ -149,8 +145,45 @@ extern "C" {
 
 /***************************************************************************/
 
-#ifdef __cplusplus
-}
+#include <stdlib.h>
+#include <stdio.h>
+#include <stddef.h> // size_t and NULL
+#include <time.h>   // time_t and time()
+#include <string.h>
+#include <limits.h>
+
+#ifdef HAVE_INTTYPES_H
+#  include <inttypes.h>
+#else
+#  define PRId8  "hhd"
+#  define PRId16 "hd"
+#  define PRId32 "d"
+#  define PRIu32 "u"
+#  define PRIx32 "x"
+#  if ULONG_MAX == 4294967295UL
+#    define PRId64 "lld"
+#    define PRIu64 "llu"
+#    define PRIx64 "llx"
+#  else
+#    define PRId64 "ld"
+#    define PRIu64 "lu"
+#    define PRIx64 "lx"
+#  endif
 #endif
+
+#ifdef HAVE_STDINT_H
+#  include <stdint.h>
+#else
+typedef signed char        int8_t;
+typedef short              int16_t;
+typedef int                int32_t;
+typedef long long          int64_t;
+typedef unsigned char      uint8_t;
+typedef unsigned short     uint16_t;
+typedef unsigned int       uint32_t;
+typedef unsigned long long uint64_t;
+#endif
+
+/***************************************************************************/
 
 #endif
