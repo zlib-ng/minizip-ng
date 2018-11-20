@@ -25,8 +25,16 @@ option(BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 
 project("minizip" C)
 
+# Minizip library version
+set(VERSION "2.7.5")
+
+# Minizip api version
+set(SOVERSION "2.5")
+
 include(CheckLibraryExists)
 include(CheckSymbolExists)
+include(CheckIncludeFile)
+include(CheckTypeSize)
 include(GNUInstallDirs)
 include(ExternalProject)
 
@@ -36,15 +44,6 @@ set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directo
 set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory for manual pages")
 set(INSTALL_PKGCONFIG_DIR ${CMAKE_INSTALL_LIBDIR}/pkgconfig CACHE PATH "Installation directory for pkgconfig (.pc) files")
 set(INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/minizip CACHE PATH "Installation directory for cmake files.")
-
-# Minizip library version
-set(VERSION "2.7.5")
-
-# Minizip api version
-set(SOVERSION "2.5")
-
-# Set cmake debug postfix to d
-set(CMAKE_DEBUG_POSTFIX "d")
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
@@ -108,7 +107,6 @@ if(USE_ZLIB)
 
         include_directories(${ZLIB_INCLUDE_DIRS})
         add_definitions(-DHAVE_ZLIB)
-        
     endif()
 endif()
 
@@ -170,20 +168,37 @@ if(NOT USE_PKCRYPT AND NOT USE_AES)
     add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
 endif()
 
+# Check for system includes
+check_include_file(stdint.h   HAVE_STDINT_H)
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+
+if(HAVE_STDINT_H)
+    add_definitions(-DHAVE_STDINT_H)
+endif()
+if(HAVE_INTTYPES_H)
+    add_definitions(-DHAVE_INTTYPES_H)
+endif()
+check_type_size(off64_t OFF64_T)
+if(HAVE_OFF64_T)
+    add_definitions(-D__USE_FILE_OFFSET64)
+    add_definitions(-D__USE_LARGEFILE64)
+    add_definitions(-D_LARGEFILE64_SOURCE)
+    add_definitions(-D_FILE_OFFSET_BITS=64)
+endif()
+
 # Windows specific
 if(WIN32)
+    set(CMAKE_DEBUG_POSTFIX "d")
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
     if (USE_PKCRYPT OR USE_AES)
         if (NOT USE_OPENSSL AND NOT OPENSSL_FOUND AND NOT USE_BRG)
             list(APPEND MINIZIP_SRC "mz_crypt_win32.c")
         endif()
     endif()
-
-    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif()
-
-# Windows store specific
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore")
+if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
     add_definitions(-DMZ_WINRT_API)
 endif()
 
@@ -231,24 +246,6 @@ if(UNIX)
         endif()
     endif()
 
-    # Setup and use large file macros if necessary
-    set(define_lfs_macros TRUE)
-
-    if(ANDROID)
-        string(REGEX REPLACE "android-([0-9+])" "\\1"
-            android_api "${ANDROID_PLATFORM}")
-        if(android_api LESS 24)
-            set(define_lfs_macros FALSE)
-        endif()
-    endif()
-
-    if(define_lfs_macros)
-        add_definitions(-D__USE_FILE_OFFSET64)
-        add_definitions(-D__USE_LARGEFILE64)
-        add_definitions(-D_LARGEFILE64_SOURCE)
-        add_definitions(-D_FILE_OFFSET_BITS=64)
-    endif()
-
     find_package(Iconv)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
@@ -282,21 +279,6 @@ if(USE_COMPAT)
     string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
     file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
     list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
-
-    include(CheckIncludeFile)
-    check_include_file(inttypes.h HAVE_INTTYPES_H)
-    if(NOT HAVE_INTTYPES_H)
-        set(COMPAT_INTTYPES "\
-#define PRId16 \"hd\"
-#define PRId32 \"d\"
-#define PRIu32 \"u\"
-#define PRIx32 \"x\"
-#define PRId64 \"lld\"
-#define PRIu64 \"llu\"
-#define PRIx64 \"llx\"
-        ")
-        file(WRITE "inttypes.h" ${COMPAT_INTTYPES})
-    endif()
 endif()
 
 # Include PKCRYPT
@@ -533,7 +515,7 @@ endif()
 # Enable compiler warnings
 if(MSVC)
     add_compile_options(/W3)
-else()
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     add_compile_options(-W -Wall)
 endif()
 
