@@ -468,7 +468,7 @@ int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size)
 
     if (raw->max_total_in > 0)
     {
-        if ((raw->max_total_in - raw->total_in) < size)
+        if (bytes_to_read > (int32_t)(raw->max_total_in - raw->total_in))
             bytes_to_read = (int32_t)(raw->max_total_in - raw->total_in);
     }
 
