@@ -33,6 +33,7 @@ set(SOVERSION "2.5")
 
 include(CheckLibraryExists)
 include(CheckSymbolExists)
+include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckTypeSize)
 include(GNUInstallDirs)
@@ -201,6 +202,11 @@ if(HAVE_OFF64_T)
     add_definitions(-D__USE_LARGEFILE64)
     add_definitions(-D_LARGEFILE64_SOURCE)
     add_definitions(-D_FILE_OFFSET_BITS=64)
+endif()
+# Check for fseeko support
+check_function_exists(fseeko HAVE_FSEEKO)
+if(NOT HAVE_FSEEKO)
+    add_definitions(-DNO_FSEEKO)
 endif()
 
 # Windows specific

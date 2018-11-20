@@ -16,8 +16,6 @@
 extern "C" {
 #endif
 
-#include "mz_zip.h"
-
 /***************************************************************************/
 
 typedef int32_t (*mz_zip_reader_overwrite_cb)(void *handle, void *userdata, mz_zip_file *file_info, const char *path);

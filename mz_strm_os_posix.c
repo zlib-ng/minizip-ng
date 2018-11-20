@@ -26,27 +26,16 @@
 
 /***************************************************************************/
 
-#if defined(MZ_FILE32_API)
-#  define fopen64 fopen
+#define fopen64 fopen
+#if !define(MZ_FILE32_API) && !defined(NO_FSEEKO)
+#  define ftello64 ftello
+#  define fseeko64 fseeko
+#elif !defined(MZ_FILE32_API) && (_MSC_VER >= 1400)
+#  define ftello64 _ftelli64
+#  define fseeko64 _fseeki64
+#else 
 #  define ftello64 ftell
 #  define fseeko64 fseek
-#else
-#  if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__) || \
-      defined(__OpenBSD__) || defined(__APPLE__) || defined(__ANDROID__)
-#    define fopen64 fopen
-#    define ftello64 ftello
-#    define fseeko64 fseeko
-#  endif
-#  ifdef _MSC_VER
-#    define fopen64 fopen
-#    if (_MSC_VER >= 1400) && (!(defined(NO_MSCVER_FILE64_FUNC)))
-#      define ftello64 _ftelli64
-#      define fseeko64 _fseeki64
-#    else /* old MSC */
-#      define ftello64 ftell
-#      define fseeko64 fseek
-#    endif
-#  endif
 #endif
 
 /***************************************************************************/
