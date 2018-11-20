@@ -352,7 +352,6 @@ if(USE_ZLIB)
         
         if (ZLIB_FOUND)
             include(CheckFunctionExists)
-            set(CMAKE_REQUIRED_LIBRARIES ZLIB)
             check_function_exists(z_get_crc_table NEEDS_Z_PREFIX)
             if(NEEDS_Z_PREFIX)
                 add_definitions(-DZ_PREFIX)
@@ -368,9 +367,7 @@ if(USE_BZIP2)
     list(APPEND MINIZIP_SRC "mz_strm_bzip.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_bzip.h")
 
-    if(BZIP2_FOUND)
-        set(CMAKE_REQUIRED_LIBRARIES BZip2::BZip2)
-    else()
+    if(NOT BZIP2_FOUND)
         add_definitions(-DBZ_NO_STDIO)
 
         set(BZIP2_SRC
