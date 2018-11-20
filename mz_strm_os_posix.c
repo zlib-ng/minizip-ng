@@ -27,14 +27,19 @@
 /***************************************************************************/
 
 #define fopen64 fopen
-#if !define(MZ_FILE32_API) && !defined(NO_FSEEKO)
-#  define ftello64 ftello
-#  define fseeko64 fseeko
-#elif !defined(MZ_FILE32_API) && (_MSC_VER >= 1400)
-#  define ftello64 _ftelli64
-#  define fseeko64 _fseeki64
-#else 
+#ifndef MZ_FILE32_API
+#  ifndef NO_FSEEKO
+#    define ftello64 ftello
+#    define fseeko64 fseeko
+#  elif defined(_MSC_VER) && (_MSC_VER >= 1400)
+#    define ftello64 _ftelli64
+#    define fseeko64 _fseeki64
+#  endif
+#endif
+#ifndef ftello64
 #  define ftello64 ftell
+#endif
+#ifndef fseeko64
 #  define fseeko64 fseek
 #endif
 
