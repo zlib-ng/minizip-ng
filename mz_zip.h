@@ -90,8 +90,8 @@ int32_t mz_zip_set_recover(void *handle, uint8_t recover);
 int32_t mz_zip_get_stream(void *handle, void **stream);
 // Get a pointer to the stream used to open
 
-int32_t mz_zip_set_cd_start_pos(void *handle, int64_t cd_start_pos);
-// Sets the start position to use for reading the central dir
+int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream);
+// Sets the stream to use for reading the central dir
 
 int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream);
 // Get a pointer to the stream used to store the central dir in memory

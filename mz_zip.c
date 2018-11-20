@@ -1265,7 +1265,7 @@ static int32_t mz_zip_recover_cd(void *handle)
     mz_stream_mem_set_buffer_limit(cd_mem_stream, (int32_t)disk_offset);
 
     // Set new central directory info
-    mz_zip_set_cd_start_pos(handle, 0);
+    mz_zip_set_cd_stream(handle, 0, cd_mem_stream);
     mz_zip_set_number_entry(handle, number_entry);
     mz_zip_set_disk_number_with_cd(handle, disk_number_with_cd);
 
@@ -1488,11 +1488,12 @@ int32_t mz_zip_get_stream(void *handle, void **stream)
     return MZ_OK;
 }
 
-int32_t mz_zip_set_cd_start_pos(void *handle, int64_t cd_start_pos)
+int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream)
 {
     mz_zip *zip = (mz_zip *)handle;
-    if (zip == NULL)
+    if (zip == NULL || cd_stream == NULL)
         return MZ_PARAM_ERROR;
+    zip->cd_stream = cd_stream;
     zip->cd_start_pos = cd_start_pos;
     return MZ_OK;
 }

@@ -279,12 +279,14 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
     if (mz_stream_mem_is_open(cd_mem_stream) != MZ_OK)
         mz_stream_mem_open(cd_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-    err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read, 
-        (int32_t)cd_info->uncompressed_size);
+    err = mz_stream_seek(cd_mem_stream, 0, MZ_SEEK_SET);
+    if (err == MZ_OK)
+        err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read, 
+            (int32_t)cd_info->uncompressed_size);
 
     if (err == MZ_OK)
     {
-        mz_zip_set_cd_start_pos(reader->zip_handle, 0);
+        mz_zip_set_cd_stream(reader->zip_handle, 0, cd_mem_stream);
         mz_zip_set_number_entry(reader->zip_handle, number_entry);
 
         err = mz_zip_reader_goto_first_entry(handle);
