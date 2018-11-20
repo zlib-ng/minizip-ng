@@ -5,7 +5,7 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* How many MiB of RAM to assume if the real amount cannot be determined. */
-#define ASSUME_RAM 128
+/* #undef ASSUME_RAM 128 */
 
 /* Define to 1 if translation of program messages to the user's native
    language is requested. */
@@ -47,7 +47,7 @@
 /* #undef HAVE_CHECK_SHA256 */
 
 /* Define to 1 if you have the `clock_gettime' function. */
-#define HAVE_CLOCK_GETTIME 1
+/* #undef HAVE_CLOCK_GETTIME */
 
 /* Define to 1 if you have the <CommonCrypto/CommonDigest.h> header file. */
 /* #undef HAVE_COMMONCRYPTO_COMMONDIGEST_H */
@@ -58,11 +58,11 @@
 
 /* Define to 1 if you have the declaration of `CLOCK_MONOTONIC', and to 0 if
    you don't. */
-#define HAVE_DECL_CLOCK_MONOTONIC 1
+/* #undef HAVE_DECL_CLOCK_MONOTONIC */
 
 /* Define to 1 if you have the declaration of `program_invocation_name', and
    to 0 if you don't. */
-#define HAVE_DECL_PROGRAM_INVOCATION_NAME 0
+/* #undef HAVE_DECL_PROGRAM_INVOCATION_NAME */
 
 /* Define to 1 if arm decoder is enabled. */
 /* #undef HAVE_DECODER_ARM */
@@ -122,7 +122,7 @@
 /* #undef HAVE_ENCODER_X86 */
 
 /* Define to 1 if you have the <fcntl.h> header file. */
-#define HAVE_FCNTL_H 1
+/* #undef HAVE_FCNTL_H 1 */
 
 /* Define to 1 if you have the `futimens' function. */
 /* #undef HAVE_FUTIMENS */
@@ -134,10 +134,10 @@
 /* #undef HAVE_FUTIMESAT */
 
 /* Define to 1 if you have the <getopt.h> header file. */
-#define HAVE_GETOPT_H 1
+/* #undef HAVE_GETOPT_H */
 
 /* Define to 1 if you have the `getopt_long' function. */
-#define HAVE_GETOPT_LONG 1
+/* #undef HAVE_GETOPT_LONG */
 
 /* Define if the GNU gettext() function is already present or preinstalled. */
 /* #undef HAVE_GETTEXT */
@@ -155,7 +155,7 @@
 #define HAVE_LIMITS_H 1
 
 /* Define to 1 if mbrtowc and mbstate_t are properly declared. */
-#define HAVE_MBRTOWC 1
+/* #undef HAVE_MBRTOWC 1 */
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
