@@ -686,7 +686,7 @@ if(BUILD_UNIT_TEST)
     if(USE_AES)
         create_compress_tests("winzipaes" "-s;-p;1234567890")
     endif()
-    if(NOT USE_BRG AND NOT (APPLE AND NOT USE_OPENSSL))
+    if(USE_OPENSSL AND OPENSSL_FOUND)
         create_compress_tests("signing" "-h;ia.p12;-w;test")
     endif()
 

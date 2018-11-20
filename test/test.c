@@ -1,11 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <inttypes.h>
-#include <time.h>
-#include <errno.h>
-#include <fcntl.h>
+/* test.c - Test bed area
+   Version 2.7.5, November 13, 2018
+   part of the MiniZip project
+
+   Copyright (C) 2018 Nathan Moinvaziri
+     https://github.com/nmoinvaz/minizip
+
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
+*/
 
 #include "mz.h"
 #include "mz_crypt.h"

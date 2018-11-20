@@ -1,4 +1,4 @@
-/* minizip.c
+/* standalone.c - Standalone fuzzer tester
    Version 2.7.5, November 13, 2018
    part of the MiniZip project
 
@@ -11,11 +11,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
 
 #include "mz.h"
 #include "mz_strm.h"
