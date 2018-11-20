@@ -17,11 +17,6 @@
 #ifndef MZ_ZIP_H
 #define MZ_ZIP_H
 
-#include <stdint.h>
-#include <time.h>
-
-#include "mz_strm.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

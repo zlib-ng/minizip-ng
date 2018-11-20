@@ -14,8 +14,6 @@
 #ifndef MZ_STREAM_BUFFERED_H
 #define MZ_STREAM_BUFFERED_H
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

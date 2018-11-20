@@ -12,9 +12,6 @@
 #ifndef MZ_OS_H
 #define MZ_OS_H
 
-#include <stdint.h>
-#include <time.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

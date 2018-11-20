@@ -12,8 +12,6 @@
 #ifndef MZ_STREAM_BZIP_H
 #define MZ_STREAM_BZIP_H
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

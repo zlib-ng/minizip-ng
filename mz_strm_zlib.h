@@ -12,8 +12,6 @@
 #ifndef MZ_STREAM_ZLIB_H
 #define MZ_STREAM_ZLIB_H
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
