@@ -543,6 +543,7 @@ int main(int argc, const char *argv[])
     // Parse command line options
     for (i = 1; i < argc; i += 1)
     {
+        printf("%s ", argv[i]);
         if (argv[i][0] == '-')
         {
             char c = argv[i][1];
@@ -590,6 +591,7 @@ int main(int argc, const char *argv[])
             {
 #ifndef MZ_ZIP_NO_SIGNING
                 options.cert_path = argv[i + 1];
+                printf("%s ", argv[i + 1]);
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
@@ -599,6 +601,7 @@ int main(int argc, const char *argv[])
             {
 #ifndef MZ_ZIP_NO_SIGNING
                 options.cert_pwd = argv[i + 1];
+                printf("%s ", argv[i + 1]);
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
@@ -612,11 +615,13 @@ int main(int argc, const char *argv[])
             else if (((c == 'k') || (c == 'K')) && (i + 1 < argc))
             {
                 options.disk_size = (int64_t)atoi(argv[i + 1]) * 1024;
+                printf("%s ", argv[i + 1]);
                 i += 1;
             }
             else if (((c == 'd') || (c == 'D')) && (i + 1 < argc))
             {
                 destination = argv[i + 1];
+                printf("%s ", argv[i + 1]);
                 i += 1;
             }
             else if (((c == 'p') || (c == 'P')) && (i + 1 < argc))
@@ -632,7 +637,8 @@ int main(int argc, const char *argv[])
         else if (path_arg == 0)
             path_arg = i;
     }
-
+    printf("\n");
+    
     if (err == MZ_SUPPORT_ERROR)
     {
         printf("Feature not supported\n");
