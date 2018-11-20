@@ -23,6 +23,9 @@
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
 #endif
+#ifdef HAVE_APPLE_COMPRESSION
+#  include "mz_strm_libcomp.h"
+#endif
 #ifdef HAVE_LZMA
 #  include "mz_strm_lzma.h"
 #endif
@@ -1621,7 +1624,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     {
         if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_APPLE_COMPRESSION)
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
             mz_stream_zlib_create(&zip->compress_stream);
 #endif
@@ -1645,7 +1648,9 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         }
         else
         {
+#ifndef HAVE_APPLE_COMPRESSION
             if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
+#endif
             {
                 max_total_in = zip->file_info.compressed_size;
                 mz_stream_set_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);

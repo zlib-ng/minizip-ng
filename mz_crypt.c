@@ -14,9 +14,9 @@
 #include "mz_crypt.h"
 
 #if defined(HAVE_ZLIB)
-#include "zlib.h"
+#  include "zlib.h"
 #elif defined(HAVE_LZMA)
-#include "lzma.h"
+#  include "lzma.h"
 #endif
 
 /***************************************************************************/
@@ -25,7 +25,7 @@ uint32_t mz_crypt_crc32_update(uint32_t value, const uint8_t *buf, int32_t size)
 {
 #if defined(HAVE_ZLIB)
     // Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
-#if defined(ZLIBNG_VERNUM)
+#ifdef ZLIBNG_VERNUM
     typedef uint32_t z_crc_t;
 #elif (ZLIB_VERNUM < 0x1270)
     typedef unsigned long z_crc_t;
@@ -123,7 +123,8 @@ int32_t  mz_crypt_pbkdf2(uint8_t *password, int32_t password_length, uint8_t *sa
     mz_crypt_hmac_set_algorithm(hmac3, MZ_HASH_SHA1);
 
     err = mz_crypt_hmac_init(hmac1, password, password_length);
-    err = mz_crypt_hmac_init(hmac2, password, password_length);
+    if (err == MZ_OK)
+        err = mz_crypt_hmac_init(hmac2, password, password_length);
     if (err == MZ_OK)
         err = mz_crypt_hmac_update(hmac2, salt, salt_length);
     
@@ -145,8 +146,11 @@ int32_t  mz_crypt_pbkdf2(uint8_t *password, int32_t password_length, uint8_t *sa
         for (j = 0, k = 4; j < iteration_count; j += 1)
         {
             err = mz_crypt_hmac_update(hmac3, uu, k);
-            err = mz_crypt_hmac_end(hmac3, uu, sizeof(uu));
-
+            if (err == MZ_OK)
+                err = mz_crypt_hmac_end(hmac3, uu, sizeof(uu));
+            if (err != MZ_OK)
+                break;
+            
             for(k = 0; k < MZ_HASH_SHA1_SIZE; k += 1)
                 ux[k] ^= uu[k];
 

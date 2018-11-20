@@ -52,13 +52,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONL
 set(PROJECT_NAME libminizip)
 
 # Ensure correct version of zlib is referenced
-if(USE_ZLIB)
+if(USE_ZLIB AND NOT USE_LIBCOMP)
     set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
     find_package(ZLIB)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
         include_directories(${ZLIB_INCLUDE_DIRS})
-        add_definitions(-DHAVE_ZLIB)
     else()
         if (NOT ZLIB_TAG)
             set(ZLIB_TAG master)
@@ -107,7 +106,6 @@ if(USE_ZLIB)
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
-        add_definitions(-DHAVE_ZLIB)
     endif()
 endif()
 
@@ -341,12 +339,14 @@ endif()
 
 # Include ZLIB
 if(USE_ZLIB)
-    add_definitions(-DHAVE_ZLIB)
-
     if(USE_LIBCOMP)
+        add_definitions(-DHAVE_APPLE_COMPRESSION)
+
         list(APPEND MINIZIP_SRC "mz_strm_libcomp.c")
         list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_libcomp.h")
-    else() 
+    else()
+        add_definitions(-DHAVE_ZLIB)
+
         list(APPEND MINIZIP_SRC "mz_strm_zlib.c")
         list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_zlib.h")
         
@@ -570,7 +570,7 @@ if (MSVC AND BUILD_SHARED_LIBS)
 endif ()
 
 # Link with external libraries
-if(USE_ZLIB)
+if(USE_ZLIB AND NOT USE_LIBCOMP)
     target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
     if(NOT ZLIB_FOUND)
         add_dependencies(${PROJECT_NAME} zlib)
