@@ -199,6 +199,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 #endif
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_bzip_flush(void *stream)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
@@ -207,7 +208,6 @@ static int32_t mz_stream_bzip_flush(void *stream)
     return MZ_OK;
 }
 
-#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_bzip_compress(void *stream, int flush)
 {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;

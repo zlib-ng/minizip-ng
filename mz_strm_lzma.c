@@ -223,6 +223,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 #endif
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_lzma_flush(void *stream)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
@@ -231,7 +232,6 @@ static int32_t mz_stream_lzma_flush(void *stream)
     return MZ_OK;
 }
 
-#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_lzma_code(void *stream, int32_t flush)
 {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;

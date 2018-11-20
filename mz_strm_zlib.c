@@ -208,6 +208,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 #endif
 }
 
+#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_zlib_flush(void *stream)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
@@ -216,7 +217,6 @@ static int32_t mz_stream_zlib_flush(void *stream)
     return MZ_OK;
 }
 
-#ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_zlib_deflate(void *stream, int flush)
 {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
