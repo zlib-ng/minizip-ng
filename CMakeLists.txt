@@ -564,7 +564,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
                         PREFIX ""
-                        POSITION_INDEPENDENT_CODE 1) 
+                        POSITION_INDEPENDENT_CODE 1)
+if(USE_LZMA)
+    set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
+endif()
 if (MSVC AND BUILD_SHARED_LIBS)
     set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_NAME "minizip")
 endif ()
