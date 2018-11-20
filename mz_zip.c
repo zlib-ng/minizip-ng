@@ -292,6 +292,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         while ((err == MZ_OK) && (field_pos + 4 <= file_info->extrafield_size))
         {
             err = mz_zip_extrafield_read(file_extra_stream, &field_type, &field_length);
+            if (err != MZ_OK)
+                break;
             field_pos += 4;
 
             // Don't allow field length to exceed size of remaining extrafield
