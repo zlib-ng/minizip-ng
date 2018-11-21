@@ -213,7 +213,7 @@ if(UNIX)
     add_definitions(-D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
     
-    if ((USE_PKCRYPT OR USE_AES) AND (NOT USE_OPENSSL AND NOT OPENSSL_FOUND))
+    if ((USE_PKCRYPT OR USE_AES) AND NOT (USE_OPENSSL AND OPENSSL_FOUND))
         
         if (APPLE AND NOT USE_BRG)
             list(APPEND MINIZIP_SRC "mz_crypt_apple.c")
@@ -527,8 +527,9 @@ endif()
 
 # Enable x86 optimizations if supported
 if(CMAKE_BUILD_TYPE MATCHES Release)
-    if(CMAKE_C_COMPILER MATCHES ".*clang")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
         include(CheckCCompilerFlag)
+
         macro(enable_option_if_supported option variable)
             check_c_compiler_flag("-Werror=unused-command-line-argument ${option}" ${variable})
             if(${variable})
@@ -540,14 +541,22 @@ if(CMAKE_BUILD_TYPE MATCHES Release)
         enable_option_if_supported(-msse4.1 check_opt_sse41)
         enable_option_if_supported(-maes check_opt_aes)
     endif()
-    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+    if(NOT MSVC)
         add_compile_options(-O3)
     endif()
+else()
+    if(MSVC)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+    endif()
 endif()
+
 # Enable compiler warnings
 if(MSVC)
     add_compile_options(/W3)
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+else()
     add_compile_options(-W -Wall)
 endif()
 
