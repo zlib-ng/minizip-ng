@@ -9,12 +9,12 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+
 #include "mz.h"
 #include "mz_os.h"
 
 #include <errno.h>
 
-#define __USE_MISC
 #include <sys/types.h>
 
 #if defined(HAVE_GETRANDOM)
