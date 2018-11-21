@@ -21,6 +21,9 @@
 #  include <sys/random.h>
 #endif
 #if defined(HAVE_LIBBSD)
+#  ifndef __u_char_defined
+     typedef unsigned char  u_char;
+#  endif 
 #  include <bsd/stdlib.h> /* arc4random_buf */
 #endif
 

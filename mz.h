@@ -201,10 +201,6 @@ typedef unsigned char      uint8_t;
 typedef unsigned short     uint16_t;
 typedef unsigned int       uint32_t;
 typedef unsigned long long uint64_t;
-#if defined(HAVE_LIBBSD)
-typedef unsigned char      u_char;
-#define __u_char_defined
-#endif
 #endif
 
 /***************************************************************************/
