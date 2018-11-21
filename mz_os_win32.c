@@ -14,8 +14,6 @@
 #include "mz_os.h"
 #include "mz_strm_os.h"
 
-#include <direct.h>
-#include <errno.h>
 #include <windows.h>
 
 /***************************************************************************/
@@ -347,7 +345,7 @@ int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes)
 int32_t mz_os_make_dir(const char *path)
 {
     wchar_t *path_wide = NULL;
-    int32_t err = 0;
+    int32_t err = MZ_OK;
 
     if (path == NULL)
         return MZ_PARAM_ERROR;
@@ -355,13 +353,15 @@ int32_t mz_os_make_dir(const char *path)
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
-    err = _wmkdir(path_wide);
+    if (CreateDirectoryW(path_wide, NULL) == 0)
+    {
+        if (GetLastError() != ERROR_ALREADY_EXISTS)
+            err = MZ_INTERNAL_ERROR;
+    }
+
     mz_os_unicode_string_delete(&path_wide);
 
-    if (err != 0 && errno != EEXIST)
-        return MZ_INTERNAL_ERROR;
-
-    return MZ_OK;
+    return err;
 }
 
 DIR *mz_os_open_dir(const char *path)
