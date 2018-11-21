@@ -630,10 +630,11 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         if (intercerts)
         {
             /* Verify signer certificates */
+            signer_count = sk_X509_num(signers);
             if (signer_count > 0)
                 err = MZ_OK;
 
-            for (i = 0; i < sk_X509_num(signers); i++)
+            for (i = 0; i < signer_count; i++)
             {
                 store_ctx = X509_STORE_CTX_new();
                 X509_STORE_CTX_init(store_ctx, cert_store, sk_X509_value(signers, i), intercerts);
