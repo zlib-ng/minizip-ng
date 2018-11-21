@@ -628,7 +628,7 @@ int main(int argc, const char *argv[])
             {
 #ifndef MZ_ZIP_NO_ENCRYPTION
                 password = argv[i + 1];
-                printf("%s ", argv[i + 1]);
+                printf("*** ");
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
