@@ -141,9 +141,9 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0 && out_bytes == 0)
-                break;
-
+            if (read == 0)
+                flags = COMPRESSION_STREAM_FINALIZE;
+            
             libcomp->cstream.src_ptr = libcomp->buffer;
             libcomp->cstream.src_size = (size_t)read;
         }
