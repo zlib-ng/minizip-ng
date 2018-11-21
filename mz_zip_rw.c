@@ -743,6 +743,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
+    int32_t i = 0;
+    char pathwfs[512];
     char directory[512];
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
@@ -750,10 +752,18 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     if (reader->file_info == NULL || path == NULL)
         return MZ_PARAM_ERROR;
 
-    if (reader->entry_cb != NULL)
-        reader->entry_cb(handle, reader->entry_userdata, reader->file_info, path);
+    /* Convert to forward slashes for unix which doesn't like backslashes */
+    strncpy(pathwfs, path, sizeof(pathwfs));
+    for (i = 0; i < (int32_t)strlen(pathwfs); i += 1)
+    {
+        if (pathwfs[i] == '\\')
+            pathwfs[i] = '/';
+    }
 
-    strncpy(directory, path, sizeof(directory) - 1);
+    if (reader->entry_cb != NULL)
+        reader->entry_cb(handle, reader->entry_userdata, reader->file_info, pathwfs);
+
+    strncpy(directory, pathwfs, sizeof(directory) - 1);
     directory[sizeof(directory) - 1] = 0;
     mz_path_remove_filename(directory);
 
@@ -765,12 +775,12 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     }
 
     /* Check if file exists and ask if we want to overwrite */
-    if ((mz_os_file_exists(path) == MZ_OK) && (reader->overwrite_cb != NULL))
+    if ((mz_os_file_exists(pathwfs) == MZ_OK) && (reader->overwrite_cb != NULL))
     {
-        err_cb = reader->overwrite_cb(handle, reader->overwrite_userdata, reader->file_info, path);
+        err_cb = reader->overwrite_cb(handle, reader->overwrite_userdata, reader->file_info, pathwfs);
         if (err_cb != MZ_OK)
             return err;
-        mz_os_delete(path);
+        mz_os_delete(pathwfs);
     }
 
     /* Create the output directory if it doesn't already exist */
@@ -784,7 +794,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     mz_stream_os_create(&file_stream);
 
     /* Create the file on disk so we can save to it */
-    err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_CREATE);
+    err = mz_stream_os_open(file_stream, pathwfs, MZ_OPEN_MODE_CREATE);
 
     if (err == MZ_OK)
         err = mz_zip_reader_entry_save(handle, file_stream, mz_stream_os_write);
@@ -795,7 +805,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     if (err == MZ_OK)
     {
         /* Set the time of the file that has been created */
-        mz_os_set_file_date(path, reader->file_info->modified_date,
+        mz_os_set_file_date(pathwfs, reader->file_info->modified_date,
             reader->file_info->accessed_date, reader->file_info->creation_date);
     }
 
@@ -806,7 +816,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
             reader->file_info->external_fa, MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
 
         if (err_attrib == MZ_OK)
-            mz_os_set_file_attribs(path, target_attrib);
+            mz_os_set_file_attribs(pathwfs, target_attrib);
     }
 
     return err;
