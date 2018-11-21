@@ -23,7 +23,7 @@
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
 #endif
-#ifdef HAVE_APPLE_COMPRESSION
+#ifdef HAVE_LIBCOMP
 #  include "mz_strm_libcomp.h"
 #endif
 #ifdef HAVE_LZMA
@@ -33,7 +33,7 @@
 #ifdef HAVE_PKCRYPT
 #  include "mz_strm_pkcrypt.h"
 #endif
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
 #  include "mz_strm_wzaes.h"
 #endif
 #ifdef HAVE_ZLIB
@@ -371,7 +371,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 /* Skip variable data */
                 mz_stream_seek(file_extra_stream, field_length - 12, MZ_SEEK_CUR);
             }
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
             /* Read AES extra field */
             else if ((field_type == MZ_ZIP_EXTENSION_AES) && (field_length == 7))
             {
@@ -578,7 +578,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         while (err_mem == MZ_OK);
     }
 
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
     if (!skip_aes)
     {
         if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
@@ -618,7 +618,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             version_needed = 20;
             if (zip64)
                 version_needed = 45;
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
             if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
                 version_needed = 51;
 #endif
@@ -633,7 +633,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         err = mz_stream_write_uint16(stream, file_info->flag);
     if (err == MZ_OK)
     {
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
         if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
             err = mz_stream_write_uint16(stream, MZ_COMPRESS_METHOD_AES);
         else
@@ -802,7 +802,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_uint64(stream, ntfs_time);
         }
     }
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
     /* Write AES extra field */
     if ((err == MZ_OK) && (!skip_aes) && (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
     {
@@ -1572,7 +1572,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
     if ((err == MZ_OK) && (use_crypt))
     {
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
         if (zip->file_info.aes_version)
         {
             mz_stream_wzaes_create(&zip->crypt_stream);
@@ -1625,7 +1625,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     {
         if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
-#if defined(HAVE_ZLIB) || defined(HAVE_APPLE_COMPRESSION)
+#if defined(HAVE_ZLIB) || defined(HAVE_LIBCOMP)
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
             mz_stream_zlib_create(&zip->compress_stream);
 #endif
@@ -1649,7 +1649,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         }
         else
         {
-#ifndef HAVE_APPLE_COMPRESSION
+#ifndef HAVE_LIBCOMP
             if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
 #endif
             {
@@ -1856,7 +1856,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     zip->file_info.crc = 0;
     zip->file_info.compressed_size = 0;
 
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
     if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
         zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 #endif
@@ -1985,7 +1985,7 @@ int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t
         /* If entire entry was not read verification will fail */
         if ((total_in > 0) && (!zip->entry_raw))
         {
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
             /* AES zip version AE-1 will expect a valid crc as well */
             if (zip->file_info.aes_version <= 0x0001)
 #endif

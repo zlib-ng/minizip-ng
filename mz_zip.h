@@ -43,7 +43,7 @@ typedef struct mz_zip_file_s
     uint16_t internal_fa;               /* internal file attributes */
     uint32_t external_fa;               /* external file attributes */
     uint16_t zip64;                     /* zip64 extension mode */
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
     uint16_t aes_version;               /* winzip aes extension if not 0 */
     uint8_t  aes_encryption_mode;       /* winzip aes encryption mode */
 #endif
