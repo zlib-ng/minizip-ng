@@ -121,7 +121,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     int32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
-    int32_t err = Z_OK;
+    int32_t err = MZ_OK;
     int16_t flags = 0;
 
     libcomp->cstream.dst_ptr = buf;
@@ -200,7 +200,7 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     uint32_t out_bytes = 0;
-    int32_t err = Z_OK;
+    int32_t err = MZ_OK;
 
 
     do
@@ -302,7 +302,7 @@ int32_t mz_stream_libcomp_close(void *stream)
     
     libcomp->initialized = 0;
 
-    if (libcomp->error != Z_OK)
+    if (libcomp->error != MZ_OK)
         return MZ_CLOSE_ERROR;
     return MZ_OK;
 }
