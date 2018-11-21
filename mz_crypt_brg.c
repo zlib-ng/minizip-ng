@@ -13,14 +13,11 @@
 #include "mz.h"
 #include "mz_os.h"
 
-#include <errno.h>
-
-#include <sys/types.h>
-
 #if defined(HAVE_GETRANDOM)
 #  include <sys/random.h>
 #endif
 #if defined(HAVE_LIBBSD)
+#  include <sys/types.h>
 #  ifndef __u_char_defined
      typedef unsigned char  u_char;
 #  endif 

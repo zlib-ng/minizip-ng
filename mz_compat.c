@@ -11,11 +11,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <time.h>
 
 #include "mz.h"
 #include "mz_os.h"
@@ -24,6 +19,8 @@
 #include "mz_strm_os.h"
 #include "mz_strm_zlib.h"
 #include "mz_zip.h"
+
+#include <stdio.h> /* SEEK */
 
 #include "mz_compat.h"
 
@@ -956,7 +953,7 @@ int ZEXPORT unzSeek64(unzFile file, int64_t offset, int origin)
 
     err = mz_zip_get_stream(compat->handle, &stream);
     if (err == MZ_OK)
-        err = mz_stream_seek(stream, compat->entry_pos + position, SEEK_SET);
+        err = mz_stream_seek(stream, compat->entry_pos + position, MZ_SEEK_SET);
     if (err == MZ_OK)
         compat->total_out = position;
     return err;

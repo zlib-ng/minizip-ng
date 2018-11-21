@@ -16,8 +16,6 @@
 
 #include <compression.h>
 
-#include "zlib.h"
-
 /***************************************************************************/
 
 static mz_stream_vtbl mz_stream_libcomp_vtbl = {
@@ -381,13 +379,6 @@ void mz_stream_libcomp_delete(void **stream)
         MZ_FREE(libcomp);
     *stream = NULL;
 }
-
-/***************************************************************************/
-
-/* Define z_crc_t in zlib 1.2.5 and less */
-#if (ZLIB_VERNUM < 0x1270)
-typedef unsigned long z_crc_t;
-#endif
 
 /***************************************************************************/
 

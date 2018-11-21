@@ -16,6 +16,8 @@
 #include "mz_strm.h"
 #include "mz_strm_os.h"
 
+#include <stdio.h> /* printf */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,6 +38,13 @@ int main(int argc, char **argv)
     int32_t read = 0;
     int32_t i = 0;
 
+
+    if (argc < 1)
+    {
+        printf("Must specify an input file\n");
+        return 1;
+    }
+
     printf("Running %"PRId32" inputs\n", argc - 1);
 
     for (i = 1; (i < argc) && (err == MZ_OK); i++)
@@ -51,13 +60,13 @@ int main(int argc, char **argv)
         }    
         else
         {
-            mz_stream_os_seek(stream, 0, SEEK_END);
+            mz_stream_os_seek(stream, 0, MZ_SEEK_END);
             file_size = mz_stream_os_tell(stream);
             if (file_size > INT32_MAX)
-                printf("File size is too large (%lld)\n", file_size);
+                printf("File size is too large (%"PRId64")\n", file_size);
             else
                 buf_length = (int32_t)file_size;
-            mz_stream_os_seek(stream, 0, SEEK_SET);
+            mz_stream_os_seek(stream, 0, MZ_SEEK_SET);
 
             if (buf_length > 0)
                 buf = MZ_ALLOC(buf_length);

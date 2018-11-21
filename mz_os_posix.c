@@ -13,6 +13,7 @@
 #include "mz_strm.h"
 #include "mz_os.h"
 
+#include <stdio.h> /* rename */
 #include <errno.h>
 #include <iconv.h>
 

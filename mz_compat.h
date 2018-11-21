@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+/***************************************************************************/
+
 #if defined(HAVE_ZLIB) && defined(MAX_MEM_LEVEL)
 #ifndef DEF_MEM_LEVEL
 #  if MAX_MEM_LEVEL >= 8
@@ -232,7 +234,7 @@ typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, c
     uint16_t comment_size);
 
 /***************************************************************************/
-/* Opening and close a zip file */
+/* Reading a zip file */
 
 unzFile ZEXPORT unzOpen(const char *path);
 unzFile ZEXPORT unzOpen64(const void *path);

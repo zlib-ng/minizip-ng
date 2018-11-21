@@ -15,6 +15,12 @@
 #include "mz_strm.h"
 #include "mz_strm_split.h"
 
+#include <stdio.h> /* snprintf */
+
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#  define snprintf _snprintf
+#endif
+
 /***************************************************************************/
 
 #define MZ_ZIP_MAGIC_DISKHEADER (0x08074b50)
@@ -57,10 +63,6 @@ typedef struct mz_stream_split_s {
 } mz_stream_split;
 
 /***************************************************************************/
-
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#  define snprintf _snprintf
-#endif
 
 #if 0
 #  define mz_stream_split_print printf

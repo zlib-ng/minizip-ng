@@ -29,6 +29,12 @@
 #endif
 #include "mz_zip.h"
 
+#include <stdio.h> /* printf, snprintf */
+
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+#  define snprintf _snprintf
+#endif
+
 /***************************************************************************/
 
 void test_path_resolve_int(char *path, char *expected_path)
@@ -70,7 +76,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     void *crypt_out_stream = NULL;
     char encrypt_path[120];
     char decrypt_path[120];
-    
+
     snprintf(encrypt_path, sizeof(encrypt_path), "LICENSE.encrypt.%s", method);
     snprintf(decrypt_path, sizeof(decrypt_path), "LICENSE.decrypt.%s", method);
 
@@ -425,7 +431,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
             mz_stream_write_uint8(mem_stream, 0);
 
         if (find_cb == mz_stream_find)
-            mz_stream_seek(mem_stream, 0, SEEK_SET);
+            mz_stream_seek(mem_stream, 0, MZ_SEEK_SET);
 
         err = find_cb(mem_stream, (const void *)find, find_size, i + find_size, &position);
         last_pos = mz_stream_tell(mem_stream);
@@ -446,7 +452,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
             mz_stream_write_uint8(mem_stream, find[x]);
         
         if (find_cb == mz_stream_find)
-            mz_stream_seek(mem_stream, 0, SEEK_SET);
+            mz_stream_seek(mem_stream, 0, MZ_SEEK_SET);
 
         err = find_cb(mem_stream, (const void *)find, find_size, i + find_size, &position);
         last_pos = mz_stream_tell(mem_stream);
@@ -469,7 +475,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
             mz_stream_write_uint8(mem_stream, 0);
 
         if (find_cb == mz_stream_find)
-            mz_stream_seek(mem_stream, 0, SEEK_SET);
+            mz_stream_seek(mem_stream, 0, MZ_SEEK_SET);
 
         err = find_cb(mem_stream, (const void *)find, find_size, i + find_size + i, &position);
         last_pos = mz_stream_tell(mem_stream);
@@ -493,7 +499,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         mz_stream_write_uint8(mem_stream, 0);
 
         if (find_cb == mz_stream_find)
-            mz_stream_seek(mem_stream, 0, SEEK_SET);
+            mz_stream_seek(mem_stream, 0, MZ_SEEK_SET);
 
         err = find_cb(mem_stream, (const void *)find, find_size, i + find_size + i + 1, &position);
         last_pos = mz_stream_tell(mem_stream);

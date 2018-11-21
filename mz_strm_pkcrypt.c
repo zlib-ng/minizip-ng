@@ -23,10 +23,6 @@
 */
 
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-
 #include "mz.h"
 #include "mz_crypt.h"
 #include "mz_strm.h"

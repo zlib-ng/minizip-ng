@@ -10,6 +10,8 @@
 */
 
 
+#include "mz.h"
+
 #include <CoreFoundation/CoreFoundation.h>
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonDigest.h>
@@ -17,8 +19,6 @@
 #include <CommonCrypto/CommonRandom.h>
 #include <Security/Security.h>
 #include <Security/SecPolicy.h>
-
-#include "mz.h"
 
 /***************************************************************************/
 

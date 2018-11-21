@@ -20,6 +20,8 @@
 #include "mz_zip.h"
 #include "mz_zip_rw.h"
 
+#include <stdio.h>  /* printf */
+
 /***************************************************************************/
 
 typedef struct minizip_opt_s {

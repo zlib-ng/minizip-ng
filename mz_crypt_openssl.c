@@ -10,6 +10,8 @@
 */
 
 
+#include "mz.h"
+
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
@@ -18,8 +20,6 @@
 #include <openssl/pkcs12.h>
 #include <openssl/cms.h>
 #include <openssl/x509.h>
-
-#include "mz.h"
 
 /***************************************************************************/
 

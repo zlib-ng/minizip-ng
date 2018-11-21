@@ -145,30 +145,22 @@
 
 /***************************************************************************/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h> /* size_t and NULL */
-#include <time.h>   /* time_t and time() */
-#include <string.h>
+#include <stdlib.h> /* size_t, NULL, malloc */
+#include <time.h>   /* time_t, time() */
+#include <string.h> /* memset, strncpy, strlen */
 #include <limits.h>
 
-#ifndef INT16_MAX
-#  define INT16_MAX   32767
-#endif
-#ifndef INT32_MAX 
-#  define INT32_MAX   2147483647
-#endif
-#ifndef INT64_MAX
-#  define INT64_MAX   9223372036854775807LL
-#endif
-#ifndef UINT16_MAX
-#  define UINT16_MAX  65535U
-#endif
-#ifndef UINT32_MAX 
-#  define UINT32_MAX  4294967295U 
-#endif
-#ifndef UINT64_MAX
-#  define UINT64_MAX  18446744073709551615LL
+#ifdef HAVE_STDINT_H
+#  include <stdint.h>
+#else
+typedef signed char        int8_t;
+typedef short              int16_t;
+typedef int                int32_t;
+typedef long long          int64_t;
+typedef unsigned char      uint8_t;
+typedef unsigned short     uint16_t;
+typedef unsigned int       uint32_t;
+typedef unsigned long long uint64_t;
 #endif
 
 #ifdef HAVE_INTTYPES_H
@@ -190,17 +182,23 @@
 #  endif
 #endif
 
-#ifdef HAVE_STDINT_H
-#  include <stdint.h>
-#else
-typedef signed char        int8_t;
-typedef short              int16_t;
-typedef int                int32_t;
-typedef long long          int64_t;
-typedef unsigned char      uint8_t;
-typedef unsigned short     uint16_t;
-typedef unsigned int       uint32_t;
-typedef unsigned long long uint64_t;
+#ifndef INT16_MAX
+#  define INT16_MAX   32767
+#endif
+#ifndef INT32_MAX 
+#  define INT32_MAX   2147483647
+#endif
+#ifndef INT64_MAX
+#  define INT64_MAX   9223372036854775807LL
+#endif
+#ifndef UINT16_MAX
+#  define UINT16_MAX  65535U
+#endif
+#ifndef UINT32_MAX 
+#  define UINT32_MAX  4294967295U 
+#endif
+#ifndef UINT64_MAX
+#  define UINT64_MAX  18446744073709551615LL
 #endif
 
 /***************************************************************************/
