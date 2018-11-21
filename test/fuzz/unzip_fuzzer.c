@@ -52,7 +52,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
     if (err == MZ_OK)
     {
-        // Some archive properties that are non-fatal for reading the archive.
+        /* Some archive properties that are non-fatal for reading the archive. */
         mz_zip_get_comment(handle, &archive_comment);
         mz_zip_get_version_madeby(handle, &version_madeby);
         mz_zip_get_number_entry(handle, &num_entries);
@@ -75,8 +75,8 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             if (err != MZ_OK)
                 break;
 
-            // Return value isn't checked here because we can't predict 
-            // what the value will be.
+            /* Return value isn't checked here because we can't predict 
+               what the value will be. */
             
             mz_zip_entry_is_dir(handle);
             entry_pos = mz_zip_get_entry(handle);
@@ -96,8 +96,8 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
         mz_zip_entry_close(handle);
 
-        // Return value isn't checked here because we can't predict what the value
-        // will be.
+        /* Return value isn't checked here because we can't predict what the value 
+           will be. */
 
         mz_zip_locate_entry(handle, MZ_FUZZ_TEST_FILENAME, 0);
         mz_zip_locate_entry(handle, MZ_FUZZ_TEST_FILENAMEUC, 0);

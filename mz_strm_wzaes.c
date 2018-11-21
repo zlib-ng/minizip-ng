@@ -118,20 +118,20 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode)
 
     key_length = MZ_AES_KEY_LENGTH(wzaes->encryption_mode);
 
-    // Derive the encryption and authentication keys and the password verifier
+    /* Derive the encryption and authentication keys and the password verifier */
     mz_crypt_pbkdf2((uint8_t *)password, password_length, salt_value, salt_length,
         MZ_AES_KEYING_ITERATIONS, kbuf, 2 * key_length + MZ_AES_PW_VERIFY_SIZE);
 
-    // Initialize the encryption nonce and buffer pos
+    /* Initialize the encryption nonce and buffer pos */
     wzaes->crypt_pos = MZ_AES_BLOCK_SIZE;
     memset(wzaes->nonce, 0, sizeof(wzaes->nonce));
 
-    // Initialize for encryption using key 1
+    /* Initialize for encryption using key 1 */
     mz_crypt_aes_reset(wzaes->aes);
     mz_crypt_aes_set_mode(wzaes->aes, wzaes->encryption_mode);
     mz_crypt_aes_set_encrypt_key(wzaes->aes, kbuf, key_length);
 
-    // Initialize for authentication using key 2
+    /* Initialize for authentication using key 2 */
     mz_crypt_hmac_reset(wzaes->hmac);
     mz_crypt_hmac_set_algorithm(wzaes->hmac, MZ_HASH_SHA1);
     mz_crypt_hmac_init(wzaes->hmac, kbuf + key_length, key_length);
@@ -190,11 +190,11 @@ static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t 
         {
             uint32_t j = 0;
 
-            // Increment encryption nonce
+            /* Increment encryption nonce */
             while (j < 8 && !++wzaes->nonce[j])
                 j += 1;
 
-            // Encrypt the nonce to form next xor buffer
+            /* Encrypt the nonce to form next xor buffer */
             memcpy(wzaes->crypt_block, wzaes->nonce, MZ_AES_BLOCK_SIZE);
             mz_crypt_aes_encrypt(wzaes->aes, wzaes->crypt_block, sizeof(wzaes->crypt_block));
             pos = 0;
@@ -285,7 +285,7 @@ int32_t mz_stream_wzaes_close(void *stream)
 
         wzaes->total_in += MZ_AES_AUTHCODE_SIZE;
 
-        // If entire entry was not read this will fail
+        /* If entire entry was not read this will fail */
         if (memcmp(computed_hash, expected_hash, MZ_AES_AUTHCODE_SIZE) != 0)
             return MZ_CRC_ERROR;
     }

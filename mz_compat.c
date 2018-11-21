@@ -183,8 +183,8 @@ int ZEXPORT zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_f
 
     file_info.compression_method = compression_method;
     file_info.filename = filename;
-    //file_info.extrafield_local = extrafield_local;
-    //file_info.extrafield_local_size = size_extrafield_local;
+    /* file_info.extrafield_local = extrafield_local; */
+    /* file_info.extrafield_local_size = size_extrafield_local; */
     file_info.extrafield = extrafield_global;
     file_info.extrafield_size = size_extrafield_global;
     file_info.version_madeby = version_madeby;
@@ -313,13 +313,13 @@ int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16_t vers
     return err;
 }
 
-// Only closes the zip handle, does not close the stream
+/* Only closes the zip handle, does not close the stream */
 int ZEXPORT zipClose_MZ(zipFile file, const char *global_comment)
 {
     return zipClose2_MZ(file, global_comment, MZ_VERSION_MADEBY);
 }
 
-// Only closes the zip handle, does not close the stream
+/* Only closes the zip handle, does not close the stream */
 int ZEXPORT zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby)
 {
     mz_compat *compat = (mz_compat *)file;
@@ -450,7 +450,7 @@ int ZEXPORT unzClose(unzFile file)
     return err;
 }
 
-// Only closes the zip handle, does not close the stream
+/* Only closes the zip handle, does not close the stream */
 int ZEXPORT unzClose_MZ(unzFile file)
 {
     mz_compat *compat = (mz_compat *)file;
@@ -1020,7 +1020,7 @@ void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def)
 
 void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def)
 {
-    // NOTE: You should no longer pass in widechar string to open function
+    /* NOTE: You should no longer pass in widechar string to open function */
     if (pzlib_filefunc_def != NULL)
         *pzlib_filefunc_def = mz_stream_os_get_interface();
 }

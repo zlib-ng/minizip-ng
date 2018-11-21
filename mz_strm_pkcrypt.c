@@ -59,7 +59,7 @@ typedef struct mz_stream_pkcrypt_s {
     int64_t         total_in;
     int64_t         max_total_in;
     int64_t         total_out;
-    uint32_t        keys[3];          // keys defining the pseudo-random sequence
+    uint32_t        keys[3];          /* keys defining the pseudo-random sequence */
     uint8_t         verify1;
     uint8_t         verify2;
     const char      *password;
@@ -81,9 +81,9 @@ static uint8_t mz_stream_pkcrypt_decrypt_byte(void *stream)
 {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
 
-    unsigned temp; // POTENTIAL BUG:  temp*(temp^1) may overflow in an
-                   // unpredictable manner on 16-bit systems; not a problem
-                   // with any known compiler so far, though.
+    unsigned temp; /* POTENTIAL BUG:  temp*(temp^1) may overflow in an */
+                   /* unpredictable manner on 16-bit systems; not a problem */
+                   /* with any known compiler so far, though. */
 
     temp = pkcrypt->keys[2] | 2;
     return (uint8_t)(((temp * (temp ^ 1)) >> 8) & 0xff);
@@ -155,10 +155,10 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
 
         return MZ_SUPPORT_ERROR;
 #else
-        // First generate RAND_HEAD_LEN - 2 random bytes.
+        /* First generate RAND_HEAD_LEN - 2 random bytes. */
         mz_crypt_rand(header, MZ_PKCRYPT_HEADER_SIZE - 2);
 
-        // Encrypt random header (last two bytes is high word of crc)
+        /* Encrypt random header (last two bytes is high word of crc) */
         for (i = 0; i < MZ_PKCRYPT_HEADER_SIZE - 2; i++)
             header[i] = mz_stream_pkcrypt_encode(stream, header[i], t);
 
@@ -190,7 +190,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode)
         verify1 = mz_stream_pkcrypt_decode(stream, header[i++]);
         verify2 = mz_stream_pkcrypt_decode(stream, header[i++]);
 
-        // Older versions used 2 byte check, newer versions use 1 byte check.
+        /* Older versions used 2 byte check, newer versions use 1 byte check. */
         MZ_UNUSED(verify1);
         if ((verify2 != 0) && (verify2 != pkcrypt->verify2))
             return MZ_PASSWORD_ERROR;
@@ -242,7 +242,7 @@ int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size)
     int32_t i = 0;
     uint16_t t = 0;
 
-   if (size < 0)
+    if (size < 0)
         return MZ_PARAM_ERROR;
     if (size > (int32_t)sizeof(pkcrypt->buffer))
         return MZ_BUF_ERROR;

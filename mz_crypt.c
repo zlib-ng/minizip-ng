@@ -24,7 +24,7 @@
 uint32_t mz_crypt_crc32_update(uint32_t value, const uint8_t *buf, int32_t size)
 {
 #if defined(HAVE_ZLIB)
-    // Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng
+    /* Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng */
 #ifdef ZLIBNG_VERNUM
     typedef uint32_t z_crc_t;
 #elif (ZLIB_VERNUM < 0x1270)

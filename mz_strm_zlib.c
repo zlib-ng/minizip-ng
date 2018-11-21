@@ -193,7 +193,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
     if (zlib->error != 0)
     {
-        // Zlib errors are compatible with MZ
+        /* Zlib errors are compatible with MZ */
         return zlib->error;
     }
 

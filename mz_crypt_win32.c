@@ -588,7 +588,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
         messages[0] = message;
         messages_sizes[0] = message_size;
 
-#if 0 // Timestamp support
+#if 0 /* Timestamp support */
         CRYPT_ATTR_BLOB crypt_blob;
         CRYPT_TIMESTAMP_CONTEXT *ts_context = NULL;
         CRYPT_ATTRIBUTE unauth_attribs[1];
@@ -679,7 +679,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     crypt_msg = CryptMsgOpenToDecode(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, 0, 0, NULL, NULL);
     if (crypt_msg != NULL)
     {
-#if 0 // Timestamp support
+#if 0 /* Timestamp support */
         PCRYPT_ATTRIBUTES unauth_attribs = NULL;
         HCRYPTMSG ts_msg = 0;
         uint8_t *ts_content = NULL;
@@ -728,7 +728,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
     if ((crypt_msg != NULL) && (result) && (decoded_size == message_size))
     {
-        // Verify cms message with our stored message
+        /* Verify cms message with our stored message */
         if (memcmp(decoded, message, message_size) == 0)
             err = MZ_OK;
     }

@@ -139,7 +139,7 @@ int32_t minizip_list(const char *path)
         if (file_info->uncompressed_size > 0)
             ratio = (uint32_t)((file_info->compressed_size * 100) / file_info->uncompressed_size);
 
-        // Display a '*' if the file is encrypted
+        /* Display a '*' if the file is encrypted */
         if (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED)
             crypt = '*';
 
@@ -155,7 +155,7 @@ int32_t minizip_list(const char *path)
             else if (level == 1)
                 string_method = "Defl:X";
             else if ((level == 2) || (level == 3))
-                string_method = "Defl:F"; // 2: fast , 3: extra fast
+                string_method = "Defl:F"; /* 2: fast , 3: extra fast */
             else
                 string_method = "Defl:?";
             break;
@@ -238,7 +238,7 @@ int32_t minizip_add_overwrite_cb(void *handle, void *userdata, const char *path)
     
     if (options->overwrite == 0)
     {
-        // If ask the user what to do because append and overwrite args not set
+        /* If ask the user what to do because append and overwrite args not set */
         char rep = 0;
         do
         {
@@ -540,7 +540,7 @@ int main(int argc, const char *argv[])
     options.compress_method = MZ_COMPRESS_METHOD_DEFLATE;
     options.compress_level = MZ_COMPRESS_LEVEL_DEFAULT;
 
-    // Parse command line options
+    /* Parse command line options */
     for (i = 1; i < argc; i += 1)
     {
         printf("%s ", argv[i]);
@@ -681,7 +681,7 @@ int main(int argc, const char *argv[])
 
     if (err == MZ_OK && do_erase)
     {
-        // Swap zip with temporary zip, backup old zip if possible
+        /* Swap zip with temporary zip, backup old zip if possible */
         strncpy(bak_path, path, sizeof(bak_path) - 1);
         bak_path[sizeof(bak_path) - 1] = 0;
         strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);

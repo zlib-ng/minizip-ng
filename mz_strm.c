@@ -135,7 +135,7 @@ static int32_t mz_stream_write_value(void *stream, uint64_t value, int32_t len)
 
     if (value != 0)
     {
-        // Data overflow - hack for ZIP64 (X Roche)
+        /* Data overflow - hack for ZIP64 (X Roche) */
         for (n = 0; n < len; n += 1)
             buf[n] = 0xff;
     }
@@ -272,7 +272,7 @@ int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_
 
             disk_pos = mz_stream_tell(stream);
 
-            // Seek to position on disk where the data was found
+            /* Seek to position on disk where the data was found */
             err = mz_stream_seek(stream, disk_pos - (read + buf_pos - i), MZ_SEEK_SET);
             if (err != MZ_OK)
                 return MZ_EXIST_ERROR;
@@ -338,7 +338,7 @@ int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size
             
             disk_pos = mz_stream_tell(stream);
 
-            // Seek to position on disk where the data was found
+            /* Seek to position on disk where the data was found */
             err = mz_stream_seek(stream, disk_pos + buf_pos - i, MZ_SEEK_SET);
             if (err != MZ_OK)
                 return MZ_EXIST_ERROR;

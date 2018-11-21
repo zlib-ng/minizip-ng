@@ -315,7 +315,7 @@ void test_stream_mem(void)
 
     text_size = (int32_t)strlen(text_ptr);
 
-    // Write zip to memory stream
+    /* Write zip to memory stream */
     mz_stream_mem_create(&write_mem_stream);
     mz_stream_mem_set_grow_size(write_mem_stream, 128 * 1024);
     mz_stream_open(write_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
@@ -357,7 +357,7 @@ void test_stream_mem(void)
 
     if (err == MZ_OK)
     {
-        // Create a zip file on disk for inspection
+        /* Create a zip file on disk for inspection */
         mz_stream_os_create(&os_stream);
         mz_stream_os_open(os_stream, "mytest.zip", MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
         mz_stream_os_write(os_stream, buffer_ptr, buffer_size);
@@ -367,7 +367,7 @@ void test_stream_mem(void)
 
     if (err == MZ_OK)
     {
-        // Read from a memory stream
+        /* Read from a memory stream */
         mz_stream_mem_create(&read_mem_stream);
         mz_stream_mem_set_buffer(read_mem_stream, (void *)buffer_ptr, buffer_size);
         mz_stream_open(read_mem_stream, NULL, MZ_OPEN_MODE_READ);

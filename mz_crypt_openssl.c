@@ -629,7 +629,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
             intercerts = CMS_get1_certs(cms);
         if (intercerts)
         {
-            // Verify signer certificates
+            /* Verify signer certificates */
             if (signer_count > 0)
                 err = MZ_OK;
 
@@ -653,7 +653,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
         if (err == MZ_OK)
         {
-            // Verify the message
+            /* Verify the message */
             if (((int32_t)buf_mem->length != message_size) || 
                 (memcmp(buf_mem->data, message, message_size) != 0))
                 err = MZ_SIGN_ERROR;

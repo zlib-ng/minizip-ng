@@ -325,7 +325,7 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin)
                     buffered->writebuf_pos += (uint32_t)offset;
                     return MZ_OK;
                 }
-                //offset -= (buffered->writebuf_len - buffered->writebuf_pos);
+                /* offset -= (buffered->writebuf_len - buffered->writebuf_pos); */
             }
 
             err = mz_stream_buffered_flush(stream, &bytes_flushed);

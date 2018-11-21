@@ -17,7 +17,7 @@
 #include "mz_strm.h"
 #include "mz_strm_os.h"
 
-#include <ctype.h> // tolower
+#include <ctype.h> /* tolower */
 
 /***************************************************************************/
 
@@ -67,7 +67,7 @@ int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignor
             return MZ_EXIST_ERROR;
 
         default:
-            // Ignore differences in path slashes on platforms
+            /* Ignore differences in path slashes on platforms */
             if ((*path == '\\' && *wildcard == '/') || (*path == '/' && *wildcard == '\\'))
                 break;
 
@@ -112,7 +112,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
 
         if ((source == path) || (check != source))
         {
-            // Skip double paths
+            /* Skip double paths */
             if ((*check == '\\') || (*check == '/'))
             {
                 source += 1;
@@ -122,10 +122,10 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
             {
                 check += 1;
 
-                // Remove current directory . if at end of string
+                /* Remove current directory . if at end of string */
                 if ((*check == 0) && (source != path))
                 {
-                    // Copy last slash
+                    /* Copy last slash */
                     *target = *source;
                     target += 1;
                     max_output -= 1;
@@ -133,10 +133,10 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                     continue;
                 }
 
-                // Remove current directory . if not at end of string
+                /* Remove current directory . if not at end of string */
                 if ((*check == 0) || (*check == '\\' || *check == '/'))
                 {
-                    // Only proceed if .\ is not entire string
+                    /* Only proceed if .\ is not entire string */
                     if (check[1] != 0 || (path != source))
                     {
                         source += (check - source);
@@ -144,7 +144,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                     }
                 }
 
-                // Go to parent directory ..
+                /* Go to parent directory .. */
                 if ((*check != 0) || (*check == '.'))
                 {
                     check += 1;
@@ -152,7 +152,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                     {
                         source += (check - source);
 
-                        // Search backwards for previous slash
+                        /* Search backwards for previous slash */
                         if (target != output)
                         {
                             target -= 1;

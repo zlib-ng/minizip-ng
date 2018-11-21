@@ -79,7 +79,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     int16_t disk_part = 0;
 
 
-    // Check if we are reading or writing a disk part or the cd disk
+    /* Check if we are reading or writing a disk part or the cd disk */
     if (number_disk >= 0)
     {
         if ((split->mode & MZ_OPEN_MODE_WRITE) == 0)
@@ -88,7 +88,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
             disk_part = MZ_OPEN_MODE_WRITE;
     }
 
-    // Construct disk path
+    /* Construct disk path */
     if (disk_part > 0)
     {
         for (i = (int32_t)strlen(split->path_disk) - 1; i >= 0; i -= 1)
@@ -108,7 +108,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 
     mz_stream_split_print("Split - Goto disk - %s (disk %"PRId32")\n", split->path_disk, number_disk);
 
-    // If disk part doesn't exist during reading then return MZ_EXIST_ERROR
+    /* If disk part doesn't exist during reading then return MZ_EXIST_ERROR */
     if (disk_part == MZ_OPEN_MODE_READ)
         err = mz_os_file_exists(split->path_disk);
 
@@ -259,7 +259,7 @@ int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
             return read;
         if (read == 0)
         {
-            if (split->current_disk < 0) // No more disks to goto
+            if (split->current_disk < 0) /* No more disks to goto */
                 break;
             err = mz_stream_split_goto_disk(stream, split->current_disk + 1);
             if (err == MZ_EXIST_ERROR)

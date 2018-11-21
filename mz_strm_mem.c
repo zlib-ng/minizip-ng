@@ -44,11 +44,11 @@ static mz_stream_vtbl mz_stream_mem_vtbl = {
 typedef struct mz_stream_mem_s {
     mz_stream   stream;
     int32_t     mode;
-    uint8_t     *buffer;    // Memory buffer pointer
-    int32_t     size;       // Size of the memory buffer
-    int32_t     limit;      // Furthest we've written
-    int32_t     position;   // Current position in the memory
-    int32_t     grow_size;  // Size to grow when full
+    uint8_t     *buffer;    /* Memory buffer pointer */
+    int32_t     size;       /* Size of the memory buffer */
+    int32_t     limit;      /* Furthest we've written */
+    int32_t     position;   /* Current position in the memory */
+    int32_t     grow_size;  /* Size to grow when full */
 } mz_stream_mem;
 
 /***************************************************************************/
@@ -194,7 +194,7 @@ int32_t mz_stream_mem_close(void *stream)
 {
     MZ_UNUSED(stream);
 
-    // We never return errors
+    /* We never return errors */
     return MZ_OK;
 }
 
@@ -202,7 +202,7 @@ int32_t mz_stream_mem_error(void *stream)
 {
     MZ_UNUSED(stream);
 
-    // We never return errors
+    /* We never return errors */
     return MZ_OK;
 }
 

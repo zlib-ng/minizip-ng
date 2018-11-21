@@ -9,18 +9,17 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include "mz.h"
+#include "mz_strm.h"
+#include "mz_os.h"
+
 #include <errno.h>
 #include <iconv.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if defined(__APPLE__) || defined(unix)
+#if defined(__APPLE__) || defined(__unix__)
 #  include <utime.h>
 #  include <unistd.h>
 #endif
@@ -28,10 +27,6 @@
 #  include <mach/clock.h>
 #  include <mach/mach.h>
 #endif
-
-#include "mz.h"
-#include "mz_strm.h"
-#include "mz_os.h"
 
 /***************************************************************************/
 
@@ -105,7 +100,7 @@ int32_t mz_os_rand(uint8_t *buf, int32_t size)
     static unsigned calls = 0;
     int32_t i = 0;
 
-    // Ensure different random header each time
+    /* Ensure different random header each time */
     if (++calls == 1)
     {
         #define PI_SEED 3141592654UL
@@ -167,7 +162,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
 
     if (strcmp(path, "-") != 0)
     {
-        // Not all systems allow stat'ing a file with / appended
+        /* Not all systems allow stat'ing a file with / appended */
         len = strlen(path);
         name = (char *)malloc(len + 1);
         strncpy(name, path, len);
@@ -181,7 +176,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
                 *modified_date = stat_info.st_mtime;
             if (accessed_date != NULL)
                 *accessed_date = stat_info.st_atime;
-            // Creation date not supported
+            /* Creation date not supported */
             if (creation_date != NULL)
                 *creation_date = 0;
 
@@ -200,7 +195,7 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
 
     ut.actime = accessed_date;
     ut.modtime = modified_date;
-    // Creation date not supported
+    /* Creation date not supported */
     (void)creation_date;
 
     if (utime(path, &ut) != 0)

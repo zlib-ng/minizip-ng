@@ -9,25 +9,25 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+#include "mz.h"
+#include "mz_os.h"
 
 #include <errno.h>
 
+#define __USE_MISC
 #include <sys/types.h>
+
 #if defined(HAVE_GETRANDOM)
 #  include <sys/random.h>
 #endif
 #if defined(HAVE_LIBBSD)
-#  include <bsd/stdlib.h> // arc4random_buf
+#  include <bsd/stdlib.h> /* arc4random_buf */
 #endif
 
 #include "aes.h"
 #include "sha1.h"
 #include "sha2.h"
 #include "hmac.h"
-
-#include "mz.h"
-
-#include "mz_os.h"
 
 /***************************************************************************/
 
