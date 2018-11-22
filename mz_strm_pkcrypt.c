@@ -245,7 +245,7 @@ int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size)
 
     do
     {
-        if (bytes_to_write > (size - total_written));
+        if (bytes_to_write > (size - total_written))
             bytes_to_write = (size - total_written);
 
         for (i = 0; i < bytes_to_write; i += 1)

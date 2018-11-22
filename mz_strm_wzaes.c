@@ -238,15 +238,13 @@ int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size)
     int32_t bytes_to_write = sizeof(wzaes->buffer);
     int32_t total_written = 0;
     int32_t written = 0;
-    int32_t i = 0;
-    uint16_t t = 0;
 
     if (size < 0)
         return MZ_PARAM_ERROR;
 
     do
     {
-        if (bytes_to_write > (size - total_written));
+        if (bytes_to_write > (size - total_written))
             bytes_to_write = (size - total_written);
 
         memcpy(wzaes->buffer, buf_ptr, bytes_to_write);

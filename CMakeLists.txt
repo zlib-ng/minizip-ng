@@ -672,22 +672,22 @@ if(BUILD_UNIT_TEST)
             list(GET COMPRESS_METHOD_ARGS ${INDEX} COMPRESS_METHOD_ARG)
             add_test(NAME ${COMPRESS_METHOD_NAME}-zip-${EXTRA_NAME}
                      COMMAND minizip ${COMPRESS_METHOD_ARG} -o ${EXTRA_ARGS} 
-                        test.zip test.c test.h empty.txt fuzz
+                        result.zip test.c test.h empty.txt random.bin uniform.bin fuzz
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             add_test(NAME ${COMPRESS_METHOD_NAME}-list-${EXTRA_NAME}
-                     COMMAND minizip -l ${EXTRA_ARGS} test.zip
+                     COMMAND minizip -l ${EXTRA_ARGS} result.zip
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             if(NOT COMPRESS_ONLY)
                 add_test(NAME ${COMPRESS_METHOD_NAME}-unzip-${EXTRA_NAME}
-                         COMMAND minizip -x -o ${EXTRA_ARGS} -d out test.zip
+                         COMMAND minizip -x -o ${EXTRA_ARGS} -d out result.zip
                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             endif()
         endforeach()
     endfunction()
 
     if(NOT COMPRESS_ONLY)
-        add_test(NAME empty-unzip
-                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out empty.zip
+        add_test(NAME tiny-unzip
+                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out tiny.zip
                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
     endif()
     create_compress_tests("generic" "")
