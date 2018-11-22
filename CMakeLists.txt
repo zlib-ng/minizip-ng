@@ -691,6 +691,7 @@ if(BUILD_UNIT_TEST)
                     fuzz/unzip_fuzzer_seed_corpus/tiny.zip
                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
     endif()
+
     create_compress_tests("generic" "")
     create_compress_tests("span" "-k;1024")
     create_compress_tests("zipcd" "-z")
