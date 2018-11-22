@@ -584,7 +584,7 @@ int main(int argc, const char *argv[])
                 err = MZ_SUPPORT_ERROR;
 #endif
             else if ((c == 's') || (c == 'S'))
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
                 options.aes = 1;
 #else
                 err = MZ_SUPPORT_ERROR;

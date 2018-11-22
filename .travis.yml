@@ -22,7 +22,7 @@ matrix:
           env: TOOL="-DUSE_LZMA=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_AES=OFF" BUILDDIR="../build"
+          env: TOOL="-DUSE_WZAES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
           env: TOOL="-DUSE_PKCRYPT=OFF" BUILDDIR="../build"
@@ -34,7 +34,7 @@ matrix:
           env: TOOL="-DDECOMPRESS_ONLY=ON" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_AES=OFF" BUILDDIR="../build"
+          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_WZAES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
           env: TOOL="-DUSE_OPENSSL=ON" BUILDDIR="../build"

@@ -1660,7 +1660,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     if (writer->zip_cd)
         file_info.flag |= MZ_ZIP_FLAG_MASK_LOCAL_INFO;
 
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
     if (writer->aes)
         file_info.aes_version = MZ_AES_VERSION;
 #endif

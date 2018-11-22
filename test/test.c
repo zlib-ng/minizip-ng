@@ -21,7 +21,7 @@
 #endif
 #include "mz_strm_mem.h"
 #include "mz_strm_os.h"
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
 #include "mz_strm_wzaes.h"
 #endif
 #ifdef HAVE_ZLIB
@@ -257,7 +257,7 @@ void test_stream_pkcrypt(void)
     test_encrypt("pkcrypt", mz_stream_pkcrypt_create, "hello");
 }
 #endif
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
 void test_stream_wzaes(void)
 {
     int32_t iteration_count = 1000;
@@ -335,7 +335,7 @@ void test_stream_mem(void)
         file_info.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
         file_info.filename = text_name;
         file_info.uncompressed_size = text_size;
-#ifdef HAVE_AES
+#ifdef HAVE_WZAES
         file_info.aes_version = MZ_AES_VERSION;
 #endif
 
