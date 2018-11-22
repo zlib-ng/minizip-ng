@@ -687,7 +687,8 @@ if(BUILD_UNIT_TEST)
 
     if(NOT COMPRESS_ONLY)
         add_test(NAME tiny-unzip
-                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out tiny.zip
+                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out 
+                    fuzz/unzip_fuzzer_seed_corpus/tiny.zip
                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
     endif()
     create_compress_tests("generic" "")
