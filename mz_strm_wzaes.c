@@ -234,21 +234,37 @@ int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
+    const uint8_t *buf_ptr = (const uint8_t *)buf;
+    int32_t bytes_to_write = sizeof(wzaes->buffer);
+    int32_t total_written = 0;
     int32_t written = 0;
+    int32_t i = 0;
+    uint16_t t = 0;
 
     if (size < 0)
         return MZ_PARAM_ERROR;
-    if (size > (int32_t)sizeof(wzaes->buffer))
-        return MZ_BUF_ERROR;
 
-    memcpy(wzaes->buffer, buf, size);
-    mz_stream_wzaes_encrypt_data(stream, (uint8_t *)wzaes->buffer, size);
-    mz_crypt_hmac_update(wzaes->hmac, wzaes->buffer, size);
+    do
+    {
+        if (bytes_to_write > (size - total_written));
+            bytes_to_write = (size - total_written);
 
-    written = mz_stream_write(wzaes->stream.base, wzaes->buffer, size);
-    if (written > 0)
-        wzaes->total_out += written;
-    return written;
+        memcpy(wzaes->buffer, buf_ptr, bytes_to_write);
+        buf_ptr += bytes_to_write;
+
+        mz_stream_wzaes_encrypt_data(stream, (uint8_t *)wzaes->buffer, bytes_to_write);
+        mz_crypt_hmac_update(wzaes->hmac, wzaes->buffer, bytes_to_write);
+
+        written = mz_stream_write(wzaes->stream.base, wzaes->buffer, bytes_to_write);
+        if (written < 0)
+            return written;
+
+        total_written += written;
+    }
+    while (total_written < size && written > 0);
+
+    wzaes->total_out += total_written;
+    return total_written;
 }
 
 int64_t mz_stream_wzaes_tell(void *stream)
