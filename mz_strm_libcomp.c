@@ -177,7 +177,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
             break;
         }
     }
-    while (libcomp->cstream.dst_size > 0);
+    while (libcomp->cstream.dst_size > 0 && out_bytes > 0);
 
     if (libcomp->error != 0)
         return MZ_DATA_ERROR;
