@@ -962,9 +962,13 @@ static int32_t mz_zip_read_cd(void *handle)
                 /* Size of the central directory */
                 if (err == MZ_OK)
                     err = mz_stream_read_int64(zip->stream, &zip->cd_size);
+                if (zip->cd_size < 0)
+                    err = MZ_FORMAT_ERROR;
                 /* Offset of start of central directory with respect to the starting disk number */
                 if (err == MZ_OK)
                     err = mz_stream_read_int64(zip->stream, &zip->cd_offset);
+                if (zip->cd_offset < 0)
+                    err = MZ_FORMAT_ERROR;
             }
             else if ((zip->number_entry == UINT16_MAX) || (number_entry_cd != zip->number_entry) ||
                      (zip->cd_size == UINT16_MAX) || (zip->cd_offset == UINT32_MAX))
