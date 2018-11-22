@@ -131,7 +131,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     uint32_t total_out = 0;
     uint32_t in_bytes = 0;
     uint32_t out_bytes = 0;
-    int32_t bytes_to_read = 0;
+    int32_t bytes_to_read = sizeof(zlib->buffer);
     int32_t read = 0;
     int32_t err = Z_OK;
 
@@ -143,10 +143,9 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
     {
         if (zlib->zstream.avail_in == 0)
         {
-            bytes_to_read = sizeof(zlib->buffer);
             if (zlib->max_total_in > 0)
             {
-                if ((zlib->max_total_in - zlib->total_in) < (int64_t)sizeof(zlib->buffer))
+                if ((int64_t)bytes_to_read > (zlib->max_total_in - zlib->total_in))
                     bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
             }
 
@@ -154,7 +153,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0 && out_bytes == 0)
+            if (read == 0)
                 break;
 
             zlib->zstream.next_in = zlib->buffer;

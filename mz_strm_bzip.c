@@ -123,7 +123,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     int32_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
-    int32_t bytes_to_read = 0;
+    int32_t bytes_to_read = sizeof(bzip->buffer);
     int32_t read = 0;
     int32_t err = BZ_OK;
 
@@ -138,10 +138,9 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
     {
         if (bzip->bzstream.avail_in == 0)
         {
-            bytes_to_read = sizeof(bzip->buffer);
             if (bzip->max_total_in > 0)
             {
-                if ((bzip->max_total_in - bzip->total_in) < (int64_t)sizeof(bzip->buffer))
+                if ((int64_t)bytes_to_read > (bzip->max_total_in - bzip->total_in))
                     bytes_to_read = (int32_t)(bzip->max_total_in - bzip->total_in);
             }
 
@@ -149,7 +148,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0 && out_bytes == 0)
+            if (read == 0)
                 break;
 
             bzip->bzstream.next_in = (char *)bzip->buffer;

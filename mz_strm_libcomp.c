@@ -119,7 +119,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     int32_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
-    int32_t bytes_to_read = 0;
+    int32_t bytes_to_read = sizeof(libcomp->buffer);
     int32_t read = 0;
     int32_t err = MZ_OK;
     int16_t flags = 0;
@@ -131,10 +131,9 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     {
         if (libcomp->cstream.src_size == 0)
         {
-            bytes_to_read = sizeof(libcomp->buffer);
             if (libcomp->max_total_in > 0)
             {
-                if ((libcomp->max_total_in - libcomp->total_in) < (int64_t)sizeof(libcomp->buffer))
+                if ((int64_t)bytes_to_read > (libcomp->max_total_in - libcomp->total_in))
                     bytes_to_read = (int32_t)(libcomp->max_total_in - libcomp->total_in);
             }
 
