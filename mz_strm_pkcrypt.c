@@ -216,7 +216,7 @@ int32_t mz_stream_pkcrypt_read(void *stream, void *buf, int32_t size)
     int32_t i = 0;
 
 
-    if (bytes_to_read > (int32_t)(pkcrypt->max_total_in - pkcrypt->total_in))
+    if ((int64_t)bytes_to_read > (pkcrypt->max_total_in - pkcrypt->total_in))
         bytes_to_read = (int32_t)(pkcrypt->max_total_in - pkcrypt->total_in);
 
     read = mz_stream_read(pkcrypt->stream.base, buf, bytes_to_read);
