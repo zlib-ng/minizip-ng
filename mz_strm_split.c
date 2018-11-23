@@ -223,12 +223,12 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode)
     strncpy(split->path_disk, path, split->path_disk_size - 1);
     split->path_disk[split->path_disk_size - 1] = 0;
 
-    if (mode & MZ_OPEN_MODE_WRITE)
+    if ((mode & MZ_OPEN_MODE_WRITE) && ((mode & MZ_OPEN_MODE_APPEND) == 0))
     {
         number_disk = 0;
         split->current_disk = -1;
     }
-    else if (mode & MZ_OPEN_MODE_READ)
+    else
     {
         number_disk = -1;
         split->current_disk = 0;

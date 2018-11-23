@@ -1372,6 +1372,12 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
                 /* If no central directory, append new zip to end of file */
                 err = mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
             }
+
+            if (zip->disk_number_with_cd > 0)
+            {
+                /* Move to last disk to begin appending */
+                mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->disk_number_with_cd - 1);
+            }
         }
         else
         {

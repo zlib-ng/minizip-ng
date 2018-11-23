@@ -682,6 +682,15 @@ if(BUILD_UNIT_TEST)
                          COMMAND minizip -x -o ${EXTRA_ARGS} -d out result.zip
                          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
             endif()
+            add_test(NAME ${COMPRESS_METHOD_NAME}-append-${EXTRA_NAME}
+                    COMMAND minizip ${COMPRESS_METHOD_ARG} -a ${EXTRA_ARGS} 
+                        result.zip single.txt
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+            if(NOT COMPRESS_ONLY)
+                add_test(NAME ${COMPRESS_METHOD_NAME}-append-unzip-${EXTRA_NAME}
+                            COMMAND minizip -x -o ${EXTRA_ARGS} -d out result.zip
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+            endif()
             add_test(NAME ${COMPRESS_METHOD_NAME}-erase-${EXTRA_NAME}
                     COMMAND minizip -o -e result.zip test.c test.h 
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
