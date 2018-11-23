@@ -231,6 +231,8 @@ int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin)
         return MZ_PARAM_ERROR;
     if (mz_stream_is_open(stream) != MZ_OK)
         return MZ_STREAM_ERROR;
+    if (origin == MZ_SEEK_SET && offset < 0)
+        return MZ_SEEK_ERROR;
     return strm->vtbl->seek(strm, offset, origin);
 }
 
@@ -468,7 +470,7 @@ int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size)
 
     if (raw->max_total_in > 0)
     {
-        if (bytes_to_read > (int32_t)(raw->max_total_in - raw->total_in))
+        if ((int64_t)bytes_to_read > (raw->max_total_in - raw->total_in))
             bytes_to_read = (int32_t)(raw->max_total_in - raw->total_in);
     }
 
