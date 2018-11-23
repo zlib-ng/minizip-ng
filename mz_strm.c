@@ -171,14 +171,6 @@ int32_t mz_stream_write_uint64(void *stream, uint64_t value)
     return mz_stream_write_value(stream, value, sizeof(uint64_t));
 }
 
-int32_t mz_stream_write_chars(void *stream, const char *value, uint8_t null_terminate)
-{
-    int32_t len = (int32_t)strlen(value);
-    if (null_terminate)
-        len += 1;
-    return mz_stream_write(stream, value, len);
-}
-
 int32_t mz_stream_copy(void *target, void *source, int32_t len)
 {
     return mz_stream_copy_stream(target, NULL, source, NULL, len);
