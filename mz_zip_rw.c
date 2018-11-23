@@ -61,6 +61,7 @@ typedef struct mz_zip_reader_s {
     int32_t     encoding;
     uint8_t     sign_required;
     uint8_t     cd_verified;
+    uint8_t     cd_zipped;
     uint8_t     entry_verified;
 } mz_zip_reader;
 
@@ -82,6 +83,7 @@ int32_t mz_zip_reader_open(void *handle, void *stream)
     int32_t err = MZ_OK;
 
     reader->cd_verified = 0;
+    reader->cd_zipped = 0;
 
     mz_zip_create(&reader->zip_handle);
     mz_zip_set_recover(reader->zip_handle, 1);
@@ -281,6 +283,8 @@ int32_t mz_zip_reader_unzip_cd(void *handle)
 
     if (err == MZ_OK)
     {
+        reader->cd_zipped = 1;
+
         mz_zip_set_cd_stream(reader->zip_handle, 0, cd_mem_stream);
         mz_zip_set_number_entry(reader->zip_handle, number_entry);
 
@@ -486,19 +490,12 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len)
 int32_t mz_zip_reader_entry_has_sign(void *handle)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
-    void *file_extra_stream = NULL;
-    int32_t err = MZ_OK;
 
+    if (reader == NULL || mz_zip_entry_is_open(reader->zip_handle) != MZ_OK)
+        return MZ_PARAM_ERROR;
 
-    mz_stream_mem_create(&file_extra_stream);
-    mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield, 
-        reader->file_info->extrafield_size);
-
-    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, NULL);
-
-    mz_stream_mem_delete(&file_extra_stream);
-
-    return err;
+    return mz_zip_extrafield_contains(reader->file_info->extrafield,
+        reader->file_info->extrafield_size, MZ_ZIP_EXTENSION_SIGN, NULL);
 }
 
 #if !defined(MZ_ZIP_NO_ENCRYPTION) && !defined(MZ_ZIP_NO_SIGNING)
@@ -944,6 +941,15 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw)
     if (raw == NULL)
         return MZ_PARAM_ERROR;
     *raw = reader->raw;
+    return MZ_OK;
+}
+
+int32_t mz_zip_reader_get_zip_cd(void *handle, uint8_t *zip_cd)
+{
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    if (zip_cd == NULL)
+        return MZ_PARAM_ERROR;
+    *zip_cd = reader->cd_zipped;
     return MZ_OK;
 }
 
@@ -1785,9 +1791,13 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     mz_zip_file *file_info = NULL;
+    int64_t compressed_size = 0;
+    int64_t uncompressed_size = 0;
+    uint32_t crc32 = 0;
     int32_t err = MZ_OK;
     uint8_t original_raw = 0;
     void *reader_zip_handle = NULL;
+    void *writer_zip_handle = NULL;
 
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
@@ -1796,24 +1806,44 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader)
         return MZ_PARAM_ERROR;
 
     err = mz_zip_reader_entry_get_info(reader, &file_info);
+
     if (err != MZ_OK)
         return err;
 
     mz_zip_reader_get_zip_handle(reader, &reader_zip_handle);
+    mz_zip_writer_get_zip_handle(writer, &writer_zip_handle);
 
     /* Open entry for raw reading */
     err = mz_zip_entry_read_open(reader_zip_handle, 1, NULL);
+
     if (err == MZ_OK)
     {
         /* Write entry raw, save original raw value */
         original_raw = writer->raw;
         writer->raw = 1;
 
-        err = mz_zip_writer_add_info(writer, reader_zip_handle, mz_zip_entry_read, file_info);
+        err = mz_zip_writer_entry_open(writer, file_info);
+
+        if ((err == MZ_OK) && 
+            (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK))
+        {
+            err = mz_zip_writer_add(writer, reader_zip_handle, mz_zip_entry_read);
+        }
+
+        if ((err == MZ_OK) && (file_info->flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR))
+        {
+            err = mz_zip_entry_read_close(reader_zip_handle, &crc32, &compressed_size, &uncompressed_size);
+            if (err == MZ_OK)
+                err = mz_zip_entry_write_close(writer_zip_handle, crc32, compressed_size, uncompressed_size);
+        }
+
+        if (mz_zip_entry_is_open(reader_zip_handle) == MZ_OK)
+            mz_zip_entry_close(reader_zip_handle);
+
+        if (mz_zip_entry_is_open(writer_zip_handle) == MZ_OK)
+            mz_zip_entry_close(writer_zip_handle);
 
         writer->raw = original_raw;
-
-        mz_zip_entry_close(reader_zip_handle);
     }
 
     return err;

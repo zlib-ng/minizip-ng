@@ -98,6 +98,19 @@ int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream);
 
 /***************************************************************************/
 
+int32_t mz_zip_entry_is_open(void *handle);
+/* Check to see if entry is open for read/write */
+
+int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
+/* Open for reading the current file in the zip file */
+
+int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
+/* Read bytes from the current file in the zip file */
+
+int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compressed_size, 
+    int64_t *uncompressed_size);
+/* Close the current file for reading and get data descriptor values */
+
 int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
     int16_t compress_level, uint8_t raw, const char *password);
 /* Open for writing the current file in the zip file */
@@ -105,17 +118,12 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info,
 int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
 /* Write bytes from the current file in the zip file */
 
-int32_t mz_zip_entry_is_open(void *handle);
-/* Check to see if entry is open for read/write */
+int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compressed_size, 
+    int64_t uncompressed_size);
+/* Close the current file for writing and set data descriptor values */
 
 int32_t mz_zip_entry_is_dir(void *handle);
 /* Checks to see if the entry is a directory */
-
-int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
-/* Open for reading the current file in the zip file */
-
-int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
-/* Read bytes from the current file in the zip file */
 
 int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 /* Get info about the current file, only valid while current entry is open */
@@ -172,7 +180,8 @@ int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_ent
 int32_t mz_zip_attrib_is_dir(uint32_t attrib, int32_t version_madeby);
 /* Checks to see if the attribute is a directory based on platform */
 
-int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, uint32_t *target_attrib);
+int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, 
+    uint32_t *target_attrib);
 /* Converts file attributes from one host system to another */
 
 int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attrib);
@@ -185,6 +194,10 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
 
 int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length);
 /* Seeks to extra field by its type and returns its length */
+
+int32_t mz_zip_extrafield_contains(const uint8_t *extrafield, int32_t extrafield_size,
+    uint16_t type, uint16_t *length);
+/* Gets whether an extrafield exists and its size */
 
 int32_t mz_zip_extrafield_read(void *stream, uint16_t *type, uint16_t *length);
 /* Reads an extrafield header from a stream */

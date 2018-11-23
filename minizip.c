@@ -444,10 +444,24 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 {
     mz_zip_file *file_info = NULL;
     const char *filename_in_zip = NULL;
+    const char *target_path_ptr = target_path;
     void *reader = NULL;
     void *writer = NULL;
+    int32_t skip = 0;
     int32_t err = MZ_OK;
     int32_t i = 0;
+    uint8_t zip_cd = 0;
+    char bak_path[256];
+    char tmp_path[256];
+
+    if (target_path == NULL)
+    {
+        /* Construct temporary zip name */
+        strncpy(tmp_path, src_path, sizeof(tmp_path) - 1);
+        tmp_path[sizeof(tmp_path) - 1] = 0;
+        strncat(tmp_path, ".tmp.zip", sizeof(tmp_path) - strlen(tmp_path) - 1);
+        target_path_ptr = tmp_path;
+    }
 
     mz_zip_reader_create(&reader);
     mz_zip_writer_create(&writer);
@@ -462,10 +476,10 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     }
 
     /* Open temporary zip file */
-    err = mz_zip_writer_open_file(writer, target_path, 0, 0);
+    err = mz_zip_writer_open_file(writer, target_path_ptr, 0, 0);
     if (err != MZ_OK)
     {
-        printf("Error %"PRId32" opening zip for writing %s\n", err, target_path);
+        printf("Error %"PRId32" opening zip for writing %s\n", err, target_path_ptr);
         mz_zip_reader_delete(&reader);
         mz_zip_writer_delete(&writer);
         return err;
@@ -487,19 +501,22 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 
         /* Copy all entries from original zip file to temporary zip file
            except the ones we don't want */
-        for (i = 0; i < arg_count; i += 1)
+        for (i = 0, skip = 0; i < arg_count; i += 1)
         {
             filename_in_zip = args[i];
 
-            if (mz_path_compare_wc(file_info->filename, filename_in_zip, 1) != MZ_OK)
-            {
-                printf("Copying %s\n", file_info->filename);
-                err = mz_zip_writer_copy_from_reader(writer, reader);
-            }
-            else
-            {
-                printf("Skipping %s\n", file_info->filename);
-            }
+            if (mz_path_compare_wc(file_info->filename, filename_in_zip, 1) == MZ_OK)
+                skip = 1;
+        }
+
+        if (skip)
+        {
+            printf("Skipping %s\n", file_info->filename);
+        }
+        else
+        {
+            printf("Copying %s\n", file_info->filename);
+            err = mz_zip_writer_copy_from_reader(writer, reader);
         }
 
         if (err != MZ_OK)
@@ -514,6 +531,9 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
             printf("Error %"PRId32" going to next entry in zip file\n", err);
     }
 
+    mz_zip_reader_get_zip_cd(reader, &zip_cd);
+    mz_zip_writer_set_zip_cd(writer, zip_cd);
+
     mz_zip_reader_close(reader);
     mz_zip_reader_delete(&reader);
 
@@ -521,7 +541,26 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     mz_zip_writer_delete(&writer);
 
     if (err == MZ_END_OF_LIST)
+    {
+        if (target_path == NULL)
+        {
+            /* Swap original zip with temporary zip, backup old zip if possible */
+            strncpy(bak_path, src_path, sizeof(bak_path) - 1);
+            bak_path[sizeof(bak_path) - 1] = 0;
+            strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
+
+            if (mz_os_file_exists(bak_path) == MZ_OK)
+                mz_os_delete(bak_path);
+
+            if (mz_os_rename(src_path, bak_path) != MZ_OK)
+                printf("Error backing up zip before replacing %s\n", bak_path);
+
+            if (mz_os_rename(tmp_path, src_path) != MZ_OK)
+                printf("Error replacing zip with temp %s\n", tmp_path);
+        }
+
         return MZ_OK;
+    }
 
     return err;
 }
@@ -538,8 +577,6 @@ int main(int argc, const char *argv[])
     uint8_t do_list = 0;
     uint8_t do_extract = 0;
     uint8_t do_erase = 0;
-    char bak_path[256];
-    char tmp_path[256];
     const char *path = NULL;
     const char *password = NULL;
     const char *destination = NULL;
@@ -688,12 +725,8 @@ int main(int argc, const char *argv[])
     }
     else if (do_erase)
     {
-        strncpy(tmp_path, path, sizeof(tmp_path) - 1);
-        tmp_path[sizeof(tmp_path) - 1] = 0;
-        strncat(tmp_path, ".tmp", sizeof(tmp_path) - strlen(tmp_path) - 1);
-
         /* Erase file from zip */
-        err = minizip_erase(path, tmp_path, argc - (path_arg + 1), &argv[path_arg + 1]);
+        err = minizip_erase(path, NULL, argc - (path_arg + 1), &argv[path_arg + 1]);
     }
     else
     {
@@ -701,22 +734,6 @@ int main(int argc, const char *argv[])
         err = minizip_add(path, password, &options, argc - (path_arg + 1), &argv[path_arg + 1]);
     }
 
-    if (err == MZ_OK && do_erase)
-    {
-        /* Swap zip with temporary zip, backup old zip if possible */
-        strncpy(bak_path, path, sizeof(bak_path) - 1);
-        bak_path[sizeof(bak_path) - 1] = 0;
-        strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
-
-        if (mz_os_file_exists(bak_path) == MZ_OK)
-            mz_os_delete(bak_path);
-
-        if (mz_os_rename(path, bak_path) != MZ_OK)
-            printf("Error backing up zip before replacing %s\n", bak_path);
-
-        if (mz_os_rename(tmp_path, path) != MZ_OK)
-            printf("Error replacing zip with temp %s\n", tmp_path);
-    }
 
     return err;
 }
