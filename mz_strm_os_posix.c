@@ -93,6 +93,9 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode)
         return MZ_OPEN_ERROR;
     }
 
+    if (mode & MZ_OPEN_MODE_APPEND)
+        return mz_stream_os_seek(stream, 0, MZ_SEEK_END);
+
     return MZ_OK;
 }
 
