@@ -2008,7 +2008,15 @@ void *mz_zip_writer_create(void **handle)
         memset(writer, 0, sizeof(mz_zip_writer));
 
         writer->aes = 1;
+#if defined(HAVE_ZLIB) || defined(HAVE_LIBCOMP)
         writer->compress_method = MZ_COMPRESS_METHOD_DEFLATE;
+#elif defined(HAVE_BZIP2)
+        writer->compress_method = MZ_COMPRESS_METHOD_BZIP2;
+#elif defined(HAVE_LZMA)
+        writer->compress_method = MZ_COMPRESS_METHOD_LZMA;
+#else 
+        writer->compress_method = MZ_COMPRESS_METHOD_STORE;
+#endif
         writer->compress_level = MZ_COMPRESS_LEVEL_BEST;
         writer->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
 
