@@ -1774,7 +1774,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     }
 
 #ifdef MZ_ZIP_NO_DECOMPRESSION
-    if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
+    if (!raw && zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
         err = MZ_SUPPORT_ERROR;
 #endif
     if (err == MZ_OK)
