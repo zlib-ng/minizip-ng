@@ -112,6 +112,9 @@ int32_t mz_stream_bzip_is_open(void *stream)
 int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
+    MZ_UNUSED(stream);
+    MZ_UNUSED(buf);
+    MZ_UNUSED(size);
     return MZ_SUPPORT_ERROR;
 #else
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;

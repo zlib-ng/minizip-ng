@@ -1183,7 +1183,6 @@ static int32_t mz_zip_recover_cd(void *handle)
     mz_zip *zip = (mz_zip *)handle;
     mz_zip_file local_file_info;
     void *local_file_info_stream = NULL;
-    void *file_extra_stream = NULL;
     void *cd_mem_stream = NULL;
     uint64_t number_entry = 0;
     int64_t descriptor_pos = 0;
@@ -1997,7 +1996,6 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     int64_t uncompressed_size)
 {
     mz_zip *zip = (mz_zip *)handle;
-    int64_t total_in = 0;
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
 

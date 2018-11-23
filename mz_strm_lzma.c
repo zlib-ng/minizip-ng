@@ -79,6 +79,8 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     {
 #ifdef MZ_ZIP_NO_COMPRESSION
         MZ_UNUSED(filters);
+        MZ_UNUSED(major);
+        MZ_UNUSED(minor);
         return MZ_SUPPORT_ERROR;
 #else
         lzma->lstream.next_out = lzma->buffer;
@@ -107,6 +109,9 @@ int32_t mz_stream_lzma_open(void *stream, const char *path, int32_t mode)
     else if (mode & MZ_OPEN_MODE_READ)
     {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
+        MZ_UNUSED(filters);
+        MZ_UNUSED(major);
+        MZ_UNUSED(minor);
         return MZ_SUPPORT_ERROR;
 #else
         lzma->lstream.next_in = lzma->buffer;
@@ -141,6 +146,9 @@ int32_t mz_stream_lzma_is_open(void *stream)
 int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size)
 {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
+    MZ_UNUSED(stream);
+    MZ_UNUSED(buf);
+    MZ_UNUSED(size);
     return MZ_SUPPORT_ERROR;
 #else
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
