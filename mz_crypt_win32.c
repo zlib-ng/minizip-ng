@@ -13,6 +13,7 @@
 
 #include "mz.h"
 #include "mz_os.h"
+#include "mz_crypt.h"
 
 #include <windows.h>
 #include <wincrypt.h>
@@ -242,6 +243,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         uint32_t   key_length;
     } key_blob_header_s;
     key_blob_header_s *key_blob_s = NULL;
+    uint32_t mode = CRYPT_MODE_ECB;
     uint8_t *key_blob = NULL;
     int32_t key_blob_size = 0;
     int32_t result = 0;
@@ -277,8 +279,12 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
         memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
 
-        result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, CRYPT_IPSEC_HMAC_KEY, &aes->key);
+        result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, 0, &aes->key);
     }
+
+    if (result)
+        result = CryptSetKeyParam(aes->key, KP_MODE, (const uint8_t *)&mode, 0);
+
     if (!result)
     {
         aes->error = GetLastError();

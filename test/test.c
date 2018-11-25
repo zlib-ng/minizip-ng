@@ -71,6 +71,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
     char buf[UINT16_MAX];
     int32_t read = 0;
     int32_t written = 0;
+    int64_t total_written = 0;
     void *out_stream = NULL;
     void *in_stream = NULL;
     void *crypt_out_stream = NULL;
@@ -101,6 +102,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
         {
             written = mz_stream_write(crypt_out_stream, buf, read);
             mz_stream_close(crypt_out_stream);
+            mz_stream_get_prop_int64(crypt_out_stream, MZ_STREAM_PROP_TOTAL_OUT, &total_written);
         }
 
         mz_stream_delete(&crypt_out_stream);
@@ -118,6 +120,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
         crypt_create(&crypt_out_stream);
 
         mz_stream_set_base(crypt_out_stream, in_stream);
+        mz_stream_set_prop_int64(crypt_out_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, total_written);
 
         if (mz_stream_open(crypt_out_stream, password, MZ_OPEN_MODE_READ) == MZ_OK)
         {
