@@ -726,13 +726,13 @@ if(BUILD_UNIT_TEST)
         endif()
         if(USE_BZIP2)
             add_test(NAME unzip-bzip2
-                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out
                         fuzz/unzip_fuzzer_seed_corpus/bzip2.zip
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
         endif()
         if(USE_LZMA)
             add_test(NAME unzip-lzma
-                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out
                         fuzz/unzip_fuzzer_seed_corpus/lzma.zip
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
         endif()
