@@ -702,25 +702,52 @@ if(BUILD_UNIT_TEST)
         endforeach()
     endfunction()
 
-    if(NOT COMPRESS_ONLY)
-        add_test(NAME tiny-unzip
-                 COMMAND minizip -x -o ${EXTRA_ARGS} -d out 
-                    fuzz/unzip_fuzzer_seed_corpus/tiny.zip
-                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-    endif()
-
+    # Perform tests against ourself
     create_compress_tests("generic" "")
     create_compress_tests("span" "-k;1024")
     create_compress_tests("zipcd" "-z")
     if(USE_PKCRYPT)
-        create_compress_tests("pkcrypt" "-p;1234567890")
+        create_compress_tests("pkcrypt" "-p;test123")
     endif()
     if(USE_WZAES)
-        create_compress_tests("wzaes" "-s;-p;1234567890")
+        create_compress_tests("wzaes" "-s;-p;test123")
     endif()
     if(USE_OPENSSL AND OPENSSL_FOUND)
         create_compress_tests("signed" "-h;ia.p12;-w;test")
         create_compress_tests("secure" "-z;-h;ia.p12;-w;test")
+    endif()
+    # Perform tests on others
+    if(NOT COMPRESS_ONLY)
+        if(USE_ZLIB)
+            add_test(NAME unzip-tiny
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out 
+                        fuzz/unzip_fuzzer_seed_corpus/tiny.zip
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
+        if(USE_BZIP2)
+            add_test(NAME unzip-bzip2
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                        fuzz/unzip_fuzzer_seed_corpus/bzip2.zip
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
+        if(USE_LZMA)
+            add_test(NAME unzip-lzma
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                        fuzz/unzip_fuzzer_seed_corpus/lzma.zip
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
+        if(USE_PKCRYPT)
+            add_test(NAME unzip-pkcrypt
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                        fuzz/unzip_fuzzer_seed_corpus/encrypted_pkcrypt.zip
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
+        if(USE_WZAES)
+            add_test(NAME unzip-wzaes
+                     COMMAND minizip -x -o ${EXTRA_ARGS} -d out -p test123
+                        fuzz/unzip_fuzzer_seed_corpus/encrypted_wzaes.zip
+                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
     endif()
 
 endif()
