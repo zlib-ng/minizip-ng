@@ -1,5 +1,5 @@
 /* standalone.c - Standalone fuzzer tester
-   Version 2.7.5, November 13, 2018
+   Version 2.8.0, November 24, 2018
    part of the MiniZip project
 
    Copyright (C) 2018 sebpop
