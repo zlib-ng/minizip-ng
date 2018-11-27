@@ -152,33 +152,72 @@
 
 #ifdef HAVE_STDINT_H
 #  include <stdint.h>
-#else
+#endif
+
+#ifndef __INT8_TYPE__
 typedef signed char        int8_t;
+#endif
+#ifndef __INT16_TYPE__
 typedef short              int16_t;
+#endif
+#ifndef __INT32_TYPE__
 typedef int                int32_t;
+#endif
+#ifndef __INT64_TYPE__
 typedef long long          int64_t;
+#endif
+#ifndef __UINT8_TYPE__
 typedef unsigned char      uint8_t;
+#endif
+#ifndef __UINT16_TYPE__
 typedef unsigned short     uint16_t;
+#endif
+#ifndef __UINT32_TYPE__
 typedef unsigned int       uint32_t;
+#endif
+#ifndef __UINT64_TYPE__
 typedef unsigned long long uint64_t;
 #endif
 
 #ifdef HAVE_INTTYPES_H
 #  include <inttypes.h>
-#else
+#endif
+
+#ifndef PRId8
 #  define PRId8  "hhd"
+#endif
+#ifndef PRId16
 #  define PRId16 "hd"
+#endif
+#ifndef PRId32
 #  define PRId32 "d"
+#endif
+#ifndef PRIu32
 #  define PRIu32 "u"
+#endif
+#ifndef PRIx32
 #  define PRIx32 "x"
+#endif
 #  if ULONG_MAX == 4294967295UL
-#    define PRId64 "lld"
-#    define PRIu64 "llu"
-#    define PRIx64 "llx"
+#    ifndef PRId64
+#      define PRId64 "lld"
+#    endif
+#    ifndef PRIu64
+#      define PRIu64 "llu"
+#    endif
+#    ifndef PRIx64
+#      define PRIx64 "llx"
+#    endif
 #  else
-#    define PRId64 "ld"
-#    define PRIu64 "lu"
-#    define PRIx64 "lx"
+#    ifndef PRId64
+#      define PRId64 "ld"
+#    endif
+#    ifndef PRIu64
+#      define PRIu64 "lu"
+#    endif
+#    ifndef PRIx64
+#      define PRIx64 "lx"
+#    endif
 #  endif
 #endif
 
@@ -202,5 +241,3 @@ typedef unsigned long long uint64_t;
 #endif
 
 /***************************************************************************/
-
-#endif
