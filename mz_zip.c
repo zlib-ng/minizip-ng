@@ -193,8 +193,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     uint16_t ntfs_attrib_size = 0;
     uint16_t value16 = 0;
     uint32_t value32 = 0;
-    int64_t extrafield_pos = -1;
-    int64_t comment_pos = -1;
+    int64_t extrafield_pos = 0;
+    int64_t comment_pos = 0;
     int32_t err = MZ_OK;
 
 
@@ -271,13 +271,13 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     if ((err == MZ_OK) && (file_info->filename_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->filename_size);
     mz_stream_write_uint8(file_extra_stream, 0);
-    extrafield_pos = (int64_t)file_info->filename_size + 1;
+    extrafield_pos = mz_stream_tell(file_extra_stream);
 
     if ((err == MZ_OK) && (file_info->extrafield_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->extrafield_size);
     mz_stream_write_uint8(file_extra_stream, 0);
 
-    comment_pos = extrafield_pos + (int64_t)file_info->extrafield_size + 1;
+    comment_pos = mz_stream_tell(file_extra_stream);
     if ((err == MZ_OK) && (file_info->comment_size > 0))
         err = mz_stream_copy(file_extra_stream, stream, file_info->comment_size);
     mz_stream_write_uint8(file_extra_stream, 0);
@@ -426,10 +426,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     
     /* Get pointers to variable length data */
     mz_stream_mem_get_buffer(file_extra_stream, (const void **)&file_info->filename);
-    if (extrafield_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
-    if (comment_pos >= 0)
-        mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
+    mz_stream_mem_get_buffer_at(file_extra_stream, extrafield_pos, (const void **)&file_info->extrafield);
+    mz_stream_mem_get_buffer_at(file_extra_stream, comment_pos, (const void **)&file_info->comment);
 
     /* Set to empty string just in-case */
     if (file_info->filename == NULL)
@@ -1579,6 +1577,11 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         return MZ_SUPPORT_ERROR;
     }
 
+#ifndef HAVE_WZAES
+    if (zip->file_info.aes_version)
+        return MZ_SUPPORT_ERROR;
+#endif
+
     zip->entry_raw = raw;
 
     if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password != NULL))
@@ -1749,7 +1752,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
-        return MZ_PARAM_ERROR;
+        return MZ_SUPPORT_ERROR;
 #endif
     if (zip == NULL)
         return MZ_PARAM_ERROR;
@@ -1793,15 +1796,15 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t filename_pos = -1;
-    int64_t extrafield_pos = -1;
-    int64_t comment_pos = -1;
+    int64_t extrafield_pos = 0;
+    int64_t comment_pos = 0;
     int64_t disk_number = 0;
     uint8_t is_dir = 0;
     int32_t err = MZ_OK;
 
 #if defined(MZ_ZIP_NO_ENCRYPTION)
     if (password != NULL)
-        return MZ_PARAM_ERROR;
+        return MZ_SUPPORT_ERROR;
 #endif
     if (zip == NULL || file_info == NULL || file_info->filename == NULL)
         return MZ_PARAM_ERROR;
@@ -1837,12 +1840,9 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         mz_stream_write(zip->file_info_stream, file_info->comment, file_info->comment_size);
     mz_stream_write_uint8(zip->file_info_stream, 0);
 
-    if (filename_pos > 0)
-        mz_stream_mem_get_buffer_at(zip->file_info_stream, filename_pos, (const void **)&zip->file_info.filename);
-    if (extrafield_pos > 0)
-        mz_stream_mem_get_buffer_at(zip->file_info_stream, extrafield_pos, (const void **)&zip->file_info.extrafield);
-    if (comment_pos > 0)
-        mz_stream_mem_get_buffer_at(zip->file_info_stream, comment_pos, (const void **)&zip->file_info.comment);
+    mz_stream_mem_get_buffer_at(zip->file_info_stream, filename_pos, (const void **)&zip->file_info.filename);
+    mz_stream_mem_get_buffer_at(zip->file_info_stream, extrafield_pos, (const void **)&zip->file_info.extrafield);
+    mz_stream_mem_get_buffer_at(zip->file_info_stream, comment_pos, (const void **)&zip->file_info.comment);
 
     if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
     {
