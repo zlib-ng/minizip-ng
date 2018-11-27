@@ -501,7 +501,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
         target->error = GetLastError();
         err = MZ_HASH_ERROR;
     }
-    return MZ_OK;
+    return err;
 }
 
 void *mz_crypt_hmac_create(void **handle)
