@@ -2003,8 +2003,9 @@ void *mz_zip_writer_create(void **handle)
     if (writer != NULL)
     {
         memset(writer, 0, sizeof(mz_zip_writer));
-
+#if defined(HAVE_WZAES)
         writer->aes = 1;
+#endif
 #if defined(HAVE_ZLIB) || defined(HAVE_LIBCOMP)
         writer->compress_method = MZ_COMPRESS_METHOD_DEFLATE;
 #elif defined(HAVE_BZIP2)
