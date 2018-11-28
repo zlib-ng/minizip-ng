@@ -3,6 +3,7 @@
 minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux. 
 
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
+[![Code Quality: Cpp](https://img.shields.io/lgtm/grade/cpp/g/nmoinvaz/minizip.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nmoinvaz/minizip/context:cpp)
 
 Maintained by Nathan Moinvaziri.
 
