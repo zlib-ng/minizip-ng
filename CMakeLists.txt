@@ -26,7 +26,7 @@ option(BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 project("minizip" C)
 
 # Minizip library version
-set(VERSION "2.8.0")
+set(VERSION "2.8.1")
 
 # Minizip api version
 set(SOVERSION "2.5")
