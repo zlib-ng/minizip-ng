@@ -231,7 +231,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
 
     /* Print the progress of the current compress operation */
     if (options->verbose)
-        printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
     return MZ_OK;
 }
@@ -289,6 +289,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_compress_method(writer, options->compress_method);
     mz_zip_writer_set_compress_level(writer, options->compress_level);
     mz_zip_writer_set_overwrite_cb(writer, options, minizip_add_overwrite_cb);
+    mz_zip_writer_set_comment(writer, "xyz");
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
     mz_zip_writer_set_entry_cb(writer, options, minizip_add_entry_cb);
     mz_zip_writer_set_zip_cd(writer, options->zip_cd);
@@ -355,7 +356,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
 
     /* Print the progress of the current extraction */
     if (options->verbose)
-        printf("%s - %"PRIu64" / %"PRIu64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position, 
             file_info->uncompressed_size, progress);
 
     return MZ_OK;

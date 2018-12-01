@@ -750,7 +750,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
         return MZ_PARAM_ERROR;
 
     /* Convert to forward slashes for unix which doesn't like backslashes */
-    strncpy(pathwfs, path, sizeof(pathwfs));
+    strncpy(pathwfs, path, sizeof(pathwfs) - 1);
+    pathwfs[sizeof(pathwfs) - 1] = 0;
     for (i = 0; i < (int32_t)strlen(pathwfs); i += 1)
     {
         if (pathwfs[i] == '\\')
@@ -887,7 +888,8 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
             utf8_string = mz_os_utf8_string_create(reader->file_info->filename, reader->encoding);
             if (utf8_string)
             {
-                strncpy(utf8_name, (char *)utf8_string, sizeof(utf8_name));
+                strncpy(utf8_name, (char *)utf8_string, sizeof(utf8_name) - 1);
+                utf8_name[sizeof(utf8_name) - 1] = 0;
                 mz_os_utf8_string_delete(&utf8_string);
             }
         }

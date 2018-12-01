@@ -1465,12 +1465,14 @@ int32_t mz_zip_set_comment(void *handle, const char *comment)
         return MZ_PARAM_ERROR;
     if (zip->comment != NULL)
         MZ_FREE(zip->comment);
-    comment_size = (int32_t)(strlen(comment) + 1);
-    zip->comment = (char *)MZ_ALLOC(comment_size);
+    comment_size = (int32_t)strlen(comment);
+    if (comment_size > UINT16_MAX)
+        return MZ_PARAM_ERROR;
+    zip->comment = (char *)MZ_ALLOC(comment_size + 1);
     if (zip->comment == NULL)
         return MZ_MEM_ERROR;
-    strncpy(zip->comment, comment, comment_size - 1);
-    zip->comment[comment_size - 1] = 0;
+    strncpy(zip->comment, comment, comment_size);
+    zip->comment[comment_size] = 0;
     return MZ_OK;
 }
 
@@ -1975,7 +1977,8 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
         /* Seek to end of compressed stream since we might have over-read during compression */
         if (err == MZ_OK)
             err = mz_stream_seek(zip->stream, MZ_ZIP_SIZE_LD_ITEM + 
-                zip->local_file_info.filename_size + zip->local_file_info.extrafield_size + 
+                (int64_t)zip->local_file_info.filename_size + 
+                (int64_t)zip->local_file_info.extrafield_size + 
                 total_in, MZ_SEEK_CUR);
 
         /* Read data descriptor */

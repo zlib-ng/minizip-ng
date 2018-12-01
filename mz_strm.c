@@ -267,7 +267,7 @@ int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_
             disk_pos = mz_stream_tell(stream);
 
             /* Seek to position on disk where the data was found */
-            err = mz_stream_seek(stream, disk_pos - (read + buf_pos - i), MZ_SEEK_SET);
+            err = mz_stream_seek(stream, disk_pos - ((int64_t)read + buf_pos - i), MZ_SEEK_SET);
             if (err != MZ_OK)
                 return MZ_EXIST_ERROR;
 

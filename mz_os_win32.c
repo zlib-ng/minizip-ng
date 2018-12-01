@@ -44,8 +44,10 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding)
     if (string_wide_size == 0)
         return NULL;
     string_wide = (wchar_t *)MZ_ALLOC((string_wide_size + 1) * sizeof(wchar_t));
-    memset(string_wide, 0, sizeof(wchar_t) * (string_wide_size + 1));
+    if (string_wide == NULL)
+        return NULL;
 
+    memset(string_wide, 0, sizeof(wchar_t) * (string_wide_size + 1));
     MultiByteToWideChar(encoding, 0, string, -1, string_wide, string_wide_size);
 
     return string_wide;
@@ -391,6 +393,8 @@ DIR *mz_os_open_dir(const char *path)
         return NULL;
 
     dir_int = (DIR_int *)MZ_ALLOC(sizeof(DIR_int));
+    if (dir_int == NULL)
+        return NULL;
     dir_int->find_handle = handle;
     dir_int->end = 0;
 

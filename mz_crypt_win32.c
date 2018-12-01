@@ -678,14 +678,15 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     if (result && decoded_size > 0)
         decoded = (uint8_t *)MZ_ALLOC(decoded_size);
 
-    if (result)
+    if (result && decoded != NULL)
         result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
             decoded, &decoded_size, NULL);
 
+#if 0
     crypt_msg = CryptMsgOpenToDecode(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, 0, 0, NULL, NULL);
     if (crypt_msg != NULL)
     {
-#if 0 /* Timestamp support */
+        /* Timestamp support */
         PCRYPT_ATTRIBUTES unauth_attribs = NULL;
         HCRYPTMSG ts_msg = 0;
         uint8_t *ts_content = NULL;
@@ -729,10 +730,14 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
         if (crypt_context != NULL)
             CryptMemFree(crypt_context);
-#endif
     }
+    else
+    {
+        result = 0;
+    }
+#endif
 
-    if ((crypt_msg != NULL) && (result) && (decoded_size == message_size))
+    if ((result) && (decoded != NULL) && (decoded_size == message_size))
     {
         /* Verify cms message with our stored message */
         if (memcmp(decoded, message, message_size) == 0)
