@@ -469,7 +469,10 @@ int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size)
     read = mz_stream_read(raw->stream.base, buf, bytes_to_read);
 
     if (read > 0)
+    {
         raw->total_in += read;
+        raw->total_out += read;
+    }
 
     return read;
 }
@@ -477,9 +480,16 @@ int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_raw_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_raw *raw = (mz_stream_raw *)stream;
-    int32_t written = mz_stream_write(raw->stream.base, buf, size);
+    int32_t written = 0;
+
+    written = mz_stream_write(raw->stream.base, buf, size);
+
     if (written > 0)
+    {
         raw->total_out += written;
+        raw->total_in += written;
+    }
+
     return written;
 }
 
@@ -498,7 +508,6 @@ int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin)
 int32_t mz_stream_raw_close(void *stream)
 {
     MZ_UNUSED(stream);
-
     return MZ_OK;
 }
 

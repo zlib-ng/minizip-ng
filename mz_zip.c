@@ -2029,13 +2029,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     if (compressed_size < 0)
         mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
     if (uncompressed_size < 0)
-    {
-        /* If using raw stream as compression stream in/out are equal */
-        if (zip->entry_raw)
-            uncompressed_size = compressed_size;
-        else
-            mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &uncompressed_size);
-    }
+        mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &uncompressed_size);
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
     {
