@@ -64,6 +64,10 @@
 #define MZ_ZIP_SIZE_CD_ITEM             (46)
 #define MZ_ZIP_SIZE_CD_LOCATOR64        (20)
 
+#ifndef MZ_ZIP_EOCD_MAX_BACK
+#define MZ_ZIP_EOCD_MAX_BACK            (1 << 20)
+#endif
+
 /***************************************************************************/
 
 typedef struct mz_zip_s
@@ -115,7 +119,7 @@ typedef struct mz_zip_s
 static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
 {
     int64_t file_size = 0;
-    int64_t max_back = 0;
+    int64_t max_back = MZ_ZIP_EOCD_MAX_BACK;
     uint8_t find[4] = MZ_ZIP_MAGIC_ENDHEADERU8;
     int32_t err = MZ_OK;
 
@@ -125,9 +129,7 @@ static int32_t mz_zip_search_eocd(void *stream, int64_t *central_pos)
 
     file_size = mz_stream_tell(stream);
 
-    /* Maximum seek is size of global comment + extra */
-    max_back = UINT16_MAX + 128;
-    if (max_back > file_size)
+    if (max_back <= 0 || max_back > file_size)
         max_back = file_size;
 
     return mz_stream_find_reverse(stream, (const void *)find, sizeof(find), max_back, central_pos);
