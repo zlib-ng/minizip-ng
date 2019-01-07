@@ -213,6 +213,10 @@ int32_t mz_path_remove_filename(char *path)
 
         path_ptr -= 1;
     }
+
+    if (path_ptr == path)
+        *path_ptr = 0;
+
     return MZ_OK;
 }
 
