@@ -1,5 +1,5 @@
 #***************************************************************************
-# Copyright (C) 2017-2018 Nathan Moinvaziri
+# Copyright (C) 2017-2019 Nathan Moinvaziri
 #                         https://github.com/nmoinvaz/minizip
 # Copyright (C)      2016 Matthias Schmieder
 #                         schmieder.matthias@gmail.com
@@ -26,7 +26,7 @@ option(BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 project("minizip" C)
 
 # Minizip library version
-set(VERSION "2.8.1")
+set(VERSION "2.8.2")
 
 # Minizip api version
 set(SOVERSION "2.5")

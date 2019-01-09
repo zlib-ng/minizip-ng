@@ -1,5 +1,5 @@
 /* mz_strm_mem.c -- Stream for memory access
-   Version 2.8.1, December 1, 2018
+   Version 2.8.2, January 8, 2019
    part of the MiniZip project
 
    This interface is designed to access memory rather than files.
@@ -7,7 +7,7 @@
 
    Based on Unzip ioapi.c version 0.22, May 19th, 2003
 
-   Copyright (C) 2010-2018 Nathan Moinvaziri
+   Copyright (C) 2010-2019 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 2003 Justin Fletcher
    Copyright (C) 1998-2003 Gilles Vollant
