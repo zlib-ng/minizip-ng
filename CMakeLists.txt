@@ -334,7 +334,7 @@ if(MINIZIP_USE_BRG)
 endif()
 
 # Include OpenSSL
-if(MINIZIP_USE_OPENSSL AND MINIZIP_OPENSSL_FOUND)
+if(MINIZIP_USE_OPENSSL AND OPENSSL_FOUND)
     list(APPEND MINIZIP_SRC "mz_crypt_openssl.c")
 endif()
 
