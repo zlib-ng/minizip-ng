@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.0.2)
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 option(MINIZIP_USE_COMPAT "Enables compatibility layer" ON)
-option(MINIZIP_ZLIB "Enables ZLIB compression" ON)
+option(MINIZIP_USE_ZLIB "Enables ZLIB compression" ON)
 option(MINIZIP_USE_BZIP2 "Enables BZIP2 compression" ON)
 option(MINIZIP_USE_LZMA "Enables LZMA compression" ON)
 option(MINIZIP_USE_PKCRYPT "Enables PKWARE traditional encryption" ON)
