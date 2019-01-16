@@ -145,6 +145,8 @@ int32_t minizip_list(const char *path)
         /* Display a '*' if the file is encrypted */
         if (file_info->flag & MZ_ZIP_FLAG_ENCRYPTED)
             crypt = '*';
+        else
+            crypt = ' ';
 
         switch (file_info->compression_method)
         {
