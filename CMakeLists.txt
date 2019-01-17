@@ -90,7 +90,23 @@ if(USE_ZLIB AND NOT USE_LIBCOMP)
             set(ZLIB_LIBRARIES
                 ${ZLIB_INSTALL_DIR}/lib/libz.a)
         endif()
-        
+
+        # Build args variable based on cache variables
+        unset(CMAKE_ARGS)
+        get_cmake_property(CACHE_VARS CACHE_VARIABLES)
+        foreach(CACHE_VAR ${CACHE_VARS})
+          get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
+          if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
+            get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
+            if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
+              set(CACHE_VAR_TYPE)
+            else()
+              set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
+            endif()
+            list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}};")
+          endif()
+        endforeach()
+
         ExternalProject_Add(zlib
             PREFIX zlib
             GIT_REPOSITORY ${ZLIB_REPOSITORY}
@@ -100,8 +116,7 @@ if(USE_ZLIB AND NOT USE_LIBCOMP)
             INSTALL_DIR ${ZLIB_INSTALL_DIR}
             BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
             UPDATE_COMMAND ""
-            CMAKE_CACHE_ARGS
-                -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}
+            CMAKE_ARGS "${CMAKE_ARGS};-DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}"
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
