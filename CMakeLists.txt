@@ -102,7 +102,6 @@ if(USE_ZLIB AND NOT USE_LIBCOMP)
             UPDATE_COMMAND ""
             CMAKE_CACHE_ARGS
                 -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}
-                -DZLIB_COMPAT:STRING=ON
         )
 
         include_directories(${ZLIB_INCLUDE_DIRS})
