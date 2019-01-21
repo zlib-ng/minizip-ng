@@ -26,7 +26,7 @@
    typedef zng_stream zlib_stream;
 #else
 #  define ZLIB_PREFIX(x) x
-   typedef zstream zlib_stream;
+   typedef z_stream zlib_stream;
 #endif 
 
 #if !defined(DEF_MEM_LEVEL)
