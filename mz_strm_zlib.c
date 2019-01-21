@@ -15,10 +15,21 @@
 #include "mz_strm_zlib.h"
 
 #include "zlib.h"
+#if defined(ZLIBNG_VERNUM) && !defined(ZLIB_COMPAT)
+#    include "zlib-ng.h"
+#endif
 
 /***************************************************************************/
 
-#ifndef DEF_MEM_LEVEL
+#if defined(ZLIBNG_VERNUM) && !defined(ZLIB_COMPAT)
+#  define ZLIB_PREFIX(x) zng_ ## x
+   typedef zng_stream zlib_stream;
+#else
+#  define ZLIB_PREFIX(x) x
+   typedef zstream zlib_stream;
+#endif 
+
+#if !defined(DEF_MEM_LEVEL)
 #  if MAX_MEM_LEVEL >= 8
 #    define DEF_MEM_LEVEL 8
 #  else
@@ -47,7 +58,7 @@ static mz_stream_vtbl mz_stream_zlib_vtbl = {
 
 typedef struct mz_stream_zlib_s {
     mz_stream   stream;
-    z_stream    zstream;
+    zlib_stream zstream;
     uint8_t     buffer[INT16_MAX];
     int32_t     buffer_len;
     int64_t     total_in;
@@ -85,7 +96,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
         zlib->zstream.next_out = zlib->buffer;
         zlib->zstream.avail_out = sizeof(zlib->buffer);
 
-        zlib->error = deflateInit2(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, 
+        zlib->error = ZLIB_PREFIX(deflateInit2)(&zlib->zstream, (int8_t)zlib->level, Z_DEFLATED, 
             -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY);
 #endif
     }
@@ -97,7 +108,7 @@ int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode)
         zlib->zstream.next_in = zlib->buffer;
         zlib->zstream.avail_in = 0;
 
-        zlib->error = inflateInit2(&zlib->zstream, -MAX_WBITS);
+        zlib->error = ZLIB_PREFIX(inflateInit2)(&zlib->zstream, -MAX_WBITS);
 #endif
     }
 
@@ -166,7 +177,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
         total_in_before = zlib->zstream.avail_in;
         total_out_before = zlib->zstream.total_out;
 
-        err = inflate(&zlib->zstream, Z_SYNC_FLUSH);
+        err = ZLIB_PREFIX(inflate)(&zlib->zstream, Z_SYNC_FLUSH);
         if ((err >= Z_OK) && (zlib->zstream.msg != NULL))
         {
             zlib->error = Z_DATA_ERROR;
@@ -238,7 +249,7 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush)
         }
 
         total_out_before = zlib->zstream.total_out;
-        err = deflate(&zlib->zstream, flush);
+        err = ZLIB_PREFIX(deflate)(&zlib->zstream, flush);
         total_out_after = zlib->zstream.total_out;
 
         out_bytes = (uint32_t)(total_out_after - total_out_before);
@@ -309,7 +320,7 @@ int32_t mz_stream_zlib_close(void *stream)
         mz_stream_zlib_deflate(stream, Z_FINISH);
         mz_stream_zlib_flush(stream);
 
-        deflateEnd(&zlib->zstream);
+        ZLIB_PREFIX(deflateEnd)(&zlib->zstream);
 #endif
     }
     else if (zlib->mode & MZ_OPEN_MODE_READ)
@@ -317,7 +328,7 @@ int32_t mz_stream_zlib_close(void *stream)
 #ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        inflateEnd(&zlib->zstream);
+        ZLIB_PREFIX(inflateEnd)(&zlib->zstream);
 #endif
     }
 
