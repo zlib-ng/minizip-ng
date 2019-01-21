@@ -13,31 +13,31 @@ matrix:
           env: BUILDDIR="../build" 
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_ZLIB=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_ZLIB=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_BZIP=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_BZIP=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_LZMA=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_LZMA=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_WZAES=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_WZAES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_PKCRYPT=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_PKCRYPT=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DCOMPRESS_ONLY=ON" BUILDDIR="../build"
+          env: TOOL="-DMZ_COMPRESS_ONLY=ON" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DDECOMPRESS_ONLY=ON" BUILDDIR="../build"
+          env: TOOL="-DMZ_DECOMPRESS_ONLY=ON" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_PKCRYPT=OFF -DUSE_WZAES=OFF" BUILDDIR="../build"
+          env: TOOL="-DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF" BUILDDIR="../build"
         - os: linux
           compiler: clang
-          env: TOOL="-DUSE_OPENSSL=ON" BUILDDIR="../build"
+          env: TOOL="-DMZ_OPENSSL=ON" BUILDDIR="../build"
         - os: linux
           compiler: gcc
           env: BUILDDIR="../build"
@@ -49,13 +49,13 @@ matrix:
           env: BUILDDIR="../build"
         - os: osx
           compiler: clang
-          env: TOOL="-DUSE_LIBCOMP=ON" BUILDDIR="../build"
+          env: TOOL="-DMZ_LIBCOMP=ON" BUILDDIR="../build"
         - os: osx
           compiler: gcc
-          env: TOOL="-DUSE_LIBCOMP=ON" BUILDDIR="../build"
+          env: TOOL="-DMZ_LIBCOMP=ON" BUILDDIR="../build"
         - os: osx
           compiler: clang
-          env: TOOL="-DUSE_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" BUILDDIR="../build"
+          env: TOOL="-DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" BUILDDIR="../build"
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
@@ -65,7 +65,7 @@ before_install:
 before_script:
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_TEST=ON -DBUILD_UNIT_TEST=ON $TOOL 
+    - cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON $TOOL 
 
 script:
     - cmake --build .

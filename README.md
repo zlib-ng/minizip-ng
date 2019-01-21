@@ -61,7 +61,7 @@ To generate project files for your platform:
 2. Run cmake in the minizip directory.
 
 ```
-cmake . -DBUILD_TEST=ON
+cmake . -DMZ_BUILD_TEST=ON
 cmake --build .
 ```
 
@@ -69,20 +69,20 @@ cmake --build .
 
 | Name | Description | Default Value |
 |:- |:-|:-:|
-| USE_COMPAT | Enables compatibility layer | ON |
-| USE_ZLIB | Enables ZLIB compression | ON |
-| USE_BZIP2 | Enables BZIP2 compression | ON |
-| USE_LZMA | Enables LZMA compression | ON |
-| USE_PKCRYPT | Enables PKWARE traditional encryption | ON |
-| USE_WZAES | Enables WinZIP AES encryption | ON |
-| USE_LIBCOMP | Enables Apple compression | OFF |
-| USE_OPENSSL | Enables OpenSSL encryption | OFF |
-| USE_BRG | Enables Brian Gladman's library | OFF |
-| COMPRESS_ONLY | Only support compression | OFF |
-| DECOMPRESS_ONLY | Only support decompression | OFF |
-| BUILD_TEST | Builds minizip test executable | OFF |
-| BUILD_UNIT_TEST | Builds minizip unit test project | OFF |
-| BUILD_FUZZ_TEST | Builds minizip fuzz executables | OFF |
+| MZ_COMPAT | Enables compatibility layer | ON |
+| MZ_ZLIB | Enables ZLIB compression | ON |
+| MZ_BZIP2 | Enables BZIP2 compression | ON |
+| MZ_LZMA | Enables LZMA compression | ON |
+| MZ_PKCRYPT | Enables PKWARE traditional encryption | ON |
+| MZ_WZAES | Enables WinZIP AES encryption | ON |
+| MZ_LIBCOMP | Enables Apple compression | OFF |
+| MZ_OPENSSL | Enables OpenSSL encryption | OFF |
+| MZ_BRG | Enables Brian Gladman's library | OFF |
+| MZ_COMPRESS_ONLY | Only support compression | OFF |
+| MZ_DECOMPRESS_ONLY | Only support decompression | OFF |
+| MZ_BUILD_TEST | Builds minizip test executable | OFF |
+| MZ_BUILD_UNIT_TEST | Builds minizip unit test project | OFF |
+| MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables | OFF |
 
 ## Contents
 
