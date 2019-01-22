@@ -108,7 +108,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
             endif()
           endif()
         endforeach()
-        message("${CMAKE_ARGS}")
+
         ExternalProject_Add(zlib
             PREFIX zlib
             GIT_REPOSITORY ${ZLIB_REPOSITORY}
@@ -181,6 +181,9 @@ if(MZ_DECOMPRESS_ONLY)
 endif()
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
     add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
+endif()
+if(ZLIB_COMPAT)
+    add_definitions(-DZLIB_COMPAT)
 endif()
 
 # Check for system includes

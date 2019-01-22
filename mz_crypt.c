@@ -15,7 +15,7 @@
 
 #if defined(HAVE_ZLIB)
 #  include "zlib.h"
-#  if defined(ZLIBNG_VERNUM) && !defined(ZLIB_COMPAT)
+#  if defined(ZLIBNG_VERNUM)
 #    include "zlib-ng.h"
 #  endif
 #elif defined(HAVE_LZMA)
@@ -26,9 +26,7 @@
 /* Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng */
 
 #if defined(HAVE_ZLIB) && defined(ZLIBNG_VERNUM)
-#  if !defined(ZLIB_COMPAT)
-#    define ZLIB_PREFIX(x) zng_ ## x
-#  endif
+#  define ZLIB_PREFIX(x) zng_ ## x
    typedef uint32_t z_crc_t;
 #elif defined(HAVE_ZLIB)
 #  define ZLIB_PREFIX(x) x
