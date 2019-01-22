@@ -382,7 +382,7 @@ bsr32(uint32_t n)
 #elif defined(_MSC_VER) && _MSC_VER >= 1400
 	// MSVC isn't supported by tuklib, but since this code exists,
 	// it doesn't hurt to have it here anyway.
-	uint32_t i;
+	uint32_t i = 0;
 	_BitScanReverse(&i, n);
 	return i;
 
@@ -427,14 +427,14 @@ clz32(uint32_t n)
 	return __builtin_clz(n);
 
 #elif defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-	uint32_t i;
+	uint32_t i = 0;
 	__asm__("bsrl %1, %0\n\t"
 		"xorl $31, %0"
 		: "=r" (i) : "rm" (n));
 	return i;
 
 #elif defined(_MSC_VER) && _MSC_VER >= 1400
-	uint32_t i;
+	uint32_t i = 0;
 	_BitScanReverse(&i, n);
 	return i ^ 31U;
 
@@ -479,12 +479,12 @@ ctz32(uint32_t n)
 	return __builtin_ctz(n);
 
 #elif defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-	uint32_t i;
+	uint32_t i = 0;
 	__asm__("bsfl %1, %0" : "=r" (i) : "rm" (n));
 	return i;
 
 #elif defined(_MSC_VER) && _MSC_VER >= 1400
-	uint32_t i;
+	uint32_t i = 0;
 	_BitScanForward(&i, n);
 	return i;
 

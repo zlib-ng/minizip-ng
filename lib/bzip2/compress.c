@@ -158,6 +158,7 @@ void generateMTFValues ( EState* s )
 
    wr = 0;
    zPend = 0;
+   yy[0] = 0;
    for (i = 0; i < s->nInUse; i++) yy[i] = (UChar) i;
 
    for (i = 0; i < s->nblock; i++) {
