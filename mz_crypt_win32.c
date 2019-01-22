@@ -269,28 +269,35 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     {
         key_blob_size = sizeof(key_blob_header_s) + key_length;
         key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+        if (key_blob)
+        {
+            key_blob_s = (key_blob_header_s *)key_blob;
+            key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
+            key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
+            key_blob_s->hdr.aiKeyAlg = alg_id;
+            key_blob_s->hdr.reserved = 0;
+            key_blob_s->key_length = key_length;
 
-        key_blob_s = (key_blob_header_s *)key_blob;
-        key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
-        key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
-        key_blob_s->hdr.aiKeyAlg = alg_id;
-        key_blob_s->hdr.reserved = 0;
-        key_blob_s->key_length = key_length;
+            memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
 
-        memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
+            result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, 0, &aes->key);
 
-        result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, 0, &aes->key);
+            MZ_FREE(key_blob);
+        }
+        else
+        {
+            err = MZ_MEM_ERROR;
+        }
     }
 
-    if (result)
+    if (result && err == MZ_OK)
         result = CryptSetKeyParam(aes->key, KP_MODE, (const uint8_t *)&mode, 0);
 
-    if (!result)
+    if (!result && err == MZ_OK)
     {
         aes->error = GetLastError();
         err = MZ_CRYPT_ERROR;
     }
-    MZ_FREE(key_blob);
 
     if (hash)
         CryptDestroyHash(hash);
@@ -410,31 +417,41 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
         hmac->error = GetLastError();
         err = MZ_CRYPT_ERROR;
     }
+    else
+    {
+        key_blob_size = sizeof(key_blob_header_s) + key_length;
+        key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+    }
 
-    key_blob_size = sizeof(key_blob_header_s) + key_length;
-    key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+    if (key_blob)
+    {
+        key_blob_s = (key_blob_header_s *)key_blob;
+        key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
+        key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
+        key_blob_s->hdr.aiKeyAlg = CALG_RC2;
+        key_blob_s->hdr.reserved = 0;
+        key_blob_s->key_length = key_length;
 
-    key_blob_s = (key_blob_header_s *)key_blob;
-    key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
-    key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
-    key_blob_s->hdr.aiKeyAlg = CALG_RC2;
-    key_blob_s->hdr.reserved = 0;
-    key_blob_s->key_length = key_length;
+        memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
 
-    memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
-    
-    result = CryptImportKey(hmac->provider, key_blob, key_blob_size, 0, CRYPT_IPSEC_HMAC_KEY, &hmac->key);
-    if (result)
-        result = CryptCreateHash(hmac->provider, CALG_HMAC, hmac->key, 0, &hmac->hash);
-    if (result)
-        result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
+        result = CryptImportKey(hmac->provider, key_blob, key_blob_size, 0, CRYPT_IPSEC_HMAC_KEY, &hmac->key);
+        if (result)
+            result = CryptCreateHash(hmac->provider, CALG_HMAC, hmac->key, 0, &hmac->hash);
+        if (result)
+            result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
+
+        MZ_FREE(key_blob);
+    }
+    else if (err == MZ_OK)
+    {
+        err = MZ_MEM_ERROR;
+    }
+
     if (!result)
     {
         hmac->error = GetLastError();
         err = MZ_CRYPT_ERROR;
     }
-
-    MZ_FREE(key_blob);
 
     if (err != MZ_OK)
         mz_crypt_hmac_free(handle);
@@ -550,7 +567,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     uint8_t *messages[1];
 
 
-    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
+    if (message == NULL || cert_data == NULL || cert_data_size == 0 || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
     *signature = NULL;
