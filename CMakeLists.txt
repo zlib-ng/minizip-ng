@@ -182,9 +182,6 @@ endif()
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
     add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
 endif()
-if(ZLIB_COMPAT)
-    add_definitions(-DZLIB_COMPAT)
-endif()
 
 # Check for system includes
 check_include_file(stdint.h   HAVE_STDINT_H)
