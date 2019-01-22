@@ -107,7 +107,7 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 #	if defined(__INTEL_COMPILER)
 			len += _bit_scan_forward(x);
 #	elif defined(_MSC_VER)
-			unsigned long tmp;
+			unsigned long tmp = 0;
 			_BitScanForward(&tmp, x);
 			len += tmp;
 #	else
