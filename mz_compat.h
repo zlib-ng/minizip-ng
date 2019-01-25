@@ -295,6 +295,7 @@ ZEXPORT int64_t unzGetOffset64(unzFile file);
 ZEXPORT int32_t unzGetOffset(unzFile file);
 ZEXPORT int     unzSetOffset64(unzFile file, int64_t pos);
 ZEXPORT int     unzSetOffset(unzFile file, uint32_t pos);
+ZEXPORT int64_t unztell(unzFile file);
 ZEXPORT int32_t unzTell(unzFile file);
 ZEXPORT int64_t unzTell64(unzFile file);
 ZEXPORT int     unzSeek(unzFile file, int32_t offset, int origin);
@@ -311,22 +312,6 @@ ZEXPORT void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
-
-/***************************************************************************/
-
-#ifndef MZ_EXPORTS
-#  define unztell                 unzTell64
-#  define check_file_exists       mz_os_file_exists
-#  define dosdate_to_tm           mz_zip_dosdate_to_tm
-#  define change_file_date        mz_os_set_file_date
-#  define get_file_date           mz_os_get_file_date
-#  define is_large_file(x)        (mz_os_get_file_size(x) >= UINT32_MAX)
-#  define makedir                 mz_dir_make
-#  define get_file_crc(p,b,bs,rc) mz_file_get_crc(p,rc)
-
-#  define MKDIR                   mz_os_make_dir
-#  define CHDIR                   chdir
-#endif
 
 /***************************************************************************/
 
