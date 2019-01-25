@@ -143,6 +143,12 @@
 #define MZ_FREE(PTR)                    (free(PTR))
 #endif
 
+#if defined(_WINDOWS) && defined(MZ_EXPORTS)
+#define MZ_EXPORT __declspec(dllexport)
+#else
+#define MZ_EXPORT
+#endif
+
 /***************************************************************************/
 
 #include <stdlib.h> /* size_t, NULL, malloc */
