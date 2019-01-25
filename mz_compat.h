@@ -98,7 +98,7 @@ ZEXPORT zipFile zipOpen2(const char *path, int append, const char **globalcommen
     zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def);
-ZEXPORT zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
+        zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
 
 ZEXPORT int     zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
@@ -136,8 +136,8 @@ ZEXPORT int     zipCloseFileInZip64(zipFile file);
 ZEXPORT int     zipClose(zipFile file, const char *global_comment);
 ZEXPORT int     zipClose_64(zipFile file, const char *global_comment);
 ZEXPORT int     zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
-ZEXPORT int     zipClose_MZ(zipFile file, const char *global_comment);
-ZEXPORT int     zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
+        int     zipClose_MZ(zipFile file, const char *global_comment);
+        int     zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
 ZEXPORT void*   zipGetStream(zipFile file);
 
 /***************************************************************************/
@@ -240,10 +240,10 @@ ZEXPORT unzFile unzOpen(const char *path);
 ZEXPORT unzFile unzOpen64(const void *path);
 ZEXPORT unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
-ZEXPORT unzFile unzOpen_MZ(void *stream);
+        unzFile unzOpen_MZ(void *stream);
 
 ZEXPORT int     unzClose(unzFile file);
-ZEXPORT int     unzClose_MZ(unzFile file);
+        int     unzClose_MZ(unzFile file);
 
 ZEXPORT int     unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
 ZEXPORT int     unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
