@@ -567,7 +567,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     uint8_t *messages[1];
 
 
-    if (message == NULL || cert_data == NULL || cert_data_size == 0 || signature == NULL || signature_size == NULL)
+    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
     *signature = NULL;

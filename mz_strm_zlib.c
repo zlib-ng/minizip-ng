@@ -21,7 +21,7 @@
 
 /***************************************************************************/
 
-#if defined(ZLIBNG_VERNUM)
+#if defined(ZLIBNG_VERNUM) && !defined(ZLIB_COMPAT)
 #  define ZLIB_PREFIX(x) zng_ ## x
    typedef zng_stream zlib_stream;
 #else

@@ -26,7 +26,11 @@
 /* Define z_crc_t in zlib 1.2.5 and less or if using zlib-ng */
 
 #if defined(HAVE_ZLIB) && defined(ZLIBNG_VERNUM)
-#  define ZLIB_PREFIX(x) zng_ ## x
+#  if defined(ZLIB_COMPAT)
+#    define ZLIB_PREFIX(x) x
+#  else
+#    define ZLIB_PREFIX(x) zng_ ## x
+#  endif
    typedef uint32_t z_crc_t;
 #elif defined(HAVE_ZLIB)
 #  define ZLIB_PREFIX(x) x
