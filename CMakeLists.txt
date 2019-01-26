@@ -49,7 +49,7 @@ set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/minizip" CACHE PATH "I
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
-set(PROJECT_NAME libminizip)
+set(PROJECT_NAME minizip)
 
 # Ensure correct version of zlib is referenced
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -647,11 +647,12 @@ endif()
 
 # Build test executable
 if(MZ_BUILD_TEST)
-    add_executable(minizip "minizip.c" "test/test.c" "test/test.h")
-    target_link_libraries(minizip ${PROJECT_NAME})
+    add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
+    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    target_link_libraries(minizip_cmd ${PROJECT_NAME})
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-        install(TARGETS minizip RUNTIME DESTINATION "bin")
+        install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
 endif()
 
