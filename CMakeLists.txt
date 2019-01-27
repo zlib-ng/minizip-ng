@@ -6,6 +6,7 @@
 #***************************************************************************
 
 cmake_minimum_required(VERSION 3.0.2)
+
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
 option(MZ_COMPAT "Enables compatibility layer" ON)
@@ -22,6 +23,10 @@ option(MZ_DECOMPRESS_ONLY "Only support decompression" OFF)
 option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
+
+# MZ_ZLIB_ROOT - Parent directory of zlib installation
+# MZ_BZIP2_ROOT - Parent directory of BZip2 installation
+# MZ_OPENSSL_ROOT - Parent directory of OpenSSL installation
 
 project("minizip" C)
 
@@ -53,9 +58,9 @@ endif()
 
 set(PROJECT_NAME minizip)
 
-# Ensure correct version of zlib is referenced
+# Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
-    set(ZLIB_ROOT ${DEF_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
+    set(ZLIB_ROOT ${MZ_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
     find_package(ZLIB)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
@@ -97,18 +102,18 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         unset(CMAKE_ARGS)
         get_cmake_property(CACHE_VARS CACHE_VARIABLES)
         foreach(CACHE_VAR ${CACHE_VARS})
-          get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
-          if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
-            get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
-            if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
-              set(CACHE_VAR_TYPE)
-            else()
-              set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
+            get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
+            if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
+                get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
+                if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
+                    set(CACHE_VAR_TYPE)
+                else()
+                    set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
+                endif()
+                if (NOT CACHE_VAR MATCHES "^MZ_")
+                    list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
+                endif()
             endif()
-            if (NOT CACHE_VAR MATCHES "^MZ_")
-                list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
-            endif()
-          endif()
         endforeach()
 
         ExternalProject_Add(zlib
@@ -128,7 +133,7 @@ endif()
 
 # Check if bzip2 installation is present
 if(MZ_BZIP2)
-    set(BZIP2_ROOT ${DEF_BZIP2_ROOT} CACHE PATH "Parent directory of bzip2 installation")
+    set(BZIP2_ROOT ${MZ_BZIP2_ROOT} CACHE PATH "Parent directory of bzip2 installation")
     find_package(BZip2)
     if(BZIP2_FOUND)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
@@ -139,7 +144,7 @@ endif()
 
 # Check to see if openssl installation is present
 if (MZ_OPENSSL)
-    set(OPENSSL_ROOT ${DEF_OPENSSL_ROOT} CACHE PATH "Parent directory of openssl installation")
+    set(OPENSSL_ROOT ${MZ_OPENSSL_ROOT} CACHE PATH "Parent directory of openssl installation")
     find_package(OpenSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
