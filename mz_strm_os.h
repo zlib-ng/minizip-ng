@@ -1,5 +1,5 @@
 /* mz_sstrm_os.h -- Stream for filesystem access
-   Version 2.8.2, January 8, 2019
+   Version 2.8.3, January 26, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
