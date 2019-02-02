@@ -28,7 +28,7 @@ option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 # MZ_BZIP2_ROOT - Parent directory of BZip2 installation
 # MZ_OPENSSL_ROOT - Parent directory of OpenSSL installation
 
-project("minizip" C)
+enable_language(C)
 
 # Minizip library version
 set(VERSION "2.8.3")
@@ -55,8 +55,6 @@ set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
 if(EXISTS ${MINIZIP_PC}.cmakein)
     configure_file(${MINIZIP_PC}.cmakein ${MINIZIP_PC} @ONLY)
 endif()
-
-set(PROJECT_NAME minizip)
 
 # Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -85,7 +83,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
                     debug ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib
                     optimized ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib)
             else()
-                if(CMAKE_BUILD_TYPE EQUAL Debug)
+                if(CMAKE_BUILD_TYPE STREQUAL "Debug")
                     set(ZLIB_LIBRARIES
                         ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib)
                 else()
@@ -152,6 +150,67 @@ if (MZ_OPENSSL)
     endif()
 endif()
 
+# Enable compiler warnings
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    add_compile_options(/W3)
+else()
+    add_compile_options(-W -Wall)
+endif()
+
+# Check for system includes
+check_include_file(stdint.h   HAVE_STDINT_H)
+check_include_file(inttypes.h HAVE_INTTYPES_H)
+
+if(HAVE_STDINT_H)
+    add_definitions(-DHAVE_STDINT_H)
+endif()
+if(HAVE_INTTYPES_H)
+    add_definitions(-DHAVE_INTTYPES_H)
+endif()
+
+# Check for large file support
+check_type_size(off64_t OFF64_T)
+if(HAVE_OFF64_T)
+    add_definitions(-D__USE_FILE_OFFSET64)
+    add_definitions(-D__USE_LARGEFILE64)
+    add_definitions(-D_LARGEFILE64_SOURCE)
+    add_definitions(-D_FILE_OFFSET_BITS=64)
+endif()
+# Check for fseeko support
+check_function_exists(fseeko HAVE_FSEEKO)
+if(NOT HAVE_FSEEKO)
+    add_definitions(-DNO_FSEEKO)
+endif()
+
+# Enable x86 optimizations if supported
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        include(CheckCCompilerFlag)
+
+        macro(enable_option_if_supported option variable)
+            check_c_compiler_flag(
+                "-Werror=unused-command-line-argument ${option}" ${variable})
+            if(${variable})
+                add_compile_options(${option})
+            endif()
+        endmacro()
+
+        enable_option_if_supported(-msse3 check_opt_sse3)
+        enable_option_if_supported(-msse4.1 check_opt_sse41)
+        enable_option_if_supported(-maes check_opt_aes)
+    endif()
+
+    if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
+        add_compile_options(-O3)
+    endif()
+else()
+    if(MSVC)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+    endif()
+endif()
+
 # Initial source files
 set(MINIZIP_SRC
     mz_crypt.c
@@ -187,31 +246,6 @@ if(MZ_DECOMPRESS_ONLY)
 endif()
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
     add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
-endif()
-
-# Check for system includes
-check_include_file(stdint.h   HAVE_STDINT_H)
-check_include_file(inttypes.h HAVE_INTTYPES_H)
-
-if(HAVE_STDINT_H)
-    add_definitions(-DHAVE_STDINT_H)
-endif()
-if(HAVE_INTTYPES_H)
-    add_definitions(-DHAVE_INTTYPES_H)
-endif()
-
-# Check for large file support
-check_type_size(off64_t OFF64_T)
-if(HAVE_OFF64_T)
-    add_definitions(-D__USE_FILE_OFFSET64)
-    add_definitions(-D__USE_LARGEFILE64)
-    add_definitions(-D_LARGEFILE64_SOURCE)
-    add_definitions(-D_FILE_OFFSET_BITS=64)
-endif()
-# Check for fseeko support
-check_function_exists(fseeko HAVE_FSEEKO)
-if(NOT HAVE_FSEEKO)
-    add_definitions(-DNO_FSEEKO)
 endif()
 
 # Windows specific
@@ -280,7 +314,6 @@ if(UNIX)
         message(STATUS "Using Iconv")
         include_directories(${Iconv_INCLUDE_DIRS})
     endif()
-
 endif()
 
 # Include compatibility layer
@@ -551,43 +584,10 @@ if(MZ_LZMA)
     source_group("LZMA\\RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HEADERS})
 endif()
 
-# Enable x86 optimizations if supported
-if(CMAKE_BUILD_TYPE MATCHES Release)
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        include(CheckCCompilerFlag)
-
-        macro(enable_option_if_supported option variable)
-            check_c_compiler_flag("-Werror=unused-command-line-argument ${option}" ${variable})
-            if(${variable})
-                add_compile_options(${option})
-            endif()
-        endmacro()
-
-        enable_option_if_supported(-msse3 check_opt_sse3)
-        enable_option_if_supported(-msse4.1 check_opt_sse41)
-        enable_option_if_supported(-maes check_opt_aes)
-    endif()
-
-    if(NOT MSVC)
-        add_compile_options(-O3)
-    endif()
-else()
-    if(MSVC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
-    else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-    endif()
-endif()
-
-# Enable compiler warnings
-if(MSVC)
-    add_compile_options(/W3)
-else()
-    add_compile_options(-W -Wall)
-endif()
-
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
+
+project(minizip)
 
 add_library(${PROJECT_NAME}
                 ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
@@ -626,9 +626,12 @@ if(MZ_OPENSSL AND OPENSSL_FOUND)
     target_link_libraries(${PROJECT_NAME} ${OPENSSL_LIBRARIES})
 elseif(UNIX)
     if(APPLE AND NOT MZ_BRG)
+        message(STATUS "Using CoreFoundation Framework")
+        find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+        target_link_libraries(${PROJECT_NAME} ${COREFOUNDATION_LIBRARY})
         message(STATUS "Using Security Framework")
-        target_link_libraries(${PROJECT_NAME} "-framework CoreFoundation")
-        target_link_libraries(${PROJECT_NAME} "-framework Security")
+        find_library(SECURITY_LIBRARY Security)
+        target_link_libraries(${PROJECT_NAME} ${SECURITY_LIBRARY})
         set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
     else()
         target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
