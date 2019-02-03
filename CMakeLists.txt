@@ -78,19 +78,8 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL_DIR}/include)
 
         if(WIN32)
-            if(${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
-                set(ZLIB_LIBRARIES
-                    debug ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib
-                    optimized ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib)
-            else()
-                if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-                    set(ZLIB_LIBRARIES
-                        ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib)
-                else()
-                    set(ZLIB_LIBRARIES
-                        ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib)
-                endif()
-            endif()
+            set(ZLIB_LIBRARIES
+                ${ZLIB_INSTALL_DIR}/lib/zlibstatic$<$<CONFIG:Debug>:d>.lib)
         else()
             set(ZLIB_LIBRARIES
                 ${ZLIB_INSTALL_DIR}/lib/libz.a)
@@ -150,13 +139,6 @@ if (MZ_OPENSSL)
     endif()
 endif()
 
-# Enable compiler warnings
-if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    add_compile_options(/W3)
-else()
-    add_compile_options(-W -Wall)
-endif()
-
 # Check for system includes
 check_include_file(stdint.h   HAVE_STDINT_H)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
@@ -182,33 +164,33 @@ if(NOT HAVE_FSEEKO)
     add_definitions(-DNO_FSEEKO)
 endif()
 
-# Enable x86 optimizations if supported
-if(CMAKE_BUILD_TYPE MATCHES Release)
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        include(CheckCCompilerFlag)
-
-        macro(enable_option_if_supported option variable)
-            check_c_compiler_flag(
-                "-Werror=unused-command-line-argument ${option}" ${variable})
-            if(${variable})
-                add_compile_options(${option})
-            endif()
-        endmacro()
-
-        enable_option_if_supported(-msse3 check_opt_sse3)
-        enable_option_if_supported(-msse4.1 check_opt_sse41)
-        enable_option_if_supported(-maes check_opt_aes)
-    endif()
-
-    if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
-        add_compile_options(-O3)
-    endif()
+# Enable compiler warnings
+if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    add_compile_options(/W3)
 else()
-    if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
-    else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-    endif()
+    add_compile_options(-W -Wall)
+endif()
+# Enable x86 optimizations if supported
+if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    include(CheckCCompilerFlag)
+
+    macro(enable_option_if_supported option variable)
+        check_c_compiler_flag(
+            "-Werror=unused-command-line-argument ${option}" ${variable})
+        if(${variable})
+            add_compile_options("$<$<CONFIG:Release>:${option}>")
+            add_compile_options("$<$<CONFIG:RelWithDebInfo>:${option}>")
+            add_compile_options("$<$<CONFIG:MinRelSize>:${option}>")
+        endif()
+    endmacro()
+
+    enable_option_if_supported(-msse3 check_opt_sse3)
+    enable_option_if_supported(-msse4.1 check_opt_sse41)
+    enable_option_if_supported(-maes check_opt_aes)
+elseif(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    add_compile_options("$<$<CONFIG:Debug>:/Zi>")
+else()
+    add_compile_options("$<$<CONFIG:Debug>:-g> -O3")
 endif()
 
 # Initial source files
