@@ -194,9 +194,9 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     enable_option_if_supported(-msse4.1 check_opt_sse41)
     enable_option_if_supported(-maes check_opt_aes)
 endif()
-
+# Set compiler options
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    mz_add_compile_options(Debug /Zi /O0)
+    mz_add_compile_options(Debug /Zi /Od)
     mz_add_compile_options(Release /O3)
     mz_add_compile_options(RelWithDebInfo /O3)
     mz_add_compile_options(MinRelSize /Os)
