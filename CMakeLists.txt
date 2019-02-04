@@ -192,7 +192,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
     add_compile_options("$<$<CONFIG:Release>:/Ox /Os>")
 else()
     add_compile_options("$<$<CONFIG:Debug>:-g -O0>")
-    add_compile_options("$<$<CONFIG:Release>:-O3 -Os>")
+    add_compile_options("$<$<CONFIG:Release>:-Os>")
 endif()
 
 # Initial source files
