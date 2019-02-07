@@ -24,7 +24,9 @@ option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 
-cmake_policy(SET CMP0074 OLD)
+if(POLICY CMP0074)
+    cmake_policy(SET CMP0074 OLD) 
+endif()
 # ZLIB_ROOT - Parent directory of zlib installation
 # BZIP2_ROOT - Parent directory of BZip2 installation
 # OPENSSL_ROOT - Parent directory of OpenSSL installation
