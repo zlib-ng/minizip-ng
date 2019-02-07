@@ -24,9 +24,10 @@ option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 
-# MZ_ZLIB_ROOT - Parent directory of zlib installation
-# MZ_BZIP2_ROOT - Parent directory of BZip2 installation
-# MZ_OPENSSL_ROOT - Parent directory of OpenSSL installation
+cmake_policy(SET CMP0074 OLD)
+# ZLIB_ROOT - Parent directory of zlib installation
+# BZIP2_ROOT - Parent directory of BZip2 installation
+# OPENSSL_ROOT - Parent directory of OpenSSL installation
 
 enable_language(C)
 
@@ -58,7 +59,6 @@ endif()
 
 # Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
-    set(ZLIB_ROOT ${MZ_ZLIB_ROOT} CACHE PATH "Parent directory of zlib installation")
     find_package(ZLIB)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
@@ -120,7 +120,6 @@ endif()
 
 # Check if bzip2 installation is present
 if(MZ_BZIP2)
-    set(BZIP2_ROOT ${MZ_BZIP2_ROOT} CACHE PATH "Parent directory of bzip2 installation")
     find_package(BZip2)
     if(BZIP2_FOUND)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
@@ -131,7 +130,6 @@ endif()
 
 # Check to see if openssl installation is present
 if (MZ_OPENSSL)
-    set(OPENSSL_ROOT ${MZ_OPENSSL_ROOT} CACHE PATH "Parent directory of openssl installation")
     find_package(OpenSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
@@ -397,14 +395,6 @@ if(MZ_ZLIB)
 
         list(APPEND MINIZIP_SRC "mz_strm_zlib.c")
         list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_zlib.h")
-        
-        if (ZLIB_FOUND)
-            include(CheckFunctionExists)
-            check_function_exists(z_get_crc_table NEEDS_Z_PREFIX)
-            if(NEEDS_Z_PREFIX)
-                add_definitions(-DZ_PREFIX)
-            endif()
-        endif()
     endif()
 endif()
 
