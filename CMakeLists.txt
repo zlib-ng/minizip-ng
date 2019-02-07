@@ -188,11 +188,15 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 endif()
 # Set compiler options
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    add_compile_options("$<$<CONFIG:Debug>:/Zi /Od>")
-    add_compile_options("$<$<CONFIG:Release>:/Ox /Os>")
+    add_compile_options(
+        $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Release>:/Ox>
+        $<$<CONFIG:Release>:/Os>)
 else()
-    add_compile_options("$<$<CONFIG:Debug>:-g>")
-    add_compile_options("$<$<CONFIG:Release>:-Os>")
+    add_compile_options(
+        $<$<CONFIG:Debug>:-g>
+        $<$<CONFIG:Release>:-Os>)
 endif()
 
 # Initial source files
