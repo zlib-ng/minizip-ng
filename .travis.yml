@@ -20,11 +20,11 @@ matrix:
         file_glob: true
         file: minizip-$TRAVIS_OS_NAME.zip
         skip_cleanup: true
-        on:
-          tags: true
-     - stage: windows
-       os: windows
-       compiler: gcc
+        name: $TRAVIS_BRANCH-latest
+        tag_name: $TRAVIS_BRANCH-latest
+    - stage: windows
+      os: windows
+      compiler: gcc
     - stage: linux
       os: linux
       compiler: clang
