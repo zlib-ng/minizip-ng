@@ -875,6 +875,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir)
 
     err = mz_zip_reader_goto_first_entry(handle);
 
+    if (err == MZ_END_OF_LIST)
+        return err;
+
     while (err == MZ_OK)
     {
         /* Construct output path */
