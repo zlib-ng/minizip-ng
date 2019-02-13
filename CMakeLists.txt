@@ -579,9 +579,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         VERSION ${VERSION} 
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
-                        PREFIX ""
                         DEFINE_SYMBOL "MZ_EXPORTS"
                         POSITION_INDEPENDENT_CODE 1)
+
 if(MZ_LZMA)
     set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 endif()
