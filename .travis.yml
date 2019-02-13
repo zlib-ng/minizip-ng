@@ -1,72 +1,111 @@
 language: c
 
+stages:
+  - windows
+  - linux
+  - macintosh
+
 matrix:
-    include:
-        - os: windows
-          compiler: clang
-          env: BUILDDIR="..\build\Debug" 
-        - os: windows
-          compiler: gcc
-          env: BUILDDIR="..\build\Debug"
-        - os: linux
-          compiler: clang
-          env: BUILDDIR="../build" 
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_ZLIB=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_BZIP=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_LZMA=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_WZAES=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_PKCRYPT=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_COMPRESS_ONLY=ON" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_DECOMPRESS_ONLY=ON" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF" BUILDDIR="../build"
-        - os: linux
-          compiler: clang
-          env: TOOL="-DMZ_OPENSSL=ON" BUILDDIR="../build"
-        - os: linux
-          compiler: gcc
-          env: BUILDDIR="../build"
-        - os: osx
-          compiler: clang
-          env: BUILDDIR="../build"
-        - os: osx
-          compiler: gcc
-          env: BUILDDIR="../build"
-        - os: osx
-          compiler: clang
-          env: TOOL="-DMZ_LIBCOMP=ON" BUILDDIR="../build"
-        - os: osx
-          compiler: gcc
-          env: TOOL="-DMZ_LIBCOMP=ON" BUILDDIR="../build"
-        - os: osx
-          compiler: clang
-          env: TOOL="-DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib" BUILDDIR="../build"
+  include:
+    - stage: windows
+      os: windows
+      compiler: clang
+      before_deploy:
+        - cd Release
+        - 7z a -tzip minizip-$TRAVIS_OS_NAME.zip *minizip*
+      deploy: &deploy_base
+        provider: releases
+        api_key: 
+          secure: FJaUejGb9fRijDoIwLdaekcYRKCLVwyHJ2qv3kf6oaa5OTG9np73U3GYxImj20Z03GvsL2PIFJCKt3SbZ07prHL9Hf01llvH5RpbT29mepQiYbB9UZQKTh6syeHvYxWTMfw+lxMBs1QOnrYZtRzFeYQgnOSvLG2mudAnjxeBhH3duGnh9/uMW2+1UjNzld49HnR1F+AiVdZVAfKqwcZUsQENQ3svb4oNwMfAZrDMcfb5bO3aNat9EF5RBqOvtSFqrIGX6btsU/mh3acAoP2gcCjxmMcfCNlwaFYo8lcbNi4u0vW4nPUMXYfZCyc5KyIu/h/3Lu5ddVaw0ra51f25iT9e6hCBG9kBjk41Mu6AVKhebSvL2zd9/Q41BcVUbBxmGaDGORAJlCXNjqflVkAgYhRRjW5n//kN5TqObPqrIgTTbvhKTQYADQZ5Gza0zX0lZGlTZ9aT1r+gvSrX2T7DGnvz7zSKpGP4HIixPfaB9x+ZxAjohFhi47MLURtr1UhokvS3wonF5OR6dE/jHXdbS6Wi4GiHqKsWLC9a0iYrpkNZLp37byENCiOnZib/orOSerj2PgQFIGtfwt8osunxf6H1yI9A9VpysSsihmD65RvN3ii8HfTASU/K++VQdBvX7wjt2MP+KA59nKwGcobfSkB6nd7GYJhMgfOrsVfzJ4o=
+        file_glob: true
+        file: minizip-$TRAVIS_OS_NAME.zip
+        skip_cleanup: true
+        on:
+          tags: true
+     - stage: windows
+       os: windows
+       compiler: gcc
+    - stage: linux
+      os: linux
+      compiler: clang
+      before_deploy:
+        - ls *minizip* | tar -czvf minizip-$TRAVIS_OS_NAME.tar.gz -T -
+      deploy: &deploy_base
+        <<: *deploy_base
+        file: minizip-$TRAVIS_OS_NAME.tar.gz
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_ZLIB=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_BZIP=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_LZMA=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_WZAES=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_PKCRYPT=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_COMPRESS_ONLY=ON"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_DECOMPRESS_ONLY=ON"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF"
+    - stage: linux
+      os: linux
+      compiler: clang
+      env: TOOL="-DMZ_OPENSSL=ON"
+    - stage: linux
+      os: linux
+      compiler: gcc
+    - stage: macintosh
+      os: osx
+      compiler: clang
+      before_deploy:
+        - ls *minizip* | tar -czvf minizip-$TRAVIS_OS_NAME.tar.gz -T -
+      deploy: &deploy_base
+        <<: *deploy_base
+        file: minizip-$TRAVIS_OS_NAME.tar.gz
+    - stage: macintosh
+      os: osx
+      compiler: gcc
+    - stage: macintosh
+      os: osx
+      compiler: clang
+      env: TOOL="-DMZ_LIBCOMP=ON"
+    - stage: macintosh
+      os: osx
+      compiler: gcc
+      env: TOOL="-DMZ_LIBCOMP=ON"
+    - stage: macintosh
+      os: osx
+      compiler: clang
+      before_install:
+        - brew install openssl
+      env: TOOL="-DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib"
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libbsd-dev; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux"   ]]; then sudo apt-get install libssl-dev; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx"     ]]; then brew install openssl; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install libbsd-dev libssl-dev; fi
 
 before_script:
-    - mkdir build
-    - cd build
-    - cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON $TOOL 
+  - mkdir build
+  - cd build
+  - cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON -DCMAKE_BUILD_TYPE=Release $TOOL 
 
 script:
-    - cmake --build .
-    - ctest --output-on-failure -C Debug
+  - cmake --build . --config Release
+  - ctest --output-on-failure -C Release
