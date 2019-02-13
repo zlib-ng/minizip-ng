@@ -85,8 +85,8 @@ int32_t minizip_help(void)
            "  -z  Zip central directory\n" \
            "  -p  Encryption password\n" \
            "  -s  AES encryption\n" \
-           "  -h  Pkcs12 certificate path\n" \
-           "  -w  Pkcs12 certificate password\n" \
+           "  -h  PKCS12 certificate path\n" \
+           "  -w  PKCS12 certificate password\n" \
            "  -b  BZIP2 compression\n" \
            "  -m  LZMA compression\n\n");
     return MZ_OK;
@@ -110,7 +110,7 @@ int32_t minizip_list(const char *path)
     err = mz_zip_reader_open_file(reader, path);
     if (err != MZ_OK)
     {
-        printf("Error %"PRId32" opening zip file %s\n", err, path);
+        printf("Error %"PRId32" opening archive %s\n", err, path);
         mz_zip_reader_delete(&reader);
         return err;
     }
@@ -119,7 +119,7 @@ int32_t minizip_list(const char *path)
 
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
-        printf("Error %"PRId32" going to first entry in zip file\n", err);
+        printf("Error %"PRId32" going to first entry in archive\n", err);
         mz_zip_reader_delete(&reader);
         return err;
     }
@@ -127,14 +127,14 @@ int32_t minizip_list(const char *path)
     printf("      Packed     Unpacked Ratio Method   Attribs Date     Time  CRC-32     Name\n");
     printf("      ------     -------- ----- ------   ------- ----     ----  ------     ----\n");
 
-    /* Enumerate all entries in the zip */
+    /* Enumerate all entries in the archive */
     do
     {
         err = mz_zip_reader_entry_get_info(reader, &file_info);
 
         if (err != MZ_OK)
         {
-            printf("Error %"PRId32" getting entry info in zip file\n", err);
+            printf("Error %"PRId32" getting entry info in archive\n", err);
             break;
         }
 
@@ -190,7 +190,7 @@ int32_t minizip_list(const char *path)
 
         if (err != MZ_OK && err != MZ_END_OF_LIST)
         {
-            printf("Error %"PRId32" going to next entry in zip file\n", err);
+            printf("Error %"PRId32" going to next entry in archive\n", err);
             break;
         }
     }
@@ -306,21 +306,21 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
         {
             filename_in_zip = args[i];
 
-            /* Add file system path to zip */
+            /* Add file system path to archive */
             err = mz_zip_writer_add_path(writer, filename_in_zip, NULL, options->include_path, 1);
             if (err != MZ_OK)
-                printf("Error %"PRId32" adding path to zip %s\n", err, filename_in_zip);
+                printf("Error %"PRId32" adding path to archive %s\n", err, filename_in_zip);
         }
     }
     else
     {
-        printf("Error %"PRId32" opening zip for writing\n", err);
+        printf("Error %"PRId32" opening archive for writing\n", err);
     }
 
     err_close = mz_zip_writer_close(writer);
     if (err_close != MZ_OK)
     {
-        printf("Error %"PRId32" closing zip for writing %s\n", err_close, path);
+        printf("Error %"PRId32" closing archive for writing %s\n", err_close, path);
         err = err_close;
     }
 
@@ -417,23 +417,35 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
 
     if (err != MZ_OK)
     {
-        printf("Error %"PRId32" opening zip file %s\n", err, path);
+        printf("Error %"PRId32" opening archive %s\n", err, path);
     }
     else
     {
-        /* Save all entries in zip file to destination directory */
+        /* Save all entries in archive to destination directory */
         err = mz_zip_reader_save_all(reader, destination);
 
-        if (err == MZ_END_OF_LIST && pattern != NULL)
-            printf("Files matching %s not found in zip file\n", pattern);
-        if (err != MZ_OK)
-            printf("Error %"PRId32" saving zip entries to disk %s\n", err, path);
+        if (err == MZ_END_OF_LIST)
+        {
+            if (pattern != NULL)
+            {
+                printf("Files matching %s not found in archive\n", pattern);
+            }
+            else
+            {
+                printf("No files in archive\n");
+                err = MZ_OK;
+            }
+        }
+        else if (err != MZ_OK)
+        {
+            printf("Error %"PRId32" saving entries to disk %s\n", err, path);
+        }
     }
 
     err_close = mz_zip_reader_close(reader);
     if (err_close != MZ_OK)
     {
-        printf("Error %"PRId32" closing zip for reading\n", err_close);
+        printf("Error %"PRId32" closing archive for reading\n", err_close);
         err = err_close;
     }
 
@@ -469,20 +481,20 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     mz_zip_reader_create(&reader);
     mz_zip_writer_create(&writer);
 
-    /* Open original zip file we want to erase an entry in */
+    /* Open original archive we want to erase an entry in */
     err = mz_zip_reader_open_file(reader, src_path);
     if (err != MZ_OK)
     {
-        printf("Error %"PRId32" opening zip for reading %s\n", err, src_path);
+        printf("Error %"PRId32" opening archive for reading %s\n", err, src_path);
         mz_zip_reader_delete(&reader);
         return err;
     }
 
-    /* Open temporary zip file */
+    /* Open temporary archive */
     err = mz_zip_writer_open_file(writer, target_path_ptr, 0, 0);
     if (err != MZ_OK)
     {
-        printf("Error %"PRId32" opening zip for writing %s\n", err, target_path_ptr);
+        printf("Error %"PRId32" opening archive for writing %s\n", err, target_path_ptr);
         mz_zip_reader_delete(&reader);
         mz_zip_writer_delete(&writer);
         return err;
@@ -491,18 +503,18 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     err = mz_zip_reader_goto_first_entry(reader);
 
     if (err != MZ_OK && err != MZ_END_OF_LIST)
-        printf("Error %"PRId32" going to first entry in zip file\n", err);
+        printf("Error %"PRId32" going to first entry in archive\n", err);
 
     while (err == MZ_OK)
     {
         err = mz_zip_reader_entry_get_info(reader, &file_info);
         if (err != MZ_OK)
         {
-            printf("Error %"PRId32" getting info from zip\n", err);
+            printf("Error %"PRId32" getting info from archive\n", err);
             break;
         }
 
-        /* Copy all entries from original zip file to temporary zip file
+        /* Copy all entries from original archive to temporary archive
            except the ones we don't want */
         for (i = 0, skip = 0; i < arg_count; i += 1)
         {
@@ -531,7 +543,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
         err = mz_zip_reader_goto_next_entry(reader);
 
         if (err != MZ_OK && err != MZ_END_OF_LIST)
-            printf("Error %"PRId32" going to next entry in zip file\n", err);
+            printf("Error %"PRId32" going to next entry in archive\n", err);
     }
 
     mz_zip_reader_get_zip_cd(reader, &zip_cd);
@@ -547,7 +559,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     {
         if (target_path == NULL)
         {
-            /* Swap original zip with temporary zip, backup old zip if possible */
+            /* Swap original archive with temporary archive, backup old archive if possible */
             strncpy(bak_path, src_path, sizeof(bak_path) - 1);
             bak_path[sizeof(bak_path) - 1] = 0;
             strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
@@ -556,10 +568,10 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
                 mz_os_delete(bak_path);
 
             if (mz_os_rename(src_path, bak_path) != MZ_OK)
-                printf("Error backing up zip before replacing %s\n", bak_path);
+                printf("Error backing up archive before replacing %s\n", bak_path);
 
             if (mz_os_rename(tmp_path, src_path) != MZ_OK)
-                printf("Error replacing zip with temp %s\n", tmp_path);
+                printf("Error replacing archive with temp %s\n", tmp_path);
         }
 
         return MZ_OK;
@@ -715,7 +727,7 @@ int main(int argc, const char *argv[])
 
     if (do_list)
     {
-        /* List zip file contents */
+        /* List archive contents */
         err = minizip_list(path);
     }
     else if (do_extract)
@@ -723,17 +735,17 @@ int main(int argc, const char *argv[])
         if (argc > path_arg + 1)
             filename_to_extract = argv[path_arg + 1];
 
-        /* Extract zip file*/
+        /* Extract archive */
         err = minizip_extract(path, filename_to_extract, destination, password, &options);
     }
     else if (do_erase)
     {
-        /* Erase file from zip */
+        /* Erase file in archive */
         err = minizip_erase(path, NULL, argc - (path_arg + 1), &argv[path_arg + 1]);
     }
     else
     {
-        /* Add files to zip */
+        /* Add files to archive */
         err = minizip_add(path, password, &options, argc - (path_arg + 1), &argv[path_arg + 1]);
     }
 
