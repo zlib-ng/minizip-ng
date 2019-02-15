@@ -33,6 +33,8 @@ matrix:
       deploy: &deploy_base
         <<: *deploy_base
         file: minizip-$TRAVIS_OS_NAME.tar.gz
+        on:
+          tags: true
     - stage: linux
       os: linux
       compiler: clang
@@ -80,6 +82,8 @@ matrix:
       deploy: &deploy_base
         <<: *deploy_base
         file: minizip-$TRAVIS_OS_NAME.tar.gz
+        on:
+          tags: true
     - stage: macintosh
       os: osx
       compiler: gcc
