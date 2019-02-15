@@ -20,8 +20,8 @@ matrix:
         file_glob: true
         file: minizip-$TRAVIS_OS_NAME.zip
         skip_cleanup: true
-        name: $TRAVIS_BRANCH-latest
-        tag_name: $TRAVIS_BRANCH-latest
+        on:
+          tags: true
     - stage: windows
       os: windows
       compiler: gcc
