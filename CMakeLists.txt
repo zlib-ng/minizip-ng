@@ -55,8 +55,8 @@ set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" CACHE PATH "I
 set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/minizip" CACHE PATH "Installation directory for cmake files.")
 
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
-if(EXISTS ${MINIZIP_PC}.cmakein)
-    configure_file(${MINIZIP_PC}.cmakein ${MINIZIP_PC} @ONLY)
+if(EXISTS minizip.pc.cmakein)
+    configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 endif()
 
 # Check if zlib installation is present
