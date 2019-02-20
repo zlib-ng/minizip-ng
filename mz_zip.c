@@ -1744,7 +1744,12 @@ static int32_t mz_zip_seek_to_local_header(void *handle)
     
     mz_zip_print("Zip - Entry - Seek local (disk %"PRId32" offset %"PRId64")\n", 
         zip->file_info.disk_number, zip->file_info.disk_offset);
-  
+
+    /* Guard against seek overflows */
+    if ((zip->disk_offset_shift > 0) &&
+        (zip->file_info.disk_offset > (INT64_MAX - zip->disk_offset_shift)))
+        return MZ_FORMAT_ERROR;
+
     return mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
 }
 
