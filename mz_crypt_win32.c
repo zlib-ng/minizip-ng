@@ -514,7 +514,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle)
     if (target->hash)
     {
         CryptDestroyHash(target->hash);
-        target->hash = NULL;
+        target->hash = 0;
     }
 
     result = CryptDuplicateHash(source->hash, NULL, 0, &target->hash);
