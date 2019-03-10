@@ -351,16 +351,17 @@ int32_t mz_os_make_dir(const char *path)
 
     if (path == NULL)
         return MZ_PARAM_ERROR;
+
+    /* Don't try to create a drive letter */
+    if ((path[0] != 0) && (strlen(path) <= 3) && (path[1] == ':'))
+        return mz_os_is_dir(path);
+
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
     if (CreateDirectoryW(path_wide, NULL) == 0)
     {
-        /* Skip the drive letter when creating a directory recursively */
-        if ((wcslen(path_wide) == 2) && (path_wide[1] == L':'))
-            err = MZ_OK;
-
         if (GetLastError() != ERROR_ALREADY_EXISTS)
             err = MZ_INTERNAL_ERROR;
     }
