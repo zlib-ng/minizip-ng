@@ -1,4 +1,4 @@
-# minizip 2.8.4
+# minizip 2.8.5
 
 minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux. 
 
