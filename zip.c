@@ -1903,7 +1903,7 @@ extern int ZEXPORT zipClose2_64(zipFile file, const char *global_comment, uint16
     pos = centraldir_pos_inzip - zi->add_position_when_writting_offset;
 
     /* Write the ZIP64 central directory header */
-    if (pos >= UINT32_MAX || zi->number_entry > UINT32_MAX)
+    if (pos >= UINT32_MAX || zi->number_entry > UINT16_MAX)
     {
         uint64_t zip64_eocd_pos_inzip = ZTELL64(zi->z_filefunc, zi->filestream);
         uint32_t zip64_datasize = 44;
