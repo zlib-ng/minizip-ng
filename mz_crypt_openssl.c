@@ -307,7 +307,7 @@ void mz_crypt_aes_delete(void **handle)
 
 /***************************************************************************/
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined (LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined(LIBRESSL_VERSION_NUMBER)
 static HMAC_CTX *HMAC_CTX_new(void)
 {
     HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
@@ -318,12 +318,15 @@ static HMAC_CTX *HMAC_CTX_new(void)
 
 static void HMAC_CTX_free(HMAC_CTX *ctx)
 {
-    if (ctx != NULL) {
+    if (ctx != NULL)
+    {
         HMAC_CTX_cleanup(ctx);
         OPENSSL_free(ctx);
     }
 }
 #endif
+
+/***************************************************************************/
 
 typedef struct mz_crypt_hmac_s {
     HMAC_CTX*  ctx;
