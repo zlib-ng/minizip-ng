@@ -1124,7 +1124,7 @@ static int32_t mz_zip_writer_open_int(void *handle, void *stream, int32_t mode)
 
 int32_t mz_zip_writer_open(void *handle, void *stream)
 {
-    return mz_zip_writer_open_int(handle, stream, 0);
+    return mz_zip_writer_open_int(handle, stream, MZ_OPEN_MODE_WRITE);
 }
 
 int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_size, uint8_t append)
