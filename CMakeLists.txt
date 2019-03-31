@@ -129,11 +129,15 @@ if(MZ_BZIP2)
 endif()
 
 # Check to see if openssl installation is present
-if (MZ_OPENSSL)
+if(MZ_OPENSSL)
     find_package(OpenSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
-        include_directories(${OPENSSL_INCLUDE_DIRS})
+
+        include_directories(${OPENSSL_INCLUDE_DIR})
+        if(OPENSSL_INCLUDE_DIRS)
+            include_directories(${OPENSSL_INCLUDE_DIRS})
+        endif()
     endif()
 endif()
 
