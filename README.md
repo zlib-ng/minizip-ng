@@ -18,15 +18,13 @@ Maintained by Nathan Moinvaziri.
 
 ## History
 
-Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) and 
-had been contributed to by many people. As part of the zlib distribution, Mark Adler still maintains the
-original [minizip](https://github.com/madler/zlib/tree/master/contrib/minizip) project which is included in this repository as a reference.
+Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) in 1998. It was first included in the zlib distribution as an additional code contribution starting in zlib 1.1.2. Since that time, it has been continually improved upon and contributed to by many people. The original [project](https://github.com/madler/zlib/tree/master/contrib/minizip) can still be found in the zlib distribution that is maintained by Mark Adler. 
 
-My work with the minizip library began in 2006 when I started submitting bugs I found to 
-Gilles Vollant. In 2010, I implemented some additional features like WinZip AES encryption, disk splitting, and 
-I/O buffering that were necessary for another project I was working on. Shortly after, I created this public repository 
-so I could share these and other improvements with the rest of the world. I have been maintaining and actively 
-developing this code base ever since. At the beginning of 2017, I began the work to refactor and rewrite 
+My work with the minizip library started in 2006 when I fixed a few bugs I found and submitted them to 
+Gilles Vollant. In 2010, I implemented WinZip AES encryption, disk splitting, and 
+I/O buffering that were necessary for another project I was working on. Around that time I created this public repository 
+so I could share my improvements with the community. I have been maintaining and actively 
+developing this code base since that time. At the beginning of 2017, I began the work to refactor and rewrite 
 the library as version 2 because it had become difficult to maintain and code readability suffered over the years.
 
 ## Features
@@ -119,8 +117,8 @@ cmake --build .
 
 ## Acknowledgments
 
-Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
+Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been as good without you.
 
-Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been nearly as good without you.
+Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
 
 The [ZIP format](https://github.com/nmoinvaz/minizip/blob/master/doc/appnote.txt) was defined by Phil Katz of PKWARE.
