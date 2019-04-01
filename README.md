@@ -23,8 +23,7 @@ Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zL
 My work with the minizip library started in 2006 when I fixed a few bugs I found and submitted them to 
 Gilles Vollant. In 2010, I implemented WinZip AES encryption, disk splitting, and 
 I/O buffering that were necessary for another project I was working on. Around that time I created this public repository 
-so I could share my improvements with the community. I have been maintaining and actively 
-developing this code base since that time. At the beginning of 2017, I began the work to refactor and rewrite 
+so I could share my improvements with the community. At the beginning of 2017, I began the work to refactor and rewrite 
 the library as version 2 because it had become difficult to maintain and code readability suffered over the years.
 
 ## Features
