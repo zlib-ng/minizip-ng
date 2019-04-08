@@ -1,5 +1,5 @@
 /* mz_strm_buf.c -- Stream for buffering reads/writes
-   Version 2.8.5, March 17, 2019
+   Version 2.8.6, April 8, 2019
    part of the MiniZip project
 
    This version of ioapi is designed to buffer IO.

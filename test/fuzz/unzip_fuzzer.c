@@ -1,5 +1,5 @@
 /* unzip_fuzzer.c - Unzip fuzzer for libFuzzer
-   Version 2.8.5, March 17, 2019
+   Version 2.8.6, April 8, 2019
    part of the MiniZip project
 
    Copyright (C) 2018 The Chromium Authors
