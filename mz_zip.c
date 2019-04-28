@@ -46,10 +46,9 @@
 #include <stdio.h> /* snprintf */
 
 #if defined(_MSC_VER)
+#  define localtime_r(t1,t2) localtime_s(t2,t1)
 #  if (_MSC_VER < 1900)
 #    define snprintf _snprintf
-#  else 
-#    define localtime_r(t1,t2) localtime_s(t2,t1)
 #  endif 
 #endif
 
@@ -2574,14 +2573,16 @@ time_t mz_zip_dosdate_to_time_t(uint64_t dos_date)
 
 int32_t mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm)
 {
+    struct tm ltm;
     if (ptm == NULL)
         return MZ_PARAM_ERROR;
-    if (localtime_r(&unix_time, ptm) == 0)  /* Returns a 1900-based year */
+    if (localtime_r(&unix_time, &ltm) == 0)  /* Returns a 1900-based year */
     {
         /* Invalid date stored, so don't return it */
         memset(ptm, 0, sizeof(struct tm));
         return MZ_INTERNAL_ERROR;
     }
+    memcpy(ptm, &ltm, sizeof(struct tm));
     return MZ_OK;
 }
 
