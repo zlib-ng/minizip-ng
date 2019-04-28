@@ -16,7 +16,6 @@
 #include "common.h"
 
 
-// FIXME: Might become a part of the public API.
 extern uint64_t lzma_mt_block_size(const lzma_filter *filters);
 
 

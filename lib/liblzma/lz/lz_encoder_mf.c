@@ -24,7 +24,6 @@ lzma_mf_find(lzma_mf *mf, uint32_t *count_ptr, lzma_match *matches)
 {
 	// Call the match finder. It returns the number of length-distance
 	// pairs found.
-	// FIXME: Minimum count is zero, what _exactly_ is the maximum?
 	const uint32_t count = mf->find(mf, matches);
 
 	// Length of the longest match; assume that no matches were found
