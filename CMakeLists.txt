@@ -240,7 +240,6 @@ endif()
 
 # Windows specific
 if(WIN32)
-    set(CMAKE_DEBUG_POSTFIX "d")
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
