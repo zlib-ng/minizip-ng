@@ -640,7 +640,7 @@ if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
     install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
 endif()
 
-# Build test executable
+# Build test executables
 if(MZ_BUILD_TEST)
     add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
     set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
@@ -648,6 +648,14 @@ if(MZ_BUILD_TEST)
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
+    endif()
+
+    add_executable(minigzip_cmd "minigzip.c")
+    set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
+    target_link_libraries(minigzip_cmd ${PROJECT_NAME})
+
+    if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
+        install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
     endif()
 endif()
 
