@@ -97,6 +97,7 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
         {
             if (operation == MZ_GZIP_COMPRESS)
             {
+                mz_stream_zlib_set_prop_int64(zlib_stream, MZ_STREAM_PROP_COMPRESS_LEVEL, level);
                 mz_stream_zlib_open(zlib_stream, target_path, MZ_OPEN_MODE_WRITE);
                 mz_stream_set_base(zlib_stream, target_stream);
                 err = mz_stream_copy_to_end(zlib_stream, source_stream);
