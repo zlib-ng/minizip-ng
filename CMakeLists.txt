@@ -648,8 +648,8 @@ if(MZ_BUILD_TEST)
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
-    
-    if(MZ_ZLIB)
+
+    if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
