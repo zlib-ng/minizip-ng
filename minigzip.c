@@ -54,9 +54,11 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
     void *source_stream = NULL;
     void *zlib_stream = NULL;
     const char *filename = NULL;
-    char target_path[1024] = { 0 };
+    char target_path[1024];
     int32_t err = 0;
 
+
+    memset(target_path, 0, sizeof(target_path));
 
     if (destination != NULL)
     {
