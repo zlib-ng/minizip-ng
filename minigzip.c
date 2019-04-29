@@ -64,22 +64,23 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
     {
         if (mz_os_file_exists(destination) != MZ_OK)
             mz_dir_make(destination);
-        mz_path_combine(target_path, destination, sizeof(target_path));
-        mz_path_get_filename(path, &filename);
-        mz_path_combine(target_path, filename, sizeof(target_path));
-    }
-    else
-    {
-        mz_path_combine(target_path, path, sizeof(target_path));
     }
 
     if (operation == MZ_GZIP_COMPRESS)
     {
+        mz_path_combine(target_path, path, sizeof(target_path));
         strncat(target_path, ".gz", sizeof(target_path) - strlen(target_path) - 1);
         printf("Compressing to %s\n", target_path);
     }
     else if (operation == MZ_GZIP_DECOMPRESS)
     {
+        if (destination != NULL)
+            mz_path_combine(target_path, destination, sizeof(target_path));
+
+        if (mz_path_get_filename(path, &filename) != MZ_OK)
+            filename = path;
+
+        mz_path_combine(target_path, filename, sizeof(target_path));
         mz_path_remove_extension(target_path);
         printf("Decompressing to %s\n", target_path);
     }
