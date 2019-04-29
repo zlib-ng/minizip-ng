@@ -737,20 +737,8 @@ if(MZ_BUILD_UNIT_TEST)
     endif()
 
     # Perform tests on others
-    if(NOT MZ_DECOMPRESS_ONLY)
-        if(MZ_ZLIB AND NOT MZ_LIBCOMP)
-            add_test(NAME gz
-                COMMAND minigzip_cmd random.bin
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-        endif()
-    endif()
     if(NOT MZ_COMPRESS_ONLY)
         if(MZ_ZLIB)
-            if(NOT MZ_LIBCOMP)
-                add_test(NAME ungz
-                    COMMAND minigzip_cmd -x -d out random.bin.gz
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
-            endif()
             add_test(NAME unzip-tiny
                      COMMAND minizip_cmd -x -o ${EXTRA_ARGS} -d out
                         fuzz/unzip_fuzzer_seed_corpus/tiny.zip
@@ -779,6 +767,16 @@ if(MZ_BUILD_UNIT_TEST)
                      COMMAND minizip_cmd -x -o ${EXTRA_ARGS} -d out -p test123
                         fuzz/unzip_fuzzer_seed_corpus/encrypted_wzaes.zip
                      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+        endif()
+    endif()
+    if(NOT MZ_COMPRESS_ONLY AND NOT MZ_DECOMPRESS_ONLY)
+        if(MZ_ZLIB AND NOT MZ_LIBCOMP)
+            add_test(NAME gz
+                COMMAND minigzip_cmd random.bin
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+            add_test(NAME ungz
+                COMMAND minigzip_cmd -x -d out random.bin.gz
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
         endif()
     endif()
 endif()
