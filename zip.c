@@ -1512,7 +1512,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
             if ((zi->ci.compression_method == Z_DEFLATED) && (!zi->ci.raw))
             {
 #ifdef HAVE_APPLE_COMPRESSION
-                uLong total_out_before = zi->ci.stream.total_out;
+                uint32_t total_out_before = (uint32_t)zi->ci.stream.total_out;
 
                 zi->ci.astream.src_ptr = zi->ci.stream.next_in;
                 zi->ci.astream.src_size = zi->ci.stream.avail_in;
@@ -1524,7 +1524,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void *buf, uint32_t l
 
                 status = compression_stream_process(&zi->ci.astream, flags);
 
-                uLong total_out_after = len - zi->ci.astream.src_size;
+                uint32_t total_out_after = len - zi->ci.astream.src_size;
 
                 zi->ci.stream.next_in = zi->ci.astream.src_ptr;
                 zi->ci.stream.avail_in = zi->ci.astream.src_size;
