@@ -261,7 +261,7 @@ if(UNIX)
     if ((MZ_PKCRYPT OR MZ_WZAES) AND NOT (MZ_OPENSSL AND OPENSSL_FOUND))
 
         if (APPLE AND NOT MZ_BRG)
-            check_include_files(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
+            check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
             if (COMMONCRYPTO_FOUND)
                 list(APPEND MINIZIP_SRC "mz_crypt_apple.c")
             else()
