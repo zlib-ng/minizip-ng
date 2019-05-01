@@ -1769,8 +1769,6 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
         return MZ_PARAM_ERROR;
     if (zip->entry_scanned == 0)
         return MZ_PARAM_ERROR;
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (password == NULL) && (!raw))
-        return MZ_PARAM_ERROR;
 
     mz_zip_print("Zip - Entry - Read open (raw %"PRId32")\n", raw);
 
