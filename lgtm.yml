@@ -1,0 +1,3 @@
+queries:
+ - exclude: 
+    tags: external/cwe/cwe-546
