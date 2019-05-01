@@ -35,7 +35,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 {
     iconv_t cd;
     const char *from_encoding = NULL;
-    int32_t result = 0;
+    size_t result = 0;
     size_t string_length = 0;
     size_t string_utf8_size = 0;
     uint8_t *string_utf8 = NULL;
@@ -72,11 +72,11 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 
         result = iconv(cd, (char **)&string, &string_length,
                 (char **)&string_utf8_ptr, &string_utf8_size);
-
-        iconv_close(cd);
     }
 
-    if (result == -1)
+    iconv_close(cd);
+
+    if (result == (size_t)-1)
     {
         MZ_FREE(string_utf8);
         string_utf8 = NULL;
