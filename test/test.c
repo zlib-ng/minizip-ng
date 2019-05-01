@@ -606,7 +606,7 @@ void test_crypt_aes(void)
     key_length = strlen(key);
     test_length = strlen(test);
 
-    strncpy((char *)buf, test, test_length);
+    strncpy((char *)buf, test, sizeof(buf));
 
     printf("Aes input hex\n");
     for (i = 0; i < test_length; i += 1)
