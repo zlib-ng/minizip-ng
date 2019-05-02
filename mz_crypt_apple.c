@@ -16,7 +16,6 @@
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonDigest.h>
 #include <CommonCrypto/CommonHMAC.h>
-#include <CommonCrypto/CommonRandom.h>
 #include <Security/Security.h>
 #include <Security/SecPolicy.h>
 
@@ -24,7 +23,7 @@
 
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size)
 {
-    if (CCRandomGenerateBytes(buf, size) != kCCSuccess)
+    if (SecRandomCopyBytes(kSecRandomDefault, size, buf) != errSecSuccess)
         return 0;
     return size;
 }
