@@ -336,6 +336,10 @@ if(MZ_COMPAT)
     string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
     file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
     list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
+
+    if(MZ_COMPAT_VERSION)
+        add_definitions(-DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
+    endif()
 endif()
 
 # Include PKCRYPT

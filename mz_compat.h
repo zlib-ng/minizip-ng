@@ -66,9 +66,15 @@ typedef uint64_t ZPOS64_T;
 
 /***************************************************************************/
 
+#if MZ_COMPAT_VERSION <= 110
+#define mz_dos_date dosDate
+#else
+#define mz_dos_date dos_date
+#endif
+
 typedef struct
 {
-    uint32_t    dosDate;
+    uint32_t    mz_dos_date;
     struct tm   tmz_date;
     uint16_t    internal_fa;        /* internal file attributes        2 bytes */
     uint32_t    external_fa;        /* external file attributes        4 bytes */
@@ -185,7 +191,7 @@ typedef struct unz_file_info64_s
     uint16_t version_needed;        /* version needed to extract       2 bytes */
     uint16_t flag;                  /* general purpose bit flag        2 bytes */
     uint16_t compression_method;    /* compression method              2 bytes */
-    uint32_t dosDate;               /* last mod file date in Dos fmt   4 bytes */
+    uint32_t mz_dos_date;           /* last mod file date in Dos fmt   4 bytes */
     struct tm tmu_date;
     uint32_t crc;                   /* crc-32                          4 bytes */
     uint64_t compressed_size;       /* compressed size                 8 bytes */
@@ -209,7 +215,7 @@ typedef struct unz_file_info_s
     uint16_t version_needed;        /* version needed to extract       2 bytes */
     uint16_t flag;                  /* general purpose bit flag        2 bytes */
     uint16_t compression_method;    /* compression method              2 bytes */
-    uint32_t dosDate;               /* last mod file date in Dos fmt   4 bytes */
+    uint32_t mz_dos_date;           /* last mod file date in Dos fmt   4 bytes */
     struct tm tmu_date;
     uint32_t crc;                   /* crc-32                          4 bytes */
     uint32_t compressed_size;       /* compressed size                 4 bytes */
