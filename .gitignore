@@ -1,0 +1,9 @@
+# cmake generated folders
+Debug/
+CMakeFiles/
+CMakeScripts/
+minizip.build/
+minizip.xcodeproj/
+
+# JetBrains editors
+.idea/
