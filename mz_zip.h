@@ -124,6 +124,9 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 int32_t mz_zip_entry_is_dir(void *handle);
 /* Checks to see if the entry is a directory */
 
+int32_t mz_zip_entry_is_symlink(void *handle);
+/* Checks to see if the entry is a symbolic link */
+
 int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info);
 /* Get info about the current file, only valid while current entry is open */
 
@@ -178,6 +181,9 @@ int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_ent
 
 int32_t mz_zip_attrib_is_dir(uint32_t attrib, int32_t version_madeby);
 /* Checks to see if the attribute is a directory based on platform */
+
+int32_t mz_zip_attrib_is_symlink(uint32_t attrib, int32_t version_madeby);
+/* Checks to see if the attribute is a symbolic link based on platform */
 
 int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, 
     uint32_t *target_attrib);

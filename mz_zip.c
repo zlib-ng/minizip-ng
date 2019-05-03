@@ -2125,6 +2125,19 @@ int32_t mz_zip_entry_is_dir(void *handle)
     return MZ_EXIST_ERROR;
 }
 
+int32_t mz_zip_entry_is_symlink(void *handle)
+{
+    mz_zip *zip = (mz_zip *)handle;
+
+    if (zip == NULL)
+        return MZ_PARAM_ERROR;
+    if (zip->entry_scanned == 0)
+        return MZ_PARAM_ERROR;
+    if (mz_zip_attrib_is_symlink(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK)
+        return MZ_OK;
+    return MZ_EXIST_ERROR;
+}
+
 int32_t mz_zip_entry_get_info(void *handle, mz_zip_file **file_info)
 {
     mz_zip *zip = (mz_zip *)handle;
@@ -2377,6 +2390,22 @@ int32_t mz_zip_attrib_is_dir(uint32_t attrib, int32_t version_madeby)
     return MZ_EXIST_ERROR;
 }
 
+int32_t mz_zip_attrib_is_symlink(uint32_t attrib, int32_t version_madeby)
+{
+    uint32_t posix_attrib = 0;
+    uint8_t system = MZ_HOST_SYSTEM(version_madeby);
+    int32_t err = MZ_OK;
+
+    err = mz_zip_attrib_convert(system, attrib, MZ_HOST_SYSTEM_UNIX, &posix_attrib);
+    if (err == MZ_OK)
+    {
+        if ((posix_attrib & 0170000) == 0120000) /* S_ISLNK */
+            return MZ_OK;
+    }
+
+    return MZ_EXIST_ERROR;
+}
+
 int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t target_sys, uint32_t *target_attrib)
 {
     if (target_attrib == NULL)
@@ -2422,6 +2451,9 @@ int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attr
     /* S_IWUSR | S_IWGRP | S_IWOTH | S_IXUSR | S_IXGRP | S_IXOTH */
     if ((posix_attrib & 0000333) == 0 && (posix_attrib & 0000444) != 0)
         *win32_attrib |= 0x01;      /* FILE_ATTRIBUTE_READONLY */
+    /* S_IFLNK */
+    if ((posix_attrib & 0170000) == 0120000)
+        *win32_attrib |= 0x400;     /* FILE_ATTRIBUTE_REPARSE_POINT */
     /* S_IFDIR */
     if ((posix_attrib & 0170000) == 0040000)
         *win32_attrib |= 0x10;      /* FILE_ATTRIBUTE_DIRECTORY */
@@ -2441,8 +2473,11 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
     /* FILE_ATTRIBUTE_READONLY */
     if ((win32_attrib & 0x01) == 0)
         *posix_attrib |= 0000222;   /* S_IWUSR | S_IWGRP | S_IWOTH */
+    /* FILE_ATTRIBUTE_REPARSE_POINT */
+    if ((win32_attrib & 0x400) == 0x400)
+        *posix_attrib |= 0120000;   /* S_IFLNK */
     /* FILE_ATTRIBUTE_DIRECTORY */
-    if ((win32_attrib & 0x10) == 0x10)
+    else if ((win32_attrib & 0x10) == 0x10)
         *posix_attrib |= 0040111;   /* S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH */
     else
         *posix_attrib |= 0100000;   /* S_IFREG */

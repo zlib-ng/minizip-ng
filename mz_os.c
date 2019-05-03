@@ -37,11 +37,34 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     }
     else
     {
-        if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
-            strncat(path, "/", max_path - path_len - 1);
+        mz_path_append_slash(path, max_path);
         strncat(path, join, max_path - path_len);
     }
 
+    return MZ_OK;
+}
+
+int32_t mz_path_append_slash(char *path, int32_t max_path)
+{
+    int32_t path_len = (int32_t)strlen(path);
+    if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
+        strncat(path, "/", max_path - path_len - 1);
+    return MZ_OK;
+}
+
+int32_t mz_path_remove_slash(char *path)
+{   
+    int32_t path_len = (int32_t)strlen(path);
+    if (path[path_len - 1] == '\\' && path[path_len - 1] == '/')
+        path[path_len - 1] = 0;
+    return MZ_OK;
+}
+
+int32_t mz_path_has_slash(const char *path)
+{
+    int32_t path_len = (int32_t)strlen(path);
+    if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
+        return MZ_EXIST_ERROR;
     return MZ_OK;
 }
 

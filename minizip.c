@@ -564,7 +564,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
             strncat(bak_path, ".bak", sizeof(bak_path) - strlen(bak_path) - 1);
 
             if (mz_os_file_exists(bak_path) == MZ_OK)
-                mz_os_delete(bak_path);
+                mz_os_unlink(bak_path);
 
             if (mz_os_rename(src_path, bak_path) != MZ_OK)
                 printf("Error backing up archive before replacing %s\n", bak_path);

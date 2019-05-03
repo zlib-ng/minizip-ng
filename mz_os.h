@@ -56,6 +56,15 @@ typedef void* DIR;
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
 /* Combines two paths */
 
+int32_t mz_path_append_slash(char *path, int32_t max_path);
+/* Appends a path slash to the path */
+
+int32_t mz_path_remove_slash(char *path);
+/* Removes a path slash from the end of the path */
+
+int32_t mz_path_has_slash(const char *path);
+/* Returns whether or not the path ends with slash */
+
 int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignore_case);
 /* Compare two paths with wildcard */
 
@@ -98,7 +107,7 @@ int32_t  mz_os_rand(uint8_t *buf, int32_t size);
 int32_t  mz_os_rename(const char *source_path, const char *target_path);
 /* Rename a file */
 
-int32_t  mz_os_delete(const char *path);
+int32_t  mz_os_unlink(const char *path);
 /* Delete an existing file  */
 
 int32_t  mz_os_file_exists(const char *path);
@@ -133,6 +142,15 @@ int32_t  mz_os_close_dir(DIR *dir);
 
 int32_t  mz_os_is_dir(const char *path);
 /* Checks to see if path is a directory */
+
+int32_t  mz_os_is_symlink(const char *path);
+/* Checks to see if path is a symbolic link */
+
+int32_t  mz_os_make_symlink(const char *path, const char *target_path);
+/* Creates a symbolic link pointing to a target */
+
+int32_t  mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path);
+/* Gets the target path for a symbolic link */
 
 uint64_t mz_os_ms_time(void);
 /* Gets the time in milliseconds */

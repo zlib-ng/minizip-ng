@@ -44,6 +44,7 @@
 #define MZ_READ_ERROR                   (-115)
 #define MZ_WRITE_ERROR                  (-116)
 #define MZ_SIGN_ERROR                   (-117)
+#define MZ_SYMLINK_ERROR                (-118)
 
 /* MZ_OPEN */
 #define MZ_OPEN_MODE_READ               (0x01)

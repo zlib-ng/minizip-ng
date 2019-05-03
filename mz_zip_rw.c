@@ -735,12 +735,15 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
 int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
 {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
-    void *file_stream = NULL;
+    void *stream = NULL;
     uint32_t target_attrib = 0;
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
     int32_t i = 0;
+    int16_t is_dir = 0;
+    int16_t is_symlink = 0;
+    char *target_path = NULL;
     char pathwfs[512];
     char directory[512];
 
@@ -765,8 +768,13 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     directory[sizeof(directory) - 1] = 0;
     mz_path_remove_filename(directory);
 
-    /* If it is a directory entry then create a directory instead of writing file */
     if (mz_zip_entry_is_dir(reader->zip_handle) == MZ_OK)
+        is_dir = 1;
+    if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK)
+        is_symlink = 1;
+
+    /* If it is a directory entry then create a directory instead of writing file */
+    if (is_dir && !is_symlink)
     {
         err = mz_dir_make(directory);
         return err;
@@ -778,43 +786,61 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
         err_cb = reader->overwrite_cb(handle, reader->overwrite_userdata, reader->file_info, pathwfs);
         if (err_cb != MZ_OK)
             return err;
-        mz_os_delete(pathwfs);
+        /* We want to overwrite the file so we delete the existing one */
+        mz_os_unlink(pathwfs);
     }
 
-    /* Create the output directory if it doesn't already exist */
-    if (mz_os_is_dir(directory) != MZ_OK)
+    if (is_symlink)
     {
-        err = mz_dir_make(directory);
-        if (err != MZ_OK)
-            return err;
+        /* Read contents of file which contains the target path for the symbolic link */
+        mz_stream_mem_create(&stream);
+        err = mz_stream_mem_open(stream, NULL, MZ_OPEN_MODE_CREATE);
     }
-
-    mz_stream_os_create(&file_stream);
-
-    /* Create the file on disk so we can save to it */
-    err = mz_stream_os_open(file_stream, pathwfs, MZ_OPEN_MODE_CREATE);
-
-    if (err == MZ_OK)
-        err = mz_zip_reader_entry_save(handle, file_stream, mz_stream_os_write);
-
-    mz_stream_os_close(file_stream);
-    mz_stream_os_delete(&file_stream);
-
-    if (err == MZ_OK)
+    else
     {
-        /* Set the time of the file that has been created */
-        mz_os_set_file_date(pathwfs, reader->file_info->modified_date,
-            reader->file_info->accessed_date, reader->file_info->creation_date);
+        /* Create the output directory if it doesn't already exist */
+        if (mz_os_is_dir(directory) != MZ_OK)
+        {
+            err = mz_dir_make(directory);
+            if (err != MZ_OK)
+                return err;
+        }
+
+        /* Create the file on disk so we can save to it */
+        mz_stream_os_create(&stream);
+        err = mz_stream_os_open(stream, pathwfs, MZ_OPEN_MODE_CREATE);
     }
 
     if (err == MZ_OK)
-    {
-        /* Set file attributes for the correct system */
-        err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), 
-            reader->file_info->external_fa, MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+        err = mz_zip_reader_entry_save(handle, stream, mz_stream_write);
 
-        if (err_attrib == MZ_OK)
-            mz_os_set_file_attribs(pathwfs, target_attrib);
+    if (is_symlink)
+    {
+        mz_stream_mem_get_buffer(stream, (void *)&target_path);
+        err = mz_os_make_symlink(pathwfs, target_path);
+    }
+
+    mz_stream_close(stream);
+    mz_stream_delete(&stream);
+
+    if (!is_symlink)
+    {
+        if (err == MZ_OK)
+        {
+            /* Set the time of the file that has been created */
+            mz_os_set_file_date(pathwfs, reader->file_info->modified_date,
+                reader->file_info->accessed_date, reader->file_info->creation_date);
+        }
+
+        if (err == MZ_OK)
+        {
+            /* Set file attributes for the correct system */
+            err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby),
+                reader->file_info->external_fa, MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+
+            if (err_attrib == MZ_OK)
+                mz_os_set_file_attribs(pathwfs, target_attrib);
+        }
     }
 
     return err;
@@ -1637,6 +1663,8 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     int32_t err = MZ_OK;
     uint8_t src_sys = 0;
     void *stream = NULL;
+    char symlink_path[1024];
+    char target_path[1024];
     const char *filename = filename_in_zip;
 
 
@@ -1690,20 +1718,42 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     {
         file_info.external_fa = src_attrib;
     }
-   
-    if (mz_os_is_dir(path) != MZ_OK)
+
+    if (mz_os_is_symlink(path) == MZ_OK)
+    {
+        err = mz_os_read_symlink(path, target_path, sizeof(target_path));
+        if (mz_os_is_dir(target_path) == MZ_OK)
+        {
+            strncpy(symlink_path, filename, sizeof(symlink_path));
+            /* Ensure that filename has a slash on the end of it */
+            mz_path_append_slash(symlink_path, sizeof(symlink_path));
+            file_info.filename = symlink_path;
+        }
+        if (err == MZ_OK)
+        {
+            mz_stream_mem_create(&stream);
+            err = mz_stream_mem_open(stream, NULL, MZ_OPEN_MODE_CREATE);
+        }
+        if (err == MZ_OK)
+        {
+            mz_stream_write(stream, target_path, strlen(target_path));
+            mz_stream_write_uint8(stream, 0);
+            mz_stream_seek(stream, 0, MZ_SEEK_SET);
+        }
+    }
+    else if (mz_os_is_dir(path) != MZ_OK)
     {
         mz_stream_os_create(&stream);
         err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
     }
-
+    
     if (err == MZ_OK)
-        err = mz_zip_writer_add_info(handle, stream, mz_stream_os_read, &file_info);
+        err = mz_zip_writer_add_info(handle, stream, mz_stream_read, &file_info);
 
     if (stream != NULL)
     {
-        mz_stream_os_close(stream);
-        mz_stream_os_delete(&stream);
+        mz_stream_close(stream);
+        mz_stream_delete(&stream);
     }
 
     return err;
@@ -1716,15 +1766,18 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     struct dirent *entry = NULL;
     int32_t err = MZ_OK;
     int16_t is_dir = 0;
+    int16_t is_symlink = 0;
     const char *filename = NULL;
     const char *filenameinzip = path;
     char *wildcard_ptr = NULL;
-    char full_path[320];
-    char path_dir[320];
+    char full_path[1024];
+    char path_dir[1024];
 
 
     if (mz_os_is_dir(path) == MZ_OK)
         is_dir = 1;
+    if (mz_os_is_symlink(path) == MZ_OK)
+        is_symlink = 1;
 
     if (strrchr(path, '*') != NULL)
     {
@@ -1757,7 +1810,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
         if (*filenameinzip != 0)
             err = mz_zip_writer_add_file(handle, path, filenameinzip);
 
-        if (!is_dir)
+        if (!is_dir || is_symlink)
             return err;
     }
 
