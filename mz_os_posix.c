@@ -288,7 +288,7 @@ int32_t mz_os_is_symlink(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-int32_t mz_os_make_symlink(const char *path, const char *target_path, int32_t is_dir)
+int32_t mz_os_make_symlink(const char *path, const char *target_path)
 {
     if (symlink(target_path, path) != 0)
         return MZ_INTERNAL_ERROR;
