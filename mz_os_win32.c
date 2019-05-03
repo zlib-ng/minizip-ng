@@ -573,34 +573,33 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path)
     return err;
 }
 
-typedef struct _REPARSE_DATA_BUFFER {
-    ULONG  ReparseTag;
-    USHORT ReparseDataLength;
-    USHORT Reserved;
-    union {
-        struct {
-            USHORT SubstituteNameOffset;
-            USHORT SubstituteNameLength;
-            USHORT PrintNameOffset;
-            USHORT PrintNameLength;
-            ULONG  Flags; // it seems that the docu is missing this entry (at least 2008-03-07)
-            WCHAR  PathBuffer[1];
-        } SymbolicLinkReparseBuffer;
-        struct {
-            USHORT SubstituteNameOffset;
-            USHORT SubstituteNameLength;
-            USHORT PrintNameOffset;
-            USHORT PrintNameLength;
-            WCHAR  PathBuffer[1];
-        } MountPointReparseBuffer;
-        struct {
-            UCHAR  DataBuffer[1];
-        } GenericReparseBuffer;
-    };
-} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
-
 int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path)
 {
+    typedef struct _REPARSE_DATA_BUFFER {
+        ULONG  ReparseTag;
+        USHORT ReparseDataLength;
+        USHORT Reserved;
+        union {
+            struct {
+                USHORT SubstituteNameOffset;
+                USHORT SubstituteNameLength;
+                USHORT PrintNameOffset;
+                USHORT PrintNameLength;
+                ULONG  Flags;
+                WCHAR  PathBuffer[1];
+            } SymbolicLinkReparseBuffer;
+            struct {
+                USHORT SubstituteNameOffset;
+                USHORT SubstituteNameLength;
+                USHORT PrintNameOffset;
+                USHORT PrintNameLength;
+                WCHAR  PathBuffer[1];
+            } MountPointReparseBuffer;
+            struct {
+                UCHAR  DataBuffer[1];
+            } GenericReparseBuffer;
+        };
+    } REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
     REPARSE_DATA_BUFFER *reparse_data = NULL;
     HANDLE handle = NULL;
     wchar_t *path_wide = NULL;
