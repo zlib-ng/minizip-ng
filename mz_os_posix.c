@@ -297,9 +297,9 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path)
 
 int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path)
 {
-    int32_t length = 0;
+    size_t length = 0;
 
-    if ((length = readlink(path, target_path, max_target_path - 1)) < 0)
+    if ((length = readlink(path, target_path, max_target_path - 1)) == (size_t)-1)
         return MZ_EXIST_ERROR;
 
     target_path[length] = 0;
