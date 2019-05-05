@@ -247,6 +247,9 @@ void    mz_zip_writer_set_compress_method(void *handle, uint16_t compress_method
 void    mz_zip_writer_set_compress_level(void *handle, int16_t compress_level);
 /* Sets the compression level when adding files in zip */
 
+void    mz_zip_writer_set_follow_links(void *handle, uint8_t follow_links);
+/* Follow symbolic links when traversaling directories to add */
+
 void    mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd);
 /* Sets additional flags to be set when adding files in zip */
 

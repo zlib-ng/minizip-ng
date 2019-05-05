@@ -1113,6 +1113,7 @@ typedef struct mz_zip_writer_s {
     const char  *cert_pwd;
     uint16_t    compress_method;
     int16_t     compress_level;
+    uint8_t     follow_links;
     uint8_t     zip_cd;
     uint8_t     aes;
     uint8_t     raw;
@@ -1719,7 +1720,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         file_info.external_fa = src_attrib;
     }
 
-    if (mz_os_is_symlink(path) == MZ_OK)
+    if (!writer->follow_links && mz_os_is_symlink(path) == MZ_OK)
     {
         err = mz_os_read_symlink(path, target_path, sizeof(target_path));
         if (mz_os_is_dir(target_path) == MZ_OK)
@@ -1762,6 +1763,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
 int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_path, 
     uint8_t include_path, uint8_t recursive)
 {
+    mz_zip_writer *writer = (mz_zip_writer *)handle;
     DIR *dir = NULL;
     struct dirent *entry = NULL;
     int32_t err = MZ_OK;
@@ -1776,7 +1778,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
 
     if (mz_os_is_dir(path) == MZ_OK)
         is_dir = 1;
-    if (mz_os_is_symlink(path) == MZ_OK)
+    if (!writer->follow_links && mz_os_is_symlink(path) == MZ_OK)
         is_symlink = 1;
 
     if (strrchr(path, '*') != NULL)
@@ -1949,6 +1951,12 @@ void mz_zip_writer_set_compress_level(void *handle, int16_t compress_level)
 {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     writer->compress_level = compress_level;
+}
+
+void mz_zip_writer_set_follow_links(void *handle, uint8_t follow_links)
+{
+    mz_zip_writer *writer = (mz_zip_writer *)handle;
+    writer->follow_links = follow_links;
 }
 
 void mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd)
