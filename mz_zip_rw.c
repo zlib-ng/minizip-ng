@@ -1736,7 +1736,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         }
         if (err == MZ_OK)
         {
-            mz_stream_write(stream, target_path, strlen(target_path));
+            mz_stream_write(stream, target_path, (int32_t)strlen(target_path));
             mz_stream_write_uint8(stream, 0);
             mz_stream_seek(stream, 0, MZ_SEEK_SET);
         }
