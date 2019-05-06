@@ -621,55 +621,56 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 
-    if (handle != INVALID_HANDLE_VALUE)
+    if (handle == INVALID_HANDLE_VALUE)
     {
-        if (DeviceIoControl(handle, FSCTL_GET_REPARSE_POINT, NULL, 0, buffer, sizeof(buffer), &length, NULL) == TRUE)
+        mz_os_unicode_string_delete(&path_wide);
+        return MZ_OPEN_ERROR;
+    }
+
+    if (DeviceIoControl(handle, FSCTL_GET_REPARSE_POINT, NULL, 0, buffer, sizeof(buffer), &length, NULL) == TRUE)
+    {
+        reparse_data = (REPARSE_DATA_BUFFER *)buffer;
+        if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) && 
+            (reparse_data->ReparseTag == IO_REPARSE_TAG_SYMLINK))
         {
-            reparse_data = (REPARSE_DATA_BUFFER *)buffer;
-            if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) && 
-                (reparse_data->ReparseTag == IO_REPARSE_TAG_SYMLINK))
+            target_path_len = max_target_path * sizeof(wchar_t);
+            if (target_path_len > reparse_data->SymbolicLinkReparseBuffer.PrintNameLength)
+                target_path_len = reparse_data->SymbolicLinkReparseBuffer.PrintNameLength;
+
+            target_path_wide = (wchar_t *)MZ_ALLOC(target_path_len + sizeof(wchar_t));
+            if (target_path_wide)
             {
-                target_path_len = max_target_path * sizeof(wchar_t);
-                if (target_path_len > reparse_data->SymbolicLinkReparseBuffer.PrintNameLength)
-                    target_path_len = reparse_data->SymbolicLinkReparseBuffer.PrintNameLength;
+                target_path_idx = reparse_data->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
+                memcpy(target_path_wide, &reparse_data->SymbolicLinkReparseBuffer.PathBuffer[target_path_idx],
+                    target_path_len);
 
-                target_path_wide = (wchar_t *)MZ_ALLOC(target_path_len + sizeof(wchar_t));
-                if (target_path_wide)
+                target_path_wide[target_path_len / sizeof(wchar_t)] = 0;
+                target_path_utf8 = mz_os_utf8_string_create_from_unicode(target_path_wide, MZ_ENCODING_UTF8);
+
+                if (target_path_utf8)
                 {
-                    target_path_idx = reparse_data->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
-                    memcpy(target_path_wide, &reparse_data->SymbolicLinkReparseBuffer.PathBuffer[target_path_idx],
-                        target_path_len);
-
-                    target_path_wide[target_path_len / sizeof(wchar_t)] = 0;
-                    target_path_utf8 = mz_os_utf8_string_create_from_unicode(target_path_wide, MZ_ENCODING_UTF8);
-
-                    if (target_path_utf8)
-                    {
-                        strncpy(target_path, target_path_utf8, max_target_path - 1);
-                        mz_os_utf8_string_delete(&target_path_utf8);
-                        err = MZ_OK;
-                    }
-                    else
-                    {
-                        err = MZ_MEM_ERROR;
-                    }
-
-                    MZ_FREE(target_path_wide);
+                    strncpy(target_path, target_path_utf8, max_target_path - 1);
+                    mz_os_utf8_string_delete(&target_path_utf8);
                 }
                 else
                 {
                     err = MZ_MEM_ERROR;
                 }
+
+                MZ_FREE(target_path_wide);
+            }
+            else
+            {
+                err = MZ_MEM_ERROR;
             }
         }
-
-        CloseHandle(handle);
     }
     else
     {
-        err = MZ_OPEN_ERROR;
+        err = MZ_INTERNAL_ERROR;
     }
 
+    CloseHandle(handle);
     mz_os_unicode_string_delete(&path_wide);
     return err;
 }
