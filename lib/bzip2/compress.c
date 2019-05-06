@@ -241,7 +241,7 @@ void sendMTFValues ( EState* s )
 {
    Int32 v, t, i, j, gs, ge, totc, bt, bc, iter;
    Int32 nSelectors, alphaSize, minLen, maxLen, selCtr;
-   Int32 nGroups;
+   Int32 nGroups, nBytes;
 
    /*--
    UChar  len [BZ_N_GROUPS][BZ_MAX_ALPHA_SIZE];
@@ -501,6 +501,7 @@ void sendMTFValues ( EState* s )
              if (s->inUse[i * 16 + j]) inUse16[i] = True;
       }
      
+      nBytes = s->numZ;
       for (i = 0; i < 16; i++)
          if (inUse16[i]) bsW(s,1,1); else bsW(s,1,0);
 
@@ -515,6 +516,7 @@ void sendMTFValues ( EState* s )
    }
 
    /*--- Now the selectors. ---*/
+   nBytes = s->numZ;
    bsW ( s, 3, nGroups );
    bsW ( s, 15, nSelectors );
    for (i = 0; i < nSelectors; i++) { 
@@ -525,6 +527,8 @@ void sendMTFValues ( EState* s )
       VPrintf1( "selectors %d, ", s->numZ-nBytes );
 
    /*--- Now the coding tables. ---*/
+   nBytes = s->numZ;
+
    for (t = 0; t < nGroups; t++) {
       Int32 curr = s->len[t][0];
       bsW ( s, 5, curr );
@@ -539,6 +543,7 @@ void sendMTFValues ( EState* s )
       VPrintf1 ( "code lengths %d, ", s->numZ-nBytes );
 
    /*--- And finally, the block data proper ---*/
+   nBytes = s->numZ;
    selCtr = 0;
    gs = 0;
    while (True) {
@@ -575,7 +580,7 @@ void sendMTFValues ( EState* s )
 #           undef BZ_ITAH
 
       } else {
-	 /*--- slow version which correctly handles all situations ---*/
+      /*--- slow version which correctly handles all situations ---*/
          for (i = gs; i <= ge; i++) {
             bsW ( s, 
                   s->len  [s->selector[selCtr]] [mtfv[i]],
@@ -591,6 +596,8 @@ void sendMTFValues ( EState* s )
 
    if (s->verbosity >= 3)
       VPrintf1( "codes %d\n", s->numZ-nBytes );
+
+    (void)nBytes;
 }
 
 
