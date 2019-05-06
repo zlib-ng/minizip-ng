@@ -1720,7 +1720,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         file_info.external_fa = src_attrib;
     }
 
-    if (!writer->follow_links && mz_os_is_symlink(path) == MZ_OK)
+    if (mz_os_is_symlink(path) == MZ_OK)
     {
         err = mz_os_read_symlink(path, target_path, sizeof(target_path));
         if (mz_os_is_dir(target_path) == MZ_OK)
@@ -1776,10 +1776,6 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     char path_dir[1024];
 
 
-    if (mz_os_is_dir(path) == MZ_OK)
-        is_dir = 1;
-    if (!writer->follow_links && mz_os_is_symlink(path) == MZ_OK)
-        is_symlink = 1;
 
     if (strrchr(path, '*') != NULL)
     {
@@ -1791,6 +1787,9 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     }
     else
     {
+        if (mz_os_is_dir(path) == MZ_OK)
+            is_dir = 1;
+
         /* Construct the filename that our file will be stored in the zip as */
         if (root_path == NULL)
             root_path = path;
@@ -1809,10 +1808,13 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
             }
         }
 
+        if (!writer->follow_links && mz_os_is_symlink(path) == MZ_OK)
+            return err;
+
         if (*filenameinzip != 0)
             err = mz_zip_writer_add_file(handle, path, filenameinzip);
 
-        if (!is_dir || is_symlink)
+        if (!is_dir)
             return err;
     }
 
@@ -1830,7 +1832,9 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
         mz_path_combine(full_path, path, sizeof(full_path));
         mz_path_combine(full_path, entry->d_name, sizeof(full_path));
 
-        if (!recursive && mz_os_is_dir(full_path))
+        if (!recursive && mz_os_is_dir(full_path) == MZ_OK)
+            continue;
+        if (!writer->follow_links && mz_os_is_symlink(full_path) == MZ_OK)
             continue;
         if ((wildcard_ptr != NULL) && (mz_path_compare_wc(entry->d_name, wildcard_ptr, 1) != MZ_OK))
             continue;
