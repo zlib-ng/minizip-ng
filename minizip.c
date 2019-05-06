@@ -71,7 +71,7 @@ int32_t minizip_banner(void)
 
 int32_t minizip_help(void)
 {
-    printf("Usage : minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-j][-0 to -9][-b|-m][-k 512][-p pwd][-s] file.zip [files]\n\n" \
+    printf("Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-j][-0 to -9][-b|-m][-k 512][-p pwd][-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
