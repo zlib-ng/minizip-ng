@@ -874,9 +874,9 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     {
         err = mz_zip_extrafield_write(stream, MZ_ZIP_EXTENSION_UNIX1, field_length_unix1);
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(stream, file_info->accessed_date);
+            err = mz_stream_write_uint32(stream, (uint32_t)file_info->accessed_date);
         if (err == MZ_OK)
-            err = mz_stream_write_uint32(stream, file_info->modified_date);
+            err = mz_stream_write_uint32(stream, (uint32_t)file_info->modified_date);
         if (err == MZ_OK) /* User id */
             err = mz_stream_write_uint16(stream, 0);
         if (err == MZ_OK) /* Group id */
