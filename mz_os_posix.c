@@ -281,7 +281,7 @@ int32_t mz_os_is_symlink(const char *path)
     struct stat path_stat;
 
     memset(&path_stat, 0, sizeof(path_stat));
-    stat(path, &path_stat);
+    lstat(path, &path_stat);
     if (S_ISLNK(path_stat.st_mode))
         return MZ_OK;
 

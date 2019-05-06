@@ -57,7 +57,7 @@ int32_t mz_path_remove_slash(char *path)
     int32_t path_len = (int32_t)strlen(path);
     while (path_len > 0)
     {
-        if (path[path_len - 1] == '\\' && path[path_len - 1] == '/')
+        if (path[path_len - 1] == '\\' || path[path_len - 1] == '/')
             path[path_len - 1] = 0;
         else
             break;
