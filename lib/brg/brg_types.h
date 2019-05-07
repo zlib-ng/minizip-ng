@@ -175,7 +175,7 @@ extern "C" {
                                 length 'size' bits
 
     UPTR_CAST(x,size)           casts a pointer to a pointer to a 
-                                varaiable of length 'size' bits
+                                variable of length 'size' bits
 */
 
 #define UI_TYPE(size)               uint##size##_t
