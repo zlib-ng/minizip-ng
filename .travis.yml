@@ -98,6 +98,15 @@ matrix:
       before_install:
         - brew install openssl
       env: TOOL="-DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib"
+    - stage: macintosh
+      os: osx
+      before_script:
+        - mkdir example
+        - cd example
+        - cmake -G Xcode ..
+        - echo "target 'minizip' do pod 'Minizip', :path => '..'; platform :osx; end" > Podfile
+      script:
+        - pod install
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y install libbsd-dev libssl-dev; fi
