@@ -2527,7 +2527,7 @@ int32_t mz_zip_attrib_posix_to_win32(uint32_t posix_attrib, uint32_t *win32_attr
     if ((posix_attrib & 0170000) == 0120000)
         *win32_attrib |= 0x400;     /* FILE_ATTRIBUTE_REPARSE_POINT */
     /* S_IFDIR */
-    if ((posix_attrib & 0170000) == 0040000)
+    else if ((posix_attrib & 0170000) == 0040000)
         *win32_attrib |= 0x10;      /* FILE_ATTRIBUTE_DIRECTORY */
     /* S_IFREG */
     else
@@ -2549,7 +2549,7 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
     if ((win32_attrib & 0x400) == 0x400)
         *posix_attrib |= 0120000;   /* S_IFLNK */
     /* FILE_ATTRIBUTE_DIRECTORY */
-    if ((win32_attrib & 0x10) == 0x10)
+    else if ((win32_attrib & 0x10) == 0x10)
         *posix_attrib |= 0040111;   /* S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH */
     else
         *posix_attrib |= 0100000;   /* S_IFREG */

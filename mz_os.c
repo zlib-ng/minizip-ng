@@ -37,18 +37,23 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path)
     }
     else
     {
-        mz_path_append_slash(path, max_path);
+        mz_path_append_slash(path, max_path, MZ_PATH_SLASH_PLATFORM);
         strncat(path, join, max_path - path_len);
     }
 
     return MZ_OK;
 }
 
-int32_t mz_path_append_slash(char *path, int32_t max_path)
+int32_t mz_path_append_slash(char *path, int32_t max_path, char slash)
 {
     int32_t path_len = (int32_t)strlen(path);
+    if ((path_len + 2) >= max_path)
+        return MZ_BUF_ERROR;
     if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
-        strncat(path, "/", max_path - path_len - 1);
+    {
+        path[path_len] = slash;
+        path[path_len + 1] = 0;
+    }
     return MZ_OK;
 }
 
@@ -75,12 +80,9 @@ int32_t mz_path_has_slash(const char *path)
     return MZ_OK;
 }
 
-int32_t mz_path_convert_slashes(char *path, char *slash)
+int32_t mz_path_convert_slashes(char *path, char slash)
 {
     int32_t i = 0;
-
-    if (slash == NULL)
-        slash = '/';
 
     for (i = 0; i < (int32_t)strlen(path); i += 1)
     {

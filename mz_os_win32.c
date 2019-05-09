@@ -404,8 +404,10 @@ DIR *mz_os_open_dir(const char *path)
     if (path == NULL)
         return NULL;
 
-    fixed_path[0] = 0;
-    mz_path_combine(fixed_path, path, sizeof(fixed_path));
+    strncpy(fixed_path, path, sizeof(fixed_path) - 1);
+    fixed_path[sizeof(fixed_path) - 1] = 0;
+
+    mz_path_append_slash(fixed_path, sizeof(fixed_path), MZ_PATH_SLASH_PLATFORM);
     mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
     path_wide = mz_os_unicode_string_create(fixed_path, MZ_ENCODING_UTF8);
@@ -552,7 +554,7 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path)
     }
 
     target_path_wide = mz_os_unicode_string_create(target_path, MZ_ENCODING_UTF8);
-    if (target_path != NULL)
+    if (target_path_wide != NULL)
     {
         if (mz_path_has_slash(target_path) == MZ_OK)
             flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
@@ -650,7 +652,10 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
                 if (target_path_utf8)
                 {
                     strncpy(target_path, target_path_utf8, max_target_path - 1);
-                    mz_path_convert_slashes(target_path, '/');
+                    target_path[max_target_path - 1] = 0;
+                    /* Ensure directories have slash at the end so we can recreate them later */
+                    if (mz_os_is_dir(target_path_utf8) == MZ_OK)
+                        mz_path_append_slash(target_path, max_target_path, MZ_PATH_SLASH_PLATFORM);
                     mz_os_utf8_string_delete(&target_path_utf8);
                 }
                 else
