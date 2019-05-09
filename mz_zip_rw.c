@@ -752,11 +752,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     /* Convert to forward slashes for unix which doesn't like backslashes */
     strncpy(pathwfs, path, sizeof(pathwfs) - 1);
     pathwfs[sizeof(pathwfs) - 1] = 0;
-    for (i = 0; i < (int32_t)strlen(pathwfs); i += 1)
-    {
-        if (pathwfs[i] == '\\')
-            pathwfs[i] = '/';
-    }
+    mz_path_convert_slashes(pathwfs, '/');
 
     if (reader->entry_cb != NULL)
         reader->entry_cb(handle, reader->entry_userdata, reader->file_info, pathwfs);

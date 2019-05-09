@@ -65,6 +65,9 @@ int32_t mz_path_remove_slash(char *path);
 int32_t mz_path_has_slash(const char *path);
 /* Returns whether or not the path ends with slash */
 
+int32_t mz_path_convert_slashes(char *path, char *slash);
+/* Converts the slashes in a path */
+
 int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignore_case);
 /* Compare two paths with wildcard */
 

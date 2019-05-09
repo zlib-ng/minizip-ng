@@ -650,6 +650,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
                 if (target_path_utf8)
                 {
                     strncpy(target_path, target_path_utf8, max_target_path - 1);
+                    mz_path_convert_slashes(target_path, '/');
                     mz_os_utf8_string_delete(&target_path_utf8);
                 }
                 else

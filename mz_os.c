@@ -75,6 +75,21 @@ int32_t mz_path_has_slash(const char *path)
     return MZ_OK;
 }
 
+int32_t mz_path_convert_slashes(char *path, char *slash)
+{
+    int32_t i = 0;
+
+    if (slash == NULL)
+        slash = '/';
+
+    for (i = 0; i < (int32_t)strlen(path); i += 1)
+    {
+        if (path[i] == '\\' || path[i] == '/')
+            path[i] = slash;
+    }
+    return MZ_OK;
+}
+
 int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignore_case)
 {
     while (*path != 0)
@@ -317,9 +332,7 @@ int32_t mz_dir_make(const char *path)
         return MZ_MEM_ERROR;
 
     strcpy(current_dir, path);
-
-    if (current_dir[len - 1] == '/')
-        current_dir[len - 1] = 0;
+    mz_path_remove_slash(current_dir);
 
     err = mz_os_make_dir(current_dir);
     if (err != MZ_OK)
