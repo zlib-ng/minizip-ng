@@ -740,7 +740,6 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
-    int32_t i = 0;
     char pathwfs[512];
     char directory[512];
 
