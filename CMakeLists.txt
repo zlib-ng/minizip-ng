@@ -651,14 +651,6 @@ endif()
 
 # Build test executables
 if(MZ_BUILD_TEST)
-    add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
-    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-    target_link_libraries(minizip_cmd ${PROJECT_NAME})
-
-    if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-        install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
-    endif()
-
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
@@ -667,6 +659,14 @@ if(MZ_BUILD_TEST)
         if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
             install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
         endif()
+    endif()
+
+    add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
+    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    target_link_libraries(minizip_cmd ${PROJECT_NAME})
+
+    if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
+        install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
 endif()
 
