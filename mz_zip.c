@@ -45,7 +45,7 @@
 #include <ctype.h> /* tolower */
 #include <stdio.h> /* snprintf */
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
 #  define localtime_r(t1,t2) (localtime_s(t2,t1) == 0 ? t1 : NULL)
 #  if (_MSC_VER < 1900)
 #    define snprintf _snprintf
