@@ -15,7 +15,7 @@ matrix:
         - 7z a -tzip minizip-$TRAVIS_OS_NAME.zip *mini*zip*
       deploy: &deploy_base
         provider: releases
-        api_key: 
+        api_key:
           secure: FJaUejGb9fRijDoIwLdaekcYRKCLVwyHJ2qv3kf6oaa5OTG9np73U3GYxImj20Z03GvsL2PIFJCKt3SbZ07prHL9Hf01llvH5RpbT29mepQiYbB9UZQKTh6syeHvYxWTMfw+lxMBs1QOnrYZtRzFeYQgnOSvLG2mudAnjxeBhH3duGnh9/uMW2+1UjNzld49HnR1F+AiVdZVAfKqwcZUsQENQ3svb4oNwMfAZrDMcfb5bO3aNat9EF5RBqOvtSFqrIGX6btsU/mh3acAoP2gcCjxmMcfCNlwaFYo8lcbNi4u0vW4nPUMXYfZCyc5KyIu/h/3Lu5ddVaw0ra51f25iT9e6hCBG9kBjk41Mu6AVKhebSvL2zd9/Q41BcVUbBxmGaDGORAJlCXNjqflVkAgYhRRjW5n//kN5TqObPqrIgTTbvhKTQYADQZ5Gza0zX0lZGlTZ9aT1r+gvSrX2T7DGnvz7zSKpGP4HIixPfaB9x+ZxAjohFhi47MLURtr1UhokvS3wonF5OR6dE/jHXdbS6Wi4GiHqKsWLC9a0iYrpkNZLp37byENCiOnZib/orOSerj2PgQFIGtfwt8osunxf6H1yI9A9VpysSsihmD65RvN3ii8HfTASU/K++VQdBvX7wjt2MP+KA59nKwGcobfSkB6nd7GYJhMgfOrsVfzJ4o=
         file_glob: true
         file: minizip-$TRAVIS_OS_NAME.zip
@@ -115,7 +115,7 @@ before_install:
 before_script:
   - mkdir build
   - cd build
-  - cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON -DCMAKE_BUILD_TYPE=Release $TOOL 
+  - cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON -DCMAKE_BUILD_TYPE=Release $TOOL
 
 script:
   - cmake --build . --config Release

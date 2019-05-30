@@ -1,5 +1,5 @@
 queries:
- - exclude: 
-    tags: 
+ - exclude:
+    tags:
      - external/cwe/cwe-546
      - external/cwe/cwe-561
