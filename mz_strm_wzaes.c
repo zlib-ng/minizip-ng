@@ -175,7 +175,7 @@ int32_t mz_stream_wzaes_is_open(void *stream)
     return MZ_OK;
 }
 
-static int32_t mz_stream_wzaes_encrypt_data(void *stream, uint8_t *buf, int32_t size)
+static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t size)
 {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     uint32_t pos = wzaes->crypt_pos;
@@ -221,7 +221,7 @@ int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size)
     if (read > 0)
     {
         mz_crypt_hmac_update(wzaes->hmac, (uint8_t *)buf, read);
-        mz_stream_wzaes_encrypt_data(stream, (uint8_t *)buf, read);
+        mz_stream_wzaes_ctr_encrypt(stream, (uint8_t *)buf, read);
 
         wzaes->total_in += read;
     }
@@ -248,7 +248,7 @@ int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size)
         memcpy(wzaes->buffer, buf_ptr, bytes_to_write);
         buf_ptr += bytes_to_write;
 
-        mz_stream_wzaes_encrypt_data(stream, (uint8_t *)wzaes->buffer, bytes_to_write);
+        mz_stream_wzaes_ctr_encrypt(stream, (uint8_t *)wzaes->buffer, bytes_to_write);
         mz_crypt_hmac_update(wzaes->hmac, wzaes->buffer, bytes_to_write);
 
         written = mz_stream_write(wzaes->stream.base, wzaes->buffer, bytes_to_write);
