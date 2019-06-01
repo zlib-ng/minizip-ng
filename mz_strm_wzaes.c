@@ -64,8 +64,6 @@ typedef struct mz_stream_wzaes_s {
 
 /***************************************************************************/
 
-/***************************************************************************/
-
 int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode)
 {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
