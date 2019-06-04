@@ -106,6 +106,21 @@ ZEXPORT zipFile zipOpen2_64(const void *path, int append, const char **globalcom
     zlib_filefunc64_def *pzlib_filefunc_def);
         zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
 
+ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level);
+ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int zip64);
+ZEXPORT int     zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int raw);
+ZEXPORT int     zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int raw, int zip64);
 ZEXPORT int     zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,

@@ -243,6 +243,45 @@ int zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_filein
         memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, zip64);
 }
 
+int zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int raw)
+{
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, 0,
+        0, 0, NULL, 0, MZ_VERSION_MADEBY, 0, 0);
+}
+
+int zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int raw, int zip64)
+{
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, 0,
+        0, 0, NULL, 0, MZ_VERSION_MADEBY, 0, zip64);
+}
+
+int zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level)
+{
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, 0, 0,
+        0, 0, NULL, 0, MZ_VERSION_MADEBY, 0, 0);
+}
+
+int zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    int zip64)
+{
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, 0, 0,
+        0, 0, NULL, 0, MZ_VERSION_MADEBY, 0, zip64);
+}
+
 int zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len)
 {
     mz_compat *compat = (mz_compat *)file;
