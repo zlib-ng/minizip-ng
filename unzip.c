@@ -1251,7 +1251,7 @@ extern int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, in
                 s->cur_file_info.dos_date >> 8 :
                 s->cur_file_info.crc >> 24;
             actual = (uint8_t)source[11];
-            if (expected != actual) {
+            if ((actual != 0) && (expected != actual)) {
               return UNZ_BADPASSWORD;
             }
 
