@@ -365,6 +365,7 @@ int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value
         break;
     case MZ_STREAM_PROP_COMPRESS_WINDOW:
         *value = zlib->window_bits;
+         break;
     default:
         return MZ_EXIST_ERROR;
     }
