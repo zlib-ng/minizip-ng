@@ -1,5 +1,5 @@
 /* mz_crypt_openssl.c -- Crypto/hash functions for OpenSSL
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -240,7 +240,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_aes_reset(handle);
 
     key_bits = key_length * 8;
@@ -263,7 +263,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_aes_reset(handle);
 
     key_bits = key_length * 8;
@@ -336,7 +336,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_hmac_reset(handle);
 
     if (hmac->algorithm == MZ_HASH_SHA1)
@@ -462,7 +462,7 @@ void mz_crypt_hmac_delete(void **handle)
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_SIGNING)
-int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size, 
+int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size,
     const char *cert_pwd, uint8_t **signature, int32_t *signature_size)
 {
     PKCS12 *p12 = NULL;
@@ -517,10 +517,10 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
 
                 *signature_size = buf_mem->length;
                 *signature = MZ_ALLOC(buf_mem->length);
-                
+
                 memcpy(*signature, buf_mem->data, buf_mem->length);
             }
-#if 0            
+#if 0
             BIO *yy = BIO_new_file("xyz", "wb");
             BIO_write(yy, *signature, *signature_size);
             BIO_flush(yy);
@@ -587,7 +587,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     BIO_free(yy);
 #endif
 
-    lookup = X509_STORE_add_lookup(cert_store, X509_LOOKUP_file());   
+    lookup = X509_STORE_add_lookup(cert_store, X509_LOOKUP_file());
     if (lookup != NULL)
         X509_LOOKUP_load_file(lookup, "cacert.pem", X509_FILETYPE_PEM);
     lookup = X509_STORE_add_lookup(cert_store, X509_LOOKUP_hash_dir());
@@ -633,7 +633,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         if (err == MZ_OK)
         {
             /* Verify the message */
-            if (((int32_t)buf_mem->length != message_size) || 
+            if (((int32_t)buf_mem->length != message_size) ||
                 (memcmp(buf_mem->data, message, message_size) != 0))
                 err = MZ_SIGN_ERROR;
         }

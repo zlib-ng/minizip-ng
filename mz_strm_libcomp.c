@@ -1,5 +1,5 @@
 /* mz_strm_libcomp.c -- Stream for apple compression
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -57,7 +57,7 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     int32_t err = 0;
     int16_t operation = 0;
-    
+
     MZ_UNUSED(path);
 
     if (libcomp->algorithm == 0)
@@ -82,16 +82,16 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
         operation = COMPRESSION_STREAM_DECODE;
 #endif
     }
-    
+
     err = compression_stream_init(&libcomp->cstream, (compression_stream_operation)operation,
         (compression_algorithm)libcomp->algorithm);
-    
+
     if (err == COMPRESSION_STATUS_ERROR)
     {
         libcomp->error = err;
         return MZ_OPEN_ERROR;
     }
-    
+
     libcomp->initialized = 1;
     libcomp->mode = mode;
     return MZ_OK;
@@ -146,7 +146,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
                 return read;
             if (read == 0)
                 flags = COMPRESSION_STREAM_FINALIZE;
-            
+
             libcomp->cstream.src_ptr = libcomp->buffer;
             libcomp->cstream.src_size = (size_t)read;
         }
@@ -301,9 +301,9 @@ int32_t mz_stream_libcomp_close(void *stream)
         return MZ_SUPPORT_ERROR;
 #endif
     }
-    
+
     compression_stream_destroy(&libcomp->cstream);
-    
+
     libcomp->initialized = 0;
 
     if (libcomp->error != MZ_OK)
@@ -360,7 +360,7 @@ int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t val
 void *mz_stream_libcomp_create(void **stream)
 {
     mz_stream_libcomp *libcomp = NULL;
-    
+
     libcomp = (mz_stream_libcomp *)MZ_ALLOC(sizeof(mz_stream_libcomp));
     if (libcomp != NULL)
     {
@@ -369,7 +369,7 @@ void *mz_stream_libcomp_create(void **stream)
     }
     if (stream != NULL)
         *stream = libcomp;
-    
+
     return libcomp;
 }
 

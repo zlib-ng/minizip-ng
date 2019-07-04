@@ -1,5 +1,5 @@
 /* mz_crypt_brg.c -- Crypto/hash functions using Brian Gladman's library
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -20,7 +20,7 @@
 #  include <sys/types.h>
 #  ifndef __u_char_defined
      typedef unsigned char  u_char;
-#  endif 
+#  endif
 #  include <bsd/stdlib.h> /* arc4random_buf */
 #endif
 
@@ -243,7 +243,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_aes_reset(handle);
 
     aes->error = aes_encrypt_key(key, key_length, &aes->encrypt_ctx);
@@ -260,7 +260,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_aes_reset(handle);
 
     aes->error = aes_decrypt_key(key, key_length, &aes->decrypt_ctx);
@@ -325,14 +325,14 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(handle);
-    
+
     if (hmac->algorithm == MZ_HASH_SHA1)
         hmac_sha_begin(HMAC_SHA1, &hmac->ctx);
     else
         hmac_sha_begin(HMAC_SHA256, &hmac->ctx);
-    
+
     hmac_sha_key(key, key_length, &hmac->ctx);
-    
+
     return MZ_OK;
 }
 
@@ -418,7 +418,7 @@ void mz_crypt_hmac_delete(void **handle)
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_SIGNING)
-int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size, 
+int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size,
     const char *cert_pwd, uint8_t **signature, int32_t *signature_size)
 {
     MZ_UNUSED(message);

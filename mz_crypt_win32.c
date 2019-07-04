@@ -1,5 +1,5 @@
 /* mz_crypt_win32.c -- Crypto/hash functions for Windows
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -252,9 +252,9 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_aes_reset(handle);
-    
+
     if (key_length == MZ_AES_KEY_LENGTH(MZ_AES_ENCRYPTION_MODE_128))
         alg_id = CALG_AES_128;
     else if (key_length == MZ_AES_KEY_LENGTH(MZ_AES_ENCRYPTION_MODE_192))
@@ -263,7 +263,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         alg_id = CALG_AES_256;
     else
         return MZ_PARAM_ERROR;
-    
+
     result = CryptAcquireContext(&aes->provider, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
     if (result)
     {
@@ -399,9 +399,9 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
-    
+
     mz_crypt_hmac_reset(handle);
-    
+
     if (hmac->algorithm == MZ_HASH_SHA1)
         alg_id = CALG_SHA1;
     else
@@ -409,7 +409,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length)
 
     hmac->info.HashAlgid = alg_id;
 
-    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, 
+    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL,
         CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
 
     if (!result)
@@ -560,7 +560,7 @@ void mz_crypt_hmac_delete(void **handle)
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_SIGNING)
-int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size, 
+int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size,
     const char *cert_pwd, uint8_t **signature, int32_t *signature_size)
 {
     CRYPT_SIGN_MESSAGE_PARA sign_params;
@@ -629,8 +629,8 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
             timestamp_url_wide = mz_os_unicode_string_create(timestamp_url);
         if (timestamp_url_wide != NULL)
         {
-            result = CryptRetrieveTimeStamp(timestamp_url_wide, 
-                TIMESTAMP_NO_AUTH_RETRIEVAL | TIMESTAMP_VERIFY_CONTEXT_SIGNATURE, 0, szOID_NIST_sha256, 
+            result = CryptRetrieveTimeStamp(timestamp_url_wide,
+                TIMESTAMP_NO_AUTH_RETRIEVAL | TIMESTAMP_VERIFY_CONTEXT_SIGNATURE, 0, szOID_NIST_sha256,
                 NULL, message, message_size, &ts_context, NULL, NULL);
 
             mz_os_unicode_string_delete(&timestamp_url_wide);
@@ -695,7 +695,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     verify_params.hCryptProv = 0;
     verify_params.pfnGetSignerCertificate = NULL;
     verify_params.pvGetArg = NULL;
-    
+
     result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
         NULL, &decoded_size, NULL);
 

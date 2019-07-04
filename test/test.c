@@ -1,5 +1,5 @@
 /* test.c - Test bed area
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2018-2019 Nathan Moinvaziri
@@ -111,7 +111,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
         printf("%s encrypted %"PRId32"\n", encrypt_path, written);
     }
-    
+
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
@@ -127,7 +127,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
             read = mz_stream_read(crypt_out_stream, buf, read);
             mz_stream_close(crypt_out_stream);
         }
-        
+
         mz_stream_delete(&crypt_out_stream);
 
         mz_stream_os_close(in_stream);
@@ -138,7 +138,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
     mz_stream_os_delete(&in_stream);
     mz_stream_os_create(&out_stream);
-    
+
     if (mz_stream_os_open(out_stream, decrypt_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE) == MZ_OK)
     {
         mz_stream_os_write(out_stream, buf, read);
@@ -205,7 +205,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         mz_stream_os_close(out_stream);
     }
-    
+
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
@@ -242,7 +242,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         printf("%s crc 0x%08x\n", filename, crc32);
     }
-    
+
     mz_stream_os_delete(&out_stream);
 }
 
@@ -269,12 +269,12 @@ void test_stream_wzaes(void)
     uint8_t key[MZ_HASH_SHA1_SIZE];
     const char *password = "passwordpasswordpasswordpassword";
     const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
-   
+
 
     printf("Pbkdf2 password - %s\n", password);
     printf("Pbkdf2 salt - %s\n", salt);
 
-    err = mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password), 
+    err = mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
         (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key));
 
     if (err == MZ_OK)
@@ -440,7 +440,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find postzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find postzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n",
             name, find_size, position, (position == 0));
 
         if (position != 0 || last_pos != position)
@@ -453,7 +453,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
             mz_stream_write_uint8(mem_stream, 0);
         for (x = 0; x < find_size; x += 1)
             mz_stream_write_uint8(mem_stream, find[x]);
-        
+
         if (find_cb == mz_stream_find)
             mz_stream_seek(mem_stream, 0, MZ_SEEK_SET);
 
@@ -461,7 +461,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find prezero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find prezero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n",
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -484,7 +484,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find equalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find equalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n",
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -508,7 +508,7 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find unequalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n", 
+        printf("Find unequalzero - %s (len %"PRId32" pos %"PRId64" ok %"PRId32")\n",
             name, find_size, position, (position == i));
 
         if (position != i || last_pos != position)
@@ -565,7 +565,7 @@ void test_crypt_sha(void)
     for (i = 0, p = 0; i < (int32_t)sizeof(hash); i += 1, p += 2)
         snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash[i]);
     computed_hash[p] = 0;
-    
+
     printf("Sha1 hash computed - %s\n", computed_hash);
     printf("Sha1 hash expected - 3efb8392b6cd8e14bd76bd08081521dc73df418c\n");
 
@@ -582,7 +582,7 @@ void test_crypt_sha(void)
     for (i = 0, p = 0; i < (int32_t)sizeof(hash256); i += 1, p += 2)
         snprintf(computed_hash + p, sizeof(computed_hash) - p, "%02x", hash256[i]);
     computed_hash[p] = 0;
-    
+
     printf("Sha256 hash computed - %s\n", computed_hash);
     printf("Sha256 hash expected - 7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c\n");
 }

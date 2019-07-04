@@ -1,5 +1,5 @@
 /* unzip_fuzzer.c - Unzip fuzzer for libFuzzer
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2018 The Chromium Authors
@@ -75,9 +75,9 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             if (err != MZ_OK)
                 break;
 
-            /* Return value isn't checked here because we can't predict 
+            /* Return value isn't checked here because we can't predict
                what the value will be. */
-            
+
             mz_zip_entry_is_dir(handle);
             entry_pos = mz_zip_get_entry(handle);
             if (entry_pos < 0)
@@ -90,13 +90,13 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
             err = mz_zip_entry_close(handle);
             if (err != MZ_OK)
                 break;
-            
+
             err = mz_zip_goto_next_entry(handle);
         }
 
         mz_zip_entry_close(handle);
 
-        /* Return value isn't checked here because we can't predict what the value 
+        /* Return value isn't checked here because we can't predict what the value
            will be. */
 
         mz_zip_locate_entry(handle, MZ_FUZZ_TEST_FILENAME, 0);

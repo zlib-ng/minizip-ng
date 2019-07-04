@@ -1,5 +1,5 @@
 /* mz.h -- Errors codes, zip flags and magic
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -15,7 +15,7 @@
 /***************************************************************************/
 
 /* MZ_VERSION */
-#define MZ_VERSION                      ("2.8.8")
+#define MZ_VERSION                      ("2.8.9")
 
 /* MZ_ERROR */
 #define MZ_OK                           (0)  /* zlib */
@@ -230,7 +230,7 @@ typedef unsigned long long uint64_t;
 #ifndef INT16_MAX
 #  define INT16_MAX   32767
 #endif
-#ifndef INT32_MAX 
+#ifndef INT32_MAX
 #  define INT32_MAX   2147483647L
 #endif
 #ifndef INT64_MAX
@@ -239,8 +239,8 @@ typedef unsigned long long uint64_t;
 #ifndef UINT16_MAX
 #  define UINT16_MAX  65535U
 #endif
-#ifndef UINT32_MAX 
-#  define UINT32_MAX  4294967295UL 
+#ifndef UINT32_MAX
+#  define UINT32_MAX  4294967295UL
 #endif
 #ifndef UINT64_MAX
 #  define UINT64_MAX  18446744073709551615ULL

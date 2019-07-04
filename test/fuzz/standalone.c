@@ -1,5 +1,5 @@
 /* standalone.c - Standalone fuzzer tester
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2018 sebpop
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
         if (err != MZ_OK)
         {
             printf("Skipping %s (%"PRId32")\n", argv[i], err);
-        }    
+        }
         else
         {
             mz_stream_os_seek(stream, 0, MZ_SEEK_END);

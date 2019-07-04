@@ -1,5 +1,5 @@
 /* mz_compat.h -- Backwards compatible interface for older versions
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -111,15 +111,15 @@ ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zi
     uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level);
 ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int zip64);
 ZEXPORT int     zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw);
 ZEXPORT int     zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level, 
+    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
     int raw, int zip64);
 ZEXPORT int     zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
@@ -251,7 +251,7 @@ typedef struct unz_file_info_s
 typedef int (*unzFileNameComparer)(unzFile file, const char *filename1, const char *filename2);
 typedef int (*unzIteratorFunction)(unzFile file);
 typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, char *filename,
-    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment,
     uint16_t comment_size);
 
 /***************************************************************************/
@@ -279,10 +279,10 @@ ZEXPORT int     unzCloseCurrentFile(unzFile file);
 
 
 ZEXPORT int     unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
-    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment,
     uint16_t comment_size);
 ZEXPORT int     unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
-    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment, 
+    uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment,
     uint16_t comment_size);
 
 ZEXPORT int     unzGoToFirstFile(unzFile file);

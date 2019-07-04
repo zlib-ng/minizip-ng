@@ -1,6 +1,6 @@
-# minizip 2.8.8
+# minizip 2.8.9
 
-minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux. 
+minizip is a zip manipulation library written in C that is supported on Windows, macOS, and Linux.
 
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
 [![Code Quality: Cpp](https://img.shields.io/lgtm/grade/cpp/g/nmoinvaz/minizip.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/nmoinvaz/minizip/context:cpp)
@@ -119,6 +119,6 @@ cmake --build .
 
 Thanks go out to all the people who have taken the time to contribute code reviews, testing and/or patches. This project would not have been as good without you.
 
-Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on. 
+Thanks to [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) on which this work is originally based on.
 
 The [ZIP format](https://github.com/nmoinvaz/minizip/blob/master/doc/appnote.txt) was defined by Phil Katz of PKWARE.

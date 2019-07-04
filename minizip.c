@@ -1,5 +1,5 @@
 /* minizip.c
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -183,7 +183,7 @@ int32_t minizip_list(const char *path)
         /* Print entry information */
         printf("%12"PRId64" %12"PRId64"  %3"PRIu32"%% %6s%c %8"PRIx32" %2.2"PRIu32\
                "-%2.2"PRIu32"-%2.2"PRIu32" %2.2"PRIu32":%2.2"PRIu32" %8.8"PRIx32"   %s\n",
-                file_info->compressed_size, file_info->uncompressed_size, ratio, 
+                file_info->compressed_size, file_info->uncompressed_size, ratio,
                 string_method, crypt, file_info->external_fa,
                 (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                 (uint32_t)tmu_date.tm_year % 100,
@@ -214,7 +214,7 @@ int32_t minizip_add_entry_cb(void *handle, void *userdata, mz_zip_file *file_inf
 {
     MZ_UNUSED(handle);
     MZ_UNUSED(userdata);
-    
+
     /* Print the current file we are trying to compress */
     printf("Adding %s\n", file_info->filename);
     return MZ_OK;
@@ -227,7 +227,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
     uint8_t raw = 0;
 
     MZ_UNUSED(userdata);
-    
+
     mz_zip_writer_get_raw(handle, &raw);
 
     if (raw && file_info->compressed_size > 0)
@@ -237,7 +237,7 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
 
     /* Print the progress of the current compress operation */
     if (options->verbose)
-        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position,
             file_info->uncompressed_size, progress);
     return MZ_OK;
 }
@@ -247,7 +247,7 @@ int32_t minizip_add_overwrite_cb(void *handle, void *userdata, const char *path)
     minizip_opt *options = (minizip_opt *)userdata;
 
     MZ_UNUSED(handle);
-    
+
     if (options->overwrite == 0)
     {
         /* If ask the user what to do because append and overwrite args not set */
@@ -340,7 +340,7 @@ int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file
     MZ_UNUSED(handle);
     MZ_UNUSED(userdata);
     MZ_UNUSED(path);
-    
+
     /* Print the current entry extracting */
     printf("Extracting %s\n", file_info->filename);
     return MZ_OK;
@@ -353,7 +353,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
     uint8_t raw = 0;
 
     MZ_UNUSED(userdata);
-    
+
     mz_zip_reader_get_raw(handle, &raw);
 
     if (raw && file_info->compressed_size > 0)
@@ -363,7 +363,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
 
     /* Print the progress of the current extraction */
     if (options->verbose)
-        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position, 
+        printf("%s - %"PRId64" / %"PRId64" (%.02f%%)\n", file_info->filename, position,
             file_info->uncompressed_size, progress);
 
     return MZ_OK;
@@ -375,7 +375,7 @@ int32_t minizip_extract_overwrite_cb(void *handle, void *userdata, mz_zip_file *
 
     MZ_UNUSED(handle);
     MZ_UNUSED(file_info);
-    
+
     /* Verify if we want to overwrite current entry on disk */
     if (options->overwrite == 0)
     {
@@ -718,7 +718,7 @@ int main(int argc, const char *argv[])
             path_arg = i;
     }
     printf("\n");
-    
+
     if (err == MZ_SUPPORT_ERROR)
     {
         printf("Feature not supported\n");

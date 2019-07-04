@@ -1,5 +1,5 @@
 /* mz_os_win32.c -- System functions for Windows
-   Version 2.8.8, May 22, 2019
+   Version 2.8.9, July 4, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -162,7 +162,7 @@ int32_t mz_os_rename(const char *source_path, const char *target_path)
         mz_os_unicode_string_delete(&target_path_wide);
     if (source_path_wide)
         mz_os_unicode_string_delete(&source_path_wide);
-    
+
     return err;
 }
 
@@ -620,7 +620,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
-    handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
+    handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 
     if (handle == INVALID_HANDLE_VALUE)
@@ -632,7 +632,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     if (DeviceIoControl(handle, FSCTL_GET_REPARSE_POINT, NULL, 0, buffer, sizeof(buffer), &length, NULL) == TRUE)
     {
         reparse_data = (REPARSE_DATA_BUFFER *)buffer;
-        if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) && 
+        if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) &&
             (reparse_data->ReparseTag == IO_REPARSE_TAG_SYMLINK))
         {
             target_path_len = max_target_path * sizeof(wchar_t);
