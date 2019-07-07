@@ -80,8 +80,12 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         if(WIN32)
             set(ZLIB_LIBRARIES
                 ${ZLIB_INSTALL_DIR}/lib/zlibstatic$<$<CONFIG:Debug>:d>.lib)
+            set(ZLIB_BYPRODUCTS
+                ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib)
         else()
             set(ZLIB_LIBRARIES
+                ${ZLIB_INSTALL_DIR}/lib/libz.a)
+            set(ZLIB_BYPRODUCTS
                 ${ZLIB_INSTALL_DIR}/lib/libz.a)
         endif()
 
@@ -110,7 +114,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
             SOURCE_DIR ${ZLIB_SOURCE_DIR}
             BUILD_IN_SOURCE 1
             INSTALL_DIR ${ZLIB_INSTALL_DIR}
-            BUILD_BYPRODUCTS ${ZLIB_STATIC_LIBRARIES}
+            BUILD_BYPRODUCTS ${ZLIB_BYPRODUCTS}
             UPDATE_COMMAND ""
             CMAKE_ARGS "${CMAKE_ARGS};-DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}")
 
