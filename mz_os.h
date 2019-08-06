@@ -20,6 +20,8 @@ extern "C" {
 
 #if defined(__APPLE__)
 #  define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_OSX_DARWIN)
+#elif defined(__riscos__)
+#  define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_RISCOS)
 #elif defined(__unix__)
 #  define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_UNIX)
 #elif defined(_WIN32)
