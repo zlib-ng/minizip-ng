@@ -20,7 +20,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if defined(__APPLE__) || defined(__unix__)
+#if defined(__APPLE__) || defined(__unix__) || defined(__riscos__)
 #  include <utime.h>
 #  include <unistd.h>
 #endif
