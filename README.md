@@ -18,12 +18,12 @@ Maintained by Nathan Moinvaziri.
 
 ## History
 
-Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) in 1998. It was first included in the zlib distribution as an additional code contribution starting in zlib 1.1.2. Since that time, it has been continually improved upon and contributed to by many people. The original [project](https://github.com/madler/zlib/tree/master/contrib/minizip) can still be found in the zlib distribution that is maintained by Mark Adler. 
+Minizip was originally developed by [Gilles Vollant](https://www.winimage.com/zLibDll/minizip.html) in 1998. It was first included in the zlib distribution as an additional code contribution starting in zlib 1.1.2. Since that time, it has been continually improved upon and contributed to by many people. The original [project](https://github.com/madler/zlib/tree/master/contrib/minizip) can still be found in the zlib distribution that is maintained by Mark Adler.
 
-My work with the minizip library started in 2006 when I fixed a few bugs I found and submitted them to 
-Gilles Vollant. In 2010, I implemented WinZip AES encryption, disk splitting, and 
-I/O buffering that were necessary for another project I was working on. Shortly after, I created this public repository 
-so I could share my improvements with the community. In early 2017, I began the work to refactor and rewrite 
+My work with the minizip library started in 2006 when I fixed a few bugs I found and submitted them to
+Gilles Vollant. In 2010, I implemented WinZip AES encryption, disk splitting, and
+I/O buffering that were necessary for another project I was working on. Shortly after, I created this public repository
+so I could share my improvements with the community. In early 2017, I began the work to refactor and rewrite
 the library as version 2 because it had become difficult to maintain and code readability suffered over the years.
 
 ## Features
@@ -76,6 +76,7 @@ cmake --build .
 | MZ_LIBCOMP | Enables Apple compression | OFF |
 | MZ_OPENSSL | Enables OpenSSL encryption | OFF |
 | MZ_BRG | Enables Brian Gladman's library | OFF |
+| MZ_SIGNING | Enabled zip signing support | ON |
 | MZ_COMPRESS_ONLY | Only support compression | OFF |
 | MZ_DECOMPRESS_ONLY | Only support decompression | OFF |
 | MZ_BUILD_TEST | Builds minizip test executable | OFF |

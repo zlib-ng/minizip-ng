@@ -668,7 +668,7 @@ int main(int argc, const char *argv[])
 #endif
             else if (((c == 'h') || (c == 'H')) && (i + 1 < argc))
             {
-#ifndef MZ_ZIP_NO_SIGNING
+#ifdef MZ_ZIP_SIGNING
                 options.cert_path = argv[i + 1];
                 printf("%s ", argv[i + 1]);
 #else
@@ -678,7 +678,7 @@ int main(int argc, const char *argv[])
             }
             else if (((c == 'w') || (c == 'W')) && (i + 1 < argc))
             {
-#ifndef MZ_ZIP_NO_SIGNING
+#ifdef MZ_ZIP_SIGNING
                 options.cert_pwd = argv[i + 1];
                 printf("%s ", argv[i + 1]);
 #else

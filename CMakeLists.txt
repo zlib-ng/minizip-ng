@@ -18,6 +18,7 @@ option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_LIBCOMP "Enables Apple compression" OFF)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
 option(MZ_BRG "Enables Brian Gladman's encryption library" OFF)
+option(MZ_SIGNING "Enables zip signing support" ON)
 option(MZ_COMPRESS_ONLY "Only support compression" OFF)
 option(MZ_DECOMPRESS_ONLY "Only support decompression" OFF)
 option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
@@ -241,6 +242,9 @@ endif()
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
     add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
 endif()
+if(MZ_SIGNING)
+    add_definitions(-DMZ_ZIP_SIGNING)
+endif()
 
 # Windows specific
 if(WIN32)
@@ -365,8 +369,6 @@ endif()
 # Include BRG
 if(MZ_BRG)
     list(APPEND MINIZIP_SRC "mz_crypt_brg.c")
-
-    add_definitions(-DMZ_ZIP_NO_SIGNING)
 
     set(BRG_SRC
         lib/brg/aescrypt.c
