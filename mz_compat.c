@@ -48,7 +48,7 @@ static int32_t zipConvertAppendToStreamMode(int append)
         mode |= MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_APPEND;
         break;
     case APPEND_STATUS_ADDINZIP:
-        mode |= MZ_OPEN_MODE_READ;
+        mode |= MZ_OPEN_MODE_READ | MZ_OPEN_MODE_APPEND;
         break;
     }
     return mode;
