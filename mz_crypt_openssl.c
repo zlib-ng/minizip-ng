@@ -322,6 +322,27 @@ typedef struct mz_crypt_hmac_s {
 
 /***************************************************************************/
 
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined(LIBRESSL_VERSION_NUMBER)
+static HMAC_CTX *HMAC_CTX_new(void)
+{
+    HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
+    if (ctx != NULL)
+        HMAC_CTX_init(ctx);
+    return ctx;
+}
+
+static void HMAC_CTX_free(HMAC_CTX *ctx)
+{
+    if (ctx != NULL)
+    {
+        HMAC_CTX_cleanup(ctx);
+        OPENSSL_free(ctx);
+    }
+}
+#endif
+
+/***************************************************************************/
+
 void mz_crypt_hmac_reset(void *handle)
 {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
