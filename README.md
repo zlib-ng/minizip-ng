@@ -76,7 +76,7 @@ cmake --build .
 | MZ_LIBCOMP | Enables Apple compression | OFF |
 | MZ_OPENSSL | Enables OpenSSL encryption | OFF |
 | MZ_BRG | Enables Brian Gladman's library | OFF |
-| MZ_SIGNING | Enabled zip signing support | ON |
+| MZ_SIGNING | Enables zip signing support | ON |
 | MZ_COMPRESS_ONLY | Only support compression | OFF |
 | MZ_DECOMPRESS_ONLY | Only support decompression | OFF |
 | MZ_BUILD_TEST | Builds minizip test executable | OFF |
