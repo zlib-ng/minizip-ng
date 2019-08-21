@@ -1425,7 +1425,7 @@ int32_t mz_zip_writer_entry_close(void *handle)
                 err = MZ_WRITE_ERROR;
         }
 
-#ifndef MZ_ZIP_NO_SIGNING
+#ifdef MZ_ZIP_SIGNING
         if ((err == MZ_OK) && (writer->cert_data != NULL) && (writer->cert_data_size > 0))
         {
             /* Sign entry if not zipping cd or if it is cd being zipped */
