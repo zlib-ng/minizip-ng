@@ -168,8 +168,6 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0)
-                break;
 
             zlib->zstream.next_in = zlib->buffer;
             zlib->zstream.avail_in = read;
@@ -205,7 +203,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size)
             break;
         }
     }
-    while (zlib->zstream.avail_out > 0);
+    while ((zlib->zstream.avail_out > 0) && (in_bytes > 0 || out_bytes > 0));
 
     if (zlib->error != 0)
     {
