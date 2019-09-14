@@ -330,7 +330,7 @@ void test_stream_mem(void)
     mz_stream_open(write_mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
     mz_zip_create(&zip_handle);
-    err = mz_zip_open(zip_handle, write_mem_stream, MZ_OPEN_MODE_READWRITE);
+    err = mz_zip_open(zip_handle, write_mem_stream, MZ_OPEN_MODE_WRITE);
 
     if (err == MZ_OK)
     {
