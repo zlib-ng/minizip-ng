@@ -324,7 +324,7 @@
 #define PACKAGE_TARNAME "xz"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "http://tukaani.org/xz/"
+#define PACKAGE_URL "https://tukaani.org/xz/"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "5.2.3"

@@ -29,7 +29,7 @@ To perform AES encryption and decryption, WinZip uses AES functions written by D
 
 Dr. Gladman's encryption functions are portable to a number of operating systems and can be static linked into your applications, so there are no operating system version or library dependencies. In particular, the functions do not require Microsoft's Cryptography API.
 
-General information on the AES standard and the encryption algorithm (also known as  _Rijndael_) is readily available on the Internet. A good place to start is  [http://www.nist.gov/public_affairs/releases/g00-176.htm](http://www.nist.gov/public_affairs/releases/g00-176.htm).
+General information on the AES standard and the encryption algorithm (also known as _Rijndael_) is readily available on the Internet. A good place to start is  [https://web.archive.org/web/20100407101917/www.nist.gov/public_affairs/releases/g00-176.htm](https://web.archive.org/web/20100407101917/www.nist.gov/public_affairs/releases/g00-176.htm).
 
 **II. Zip file format**
 
@@ -39,7 +39,7 @@ General information on the AES standard and the encryption algorithm (also known
     
     WinZip sets the version needed to extract and version made by fields in the local and central headers to the same values it would use if the file were not encrypted.
     
-    The basic Zip file format specification used by WinZip is available via FTP from the Info-ZIP group at  [ftp://ftp.info-zip.org/pub/infozip/doc/appnote-iz-latest.zip](ftp://ftp.info-zip.org/pub/infozip/doc/appnote-iz-latest.zip).
+    The basic Zip file format specification used by WinZip is available via FTP from the Info-ZIP group at  [https://infozip.sourceforge.io/doc/appnote-iz-latest.zip](https://infozip.sourceforge.io/doc/appnote-iz-latest.zip).
     
 2.  Compression method and encryption flag
     
@@ -179,11 +179,11 @@ Note that the January 2004 version of the WinZip AE-2 specification, version 1.0
     
 3.  Key Generation
     
-    Key derivation, as used by AE-1 and AE-2 and as implemented in Dr. Gladman's library, is done according to the PBKDF2 algorithm, which is described in the  [RFC2898](http://www.faqs.org/rfcs/rfc2898.html)  guidelines. An iteration count of 1000 is used. An appropriate number of bits from the resulting hash value are used to compose three output values: an encryption key, an authentication key, and a password verification value. The first  _n_  bits become the encryption key, the next  _m_  bits become the authentication key, and the last 16 bits (two bytes) become the password verification value.
+    Key derivation, as used by AE-1 and AE-2 and as implemented in Dr. Gladman's library, is done according to the PBKDF2 algorithm, which is described in the  [RFC2898](https://www.ietf.org/rfc/rfc2898.txt)  guidelines. An iteration count of 1000 is used. An appropriate number of bits from the resulting hash value are used to compose three output values: an encryption key, an authentication key, and a password verification value. The first  _n_  bits become the encryption key, the next  _m_  bits become the authentication key, and the last 16 bits (two bytes) become the password verification value.
     
     As part of the process outlined in RFC 2898 a pseudo-random function must be called; AE-2 uses the HMAC-SHA1 function, since it is a well-respected algorithm that has been in wide use for this purpose for several years.
     
-    Note that, when used in connection with 192- or 256-bit AES encryption, the fact that HMAC-SHA1 produces a 160-bit result means that, regardless of the password that you specify, the search space for the encryption key is unlikely to reach the theoretical 192- or 256-bit maximum, and cannot be guaranteed to exceed 160 bits. This is discussed in section B.1.1 of the  [RFC2898 specification](http://www.faqs.org/rfcs/rfc2898.html).
+    Note that, when used in connection with 192- or 256-bit AES encryption, the fact that HMAC-SHA1 produces a 160-bit result means that, regardless of the password that you specify, the search space for the encryption key is unlikely to reach the theoretical 192- or 256-bit maximum, and cannot be guaranteed to exceed 160 bits. This is discussed in section B.1.1 of the  [RFC2898 specification](https://www.ietf.org/rfc/rfc2898.txt).
     
 
 **VI. FAQs**
@@ -208,7 +208,7 @@ Note that the January 2004 version of the WinZip AE-2 specification, version 1.0
     
     The purpose of the authentication code is to insure that, once a file's data has been compressed and encrypted, any accidental corruption of the encrypted data, and any deliberate attempts to modify the encrypted data by an attacker who does not know the password, can be detected.
     
-    The current consensus in the cryptographic community is that associating a message authentication code (or MAC) with encrypted data has strong security value because it makes a number of attacks more difficult to engineer. For AES CTR mode encryption in particular, a MAC is especially important because a number of trivial attacks are possible in its absence. The MAC used with WinZip's AES encryption is based on[HMAC-SHA1-80](http://www.faqs.org/rfcs/rfc2104.html), a mature and widely respected authentication algorithm.
+    The current consensus in the cryptographic community is that associating a message authentication code (or MAC) with encrypted data has strong security value because it makes a number of attacks more difficult to engineer. For AES CTR mode encryption in particular, a MAC is especially important because a number of trivial attacks are possible in its absence. The MAC used with WinZip's AES encryption is based on[HMAC-SHA1-80](https://www.ietf.org/rfc/rfc2104.txt), a mature and widely respected authentication algorithm.
     
     The MAC is calculated after the file data has been compressed and encrypted. This order of calculation is referred to as Encrypt-then-MAC, and is preferred by many cryptographers to the alternative order of MAC-then-Encrypt because Encrypt-then-MAC is immune to some known attacks on MAC-then-Encrypt.
     
@@ -252,7 +252,7 @@ Note that the January 2004 version of the WinZip AE-2 specification, version 1.0
     
 2.  Key Generation and HMAC-SHA1
     
-    The description of the  [key generation](https://www.winzip.com/aes_info.htm#key-generation)  mechanism has been updated to point out a limitation arising from its use of HMAC-SHA1 as the pseudo-random function: When used in connection with 192- or 256-bit AES encryption, the fact that HMAC-SHA1 produces a 160-bit result means that, regardless of the password that you specify, the search space for the encryption key is unlikely to reach the theoretical 192- or 256-bit maximum, and cannot be guaranteed to exceed 160 bits. This is discussed in section B.1.1 of the  [RFC2898 specification](http://www.faqs.org/rfcs/rfc2898.html).
+    The description of the  [key generation](https://www.winzip.com/aes_info.htm#key-generation)  mechanism has been updated to point out a limitation arising from its use of HMAC-SHA1 as the pseudo-random function: When used in connection with 192- or 256-bit AES encryption, the fact that HMAC-SHA1 produces a 160-bit result means that, regardless of the password that you specify, the search space for the encryption key is unlikely to reach the theoretical 192- or 256-bit maximum, and cannot be guaranteed to exceed 160 bits. This is discussed in section B.1.1 of the  [RFC2898 specification](https://www.ietf.org/rfc/rfc2898.txt).
 
 Document version: 1.04  
 Last modified: January 30, 2009

@@ -77,7 +77,7 @@ Copyright (c) 1989 - 2014 PKWARE Inc., All Rights Reserved.
    1.5.2 Information about this format and copies of this document are publicly
    available at:
 
-     http://www.pkware.com/appnote
+     https://www.pkware.com/appnote
 
 1.6 Disclaimer
 --------------
@@ -3217,7 +3217,7 @@ Copyright (c) 1989 - 2014 PKWARE Inc., All Rights Reserved.
    acquiring such a license.
 
    10.2 Additional information regarding PKWARE proprietray technology is 
-   available at http://www.pkware.com/appnote.
+   available at https://www.pkware.com/appnote.
 
 11.0 Acknowledgements
 ---------------------
