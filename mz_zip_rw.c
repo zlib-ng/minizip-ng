@@ -436,7 +436,7 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
         if (written < 0)
             err = written;
 
-        // Every 1 second lets update the progress 
+        // Every 1 second lets update the progress
         current_time = time(NULL);
         if ((current_time - update_time) > 1)
         {
@@ -513,7 +513,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path)
     if (err == MZ_OK)
     {
         // Set the time of the file that has been created
-        mz_os_set_file_date(path, reader->file_info->modified_date, 
+        mz_os_set_file_date(path, reader->file_info->modified_date,
             reader->file_info->accessed_date, reader->file_info->creation_date);
     }
 
@@ -544,7 +544,7 @@ int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len)
     if (len != (int32_t)reader->file_info->uncompressed_size)
         return MZ_PARAM_ERROR;
 
-    // Create a memory stream backed by our buffer and save to it 
+    // Create a memory stream backed by our buffer and save to it
     mz_stream_mem_create(&mem_stream);
     mz_stream_mem_set_buffer(mem_stream, buf, len);
 
@@ -1026,7 +1026,7 @@ int32_t mz_zip_writer_add(void *handle, void *stream, mz_stream_read_cb read_cb)
         if (written < 0)
             err = written;
 
-        // Every 1 second lets update the progress 
+        // Every 1 second lets update the progress
         current_time = time(NULL);
         if ((current_time - update_time) > 1)
         {
@@ -1124,7 +1124,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         filename += 1;
 
     // Get information about the file on disk so we can store it in zip
-    
+
     file_info.version_madeby = MZ_VERSION_MADEBY;
     file_info.compression_method = writer->compress_method;
     file_info.filename = filename;

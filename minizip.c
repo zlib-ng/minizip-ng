@@ -5,7 +5,7 @@
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+     https://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -101,7 +101,7 @@ int32_t minizip_list(const char *path)
     }
 
     err = mz_zip_reader_goto_first_entry(reader);
-        
+
     if (err != MZ_OK && err != MZ_END_OF_LIST)
     {
         printf("Error %d going to first entry in zip file\n", err);
@@ -278,7 +278,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     {
         printf("Error %d opening zip for writing\n", err);
     }
-    
+
     err_close = mz_zip_writer_close(writer);
     if (err_close != MZ_OK)
     {
@@ -302,7 +302,7 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
 {
     double progress = 0;
     uint8_t raw = 0;
-    
+
     mz_zip_reader_get_raw(handle, &raw);
 
     if (raw && file_info->compressed_size > 0)

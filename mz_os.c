@@ -5,7 +5,7 @@
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+     https://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -173,7 +173,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
 
                 // Remove current directory . if not at end of stirng
                 if ((*check == 0) || (*check == '\\' || *check == '/'))
-                {                   
+                {
                     // Only proceed if .\ is not entire string
                     if (check[1] != 0 || (path != source))
                     {
@@ -204,7 +204,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                             }
                             while (target > output);
                         }
-                        
+
                         if ((target == output) && (*source != 0))
                             source += 1;
                         if ((*target == '\\' || *target == '/') && (*source == 0))
@@ -375,7 +375,7 @@ int32_t mz_encoding_cp437_to_utf8(const char *source, char *target, int32_t max_
     int32_t x = 0;
     int32_t written = 0;
 
-    // Convert ibm codepage 437 encoding to utf-8 
+    // Convert ibm codepage 437 encoding to utf-8
     while (*source != 0)
     {
         cp437_char = *source;

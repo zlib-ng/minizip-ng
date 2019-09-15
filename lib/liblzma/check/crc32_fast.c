@@ -5,7 +5,7 @@
 ///
 /// Calculate the CRC32 using the slice-by-eight algorithm.
 /// It is explained in this document:
-/// http://www.intel.com/technology/comms/perfnet/download/CRC_generators.pdf
+/// https://www.intel.com/technology/comms/perfnet/download/CRC_generators.pdf
 /// The code in this file is not the same as in Intel's paper, but
 /// the basic principle is identical.
 //

@@ -10,7 +10,7 @@
    Copyright (C) 2007-2008 Even Rouault
      Modifications of Unzip for Zip64
    Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+     https://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -560,7 +560,7 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
         // Memory streams used to store variable length file info data
         mz_stream_mem_create(&zip->file_info_stream);
         mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
-        
+
         mz_stream_mem_create(&zip->local_file_info_stream);
         mz_stream_mem_open(zip->local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
     }
@@ -1461,7 +1461,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
 #ifdef MZ_ZIP_NO_DECOMPRESSION
     if (zip->file_info.compression_method != MZ_COMPRESS_METHOD_STORE)
         err = MZ_SUPPORT_ERROR;
-#endif 
+#endif
     if (err == MZ_OK)
         err = mz_zip_entry_open_int(handle, raw, 0, password);
 

@@ -115,7 +115,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
 
         printf("%s encrypted %d\n", filename, written);
     }
-    
+
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
@@ -130,7 +130,7 @@ void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password
             read = mz_stream_read(crypt_out_stream, buf, read);
             mz_stream_close(crypt_out_stream);
         }
-        
+
         mz_stream_delete(&crypt_out_stream);
 
         mz_stream_os_close(in_stream);
@@ -213,7 +213,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         mz_stream_os_close(out_stream);
     }
-    
+
     mz_stream_os_delete(&out_stream);
     mz_stream_os_create(&in_stream);
 
@@ -258,7 +258,7 @@ void test_compress(char *method, mz_stream_create_cb create_compress)
 
         printf("%s crc 0x%08x\n", filename, crc32);
     }
-    
+
     mz_stream_os_delete(&out_stream);
 }
 

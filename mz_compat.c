@@ -5,7 +5,7 @@
    Copyright (C) 2010-2018 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 1998-2010 Gilles Vollant
-     http://www.winimage.com/zLibDll/minizip.html
+     https://www.winimage.com/zLibDll/minizip.html
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -376,7 +376,7 @@ unzFile ZEXPORT unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefun
         if (mz_stream_os_create(&stream) == NULL)
             return NULL;
     }
-    
+
     if (mz_stream_open(stream, path, MZ_OPEN_MODE_READ) != MZ_OK)
     {
         mz_stream_delete(&stream);
@@ -541,7 +541,7 @@ int ZEXPORT unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, 
             *level = 6;
             switch (file_info->flag & 0x06)
             {
-            case MZ_ZIP_FLAG_DEFLATE_SUPER_FAST: 
+            case MZ_ZIP_FLAG_DEFLATE_SUPER_FAST:
                 *level = 1;
                 break;
             case MZ_ZIP_FLAG_DEFLATE_FAST:
