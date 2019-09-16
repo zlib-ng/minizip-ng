@@ -476,16 +476,16 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
     if (err == MZ_OK)
     {
-        mz_zip_print("Zip - Entry - Read header - %s (local %"PRId8")\n",
+        mz_zip_print("Zip - Entry - Read header - %s (local %" PRId8 ")\n",
             file_info->filename, local);
-        mz_zip_print("Zip - Entry - Read header compress (ucs %"PRId64" cs %"PRId64" crc 0x%08"PRIx32")\n",
+        mz_zip_print("Zip - Entry - Read header compress (ucs %" PRId64 " cs %" PRId64 " crc 0x%08" PRIx32 ")\n",
             file_info->uncompressed_size, file_info->compressed_size, file_info->crc);
         if (!local)
         {
-            mz_zip_print("Zip - Entry - Read header disk (disk %"PRIu32" offset %"PRId64")\n",
+            mz_zip_print("Zip - Entry - Read header disk (disk %" PRIu32 " offset %" PRId64 ")\n",
                 file_info->disk_number, file_info->disk_offset);
         }
-        mz_zip_print("Zip - Entry - Read header variable (fnl %"PRId32" efs %"PRId32" cms %"PRId32")\n",
+        mz_zip_print("Zip - Entry - Read header variable (fnl %" PRId32 " efs %" PRId32 " cms %" PRId32 ")\n",
             file_info->filename_size, file_info->extrafield_size, file_info->comment_size);
     }
 
@@ -739,7 +739,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     if (mask)
     {
-        snprintf(masked_name, sizeof(masked_name), "%"PRIx32"_%"PRIx64,
+        snprintf(masked_name, sizeof(masked_name), "%" PRIx32 "_%" PRIx64,
             file_info->disk_number, file_info->disk_offset);
         filename = masked_name;
     }
@@ -1069,7 +1069,7 @@ static int32_t mz_zip_read_cd(void *handle)
 
     if (err == MZ_OK)
     {
-        mz_zip_print("Zip - Read cd (disk %"PRId32" entries %"PRId64" offset %"PRId64" size %"PRId64")\n",
+        mz_zip_print("Zip - Read cd (disk %" PRId32 " entries %" PRId64 " offset %" PRId64 " size %" PRId64 ")\n",
             zip->disk_number_with_cd, zip->number_entry, zip->cd_offset, zip->cd_size);
 
         /* Verify central directory signature exists at offset */
@@ -1136,7 +1136,7 @@ static int32_t mz_zip_write_cd(void *handle)
 
     err = mz_stream_copy(zip->stream, zip->cd_mem_stream, (int32_t)zip->cd_size);
 
-    mz_zip_print("Zip - Write cd (disk %"PRId32" entries %"PRId64" offset %"PRId64" size %"PRId64")\n",
+    mz_zip_print("Zip - Write cd (disk %" PRId32 " entries %" PRId64 " offset %" PRId64 " size %" PRId64 ")\n",
         zip->disk_number_with_cd, zip->number_entry, zip->cd_offset, zip->cd_size);
 
     if (zip->cd_size == 0 && zip->number_entry > 0)
@@ -1345,7 +1345,7 @@ static int32_t mz_zip_recover_cd(void *handle)
 
     mz_stream_mem_delete(&local_file_info_stream);
 
-    mz_zip_print("Zip - Recover cd complete (cddisk %"PRId32" entries %"PRId64")\n",
+    mz_zip_print("Zip - Recover cd complete (cddisk %" PRId32 " entries %" PRId64 ")\n",
         disk_number_with_cd, number_entry);
 
     if (number_entry == 0)
@@ -1421,7 +1421,7 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
             err = mz_zip_read_cd(zip);
             if (err != MZ_OK)
             {
-                mz_zip_print("Zip - Error detected reading cd (%"PRId32")", err);
+                mz_zip_print("Zip - Error detected reading cd (%" PRId32 ")", err);
                 if (zip->recover && mz_zip_recover_cd(zip) == MZ_OK)
                     err = MZ_OK;
             }
@@ -1813,7 +1813,7 @@ static int32_t mz_zip_seek_to_local_header(void *handle)
     else
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
 
-    mz_zip_print("Zip - Entry - Seek local (disk %"PRId32" offset %"PRId64")\n",
+    mz_zip_print("Zip - Entry - Seek local (disk %" PRId32 " offset %" PRId64 ")\n",
         zip->file_info.disk_number, zip->file_info.disk_offset);
 
     /* Guard against seek overflows */
@@ -1841,7 +1841,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password)
     if (zip->entry_scanned == 0)
         return MZ_PARAM_ERROR;
 
-    mz_zip_print("Zip - Entry - Read open (raw %"PRId32")\n", raw);
+    mz_zip_print("Zip - Entry - Read open (raw %" PRId32 ")\n", raw);
 
     err = mz_zip_seek_to_local_header(handle);
     if (err == MZ_OK)
@@ -1897,7 +1897,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
 
     memcpy(&zip->file_info, file_info, sizeof(mz_zip_file));
 
-    mz_zip_print("Zip - Entry - Write open - %s (level %"PRId16" raw %"PRId8")\n",
+    mz_zip_print("Zip - Entry - Write open - %s (level %" PRId16 " raw %" PRId8 ")\n",
         zip->file_info.filename, compress_level, raw);
 
     mz_stream_seek(zip->file_info_stream, 0, MZ_SEEK_SET);
@@ -2001,7 +2001,7 @@ int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len)
     if (read > 0)
         zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, read);
 
-    mz_zip_print("Zip - Entry - Read - %"PRId32" (max %"PRId32")\n", read, len);
+    mz_zip_print("Zip - Entry - Read - %" PRId32 " (max %" PRId32 ")\n", read, len);
 
     return read;
 }
@@ -2017,7 +2017,7 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len)
     if (written > 0)
         zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
 
-    mz_zip_print("Zip - Entry - Write - %"PRId32" (max %"PRId32")\n", written, len);
+    mz_zip_print("Zip - Entry - Write - %" PRId32 " (max %" PRId32 ")\n", written, len);
 
     return written;
 }
@@ -2080,7 +2080,7 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
         {
             if (zip->entry_crc32 != zip->file_info.crc)
             {
-                mz_zip_print("Zip - Entry - Crc failed (actual 0x%08"PRIx32" expected 0x%08"PRIx32")\n",
+                mz_zip_print("Zip - Entry - Crc failed (actual 0x%08" PRIx32 " expected 0x%08" PRIx32 ")\n",
                     zip->entry_crc32, zip->file_info.crc);
 
                 err = MZ_CRC_ERROR;
@@ -2108,7 +2108,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     if (!zip->entry_raw)
         crc32 = zip->entry_crc32;
 
-    mz_zip_print("Zip - Entry - Write Close (crc 0x%08"PRIx32" cs %"PRId64" ucs %"PRId64" )\n",
+    mz_zip_print("Zip - Entry - Write Close (crc 0x%08" PRIx32 " cs %" PRId64 " ucs %" PRId64 ")\n",
         crc32, compressed_size, uncompressed_size);
 
     /* If sizes are not set, then read them from the compression stream */
@@ -2155,7 +2155,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
     /* Write file info to central directory */
 
-    mz_zip_print("Zip - Entry - Write cd (ucs %"PRId64" cs %"PRId64" crc 0x%08"PRIx32")\n",
+    mz_zip_print("Zip - Entry - Write cd (ucs %" PRId64 " cs %" PRId64 " crc 0x%08" PRIx32 ")\n",
         uncompressed_size, compressed_size, crc32);
 
     zip->file_info.crc = crc32;
