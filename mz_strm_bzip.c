@@ -151,8 +151,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
 
             if (read < 0)
                 return read;
-            if (read == 0)
-                break;
 
             bzip->bzstream.next_in = (char *)bzip->buffer;
             bzip->bzstream.avail_in = (uint32_t)read;
@@ -188,7 +186,7 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size)
             break;
         }
     }
-    while ((bzip->bzstream.avail_out > 0) && (in_bytes > 0 || out_bytes > 0));
+    while (bzip->bzstream.avail_out > 0);
 
     if (bzip->error != 0)
         return MZ_DATA_ERROR;
