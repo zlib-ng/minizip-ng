@@ -1,5 +1,5 @@
 /* test.c - Test bed area
-   Version 2.8.9, July 4, 2019
+   Version 2.9.0, September 18, 2019
    part of the MiniZip project
 
    Copyright (C) 2018-2019 Nathan Moinvaziri
@@ -41,7 +41,7 @@ void test_path_resolve_int(char *path, char *expected_path)
 {
     char output[256];
     int32_t ok = 0;
-    
+
     memset(output, 'z', sizeof(output));
     mz_path_resolve(path, output, sizeof(output));
     ok = (strcmp(output, expected_path) == 0);
