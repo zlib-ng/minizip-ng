@@ -1,14 +1,8 @@
 language: c
 
-stages:
-  - windows
-  - linux
-  - macintosh
-
 matrix:
   include:
-    - stage: windows
-      os: windows
+    - os: windows
       compiler: clang
       before_deploy:
         - cd Release
@@ -23,46 +17,35 @@ matrix:
         skip_cleanup: true
         on:
           tags: true
-    - stage: windows
-      os: windows
+    - os: windows
       compiler: gcc
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_ZLIB=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_BZIP=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_LZMA=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_WZAES=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_PKCRYPT=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_COMPRESS_ONLY=ON"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_DECOMPRESS_ONLY=ON"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF"
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: clang
       env: TOOL="-DMZ_OPENSSL=ON"
       before_deploy:
@@ -70,36 +53,29 @@ matrix:
       deploy:
         <<: *deploy_base
         file: minizip-$TRAVIS_OS_NAME.tar.gz
-    - stage: linux
-      os: linux
+    - os: linux
       compiler: gcc
-    - stage: macintosh
-      os: osx
+    - os: osx
       compiler: clang
       before_deploy:
         - ls *mini*zip* | tar -czvf minizip-$TRAVIS_OS_NAME.tar.gz -T -
       deploy:
         <<: *deploy_base
         file: minizip-$TRAVIS_OS_NAME.tar.gz
-    - stage: macintosh
-      os: osx
+    - os: osx
       compiler: gcc
-    - stage: macintosh
-      os: osx
+    - os: osx
       compiler: clang
       env: TOOL="-DMZ_LIBCOMP=ON"
-    - stage: macintosh
-      os: osx
+    - os: osx
       compiler: gcc
       env: TOOL="-DMZ_LIBCOMP=ON"
-    - stage: macintosh
-      os: osx
+    - os: osx
       compiler: clang
       before_install:
         - brew install openssl
       env: TOOL="-DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib"
-    - stage: macintosh
-      os: osx
+    - os: osx
       name: Podspec
       before_script:
         - mkdir example

@@ -1,0 +1,220 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ci:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [
+          Ubuntu 16 GCC 4.8,
+          Ubuntu 16 GCC,
+          Ubuntu 16 Clang 3.5,
+          Ubuntu 16 Clang Deploy,
+          Ubuntu 18 GCC,
+          Ubuntu 18 Clang,
+          Ubuntu 18 Clang No Zlib,
+          Ubuntu 18 Clang No Bzip2,
+          Ubuntu 18 Clang No LZMA,
+          Ubuntu 18 Clang No Pkcrypt,
+          Ubuntu 18 Clang No Winzip AES,
+          Ubuntu 18 Clang No Encryption,
+          Ubuntu 18 Clang Compress Only,
+          Ubuntu 18 Clang Decompress Only,
+          Ubuntu 18 Clang OpenSSL,
+          Windows 2016 MSVC Deploy,
+          Windows 2016 Clang,
+          Windows 2016 GCC,
+          Windows 2019 MSVC,
+          Windows 2019 Clang,
+          Windows 2019 GCC,
+          macOS 10.14 Xcode 9.4.1 Deploy,
+          macOS 10.14 Xcode,
+          macOS 10.14 Xcode LibCompression,
+          macOS 10.14 Xcode OpenSSL
+        ]
+
+        include:
+          - name: Ubuntu 16 GCC 4.8
+            os: ubuntu-16.04
+            compiler: gcc
+            version: "4.8"
+
+          - name: Ubuntu 16 GCC
+            os: ubuntu-16.04
+            compiler: gcc
+
+          - name: Ubuntu 16 Clang 3.5
+            os: ubuntu-16.04
+            compiler: clang
+            version: "3.5"
+
+          - name: Ubuntu 16 Clang Deploy
+            os: ubuntu-16.04
+            compiler: clang
+            deploy: true
+            deploy-name: linux
+
+          - name: Ubuntu 18 GCC
+            os: ubuntu-18.04
+            compiler: gcc
+
+          - name: Ubuntu 18 Clang
+            os: ubuntu-18.04
+            compiler: clang
+
+          - name: Ubuntu 18 Clang No Zlib
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_ZLIB=OFF
+
+          - name: Ubuntu 18 Clang No Bzip2
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_BZIP=OFF
+
+          - name: Ubuntu 18 Clang No LZMA
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_LZMA=OFF
+
+          - name: Ubuntu 18 Clang No Pkcrypt
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_PKCRYPT=OFF
+
+          - name: Ubuntu 18 Clang No Winzip AES
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_WZAES=OFF
+
+          - name: Ubuntu 18 Clang No Encryption
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF
+
+          - name: Ubuntu 18 Clang Compress Only
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_COMPRESS_ONLY=ON
+
+          - name: Ubuntu 18 Clang Decompress Only
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_DECOMPRESS_ONLY=ON
+
+          - name: Ubuntu 18 Clang OpenSSL
+            os: ubuntu-18.04
+            compiler: clang
+            cmake-args: -DMZ_OPENSSL=ON
+
+          - name: Windows 2016 MSVC Deploy
+            os: windows-2016
+            compiler: cl
+            deploy: true
+            deploy-name: windows
+
+          - name: Windows 2016 Clang
+            os: windows-2016
+            compiler: clang
+
+          - name: Windows 2016 GCC
+            os: windows-2016
+            compiler: gcc
+
+          - name: Windows 2019 MSVC
+            os: windows-2019
+            compiler: cl
+
+          - name: Windows 2019 Clang
+            os: windows-2019
+            compiler: clang
+
+          - name: Windows 2019 GCC
+            os: windows-2019
+            compiler: gcc
+
+          - name: macOS 10.14 Xcode 9.4.1 Deploy
+            os: macOS-10.14
+            compiler: xcode
+            version: "9.4.1"
+            deploy: true
+            deploy-name: macos
+
+          - name: macOS 10.14 Xcode
+            os: macOS-10.14
+            compiler: xcode
+
+          - name: macOS 10.14 Xcode LibCompression
+            os: macOS-10.14
+            compiler: xcode
+            cmake-args: -DMZ_LIBCOMP=ON
+
+          - name: macOS 10.14 Xcode OpenSSL
+            os: macOS-10.14
+            compiler: xcode
+            cmake-args: -DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Generate project files
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake-args }}
+
+    - name: Compile source code
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: Run test cases
+      run: |
+        cd build
+        ctest --output-on-failure -C Release
+
+    - name: Package release (Ubuntu/macOS)
+      if: (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macOS')) && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd build
+        ls *mini*zip* | tar -czvf minizip-${{ matrix.deploy-name }}.tar.gz -T -
+
+    - name: Upload release (Ubuntu/macOS)
+      uses: svenstaro/upload-release-action@v1-release
+      if: (startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macOS')) && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      with:
+        asset_name: minizip-${{ matrix.deploy-name }}.tar.gz
+        file: build/minizip-${{ matrix.deploy-name }}.tar.gz
+        tag: ${{ github.ref }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        overwrite: true
+
+    - name: Package release (Windows)
+      if: startsWith(matrix.os, 'windows') && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      run: |
+        cd build/Release
+        7z a -tzip minizip-${{ matrix.deploy-name }}.zip *mini*zip*
+
+    - name: Upload release (Windows)
+      uses: svenstaro/upload-release-action@v1-release
+      if: startsWith(matrix.os, 'windows') && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      with:
+        asset_name: minizip-${{ matrix.deploy-name }}.zip
+        file: build/Release/minizip-${{ matrix.deploy-name }}.zip
+        tag: ${{ github.ref }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        overwrite: true
+
+    - name: Podspec (macOS)
+      if: startsWith(matrix.os, 'macOS')
+      run: |
+        cd build
+        rm CMakeCache.txt
+        cmake -G Xcode ..
+        echo "target 'minizip' do pod 'Minizip', :path => '..'; platform :osx; end" > Podfile
+        pod install
