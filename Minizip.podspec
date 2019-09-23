@@ -47,6 +47,13 @@ DESC
   s.subspec 'BZIP2' do |sp|
     # Enables BZIP2 compression
     sp.dependency 'Minizip/Core'
+    sp.source_files = 'lib/bzip2/*.{c,h}', 'mz_strm_bzip.{c,h}'
+    sp.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_BZIP2' }
+  end
+  
+  s.subspec 'BZIP2_LIB' do |sp|
+    # Enables system library BZIP2 compression
+    sp.dependency 'Minizip/Core'
     sp.source_files = 'mz_strm_bzip.{c,h}'
     sp.libraries = 'bz2'
     sp.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_BZIP2' }
