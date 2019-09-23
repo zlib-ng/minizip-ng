@@ -14,7 +14,7 @@ jobs:
           Ubuntu 16 GCC 4.8,
           Ubuntu 16 GCC,
           Ubuntu 16 Clang 3.5,
-          Ubuntu 16 Clang Deploy,
+          Ubuntu 16 Clang,
           Ubuntu 18 GCC,
           Ubuntu 18 Clang,
           Ubuntu 18 Clang No Zlib,
@@ -26,13 +26,13 @@ jobs:
           Ubuntu 18 Clang Compress Only,
           Ubuntu 18 Clang Decompress Only,
           Ubuntu 18 Clang OpenSSL,
-          Windows 2016 MSVC Deploy,
+          Windows 2016 MSVC,
           Windows 2016 Clang,
           Windows 2016 GCC,
           Windows 2019 MSVC,
           Windows 2019 Clang,
           Windows 2019 GCC,
-          macOS 10.14 Xcode 9.4.1 Deploy,
+          macOS 10.14 Xcode 9.4.1,
           macOS 10.14 Xcode,
           macOS 10.14 Xcode LibCompression,
           macOS 10.14 Xcode OpenSSL
@@ -53,7 +53,7 @@ jobs:
             compiler: clang
             version: "3.5"
 
-          - name: Ubuntu 16 Clang Deploy
+          - name: Ubuntu 16 Clang
             os: ubuntu-16.04
             compiler: clang
             deploy: true
@@ -112,7 +112,7 @@ jobs:
             compiler: clang
             cmake-args: -DMZ_OPENSSL=ON
 
-          - name: Windows 2016 MSVC Deploy
+          - name: Windows 2016 MSVC
             os: windows-2016
             compiler: cl
             deploy: true
@@ -138,7 +138,7 @@ jobs:
             os: windows-2019
             compiler: gcc
 
-          - name: macOS 10.14 Xcode 9.4.1 Deploy
+          - name: macOS 10.14 Xcode 9.4.1
             os: macOS-10.14
             compiler: xcode
             version: "9.4.1"
