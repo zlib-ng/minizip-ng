@@ -11,12 +11,12 @@ Maintained by Nathan Moinvaziri.
 
 ## Branches
 
-| Name | Version | Description |
-|:- |:-:|:-|
-|[master](https://github.com/nmoinvaz/minizip/tree/master)|2.x|Modern rewrite of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|
-|[dev](https://github.com/nmoinvaz/minizip/tree/dev)|2.x|Latest development code|
-|[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|1.x|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.|
-|[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|1.x|Original minizip as of zlib 1.2.11.|
+| Name | Description |
+|:- |:-|
+|[master](https://github.com/nmoinvaz/minizip/tree/master)|Modern rewrite that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|
+|[dev](https://github.com/nmoinvaz/minizip/tree/dev)|Latest development code|
+|[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.|
+|[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|Original minizip as of zlib 1.2.11.|
 
 ## History
 
