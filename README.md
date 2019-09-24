@@ -5,17 +5,18 @@ minizip is a zip manipulation library written in C that is supported on Windows,
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
 [![CodeFactor](https://www.codefactor.io/repository/github/nmoinvaz/minizip/badge)](https://www.codefactor.io/repository/github/nmoinvaz/minizip)
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/minizip.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:minizip)
+[![Master Branch Status](https://github.com/nmoinvaz/minizip/workflows/.github/workflows/main.yml/badge.svg)](https://github.com/nmoinvaz/minizip/actions)
 
 Maintained by Nathan Moinvaziri.
 
 ## Branches
 
-| Name | State | Version | Description |
-|:- |:-:|:-:|:-|
-|[master](https://github.com/nmoinvaz/minizip/tree/master)|Active [![Master Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=master)](https://travis-ci.org/nmoinvaz/minizip/branches)|2.x|Modern rewrite of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|
-|[dev](https://github.com/nmoinvaz/minizip/tree/dev)|Active [![Dev Branch Status](https://api.travis-ci.org/nmoinvaz/minizip.svg?branch=dev)](https://travis-ci.org/nmoinvaz/minizip/branches)|2.x|Latest development code|
-|[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|Stale| 1.x|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.|
-|[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|Stale| 1.x|Original minizip as of zlib 1.2.11.|
+| Name | Version | Description |
+|:- |:-:|:-|
+|[master](https://github.com/nmoinvaz/minizip/tree/master)|2.x|Modern rewrite of 1.2 branch that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|
+|[dev](https://github.com/nmoinvaz/minizip/tree/dev)|2.x|Latest development code|
+|[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|1.x|Drop-in replacement for zlib's minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes.|
+|[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|1.x|Original minizip as of zlib 1.2.11.|
 
 ## History
 
