@@ -607,12 +607,12 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
         };
     } REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
     REPARSE_DATA_BUFFER *reparse_data = NULL;
+    DWORD length = 0;
     HANDLE handle = NULL;
     wchar_t *path_wide = NULL;
     wchar_t *target_path_wide = NULL;
     uint32_t attribs = 0;
     uint8_t buffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
-    DWORD length = 0;
     int32_t target_path_len = 0;
     int32_t target_path_idx = 0;
     int32_t err = MZ_OK;
