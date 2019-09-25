@@ -24,6 +24,10 @@
 #  endif
 #endif
 
+#ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
+#  define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
+#endif
+
 /***************************************************************************/
 
 typedef struct DIR_int_s {
@@ -556,10 +560,6 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path)
     target_path_wide = mz_os_unicode_string_create(target_path, MZ_ENCODING_UTF8);
     if (target_path_wide != NULL)
     {
-        #ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
-        #define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
-        #endif
-
         if (mz_path_has_slash(target_path) == MZ_OK)
             flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
 
