@@ -96,6 +96,7 @@ typedef struct mz_zip_s
     int64_t  cd_current_pos;        /* pos of the current file in the central dir */
     int64_t  cd_offset;             /* offset of start of central directory */
     int64_t  cd_size;               /* size of the central directory */
+    uint32_t cd_signature;          /* signature of central directory */
 
     uint8_t  entry_scanned;         /* entry header information read ok */
     uint8_t  entry_opened;          /* entry is open for read/write */
@@ -1075,14 +1076,14 @@ static int32_t mz_zip_read_cd(void *handle)
         /* Verify central directory signature exists at offset */
         err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
         if (err == MZ_OK)
-            err = mz_stream_read_uint32(zip->stream, &value32);
-        if (value32 != MZ_ZIP_MAGIC_CENTRALHEADER)
+            err = mz_stream_read_uint32(zip->stream, &zip->cd_signature);
+        if (zip->cd_signature != MZ_ZIP_MAGIC_CENTRALHEADER)
         {
-            /* If not found attempt to seek backward to find it */
+            /* If cd not found attempt to seek backward to find it */
             err = mz_stream_seek(zip->stream, eocd_pos - zip->cd_size, MZ_SEEK_SET);
             if (err == MZ_OK)
-                err = mz_stream_read_uint32(zip->stream, &value32);
-            if (value32 == MZ_ZIP_MAGIC_CENTRALHEADER)
+                err = mz_stream_read_uint32(zip->stream, &zip->cd_signature);
+            if (zip->cd_signature == MZ_ZIP_MAGIC_CENTRALHEADER)
             {
                 /* If found compensate for incorrect locations */
                 value64i = zip->cd_offset;
@@ -1440,8 +1441,16 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode)
             }
             else
             {
-                /* If no central directory, append new zip to end of file */
-                err = mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
+                if (zip->cd_signature == MZ_ZIP_MAGIC_ENDHEADER)
+                {
+                    /* If tiny zip then overwrite end header */
+                    err = mz_stream_seek(zip->stream, zip->cd_offset, MZ_SEEK_SET);
+                }
+                else
+                {
+                    /* If no central directory, append new zip to end of file */
+                    err = mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
+                }
             }
 
             if (zip->disk_number_with_cd > 0)
