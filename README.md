@@ -57,7 +57,7 @@ the library as version 2 because it had become difficult to maintain and code re
 
 To generate project files for your platform:
 
-1. [Download and install](https://cmake.org/install/) cmake.
+1. [Download and install](https://cmake.org/install/) cmake (recommending at least version 3.11).
 2. Run cmake in the minizip directory.
 
 ```
