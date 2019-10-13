@@ -312,7 +312,7 @@ if(UNIX)
         endif()
     endif()
 
-    find_package(Iconv REQUIRED)
+    find_package(Iconv QUIET)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
         include_directories(${Iconv_INCLUDE_DIRS})
