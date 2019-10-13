@@ -312,6 +312,8 @@ if(UNIX)
         endif()
     endif()
 
+    # Iconv is only necessary when it is not already built-in
+    # FindIconv requires cmake 3.11 or higher
     find_package(Iconv QUIET)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
