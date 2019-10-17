@@ -58,12 +58,15 @@ set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/minizip" CACHE PATH "I
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
 configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
+set(MINIZIP_DEF)
+set(MINIZIP_INC)
+
 # Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
     find_package(ZLIB)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
-        include_directories(${ZLIB_INCLUDE_DIRS})
+        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
     else()
         if (NOT ZLIB_TAG)
             set(ZLIB_TAG master)
@@ -119,7 +122,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
             UPDATE_COMMAND ""
             CMAKE_ARGS "${CMAKE_ARGS};-DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}")
 
-        include_directories(${ZLIB_INCLUDE_DIRS})
+        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
     endif()
 endif()
 
@@ -128,8 +131,8 @@ if(MZ_BZIP2)
     find_package(BZip2)
     if(BZIP2_FOUND)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
-        include_directories(${BZIP2_INCLUDE_DIRS})
-        add_definitions(-DHAVE_BZIP2)
+        list(APPEND MINIZIP_INC ${BZIP2_INCLUDE_DIRS})
+        list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
     endif()
 endif()
 
@@ -139,9 +142,9 @@ if(MZ_OPENSSL)
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
 
-        include_directories(${OPENSSL_INCLUDE_DIR})
+        list(APPEND MINIZIP_INC ${OPENSSL_INCLUDE_DIR})
         if(OPENSSL_INCLUDE_DIRS)
-            include_directories(${OPENSSL_INCLUDE_DIRS})
+            list(APPEND MINIZIP_INC ${OPENSSL_INCLUDE_DIRS})
         endif()
     endif()
 endif()
@@ -151,24 +154,24 @@ check_include_file(stdint.h   HAVE_STDINT_H)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
 
 if(HAVE_STDINT_H)
-    add_definitions(-DHAVE_STDINT_H)
+    list(APPEND MINIZIP_DEF -DHAVE_STDINT_H)
 endif()
 if(HAVE_INTTYPES_H)
-    add_definitions(-DHAVE_INTTYPES_H)
+    list(APPEND MINIZIP_DEF -DHAVE_INTTYPES_H)
 endif()
 
 # Check for large file support
 check_type_size(off64_t OFF64_T)
 if(HAVE_OFF64_T)
-    add_definitions(-D__USE_FILE_OFFSET64)
-    add_definitions(-D__USE_LARGEFILE64)
-    add_definitions(-D_LARGEFILE64_SOURCE)
-    add_definitions(-D_FILE_OFFSET_BITS=64)
+    list(APPEND MINIZIP_DEF -D__USE_FILE_OFFSET64)
+    list(APPEND MINIZIP_DEF -D__USE_LARGEFILE64)
+    list(APPEND MINIZIP_DEF -D_LARGEFILE64_SOURCE)
+    list(APPEND MINIZIP_DEF -D_FILE_OFFSET_BITS=64)
 endif()
 # Check for fseeko support
 check_function_exists(fseeko HAVE_FSEEKO)
 if(NOT HAVE_FSEEKO)
-    add_definitions(-DNO_FSEEKO)
+    list(APPEND MINIZIP_DEF -DNO_FSEEKO)
 endif()
 
 # Enable compiler warnings
@@ -230,25 +233,25 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_zip.h
     mz_zip_rw.h)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Setup predefined macros
 if(MZ_COMPRESS_ONLY)
-    add_definitions(-DMZ_ZIP_NO_DECOMPRESSION)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_DECOMPRESSION)
 endif()
 if(MZ_DECOMPRESS_ONLY)
-    add_definitions(-DMZ_ZIP_NO_COMPRESSION)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_COMPRESSION)
 endif()
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
-    add_definitions(-DMZ_ZIP_NO_ENCRYPTION)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_ENCRYPTION)
 endif()
 if(MZ_SIGNING)
-    add_definitions(-DMZ_ZIP_SIGNING)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_SIGNING)
 endif()
 
 # Windows specific
 if(WIN32)
-    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+    list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
 
     list(APPEND MINIZIP_SRC "mz_os_win32.c" "mz_strm_os_win32.c")
     if (MZ_PKCRYPT OR MZ_WZAES)
@@ -258,12 +261,12 @@ if(WIN32)
     endif()
 endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-    add_definitions(-DMZ_WINRT_API)
+    list(APPEND MINIZIP_DEF -DMZ_WINRT_API)
 endif()
 
 # Unix specific
 if(UNIX)
-    add_definitions(-D_POSIX_C_SOURCE=200112L)
+    list(APPEND MINIZIP_DEF -D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
 
     if ((MZ_PKCRYPT OR MZ_WZAES) AND NOT (MZ_OPENSSL AND OPENSSL_FOUND))
@@ -283,15 +286,15 @@ if(UNIX)
         # Check to see which random generation functions we have
         check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
         if (HAVE_GETRANDOM)
-            add_definitions(-DHAVE_GETRANDOM)
+            list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
         endif()
         check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
         if (HAVE_ARC4RANDOM_BUF)
-            add_definitions(-DHAVE_ARC4RANDOM_BUF)
+            list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
         else()
             check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
             if (HAVE_ARC4RANDOM)
-                add_definitions(-DHAVE_ARC4RANDOM)
+                list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
             endif()
         endif()
 
@@ -303,9 +306,9 @@ if(UNIX)
                 check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
                     "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
                 if (HAVE_LIBBSD_ARC4RANDOM_BUF)
-                    add_definitions(-DHAVE_LIBBSD)
-                    add_definitions(-DHAVE_ARC4RANDOM_BUF)
-                    include_directories(${LIBBSD_INCLUDE_DIRS})
+                    list(APPEND MINIZIP_DEF -DHAVE_LIBBSD)
+                    list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
+                    list(APPEND MINIZIP_INC ${LIBBSD_INCLUDE_DIRS})
                     link_directories(${LIBBSD_LIBRARY_DIRS})
                 endif()
             endif()
@@ -317,7 +320,7 @@ if(UNIX)
     find_package(Iconv QUIET)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
-        include_directories(${Iconv_INCLUDE_DIRS})
+        list(APPEND MINIZIP_INC ${Iconv_INCLUDE_DIRS})
     endif()
 endif()
 
@@ -348,13 +351,13 @@ if(MZ_COMPAT)
     list(APPEND MINIZIP_PUBLIC_HEADERS "unzip.h")
 
     if(MZ_COMPAT_VERSION)
-        add_definitions(-DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
+        list(APPEND MINIZIP_DEF -DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
     endif()
 endif()
 
 # Include PKCRYPT
 if(MZ_PKCRYPT)
-    add_definitions(-DHAVE_PKCRYPT)
+    list(APPEND MINIZIP_DEF -DHAVE_PKCRYPT)
 
     list(APPEND MINIZIP_SRC "mz_strm_pkcrypt.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_pkcrypt.h")
@@ -362,7 +365,7 @@ endif()
 
 # Include WinZIP AES
 if(MZ_WZAES)
-    add_definitions(-DHAVE_WZAES)
+    list(APPEND MINIZIP_DEF -DHAVE_WZAES)
 
     list(APPEND MINIZIP_SRC "mz_strm_wzaes.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_wzaes.h")
@@ -390,7 +393,7 @@ if(MZ_BRG)
         lib/brg/sha1.h
         lib/brg/sha2.h)
 
-    include_directories(lib/brg)
+    list(APPEND MINIZIP_INC lib/brg)
 
     source_group("BRG" FILES ${BRG_SRC} ${BRG_PUBLIC_HEADERS})
 endif()
@@ -403,15 +406,15 @@ endif()
 # Include ZLIB
 if(MZ_ZLIB)
     if(MZ_LIBCOMP)
-        add_definitions(-DHAVE_LIBCOMP)
+        list(APPEND MINIZIP_DEF -DHAVE_LIBCOMP)
 
         list(APPEND MINIZIP_SRC "mz_strm_libcomp.c")
         list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_libcomp.h")
     else()
-        add_definitions(-DHAVE_ZLIB)
+        list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
 
         if(ZLIB_COMPAT)
-            add_definitions(-DZLIB_COMPAT)
+            list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
         endif()
 
         list(APPEND MINIZIP_SRC "mz_strm_zlib.c")
@@ -421,13 +424,13 @@ endif()
 
 # Include BZIP2
 if(MZ_BZIP2)
-    add_definitions(-DHAVE_BZIP2)
+    list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
 
     list(APPEND MINIZIP_SRC "mz_strm_bzip.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_bzip.h")
 
     if(NOT BZIP2_FOUND)
-        add_definitions(-DBZ_NO_STDIO)
+        list(APPEND MINIZIP_DEF -DBZ_NO_STDIO)
 
         set(BZIP2_SRC
             lib/bzip2/blocksort.c
@@ -442,7 +445,7 @@ if(MZ_BZIP2)
             lib/bzip2/bzlib.h
             lib/bzip2/bzlib_private.h)
 
-        include_directories(lib/bzip2)
+        list(APPEND MINIZIP_INC lib/bzip2)
 
         source_group("BZip2" FILES ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS})
     endif()
@@ -450,9 +453,9 @@ endif()
 
 # Include LZMA
 if(MZ_LZMA)
-    add_definitions(-DHAVE_LZMA)
-    add_definitions(-DLZMA_API_STATIC)
-    add_definitions(-DHAVE_CONFIG_H)
+    list(APPEND MINIZIP_DEF -DHAVE_LZMA)
+    list(APPEND MINIZIP_DEF -DLZMA_API_STATIC)
+    list(APPEND MINIZIP_DEF -DHAVE_CONFIG_H)
 
     check_include_file(limits.h     HAVE_LIMITS_H)
     check_include_file(string.h     HAVE_STRING_H)
@@ -462,22 +465,22 @@ if(MZ_LZMA)
     check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
 
     if(HAVE_LIMITS_H)
-        add_definitions(-DHAVE_LIMITS_H)
+        list(APPEND MINIZIP_DEF -DHAVE_LIMITS_H)
     endif()
     if(HAVE_STRING_H)
-        add_definitions(-DHAVE_STRING_H)
+        list(APPEND MINIZIP_DEF -DHAVE_STRING_H)
     endif()
     if(HAVE_STRINGS_H)
-        add_definitions(-DHAVE_STRINGS_H)
+        list(APPEND MINIZIP_DEF -DHAVE_STRINGS_H)
     endif()
     if(HAVE_MEMORY_H)
-        add_definitions(-DHAVE_MEMORY_H)
+        list(APPEND MINIZIP_DEF -DHAVE_MEMORY_H)
     endif()
     if(HAVE_STDBOOL_H)
-        add_definitions(-DHAVE_STDBOOL_H)
+        list(APPEND MINIZIP_DEF -DHAVE_STDBOOL_H)
     endif()
     if(HAVE_IMMINTRIN_H)
-        add_definitions(-DHAVE_IMMINTRIN_H)
+        list(APPEND MINIZIP_DEF -DHAVE_IMMINTRIN_H)
     endif()
 
     list(APPEND MINIZIP_SRC "mz_strm_lzma.c")
@@ -566,7 +569,7 @@ if(MZ_LZMA)
         ${LZMA_LZMA_SRC}
         ${LZMA_RANGECODER_SRC})
 
-    include_directories(lib/liblzma
+    list(APPEND MINIZIP_INC lib/liblzma
                         lib/liblzma/api
                         lib/liblzma/check
                         lib/liblzma/common
@@ -599,13 +602,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
                         DEFINE_SYMBOL "MZ_EXPORTS")
-
 if(NOT RISCOS)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
 if(MZ_LZMA)
     set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99)
 endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${MINIZIP_INC})
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${MINIZIP_DEF})
 
 # Link with external libraries
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -664,6 +669,8 @@ if(MZ_BUILD_TEST)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
+        target_compile_definitions(minigzip_cmd PRIVATE ${MINIZIP_DEF})
+        target_include_directories(minigzip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
 
         if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
@@ -673,6 +680,8 @@ if(MZ_BUILD_TEST)
 
     add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
     set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(minizip_cmd PRIVATE ${MINIZIP_DEF})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
@@ -822,6 +831,9 @@ if(MZ_BUILD_FUZZ_TEST)
         target_link_libraries(unzip_fuzzer ${LIB_FUZZING_ENGINE})
         set_target_properties(unzip_fuzzer PROPERTIES LINKER_LANGUAGE CXX)
     endif()
+
+    target_include_directories(zip_fuzzer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_include_directories(unzip_fuzzer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(zip_fuzzer ${PROJECT_NAME})
     target_link_libraries(unzip_fuzzer ${PROJECT_NAME})
