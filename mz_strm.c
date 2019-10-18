@@ -288,7 +288,7 @@ int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_
             read_size = (int32_t)(max_seek - read_pos - buf_pos);
 
         read = mz_stream_read(stream, buf + buf_pos, read_size);
-        if ((read < 0) || (read + buf_pos < find_size))
+        if ((read <= 0) || (read + buf_pos < find_size))
             break;
 
         for (i = 0; i <= read + buf_pos - find_size; i += 1)
@@ -352,7 +352,7 @@ int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size
         if (mz_stream_seek(stream, start_pos - (read_pos + read_size), MZ_SEEK_SET) != MZ_OK)
             break;
         read = mz_stream_read(stream, buf, read_size);
-        if ((read < 0) || (read + buf_pos < find_size))
+        if ((read <= 0) || (read + buf_pos < find_size))
             break;
         if (read + buf_pos < MZ_STREAM_FIND_SIZE)
             memmove(buf + MZ_STREAM_FIND_SIZE - (read + buf_pos), buf, read);
