@@ -758,7 +758,6 @@ int main(int argc, const char *argv[])
         err = minizip_add(path, password, &options, argc - (path_arg + 1), &argv[path_arg + 1]);
     }
 
-
     return err;
 }
 #endif

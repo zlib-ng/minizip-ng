@@ -57,6 +57,7 @@
 #define MZ_ZIP_MAGIC_LOCALHEADER        (0x04034b50)
 #define MZ_ZIP_MAGIC_LOCALHEADERU8      { 0x50, 0x4b, 0x03, 0x04 }
 #define MZ_ZIP_MAGIC_CENTRALHEADER      (0x02014b50)
+#define MZ_ZIP_MAGIC_CENTRALHEADERU8    { 0x50, 0x4b, 0x01, 0x02 }
 #define MZ_ZIP_MAGIC_ENDHEADER          (0x06054b50)
 #define MZ_ZIP_MAGIC_ENDHEADERU8        { 0x50, 0x4b, 0x05, 0x06 }
 #define MZ_ZIP_MAGIC_ENDHEADER64        (0x06064b50)
@@ -1264,17 +1265,22 @@ static int32_t mz_zip_recover_cd(void *handle)
     void *cd_mem_stream = NULL;
     uint64_t number_entry = 0;
     int64_t descriptor_pos = 0;
-    int64_t local_header_pos = 0;
+    int64_t next_header_pos = 0;
+    int64_t central_header_pos = 0;
     int64_t disk_offset = 0;
     int64_t disk_number = 0;
+    int64_t compressed_pos = 0;
+    int64_t compressed_end_pos = 0;
     int64_t compressed_size = 0;
     int64_t uncompressed_size = 0;
     uint8_t descriptor_magic[4] = MZ_ZIP_MAGIC_DATADESCRIPTORU8;
     uint8_t local_header_magic[4] = MZ_ZIP_MAGIC_LOCALHEADERU8;
+    uint8_t central_header_magic[4] = MZ_ZIP_MAGIC_CENTRALHEADERU8;
     uint32_t crc32 = 0;
     int32_t disk_number_with_cd = 0;
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
+    uint8_t eof = 0;
 
 
     mz_zip_print("Zip - Recover - Start\n");
@@ -1296,42 +1302,61 @@ static int32_t mz_zip_recover_cd(void *handle)
 
     mz_stream_mem_create(&local_file_info_stream);
     mz_stream_mem_open(local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
+    
+    err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
+                INT64_MAX, &next_header_pos);
 
-    while (err == MZ_OK)
+    while (err == MZ_OK && !eof)
     {
-        memset(&local_file_info, 0, sizeof(local_file_info));
-
-        err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
-                    INT64_MAX, &local_header_pos);
-        if (err != MZ_OK)
-            break;
-
         /* Get current offset and disk number for central dir record */
         disk_offset = mz_stream_tell(zip->stream);
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
 
         /* Read local headers */
+        memset(&local_file_info, 0, sizeof(local_file_info));
         err = mz_zip_entry_read_header(zip->stream, 1, &local_file_info, local_file_info_stream);
+        if (err != MZ_OK)
+            break;
 
         local_file_info.disk_offset = disk_offset;
         if (disk_number < 0)
             disk_number = 0;
         local_file_info.disk_number = (uint32_t)disk_number;
-
-        if (err == MZ_OK)
+        
+        compressed_pos = mz_stream_tell(zip->stream);
+        
+        if ((err == MZ_OK) && (local_file_info.compressed_size > 0))
         {
-            if (local_file_info.compressed_size > 0)
-            {
-                err = mz_stream_seek(zip->stream, local_file_info.compressed_size, MZ_SEEK_CUR);
-            }
+            mz_stream_seek(zip->stream, local_file_info.compressed_size, MZ_SEEK_CUR);
         }
 
-        /* Read descriptor if it exists so we can get to the next local header */
-        if ((err == MZ_OK) && ((local_file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR)))
+        /* Search for the next local header */
+        err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
+                INT64_MAX, &next_header_pos);
+        
+        if (err == MZ_EXIST_ERROR)
         {
-            err = mz_stream_find(zip->stream, (const void *)descriptor_magic, sizeof(descriptor_magic),
-                        INT64_MAX, &descriptor_pos);
+            mz_stream_seek(zip->stream, compressed_pos, MZ_SEEK_SET);
 
+            /* Search for central dir if no local header found */
+            err = mz_stream_find(zip->stream, (const void *)central_header_magic, sizeof(central_header_magic),
+                INT64_MAX, &next_header_pos);
+
+            if (err == MZ_EXIST_ERROR)
+            {
+                /* Get end of stream if no central header found */
+                mz_stream_seek(zip->stream, 0, MZ_SEEK_END);
+                next_header_pos = mz_stream_tell(zip->stream);
+            }
+
+            eof = 1;
+        }
+
+        /* Search backwards for the descriptor */
+        err = mz_stream_find_reverse(zip->stream, (const void *)descriptor_magic, sizeof(descriptor_magic),
+                    INT8_MAX, &descriptor_pos);
+        if (err == MZ_OK)
+        {
             if (mz_zip_extrafield_contains(local_file_info.extrafield,
                 local_file_info.extrafield_size, MZ_ZIP_EXTENSION_ZIP64, NULL) == MZ_OK)
                 zip64 = 1;
@@ -1339,27 +1364,45 @@ static int32_t mz_zip_recover_cd(void *handle)
             err = mz_zip_entry_read_descriptor(zip->stream, zip64, &crc32,
                 &compressed_size, &uncompressed_size);
 
-            if (local_file_info.crc == 0)
-                local_file_info.crc = crc32;
-            if (local_file_info.compressed_size == 0)
-                local_file_info.compressed_size = compressed_size;
-            if (local_file_info.uncompressed_size == 0)
-                local_file_info.uncompressed_size = uncompressed_size;
+            if (err == MZ_OK)
+            {
+                if (local_file_info.crc == 0)
+                    local_file_info.crc = crc32;
+                if (local_file_info.compressed_size == 0)
+                    local_file_info.compressed_size = compressed_size;
+                if (local_file_info.uncompressed_size == 0)
+                    local_file_info.uncompressed_size = uncompressed_size;
+            }
+
+            compressed_end_pos = descriptor_pos;
+        }
+        else
+        {
+            compressed_end_pos = next_header_pos;
         }
 
-        if (err == MZ_OK)
+        compressed_size = compressed_end_pos - compressed_pos;
+
+        if (compressed_size > UINT32_MAX)
         {
-            mz_zip_print("Zip - Recover - Entry %s (csize %" PRId64 " usize %" PRId64 " flags 0x%" PRIx16 ")\n",
-                local_file_info.filename, local_file_info.compressed_size, local_file_info.uncompressed_size,
-                local_file_info.flag);
+            /* Update sizes if 4GB file is written with no ZIP64 support */
+            if (local_file_info.uncompressed_size < UINT32_MAX)
+            {
+                local_file_info.compressed_size = compressed_size;
+                local_file_info.uncompressed_size = 0;
+            }
         }
+
+        mz_zip_print("Zip - Recover - Entry %s (csize %" PRId64 " usize %" PRId64 " flags 0x%" PRIx16 ")\n",
+            local_file_info.filename, local_file_info.compressed_size, local_file_info.uncompressed_size,
+            local_file_info.flag);
 
         /* Rewrite central dir with local headers and offsets */
+        err = mz_zip_entry_write_header(cd_mem_stream, 0, &local_file_info);
         if (err == MZ_OK)
-            err = mz_zip_entry_write_header(cd_mem_stream, 0, &local_file_info);
+            number_entry += 1; 
 
-        if (err == MZ_OK)
-            number_entry += 1;
+        err = mz_stream_seek(zip->stream, next_header_pos, MZ_SEEK_SET);
     }
 
     mz_stream_mem_delete(&local_file_info_stream);
