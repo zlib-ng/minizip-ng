@@ -58,6 +58,7 @@ set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/minizip" CACHE PATH "I
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
 configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
+set(STDLIB_DEF)
 set(MINIZIP_DEF)
 set(MINIZIP_INC)
 
@@ -154,24 +155,24 @@ check_include_file(stdint.h   HAVE_STDINT_H)
 check_include_file(inttypes.h HAVE_INTTYPES_H)
 
 if(HAVE_STDINT_H)
-    list(APPEND MINIZIP_DEF -DHAVE_STDINT_H)
+    list(APPEND STDLIB_DEF -DHAVE_STDINT_H)
 endif()
 if(HAVE_INTTYPES_H)
-    list(APPEND MINIZIP_DEF -DHAVE_INTTYPES_H)
+    list(APPEND STDLIB_DEF -DHAVE_INTTYPES_H)
 endif()
 
 # Check for large file support
 check_type_size(off64_t OFF64_T)
 if(HAVE_OFF64_T)
-    list(APPEND MINIZIP_DEF -D__USE_FILE_OFFSET64)
-    list(APPEND MINIZIP_DEF -D__USE_LARGEFILE64)
-    list(APPEND MINIZIP_DEF -D_LARGEFILE64_SOURCE)
-    list(APPEND MINIZIP_DEF -D_FILE_OFFSET_BITS=64)
+    list(APPEND STDLIB_DEF -D__USE_FILE_OFFSET64)
+    list(APPEND STDLIB_DEF -D__USE_LARGEFILE64)
+    list(APPEND STDLIB_DEF -D_LARGEFILE64_SOURCE)
+    list(APPEND STDLIB_DEF -D_FILE_OFFSET_BITS=64)
 endif()
 # Check for fseeko support
 check_function_exists(fseeko HAVE_FSEEKO)
 if(NOT HAVE_FSEEKO)
-    list(APPEND MINIZIP_DEF -DNO_FSEEKO)
+    list(APPEND STDLIB_DEF -DNO_FSEEKO)
 endif()
 
 # Enable compiler warnings
@@ -266,7 +267,7 @@ endif()
 
 # Unix specific
 if(UNIX)
-    list(APPEND MINIZIP_DEF -D_POSIX_C_SOURCE=200112L)
+    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC "mz_os_posix.c" "mz_strm_os_posix.c")
 
     if ((MZ_PKCRYPT OR MZ_WZAES) AND NOT (MZ_OPENSSL AND OPENSSL_FOUND))
@@ -610,7 +611,7 @@ if(MZ_LZMA)
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIZIP_INC})
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${MINIZIP_DEF})
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
 
 # Link with external libraries
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -669,7 +670,7 @@ if(MZ_BUILD_TEST)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
-        target_compile_definitions(minigzip_cmd PRIVATE ${MINIZIP_DEF})
+        target_compile_definitions(minigzip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
         target_include_directories(minigzip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
 
@@ -680,8 +681,8 @@ if(MZ_BUILD_TEST)
 
     add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
     set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    target_compile_definitions(minizip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
     target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_compile_definitions(minizip_cmd PRIVATE ${MINIZIP_DEF})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
@@ -812,31 +813,35 @@ endif()
 
 #Build fuzzer executables
 if(MZ_BUILD_FUZZ_TEST)
-    if (NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        enable_language(CXX)
+
+        if(DEFINED ENV{LIB_FUZZING_ENGINE})
+            set(FUZZING_ENGINE $ENV{LIB_FUZZING_ENGINE})
+            set(FUZZING_ENGINE_FOUND TRUE)
+        else()
+            find_library(FUZZING_ENGINE "FuzzingEngine")
+        endif()
+    endif()
+
+    if(NOT FUZZING_ENGINE_FOUND)
         set(FUZZER_SRC "test/fuzz/standalone.c")
     endif()
 
-    add_executable(zip_fuzzer "test/fuzz/zip_fuzzer.c" ${FUZZER_SRC})
-    add_executable(unzip_fuzzer "test/fuzz/unzip_fuzzer.c" ${FUZZER_SRC})
+    macro(configure_fuzz_test target)
+        add_executable(${target} "test/fuzz/${target}.c" ${FUZZER_SRC})
+        set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
+        target_compile_definitions(${target} PRIVATE ${STDLIB_DEF})
+        target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-    if (CMAKE_C_COMPILER_ID STREQUAL "Clang")
-        enable_language(CXX)
-        if(DEFINED ENV{LIB_FUZZING_ENGINE})
-            set(LIB_FUZZING_ENGINE $ENV{LIB_FUZZING_ENGINE})
-        else()
-            set(LIB_FUZZING_ENGINE "FuzzingEngine")
+        target_link_libraries(${target} ${PROJECT_NAME})
+        if(FUZZING_ENGINE_FOUND)
+            target_link_libraries(${target} ${FUZZING_ENGINE})
         endif()
-        target_link_libraries(zip_fuzzer ${LIB_FUZZING_ENGINE})
-        set_target_properties(zip_fuzzer PROPERTIES LINKER_LANGUAGE CXX)
-        target_link_libraries(unzip_fuzzer ${LIB_FUZZING_ENGINE})
-        set_target_properties(unzip_fuzzer PROPERTIES LINKER_LANGUAGE CXX)
-    endif()
-
-    target_include_directories(zip_fuzzer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_include_directories(unzip_fuzzer PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-    target_link_libraries(zip_fuzzer ${PROJECT_NAME})
-    target_link_libraries(unzip_fuzzer ${PROJECT_NAME})
+    endmacro()
+    
+    configure_fuzz_test(zip_fuzzer)
+    configure_fuzz_test(unzip_fuzzer)
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS zip_fuzzer RUNTIME DESTINATION "bin")
