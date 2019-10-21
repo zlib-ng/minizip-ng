@@ -1302,9 +1302,12 @@ static int32_t mz_zip_recover_cd(void *handle)
 
     mz_stream_mem_create(&local_file_info_stream);
     mz_stream_mem_open(local_file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
-    
-    err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
+
+    if (err == MZ_OK)
+    {
+        err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
                 INT64_MAX, &next_header_pos);
+    }
 
     while (err == MZ_OK && !eof)
     {
