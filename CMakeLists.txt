@@ -826,6 +826,8 @@ if(MZ_BUILD_FUZZ_TEST)
 
     if(NOT FUZZING_ENGINE_FOUND)
         set(FUZZER_SRC "test/fuzz/standalone.c")
+    else()
+        set(FUZZER_SRC)
     endif()
 
     macro(configure_fuzz_test target)
@@ -839,7 +841,7 @@ if(MZ_BUILD_FUZZ_TEST)
             target_link_libraries(${target} ${FUZZING_ENGINE})
         endif()
     endmacro()
-    
+
     configure_fuzz_test(zip_fuzzer)
     configure_fuzz_test(unzip_fuzzer)
 
