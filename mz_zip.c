@@ -1266,7 +1266,6 @@ static int32_t mz_zip_recover_cd(void *handle)
     uint64_t number_entry = 0;
     int64_t descriptor_pos = 0;
     int64_t next_header_pos = 0;
-    int64_t central_header_pos = 0;
     int64_t disk_offset = 0;
     int64_t disk_number = 0;
     int64_t compressed_pos = 0;
