@@ -1458,6 +1458,9 @@ int32_t mz_zip_writer_entry_close(void *handle)
             err = mz_zip_entry_close(writer->zip_handle);
     }
 
+    if (writer->file_extra_stream != NULL)
+        mz_stream_mem_delete(&writer->file_extra_stream);
+
     return err;
 }
 
