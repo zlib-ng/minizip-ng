@@ -60,6 +60,7 @@ void test_path_resolve(void)
     test_path_resolve_int(".\\", "");
     test_path_resolve_int("..", "");
     test_path_resolve_int("..\\", "");
+    test_path_resolve_int("..\\..\\test\\123", "test\\123");
     test_path_resolve_int("c:\\test\\123\\.\\abc.txt", "c:\\test\\123\\abc.txt");
     test_path_resolve_int("c:\\test\\123\\..\\abc.txt", "c:\\test\\abc.txt");
     test_path_resolve_int("c:\\test\\123\\..\\..\\abc.txt", "c:\\abc.txt");

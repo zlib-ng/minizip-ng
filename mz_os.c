@@ -157,7 +157,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
         if ((*check == '\\') || (*check == '/'))
             check += 1;
 
-        if ((source == path) || (check != source))
+        if ((source == path) || (check != source) || (*target == 0))
         {
             /* Skip double paths */
             if ((*check == '\\') || (*check == '/'))
