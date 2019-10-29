@@ -148,6 +148,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
     const char *check = output;
     char *target = output;
 
+
     if (max_output <= 0)
         return MZ_PARAM_ERROR;
 
@@ -157,7 +158,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
         if ((*check == '\\') || (*check == '/'))
             check += 1;
 
-        if ((source == path) || (check != source) || (*target == 0))
+        if ((source == path) || (target == output) || (check != source))
         {
             /* Skip double paths */
             if ((*check == '\\') || (*check == '/'))
