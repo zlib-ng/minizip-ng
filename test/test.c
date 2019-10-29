@@ -558,7 +558,7 @@ void test_crypt_sha(void)
     mz_crypt_sha_create(&sha1);
     mz_crypt_sha_set_algorithm(sha1, MZ_HASH_SHA1);
     mz_crypt_sha_begin(sha1);
-    mz_crypt_sha_update(sha1, test, strlen(test));
+    mz_crypt_sha_update(sha1, test, (int32_t)strlen(test));
     mz_crypt_sha_end(sha1, hash, sizeof(hash));
     mz_crypt_sha_delete(&sha1);
 
@@ -575,7 +575,7 @@ void test_crypt_sha(void)
     mz_crypt_sha_create(&sha256);
     mz_crypt_sha_set_algorithm(sha256, MZ_HASH_SHA256);
     mz_crypt_sha_begin(sha256);
-    mz_crypt_sha_update(sha256, test, strlen(test));
+    mz_crypt_sha_update(sha256, test, (int32_t)strlen(test));
     mz_crypt_sha_end(sha256, hash256, sizeof(hash256));
     mz_crypt_sha_delete(&sha256);
 
@@ -604,8 +604,8 @@ void test_crypt_aes(void)
 
     memset(hash, 0, sizeof(hash));
 
-    key_length = strlen(key);
-    test_length = strlen(test);
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
 
     strncpy((char *)buf, test, sizeof(buf));
 
@@ -648,8 +648,8 @@ void test_crypt_hmac(void)
     uint8_t hash[MZ_HASH_SHA1_SIZE];
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
 
-    key_length = strlen(key);
-    test_length = strlen(test);
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
 
     printf("Hmac sha1 key - %s\n", key);
     printf("Hmac sha1 input - %s\n", test);
