@@ -170,8 +170,8 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
             {
                 check += 1;
 
-                /* Remove current directory . if at end of string */
-                if ((*check == 0) && (source != path))
+                /* Remove . if at end of string and not at the beginning */
+                if ((*check == 0) && (source != path && target != output))
                 {
                     /* Copy last slash */
                     *target = *source;
@@ -180,20 +180,17 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output)
                     source += (check - source);
                     continue;
                 }
-
-                /* Remove current directory . if not at end of string */
-                if ((*check == 0) || (*check == '\\' || *check == '/'))
+                /* Remove . if not at end of string */
+                else if ((*check == '\\') || (*check == '/'))
                 {
-                    /* Only proceed if .\ is not entire string */
-                    if (check[1] != 0 || (path != source))
-                    {
-                        source += (check - source);
-                        continue;
-                    }
+                    source += (check - source);
+                    /* Skip slash if at beginning of string */
+                    if (target == output && *source != 0)
+                        source += 1;
+                    continue;
                 }
-
                 /* Go to parent directory .. */
-                if ((*check != 0) || (*check == '.'))
+                else if (*check == '.')
                 {
                     check += 1;
                     if ((*check == 0) || (*check == '\\' || *check == '/'))

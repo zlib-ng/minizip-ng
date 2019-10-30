@@ -45,13 +45,14 @@ void test_path_resolve_int(char *path, char *expected_path)
     memset(output, 'z', sizeof(output));
     mz_path_resolve(path, output, sizeof(output));
     ok = (strcmp(output, expected_path) == 0);
-    printf("path resolve - %s -> %s (%" PRId32 ")\n", path, expected_path, ok);
+    printf("path resolve - %s -> %s = %s (%" PRId32 ")\n", path, expected_path, output, ok);
 }
 
 void test_path_resolve(void)
 {
     test_path_resolve_int("c:\\test\\.", "c:\\test\\");
     test_path_resolve_int("c:\\test\\.\\", "c:\\test\\");
+    test_path_resolve_int("c:\\test\\.\\.", "c:\\test\\");
     test_path_resolve_int("c:\\test\\..", "c:\\");
     test_path_resolve_int("c:\\test\\..\\", "c:\\");
     test_path_resolve_int("c:\\test\\.\\..", "c:\\");
@@ -60,11 +61,15 @@ void test_path_resolve(void)
     test_path_resolve_int(".\\", "");
     test_path_resolve_int("..", "");
     test_path_resolve_int("..\\", "");
+    test_path_resolve_int(".\\test\\123", "test\\123");
+    test_path_resolve_int(".\\..\\test\\123", "test\\123");
     test_path_resolve_int("..\\..\\test\\123", "test\\123");
+    test_path_resolve_int("test\\.abc.txt", "test\\.abc.txt");
     test_path_resolve_int("c:\\test\\123\\.\\abc.txt", "c:\\test\\123\\abc.txt");
     test_path_resolve_int("c:\\test\\123\\..\\abc.txt", "c:\\test\\abc.txt");
     test_path_resolve_int("c:\\test\\123\\..\\..\\abc.txt", "c:\\abc.txt");
     test_path_resolve_int("c:\\test\\123\\..\\..\\..\\abc.txt", "abc.txt");
+    test_path_resolve_int("c:\\test\\123\\..\\.\\..\\abc.txt", "c:\\abc.txt");
 }
 
 void test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
