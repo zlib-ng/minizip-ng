@@ -553,13 +553,15 @@ int32_t test_stream_find(void)
     int32_t err = MZ_OK;
     char *find = "0123456789";
 
-    printf("Find stream\n");
+    printf("Find stream.. ");
     for (c = 1; c < (int32_t)strlen(find); c += 1)
     {
         err = test_stream_find_run("forward", 2096, (uint8_t *)find, c, mz_stream_find);
         if (err != MZ_OK)
             break;
     }
+    if (err == MZ_OK)
+        printf("OK\n");
     return err;
 }
 
@@ -569,13 +571,15 @@ int32_t test_stream_find_reverse(void)
     int32_t err = MZ_OK;
     char *find = "0123456789";
 
-    printf("Find reverse stream\n");
+    printf("Find reverse stream.. ");
     for (c = 1; c < (int32_t)strlen(find); c += 1)
     {
         err = test_stream_find_run("backward", 2096, (uint8_t *)find, c, mz_stream_find_reverse);
         if (err != MZ_OK)
             break;
     }
+    if (err == MZ_OK)
+        printf("OK\n");
     return err;
 }
 
@@ -762,22 +766,24 @@ int main(int argc, const char *argv[])
     int32_t err = MZ_OK;
 
     err |= test_path_resolve();
+    err |= test_stream_mem();
+    err |= test_stream_find();
+    err |= test_stream_find_reverse();
+#if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_DECOMPRESSION)
 #ifdef HAVE_BZIP2
     err |= test_stream_bzip();
 #endif
+#ifdef HAVE_ZLIB
+    err |= test_stream_zlib();
+#endif
+#endif
+#if !defined(MZ_ZIP_NO_ENCRYPTION)
 #ifdef HAVE_PKCRYPT
     err |= test_stream_pkcrypt();
 #endif
 #ifdef HAVE_WZAES
     err |= test_stream_wzaes();
 #endif
-#ifdef HAVE_ZLIB
-    err |= test_stream_zlib();
-#endif
-    err |= test_stream_mem();
-    err |= test_stream_find();
-    err |= test_stream_find_reverse();
-#ifndef MZ_ZIP_NO_ENCRYPTION
     err |= test_crypt_sha();
     err |= test_crypt_aes();
     err |= test_crypt_hmac();
