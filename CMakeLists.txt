@@ -148,8 +148,6 @@ if(MZ_OPENSSL)
         if(OPENSSL_INCLUDE_DIRS)
             list(APPEND MINIZIP_INC ${OPENSSL_INCLUDE_DIRS})
         endif()
-    else()
-        unset(MZ_SIGNING)
     endif()
 endif()
 
@@ -252,21 +250,6 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_zip_rw.h)
 
 list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Setup predefined macros
-if(MZ_COMPRESS_ONLY)
-    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_DECOMPRESSION)
-endif()
-if(MZ_DECOMPRESS_ONLY)
-    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_COMPRESSION)
-endif()
-if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
-    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_ENCRYPTION)
-    unset(MZ_SIGNING)
-endif()
-if(MZ_SIGNING)
-    list(APPEND MINIZIP_DEF -DMZ_ZIP_SIGNING)
-endif()
 
 # Windows specific
 if(WIN32)
@@ -372,6 +355,24 @@ if(MZ_COMPAT)
     if(MZ_COMPAT_VERSION)
         list(APPEND MINIZIP_DEF -DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
     endif()
+endif()
+
+# Setup predefined macros
+if(MZ_COMPRESS_ONLY)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_DECOMPRESSION)
+endif()
+if(MZ_DECOMPRESS_ONLY)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_COMPRESSION)
+endif()
+if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_ENCRYPTION)
+    unset(MZ_SIGNING)
+endif()
+if(MZ_BRG OR (MZ_OPENSSL AND NOT OPENSSL_FOUND))
+    unset(MZ_SIGNING)
+endif()
+if(MZ_SIGNING)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_SIGNING)
 endif()
 
 # Include PKCRYPT
