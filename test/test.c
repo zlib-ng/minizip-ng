@@ -311,11 +311,7 @@ int32_t test_stream_zlib(void)
 {
     return test_compress("zlib", mz_stream_zlib_create);
 }
-#endif
-
-/***************************************************************************/
-
-int32_t test_stream_mem(void)
+int32_t test_stream_zlib_mem(void)
 {
     mz_zip_file file_info;
     void *read_mem_stream = NULL;
@@ -425,11 +421,13 @@ int32_t test_stream_mem(void)
 
     return err;
 }
+#endif
+
+/***************************************************************************/
 
 int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int32_t find_size, mz_stream_find_cb find_cb)
 {
     void *mem_stream = NULL;
-    int32_t verbose = 0;
     int32_t i = 0;
     int32_t x = 0;
     int32_t err = MZ_OK;
@@ -457,11 +455,10 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        if (verbose)
-        {
-            printf("Find postzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-                name, find_size, position, (position == 0));
-        }
+#ifdef TEST_VERBOSE
+        printf("Find postzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+            name, find_size, position, (position == 0));
+#endif
 
         if (position != 0 || last_pos != position)
             break;
@@ -481,11 +478,10 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        if (verbose)
-        {
-            printf("Find prezero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-                name, find_size, position, (position == i));
-        }
+#ifdef TEST_VERBOSE
+        printf("Find prezero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+            name, find_size, position, (position == i));
+#endif
 
         if (position != i || last_pos != position)
             break;
@@ -507,11 +503,10 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        if (verbose)
-        {
-            printf("Find equalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-                name, find_size, position, (position == i));
-        }
+#ifdef TEST_VERBOSE
+        printf("Find equalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+            name, find_size, position, (position == i));
+#endif
 
         if (position != i || last_pos != position)
             break;
@@ -534,11 +529,10 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        if (verbose)
-        {
-            printf("Find unequalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-                name, find_size, position, (position == i));
-        }
+#ifdef TEST_VERBOSE
+        printf("Find unequalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+            name, find_size, position, (position == i));
+#endif
 
         if (position != i || last_pos != position)
             break;
@@ -766,7 +760,6 @@ int main(int argc, const char *argv[])
     int32_t err = MZ_OK;
 
     err |= test_path_resolve();
-    err |= test_stream_mem();
     err |= test_stream_find();
     err |= test_stream_find_reverse();
 #if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_DECOMPRESSION)
@@ -775,6 +768,7 @@ int main(int argc, const char *argv[])
 #endif
 #ifdef HAVE_ZLIB
     err |= test_stream_zlib();
+    err |= test_stream_zlib_mem();
 #endif
 #endif
 #if !defined(MZ_ZIP_NO_ENCRYPTION)
