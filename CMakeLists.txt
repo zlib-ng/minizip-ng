@@ -24,6 +24,7 @@ option(MZ_DECOMPRESS_ONLY "Only support decompression" OFF)
 option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
+option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -198,16 +199,30 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     enable_option_if_supported(-maes check_opt_aes)
 endif()
 # Set compiler options
-if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    add_compile_options(
-        $<$<CONFIG:Debug>:/Zi>
-        $<$<CONFIG:Debug>:/Od>
-        $<$<CONFIG:Release>:/Ox>
-        $<$<CONFIG:Release>:/Os>)
+if(MZ_CODE_COVERAGE)
+    if(NOT MSVC)
+        message(STATUS "Code coverage enabled")
+        add_compile_options(-O0 -g -fprofile-arcs -ftest-coverage)
+        if(CMAKE_C_COMPILER_ID MATCHES "(Apple)?[Cc]lang")
+            set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+        elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
+            link_libraries(gcov)
+        endif()
+    else()
+        unset(MZ_CODE_COVERAGE)
+    endif()
 else()
-    add_compile_options(
-        $<$<CONFIG:Debug>:-g>
-        $<$<CONFIG:Release>:-Os>)
+    if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+        add_compile_options(
+            $<$<CONFIG:Debug>:/Zi>
+            $<$<CONFIG:Debug>:/Od>
+            $<$<CONFIG:Release>:/Ox>
+            $<$<CONFIG:Release>:/Os>)
+    else()
+        add_compile_options(
+            $<$<CONFIG:Debug>:-g>
+            $<$<CONFIG:Release>:-Os>)
+    endif()
 endif()
 
 # Initial source files
@@ -603,6 +618,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
                         DEFINE_SYMBOL "MZ_EXPORTS")
+if(MZ_CODE_COVERAGE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
+        GCC_GENERATE_TEST_COVERAGE_FILES YES)
+endif()
 if(NOT RISCOS)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
@@ -643,6 +663,13 @@ elseif(UNIX)
     else()
         target_link_libraries(${PROJECT_NAME} ${LIBBSD_LIBRARIES})
     endif()
+elseif(WIN32)
+    if((MZ_PKCRYPT OR MZ_WZAES) AND NOT MZ_BRG)
+        # GCC doesn't support #pragma lib
+        if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+            target_link_libraries(${PROJECT_NAME} crypt32.lib)
+        endif()
+    endif()
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>)
@@ -673,6 +700,11 @@ if(MZ_BUILD_TEST)
         target_compile_definitions(minigzip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
         target_include_directories(minigzip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
+        if(MZ_CODE_COVERAGE)
+            set_target_properties(minigzip_cmd PROPERTIES
+                GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
+                GCC_GENERATE_TEST_COVERAGE_FILES YES)
+        endif()
 
         if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
             install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
@@ -684,6 +716,11 @@ if(MZ_BUILD_TEST)
     target_compile_definitions(minizip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
     target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
+    if(MZ_CODE_COVERAGE)
+        set_target_properties(minizip_cmd PROPERTIES
+            GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
+            GCC_GENERATE_TEST_COVERAGE_FILES YES)
+    endif()
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
