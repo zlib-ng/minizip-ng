@@ -429,6 +429,7 @@ int32_t test_stream_mem(void)
 int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int32_t find_size, mz_stream_find_cb find_cb)
 {
     void *mem_stream = NULL;
+    int32_t verbose = 0;
     int32_t i = 0;
     int32_t x = 0;
     int32_t err = MZ_OK;
@@ -456,8 +457,11 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find postzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-            name, find_size, position, (position == 0));
+        if (verbose)
+        {
+            printf("Find postzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+                name, find_size, position, (position == 0));
+        }
 
         if (position != 0 || last_pos != position)
             break;
@@ -477,8 +481,11 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find prezero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-            name, find_size, position, (position == i));
+        if (verbose)
+        {
+            printf("Find prezero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+                name, find_size, position, (position == i));
+        }
 
         if (position != i || last_pos != position)
             break;
@@ -500,8 +507,11 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find equalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-            name, find_size, position, (position == i));
+        if (verbose)
+        {
+            printf("Find equalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+                name, find_size, position, (position == i));
+        }
 
         if (position != i || last_pos != position)
             break;
@@ -524,8 +534,11 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
         last_pos = mz_stream_tell(mem_stream);
         mz_stream_mem_delete(&mem_stream);
 
-        printf("Find unequalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
-            name, find_size, position, (position == i));
+        if (verbose)
+        {
+            printf("Find unequalzero - %s (len %" PRId32 " pos %" PRId64 " ok %" PRId32 ")\n",
+                name, find_size, position, (position == i));
+        }
 
         if (position != i || last_pos != position)
             break;
@@ -540,6 +553,7 @@ int32_t test_stream_find(void)
     int32_t err = MZ_OK;
     char *find = "0123456789";
 
+    printf("Find stream\n");
     for (c = 1; c < (int32_t)strlen(find); c += 1)
     {
         err = test_stream_find_run("forward", 2096, (uint8_t *)find, c, mz_stream_find);
@@ -555,6 +569,7 @@ int32_t test_stream_find_reverse(void)
     int32_t err = MZ_OK;
     char *find = "0123456789";
 
+    printf("Find reverse stream\n");
     for (c = 1; c < (int32_t)strlen(find); c += 1)
     {
         err = test_stream_find_run("backward", 2096, (uint8_t *)find, c, mz_stream_find_reverse);
