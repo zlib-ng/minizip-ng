@@ -77,6 +77,22 @@ int32_t test_path_resolve(void)
     return err;
 }
 
+int32_t test_utf8(void)
+{
+    const char *test_string = "Heiz�lr�cksto�abd�mpfung";
+    uint8_t *utf8_string = mz_os_utf8_string_create(test_string, MZ_ENCODING_CODEPAGE_950);
+    if (utf8_string == NULL)
+        return MZ_BUF_ERROR;
+#if defined(_WINDOWS)
+    wchar_t *unicode_string = mz_os_unicode_string_create((const char *)utf8_string, MZ_ENCODING_UTF8);
+    if (unicode_string == NULL)
+        return MZ_BUF_ERROR;
+    mz_os_unicode_string_delete(&unicode_string);
+#endif
+    mz_os_utf8_string_delete(&utf8_string);
+    return MZ_OK;
+}
+
 int32_t test_encrypt(char *method, mz_stream_create_cb crypt_create, char *password)
 {
     char buf[UINT16_MAX];
@@ -311,6 +327,7 @@ int32_t test_stream_zlib(void)
 {
     return test_compress("zlib", mz_stream_zlib_create);
 }
+
 int32_t test_stream_zlib_mem(void)
 {
     mz_zip_file file_info;
@@ -324,7 +341,7 @@ int32_t test_stream_zlib_mem(void)
     int32_t buffer_size = 0;
     int32_t err = MZ_OK;
     const uint8_t *buffer_ptr = NULL;
-    char *password = "1234";
+    char *password = NULL;
     char *text_name = "test";
     char *text_ptr = "test string";
     char temp[120];
@@ -350,6 +367,7 @@ int32_t test_stream_zlib_mem(void)
         file_info.uncompressed_size = text_size;
 #ifdef HAVE_WZAES
         file_info.aes_version = MZ_AES_VERSION;
+        password = "1234";
 #endif
 
         err = mz_zip_entry_write_open(zip_handle, &file_info, MZ_COMPRESS_LEVEL_DEFAULT, 0, password);
@@ -433,6 +451,8 @@ int32_t test_stream_find_run(char *name, int32_t count, const uint8_t *find, int
     int32_t err = MZ_OK;
     int64_t last_pos = 0;
     int64_t position = 0;
+
+    MZ_UNUSED(name);
 
     if (find == NULL || find_size == 0 || find_cb == NULL)
         return MZ_PARAM_ERROR;
@@ -552,11 +572,11 @@ int32_t test_stream_find(void)
     {
         err = test_stream_find_run("forward", 2096, (uint8_t *)find, c, mz_stream_find);
         if (err != MZ_OK)
-            break;
+            return err;
     }
-    if (err == MZ_OK)
-        printf("OK\n");
-    return err;
+
+    printf("OK\n");
+    return MZ_OK;
 }
 
 int32_t test_stream_find_reverse(void)
@@ -570,16 +590,16 @@ int32_t test_stream_find_reverse(void)
     {
         err = test_stream_find_run("backward", 2096, (uint8_t *)find, c, mz_stream_find_reverse);
         if (err != MZ_OK)
-            break;
+            return err;
     }
-    if (err == MZ_OK)
-        printf("OK\n");
-    return err;
+    
+    printf("OK\n");
+    return MZ_OK;
 }
 
 /***************************************************************************/
 
-void convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, uint8_t *hex_string, int32_t max_hex_string)
+int32_t convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *hex_string, int32_t max_hex_string)
 {
     int32_t p = 0;
     int32_t i = 0;
@@ -590,6 +610,7 @@ void convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, uint8_t *hex_s
         snprintf(hex_string + p, max_hex_string - p, "%02x", buf[i]);
     if (p < max_hex_string)
         hex_string[p] = 0;
+    return MZ_OK;
 }
 
 #ifndef MZ_ZIP_NO_ENCRYPTION
@@ -638,6 +659,7 @@ int32_t test_crypt_sha(void)
     if (strcmp(computed_hash, "7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c") != 0)
         return MZ_HASH_ERROR;
 
+    printf("Sha.. OK\n");
     return MZ_OK;
 }
 
@@ -650,7 +672,6 @@ int test_crypt_aes(void)
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
-    int32_t i = 0;
     uint8_t hash[MZ_HASH_SHA256_SIZE];
 
     printf("Aes key - %s\n", key);
@@ -687,9 +708,10 @@ int test_crypt_aes(void)
     convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
     printf("%s\n", computed_hash);
 
-    if (strcmp(buf, test) != 0)
+    if (strcmp((char *)buf, test) != 0)
         return MZ_CRYPT_ERROR;
 
+    printf("Aes.. OK\n");
     return MZ_OK;
 }
 
@@ -701,7 +723,6 @@ int32_t test_crypt_hmac(void)
     char computed_hash[320];
     int32_t key_length = 0;
     int32_t test_length = 0;
-    int32_t i = 0;
     uint8_t hash[MZ_HASH_SHA1_SIZE];
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
 
@@ -748,6 +769,7 @@ int32_t test_crypt_hmac(void)
     if (strcmp(computed_hash, "fb22a9c715a47a06bad4f6cee9badc31c921562f5d6b24adf2be009f73181f7a") != 0)
         return MZ_CRYPT_ERROR;
 
+    printf("Hmac.. OK\n");
     return MZ_OK;
 }
 #endif
@@ -759,7 +781,11 @@ int main(int argc, const char *argv[])
 {
     int32_t err = MZ_OK;
 
+    MZ_UNUSED(argc);
+    MZ_UNUSED(argv);
+
     err |= test_path_resolve();
+    err |= test_utf8();
     err |= test_stream_find();
     err |= test_stream_find_reverse();
 #if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_DECOMPRESSION)
