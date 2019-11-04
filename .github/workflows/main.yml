@@ -186,7 +186,6 @@ jobs:
             cmake-args: -DMZ_SIGNING=ON
             deploy: true
             deploy-name: macos
-            codecov: macos_1014_xcode_941
 
           - name: macOS 10.14 Xcode
             os: macOS-10.14
@@ -228,7 +227,7 @@ jobs:
       # https://partner-bugzilla.redhat.com/show_bug.cgi?id=1577508
       run: |
         choco install mingw --version=7.3.0 --force --allow-downgrade
-        
+
     - name: Install codecov.io tools
       if: matrix.codecov
       # Need to use special fork of codecov-python for Windows
