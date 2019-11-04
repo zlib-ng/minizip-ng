@@ -710,8 +710,7 @@ if(MZ_BUILD_TEST)
             install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
         endif()
     endif()
-
-    add_executable(minizip_cmd "minizip.c" "test/test.c" "test/test.h")
+    add_executable(minizip_cmd "minizip.c")
     set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
     target_compile_definitions(minizip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
     target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -722,13 +721,25 @@ if(MZ_BUILD_TEST)
             GCC_GENERATE_TEST_COVERAGE_FILES YES)
     endif()
 
+    add_executable(test_cmd "test/test.c" "test/test.h")
+    target_compile_definitions(test_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
+    target_include_directories(test_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(test_cmd ${PROJECT_NAME})
+    if(MZ_CODE_COVERAGE)
+        set_target_properties(test_cmd PROPERTIES
+            GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
+            GCC_GENERATE_TEST_COVERAGE_FILES YES)
+    endif()
+
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
 endif()
 
-if(MZ_BUILD_UNIT_TEST)
+if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
     enable_testing()
+
+    add_test(NAME test_cmd COMMAND test_cmd WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     function(create_compress_tests EXTRA_NAME EXTRA_ARGS)
         if(MZ_DECOMPRESS_ONLY)

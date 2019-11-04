@@ -7,17 +7,17 @@ extern "C" {
 
 /***************************************************************************/
 
-void test_stream_bzip(void);
-void test_stream_pkcrypt(void);
-void test_stream_wzaes(void);
-void test_stream_zlib(void);
-void test_stream_mem(void);
-void test_stream_find(void);
-void test_stream_find_reverse(void);
+int32_t test_stream_bzip(void);
+int32_t test_stream_pkcrypt(void);
+int32_t test_stream_wzaes(void);
+int32_t test_stream_zlib(void);
+int32_t test_stream_mem(void);
+int32_t test_stream_find(void);
+int32_t test_stream_find_reverse(void);
 
-void test_crypt_sha(void);
-void test_crypt_aes(void);
-void test_crypt_hmac(void);
+int32_t test_crypt_sha(void);
+int32_t test_crypt_aes(void);
+int32_t test_crypt_hmac(void);
 
 /***************************************************************************/
 
