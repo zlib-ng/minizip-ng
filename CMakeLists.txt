@@ -250,8 +250,6 @@ set(MINIZIP_PUBLIC_HEADERS
     mz_zip.h
     mz_zip_rw.h)
 
-list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR})
-
 # Windows specific
 if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
@@ -476,16 +474,14 @@ endif()
 
 # Include LZMA
 if(MZ_LZMA)
-    list(APPEND MINIZIP_DEF -DHAVE_LZMA)
-    list(APPEND MINIZIP_DEF -DLZMA_API_STATIC)
-    list(APPEND MINIZIP_DEF -DHAVE_CONFIG_H)
-
     check_include_file(limits.h     HAVE_LIMITS_H)
     check_include_file(string.h     HAVE_STRING_H)
     check_include_file(strings.h    HAVE_STRINGS_H)
     check_include_file(memory.h     HAVE_MEMORY_H)
     check_include_file(stdbool.h    HAVE_STDBOOL_H)
     check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
+
+    list(APPEND MINIZIP_DEF -DHAVE_CONFIG_H)
 
     if(HAVE_LIMITS_H)
         list(APPEND MINIZIP_DEF -DHAVE_LIMITS_H)
@@ -505,6 +501,9 @@ if(MZ_LZMA)
     if(HAVE_IMMINTRIN_H)
         list(APPEND MINIZIP_DEF -DHAVE_IMMINTRIN_H)
     endif()
+
+    list(APPEND MINIZIP_DEF -DHAVE_LZMA)
+    list(APPEND MINIZIP_DEF -DLZMA_API_STATIC)
 
     list(APPEND MINIZIP_SRC "mz_strm_lzma.c")
     list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_lzma.h")
@@ -609,6 +608,16 @@ if(MZ_LZMA)
     source_group("LZMA\\RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HEADERS})
 endif()
 
+macro(mz_configure_target target)
+    target_compile_definitions(${target} PRIVATE ${STDLIB_DEF})
+    target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    if(MZ_CODE_COVERAGE)
+        set_target_properties(${target} PROPERTIES
+            GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
+            GCC_GENERATE_TEST_COVERAGE_FILES YES)
+    endif()
+endmacro()
+
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
@@ -625,11 +634,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
                         DEFINE_SYMBOL "MZ_EXPORTS")
-if(MZ_CODE_COVERAGE)
-    set_target_properties(${PROJECT_NAME} PROPERTIES
-        GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
-        GCC_GENERATE_TEST_COVERAGE_FILES YES)
-endif()
+
+mz_configure_target(${PROJECT_NAME})
 if(NOT RISCOS)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
@@ -638,7 +644,7 @@ if(MZ_LZMA)
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIZIP_INC})
-target_compile_definitions(${PROJECT_NAME} PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${MINIZIP_DEF})
 
 # Link with external libraries
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -703,44 +709,30 @@ endif()
 if(MZ_BUILD_TEST)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
+        mz_configure_target(minigzip_cmd)
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
-        target_compile_definitions(minigzip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
-        target_include_directories(minigzip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        target_compile_definitions(minigzip_cmd PRIVATE ${MINIZIP_DEF})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
-        if(MZ_CODE_COVERAGE)
-            set_target_properties(minigzip_cmd PROPERTIES
-                GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
-                GCC_GENERATE_TEST_COVERAGE_FILES YES)
-        endif()
 
         if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
             install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
         endif()
     endif()
-    add_executable(minizip_cmd "minizip.c")
-    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
-    target_compile_definitions(minizip_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
-    target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(minizip_cmd ${PROJECT_NAME})
-    if(MZ_CODE_COVERAGE)
-        set_target_properties(minizip_cmd PROPERTIES
-            GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
-            GCC_GENERATE_TEST_COVERAGE_FILES YES)
-    endif()
 
-    add_executable(test_cmd "test/test.c" "test/test.h")
-    target_compile_definitions(test_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
-    target_include_directories(test_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(test_cmd ${PROJECT_NAME})
-    if(MZ_CODE_COVERAGE)
-        set_target_properties(test_cmd PROPERTIES
-            GCC_INSTRUMENT_PROGRAM_FLOW_ARCS YES
-            GCC_GENERATE_TEST_COVERAGE_FILES YES)
-    endif()
+    add_executable(minizip_cmd "minizip.c")
+    mz_configure_target(minizip_cmd)
+    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+    target_compile_definitions(minizip_cmd PRIVATE ${MINIZIP_DEF})
+    target_link_libraries(minizip_cmd ${PROJECT_NAME})
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
+
+    add_executable(test_cmd "test/test.c" "test/test.h")
+    mz_configure_target(test_cmd)
+    target_compile_definitions(test_cmd PRIVATE ${MINIZIP_DEF})
+    target_link_libraries(test_cmd ${PROJECT_NAME})
 endif()
 
 if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
