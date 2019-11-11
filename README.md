@@ -85,6 +85,7 @@ cmake --build .
 | MZ_BUILD_TEST | Builds minizip test executable | OFF |
 | MZ_BUILD_UNIT_TEST | Builds minizip unit test project | OFF |
 | MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables | OFF |
+| MZ_CODE_COVERAGE | Build with code coverage flags | OFF |
 
 ## Contents
 
