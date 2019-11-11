@@ -254,6 +254,14 @@ jobs:
       run: |
         sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
+    - name: Install test certificate (Ubuntu/OpenSSL)
+      if: runner.os == 'Linux' && contains(matrix.name, 'OpenSSL')
+      run: |
+        openssl pkcs12 -in test/test.p12 -clcerts -nokeys -out test/test.crt -passin pass:test
+        sudo mkdir /usr/local/share/ca-certificates/mz
+        sudo cp test/test.crt /usr/local/share/ca-certificates/mz
+        sudo update-ca-certificates
+
     - name: Run test cases
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
