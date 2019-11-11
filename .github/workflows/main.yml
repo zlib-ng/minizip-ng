@@ -251,6 +251,11 @@ jobs:
       run: |
         sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
+    - name: Install test certificate (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        certutil -addstore -enterprise Root test/test.pem
+
     - name: Run test cases
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
@@ -258,7 +263,7 @@ jobs:
       # Specify test certificate for OpenSSL tests
       env:
         SSL_CERT_FILE: test.pem
-  
+
     - name: Upload coverage report
       if: matrix.codecov
       run: |

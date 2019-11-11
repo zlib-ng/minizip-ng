@@ -680,6 +680,11 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size)
 {
     CRYPT_VERIFY_MESSAGE_PARA verify_params;
+    CERT_CONTEXT *signer_cert = NULL;
+    CERT_CHAIN_PARA  chain_para;
+    CERT_CHAIN_CONTEXT *chain_context = NULL;
+    CERT_CHAIN_POLICY_PARA chain_policy;
+    CERT_CHAIN_POLICY_STATUS chain_policy_status;
     HCRYPTMSG crypt_msg = 0;
     int32_t result = 0;
     int32_t err = MZ_SIGN_ERROR;
@@ -690,11 +695,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     memset(&verify_params, 0, sizeof(verify_params));
 
     verify_params.cbSize = sizeof(verify_params);
-
     verify_params.dwMsgAndCertEncodingType = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
-    verify_params.hCryptProv = 0;
-    verify_params.pfnGetSignerCertificate = NULL;
-    verify_params.pvGetArg = NULL;
 
     result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
         NULL, &decoded_size, NULL);
@@ -704,7 +705,27 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
     if (result && decoded != NULL)
         result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
-            decoded, &decoded_size, NULL);
+            decoded, &decoded_size, &signer_cert);
+
+    /* Get and validate certificate chain */
+    memset(&chain_para, 0, sizeof(chain_para));
+
+    if (result && signer_cert != NULL)
+        result = CertGetCertificateChain(NULL, signer_cert, NULL, NULL, &chain_para, 
+            CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT, NULL, &chain_context);
+
+    memset(&chain_policy, 0, sizeof(chain_policy));
+    chain_policy.cbSize = sizeof(CERT_CHAIN_POLICY_PARA);
+
+    memset(&chain_policy_status, 0, sizeof(chain_policy_status));
+    chain_policy_status.cbSize = sizeof(CERT_CHAIN_POLICY_STATUS);
+
+    if (result && chain_context != NULL)
+        result = CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_BASE, chain_context, 
+            &chain_policy, &chain_policy_status);
+
+    if (chain_policy_status.dwError != S_OK)
+        result = 0;
 
 #if 0
     crypt_msg = CryptMsgOpenToDecode(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, 0, 0, NULL, NULL);
@@ -767,7 +788,11 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         if (memcmp(decoded, message, message_size) == 0)
             err = MZ_OK;
     }
-
+    
+    if (chain_context != NULL)
+        CertFreeCertificateChain(chain_context);
+    if (signer_cert != NULL)
+        CertFreeCertificateContext(signer_cert);
     if (crypt_msg != NULL)
         CryptMsgClose(crypt_msg);
 
