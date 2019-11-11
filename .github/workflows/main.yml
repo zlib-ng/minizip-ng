@@ -254,14 +254,7 @@ jobs:
       run: |
         sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
-    - name: Run test cases (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        cd ${{ matrix.build-src-dir || '.' }}
-        ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
-
-    - name: Run test cases (Ubuntu/macOS)
-      if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: Run test cases
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
         ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
