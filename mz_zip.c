@@ -1136,6 +1136,11 @@ static int32_t mz_zip_write_cd(void *handle)
     if (mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size) == MZ_OK && disk_size > 0)
         zip->disk_number_with_cd += 1;
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
+    if ((zip->disk_number_with_cd > 0) && (zip->open_mode & MZ_OPEN_MODE_APPEND))
+    {
+        // Overwrite existing central directory if using split disks
+        mz_stream_seek(zip->stream, 0, MZ_SEEK_SET);
+    }
 
     zip->cd_offset = mz_stream_tell(zip->stream);
     mz_stream_seek(zip->cd_mem_stream, 0, MZ_SEEK_END);
