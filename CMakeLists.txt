@@ -809,8 +809,8 @@ if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
         create_compress_tests("wzaes" "-s;-p;test123")
     endif()
     if(MZ_SIGNING)
-        create_compress_tests("signed" "-h;ia.p12;-w;test")
-        create_compress_tests("secure" "-z;-h;ia.p12;-w;test")
+        create_compress_tests("signed" "-h;test.p12;-w;test")
+        create_compress_tests("secure" "-z;-h;test.p12;-w;test")
     endif()
 
     # Perform tests on others

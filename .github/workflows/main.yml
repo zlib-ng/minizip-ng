@@ -249,6 +249,11 @@ jobs:
         cd ${{ matrix.build-src-dir || '.' }}
         cmake --build . --config ${{ matrix.build-config || 'Release' }}
 
+    - name: Install test certificate (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
+
     - name: Run test cases
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
