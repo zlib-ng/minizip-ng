@@ -254,19 +254,21 @@ jobs:
       run: |
         sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
-    - name: Install test certificate (Ubuntu/OpenSSL)
-      if: runner.os == 'Linux' && contains(matrix.name, 'OpenSSL')
-      run: |
-        openssl pkcs12 -in test/test.p12 -clcerts -nokeys -out test/test.crt -passin pass:test
-        sudo mkdir /usr/local/share/ca-certificates/mz
-        sudo cp test/test.crt /usr/local/share/ca-certificates/mz
-        sudo update-ca-certificates
-
-    - name: Run test cases
+    - name: Run test cases (Windows)
+      if: runner.os == 'Windows'
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
         ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
 
+    - name: Run test cases (Ubuntu/macOS)
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: |
+        cd ${{ matrix.build-src-dir || '.' }}
+        ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
+      # Specify test certificate for OpenSSL tests
+      env:
+        SSL_CERT_FILE: test.pem
+  
     - name: Upload coverage report
       if: matrix.codecov
       run: |
