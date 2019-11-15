@@ -1,5 +1,5 @@
 /* zip.c -- Zip manipulation
-   Version 2.9.0, September 18, 2019
+   Version 2.9.1, November 15, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -1330,9 +1330,9 @@ static int32_t mz_zip_recover_cd(void *handle)
         if (disk_number < 0)
             disk_number = 0;
         local_file_info.disk_number = (uint32_t)disk_number;
-        
+
         compressed_pos = mz_stream_tell(zip->stream);
-        
+
         if ((err == MZ_OK) && (local_file_info.compressed_size > 0))
         {
             mz_stream_seek(zip->stream, local_file_info.compressed_size, MZ_SEEK_CUR);
@@ -1343,7 +1343,7 @@ static int32_t mz_zip_recover_cd(void *handle)
             /* Search for the next local header */
             err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
                     INT64_MAX, &next_header_pos);
-        
+
             if (err == MZ_EXIST_ERROR)
             {
                 mz_stream_seek(zip->stream, compressed_pos, MZ_SEEK_SET);
@@ -1423,7 +1423,7 @@ static int32_t mz_zip_recover_cd(void *handle)
         /* Rewrite central dir with local headers and offsets */
         err = mz_zip_entry_write_header(cd_mem_stream, 0, &local_file_info);
         if (err == MZ_OK)
-            number_entry += 1; 
+            number_entry += 1;
 
         err = mz_stream_seek(zip->stream, next_header_pos, MZ_SEEK_SET);
     }
@@ -1435,7 +1435,7 @@ static int32_t mz_zip_recover_cd(void *handle)
 
     if (number_entry == 0)
         return err;
-    
+
     /* Set new upper seek boundary for central dir mem stream */
     disk_offset = mz_stream_tell(cd_mem_stream);
     mz_stream_mem_set_buffer_limit(cd_mem_stream, (int32_t)disk_offset);

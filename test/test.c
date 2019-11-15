@@ -1,5 +1,5 @@
 /* test.c - Test bed area
-   Version 2.9.0, September 18, 2019
+   Version 2.9.1, November 15, 2019
    part of the MiniZip project
 
    Copyright (C) 2018-2019 Nathan Moinvaziri
@@ -592,7 +592,7 @@ int32_t test_stream_find_reverse(void)
         if (err != MZ_OK)
             return err;
     }
-    
+
     printf("OK\n");
     return MZ_OK;
 }

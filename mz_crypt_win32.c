@@ -1,5 +1,5 @@
 /* mz_crypt_win32.c -- Crypto/hash functions for Windows
-   Version 2.9.0, September 18, 2019
+   Version 2.9.1, November 15, 2019
    part of the MiniZip project
 
    Copyright (C) 2010-2019 Nathan Moinvaziri
@@ -711,7 +711,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     memset(&chain_para, 0, sizeof(chain_para));
 
     if (result && signer_cert != NULL)
-        result = CertGetCertificateChain(NULL, signer_cert, NULL, NULL, &chain_para, 
+        result = CertGetCertificateChain(NULL, signer_cert, NULL, NULL, &chain_para,
             CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT, NULL, &chain_context);
 
     memset(&chain_policy, 0, sizeof(chain_policy));
@@ -721,7 +721,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     chain_policy_status.cbSize = sizeof(CERT_CHAIN_POLICY_STATUS);
 
     if (result && chain_context != NULL)
-        result = CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_BASE, chain_context, 
+        result = CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_BASE, chain_context,
             &chain_policy, &chain_policy_status);
 
     if (chain_policy_status.dwError != S_OK)
@@ -788,7 +788,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         if (memcmp(decoded, message, message_size) == 0)
             err = MZ_OK;
     }
-    
+
     if (chain_context != NULL)
         CertFreeCertificateChain(chain_context);
     if (signer_cert != NULL)
