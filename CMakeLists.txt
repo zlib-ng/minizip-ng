@@ -178,7 +178,7 @@ if(NOT HAVE_FSEEKO)
 endif()
 
 # Enable compiler warnings
-if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+if(MSVC)
     add_compile_options(/W3)
 else()
     add_compile_options(-W -Wall)
@@ -213,7 +213,7 @@ if(MZ_CODE_COVERAGE)
         set(MZ_CODE_COVERAGE OFF)
     endif()
 else()
-    if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    if(MSVC)
         add_compile_options(
             $<$<CONFIG:Debug>:/Zi>
             $<$<CONFIG:Debug>:/Od>
