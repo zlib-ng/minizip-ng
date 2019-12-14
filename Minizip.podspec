@@ -18,7 +18,7 @@ DESC
   s.default_subspecs = 'Core', 'PKCRYPT', 'WZAES_APPLE', 'BZIP2'
 
   s.subspec 'Core' do |sp|
-    sp.source_files = '{mz,mz_os,mz_os_posix,mz_compat,mz_crypt,mz_strm,mz_strm_mem,mz_strm_buf,mz_strm_crypt,mz_strm_os_posix,mz_strm_zlib,mz_zip,mz_zip_rw,mz_strm_split}.{c,h}'
+    sp.source_files = '{mz,mz_os,mz_os_posix,mz_compat,mz_crypt,mz_strm,mz_strm_mem,mz_strm_os,mz_strm_os_posix,mz_strm_buf,mz_strm_crypt,mz_strm_zlib,mz_zip,mz_zip_rw,mz_strm_split}.{c,h}'
     sp.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'HAVE_INTTYPES_H HAVE_STDINT_H HAVE_ZLIB' }
   end
 
