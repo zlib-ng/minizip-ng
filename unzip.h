@@ -269,7 +269,7 @@ typedef struct unz_file_pos_s
 } unz_file_pos;
 
 extern int ZEXPORT unzGetFilePos(unzFile file, unz_file_pos *file_pos);
-extern int ZEXPORT unzGoToFilePos(unzFile file, unz_file_pos *file_pos);
+extern int ZEXPORT unzGoToFilePos(unzFile file, const unz_file_pos *file_pos);
 
 typedef struct unz64_file_pos_s
 {
