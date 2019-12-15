@@ -1787,7 +1787,7 @@ extern int ZEXPORT unzGetFilePos(unzFile file, unz_file_pos *file_pos)
     return err;
 }
 
-extern int ZEXPORT unzGoToFilePos(unzFile file, unz_file_pos *file_pos)
+extern int ZEXPORT unzGoToFilePos(unzFile file, const unz_file_pos *file_pos)
 {
     unz64_file_pos file_pos64;
     if (file_pos == NULL)
