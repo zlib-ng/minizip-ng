@@ -129,8 +129,11 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
             if ((split->current_disk == 0) && (split->disk_size > 0))
             {
                 err = mz_stream_write_uint32(split->stream.base, MZ_ZIP_MAGIC_DISKHEADER);
+
                 split->total_out_disk += 4;
                 split->total_out += split->total_out_disk;
+
+                split->current_disk_size += 4;
             }
         }
         else if (split->mode & MZ_OPEN_MODE_READ)
@@ -290,6 +293,7 @@ int32_t mz_stream_split_read(void *stream, void *buf, int32_t size)
 int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
+    int64_t position = 0;
     int32_t written = 0;
     int32_t bytes_left = size;
     int32_t bytes_to_write = 0;
@@ -298,10 +302,12 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
     int32_t err = MZ_OK;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
 
+    position = mz_stream_tell(split->stream.base);
+
     while (bytes_left > 0)
     {
         bytes_to_write = bytes_left;
-
+        
         if (split->disk_size > 0)
         {
             if ((split->total_out_disk == split->disk_size && split->total_out > 0) ||
@@ -331,8 +337,15 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size)
 
         bytes_left -= written;
         buf_ptr += written;
+
         split->total_out += written;
         split->total_out_disk += written;
+
+        if (position == split->current_disk_size)
+        {
+            split->current_disk_size += written;
+            position = split->current_disk_size;
+        }
     }
 
     return size - bytes_left;

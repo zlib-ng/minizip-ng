@@ -87,6 +87,9 @@ int32_t mz_zip_set_version_madeby(void *handle, uint16_t version_madeby);
 int32_t mz_zip_set_recover(void *handle, uint8_t recover);
 /* Set the ability to recover the central dir by reading local file headers */
 
+int32_t mz_zip_set_data_descriptor(void *handle, uint8_t data_descriptor);
+/* Set the use of data descriptor flag when writing zip entries */
+
 int32_t mz_zip_get_stream(void *handle, void **stream);
 /* Get a pointer to the stream used to open */
 
