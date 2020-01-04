@@ -710,7 +710,6 @@ if(MZ_BUILD_TEST)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         mz_configure_target(minigzip_cmd)
-        set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
         target_compile_definitions(minigzip_cmd PRIVATE ${MINIZIP_DEF})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
 
@@ -721,7 +720,6 @@ if(MZ_BUILD_TEST)
 
     add_executable(minizip_cmd "minizip.c")
     mz_configure_target(minizip_cmd)
-    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
     target_compile_definitions(minizip_cmd PRIVATE ${MINIZIP_DEF})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
 

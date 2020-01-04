@@ -277,7 +277,7 @@ jobs:
       if: (runner.os == 'Linux' || runner.os == 'macOS') && matrix.deploy && startsWith(github.ref, 'refs/tags/')
       run: |
         cd ${{ matrix.build-dir || '.' }}
-        ls *mini*zip* | tar -czvf minizip-${{ matrix.deploy-name }}.tar.gz -T -
+        ls mini*zip_cmd libminizip* | tar -czvf minizip-${{ matrix.deploy-name }}.tar.gz -T -
 
     - name: Upload release (Ubuntu/macOS)
       uses: svenstaro/upload-release-action@v1-release
