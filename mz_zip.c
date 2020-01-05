@@ -1466,7 +1466,7 @@ void *mz_zip_create(void **handle)
     if (zip != NULL)
     {
         memset(zip, 0, sizeof(mz_zip));
-        zip->data_descriptor = 0;
+        zip->data_descriptor = 1;
     }
     if (handle != NULL)
         *handle = zip;
@@ -1922,15 +1922,20 @@ int32_t mz_zip_entry_is_open(void *handle)
 static int32_t mz_zip_seek_to_local_header(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
+    int64_t disk_size = 0;
+    int32_t disk_number = zip->file_info.disk_number;
 
+    if (disk_number == zip->disk_number_with_cd)
+    {
+        mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size);
+        if ((disk_size == 0) || ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0))
+            disk_number = -1;
+    }
 
-    if (((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0) && (zip->file_info.disk_number == zip->disk_number_with_cd))
-        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-    else
-        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
+    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, disk_number);
 
     mz_zip_print("Zip - Entry - Seek local (disk %" PRId32 " offset %" PRId64 ")\n",
-        zip->file_info.disk_number, zip->file_info.disk_offset);
+        disk_number, zip->file_info.disk_offset);
 
     /* Guard against seek overflows */
     if ((zip->disk_offset_shift > 0) &&
