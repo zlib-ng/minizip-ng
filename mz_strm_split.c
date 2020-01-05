@@ -77,6 +77,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 {
     mz_stream_split *split = (mz_stream_split *)stream;
     uint32_t magic = 0;
+    int64_t position = 0;
     int32_t i = 0;
     int32_t err = MZ_OK;
     int16_t disk_part = 0;
@@ -132,19 +133,12 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
 
                 split->total_out_disk += 4;
                 split->total_out += split->total_out_disk;
-
-                split->current_disk_size += 4;
             }
         }
         else if (split->mode & MZ_OPEN_MODE_READ)
         {
             if (split->current_disk == 0)
             {
-                /* Get the size of the current disk we are on for seeking */
-                mz_stream_seek(split->stream.base, 0, MZ_SEEK_END);
-                split->current_disk_size = mz_stream_tell(split->stream.base);
-                mz_stream_seek(split->stream.base, 0, MZ_SEEK_SET);
-
                 err = mz_stream_read_uint32(split->stream.base, &magic);
                 if (magic != MZ_ZIP_MAGIC_DISKHEADER)
                     err = MZ_FORMAT_ERROR;
@@ -153,7 +147,15 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk)
     }
 
     if (err == MZ_OK)
+    {
+        /* Get the size of the current disk we are on */
+        position = mz_stream_tell(split->stream.base);
+        mz_stream_seek(split->stream.base, 0, MZ_SEEK_END);
+        split->current_disk_size = mz_stream_tell(split->stream.base);
+        mz_stream_seek(split->stream.base, position, MZ_SEEK_SET);
+
         split->is_open = 1;
+    }
 
     return err;
 }
