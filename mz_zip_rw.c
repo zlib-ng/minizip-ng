@@ -1870,7 +1870,7 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader)
             err = mz_zip_writer_add(writer, reader_zip_handle, mz_zip_entry_read);
         }
 
-        if ((err == MZ_OK) && (file_info->flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR))
+        if (err == MZ_OK)
         {
             err = mz_zip_entry_read_close(reader_zip_handle, &crc32, &compressed_size, &uncompressed_size);
             if (err == MZ_OK)
