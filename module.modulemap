@@ -1,0 +1,11 @@
+module CMinizip  {
+    header "mz.h"
+    header "mz_os.h"
+    header "mz_strm.h"
+    header "mz_strm_buf.h"
+    header "mz_strm_os.h"
+    header "mz_strm_split.h"
+    header "mz_zip.h"
+    header "mz_zip_rw.h"
+    export *
+}
