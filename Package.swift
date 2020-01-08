@@ -64,7 +64,7 @@ let package = Package(
             dependencies: [],
             path: ".",
             sources: minizipSources,
-            publicHeadersPath: ".",
+            publicHeadersPath: "./swiftpm/include",
             cSettings: minizipCSettings,
             linkerSettings: minizipLinkerSettings),
     ]
