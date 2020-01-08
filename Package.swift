@@ -64,6 +64,7 @@ let package = Package(
             dependencies: [],
             path: ".",
             sources: minizipSources,
+            publicHeadersPath: ".",
             cSettings: minizipCSettings,
             linkerSettings: minizipLinkerSettings),
     ]
