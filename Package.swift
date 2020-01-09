@@ -8,7 +8,7 @@ var minizipSources = [
     "mz_os", "mz_os_posix",
     "mz_compat",
     "mz_crypt",
-    "mz_strm", "mz_strm_mem", "mz_strm_buf", "mz_strm_crypt", "mz_strm_os_posix", "mz_strm_zlib",  "mz_strm_split",
+    "mz_strm", "mz_strm_mem", "mz_strm_buf", "mz_strm_crypt", "mz_strm_os_posix", "mz_strm_zlib", "mz_strm_split",
     "mz_zip", "mz_zip_rw"
     ].flatMap { ["\($0).c", "\($0).h"] }
 
@@ -36,7 +36,7 @@ if ProcessInfo.processInfo.environment["MZ_BZIP2"] != "OFF" {
 if ProcessInfo.processInfo.environment["MZ_WZAES"] != "OFF" {
     minizipSources += ["mz_strm_wzaes"].flatMap { ["\($0).c", "\($0).h"] } + ["mz_crypt_apple.c"]
     minizipCSettings += [
-        .define("HAVE_WZAES"),
+        .define("HAVE_WZAES")
     ]
     minizipLinkerSettings += [
         .linkedFramework("Security")
