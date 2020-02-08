@@ -8,7 +8,7 @@ minizip is a zip manipulation library written in C that is supported on Windows,
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/nmoinvaz/minizip/blob/master/LICENSE)
 [![codecov.io](https://codecov.io/github/nmoinvaz/minizip/coverage.svg?branch=dev)](https://codecov.io/github/nmoinvaz/minizip/)
 
-Maintained by Nathan Moinvaziri.
+Developed and maintained by Nathan Moinvaziri.
 
 ## Branches
 
