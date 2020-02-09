@@ -2219,7 +2219,6 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     int64_t uncompressed_size)
 {
     mz_zip *zip = (mz_zip *)handle;
-    int64_t end_pos = 0;
     int64_t end_disk_number = 0;
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
@@ -2294,7 +2293,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
         ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0))
      {
         /* Save the disk number and position we are to seek back after updating local header */
-        end_pos = mz_stream_tell(zip->stream);
+        int64_t end_pos = mz_stream_tell(zip->stream);
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &end_disk_number);
 
         err = mz_zip_seek_to_local_header(handle);
