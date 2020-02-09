@@ -99,6 +99,18 @@ int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream
 int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream);
 /* Get a pointer to the stream used to store the central dir in memory */
 
+int32_t mz_zip_set_number_entry(void *handle, uint64_t number_entry);
+/* Sets the total number of entries */
+
+int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry);
+/* Get the total number of entries */
+
+int32_t mz_zip_set_disk_number_with_cd(void *handle, uint32_t disk_number_with_cd);
+/* Sets the disk number containing the central directory record */
+
+int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
+/* Get the disk number containing the central directory record */
+
 /***************************************************************************/
 
 int32_t mz_zip_entry_is_open(void *handle);
@@ -125,6 +137,14 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     int64_t uncompressed_size);
 /* Close the current file for writing and set data descriptor values */
 
+int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t crc32);
+/* Close the current file in the zip file where raw is compressed data */
+
+int32_t mz_zip_entry_close(void *handle);
+/* Close the current file in the zip file */
+
+/***************************************************************************/
+
 int32_t mz_zip_entry_is_dir(void *handle);
 /* Checks to see if the entry is a directory */
 
@@ -139,26 +159,6 @@ int32_t mz_zip_entry_get_local_info(void *handle, mz_zip_file **local_file_info)
 
 int32_t mz_zip_entry_set_extrafield(void *handle, const uint8_t *extrafield, uint16_t extrafield_size);
 /* Sets or updates the extra field for the entry to be used before writing cd */
-
-int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t crc32);
-/* Close the current file in the zip file where raw is compressed data */
-
-int32_t mz_zip_entry_close(void *handle);
-/* Close the current file in the zip file */
-
-/***************************************************************************/
-
-int32_t mz_zip_set_number_entry(void *handle, uint64_t number_entry);
-/* Sets the total number of entries */
-
-int32_t mz_zip_get_number_entry(void *handle, uint64_t *number_entry);
-/* Get the total number of entries */
-
-int32_t mz_zip_set_disk_number_with_cd(void *handle, uint32_t disk_number_with_cd);
-/* Sets the disk number containing the central directory record */
-
-int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
-/* Get the disk number containing the central directory record */
 
 int64_t mz_zip_get_entry(void *handle);
 /* Return offset of the current entry in the zip file */
