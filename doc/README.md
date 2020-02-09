@@ -28,7 +28,7 @@
 |MZ_COMPAT|Old minizip 1.x compatibility layer|
 |[MZ_OS](mz_os.md)|Operating system level file system operations|
 |[MZ_ZIP](mz_zip.md)|Zip archive and entry interface |
-|MZ_ZIP_RW|Easy zip file extraction and creation|
+|[MZ_ZIP_RW](mz_zip_rw.md)|Easy zip file extraction and creation|
 
 ### Extrafield Proposals <!-- omit in toc -->
 
