@@ -121,13 +121,13 @@ int32_t mz_zip_reader_get_raw(void *handle, uint8_t *raw);
 /* Gets whether or not it should save the entry raw */
 
 int32_t mz_zip_reader_get_zip_cd(void *handle, uint8_t *zip_cd);
-/* Gets whether or not the archive has zipped cd */
+/* Gets whether or not the archive has a zipped central directory */
 
 int32_t mz_zip_reader_get_comment(void *handle, const char **comment);
 /* Gets the comment for the central directory */
 
 void    mz_zip_reader_set_encoding(void *handle, int32_t encoding);
-/* Sets whether or not it should support cp437 in zip file names */
+/* Sets whether or not it should support a special character encoding in zip file names. */
 
 void    mz_zip_reader_set_sign_required(void *handle, uint8_t sign_required);
 /* Sets whether or not it a signature is required  */

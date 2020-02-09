@@ -179,7 +179,7 @@ int32_t mz_zip_locate_first_entry(void *handle, void *userdata, mz_zip_locate_en
 /* Locate the first matching entry based on a match callback */
 
 int32_t mz_zip_locate_next_entry(void *handle, void *userdata, mz_zip_locate_entry_cb cb);
-/* LOcate the next matching entry based on a match callback */
+/* Locate the next matching entry based on a match callback */
 
 /***************************************************************************/
 

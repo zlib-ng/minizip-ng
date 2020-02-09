@@ -844,7 +844,7 @@ int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len)
     if (reader->file_info->uncompressed_size > INT32_MAX)
         return MZ_PARAM_ERROR;
     if (len != (int32_t)reader->file_info->uncompressed_size)
-        return MZ_PARAM_ERROR;
+        return MZ_BUF_ERROR;
 
     /* Create a memory stream backed by our buffer and save to it */
     mz_stream_mem_create(&mem_stream);
