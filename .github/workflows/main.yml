@@ -30,10 +30,10 @@ jobs:
           Windows 2016 GCC,
           Windows 2019 MSVC,
           Windows 2019 GCC,
-          macOS 10.14 Xcode 9.4.1,
-          macOS 10.14 Xcode,
-          macOS 10.14 Xcode LibCompression,
-          macOS 10.14 Xcode OpenSSL
+          macOS Xcode 9.4.1,
+          macOS Xcode,
+          macOS Xcode LibCompression,
+          macOS Xcode OpenSSL
         ]
 
         include:
@@ -177,26 +177,26 @@ jobs:
             codecov: windows_2019_gcc
 
           # No code coverage on release builds
-          - name: macOS 10.14 Xcode 9.4.1
-            os: macOS-10.14
+          - name: macOS Xcode 9.4.1
+            os: macOS-latest
             version: "9.4.1"
             deploy: true
-            deploy-name: macos
+            deploy-name: macos_xcode_941
 
-          - name: macOS 10.14 Xcode
-            os: macOS-10.14
+          - name: macOS Xcode
+            os: macOS-latest
             cmake-args: -DMZ_CODE_COVERAGE=ON
-            codecov: macos_1014_xcode
+            codecov: macos_xcode
 
-          - name: macOS 10.14 Xcode LibCompression
-            os: macOS-10.14
+          - name: macOS Xcode LibCompression
+            os: macOS-latest
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LIBCOMP=ON
-            codecov: macos_1014_xcode_libcompression
+            codecov: macos_xcode_libcompression
 
-          - name: macOS 10.14 Xcode OpenSSL
-            os: macOS-10.14
+          - name: macOS Xcode OpenSSL
+            os: macOS-latest
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_OPENSSL=ON -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl -DOPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -DOPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -DOPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib
-            codecov: macos_1014_xcode_openssl
+            codecov: macos_xcode_openssl
 
     steps:
     - uses: actions/checkout@v1
