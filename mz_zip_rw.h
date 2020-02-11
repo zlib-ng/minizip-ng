@@ -182,11 +182,6 @@ int32_t mz_zip_writer_close(void *handle);
 
 /***************************************************************************/
 
-int32_t mz_zip_writer_zip_cd(void *handle);
-/* Zip the central directory */
-
-/***************************************************************************/
-
 int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
 /* Opens an entry in the zip file for writing */
 
@@ -195,10 +190,6 @@ int32_t mz_zip_writer_entry_close(void *handle);
 
 int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
 /* Writes data into entry for zip */
-
-int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size,
-    uint8_t *cert_data, int32_t cert_data_size, const char *cert_pwd);
-/* Signs uncompressed content of entry, call before closing */
 
 /***************************************************************************/
 
@@ -254,7 +245,7 @@ void    mz_zip_writer_set_store_links(void *handle, uint8_t store_links);
 /* Store symbolic links in zip file */
 
 void    mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd);
-/* Sets additional flags to be set when adding files in zip */
+/* Sets whether or not central directory should be zipped */
 
 int32_t mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd);
 /* Sets the certificate and timestamp url to use for signing when adding files in zip */
