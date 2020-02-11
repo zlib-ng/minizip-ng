@@ -52,6 +52,47 @@ The _mz_zip_reader_ and _mz_zip_writer_ objects allows you to easily extract or 
   - [mz_zip_reader_get_zip_handle](#mzzipreadergetziphandle)
   - [mz_zip_reader_create](#mzzipreadercreate)
   - [mz_zip_reader_delete](#mzzipreaderdelete)
+- [Writer Callbacks](#writer-callbacks)
+  - [mz_zip_writer_overwrite_cb](#mzzipwriteroverwritecb)
+  - [mz_zip_writer_password_cb](#mzzipwriterpasswordcb)
+  - [mz_zip_writer_progress_cb](#mzzipwriterprogresscb)
+  - [mz_zip_writer_entry_cb](#mzzipwriterentrycb)
+- [Writer Open/Close](#writer-openclose)
+  - [mz_zip_writer_is_open](#mzzipwriterisopen)
+  - [mz_zip_writer_open](#mzzipwriteropen)
+  - [mz_zip_reader_open_file](#mzzipreaderopenfile-1)
+  - [mz_zip_writer_open_file_in_memory](#mzzipwriteropenfileinmemory)
+  - [mz_zip_writer_close](#mzzipwriterclose)
+- [Writer Entry](#writer-entry)
+  - [mz_zip_writer_entry_open](#mzzipwriterentryopen)
+  - [mz_zip_writer_entry_close](#mzzipwriterentryclose)
+  - [mz_zip_writer_entry_write](#mzzipwriterentrywrite)
+- [Writer Add/Compress](#writer-addcompress)
+  - [mz_zip_writer_add](#mzzipwriteradd)
+  - [mz_zip_writer_add_process](#mzzipwriteraddprocess)
+  - [mz_zip_writer_add_info](#mzzipwriteraddinfo)
+  - [mz_zip_writer_add_buffer](#mzzipwriteraddbuffer)
+  - [mz_zip_writer_add_file](#mzzipwriteraddfile)
+  - [mz_zip_writer_add_path](#mzzipwriteraddpath)
+  - [mz_zip_writer_copy_from_reader](#mzzipwritercopyfromreader)
+- [Writer Object](#writer-object)
+  - [mz_zip_writer_set_password](#mzzipwritersetpassword)
+  - [mz_zip_writer_set_comment](#mzzipwritersetcomment)
+  - [mz_zip_writer_set_raw](#mzzipwritersetraw)
+  - [mz_zip_writer_get_raw](#mzzipwritergetraw)
+  - [mz_zip_writer_set_aes](#mzzipwritersetaes)
+  - [mz_zip_writer_set_compress_method](#mzzipwritersetcompressmethod)
+  - [mz_zip_writer_set_compress_level](#mzzipwritersetcompresslevel)
+  - [mz_zip_writer_set_zip_cd](#mzzipwritersetzipcd)
+  - [mz_zip_writer_set_certificate](#mzzipwritersetcertificate)
+  - [mz_zip_writer_set_overwrite_cb](#mzzipwritersetoverwritecb)
+  - [mz_zip_writer_set_password_cb](#mzzipwritersetpasswordcb)
+  - [mz_zip_reader_set_progress_cb](#mzzipreadersetprogresscb-1)
+  - [mz_zip_writer_set_progress_interval](#mzzipwritersetprogressinterval)
+  - [mz_zip_writer_set_entry_cb](#mzzipwritersetentrycb)
+  - [mz_zip_writer_get_zip_handle](#mzzipwritergetziphandle)
+  - [mz_zip_writer_create](#mzzipwritercreate)
+  - [mz_zip_writer_delete](#mzzipwriterdelete)
 
 ## Reader Callbacks
 
@@ -808,7 +849,7 @@ Sets the match pattern for entries in the zip file, if null all entries are matc
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -836,7 +877,7 @@ Sets the password required for extracting entire zip file. If not specified, the
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -856,7 +897,7 @@ Sets whether or not it should save the entry raw.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -943,7 +984,7 @@ Sets whether or not it should support a special character encoding in zip file n
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -963,7 +1004,7 @@ Sets whether or not it a signature is required. If enabled, it will prevent extr
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -984,7 +1025,7 @@ Sets the callback for what to do when a file is about to be overwritten.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 
@@ -1004,7 +1045,7 @@ Sets the callback for what to do when a password is required and hasn't been set
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 
@@ -1024,7 +1065,7 @@ Sets the callback that gets called to update extraction progress. This callback 
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 
@@ -1043,7 +1084,7 @@ Let at least milliseconds pass between calls to progress callback.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -1064,7 +1105,7 @@ Sets callback for when a new zip file entry is encountered during extraction.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 
@@ -1083,7 +1124,7 @@ Gets the underlying zip instance handle.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|void|No return|
 
 **Example**
 ```
@@ -1131,4 +1172,882 @@ Deletes a _mz_zip_reader_ instance and resets its pointer to zero.
 void *zip_reader = NULL;
 mz_zip_reader_create(&zip_reader);
 mz_zip_reader_delete(&zip_reader);
+```
+
+## Writer Callbacks
+
+### mz_zip_writer_overwrite_cb
+
+Callback that is called when it is about to overwrite an existing zip file. This callback can be set by calling _mz_zip_writer_set_overwrite_cb_.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to the _mz_zip_writer_ instance|
+|void *|userdata|User data pointer|
+|const char *|path|Zip file path that will be overwritten|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if it should overwrite|
+
+**Example**
+```
+int32_t writer_overwrite_cb(void *handle, void *userdata, const char *path) {
+    printf("Zip file is going to be overwritten %s\n", path);
+    // if not ok return MZ_INTERNAL_ERROR;
+    return MZ_OK;
+}
+mz_zip_writer_set_overwrite_cb(zip_writer, NULL, writer_overwrite_cb);
+```
+
+Also see _minizip_add_overwrite_cb_ for advanced example.
+
+### mz_zip_writer_password_cb
+
+Callback that is called when it needs a password. Any entries that are added with the _MZ_ZIP_FLAG_ENCRYPTED_ flag will need a password. This callback can be set by calling _mz_zip_writer_set_password_cb_.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to the _mz_zip_writer_ instance|
+|void *|userdata|User data pointer|
+|mz_zip_file *|file_info|Entry that needs password when adding|
+|char *|password|Password character buffer|
+|int32_t|max_password|Maximum password buffer size|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+int32_t writer_password_cb(void *handle, void *userdata, mz_zip_file *file_info, char *password, int32_t max_password) {
+    printf("Supplying password for %s\n", file_info->filename);
+    strncpy(password, "mypassword", max_password - 1);
+    password[max_password - 1] = 0;
+    return MZ_OK;
+}
+mz_zip_writer_set_password_cb(zip_writer, NULL, writer_password_cb);
+```
+
+### mz_zip_writer_progress_cb
+
+Callback that is called during compression to report progress. It is called on an interval specified by _mz_zip_writer_set_progress_interval_. This callback can be set by calling _mz_zip_writer_set_progress_cb_.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to the _mz_zip_writer_ instance|
+|void *|userdata|User data pointer|
+|mz_zip_file *|file_info|Entry that is being compressed|
+|int64_t|position|File write position. To calculate progress when writing raw use `position / file_info->compressed_size`. To calculate progress when writing data to be compressed use `position / file_info->uncompressed_size`.|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+
+See example in _minizip_extract_progress_cb_.
+
+### mz_zip_writer_entry_cb
+
+Callback that is called for each entry that is compressed. This callback can be set by calling _mz_zip_writer_set_entry_cb.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to the _mz_zip_writer_ instance|
+|void *|userdata|User data pointer|
+|mz_zip_file *|file_info|Entry that is being compressed|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+
+See example in _minizip_extract_entry_cb.
+
+## Writer Open/Close
+
+### mz_zip_writer_is_open
+
+Checks to see if the zip file is open.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if open.|
+
+**Example**
+```
+if (mz_zip_writer_is_open(zip_writer) == MZ_OK)
+    printf("Zip file is open in writer\n");
+```
+
+### mz_zip_writer_open
+
+ Opens zip file from stream.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|stream|_mz_stream_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if opened.|
+
+**Example**
+```
+void *file_stream = NULL;
+const char *path = "c:\\my.zip";
+
+mz_zip_writer_create(&zip_writer);
+mz_stream_os_create(&file_stream);
+
+err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_READ);
+if (err == MZ_OK) {
+    err = mz_zip_writer_open(zip_writer, file_stream);
+    if (err == MZ_OK) {
+        printf("Zip writer was opened %s\n", path);
+        mz_zip_writer_close(zip_writer);
+    }
+}
+
+mz_stream_os_delete(&file_stream);
+mz_zip_writer_delete(&zip_writer);
+```
+
+### mz_zip_reader_open_file
+
+Opens zip file from a file path.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_reader_ instance|
+|const char *|path|Path to zip file|
+|int64_t|disk_size|Disk size in bytes if using disk spanning, otherwise 0|
+|uint8_t|append|Opens in append mode if 1|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if opened.|
+
+**Example**
+```
+const char *path = "c:\\my.zip";
+mz_zip_writer_create(&zip_writer);
+if (mz_zip_writer_open_file(zip_writer, path) == MZ_OK) {
+    printf("Zip writer was opened %s\n", path);
+    mz_zip_writer_close(zip_writer);
+}
+mz_zip_writer_delete(&zip_writer);
+```
+
+### mz_zip_writer_open_file_in_memory
+
+Opens zip file from a file path into memory for faster access.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const char *|path|Path to zip file|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if opened.|
+
+**Example**
+```
+const char *path = "c:\\my.zip";
+mz_zip_writer_create(&zip_writer);
+if (mz_zip_writer_open_file_in_memory(zip_writer, path) == MZ_OK) {
+    printf("Zip writer was opened in memory %s\n", path);
+    mz_zip_writer_close(zip_writer);
+}
+mz_zip_writer_delete(&zip_writer);
+```
+
+### mz_zip_writer_close
+
+Closes the zip file.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+if (mz_zip_writer_close(zip_writer) == MZ_OK)
+    printf("Zip writer closed\n");
+```
+
+## Writer Entry
+
+### mz_zip_writer_entry_open
+
+Opens an entry in the zip file for writing.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|mz_zip_file *|file_info|Zip entry info for entry that is being written|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+mz_zip_file file_info = { 0 };
+
+file_info.filename = "newfile.txt";
+file_info.modified_date = time(NULL);
+file_info.version_madeby = MZ_VERSION_MADEBY;
+file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+if (mz_zip_writer_entry_open(zip_writer, &file_info) == MZ_OK) {
+    printf("Started writing new entry %s\n", file_info.filename);
+}
+```
+
+int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
+
+### mz_zip_writer_entry_close
+
+Closes entry in zip file.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+if (mz_zip_writer_close(zip_writer) == MZ_OK) {
+    printf("Stopped writing new entry\n");
+}
+```
+
+### mz_zip_writer_entry_write
+
+Writes data into entry for zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|buf|Buffer of data to write|
+int32_t|len|Number of bytes to write|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|Bytes written or [MZ_ERROR](mz_error.md) code if less than 0.|
+
+
+**Example**
+```
+mz_zip_file file_info = { 0 };
+
+file_info.filename = "newfile.txt";
+file_info.modified_date = time(NULL);
+file_info.version_madeby = MZ_VERSION_MADEBY;
+file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+if (mz_zip_writer_entry_open(zip_writer, &file_info) == MZ_OK) {
+    printf("Started writing new entry %s\n", file_info.filename);
+    int32_t bytes_written = mz_zip_writer_entry_Write(zip_writer, "test", 4);
+    if (bytes_written == 4) {
+        printf("Successfully wrote test\n");
+    }
+    mz_zip_writer_entry_close(zip_writer);
+}
+```
+
+## Writer Add/Compress
+
+### mz_zip_writer_add
+
+Writes all data to the currently open entry in the zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|stream|_mz_stream_ instance|
+|mz_stream_read_cb|read_cb|Callback to read from when adding new entry|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+mz_stream_mem_create(&mem_stream);
+mz_stream_mem_set_grow(mem_stream, 1);
+mz_stream_mem_write(mem_stream, "test", 4);
+mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
+
+mz_zip_file file_info = { 0 };
+
+file_info.filename = "newfile.txt";
+file_info.modified_date = time(NULL);
+file_info.version_madeby = MZ_VERSION_MADEBY;
+file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+if (mz_zip_writer_entry_open(zip_writer, &file_info) == MZ_OK) {
+    if (mz_zip_writer_add(zip_writer, mem_stream, mz_stream_mem_read) == MZ_OK) {
+        printf("Added new entry from stream\n");
+    }
+    mz_zip_writer_entry_close(zip_writer);
+}
+
+mz_stream_mem_delete(&mem_stream);
+```
+
+### mz_zip_writer_add_process
+
+Writes a portion of data to the currently open entry in the zip. This function is intended to be used in process loops where you don't want to compress the entire file in one function.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|stream|_mz_stream_ instance|
+|mz_stream_read_cb|read_cb|Callback to read from when adding new entry|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful or MZ_END_OF_STREAM if done.|
+
+**Example**
+
+See source code for _mz_zip_writer_add_.
+
+### mz_zip_writer_add_info
+
+Adds an entry to the zip based on the info.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|stream|_mz_stream_ instance|
+|mz_stream_read_cb|read_cb|Callback to read from when adding new entry|
+|mz_file_info *|file_info|Zip entry information for adding new entry|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+mz_stream_mem_create(&mem_stream);
+mz_stream_mem_set_grow(mem_stream, 1);
+mz_stream_mem_write(mem_stream, "test", 4);
+mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
+
+mz_zip_file file_info = { 0 };
+
+file_info.filename = "newfile.txt";
+file_info.modified_date = time(NULL);
+file_info.version_madeby = MZ_VERSION_MADEBY;
+file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+if (mz_zip_writer_add_info(zip_writer, mem_stream, mz_stream_mem_read, &file_info) == MZ_OK) {
+    printf("Added new entry from stream\n");
+}
+
+mz_stream_mem_delete(&mem_stream);
+```
+
+### mz_zip_writer_add_buffer
+
+Adds an entry to the zip with a memory buffer.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|buf|Buffer to read when compressing|
+|int32_t|len|Length of buffer to read|
+|mz_file_info *|file_info|Zip entry information for adding new entry|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+mz_zip_file file_info = { 0 };
+
+file_info.filename = "newfile.txt";
+file_info.modified_date = time(NULL);
+file_info.version_madeby = MZ_VERSION_MADEBY;
+file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+char *contents = "test";
+
+if (mz_zip_writer_add_buffer(zip_writer, contents, strlen(contents), &file_info) == MZ_OK) {
+    printf("Added new entry from buffer\n");
+}
+```
+
+### mz_zip_writer_add_file
+
+Adds an entry to the zip from a file.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const char *|path|Path to file on disk to add|
+|const char *|filename_in_zip|Filename in zip to write|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+const char *path = "c:\\mydatafiles\\tx101.txt";
+const char *filename_in_zip = "101.txt;
+if (mz_zip_writer_add_file(zip_writer, path, filename_in_zip) == MZ_OK) {
+    printf("Entry added to zip %s as %s\n", path, filename_in_zip);
+}
+```
+
+### mz_zip_writer_add_path
+
+Enumerates a directory or pattern and adds entries to the zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const char *|path|Path of directory to add (can include search pattern)|
+|const char *|root_path|Root directory to start adding from. Entries will be named in the relative to this root path|
+|uint8_t|include_path|Include the full path if 1|
+|uint8_t|recursive|Process directory recursively if 1|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+if (mz_zip_writer_add_path(zip_writer, "c:\\dir1\\dir2\\", "c:\\dir1\", 0, 1) == MZ_OK) {
+    printf("Added entries from c:\\dir1\\dir2\\ recursively\n");
+}
+```
+
+### mz_zip_writer_copy_from_reader
+
+Adds an entry from a zip reader instance. This copies the current entry from the zip reader instance.
+
+int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|reader|_mz_zip_reader_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+
+See source code for _minizip_erase_ where it erases a zip entry by copying all entries from the source zip file to the target zip file.
+
+## Writer Object
+
+### mz_zip_writer_set_password
+
+Password to use for encrypting files in the zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const  char *|password|Password string|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_password(zip_writer, "myzippass");
+```
+
+### mz_zip_writer_set_comment
+
+Comment to use for the archive.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const char *|comment|Global zip file comment string|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_comment(zip_writer, "This is my zip file -- hands off!");
+```
+
+### mz_zip_writer_set_raw
+
+Sets whether or not we should write the entry raw.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint8_t|raw|Write data in zip in raw mode (don't compress) if 1|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_raw(zip_writer, 1);
+```
+
+### mz_zip_writer_get_raw
+
+Gets whether or not we should write the entry raw.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint8_t *|raw|Pointer to store if using raw mode|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+uint8_t raw = 0;
+mz_zip_writer_get_raw(zip_writer, &raw);
+printf("Writing zip entries in mode: %s\n", (raw) ? "raw" : "normal");
+```
+
+### mz_zip_writer_set_aes
+
+Use aes encryption when adding files in zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint8_t|aes|Encrypt files with AES 256-bit if 1|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_aes(zip_writer, 1);
+```
+
+### mz_zip_writer_set_compress_method
+
+Sets the compression method when adding files in zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint16_t|compress_method|[MZ_COMPRESS_METHOD](mz_compress_method.md) compression method when adding entries|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_compress_method(zip_writer, MZ_COMPRESS_METHOD_STORE);
+```
+
+### mz_zip_writer_set_compress_level
+
+Sets the compression level when adding files in zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|int16_t|compress_level|[MZ_COMPRESS_LEVEL](mz_compress_level.md) compression level when adding entries|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_compress_level(zip_writer, MZ_COMPRESS_LEVEL_BEST);
+```
+
+### mz_zip_writer_set_zip_cd
+
+Sets whether or not the central directory should be zipped.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint8_t|zip_cd|Zip the central directory if 1|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_zip_cd(zip_writer, 1);
+```
+
+### mz_zip_writer_set_certificate
+
+Sets the certificate and timestamp url to use for signing when adding files in zip.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|const char *|cert_path|Path to certificate to sign entries with|
+|const char *|cert_pwd|Password for certificate to sign with|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+mz_zip_writer_set_certificate(zip_writer, "c:\\mycerts\\zip_cert.pfx", "mycertpwd");
+```
+
+### mz_zip_writer_set_overwrite_cb
+
+Sets the callback for what to do when a zip file is about to be overwritten.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|userdata|User supplied data|
+|mz_zip_writer_overwrite_cb|cb|_mz_zip_writer_overwrite_cb_ function pointer|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+
+See example for _mz_zip_writer_overwrite_cb_.
+
+### mz_zip_writer_set_password_cb
+
+Sets the callback for what to do when a password for an entry.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|userdata|User supplied data|
+|mz_zip_writer_password_cb|cb|_mz_zip_writer_password_cb_ function pointer|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+
+See example for _mz_zip_writer_password_cb_.
+
+### mz_zip_reader_set_progress_cb
+
+Sets the callback that gets called to update compression progress. This callback is called on an interval specified by _mz_zip_writer_set_progress_interval_.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|userdata|User supplied data|
+|mz_zip_writer_progress_cb|cb|_mz_zip_writer_progress_cb_ function pointer|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+
+See example for _mz_zip_writer_progress_cb_.
+
+### mz_zip_writer_set_progress_interval
+
+Let at least milliseconds pass between calls to progress callback.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|uint32_t|milliseconds|Number of milliseconds to wait before calling _mz_zip_writer_progress_cb_ during extraction|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_writer_set_progress_interval(zip_writer, 1000); // Wait 1 sec
+```
+
+### mz_zip_writer_set_entry_cb
+
+Sets callback for when a new zip file entry is encountered during compression.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void *|userdata|User supplied data|
+|mz_zip_writer_entry_cb|cb|_mz_zip_writer_entry_cb_ function pointer|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+
+See example for _mz_zip_writer_entry_cb_.
+
+### mz_zip_writer_get_zip_handle
+
+Gets the underlying zip instance handle.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_writer_ instance|
+|void **|zip_handle|Pointer to store _mz_zip_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+void *zip_handle = NULL;
+mz_zip_writer_get_zip_handle(zip_writer, &zip_handle);
+```
+
+### mz_zip_writer_create
+
+Creates a _mz_zip_writer_ instance and returns its pointer.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to store the _mz_zip_writer_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|void *|Pointer to the _mz_zip_writer_ instance|
+
+**Example**
+```
+void *zip_writer = NULL;
+mz_zip_writer_create(&zip_writer);
+```
+
+### mz_zip_writer_delete
+
+Deletes a _mz_zip_writer_ instance and resets its pointer to zero.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void **|handle|Pointer to the _mz_zip_writer_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+void *zip_writer = NULL;
+mz_zip_writer_create(&zip_writer);
+mz_zip_writer_delete(&zip_writer);
 ```
