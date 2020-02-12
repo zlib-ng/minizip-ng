@@ -550,7 +550,7 @@ static int32_t mz_zip_entry_read_descriptor(void *stream, uint8_t zip64, uint32_
     return err;
 }
 
-static int32_t mz_zip_entry_write_crc_sizes(void *stream, uint8_t local, uint8_t mask, mz_zip_file *file_info)
+static int32_t mz_zip_entry_write_crc_sizes(void *stream, uint8_t mask, mz_zip_file *file_info)
 {
     int32_t err = MZ_OK;
 
@@ -749,7 +749,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     if (err == MZ_OK)
-        err = mz_zip_entry_write_crc_sizes(stream, local, mask, file_info);
+        err = mz_zip_entry_write_crc_sizes(stream, mask, file_info);
 
     if (mask)
     {
@@ -1959,7 +1959,7 @@ static int32_t mz_zip_seek_to_local_header(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_size = 0;
-    int32_t disk_number = zip->file_info.disk_number;
+    uint32_t disk_number = zip->file_info.disk_number;
 
     if (disk_number == zip->disk_number_with_cd)
     {
@@ -2341,7 +2341,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
         }
 
         if (err == MZ_OK)
-            err = mz_zip_entry_write_crc_sizes(zip->stream, 1, 0, &zip->file_info);
+            err = mz_zip_entry_write_crc_sizes(zip->stream, 0, &zip->file_info);
 
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, end_disk_number);
         mz_stream_seek(zip->stream, end_pos, MZ_SEEK_SET);
