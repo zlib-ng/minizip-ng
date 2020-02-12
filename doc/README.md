@@ -13,6 +13,7 @@
 |Prefix|Description|
 |-|-|
 |[MZ_COMPRESS_LEVEL](mz_compress_level.md)|Compression level enumeration|
+|[MZ_COMPRESS_METHOD](mz_compress_method.md)|Compression method enumeration|
 |[MZ_ENCODING](mz_encoding.md)|Character encoding enumeration|
 |[MZ_ERROR](mz_error.md)|Error constants|
 |[MZ_HASH](mz_hash.md)|Hash algorithms and digest sizes
@@ -29,6 +30,12 @@
 |[MZ_OS](mz_os.md)|Operating system level file system operations|
 |[MZ_ZIP](mz_zip.md)|Zip archive and entry interface |
 |[MZ_ZIP_RW](mz_zip_rw.md)|Easy zip file extraction and creation|
+
+### Structures <!-- omit in toc -->
+
+|Name|Description|
+|-|-|
+|[MZ_ZIP_FILE](mz_zip_file.md)|Zip entry information|
 
 ### Extrafield Proposals <!-- omit in toc -->
 
