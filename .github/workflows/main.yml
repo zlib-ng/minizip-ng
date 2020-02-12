@@ -181,7 +181,7 @@ jobs:
             os: macOS-latest
             version: "9.4.1"
             deploy: true
-            deploy-name: macos_xcode_941
+            deploy-name: macos
 
           - name: macOS Xcode
             os: macOS-latest
