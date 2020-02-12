@@ -1,8 +1,8 @@
 /* zip.c -- Zip manipulation
-   Version 2.9.1, November 15, 2019
+   Version 2.9.2, February 12, 2020
    part of the MiniZip project
 
-   Copyright (C) 2010-2019 Nathan Moinvaziri
+   Copyright (C) 2010-2020 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
    Copyright (C) 2009-2010 Mathias Svensson
      Modifications for Zip64 support

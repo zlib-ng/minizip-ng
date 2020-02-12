@@ -1,5 +1,5 @@
 #***************************************************************************
-# Copyright (C) 2017-2019 Nathan Moinvaziri
+# Copyright (C) 2017-2020 Nathan Moinvaziri
 #                         https://github.com/nmoinvaz/minizip
 # Copyright (C)      2016 Matthias Schmieder
 #                         schmieder.matthias@gmail.com
@@ -36,7 +36,7 @@ endif()
 enable_language(C)
 
 # Minizip library version
-set(VERSION "2.9.1")
+set(VERSION "2.9.2")
 
 # Minizip api version
 set(SOVERSION "2.5")

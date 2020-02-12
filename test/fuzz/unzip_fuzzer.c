@@ -1,10 +1,10 @@
 /* unzip_fuzzer.c - Unzip fuzzer for libFuzzer
-   Version 2.9.1, November 15, 2019
+   Version 2.9.2, February 12, 2020
    part of the MiniZip project
 
    Copyright (C) 2018 The Chromium Authors
    Copyright (C) 2018 Anand K. Mistry
-   Copyright (C) 2018-2019 Nathan Moinvaziri
+   Copyright (C) 2018-2020 Nathan Moinvaziri
      https://github.com/nmoinvaz/minizip
 
    This program is distributed under the terms of the same license as zlib.
