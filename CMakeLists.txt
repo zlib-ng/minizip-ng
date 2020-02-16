@@ -25,7 +25,7 @@ option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
-option(MZ_PROJECT_SUFFIX "Project name suffix for package managers" "")
+set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
