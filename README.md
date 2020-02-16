@@ -68,47 +68,48 @@ cmake --build .
 
 ## Build Options
 
-| Name | Description | Default Value |
-|:- |:-|:-:|
-| MZ_COMPAT | Enables compatibility layer | ON |
-| MZ_ZLIB | Enables ZLIB compression | ON |
-| MZ_BZIP2 | Enables BZIP2 compression | ON |
-| MZ_LZMA | Enables LZMA compression | ON |
-| MZ_PKCRYPT | Enables PKWARE traditional encryption | ON |
-| MZ_WZAES | Enables WinZIP AES encryption | ON |
-| MZ_LIBCOMP | Enables Apple compression | OFF |
-| MZ_OPENSSL | Enables OpenSSL encryption | OFF |
-| MZ_BRG | Enables Brian Gladman's library | OFF |
-| MZ_SIGNING | Enables zip signing support | ON |
-| MZ_COMPRESS_ONLY | Only support compression | OFF |
-| MZ_DECOMPRESS_ONLY | Only support decompression | OFF |
-| MZ_BUILD_TEST | Builds minizip test executable | OFF |
-| MZ_BUILD_UNIT_TEST | Builds minizip unit test project | OFF |
-| MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables | OFF |
-| MZ_CODE_COVERAGE | Build with code coverage flags | OFF |
+| Name               | Description                           | Default Value |
+|:-------------------|:--------------------------------------|:-------------:|
+| MZ_COMPAT          | Enables compatibility layer           |      ON       |
+| MZ_ZLIB            | Enables ZLIB compression              |      ON       |
+| MZ_BZIP2           | Enables BZIP2 compression             |      ON       |
+| MZ_LZMA            | Enables LZMA compression              |      ON       |
+| MZ_PKCRYPT         | Enables PKWARE traditional encryption |      ON       |
+| MZ_WZAES           | Enables WinZIP AES encryption         |      ON       |
+| MZ_LIBCOMP         | Enables Apple compression             |      OFF      |
+| MZ_OPENSSL         | Enables OpenSSL encryption            |      OFF      |
+| MZ_BRG             | Enables Brian Gladman's library       |      OFF      |
+| MZ_SIGNING         | Enables zip signing support           |      ON       |
+| MZ_COMPRESS_ONLY   | Only support compression              |      OFF      |
+| MZ_DECOMPRESS_ONLY | Only support decompression            |      OFF      |
+| MZ_BUILD_TEST      | Builds minizip test executable        |      OFF      |
+| MZ_BUILD_UNIT_TEST | Builds minizip unit test project      |      OFF      |
+| MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables       |      OFF      |
+| MZ_CODE_COVERAGE   | Build with code coverage flags        |      OFF      |
+| MZ_PROJECT_SUFFIX  | Project name suffix for packaging     |               |
 
 ## Contents
 
-| File(s) | Description |
-|:- |:-|
-| minizip.c | Sample application |
-| mz_compat.\* | Minizip 1.x compatibility layer |
-| mz.h | Error codes and flags |
-| mz_os\* | Platform specific file/utility functions |
-| mz_crypt\* | Configuration specific crypto/hashing functions |
-| mz_strm.\* | Stream interface |
-| mz_strm_buf.\* | Buffered stream |
-| mz_strm_bzip.\* | BZIP2 stream using libbzip2 |
-| mz_strm_libcomp.\* | Apple compression stream |
-| mz_strm_lzma.\* | LZMA stream using liblzma |
-| mz_strm_mem.\* | Memory stream |
-| mz_strm_split.\* | Disk splitting stream |
-| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream |
-| mz_strm_os\* | Platform specific file stream |
-| mz_strm_wzaes.\* | WinZIP AES stream |
-| mz_strm_zlib.\* | Deflate stream using zlib |
-| mz_zip.\* | Zip format |
-| mz_zip_rw.\* | Zip reader/writer |
+| File(s)            | Description                                     |
+|:-------------------|:------------------------------------------------|
+| minizip.c          | Sample application                              |
+| mz_compat.\*       | Minizip 1.x compatibility layer                 |
+| mz.h               | Error codes and flags                           |
+| mz_os\*            | Platform specific file/utility functions        |
+| mz_crypt\*         | Configuration specific crypto/hashing functions |
+| mz_strm.\*         | Stream interface                                |
+| mz_strm_buf.\*     | Buffered stream                                 |
+| mz_strm_bzip.\*    | BZIP2 stream using libbzip2                     |
+| mz_strm_libcomp.\* | Apple compression stream                        |
+| mz_strm_lzma.\*    | LZMA stream using liblzma                       |
+| mz_strm_mem.\*     | Memory stream                                   |
+| mz_strm_split.\*   | Disk splitting stream                           |
+| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream            |
+| mz_strm_os\*       | Platform specific file stream                   |
+| mz_strm_wzaes.\*   | WinZIP AES stream                               |
+| mz_strm_zlib.\*    | Deflate stream using zlib                       |
+| mz_zip.\*          | Zip format                                      |
+| mz_zip_rw.\*       | Zip reader/writer                               |
 
 ## Third-Party Libraries
 

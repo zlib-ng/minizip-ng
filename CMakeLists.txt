@@ -25,6 +25,7 @@ option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
+option(MZ_PROJECT_SUFFIX "Project name suffix for package managers" "")
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -54,15 +55,11 @@ set(INSTALL_BIN_DIR ${CMAKE_INSTALL_FULL_BINDIR} CACHE PATH "Installation direct
 set(INSTALL_LIB_DIR ${CMAKE_INSTALL_FULL_LIBDIR} CACHE PATH "Installation directory for libraries")
 set(INSTALL_INC_DIR ${CMAKE_INSTALL_FULL_INCLUDEDIR} CACHE PATH "Installation directory for headers")
 set(INSTALL_MAN_DIR ${CMAKE_INSTALL_FULL_MANDIR} CACHE PATH "Installation directory for manual pages")
-set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
-set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/minizip" CACHE PATH "Installation directory for cmake files.")
-
-set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/minizip.pc)
-configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
 set(STDLIB_DEF)
 set(MINIZIP_DEF)
 set(MINIZIP_INC)
+set(PC_PRIVATE_LIBS)
 
 # Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
@@ -70,6 +67,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
         list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
+        set(PC_PRIVATE_LIBS " -lz")
     else()
         if (NOT ZLIB_TAG)
             set(ZLIB_TAG master)
@@ -136,6 +134,7 @@ if(MZ_BZIP2)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
         list(APPEND MINIZIP_INC ${BZIP2_INCLUDE_DIRS})
         list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
     endif()
 endif()
 
@@ -322,6 +321,7 @@ if(UNIX)
     if (Iconv_FOUND)
         message(STATUS "Using Iconv")
         list(APPEND MINIZIP_INC ${Iconv_INCLUDE_DIRS})
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
     endif()
 endif()
 
@@ -621,7 +621,19 @@ endmacro()
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
-project(minizip)
+project(minizip${MZ_PROJECT_SUFFIX})
+
+if(NOT ${MZ_PROJECT_SUFFIX} STREQUAL "")
+    message(STATUS "Project configured as ${PROJECT_NAME}")
+endif()
+
+set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc)
+configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
+
+set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/cmake/${PROJECT_NAME}"
+    CACHE PATH "Installation directory for cmake files.")
+set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig"
+    CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
 add_library(${PROJECT_NAME}
                 ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS}
@@ -629,13 +641,18 @@ add_library(${PROJECT_NAME}
                 ${BZIP2_SRC} ${BZIP2_PUBLIC_HEADERS}
                 ${LZMA_SRC} ${LZMA_PUBLIC_HEADERS})
 
+mz_configure_target(${PROJECT_NAME})
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
                         VERSION ${VERSION}
                         SOVERSION ${SOVERSION}
                         LINKER_LANGUAGE C
                         DEFINE_SYMBOL "MZ_EXPORTS")
 
-mz_configure_target(${PROJECT_NAME})
+if(WIN32)
+    # VS debugger has problems when executable and static library are named the same
+    set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME lib${PROJECT_NAME})
+endif()
 if(NOT RISCOS)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
@@ -710,6 +727,7 @@ if(MZ_BUILD_TEST)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd "minigzip.c")
         mz_configure_target(minigzip_cmd)
+        set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
         target_compile_definitions(minigzip_cmd PRIVATE ${MINIZIP_DEF})
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
 
@@ -720,6 +738,7 @@ if(MZ_BUILD_TEST)
 
     add_executable(minizip_cmd "minizip.c")
     mz_configure_target(minizip_cmd)
+    set_target_properties(minizip_cmd PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
     target_compile_definitions(minizip_cmd PRIVATE ${MINIZIP_DEF})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
 
