@@ -78,6 +78,8 @@ typedef struct
     struct tm   tmz_date;
     uint16_t    internal_fa;        /* internal file attributes        2 bytes */
     uint32_t    external_fa;        /* external file attributes        4 bytes */
+    uint8_t     follow_links;
+    uint8_t     store_links;
 } zip_fileinfo;
 
 /***************************************************************************/

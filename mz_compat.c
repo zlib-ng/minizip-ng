@@ -149,7 +149,11 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file file_info;
     uint64_t dos_date = 0;
-
+    uint32_t target_attrib = 0;
+    uint32_t src_attrib = 0;
+    int32_t  err = MZ_OK;
+    uint8_t src_sys = 0;
+    char link_path[1024];
 
     MZ_UNUSED(strategy);
     MZ_UNUSED(memLevel);
@@ -163,6 +167,9 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
 
     memset(&file_info, 0, sizeof(file_info));
 
+    mz_os_get_file_attribs(filename, &src_attrib);
+    src_sys = MZ_HOST_SYSTEM(file_info.version_madeby);
+
     if (zipfi != NULL)
     {
         if (zipfi->mz_dos_date != 0)
@@ -171,8 +178,22 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
             dos_date = mz_zip_tm_to_dosdate(&zipfi->tmz_date);
 
         file_info.modified_date = mz_zip_dosdate_to_time_t(dos_date);
-        file_info.external_fa = zipfi->external_fa;
         file_info.internal_fa = zipfi->internal_fa;
+        if ((src_sys != MZ_HOST_SYSTEM_MSDOS) && (src_sys != MZ_HOST_SYSTEM_WINDOWS_NTFS))
+        {
+            if (mz_zip_attrib_convert(src_sys, src_attrib, MZ_HOST_SYSTEM_MSDOS, &target_attrib) == MZ_OK)
+                file_info.external_fa = target_attrib;
+            file_info.external_fa |= (src_attrib << 16);
+        }
+        else
+            file_info.external_fa = src_attrib;
+
+        if (zipfi->store_links && mz_os_is_symlink(filename) == MZ_OK)
+        {
+            err = mz_os_read_symlink(filename, link_path, sizeof(link_path));
+            if (err == MZ_OK)
+                file_info.linkname = link_path;
+        }
     }
 
     if (filename == NULL)
