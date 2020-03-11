@@ -151,7 +151,6 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
     uint64_t dos_date = 0;
     uint32_t target_attrib = 0;
     uint32_t src_attrib = 0;
-    int32_t  err = MZ_OK;
     uint8_t src_sys = 0;
     char link_path[1024];
 
@@ -190,8 +189,7 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
 
         if (zipfi->store_links && mz_os_is_symlink(filename) == MZ_OK)
         {
-            err = mz_os_read_symlink(filename, link_path, sizeof(link_path));
-            if (err == MZ_OK)
+            if (MZ_OK == mz_os_read_symlink(filename, link_path, sizeof(link_path)))
                 file_info.linkname = link_path;
         }
     }
