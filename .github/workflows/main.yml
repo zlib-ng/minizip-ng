@@ -304,12 +304,3 @@ jobs:
         tag: ${{ github.ref }}
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         overwrite: true
-
-    - name: Podspec (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        rm CMakeCache.txt
-        cd ${{ matrix.build-dir || '.' }}
-        cmake -G Xcode ${{ matrix.build-src-dir || '.' }}
-        echo "target 'minizip' do pod 'Minizip', :path => '${{ matrix.build-src-dir || '.' }}'; platform :osx; end" > Podfile
-        pod install
