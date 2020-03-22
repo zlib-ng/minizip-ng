@@ -959,7 +959,6 @@ static int32_t mz_zip_read_cd(void *handle)
 {
     mz_zip *zip = (mz_zip *)handle;
     uint64_t number_entry_cd64 = 0;
-    uint64_t number_entry = 0;
     uint64_t number_entry_cd = 0;
     int64_t eocd_pos = 0;
     int64_t eocd_pos64 = 0;
@@ -1052,12 +1051,12 @@ static int32_t mz_zip_read_cd(void *handle)
                     err = mz_stream_read_uint32(zip->stream, &zip->disk_number_with_cd);
                 /* Total number of entries in the central directory on this disk */
                 if (err == MZ_OK)
-                    err = mz_stream_read_uint64(zip->stream, &number_entry);
+                    err = mz_stream_read_uint64(zip->stream, &zip->number_entry);
                 /* Total number of entries in the central directory */
                 if (err == MZ_OK)
                     err = mz_stream_read_uint64(zip->stream, &number_entry_cd64);
-                if (number_entry == UINT32_MAX)
-                    zip->number_entry = number_entry_cd64;
+               if (zip->number_entry != number_entry_cd64)
+                    err = MZ_FORMAT_ERROR;
                 /* Size of the central directory */
                 if (err == MZ_OK)
                 {
