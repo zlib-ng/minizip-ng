@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   ci:
@@ -265,7 +265,7 @@ jobs:
         SSL_CERT_FILE: test.pem
 
     - name: Upload coverage report
-      if: matrix.codecov
+      if: matrix.codecov && env.CODECOV_TOKEN != ''
       run: |
         cd ${{ matrix.build-src-dir || '.' }}
         python -m codecov -F "${{ matrix.codecov }}" --name "${{ matrix.name }}" --gcov-exec="${{ matrix.gcov-exec || 'gcov' }}"
@@ -281,13 +281,15 @@ jobs:
 
     - name: Upload release (Ubuntu/macOS)
       uses: svenstaro/upload-release-action@v1-release
-      if: (runner.os == 'Linux' || runner.os == 'macOS') && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      if: (runner.os == 'Linux' || runner.os == 'macOS') && matrix.deploy && startsWith(github.ref, 'refs/tags/') && env.GITHUB_TOKEN != ''
       with:
         asset_name: minizip-${{ matrix.deploy-name }}.tar.gz
         file: ${{ matrix.build-dir || '.' }}/minizip-${{ matrix.deploy-name }}.tar.gz
         tag: ${{ github.ref }}
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         overwrite: true
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
     - name: Package release (Windows)
       if: runner.os == 'Windows' && matrix.deploy && startsWith(github.ref, 'refs/tags/')
@@ -297,10 +299,12 @@ jobs:
 
     - name: Upload release (Windows)
       uses: svenstaro/upload-release-action@v1-release
-      if: runner.os == 'Windows' && matrix.deploy && startsWith(github.ref, 'refs/tags/')
+      if: runner.os == 'Windows' && matrix.deploy && startsWith(github.ref, 'refs/tags/') && env.GITHUB_TOKEN != ''
       with:
         asset_name: minizip-${{ matrix.deploy-name }}.zip
         file: ${{ matrix.build-dir || '.' }}/${{ matrix.build-config || 'Release' }}/minizip-${{ matrix.deploy-name }}.zip
         tag: ${{ github.ref }}
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         overwrite: true
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
