@@ -427,6 +427,7 @@ unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def)
     unz = unzOpen_MZ(stream);
     if (unz == NULL)
     {
+        mz_stream_close(stream);
         mz_stream_delete(&stream);
         return NULL;
     }
