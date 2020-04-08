@@ -15,7 +15,9 @@
 
 #include <stdio.h> /* rename */
 #include <errno.h>
+#if defined(HAVE_ICONV)
 #include <iconv.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -31,6 +33,7 @@
 
 /***************************************************************************/
 
+#if defined(HAVE_ICONV)
 uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 {
     iconv_t cd;
@@ -84,6 +87,21 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 
     return string_utf8;
 }
+#else
+#pragma message("Warning: Limited encoding support")
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
+{
+    size_t string_length = 0;
+    uint8_t *string_copy = NULL;
+
+    string_length = strlen(string);
+    string_copy = (uint8_t *)MZ_ALLOC((int32_t)(string_length + 1));
+    strncpy(string_copy, string, string_length);
+    string_copy[string_length] = 0;
+
+    return string_copy;
+}
+#endif
 
 void mz_os_utf8_string_delete(uint8_t **string)
 {
