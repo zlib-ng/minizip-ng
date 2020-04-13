@@ -493,18 +493,23 @@ Reads an entry after being opened.
 **Return**
 |Type|Description|
 |-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+|int32_t|If < 0 then [MZ_ERROR](mz_error.md) code, otherwise number of bytes read. When there are no more bytes left to read then 0 is returned.|
 
 **Example**
 ```
 if (mz_zip_reader_goto_first_entry(zip_reader) == MZ_OK) {
     if (mz_zip_reader_entry_open(zip_reader) == MZ_OK) {
-        char buf[120];
+        char buf[4096];
         int32_t bytes_read = 0;
-        bytes_read = mz_zip_reader_entry_read(zip_reader, buf, sizeof(buf));
-        if (bytes_read > 0) {
+        int32_t err = MZ_OK;
+        do {
+            bytes_read = mz_zip_reader_entry_read(zip_reader, buf, sizeof(buf));
+            if (bytes_read < 0) {
+                err = bytes_read;
+                break;
+            }
             printf("Bytes read from entry %d\n", bytes_read);
-        }
+        } while (bytes_read > 0);
         mz_zip_reader_entry_close(zip_reader);
     }
 }
