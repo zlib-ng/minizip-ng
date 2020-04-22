@@ -622,7 +622,7 @@ endmacro()
 # Create minizip library
 source_group("Minizip" FILES ${MINIZIP_SRC} ${MINIZIP_PUBLIC_HEADERS})
 
-project(minizip${MZ_PROJECT_SUFFIX})
+project(minizip${MZ_PROJECT_SUFFIX} VERSION ${VERSION})
 
 if(NOT ${MZ_PROJECT_SUFFIX} STREQUAL "")
     message(STATUS "Project configured as ${PROJECT_NAME}")
