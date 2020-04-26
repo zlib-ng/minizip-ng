@@ -93,6 +93,7 @@ cmake --build .
 | File(s)            | Description                                     |
 |:-------------------|:------------------------------------------------|
 | minizip.c          | Sample application                              |
+| minizipConfig.cmake.in | CMake input config file for find_package()  |
 | mz_compat.\*       | Minizip 1.x compatibility layer                 |
 | mz.h               | Error codes and flags                           |
 | mz_os\*            | Platform specific file/utility functions        |
