@@ -778,48 +778,62 @@ int32_t test_crypt_hmac(void)
 #endif
 
 #if defined(HAVE_COMPAT) && defined(HAVE_ZLIB)
-int32_t test_zip_compat(void)
+int32_t test_zip_compat_int(zipFile zip, char *filename)
 {
     int32_t err = ZIP_OK;
     zip_fileinfo file_info;
-    zipFile zip;
     char *buffer = "test data";
+
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.dosDate = mz_zip_time_t_to_dos_date(1588561637);
+    
+    err = zipOpenNewFileInZip(zip, filename, &file_info, NULL, 0, NULL, 0, "test local comment", 
+        Z_DEFLATED, 1);
+    if (err != ZIP_OK)
+    {
+        printf("Failed to create new file in zip (%" PRId32 ")\n", err);
+        return err;
+    }
+    err = zipWriteInFileInZip(zip, buffer, strlen(buffer));
+    if (err != ZIP_OK)
+    {
+        printf("Failed to write file in zip (%" PRId32 ")\n", err);
+        return err;
+    }
+    err = zipCloseFileInZip(zip);
+    if (err != ZIP_OK)
+    {
+        printf("Failed to close file in zip (%" PRId32 ")\n", err);
+        return err;
+    }
+
+    return ZIP_OK;
+}
+
+int32_t test_zip_compat(void)
+{
+    int32_t err = ZIP_OK;
+    zipFile zip;
 
 
     zip = zipOpen64("compat.zip", APPEND_STATUS_CREATE);
     
     if (zip == NULL)
+    {
+        printf("Failed to create test zip file\n");
         return ZIP_PARAMERROR;
-    
-    memset(&file_info, 0, sizeof(file_info));
-    file_info.dosDate = mz_zip_time_t_to_dos_date(1588561637);
-    
-    err = zipOpenNewFileInZip2_64(zip, "test.txt", &file_info, NULL, 0, NULL, 0, "test local comment", 
-        Z_DEFLATED, 1, 0, 1);
-    if (err != ZIP_OK)
-    {
-        printf("Failed to create new file in zip (%" PRId32 ")\n", err);
-        zipClose(zip, NULL);
-        return err;
     }
-
-    err = zipWriteInFileInZip(zip, buffer, strlen(buffer));
+    err = test_zip_compat_int(zip, "test.txt");
     if (err != ZIP_OK)
-    {
-        printf("Failed to write file in zip (%" PRId32 ")\n", err);
-        zipClose(zip, NULL);
         return err;
-    }
-
-    err = zipCloseFileInZip(zip);
+    err = test_zip_compat_int(zip, "test2.txt");
     if (err != ZIP_OK)
-    {
-        printf("Failed to close file in zip (%" PRId32 ")\n", err);
-        zipClose(zip, NULL);
         return err;
-    }
 
     zipClose(zip, "test global comment");
+
+    if (err != ZIP_OK)
+        return err;
 
     printf("Compat zip.. OK\n");
 
@@ -828,18 +842,22 @@ int32_t test_zip_compat(void)
 
 static int32_t test_unzip_compat_int(unzFile unzip)
 {
-    unz_global_info64 global_info;
-    unz_file_info64 file_info;
+    unz_global_info64 global_info64;
+    unz_global_info global_info;
+    unz_file_info64 file_info64;
+    unz_file_info file_info;
+    unz_file_pos file_pos;
     int32_t err = UNZ_OK;
     int32_t bytes_read = 0;
     char comment[120];
     char filename[120];
     char buffer[120];
     char *test_data = "test data";
-    
 
     memset(&file_info, 0, sizeof(file_info));
+    memset(&file_info64, 0, sizeof(file_info64));
     memset(&global_info, 0, sizeof(global_info));
+    memset(&global_info64, 0, sizeof(global_info64));
 
     comment[0] = 0;
     err = unzGetGlobalComment(unzip, comment, sizeof(comment));
@@ -853,39 +871,50 @@ static int32_t test_unzip_compat_int(unzFile unzip)
         printf("Unexpected global comment value (%s)\n", comment);
         return err;
     }
-    err = unzGetGlobalInfo64(unzip, &global_info);
+    err = unzGetGlobalInfo(unzip, &global_info);
     if (err != UNZ_OK)
     {
-        printf("Failed to get global info (%" PRId32 ")\n", err);
+        printf("Failed to get global info  (%" PRId32 ")\n", err);
         return err;
     }
-    if (global_info.number_entry != 1)
+    err = unzGetGlobalInfo64(unzip, &global_info64);
+    if (err != UNZ_OK)
     {
-        printf("Invalid number of entries in zip (%" PRId64 ")\n", global_info.number_entry);
+        printf("Failed to get global info 64-bit (%" PRId32 ")\n", err);
         return err;
     }
-    if (global_info.number_disk_with_CD != 0)
+    if (global_info.number_entry != 2 || global_info64.number_entry != 2)
+    {
+        printf("Invalid number of entries in zip (%" PRId32 ")\n", global_info.number_entry);
+        return err;
+    }
+    if (global_info.number_disk_with_CD != 0 || global_info64.number_disk_with_CD != 0)
     {
         printf("Invalid disk with cd (%" PRIu32 ")\n", global_info.number_disk_with_CD);
         return err;
     }
+
     err = unzLocateFile(unzip, "test.txt", (void *)1);
     if (err != UNZ_OK)
     {
         printf("Failed to locate test file (%" PRId32 ")\n", err);
         return err;
     }
+
     err = unzGoToFirstFile(unzip);
     if (err == UNZ_OK)
     {
         filename[0] = 0;
-        err = unzGetCurrentFileInfo64(unzip, &file_info, filename, sizeof(filename), NULL, 0, NULL, 0);
-        if (err != UNZ_OK) {
-            printf("Failed to get current file info (%" PRId32 ")\n", err);
+        err = unzGetCurrentFileInfo64(unzip, &file_info64, filename, sizeof(filename), NULL, 0, NULL, 0);
+        if (err != UNZ_OK)
+        {
+            printf("Failed to get current file info 64-bit (%" PRId32 ")\n", err);
             return err;
         }
+
         err = unzOpenCurrentFile(unzip);
-        if (err != UNZ_OK) {
+        if (err != UNZ_OK)
+        {
             printf("Failed to open current file (%" PRId32 ")\n", err);
             return err;
         }
@@ -896,6 +925,11 @@ static int32_t test_unzip_compat_int(unzFile unzip)
             unzCloseCurrentFile(unzip);
             return err;
         }
+        if (unzEndOfFile(unzip) != 1)
+        {
+            printf("End of unzip not reported correctly\n");
+            return UNZ_INTERNALERROR;
+        }
         err = unzCloseCurrentFile(unzip);
         if (err != UNZ_OK)
         {
@@ -903,27 +937,62 @@ static int32_t test_unzip_compat_int(unzFile unzip)
             return err;
         }
 
-        if (unzEndOfFile(unzip) != 1)
-        {
-            printf("End of unzip not reported correctly\n");
-            return UNZ_INTERNALERROR;
-        }
-        if (unzTell64(unzip) != bytes_read)
+        if (unztell(unzip) != bytes_read)
         {
             printf("Unzip position not reported correctly\n");
             return UNZ_INTERNALERROR;
         }
 
         err = unzGoToNextFile(unzip);
+        if (err != UNZ_OK)
+        {
+            printf("Failed to get next file info (%" PRId32 ")\n", err);
+            return err;
+        }
+
+        comment[0] = 0;
+        err = unzGetCurrentFileInfo(unzip, &file_info, filename, sizeof(filename), NULL, 0, comment, sizeof(comment));
+        if (err != UNZ_OK)
+        {
+            printf("Failed to get current file info (%" PRId32 ")\n", err);
+            return err;
+        }
+        if (strcmp(comment, "test local comment") != 0)
+        {
+            printf("Unexpected local comment value (%s)\n", comment);
+            return err;
+        }
+        
+        err = unzGetFilePos(unzip, &file_pos);
+        if (err != UNZ_OK)
+        {
+            printf("Failed to get file position (%" PRId32 ")\n", err);
+            return err;
+        }
+        if (file_pos.num_of_file != 1)
+        {
+            printf("Unzip file position not reported correctly\n");
+            return UNZ_INTERNALERROR;
+        }
+
+        err = unzGetOffset(unzip);
+        if (err <= 0)
+        {
+            printf("Unzip invalid offset reported\n");
+            return UNZ_INTERNALERROR;
+        }
+
+        err = unzGoToNextFile(unzip);
+
         if (err != UNZ_END_OF_LIST_OF_FILE)
         {
             printf("Failed to reach end of zip entries (%" PRId32 ")\n", err);
             unzCloseCurrentFile(unzip);
             return err;
         }
+        err = unzSeek64(unzip, 0, SEEK_SET);
     }
 
-    
     return UNZ_OK;
 }
 
