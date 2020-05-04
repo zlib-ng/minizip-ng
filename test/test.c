@@ -777,7 +777,7 @@ int32_t test_crypt_hmac(void)
 }
 #endif
 
-#ifdef HAVE_COMPAT
+#if defined(HAVE_COMPAT) && defined(HAVE_ZLIB)
 int32_t test_zip_compat(void)
 {
     int32_t err = ZIP_OK;
@@ -917,6 +917,7 @@ int main(int argc, const char *argv[])
     err |= test_utf8();
     err |= test_stream_find();
     err |= test_stream_find_reverse();
+
 #if !defined(MZ_ZIP_NO_COMPRESSION) && !defined(MZ_ZIP_NO_DECOMPRESSION)
 #ifdef HAVE_BZIP2
     err |= test_stream_bzip();
@@ -924,8 +925,13 @@ int main(int argc, const char *argv[])
 #ifdef HAVE_ZLIB
     err |= test_stream_zlib();
     err |= test_stream_zlib_mem();
+#ifdef HAVE_COMPAT
+    err |= test_zip_compat();
+    err |= test_unzip_compat();
 #endif
 #endif
+#endif
+
 #if !defined(MZ_ZIP_NO_ENCRYPTION)
 #ifdef HAVE_PKCRYPT
     err |= test_stream_pkcrypt();
@@ -937,10 +943,7 @@ int main(int argc, const char *argv[])
     err |= test_crypt_aes();
     err |= test_crypt_hmac();
 #endif
-#ifdef HAVE_COMPAT
-    err |= test_zip_compat();
-    err |= test_unzip_compat();
-#endif
+
     return err;
 }
 
