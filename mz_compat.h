@@ -89,6 +89,9 @@ typedef struct
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
 
+#ifndef Z_DEFLATED
+#define Z_DEFLATED                      (8)
+#endif
 #define Z_BZIP2ED                       (12)
 
 #define APPEND_STATUS_CREATE            (0)
