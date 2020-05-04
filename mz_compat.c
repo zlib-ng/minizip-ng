@@ -815,10 +815,15 @@ int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filena
         if (err != MZ_OK)
             break;
 
-        if (filename_compare_func != NULL)
+        if ((intptr_t)filename_compare_func > 2)
+        {
             result = filename_compare_func(file, filename, file_info->filename);
+        }
         else
-            result = strcmp(filename, file_info->filename);
+        {
+            int32_t case_sensitive = (int32_t)filename_compare_func;
+            result = mz_path_compare_wc(filename, file_info->filename, !case_sensitive);
+        }
 
         if (result == 0)
             return MZ_OK;
