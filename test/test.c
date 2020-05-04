@@ -10,6 +10,9 @@
 */
 
 #include "mz.h"
+#ifdef HAVE_COMPAT
+#include "mz_compat.h"
+#endif
 #include "mz_crypt.h"
 #include "mz_os.h"
 #include "mz_strm.h"
@@ -774,6 +777,132 @@ int32_t test_crypt_hmac(void)
 }
 #endif
 
+#ifdef HAVE_COMPAT
+int32_t test_zip_compat(void)
+{
+    int32_t err = ZIP_OK;
+    zip_fileinfo file_info;
+    zipFile zip;
+    char *buffer = "test data";
+
+
+    zip = zipOpen64("compat.zip", APPEND_STATUS_CREATE);
+    
+    if (zip == NULL)
+        return ZIP_PARAMERROR;
+    
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.dosDate = mz_zip_time_t_to_dos_date(1588561637);
+    
+    err = zipOpenNewFileInZip(zip, "test.txt", &file_info, NULL, 0, NULL, 0, "test local comment", 
+        Z_DEFLATED, 1);
+    if (err != ZIP_OK)
+    {
+        printf("Failed to create new file in zip (%d)\n", err);
+        zipClose(zip, NULL);
+        return err;
+    }
+
+    err = zipWriteInFileInZip(zip, buffer, strlen(buffer));
+    if (err != ZIP_OK)
+    {
+        printf("Failed to write zip in file (%d)\n", err);
+        zipClose(zip, NULL);
+        return err;
+    }
+
+    zipClose(zip, "test global comment");
+
+    printf("Compat zip.. OK\n");
+
+    return ZIP_OK;
+}
+
+int32_t test_unzip_compat(void)
+{
+    unzFile unzip;
+    unz_global_info64 global_info;
+    unz_file_info64 file_info;
+    int32_t err = UNZ_OK;
+    int32_t bytes_read = 0;
+    char comment[120];
+    char filename[120];
+    char buffer[120];
+    char *test_data = "test data";
+
+    memset(&file_info, 0, sizeof(file_info));
+    memset(&global_info, 0, sizeof(global_info));
+
+    unzip = unzOpen64("compat.zip");
+    if (unzip == NULL)
+    {
+        printf("Failed to open file for unzip (%d)\n", err);
+        return ZIP_PARAMERROR;
+    }
+
+    comment[0] = 0;
+    err = unzGetGlobalComment(unzip, comment, sizeof(comment));
+    if (err != UNZ_OK)
+    {
+        printf("Failed to get global comment (%d)\n", err);
+        unzClose(unzip);
+        return err;
+    }
+    if (strcmp(comment, "test global comment") != 0)
+    {
+        printf("Unexpected global comment value (%s)\n", comment);
+        unzClose(unzip);
+        return err;
+    }
+    err = unzLocateFile(unzip, "test.txt", 1);
+    if (err != UNZ_OK)
+    {
+        printf("Failed to locate test file (%d)\n", err);
+        unzClose(unzip);
+        return err;
+    }
+    err = unzGoToFirstFile(unzip);
+    if (err == UNZ_OK)
+    {
+        filename[0] = 0;
+        err = unzGetCurrentFileInfo64(unzip, &file_info, filename, sizeof(filename), NULL, 0, NULL, 0);
+        if (err != UNZ_OK) {
+            printf("Failed to get current file info (%d)\n", err);
+            unzClose(unzip);
+            return err;
+        }
+        err = unzOpenCurrentFile(unzip);
+        if (err != UNZ_OK) {
+            printf("Failed to open current file (%d)\n", err);
+            unzClose(unzip);
+            return err;
+        }
+        bytes_read = unzReadCurrentFile(unzip, buffer, sizeof(buffer));
+        if (bytes_read != strlen(test_data))
+        {
+            printf("Failed to read zip entry data (%d)\n", err);
+            unzCloseCurrentFile(unzip);
+            unzClose(unzip);
+            return err;
+        }
+        err = unzGoToNextFile(unzip);
+        if (err != UNZ_END_OF_LIST_OF_FILE)
+        {
+            printf("Failed to reach end of zip entries (%d)\n", err);
+            unzCloseCurrentFile(unzip);
+            unzClose(unzip);
+            return err;
+        }
+    }
+
+    unzCloseCurrentFile(unzip);
+    unzClose(unzip);
+
+    printf("Compat unzip.. OK\n");
+
+    return UNZ_OK;
+}
+#endif
 
 /***************************************************************************/
 
@@ -807,6 +936,10 @@ int main(int argc, const char *argv[])
     err |= test_crypt_sha();
     err |= test_crypt_aes();
     err |= test_crypt_hmac();
+#endif
+#ifdef HAVE_COMPAT
+    err |= test_zip_compat();
+    err |= test_unzip_compat();
 #endif
     return err;
 }
