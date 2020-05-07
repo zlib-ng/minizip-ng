@@ -105,9 +105,13 @@ ZEXPORT zipFile zipOpen(const char *path, int append);
 ZEXPORT zipFile zipOpen64(const void *path, int append);
 ZEXPORT zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     zlib_filefunc_def *pzlib_filefunc_def);
+
 ZEXPORT zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def);
-        zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
+ZEXPORT zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
+
+ZEXPORT void*   zipGetHandle_MZ(zipFile);
+ZEXPORT void*   zipGetStream_MZ(zipFile file);
 
 ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
@@ -162,7 +166,6 @@ ZEXPORT int     zipClose_64(zipFile file, const char *global_comment);
 ZEXPORT int     zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
         int     zipClose_MZ(zipFile file, const char *global_comment);
         int     zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
-ZEXPORT void*   zipGetStream(zipFile file);
 
 /***************************************************************************/
 
@@ -267,7 +270,10 @@ ZEXPORT unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefun
         unzFile unzOpen_MZ(void *stream);
 
 ZEXPORT int     unzClose(unzFile file);
-        int     unzClose_MZ(unzFile file);
+ZEXPORT int     unzClose_MZ(unzFile file);
+
+ZEXPORT void*   unzGetHandle_MZ(unzFile file);
+ZEXPORT void*   unzGetStream_MZ(zipFile file);
 
 ZEXPORT int     unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
 ZEXPORT int     unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
