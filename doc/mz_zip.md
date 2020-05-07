@@ -294,7 +294,6 @@ Sets wehther or not zip file entries will be written with a data descriptor. Whe
 |-|-|
 |int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
 
-
 **Example**
 ```
 void *zip_handle = NULL;
