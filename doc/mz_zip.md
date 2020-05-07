@@ -12,6 +12,7 @@ The _mz_zip_ object allows for the reading and writing of the a zip file and its
   - [mz_zip_get_version_madeby](#mzzipgetversionmadeby)
   - [mz_zip_set_version_madeby](#mzzipsetversionmadeby)
   - [mz_zip_set_recover](#mzzipsetrecover)
+  - [mz_zip_set_data_descriptor](#mzzipsetdatadescriptor)
   - [mz_zip_get_stream](#mzzipgetstream)
   - [mz_zip_set_cd_stream](#mzzipsetcdstream)
   - [mz_zip_get_cd_mem_stream](#mzzipgetcdmemstream)
@@ -276,6 +277,31 @@ mz_zip_create(&zip_handle);
 // Enable central directory recover/repair
 if (mz_zip_set_recover(zip_handle, 1) == MZ_OK)
     printf("Central directory recovery enabled if necessary\n");
+```
+
+### mz_zip_set_data_descriptor
+
+Sets wehther or not zip file entries will be written with a data descriptor. When data descriptor writing is enabled it will zero out the crc32, compressed size, and uncompressed size in the local header. By default data descriptor writing is enabled and disabling it will cause zip file entry writing to seek backwards to fill in these values after writing the compressed data.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_ instance|
+|uint8_t|data_descriptor|Set to 1 to enable data descriptor writing, set to 0 otherwise.|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+
+**Example**
+```
+void *zip_handle = NULL;
+mz_zip_create(&zip_handle);
+// Enable data descriptor writing for zip entries
+if (mz_zip_set_data_descriptor(zip_handle, 0) == MZ_OK)
+    printf("Local file header entries will be written with crc32 and sizes\n");
 ```
 
 ### mz_zip_get_stream
