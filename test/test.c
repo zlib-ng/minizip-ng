@@ -1,5 +1,5 @@
 /* test.c - Test bed area
-   Version 2.9.2, February 12, 2020
+   Version 2.9.3, May 21, 2020
    part of the MiniZip project
 
    Copyright (C) 2018-2020 Nathan Moinvaziri
@@ -786,8 +786,8 @@ int32_t test_zip_compat_int(zipFile zip, char *filename)
 
     memset(&file_info, 0, sizeof(file_info));
     file_info.dosDate = mz_zip_time_t_to_dos_date(1588561637);
-    
-    err = zipOpenNewFileInZip(zip, filename, &file_info, NULL, 0, NULL, 0, "test local comment", 
+
+    err = zipOpenNewFileInZip(zip, filename, &file_info, NULL, 0, NULL, 0, "test local comment",
         Z_DEFLATED, 1);
     if (err != ZIP_OK)
     {
@@ -817,7 +817,7 @@ int32_t test_zip_compat(void)
 
 
     zip = zipOpen64("compat.zip", APPEND_STATUS_CREATE);
-    
+
     if (zip == NULL)
     {
         printf("Failed to create test zip file\n");
@@ -962,7 +962,7 @@ static int32_t test_unzip_compat_int(unzFile unzip)
             printf("Unexpected local comment value (%s)\n", comment);
             return err;
         }
-        
+
         err = unzGetFilePos(unzip, &file_pos);
         if (err != UNZ_OK)
         {
