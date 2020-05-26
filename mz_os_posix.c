@@ -96,7 +96,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 
     string_length = strlen(string);
     string_copy = (uint8_t *)MZ_ALLOC((int32_t)(string_length + 1));
-    strncpy(string_copy, string, string_length);
+    strncpy((char *)string_copy, string, string_length);
     string_copy[string_length] = 0;
 
     return string_copy;
