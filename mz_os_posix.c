@@ -88,7 +88,6 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
     return string_utf8;
 }
 #else
-#pragma message("Warning: Limited encoding support")
 uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 {
     size_t string_length = 0;

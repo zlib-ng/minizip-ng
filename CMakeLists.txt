@@ -323,6 +323,8 @@ if(UNIX)
         list(APPEND MINIZIP_DEF -DHAVE_ICONV)
         list(APPEND MINIZIP_INC ${Iconv_INCLUDE_DIRS})
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
+    else()
+        message(WARNING "Limited encoding support due to missing iconv")
     endif()
 endif()
 
