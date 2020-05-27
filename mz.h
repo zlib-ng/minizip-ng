@@ -196,8 +196,20 @@ typedef unsigned long long uint64_t;
 #ifndef PRId8
 #  define PRId8  "hhd"
 #endif
+#ifndef PRIu8
+#  define PRIu8  "hhu"
+#endif
+#ifndef PRIx8
+#  define PRIx8  "hhx"
+#endif
 #ifndef PRId16
 #  define PRId16 "hd"
+#endif
+#ifndef PRIu16
+#  define PRIu16 "hu"
+#endif
+#ifndef PRIx16
+#  define PRIx16 "hx"
 #endif
 #ifndef PRId32
 #  define PRId32 "d"
@@ -208,17 +220,7 @@ typedef unsigned long long uint64_t;
 #ifndef PRIx32
 #  define PRIx32 "x"
 #endif
-#if ULONG_MAX == 4294967295UL
-#  ifndef PRId64
-#    define PRId64 "lld"
-#  endif
-#  ifndef PRIu64
-#    define PRIu64 "llu"
-#  endif
-#  ifndef PRIx64
-#    define PRIx64 "llx"
-#  endif
-#else
+#if ULONG_MAX == 0xfffffffful
 #  ifndef PRId64
 #    define PRId64 "ld"
 #  endif
@@ -227,6 +229,16 @@ typedef unsigned long long uint64_t;
 #  endif
 #  ifndef PRIx64
 #    define PRIx64 "lx"
+#  endif
+#else
+#  ifndef PRId64
+#    define PRId64 "lld"
+#  endif
+#  ifndef PRIu64
+#    define PRIu64 "llu"
+#  endif
+#  ifndef PRIx64
+#    define PRIx64 "llx"
 #  endif
 #endif
 
