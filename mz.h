@@ -158,7 +158,7 @@
 #include <string.h> /* memset, strncpy, strlen */
 #include <limits.h>
 
-#ifdef HAVE_STDINT_H
+#if __has_include(<stdint.h>)
 #  include <stdint.h>
 #endif
 
@@ -187,7 +187,7 @@ typedef unsigned int       uint32_t;
 typedef unsigned long long uint64_t;
 #endif
 
-#ifdef HAVE_INTTYPES_H
+#if __has_include(<inttypes.h>)
 #  include <inttypes.h>
 #endif
 
