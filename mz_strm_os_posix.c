@@ -25,7 +25,10 @@
 /***************************************************************************/
 
 #define fopen64 fopen
-#ifndef MZ_FILE32_API
+#ifdef __ANDROID_API__
+#  include <unistd.h>
+#  define fseeko64(stream, offset, where) (lseek64(fileno(stream), offset, where) >= 0 ? 0 : -1)
+#elif !defined(MZ_FILE32_API)
 #  ifndef NO_FSEEKO
 #    define ftello64 ftello
 #    define fseeko64 fseeko
