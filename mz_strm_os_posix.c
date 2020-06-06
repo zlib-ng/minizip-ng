@@ -25,8 +25,6 @@
 /***************************************************************************/
 
 #define fopen64 fopen
-#ifdef 
-
 #ifndef MZ_FILE32_API
 #  ifndef NO_FSEEKO
 #    define ftello64 ftello
