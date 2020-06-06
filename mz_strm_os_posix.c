@@ -25,16 +25,21 @@
 /***************************************************************************/
 
 #define fopen64 fopen
-#ifdef __ANDROID_API__
-#  include <unistd.h>
-#  define fseeko64(stream, offset, where) (lseek64(fileno(stream), offset, where) >= 0 ? 0 : -1)
-#elif !defined(MZ_FILE32_API)
+#ifdef 
+
+#ifndef MZ_FILE32_API
 #  ifndef NO_FSEEKO
 #    define ftello64 ftello
 #    define fseeko64 fseeko
 #  elif defined(_MSC_VER) && (_MSC_VER >= 1400)
 #    define ftello64 _ftelli64
 #    define fseeko64 _fseeki64
+#  endif
+#else
+#  if defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
+#    include <unistd.h>
+#    define fseeko64(s,o,w) \
+        (lseek64(fileno(s),o,w) >= 0 ? 0 : -1)
 #  endif
 #endif
 #ifndef ftello64
