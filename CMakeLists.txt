@@ -652,7 +652,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                         LINKER_LANGUAGE C
                         DEFINE_SYMBOL "MZ_EXPORTS")
 
-if(WIN32)
+if(MSVC)
     # VS debugger has problems when executable and static library are named the same
     set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME lib${PROJECT_NAME})
 endif()
