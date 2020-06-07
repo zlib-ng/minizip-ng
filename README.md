@@ -88,6 +88,7 @@ cmake --build .
 | MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables       |      OFF      |
 | MZ_CODE_COVERAGE   | Build with code coverage flags        |      OFF      |
 | MZ_PROJECT_SUFFIX  | Project name suffix for packaging     |               |
+| MZ_FILE32_API      | Builds using posix 32-bit file api    |      OFF      |
 
 ## Contents
 

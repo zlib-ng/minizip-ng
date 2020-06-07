@@ -25,7 +25,10 @@ option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
+option(MZ_FILE32_API "Builds using posix 32-bit file api" OFF)
 set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
+
+mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX)
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -377,6 +380,9 @@ if(MZ_BRG OR (MZ_OPENSSL AND NOT OPENSSL_FOUND))
 endif()
 if(MZ_SIGNING)
     list(APPEND MINIZIP_DEF -DMZ_ZIP_SIGNING)
+endif()
+if(MZ_FILE32_API)
+    list(APPEND MINIZIP_DEF -DMZ_FILE32_API)
 endif()
 
 # Include PKCRYPT
