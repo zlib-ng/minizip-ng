@@ -168,10 +168,8 @@ endif()
 # Check for large file support
 check_type_size(off64_t OFF64_T)
 if(HAVE_OFF64_T)
-    list(APPEND STDLIB_DEF -D__USE_FILE_OFFSET64)
     list(APPEND STDLIB_DEF -D__USE_LARGEFILE64)
     list(APPEND STDLIB_DEF -D_LARGEFILE64_SOURCE)
-    list(APPEND STDLIB_DEF -D_FILE_OFFSET_BITS=64)
 endif()
 # Check for fseeko support
 check_function_exists(fseeko HAVE_FSEEKO)
