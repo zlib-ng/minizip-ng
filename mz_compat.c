@@ -847,7 +847,7 @@ int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filena
         }
         else
         {
-            int32_t case_sensitive = (int32_t)filename_compare_func;
+            int32_t case_sensitive = (int32_t)(intptr_t)filename_compare_func;
             result = mz_path_compare_wc(filename, file_info->filename, !case_sensitive);
         }
 

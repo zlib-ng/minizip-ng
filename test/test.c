@@ -794,7 +794,7 @@ int32_t test_zip_compat_int(zipFile zip, char *filename)
         printf("Failed to create new file in zip (%" PRId32 ")\n", err);
         return err;
     }
-    err = zipWriteInFileInZip(zip, buffer, strlen(buffer));
+    err = zipWriteInFileInZip(zip, buffer, (uint32_t)strlen(buffer));
     if (err != ZIP_OK)
     {
         printf("Failed to write file in zip (%" PRId32 ")\n", err);
