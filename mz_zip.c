@@ -1964,7 +1964,7 @@ static int32_t mz_zip_seek_to_local_header(void *handle)
     {
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size);
         if ((disk_size == 0) || ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0))
-            disk_number = -1;
+            disk_number = (uint32_t)-1;
     }
 
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, disk_number);

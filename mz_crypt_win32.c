@@ -121,12 +121,12 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size)
 
     if (sha == NULL || digest == NULL || sha->hash == 0)
         return MZ_PARAM_ERROR;
-    result = CryptGetHashParam(sha->hash, HP_HASHVAL, NULL, &expected_size, 0);
+    result = CryptGetHashParam(sha->hash, HP_HASHVAL, NULL, (DWORD *)&expected_size, 0);
     if (expected_size > digest_size)
         return MZ_BUF_ERROR;
     if (!result)
         return MZ_HASH_ERROR;
-    result = CryptGetHashParam(sha->hash, HP_HASHVAL, digest, &digest_size, 0);
+    result = CryptGetHashParam(sha->hash, HP_HASHVAL, digest, (DWORD *)&digest_size, 0);
     if (!result)
     {
         sha->error = GetLastError();
@@ -207,7 +207,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size)
         return MZ_PARAM_ERROR;
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
-    result = CryptEncrypt(aes->key, 0, 0, 0, buf, &size, size);
+    result = CryptEncrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size, size);
     if (!result)
     {
         aes->error = GetLastError();
@@ -224,7 +224,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size)
         return MZ_PARAM_ERROR;
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
-    result = CryptDecrypt(aes->key, 0, 0, 0, buf, &size);
+    result = CryptDecrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size);
     if (!result)
     {
         aes->error = GetLastError();
@@ -484,12 +484,12 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size)
 
     if (hmac == NULL || digest == NULL || hmac->hash == 0)
         return MZ_PARAM_ERROR;
-    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, &expected_size, 0);
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, NULL, (DWORD *)&expected_size, 0);
     if (expected_size > digest_size)
         return MZ_BUF_ERROR;
     if (!result)
         return MZ_HASH_ERROR;
-    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, digest, &digest_size, 0);
+    result = CryptGetHashParam(hmac->hash, HP_HASHVAL, digest, (DWORD *)&digest_size, 0);
     if (!result)
     {
         hmac->error = GetLastError();
@@ -655,15 +655,15 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
         if (result)
 #endif
 
-            result = CryptSignMessage(&sign_params, FALSE, 1, messages, messages_sizes,
-                NULL, signature_size);
+            result = CryptSignMessage(&sign_params, FALSE, 1, messages, (DWORD *)messages_sizes,
+                NULL, (DWORD *)signature_size);
 
         if (result && *signature_size > 0)
             *signature = (uint8_t *)MZ_ALLOC(*signature_size);
 
         if (result && *signature != NULL)
-            result = CryptSignMessage(&sign_params, FALSE, 1, messages, messages_sizes,
-                *signature, signature_size);
+            result = CryptSignMessage(&sign_params, FALSE, 1, messages, (DWORD *)messages_sizes,
+                *signature, (DWORD *)signature_size);
 
         if (!result)
             err = MZ_SIGN_ERROR;
@@ -698,14 +698,14 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     verify_params.dwMsgAndCertEncodingType = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
 
     result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
-        NULL, &decoded_size, NULL);
+        NULL, (DWORD *)&decoded_size, NULL);
 
     if (result && decoded_size > 0)
         decoded = (uint8_t *)MZ_ALLOC(decoded_size);
 
     if (result && decoded != NULL)
         result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
-            decoded, &decoded_size, &signer_cert);
+            decoded, (DWORD *)&decoded_size, &signer_cert);
 
     /* Get and validate certificate chain */
     memset(&chain_para, 0, sizeof(chain_para));

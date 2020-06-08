@@ -528,7 +528,6 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path)
     wchar_t *path_wide = NULL;
     wchar_t *target_path_wide = NULL;
     uint32_t attribs = 0;
-    int32_t target_path_len = 0;
     int32_t err = MZ_OK;
     int32_t flags = 0;
 
