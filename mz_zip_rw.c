@@ -1714,8 +1714,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         if (err == MZ_OK)
             file_info.linkname = link_path;
     }
-
-    if (mz_os_is_dir(path) != MZ_OK)
+    else if (mz_os_is_dir(path) != MZ_OK)
     {
         mz_stream_os_create(&stream);
         err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
