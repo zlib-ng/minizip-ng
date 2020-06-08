@@ -51,7 +51,6 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckTypeSize)
 include(GNUInstallDirs)
-include(ExternalProject)
 include(FeatureSummary)
 
 set(INSTALL_BIN_DIR ${CMAKE_INSTALL_FULL_BINDIR} CACHE PATH "Installation directory for executables")
@@ -79,54 +78,31 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
             set(ZLIB_REPOSITORY https://github.com/madler/zlib)
         endif()
 
-        message(STATUS "Using ZLIB ${ZLIB_REPOSITORY} ${ZLIB_TAG}")
+        message(STATUS "Fetching ZLIB ${ZLIB_REPOSITORY} ${ZLIB_TAG}")
 
-        set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib)
-        set(ZLIB_INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/install/zlib)
-        set(ZLIB_INCLUDE_DIRS ${ZLIB_INSTALL_DIR}/include)
-
-        if(WIN32)
-            set(ZLIB_LIBRARIES
-                ${ZLIB_INSTALL_DIR}/lib/zlibstatic$<$<CONFIG:Debug>:d>.lib)
-            set(ZLIB_BYPRODUCTS
-                ${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib ${ZLIB_INSTALL_DIR}/lib/zlibstaticd.lib)
+        if(${CMAKE_VERSION} VERSION_LESS "3.11")
+            message(FATAL_ERROR "CMake 3.11 required to fetch zlib")
         else()
-            set(ZLIB_LIBRARIES
-                ${ZLIB_INSTALL_DIR}/lib/libz.a)
-            set(ZLIB_BYPRODUCTS
-                ${ZLIB_INSTALL_DIR}/lib/libz.a)
-        endif()
+            include(FetchContent)
 
-        # Build args variable based on cache variables
-        unset(CMAKE_ARGS)
-        get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-        foreach(CACHE_VAR ${CACHE_VARS})
-            get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
-            if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
-                get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
-                if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
-                    set(CACHE_VAR_TYPE)
-                else()
-                    set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
-                endif()
-                if (NOT CACHE_VAR MATCHES "^MZ_")
-                    list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
-                endif()
+            set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib)
+
+            FetchContent_Declare(zlib
+                GIT_REPOSITORY ${ZLIB_REPOSITORY}
+                GIT_TAG ${ZLIB_TAG}
+                GIT_SHALLOW TRUE
+                SOURCE_DIR ${ZLIB_SOURCE_DIR}
+                BINARY_DIR ${ZLIB_SOURCE_DIR})
+
+            FetchContent_GetProperties(zlib
+                POPULATED ZLIB_POPULATED)
+            if(NOT ZLIB_POPULATED)
+                FetchContent_Populate(zlib)
+                add_subdirectory(${ZLIB_SOURCE_DIR} EXCLUDE_FROM_ALL)
             endif()
-        endforeach()
 
-        ExternalProject_Add(zlib
-            PREFIX zlib
-            GIT_REPOSITORY ${ZLIB_REPOSITORY}
-            GIT_TAG ${ZLIB_TAG}
-            SOURCE_DIR ${ZLIB_SOURCE_DIR}
-            BUILD_IN_SOURCE 1
-            INSTALL_DIR ${ZLIB_INSTALL_DIR}
-            BUILD_BYPRODUCTS ${ZLIB_BYPRODUCTS}
-            UPDATE_COMMAND ""
-            CMAKE_ARGS "${CMAKE_ARGS};-DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL_DIR}")
-
-        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
+            list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
+        endif()
     endif()
 endif()
 
@@ -672,9 +648,16 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE ${MINIZIP_DEF})
 
 # Link with external libraries
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
-    target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
-    if(NOT ZLIB_FOUND)
-        add_dependencies(${PROJECT_NAME} zlib)
+    if(ZLIB_FOUND)
+        target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
+    else()
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+            set(ZLIB_TARGET zlibstatic)
+        else()
+            set(ZLIB_TARGET zlib)
+        endif()
+        add_dependencies(${PROJECT_NAME} ${ZLIB_TARGET})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_TARGET})
     endif()
 endif()
 if(MZ_BZIP2 AND BZIP2_FOUND)
@@ -714,7 +697,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${INSTALL_
 
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
-    install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
+    install(TARGETS ${PROJECT_NAME} ${ZLIB_TARGET} EXPORT ${PROJECT_NAME}
             INCLUDES DESTINATION "${INSTALL_INC_DIR}"
             RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
             ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
