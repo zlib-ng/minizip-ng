@@ -3,96 +3,96 @@
 The _mz_zip_reader_ and _mz_zip_writer_ objects allows you to easily extract or create zip files.
 
 - [Reader Callbacks](#reader-callbacks)
-  - [mz_zip_reader_overwrite_cb](#mzzipreaderoverwritecb)
-  - [mz_zip_reader_password_cb](#mzzipreaderpasswordcb)
-  - [mz_zip_reader_progress_cb](#mzzipreaderprogresscb)
-  - [mz_zip_reader_entry_cb](#mzzipreaderentrycb)
+  - [mz_zip_reader_overwrite_cb](#mz_zip_reader_overwrite_cb)
+  - [mz_zip_reader_password_cb](#mz_zip_reader_password_cb)
+  - [mz_zip_reader_progress_cb](#mz_zip_reader_progress_cb)
+  - [mz_zip_reader_entry_cb](#mz_zip_reader_entry_cb)
 - [Reader Open/Close](#reader-openclose)
-  - [mz_zip_reader_is_open](#mzzipreaderisopen)
-  - [mz_zip_reader_open](#mzzipreaderopen)
-  - [mz_zip_reader_open_file](#mzzipreaderopenfile)
-  - [mz_zip_reader_open_file_in_memory](#mzzipreaderopenfileinmemory)
-  - [mz_zip_reader_open_buffer](#mzzipreaderopenbuffer)
-  - [mz_zip_reader_close](#mzzipreaderclose)
+  - [mz_zip_reader_is_open](#mz_zip_reader_is_open)
+  - [mz_zip_reader_open](#mz_zip_reader_open)
+  - [mz_zip_reader_open_file](#mz_zip_reader_open_file)
+  - [mz_zip_reader_open_file_in_memory](#mz_zip_reader_open_file_in_memory)
+  - [mz_zip_reader_open_buffer](#mz_zip_reader_open_buffer)
+  - [mz_zip_reader_close](#mz_zip_reader_close)
 - [Reader Entry Enumeration](#reader-entry-enumeration)
-  - [mz_zip_reader_goto_first_entry](#mzzipreadergotofirstentry)
-  - [mz_zip_reader_goto_next_entry](#mzzipreadergotonextentry)
-  - [mz_zip_reader_locate_entry](#mzzipreaderlocateentry)
+  - [mz_zip_reader_goto_first_entry](#mz_zip_reader_goto_first_entry)
+  - [mz_zip_reader_goto_next_entry](#mz_zip_reader_goto_next_entry)
+  - [mz_zip_reader_locate_entry](#mz_zip_reader_locate_entry)
 - [Reader Entry](#reader-entry)
-  - [mz_zip_reader_entry_open](#mzzipreaderentryopen)
-  - [mz_zip_reader_entry_close](#mzzipreaderentryclose)
-  - [mz_zip_reader_entry_read](#mzzipreaderentryread)
-  - [mz_zip_reader_entry_has_sign](#mzzipreaderentryhassign)
-  - [mz_zip_reader_entry_sign_verify](#mzzipreaderentrysignverify)
-  - [mz_zip_reader_entry_get_hash](#mzzipreaderentrygethash)
-  - [mz_zip_reader_entry_get_first_hash](#mzzipreaderentrygetfirsthash)
-  - [mz_zip_reader_entry_get_info](#mzzipreaderentrygetinfo)
-  - [mz_zip_reader_entry_is_dir](#mzzipreaderentryisdir)
-  - [mz_zip_reader_entry_save](#mzzipreaderentrysave)
-  - [mz_zip_reader_entry_save_process](#mzzipreaderentrysaveprocess)
-  - [mz_zip_reader_entry_save_file](#mzzipreaderentrysavefile)
-  - [mz_zip_reader_entry_save_buffer](#mzzipreaderentrysavebuffer)
-  - [mz_zip_reader_entry_save_buffer_length](#mzzipreaderentrysavebufferlength)
+  - [mz_zip_reader_entry_open](#mz_zip_reader_entry_open)
+  - [mz_zip_reader_entry_close](#mz_zip_reader_entry_close)
+  - [mz_zip_reader_entry_read](#mz_zip_reader_entry_read)
+  - [mz_zip_reader_entry_has_sign](#mz_zip_reader_entry_has_sign)
+  - [mz_zip_reader_entry_sign_verify](#mz_zip_reader_entry_sign_verify)
+  - [mz_zip_reader_entry_get_hash](#mz_zip_reader_entry_get_hash)
+  - [mz_zip_reader_entry_get_first_hash](#mz_zip_reader_entry_get_first_hash)
+  - [mz_zip_reader_entry_get_info](#mz_zip_reader_entry_get_info)
+  - [mz_zip_reader_entry_is_dir](#mz_zip_reader_entry_is_dir)
+  - [mz_zip_reader_entry_save](#mz_zip_reader_entry_save)
+  - [mz_zip_reader_entry_save_process](#mz_zip_reader_entry_save_process)
+  - [mz_zip_reader_entry_save_file](#mz_zip_reader_entry_save_file)
+  - [mz_zip_reader_entry_save_buffer](#mz_zip_reader_entry_save_buffer)
+  - [mz_zip_reader_entry_save_buffer_length](#mz_zip_reader_entry_save_buffer_length)
 - [Reader Bulk Extract](#reader-bulk-extract)
-  - [mz_zip_reader_save_all](#mzzipreadersaveall)
+  - [mz_zip_reader_save_all](#mz_zip_reader_save_all)
 - [Reader Object](#reader-object)
-  - [mz_zip_reader_set_pattern](#mzzipreadersetpattern)
-  - [mz_zip_reader_set_password](#mzzipreadersetpassword)
-  - [mz_zip_reader_set_raw](#mzzipreadersetraw)
-  - [mz_zip_reader_get_raw](#mzzipreadergetraw)
-  - [mz_zip_reader_get_zip_cd](#mzzipreadergetzipcd)
-  - [mz_zip_reader_get_comment](#mzzipreadergetcomment)
-  - [mz_zip_reader_set_encoding](#mzzipreadersetencoding)
-  - [mz_zip_reader_set_sign_required](#mzzipreadersetsignrequired)
-  - [mz_zip_reader_set_overwrite_cb](#mzzipreadersetoverwritecb)
-  - [mz_zip_reader_set_password_cb](#mzzipreadersetpasswordcb)
-  - [mz_zip_reader_set_progress_cb](#mzzipreadersetprogresscb)
-  - [mz_zip_reader_set_progress_interval](#mzzipreadersetprogressinterval)
-  - [mz_zip_reader_set_entry_cb](#mzzipreadersetentrycb)
-  - [mz_zip_reader_get_zip_handle](#mzzipreadergetziphandle)
-  - [mz_zip_reader_create](#mzzipreadercreate)
-  - [mz_zip_reader_delete](#mzzipreaderdelete)
+  - [mz_zip_reader_set_pattern](#mz_zip_reader_set_pattern)
+  - [mz_zip_reader_set_password](#mz_zip_reader_set_password)
+  - [mz_zip_reader_set_raw](#mz_zip_reader_set_raw)
+  - [mz_zip_reader_get_raw](#mz_zip_reader_get_raw)
+  - [mz_zip_reader_get_zip_cd](#mz_zip_reader_get_zip_cd)
+  - [mz_zip_reader_get_comment](#mz_zip_reader_get_comment)
+  - [mz_zip_reader_set_encoding](#mz_zip_reader_set_encoding)
+  - [mz_zip_reader_set_sign_required](#mz_zip_reader_set_sign_required)
+  - [mz_zip_reader_set_overwrite_cb](#mz_zip_reader_set_overwrite_cb)
+  - [mz_zip_reader_set_password_cb](#mz_zip_reader_set_password_cb)
+  - [mz_zip_reader_set_progress_cb](#mz_zip_reader_set_progress_cb)
+  - [mz_zip_reader_set_progress_interval](#mz_zip_reader_set_progress_interval)
+  - [mz_zip_reader_set_entry_cb](#mz_zip_reader_set_entry_cb)
+  - [mz_zip_reader_get_zip_handle](#mz_zip_reader_get_zip_handle)
+  - [mz_zip_reader_create](#mz_zip_reader_create)
+  - [mz_zip_reader_delete](#mz_zip_reader_delete)
 - [Writer Callbacks](#writer-callbacks)
-  - [mz_zip_writer_overwrite_cb](#mzzipwriteroverwritecb)
-  - [mz_zip_writer_password_cb](#mzzipwriterpasswordcb)
-  - [mz_zip_writer_progress_cb](#mzzipwriterprogresscb)
-  - [mz_zip_writer_entry_cb](#mzzipwriterentrycb)
+  - [mz_zip_writer_overwrite_cb](#mz_zip_writer_overwrite_cb)
+  - [mz_zip_writer_password_cb](#mz_zip_writer_password_cb)
+  - [mz_zip_writer_progress_cb](#mz_zip_writer_progress_cb)
+  - [mz_zip_writer_entry_cb](#mz_zip_writer_entry_cb)
 - [Writer Open/Close](#writer-openclose)
-  - [mz_zip_writer_is_open](#mzzipwriterisopen)
-  - [mz_zip_writer_open](#mzzipwriteropen)
-  - [mz_zip_reader_open_file](#mzzipreaderopenfile-1)
-  - [mz_zip_writer_open_file_in_memory](#mzzipwriteropenfileinmemory)
-  - [mz_zip_writer_close](#mzzipwriterclose)
+  - [mz_zip_writer_is_open](#mz_zip_writer_is_open)
+  - [mz_zip_writer_open](#mz_zip_writer_open)
+  - [mz_zip_writer_open_file](#mz_zip_writer_open_file)
+  - [mz_zip_writer_open_file_in_memory](#mz_zip_writer_open_file_in_memory)
+  - [mz_zip_writer_close](#mz_zip_writer_close)
 - [Writer Entry](#writer-entry)
-  - [mz_zip_writer_entry_open](#mzzipwriterentryopen)
-  - [mz_zip_writer_entry_close](#mzzipwriterentryclose)
-  - [mz_zip_writer_entry_write](#mzzipwriterentrywrite)
+  - [mz_zip_writer_entry_open](#mz_zip_writer_entry_open)
+  - [mz_zip_writer_entry_close](#mz_zip_writer_entry_close)
+  - [mz_zip_writer_entry_write](#mz_zip_writer_entry_write)
 - [Writer Add/Compress](#writer-addcompress)
-  - [mz_zip_writer_add](#mzzipwriteradd)
-  - [mz_zip_writer_add_process](#mzzipwriteraddprocess)
-  - [mz_zip_writer_add_info](#mzzipwriteraddinfo)
-  - [mz_zip_writer_add_buffer](#mzzipwriteraddbuffer)
-  - [mz_zip_writer_add_file](#mzzipwriteraddfile)
-  - [mz_zip_writer_add_path](#mzzipwriteraddpath)
-  - [mz_zip_writer_copy_from_reader](#mzzipwritercopyfromreader)
+  - [mz_zip_writer_add](#mz_zip_writer_add)
+  - [mz_zip_writer_add_process](#mz_zip_writer_add_process)
+  - [mz_zip_writer_add_info](#mz_zip_writer_add_info)
+  - [mz_zip_writer_add_buffer](#mz_zip_writer_add_buffer)
+  - [mz_zip_writer_add_file](#mz_zip_writer_add_file)
+  - [mz_zip_writer_add_path](#mz_zip_writer_add_path)
+  - [mz_zip_writer_copy_from_reader](#mz_zip_writer_copy_from_reader)
 - [Writer Object](#writer-object)
-  - [mz_zip_writer_set_password](#mzzipwritersetpassword)
-  - [mz_zip_writer_set_comment](#mzzipwritersetcomment)
-  - [mz_zip_writer_set_raw](#mzzipwritersetraw)
-  - [mz_zip_writer_get_raw](#mzzipwritergetraw)
-  - [mz_zip_writer_set_aes](#mzzipwritersetaes)
-  - [mz_zip_writer_set_compress_method](#mzzipwritersetcompressmethod)
-  - [mz_zip_writer_set_compress_level](#mzzipwritersetcompresslevel)
-  - [mz_zip_writer_set_zip_cd](#mzzipwritersetzipcd)
-  - [mz_zip_writer_set_certificate](#mzzipwritersetcertificate)
-  - [mz_zip_writer_set_overwrite_cb](#mzzipwritersetoverwritecb)
-  - [mz_zip_writer_set_password_cb](#mzzipwritersetpasswordcb)
-  - [mz_zip_reader_set_progress_cb](#mzzipreadersetprogresscb-1)
-  - [mz_zip_writer_set_progress_interval](#mzzipwritersetprogressinterval)
-  - [mz_zip_writer_set_entry_cb](#mzzipwritersetentrycb)
-  - [mz_zip_writer_get_zip_handle](#mzzipwritergetziphandle)
-  - [mz_zip_writer_create](#mzzipwritercreate)
-  - [mz_zip_writer_delete](#mzzipwriterdelete)
+  - [mz_zip_writer_set_password](#mz_zip_writer_set_password)
+  - [mz_zip_writer_set_comment](#mz_zip_writer_set_comment)
+  - [mz_zip_writer_set_raw](#mz_zip_writer_set_raw)
+  - [mz_zip_writer_get_raw](#mz_zip_writer_get_raw)
+  - [mz_zip_writer_set_aes](#mz_zip_writer_set_aes)
+  - [mz_zip_writer_set_compress_method](#mz_zip_writer_set_compress_method)
+  - [mz_zip_writer_set_compress_level](#mz_zip_writer_set_compress_level)
+  - [mz_zip_writer_set_zip_cd](#mz_zip_writer_set_zip_cd)
+  - [mz_zip_writer_set_certificate](#mz_zip_writer_set_certificate)
+  - [mz_zip_writer_set_overwrite_cb](#mz_zip_writer_set_overwrite_cb)
+  - [mz_zip_writer_set_password_cb](#mz_zip_writer_set_password_cb)
+  - [mz_zip_writer_set_progress_cb](#mz_zip_writer_set_progress_cb)
+  - [mz_zip_writer_set_progress_interval](#mz_zip_writer_set_progress_interval)
+  - [mz_zip_writer_set_entry_cb](#mz_zip_writer_set_entry_cb)
+  - [mz_zip_writer_get_zip_handle](#mz_zip_writer_get_zip_handle)
+  - [mz_zip_writer_create](#mz_zip_writer_create)
+  - [mz_zip_writer_delete](#mz_zip_writer_delete)
 
 ## Reader Callbacks
 
@@ -1337,7 +1337,7 @@ mz_stream_os_delete(&file_stream);
 mz_zip_writer_delete(&zip_writer);
 ```
 
-### mz_zip_reader_open_file
+### mz_zip_writer_open_file
 
 Opens zip file from a file path.
 
@@ -1358,7 +1358,7 @@ Opens zip file from a file path.
 ```
 const char *path = "c:\\my.zip";
 mz_zip_writer_create(&zip_writer);
-if (mz_zip_writer_open_file(zip_writer, path) == MZ_OK) {
+if (mz_zip_writer_open_file(zip_writer, path, 0, 0) == MZ_OK) {
     printf("Zip writer was opened %s\n", path);
     mz_zip_writer_close(zip_writer);
 }
@@ -1443,8 +1443,6 @@ if (mz_zip_writer_entry_open(zip_writer, &file_info) == MZ_OK) {
 }
 ```
 
-int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
-
 ### mz_zip_writer_entry_close
 
 Closes entry in zip file.
@@ -1495,7 +1493,7 @@ file_info.flag = MZ_ZIP_FLAG_UTF8;
 
 if (mz_zip_writer_entry_open(zip_writer, &file_info) == MZ_OK) {
     printf("Started writing new entry %s\n", file_info.filename);
-    int32_t bytes_written = mz_zip_writer_entry_Write(zip_writer, "test", 4);
+    int32_t bytes_written = mz_zip_writer_entry_write(zip_writer, "test", 4);
     if (bytes_written == 4) {
         printf("Successfully wrote test\n");
     }
@@ -1692,8 +1690,6 @@ if (mz_zip_writer_add_path(zip_writer, "c:\\dir1\\dir2\\", "c:\\dir1\", 0, 1) ==
 ### mz_zip_writer_copy_from_reader
 
 Adds an entry from a zip reader instance. This copies the current entry from the zip reader instance.
-
-int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader);
 
 **Arguments**
 |Type|Name|Description|
@@ -1935,7 +1931,7 @@ Sets the callback for what to do when a password for an entry.
 
 See example for _mz_zip_writer_password_cb_.
 
-### mz_zip_reader_set_progress_cb
+### mz_zip_writer_set_progress_cb
 
 Sets the callback that gets called to update compression progress. This callback is called on an interval specified by _mz_zip_writer_set_progress_interval_.
 
