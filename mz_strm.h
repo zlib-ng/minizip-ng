@@ -51,8 +51,7 @@ typedef int32_t (*mz_stream_find_cb)           (void *stream, const void *find, 
 
 /***************************************************************************/
 
-typedef struct mz_stream_vtbl_s
-{
+typedef struct mz_stream_vtbl_s {
     mz_stream_open_cb           open;
     mz_stream_is_open_cb        is_open;
     mz_stream_read_cb           read;

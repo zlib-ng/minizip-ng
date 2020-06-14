@@ -72,8 +72,7 @@ typedef uint64_t ZPOS64_T;
 #define mz_dos_date dos_date
 #endif
 
-typedef struct
-{
+typedef struct {
     uint32_t    mz_dos_date;
     struct tm   tmz_date;
     uint16_t    internal_fa;        /* internal file attributes        2 bytes */
@@ -192,22 +191,19 @@ typedef void *unzFile;
 
 /***************************************************************************/
 
-typedef struct unz_global_info64_s
-{
+typedef struct unz_global_info64_s {
     uint64_t number_entry;          /* total number of entries in the central dir on this disk */
     uint32_t number_disk_with_CD;   /* number the the disk with central dir, used for spanning ZIP */
     uint16_t size_comment;          /* size of the global comment of the zipfile */
 } unz_global_info64;
 
-typedef struct unz_global_info_s
-{
+typedef struct unz_global_info_s {
     uint32_t number_entry;          /* total number of entries in the central dir on this disk */
     uint32_t number_disk_with_CD;   /* number the the disk with central dir, used for spanning ZIP */
     uint16_t size_comment;          /* size of the global comment of the zipfile */
 } unz_global_info;
 
-typedef struct unz_file_info64_s
-{
+typedef struct unz_file_info64_s {
     uint16_t version;               /* version made by                 2 bytes */
     uint16_t version_needed;        /* version needed to extract       2 bytes */
     uint16_t flag;                  /* general purpose bit flag        2 bytes */
@@ -230,8 +226,7 @@ typedef struct unz_file_info64_s
     uint16_t size_file_extra_internal;
 } unz_file_info64;
 
-typedef struct unz_file_info_s
-{
+typedef struct unz_file_info_s {
     uint16_t version;               /* version made by                 2 bytes */
     uint16_t version_needed;        /* version needed to extract       2 bytes */
     uint16_t flag;                  /* general purpose bit flag        2 bytes */
@@ -302,8 +297,7 @@ ZEXPORT int     unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len)
 /***************************************************************************/
 /* Raw access to zip file */
 
-typedef struct unz_file_pos_s
-{
+typedef struct unz_file_pos_s {
     uint32_t pos_in_zip_directory;  /* offset in zip file directory */
     uint32_t num_of_file;           /* # of file */
 } unz_file_pos;
@@ -311,8 +305,7 @@ typedef struct unz_file_pos_s
 ZEXPORT int     unzGetFilePos(unzFile file, unz_file_pos *file_pos);
 ZEXPORT int     unzGoToFilePos(unzFile file, unz_file_pos *file_pos);
 
-typedef struct unz64_file_pos_s
-{
+typedef struct unz64_file_pos_s {
     int64_t  pos_in_zip_directory;   /* offset in zip file directory  */
     uint64_t num_of_file;            /* # of file */
 } unz64_file_pos;

@@ -34,8 +34,7 @@
 /***************************************************************************/
 
 #if defined(HAVE_ICONV)
-uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
-{
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     iconv_t cd;
     const char *from_encoding = NULL;
     size_t result = 0;
@@ -69,8 +68,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
     string_utf8 = (uint8_t *)MZ_ALLOC((int32_t)(string_utf8_size + 1));
     string_utf8_ptr = string_utf8;
 
-    if (string_utf8)
-    {
+    if (string_utf8) {
         memset(string_utf8, 0, string_utf8_size + 1);
 
         result = iconv(cd, (char **)&string, &string_length,
@@ -79,8 +77,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 
     iconv_close(cd);
 
-    if (result == (size_t)-1)
-    {
+    if (result == (size_t)-1) {
         MZ_FREE(string_utf8);
         string_utf8 = NULL;
     }
@@ -88,8 +85,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
     return string_utf8;
 }
 #else
-uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
-{
+uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     size_t string_length = 0;
     uint8_t *string_copy = NULL;
 
@@ -102,10 +98,8 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding)
 }
 #endif
 
-void mz_os_utf8_string_delete(uint8_t **string)
-{
-    if (string != NULL)
-    {
+void mz_os_utf8_string_delete(uint8_t **string) {
+    if (string != NULL) {
         MZ_FREE(*string);
         *string = NULL;
     }
@@ -113,14 +107,12 @@ void mz_os_utf8_string_delete(uint8_t **string)
 
 /***************************************************************************/
 
-int32_t mz_os_rand(uint8_t *buf, int32_t size)
-{
+int32_t mz_os_rand(uint8_t *buf, int32_t size) {
     static unsigned calls = 0;
     int32_t i = 0;
 
     /* Ensure different random header each time */
-    if (++calls == 1)
-    {
+    if (++calls == 1) {
         #define PI_SEED 3141592654UL
         srand((unsigned)(time(NULL) ^ PI_SEED));
     }
@@ -131,24 +123,21 @@ int32_t mz_os_rand(uint8_t *buf, int32_t size)
     return size;
 }
 
-int32_t mz_os_rename(const char *source_path, const char *target_path)
-{
+int32_t mz_os_rename(const char *source_path, const char *target_path) {
     if (rename(source_path, target_path) == -1)
         return MZ_EXIST_ERROR;
 
     return MZ_OK;
 }
 
-int32_t mz_os_unlink(const char *path)
-{
+int32_t mz_os_unlink(const char *path) {
     if (unlink(path) == -1)
         return MZ_EXIST_ERROR;
 
     return MZ_OK;
 }
 
-int32_t mz_os_file_exists(const char *path)
-{
+int32_t mz_os_file_exists(const char *path) {
     struct stat path_stat;
 
     memset(&path_stat, 0, sizeof(path_stat));
@@ -157,13 +146,11 @@ int32_t mz_os_file_exists(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-int64_t mz_os_get_file_size(const char *path)
-{
+int64_t mz_os_get_file_size(const char *path) {
     struct stat path_stat;
 
     memset(&path_stat, 0, sizeof(path_stat));
-    if (stat(path, &path_stat) == 0)
-    {
+    if (stat(path, &path_stat) == 0) {
         /* Stat returns size taken up by directory entry, so return 0 */
         if (S_ISDIR(path_stat.st_mode))
             return 0;
@@ -174,8 +161,7 @@ int64_t mz_os_get_file_size(const char *path)
     return 0;
 }
 
-int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date)
-{
+int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date) {
     struct stat path_stat;
     char *name = NULL;
     size_t len = 0;
@@ -183,16 +169,14 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
 
     memset(&path_stat, 0, sizeof(path_stat));
 
-    if (strcmp(path, "-") != 0)
-    {
+    if (strcmp(path, "-") != 0) {
         /* Not all systems allow stat'ing a file with / appended */
         len = strlen(path);
         name = (char *)malloc(len + 1);
         strncpy(name, path, len + 1);
         mz_path_remove_slash(name);
 
-        if (stat(name, &path_stat) == 0)
-        {
+        if (stat(name, &path_stat) == 0) {
             if (modified_date != NULL)
                 *modified_date = path_stat.st_mtime;
             if (accessed_date != NULL)
@@ -210,8 +194,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
     return err;
 }
 
-int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date)
-{
+int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t accessed_date, time_t creation_date) {
     struct utimbuf ut;
 
     ut.actime = accessed_date;
@@ -226,8 +209,7 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
     return MZ_OK;
 }
 
-int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes)
-{
+int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes) {
     struct stat path_stat;
     int32_t err = MZ_OK;
 
@@ -238,8 +220,7 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes)
     return err;
 }
 
-int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes)
-{
+int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes) {
     int32_t err = MZ_OK;
 
     if (chmod(path, (mode_t)attributes) == -1)
@@ -248,8 +229,7 @@ int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes)
     return err;
 }
 
-int32_t mz_os_make_dir(const char *path)
-{
+int32_t mz_os_make_dir(const char *path) {
     int32_t err = 0;
 
     err = mkdir(path, 0755);
@@ -260,20 +240,17 @@ int32_t mz_os_make_dir(const char *path)
     return MZ_OK;
 }
 
-DIR* mz_os_open_dir(const char *path)
-{
+DIR* mz_os_open_dir(const char *path) {
     return opendir(path);
 }
 
-struct dirent* mz_os_read_dir(DIR *dir)
-{
+struct dirent* mz_os_read_dir(DIR *dir) {
     if (dir == NULL)
         return NULL;
     return readdir(dir);
 }
 
-int32_t mz_os_close_dir(DIR *dir)
-{
+int32_t mz_os_close_dir(DIR *dir) {
     if (dir == NULL)
         return MZ_PARAM_ERROR;
     if (closedir(dir) == -1)
@@ -281,8 +258,7 @@ int32_t mz_os_close_dir(DIR *dir)
     return MZ_OK;
 }
 
-int32_t mz_os_is_dir(const char *path)
-{
+int32_t mz_os_is_dir(const char *path) {
     struct stat path_stat;
 
     memset(&path_stat, 0, sizeof(path_stat));
@@ -293,8 +269,7 @@ int32_t mz_os_is_dir(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-int32_t mz_os_is_symlink(const char *path)
-{
+int32_t mz_os_is_symlink(const char *path) {
     struct stat path_stat;
 
     memset(&path_stat, 0, sizeof(path_stat));
@@ -305,15 +280,13 @@ int32_t mz_os_is_symlink(const char *path)
     return MZ_EXIST_ERROR;
 }
 
-int32_t mz_os_make_symlink(const char *path, const char *target_path)
-{
+int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     if (symlink(target_path, path) != 0)
         return MZ_INTERNAL_ERROR;
     return MZ_OK;
 }
 
-int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path)
-{
+int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path) {
     size_t length = 0;
 
     length = (size_t)readlink(path, target_path, max_target_path - 1);
@@ -324,8 +297,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     return MZ_OK;
 }
 
-uint64_t mz_os_ms_time(void)
-{
+uint64_t mz_os_ms_time(void) {
     struct timespec ts;
 
 #if defined(__APPLE__)

@@ -52,8 +52,7 @@ typedef struct mz_stream_libcomp_s {
 
 /***************************************************************************/
 
-int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
-{
+int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     int32_t err = 0;
     int16_t operation = 0;
@@ -66,16 +65,13 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
     libcomp->total_in = 0;
     libcomp->total_out = 0;
 
-    if (mode & MZ_OPEN_MODE_WRITE)
-    {
+    if (mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         operation = COMPRESSION_STREAM_ENCODE;
 #endif
-    }
-    else if (mode & MZ_OPEN_MODE_READ)
-    {
+    } else if (mode & MZ_OPEN_MODE_READ) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
@@ -86,8 +82,7 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
     err = compression_stream_init(&libcomp->cstream, (compression_stream_operation)operation,
         (compression_algorithm)libcomp->algorithm);
 
-    if (err == COMPRESSION_STATUS_ERROR)
-    {
+    if (err == COMPRESSION_STATUS_ERROR) {
         libcomp->error = err;
         return MZ_OPEN_ERROR;
     }
@@ -97,16 +92,14 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode)
     return MZ_OK;
 }
 
-int32_t mz_stream_libcomp_is_open(void *stream)
-{
+int32_t mz_stream_libcomp_is_open(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     if (libcomp->initialized != 1)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
-int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
-{
+int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
     MZ_UNUSED(stream);
     MZ_UNUSED(buf);
@@ -130,12 +123,9 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
     libcomp->cstream.dst_ptr = buf;
     libcomp->cstream.dst_size = (size_t)size;
 
-    do
-    {
-        if (libcomp->cstream.src_size == 0)
-        {
-            if (libcomp->max_total_in > 0)
-            {
+    do {
+        if (libcomp->cstream.src_size == 0) {
+            if (libcomp->max_total_in > 0) {
                 if ((int64_t)bytes_to_read > (libcomp->max_total_in - libcomp->total_in))
                     bytes_to_read = (int32_t)(libcomp->max_total_in - libcomp->total_in);
             }
@@ -155,8 +145,7 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
         total_out_before = libcomp->cstream.dst_size;
 
         err = compression_stream_process(&libcomp->cstream, flags);
-        if (err == COMPRESSION_STATUS_ERROR)
-        {
+        if (err == COMPRESSION_STATUS_ERROR) {
             libcomp->error = err;
             break;
         }
@@ -175,13 +164,11 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
 
         if (err == COMPRESSION_STATUS_END)
             break;
-        if (err != COMPRESSION_STATUS_OK)
-        {
+        if (err != COMPRESSION_STATUS_OK) {
             libcomp->error = err;
             break;
         }
-    }
-    while (libcomp->cstream.dst_size > 0);
+    } while (libcomp->cstream.dst_size > 0);
 
     if (libcomp->error != 0)
         return MZ_DATA_ERROR;
@@ -190,16 +177,14 @@ int32_t mz_stream_libcomp_read(void *stream, void *buf, int32_t size)
 #endif
 }
 
-static int32_t mz_stream_libcomp_flush(void *stream)
-{
+static int32_t mz_stream_libcomp_flush(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     if (mz_stream_write(libcomp->stream.base, libcomp->buffer, libcomp->buffer_len) != libcomp->buffer_len)
         return MZ_WRITE_ERROR;
     return MZ_OK;
 }
 
-static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
-{
+static int32_t mz_stream_libcomp_deflate(void *stream, int flush) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
@@ -207,13 +192,10 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
     int32_t err = MZ_OK;
 
 
-    do
-    {
-        if (libcomp->cstream.dst_size == 0)
-        {
+    do {
+        if (libcomp->cstream.dst_size == 0) {
             err = mz_stream_libcomp_flush(libcomp);
-            if (err != MZ_OK)
-            {
+            if (err != MZ_OK) {
                 libcomp->error = err;
                 return err;
             }
@@ -235,19 +217,16 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush)
 
         if (err == COMPRESSION_STATUS_END)
             break;
-        if (err != COMPRESSION_STATUS_OK)
-        {
+        if (err != COMPRESSION_STATUS_OK) {
             libcomp->error = err;
             return MZ_DATA_ERROR;
         }
-    }
-    while ((libcomp->cstream.src_size > 0) || (flush == COMPRESSION_STREAM_FINALIZE && err == COMPRESSION_STATUS_OK));
+    } while ((libcomp->cstream.src_size > 0) || (flush == COMPRESSION_STREAM_FINALIZE && err == COMPRESSION_STATUS_OK));
 
     return MZ_OK;
 }
 
-int32_t mz_stream_libcomp_write(void *stream, const void *buf, int32_t size)
-{
+int32_t mz_stream_libcomp_write(void *stream, const void *buf, int32_t size) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     int32_t err = size;
 
@@ -265,15 +244,13 @@ int32_t mz_stream_libcomp_write(void *stream, const void *buf, int32_t size)
     return err;
 }
 
-int64_t mz_stream_libcomp_tell(void *stream)
-{
+int64_t mz_stream_libcomp_tell(void *stream) {
     MZ_UNUSED(stream);
 
     return MZ_TELL_ERROR;
 }
 
-int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin)
-{
+int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin) {
     MZ_UNUSED(stream);
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);
@@ -281,22 +258,18 @@ int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin)
     return MZ_SEEK_ERROR;
 }
 
-int32_t mz_stream_libcomp_close(void *stream)
-{
+int32_t mz_stream_libcomp_close(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
 
 
-    if (libcomp->mode & MZ_OPEN_MODE_WRITE)
-    {
+    if (libcomp->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
         mz_stream_libcomp_deflate(stream, COMPRESSION_STREAM_FINALIZE);
         mz_stream_libcomp_flush(stream);
 #endif
-    }
-    else if (libcomp->mode & MZ_OPEN_MODE_READ)
-    {
+    } else if (libcomp->mode & MZ_OPEN_MODE_READ) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
         return MZ_SUPPORT_ERROR;
 #endif
@@ -311,17 +284,14 @@ int32_t mz_stream_libcomp_close(void *stream)
     return MZ_OK;
 }
 
-int32_t mz_stream_libcomp_error(void *stream)
-{
+int32_t mz_stream_libcomp_error(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     return libcomp->error;
 }
 
-int32_t mz_stream_libcomp_get_prop_int64(void *stream, int32_t prop, int64_t *value)
-{
+int32_t mz_stream_libcomp_get_prop_int64(void *stream, int32_t prop, int64_t *value) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
-    switch (prop)
-    {
+    switch (prop) {
     case MZ_STREAM_PROP_TOTAL_IN:
         *value = libcomp->total_in;
         break;
@@ -340,11 +310,9 @@ int32_t mz_stream_libcomp_get_prop_int64(void *stream, int32_t prop, int64_t *va
     return MZ_OK;
 }
 
-int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t value)
-{
+int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t value) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
-    switch (prop)
-    {
+    switch (prop) {
     case MZ_STREAM_PROP_COMPRESS_ALGORITHM:
         libcomp->algorithm = (int16_t)value;
         break;
@@ -357,13 +325,11 @@ int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t val
     return MZ_OK;
 }
 
-void *mz_stream_libcomp_create(void **stream)
-{
+void *mz_stream_libcomp_create(void **stream) {
     mz_stream_libcomp *libcomp = NULL;
 
     libcomp = (mz_stream_libcomp *)MZ_ALLOC(sizeof(mz_stream_libcomp));
-    if (libcomp != NULL)
-    {
+    if (libcomp != NULL) {
         memset(libcomp, 0, sizeof(mz_stream_libcomp));
         libcomp->stream.vtbl = &mz_stream_libcomp_vtbl;
     }
@@ -373,8 +339,7 @@ void *mz_stream_libcomp_create(void **stream)
     return libcomp;
 }
 
-void mz_stream_libcomp_delete(void **stream)
-{
+void mz_stream_libcomp_delete(void **stream) {
     mz_stream_libcomp *libcomp = NULL;
     if (stream == NULL)
         return;
@@ -401,13 +366,11 @@ static mz_stream_vtbl mz_stream_zlib_vtbl = {
     mz_stream_libcomp_set_prop_int64
 };
 
-void *mz_stream_zlib_create(void **stream)
-{
+void *mz_stream_zlib_create(void **stream) {
     mz_stream_libcomp *libcomp = NULL;
     void *stream_int = NULL;
     mz_stream_libcomp_create(&stream_int);
-    if (stream_int != NULL)
-    {
+    if (stream_int != NULL) {
         libcomp = (mz_stream_libcomp *)stream_int;
         libcomp->stream.vtbl = &mz_stream_zlib_vtbl;
         libcomp->algorithm = COMPRESSION_ZLIB;
@@ -417,7 +380,6 @@ void *mz_stream_zlib_create(void **stream)
     return stream_int;
 }
 
-void *mz_stream_zlib_get_interface(void)
-{
+void *mz_stream_zlib_get_interface(void) {
     return (void *)&mz_stream_zlib_vtbl;
 }
