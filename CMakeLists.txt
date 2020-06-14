@@ -140,7 +140,13 @@ endif()
 
 # Check to see if openssl installation is present
 if(MZ_OPENSSL)
-    find_package(OpenSSL)
+    find_package(PkgConfig)
+    if(PKGCONFIG_FOUND)
+        pkg_check_modules(OPENSSL openssl)
+    endif()
+    if(NOT OPENSSL_FOUND)
+        find_package(OpenSSL)
+    endif()
     if (OPENSSL_FOUND)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
 
