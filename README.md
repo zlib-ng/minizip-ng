@@ -79,6 +79,7 @@ cmake --build .
 | MZ_WZAES           | Enables WinZIP AES encryption         |      ON       |
 | MZ_LIBCOMP         | Enables Apple compression             |      OFF      |
 | MZ_OPENSSL         | Enables OpenSSL encryption            |      OFF      |
+| MZ_LIBBSD          | Builds with libbsd crypto random      |      ON       |
 | MZ_BRG             | Enables Brian Gladman's library       |      OFF      |
 | MZ_SIGNING         | Enables zip signing support           |      ON       |
 | MZ_COMPRESS_ONLY   | Only support compression              |      OFF      |
