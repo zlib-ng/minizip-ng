@@ -15,21 +15,19 @@ jobs:
           Ubuntu 16 GCC,
           Ubuntu 16 Clang 3.5,
           Ubuntu 16 Clang,
-          Ubuntu 18 GCC,
-          Ubuntu 18 Clang,
-          Ubuntu 18 Clang No Zlib,
-          Ubuntu 18 Clang No Bzip2,
-          Ubuntu 18 Clang No LZMA,
-          Ubuntu 18 Clang No Pkcrypt,
-          Ubuntu 18 Clang No Winzip AES,
-          Ubuntu 18 Clang No Encryption,
-          Ubuntu 18 Clang Compress Only,
-          Ubuntu 18 Clang Decompress Only,
-          Ubuntu 18 Clang OpenSSL,
-          Windows 2016 MSVC,
-          Windows 2016 GCC,
-          Windows 2019 MSVC,
-          Windows 2019 GCC,
+          Ubuntu GCC,
+          Ubuntu Clang,
+          Ubuntu Clang No Zlib,
+          Ubuntu Clang No Bzip2,
+          Ubuntu Clang No LZMA,
+          Ubuntu Clang No Pkcrypt,
+          Ubuntu Clang No Winzip AES,
+          Ubuntu Clang No Encryption,
+          Ubuntu Clang Compress Only,
+          Ubuntu Clang Decompress Only,
+          Ubuntu Clang OpenSSL,
+          Windows MSVC,
+          Windows GCC,
           macOS Xcode 9.4.1,
           macOS Xcode,
           macOS Xcode LibCompression,
@@ -66,115 +64,102 @@ jobs:
             deploy: true
             deploy-name: linux
 
-          - name: Ubuntu 18 GCC
-            os: ubuntu-18.04
+          - name: Ubuntu GCC
+            os: ubuntu-latest
             compiler: gcc
             cmake-args: -DMZ_CODE_COVERAGE=ON
-            codecov: ubuntu_18_gcc
+            codecov: ubuntu_gcc
 
-          - name: Ubuntu 18 Clang
-            os: ubuntu-18.04
+          - name: Ubuntu Clang
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON
-            codecov: ubuntu_18_clang
+            codecov: ubuntu_clang
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No Zlib
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No Zlib
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_ZLIB=OFF
-            codecov: ubuntu_18_clang_no_zlib
+            codecov: ubuntu_clang_no_zlib
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No Bzip2
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No Bzip2
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_BZIP=OFF
-            codecov: ubuntu_18_clang_no_bzip2
+            codecov: ubuntu_clang_no_bzip2
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No LZMA
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No LZMA
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LZMA=OFF
-            codecov: ubuntu_18_clang_no_lzma
+            codecov: ubuntu_clang_no_lzma
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No Pkcrypt
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No Pkcrypt
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_PKCRYPT=OFF
-            codecov: ubuntu_18_clang_no_pkcrypt
+            codecov: ubuntu_clang_no_pkcrypt
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No Winzip AES
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No Winzip AES
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_WZAES=OFF
-            codecov: ubuntu_18_clang_no_winzip_aes
+            codecov: ubuntu_clang_no_winzip_aes
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang No Encryption
-            os: ubuntu-18.04
+          - name: Ubuntu Clang No Encryption
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF
-            codecov: ubuntu_18_clang_no_encryption
+            codecov: ubuntu_clang_no_encryption
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang Compress Only
-            os: ubuntu-18.04
+          - name: Ubuntu Clang Compress Only
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_COMPRESS_ONLY=ON
-            codecov: ubuntu_18_clang_compress_only
+            codecov: ubuntu_clang_compress_only
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang Decompress Only
-            os: ubuntu-18.04
+          - name: Ubuntu Clang Decompress Only
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_DECOMPRESS_ONLY=ON
-            codecov: ubuntu_18_clang_decompress_only
+            codecov: ubuntu_clang_decompress_only
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
-          - name: Ubuntu 18 Clang OpenSSL
-            os: ubuntu-18.04
+          - name: Ubuntu Clang OpenSSL
+            os: ubuntu-latest
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_OPENSSL=ON
-            codecov: ubuntu_18_clang_openssl
+            codecov: ubuntu_clang_openssl
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
           # No code coverage supported
-          - name: Windows 2016 MSVC
-            os: windows-2016
-            compiler: cl
-            deploy: true
-            deploy-name: windows
-
-          - name: Windows 2016 GCC
-            os: windows-2016
-            compiler: gcc
-            cmake-args: -DMZ_CODE_COVERAGE=ON -G Ninja
-            codecov: windows_2016_gcc
-
-          # No code coverage supported
-          - name: Windows 2019 MSVC
-            os: windows-2019
+          - name: Windows MSVC
+            os: windows-latest
             compiler: cl
 
-          - name: Windows 2019 GCC
-            os: windows-2019
+          - name: Windows GCC
+            os: windows-latest
             compiler: gcc
             cmake-args: -DMZ_CODE_COVERAGE=ON -G Ninja
-            codecov: windows_2019_gcc
+            codecov: windows_gcc
 
           # No code coverage on release builds
           - name: macOS Xcode 9.4.1
