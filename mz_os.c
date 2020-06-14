@@ -144,7 +144,7 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
                 source += 1;
                 continue;
             }
-            if ((*check != 0) && (*check == '.')) {
+            if (*check == '.') {
                 check += 1;
 
                 /* Remove . if at end of string and not at the beginning */
