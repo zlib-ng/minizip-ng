@@ -139,6 +139,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
         total_in_before = zstd->in.pos;
 
         result = ZSTD_decompressStream(zstd->zdstream, &zstd->out, &zstd->in);
+
         if (ZSTD_isError(result)) {
             zstd->error = (int32_t)result;
             return MZ_DATA_ERROR;
