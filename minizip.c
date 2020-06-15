@@ -69,7 +69,7 @@ int32_t minizip_banner(void) {
 }
 
 int32_t minizip_help(void) {
-    printf("Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m][-k 512][-p pwd][-s] file.zip [files]\n\n" \
+    printf("Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m|-t][-k 512][-p pwd][-s] file.zip [files]\n\n" \
            "  -x  Extract files\n" \
            "  -l  List files\n" \
            "  -d  Destination directory\n" \
@@ -91,7 +91,8 @@ int32_t minizip_help(void) {
            "  -h  PKCS12 certificate path\n" \
            "  -w  PKCS12 certificate password\n" \
            "  -b  BZIP2 compression\n" \
-           "  -m  LZMA compression\n\n");
+           "  -m  LZMA compression\n" \
+           "  -t  ZSTD compression\n\n");
     return MZ_OK;
 }
 
@@ -598,6 +599,12 @@ int main(int argc, const char *argv[]) {
             else if ((c == 'm') || (c == 'M'))
 #ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
+            else if ((c == 't') || (c == 'T'))
+#ifdef HAVE_ZSTD
+                options.compress_method = MZ_COMPRESS_METHOD_ZSTD;
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif

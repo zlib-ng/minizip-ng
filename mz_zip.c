@@ -39,6 +39,9 @@
 #ifdef HAVE_ZLIB
 #  include "mz_strm_zlib.h"
 #endif
+#ifdef HAVE_ZSTD
+#  include "mz_strm_zstd.h"
+#endif
 
 #include "mz_zip.h"
 
@@ -1617,6 +1620,10 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_LZMA
     case MZ_COMPRESS_METHOD_LZMA:
 #endif
+#ifdef HAVE_ZSTD
+    case MZ_COMPRESS_METHOD_ZSTD:
+    case MZ_COMPRESS_METHOD_WZZSTD:
+#endif
         err = MZ_OK;
         break;
     default:
@@ -1700,6 +1707,11 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_LZMA
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA)
             mz_stream_lzma_create(&zip->compress_stream);
+#endif
+#ifdef HAVE_ZSTD
+        else if ((zip->file_info.compression_method == MZ_COMPRESS_METHOD_ZSTD) ||
+                 (zip->file_info.compression_method == MZ_COMPRESS_METHOD_WZZSTD))
+            mz_stream_zstd_create(&zip->compress_stream);
 #endif
         else
             err = MZ_PARAM_ERROR;

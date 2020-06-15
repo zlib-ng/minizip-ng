@@ -13,6 +13,7 @@ option(MZ_COMPAT "Enables compatibility layer" ON)
 option(MZ_ZLIB "Enables ZLIB compression" ON)
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA compression" ON)
+option(MZ_ZSTD "Enables ZSTD compression" ON)
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_LIBCOMP "Enables Apple compression" OFF)
@@ -103,6 +104,44 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
             endif()
 
             list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
+        endif()
+    endif()
+endif()
+
+# Check if zstd installation is present
+if(MZ_ZSTD)
+    find_package(ZSTD)
+    if(ZSTD_FOUND)
+        message(STATUS "Using ZSTD")
+        list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
+    else()
+        if(NOT ZSTD_REPOSITORY)
+            set(ZSTD_REPOSITORY https://github.com/facebook/zstd)
+        endif()
+
+        message(STATUS "Fetching ZSTD ${ZSTD_REPOSITORY} ${ZSTD_TAG}")
+
+        if(${CMAKE_VERSION} VERSION_LESS "3.11")
+            message(FATAL_ERROR "CMake 3.11 required to fetch zlib")
+        else()
+            include(FetchContent)
+
+            set(ZSTD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/zstd)
+
+            FetchContent_Declare(zstd
+                GIT_REPOSITORY ${ZSTD_REPOSITORY}
+                SOURCE_DIR ${ZSTD_SOURCE_DIR}
+                BINARY_DIR ${ZSTD_SOURCE_DIR})
+
+            FetchContent_GetProperties(zstd
+                POPULATED ZSTD_POPULATED)
+            if(NOT ZSTD_POPULATED)
+                FetchContent_Populate(zstd)
+                add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake EXCLUDE_FROM_ALL)
+            endif()
+
+            list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
         endif()
     endif()
 endif()
@@ -437,6 +476,13 @@ if(MZ_ZLIB)
     endif()
 endif()
 
+# Include ZSTD
+if(MZ_ZSTD)
+    list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
+    list(APPEND MINIZIP_SRC "mz_strm_zstd.c")
+    list(APPEND MINIZIP_PUBLIC_HEADERS "mz_strm_zstd.h")
+endif()
+
 # Include BZIP2
 if(MZ_BZIP2)
     list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
@@ -660,7 +706,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE ${MINIZIP_DEF})
 # Link with external libraries
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
     if(ZLIB_FOUND)
-        target_link_libraries(${PROJECT_NAME} ${ZLIB_LIBRARIES})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_LIBRARIES})
     else()
         # Have to add zlib to install targets
         if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
@@ -670,8 +716,24 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         endif()
         add_dependencies(${PROJECT_NAME} ${ZLIB_TARGET})
         target_link_libraries(${PROJECT_NAME} PRIVATE ${ZLIB_TARGET})
-        # Can't disable zlib testing so ctest tries to run zlib example app
-        add_dependencies(${PROJECT_NAME} example)
+        if(MZ_BUILD_UNIT_TEST)
+            # Can't disable zlib testing so ctest tries to run zlib example app
+            add_dependencies(${PROJECT_NAME} example)
+        endif()
+    endif()
+endif()
+if(MZ_ZSTD)
+    if(ZSTD_FOUND)
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${ZSTD_LIBRARIES})
+    else()
+        # Have to add zlib to install targets
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+            set(ZSTD_TARGET libzstd_static)
+        else()
+            set(ZSTD_TARGET libzstd_shared)
+        endif()
+        add_dependencies(${PROJECT_NAME} ${ZSTD_TARGET})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${ZSTD_TARGET})
     endif()
 endif()
 if(MZ_BZIP2 AND BZIP2_FOUND)

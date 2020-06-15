@@ -36,7 +36,7 @@ the library as version 2 because it had become difficult to maintain and code re
 + Adding and removing entries from zip archives.
 + Read and write raw zip entry data.
 + Reading and writing zip archives from memory.
-+ Zlib, BZIP2, and LZMA compression methods.
++ Zlib, BZIP2, LZMA, and ZSTD compression methods.
 + Password protection through Traditional PKWARE and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
 + Buffered streaming for improved I/O performance.
 + NTFS timestamp support for UTC last modified, last accessed, and creation dates.
@@ -75,6 +75,7 @@ cmake --build .
 | MZ_ZLIB            | Enables ZLIB compression              |      ON       |
 | MZ_BZIP2           | Enables BZIP2 compression             |      ON       |
 | MZ_LZMA            | Enables LZMA compression              |      ON       |
+| MZ_ZSTD            | Enables ZSTD compression              |      ON       |
 | MZ_PKCRYPT         | Enables PKWARE traditional encryption |      ON       |
 | MZ_WZAES           | Enables WinZIP AES encryption         |      ON       |
 | MZ_LIBCOMP         | Enables Apple compression             |      OFF      |
@@ -111,6 +112,7 @@ cmake --build .
 | mz_strm_os\*       | Platform specific file stream                   |
 | mz_strm_wzaes.\*   | WinZIP AES stream                               |
 | mz_strm_zlib.\*    | Deflate stream using zlib                       |
+| mz_strm_zstd.\*    | ZSTD stream                                     |
 | mz_zip.\*          | Zip format                                      |
 | mz_zip_rw.\*       | Zip reader/writer                               |
 
@@ -122,6 +124,7 @@ cmake --build .
 + [BZIP2](https://www.sourceware.org/bzip2/) written by Julian Seward.
 + [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
   + Modifications were made to support the ZIP file format specification
++ [ZSTD](https://github.com/facebook/zstd) from Facebook
 + [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
 
 ## Acknowledgments
