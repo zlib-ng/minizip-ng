@@ -1,4 +1,4 @@
-/* mz_strm_zstd.c -- Stream for ztd compress/decompress
+/* mz_strm_zstd.c -- Stream for zstd compress/decompress
    Version 2.9.3, May 21, 2020
    part of the MiniZip project
 
@@ -216,7 +216,7 @@ int32_t mz_stream_zstd_write(void *stream, const void *buf, int32_t size) {
     mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
 
 #ifdef MZ_ZIP_NO_COMPRESSION
-    MZ_UNUSED(zlib);
+    MZ_UNUSED(zstd);
     MZ_UNUSED(buf);
     err = MZ_SUPPORT_ERROR;
 #else
