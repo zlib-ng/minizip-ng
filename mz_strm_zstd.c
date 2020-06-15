@@ -15,7 +15,7 @@
 #include "mz_strm.h"
 #include "mz_strm_zstd.h"
 
-#include <zstd.h>
+#include <zstd.h> 
 
 /***************************************************************************/
 
@@ -214,6 +214,7 @@ static int32_t mz_stream_zstd_compress(void *stream, ZSTD_EndDirective flush) {
 
 int32_t mz_stream_zstd_write(void *stream, const void *buf, int32_t size) {
     mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
+    int32_t err = size;
 
 #ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(zstd);
@@ -230,7 +231,7 @@ int32_t mz_stream_zstd_write(void *stream, const void *buf, int32_t size) {
 
     zstd->total_in += size;
 #endif
-    return size;
+    return err;
 }
 
 int64_t mz_stream_zstd_tell(void *stream) {
