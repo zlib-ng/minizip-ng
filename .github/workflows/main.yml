@@ -20,6 +20,7 @@ jobs:
           Ubuntu Clang No Zlib,
           Ubuntu Clang No Bzip2,
           Ubuntu Clang No LZMA,
+          Ubuntu Clang No Zstd,
           Ubuntu Clang No Pkcrypt,
           Ubuntu Clang No Winzip AES,
           Ubuntu Clang No Encryption,
@@ -99,6 +100,14 @@ jobs:
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LZMA=OFF
             codecov: ubuntu_clang_no_lzma
+            packages: llvm-6.0
+            gcov-exec: llvm-cov-6.0 gcov
+            
+          - name: Ubuntu Clang No Zstd
+            os: ubuntu-latest
+            compiler: clang
+            cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_ZSTD=OFF
+            codecov: ubuntu_clang_no_zstd
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
 
