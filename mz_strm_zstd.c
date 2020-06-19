@@ -104,8 +104,8 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
 #else
     mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
     uint64_t total_in_before = 0;
-    uint64_t total_out_before = 0;
     uint64_t total_in_after = 0;
+    uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     int32_t total_in = 0;
     int32_t total_out = 0;
