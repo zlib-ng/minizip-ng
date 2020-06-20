@@ -594,14 +594,14 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
         if (result)
 #endif
 
-            result = CryptSignMessage(&sign_params, FALSE, 1, messages, (DWORD *)messages_sizes,
+            result = CryptSignMessage(&sign_params, FALSE, 1, (const BYTE **)messages, (DWORD *)messages_sizes,
                 NULL, (DWORD *)signature_size);
 
         if (result && *signature_size > 0)
             *signature = (uint8_t *)MZ_ALLOC(*signature_size);
 
         if (result && *signature != NULL)
-            result = CryptSignMessage(&sign_params, FALSE, 1, messages, (DWORD *)messages_sizes,
+            result = CryptSignMessage(&sign_params, FALSE, 1, (const BYTE **)messages, (DWORD *)messages_sizes,
                 *signature, (DWORD *)signature_size);
 
         if (!result)
@@ -643,14 +643,14 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 
     if (result && decoded != NULL)
         result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
-            decoded, (DWORD *)&decoded_size, &signer_cert);
+            decoded, (DWORD *)&decoded_size, (const CERT_CONTEXT **)&signer_cert);
 
     /* Get and validate certificate chain */
     memset(&chain_para, 0, sizeof(chain_para));
 
     if (result && signer_cert != NULL)
         result = CertGetCertificateChain(NULL, signer_cert, NULL, NULL, &chain_para,
-            CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT, NULL, &chain_context);
+            CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT, NULL, (const CERT_CHAIN_CONTEXT **)&chain_context);
 
     memset(&chain_policy, 0, sizeof(chain_policy));
     chain_policy.cbSize = sizeof(CERT_CHAIN_POLICY_PARA);
