@@ -87,6 +87,8 @@ uint8_t *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t en
     uint8_t *string_utf8 = NULL;
     uint32_t string_utf8_size = 0;
 
+    MZ_UNUSED(encoding);
+
     string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string, -1, NULL, 0, NULL, NULL);
     string_utf8 = (uint8_t *)MZ_ALLOC((string_utf8_size + 1) * sizeof(wchar_t));
 
@@ -486,7 +488,6 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     HMODULE kernel32_mod = NULL;
     wchar_t *path_wide = NULL;
     wchar_t *target_path_wide = NULL;
-    uint32_t attribs = 0;
     int32_t err = MZ_OK;
     int32_t flags = 0;
 
@@ -550,13 +551,12 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
                 UCHAR  DataBuffer[1];
             } GenericReparseBuffer;
         };
-    } REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+    } REPARSE_DATA_BUFFER;
     REPARSE_DATA_BUFFER *reparse_data = NULL;
     DWORD length = 0;
     HANDLE handle = NULL;
     wchar_t *path_wide = NULL;
     wchar_t *target_path_wide = NULL;
-    uint32_t attribs = 0;
     uint8_t buffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
     int32_t target_path_len = 0;
     int32_t target_path_idx = 0;

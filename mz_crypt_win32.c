@@ -8,7 +8,9 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
+#ifdef _MSC_VER
 #pragma comment(lib, "crypt32.lib")
+#endif
 
 #include "mz.h"
 #include "mz_os.h"

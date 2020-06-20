@@ -918,7 +918,7 @@ static int32_t test_unzip_compat_int(unzFile unzip)
             return err;
         }
         bytes_read = unzReadCurrentFile(unzip, buffer, sizeof(buffer));
-        if (bytes_read != strlen(test_data))
+        if (bytes_read != (int32_t)strlen(test_data))
         {
             printf("Failed to read zip entry data (%" PRId32 ")\n", err);
             unzCloseCurrentFile(unzip);
