@@ -67,7 +67,7 @@ set(PC_PRIVATE_LIBS)
 
 # Check if zlib installation is present
 if(MZ_ZLIB AND NOT MZ_LIBCOMP)
-    find_package(ZLIB)
+    find_package(ZLIB QUIET)
     if(ZLIB_FOUND)
         message(STATUS "Using ZLIB ${ZLIB_VERSION_STRING}")
         list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
@@ -100,7 +100,7 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
                 POPULATED ZLIB_POPULATED)
             if(NOT ZLIB_POPULATED)
                 FetchContent_Populate(zlib)
-                add_subdirectory(${ZLIB_SOURCE_DIR} EXCLUDE_FROM_ALL)
+                add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
             endif()
 
             list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
@@ -110,7 +110,7 @@ endif()
 
 # Check if zstd installation is present
 if(MZ_ZSTD)
-    find_package(ZSTD)
+    find_package(ZSTD QUIET)
     if(ZSTD_FOUND)
         message(STATUS "Using ZSTD")
         list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
@@ -138,7 +138,7 @@ if(MZ_ZSTD)
                 POPULATED ZSTD_POPULATED)
             if(NOT ZSTD_POPULATED)
                 FetchContent_Populate(zstd)
-                add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake EXCLUDE_FROM_ALL)
+                add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake ${ZSTD_BINARY_DIR} EXCLUDE_FROM_ALL)
             endif()
 
             list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
@@ -714,7 +714,6 @@ if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         else()
             set(ZLIB_TARGET zlib)
         endif()
-        add_dependencies(${PROJECT_NAME} ${ZLIB_TARGET})
         target_link_libraries(${PROJECT_NAME} ${ZLIB_TARGET})
         if(MZ_BUILD_UNIT_TEST)
             # Can't disable zlib testing so ctest tries to run zlib example app
@@ -732,7 +731,6 @@ if(MZ_ZSTD)
         else()
             set(ZSTD_TARGET libzstd_shared)
         endif()
-        add_dependencies(${PROJECT_NAME} ${ZSTD_TARGET})
         target_link_libraries(${PROJECT_NAME} ${ZSTD_TARGET})
     endif()
 endif()
@@ -768,7 +766,8 @@ elseif(WIN32)
     endif()
 endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>
+target_include_directories(${PROJECT_NAME} PUBLIC
+    $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Install files
