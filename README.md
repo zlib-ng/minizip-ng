@@ -92,40 +92,18 @@ cmake --build .
 | MZ_PROJECT_SUFFIX  | Project name suffix for packaging     |               |
 | MZ_FILE32_API      | Builds using posix 32-bit file api    |      OFF      |
 
-## Contents
-
-| File(s)            | Description                                     |
-|:-------------------|:------------------------------------------------|
-| minizip.c          | Sample application                              |
-| mz_compat.\*       | Minizip 1.x compatibility layer                 |
-| mz.h               | Error codes and flags                           |
-| mz_os\*            | Platform specific file/utility functions        |
-| mz_crypt\*         | Configuration specific crypto/hashing functions |
-| mz_strm.\*         | Stream interface                                |
-| mz_strm_buf.\*     | Buffered stream                                 |
-| mz_strm_bzip.\*    | BZIP2 stream using libbzip2                     |
-| mz_strm_libcomp.\* | Apple compression stream                        |
-| mz_strm_lzma.\*    | LZMA stream using liblzma                       |
-| mz_strm_mem.\*     | Memory stream                                   |
-| mz_strm_split.\*   | Disk splitting stream                           |
-| mz_strm_pkcrypt.\* | PKWARE traditional encryption stream            |
-| mz_strm_os\*       | Platform specific file stream                   |
-| mz_strm_wzaes.\*   | WinZIP AES stream                               |
-| mz_strm_zlib.\*    | Deflate stream using zlib                       |
-| mz_strm_zstd.\*    | ZSTD stream                                     |
-| mz_zip.\*          | Zip format                                      |
-| mz_zip_rw.\*       | Zip reader/writer                               |
-
 ## Third-Party Libraries
 
-+ [zlib](https://zlib.net/) written by Mark Adler and Jean-loup Gailly.
-  + Not included in this repository
-  + Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach
-+ [BZIP2](https://www.sourceware.org/bzip2/) written by Julian Seward.
-+ [liblzma](https://tukaani.org/xz/) written by Lasse Collin.
-  + Modifications were made to support the ZIP file format specification
-+ [ZSTD](https://github.com/facebook/zstd) from Facebook
-+ [AES](https://github.com/BrianGladman/aes) and [SHA](https://github.com/BrianGladman/sha) libraries of Brian Gladman.
+|Project|License|Comments|
+|-|-|-|
+[bzip2](https://www.sourceware.org/bzip2/)|[bzip2](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|Written by Julian Seward.|
+|[zlib](https://zlib.net/)|zlib|Written by Mark Adler and Jean-loup Gailly. Not included in this repository. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
+|[liblzma](https://tukaani.org/xz/)|Public domain|Written by Igor Pavlov and Lasse Collin. Modifications were made to support the ZIP file format specification.|
+|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|Facebook|
+|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|Written by Brian Gladman.|
+|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|Written by Brian Gladman.|
+
+The minizip project uses the zlib [license](LICENSE).
 
 ## Acknowledgments
 
