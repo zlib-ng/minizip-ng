@@ -153,7 +153,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size) {
     int32_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
-    int32_t bytes_to_read = 0;
+    int32_t bytes_to_read = sizeof(lzma->buffer);
     int32_t read = 0;
     int32_t err = LZMA_OK;
 
@@ -163,7 +163,6 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size) {
 
     do {
         if (lzma->lstream.avail_in == 0) {
-            bytes_to_read = sizeof(lzma->buffer);
             if (lzma->max_total_in > 0) {
                 if ((int64_t)bytes_to_read > (lzma->max_total_in - lzma->total_in))
                     bytes_to_read = (int32_t)(lzma->max_total_in - lzma->total_in);
