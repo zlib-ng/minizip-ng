@@ -110,7 +110,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
     int32_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
-    int32_t bytes_to_read = 0;
+    int32_t bytes_to_read = sizeof(zstd->buffer);
     int32_t read = 0;
     size_t result = 0;
 
@@ -120,7 +120,6 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
 
     do {
         if (zstd->in.pos == zstd->in.size) {
-            bytes_to_read = sizeof(zstd->buffer);
             if (zstd->max_total_in > 0) {
                 if ((int64_t)bytes_to_read > (zstd->max_total_in - zstd->total_in))
                     bytes_to_read = (int32_t)(zstd->max_total_in - zstd->total_in);
@@ -160,7 +159,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
         zstd->total_in += in_bytes;
         zstd->total_out += out_bytes;
 
-    } while (zstd->in.pos < zstd->in.size && zstd->out.pos < zstd->out.size);
+    } while ((zstd->in.size > 0 || out_bytes > 0) && (zstd->out.pos < zstd->out.size));
 
     return total_out;
 #endif
