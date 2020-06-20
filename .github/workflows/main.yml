@@ -102,7 +102,7 @@ jobs:
             codecov: ubuntu_clang_no_lzma
             packages: llvm-6.0
             gcov-exec: llvm-cov-6.0 gcov
-            
+
           - name: Ubuntu Clang No Zstd
             os: ubuntu-latest
             compiler: clang
@@ -167,7 +167,8 @@ jobs:
           - name: Windows GCC
             os: windows-latest
             compiler: gcc
-            cmake-args: -DMZ_CODE_COVERAGE=ON -G Ninja
+            # Don't use find_package for zlib (installed by PostgreSQL)
+            cmake-args: -DMZ_CODE_COVERAGE=ON -G Ninja -DZLIB_FORCE_FETCH=ON -DZSTD_FORCE_FETCH=ON
             codecov: windows_gcc
 
           # No code coverage on release builds
