@@ -194,7 +194,19 @@ jobs:
             codecov: macos_xcode_openssl
 
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout repository
+      uses: actions/checkout@v1
+
+    - name: Set environment variables (Windows)
+      run:  echo "::set-env name=temp::$($env:TEMP)"
+
+    - name: Cache packages (Windows)
+      uses: actions/cache@v2
+      if: runner.os == 'Windows'
+      with:
+        key: minizip-win-choco-${{matrix.compiler}}
+        path: |
+          ${{env.temp}}\chocolatey\
 
     - name: Install packages (macOS)
       if: runner.os == 'macOS'
