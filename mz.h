@@ -1,5 +1,4 @@
 /* mz.h -- Errors codes, zip flags and magic
-   Version 2.9.3, May 21, 2020
    part of the MiniZip project
 
    Copyright (C) 2010-2020 Nathan Moinvaziri

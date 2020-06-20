@@ -1,5 +1,4 @@
 /* mz_strm_zstd.c -- Stream for zstd compress/decompress
-   Version 2.9.3, May 21, 2020
    part of the MiniZip project
 
    Copyright (C) 2010-2020 Nathan Moinvaziri
@@ -15,7 +14,7 @@
 #include "mz_strm.h"
 #include "mz_strm_zstd.h"
 
-#include <zstd.h> 
+#include <zstd.h>
 
 /***************************************************************************/
 
@@ -182,7 +181,7 @@ static int32_t mz_stream_zstd_compress(void *stream, ZSTD_EndDirective flush) {
     int32_t out_bytes = 0;
     size_t result = 0;
     int32_t err = 0;
-    
+
     do {
         if (zstd->out.pos == zstd->out.size) {
             err = mz_stream_zstd_flush(zstd);

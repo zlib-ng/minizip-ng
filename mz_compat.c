@@ -1,5 +1,4 @@
 /* mz_compat.c -- Backwards compatible interface for older versions
-   Version 2.9.3, May 21, 2020
    part of the MiniZip project
 
    Copyright (C) 2010-2020 Nathan Moinvaziri
@@ -596,7 +595,7 @@ int unzCloseCurrentFile(unzFile file) {
 }
 
 int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, 
+    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
     unsigned long comment_size) {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
@@ -656,7 +655,7 @@ int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filenam
 }
 
 int unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment, 
+    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
     unsigned long comment_size) {
     mz_compat *compat = (mz_compat *)file;
     mz_zip_file *file_info = NULL;
