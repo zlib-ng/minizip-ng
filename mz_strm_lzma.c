@@ -260,22 +260,26 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush) {
 #endif
 
 int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size) {
-    mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
-    int32_t err = size;
-
 #ifdef MZ_ZIP_NO_COMPRESSION
-    MZ_UNUSED(lzma);
+    MZ_UNUSED(stream);
     MZ_UNUSED(buf);
-    err = MZ_SUPPORT_ERROR;
+    MZ_UNUSED(size);
+    return MZ_SUPPORT_ERROR;
 #else
+    mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
+    int32_t err = MZ_OK;
+
     lzma->lstream.next_in = (uint8_t*)(intptr_t)buf;
     lzma->lstream.avail_in = (size_t)size;
 
-    mz_stream_lzma_code(stream, LZMA_RUN);
+    err = mz_stream_lzma_code(stream, LZMA_RUN);
+    if (err != MZ_OK) {
+        return err;
+    }
 
     lzma->total_in += size;
+    return size;
 #endif
-    return err;
 }
 
 int64_t mz_stream_lzma_tell(void *stream) {

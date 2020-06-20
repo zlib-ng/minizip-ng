@@ -235,22 +235,26 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush) {
 #endif
 
 int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size) {
-    mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
-    int32_t err = size;
-
 #ifdef MZ_ZIP_NO_COMPRESSION
-    MZ_UNUSED(bzip);
+    MZ_UNUSED(stream);
     MZ_UNUSED(buf);
-    err = MZ_SUPPORT_ERROR;
+    MZ_UNUSED(size);
+    return MZ_SUPPORT_ERROR;
 #else
+    mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
+    int32_t err = MZ_OK;
+
     bzip->bzstream.next_in = (char *)(intptr_t)buf;
     bzip->bzstream.avail_in = (unsigned int)size;
 
-    mz_stream_bzip_compress(stream, BZ_RUN);
+    err = mz_stream_bzip_compress(stream, BZ_RUN);
+    if (err != MZ_OK) {
+        return err;
+    }
 
     bzip->total_in += size;
+    return size;
 #endif
-    return err;
 }
 
 int64_t mz_stream_bzip_tell(void *stream) {

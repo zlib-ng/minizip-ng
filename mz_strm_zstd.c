@@ -217,25 +217,27 @@ static int32_t mz_stream_zstd_compress(void *stream, ZSTD_EndDirective flush) {
 #endif
 
 int32_t mz_stream_zstd_write(void *stream, const void *buf, int32_t size) {
-    mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
-    int32_t err = size;
-
 #ifdef MZ_ZIP_NO_COMPRESSION
-    MZ_UNUSED(zstd);
+    MZ_UNUSED(stream);
     MZ_UNUSED(buf);
-    err = MZ_SUPPORT_ERROR;
+    MZ_UNUSED(size);
+    return MZ_SUPPORT_ERROR;
 #else
-    size_t result = 0;
+    mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
+    int32_t err = MZ_OK;
 
     zstd->in.src = buf;
     zstd->in.pos = 0;
     zstd->in.size = size;
 
-    mz_stream_zstd_compress(stream, ZSTD_e_continue);
+    err = mz_stream_zstd_compress(stream, ZSTD_e_continue);
+    if (err != MZ_OK) {
+        return err;
+    }
 
     zstd->total_in += size;
+    return size;
 #endif
-    return err;
 }
 
 int64_t mz_stream_zstd_tell(void *stream) {
