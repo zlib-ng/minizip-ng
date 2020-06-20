@@ -113,7 +113,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
     int32_t out_bytes = 0;
     int32_t bytes_to_read = 0;
     int32_t read = 0;
-    size_t error_code = 0;
+    size_t result = 0;
 
     zstd->out.dst = (void*)buf;
     zstd->out.size = (size_t)size;
@@ -140,15 +140,17 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
         total_in_before = zstd->in.pos;
         total_out_before = zstd->out.pos;
 
-        error_code = ZSTD_decompressStream(zstd->zdstream, &zstd->out, &zstd->in);
+        result = ZSTD_decompressStream(zstd->zdstream, &zstd->out, &zstd->in);
 
-        if (ZSTD_isError(error_code)) {
-            zstd->error = error_code;
+        if (ZSTD_isError(result)) {
+            zstd->error = (int32_t)result;
             return MZ_DATA_ERROR;
         }
 
         total_in_after = zstd->in.pos;
         total_out_after = zstd->out.pos;
+        if ((zstd->max_total_out != -1) && (int64_t)total_out_after > zstd->max_total_out)
+            total_out_after = (uint64_t)zstd->max_total_out;
 
         in_bytes = (int32_t)(total_in_after - total_in_before);
         out_bytes = (int32_t)(total_out_after - total_out_before);
@@ -159,8 +161,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
         zstd->total_in += in_bytes;
         zstd->total_out += out_bytes;
 
-
-    } while (zstd->total_in != zstd->max_total_in && zstd->out.pos != zstd->out.size);
+    } while (zstd->in.pos < zstd->in.size && zstd->out.pos < zstd->out.size);
 
     return total_out;
 #endif
@@ -328,6 +329,7 @@ void *mz_stream_zstd_create(void **stream) {
     if (zstd != NULL) {
         memset(zstd, 0, sizeof(mz_stream_zstd));
         zstd->stream.vtbl = &mz_stream_zstd_vtbl;
+        zstd->max_total_out = -1;
     }
     if (stream != NULL)
         *stream = zstd;

@@ -1721,6 +1721,8 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         if (zip->open_mode & MZ_OPEN_MODE_WRITE) {
             mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_COMPRESS_LEVEL, compress_level);
         } else {
+            int32_t set_end_of_stream = 0;
+
 #ifndef HAVE_LIBCOMP
             if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE || zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED)
 #endif
@@ -1735,11 +1737,18 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
             }
-            if ((zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA) && (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER) == 0) {
-                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
-                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
+
+            switch (zip->file_info.compression_method) {
+            case MZ_COMPRESS_METHOD_LZMA:
+                set_end_of_stream = (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER);
+                break;
+            case MZ_COMPRESS_METHOD_ZSTD:
+            case MZ_COMPRESS_METHOD_WZZSTD:
+                set_end_of_stream = 1;
+                break;
             }
-            if ((zip->file_info.compression_method == MZ_COMPRESS_METHOD_ZSTD || zip->file_info.compression_method == MZ_COMPRESS_METHOD_WZZSTD)) {
+
+            if (set_end_of_stream) {
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, zip->file_info.compressed_size);
                 mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_OUT_MAX, zip->file_info.uncompressed_size);
             }
