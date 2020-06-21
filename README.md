@@ -94,16 +94,16 @@ cmake --build .
 
 ## Third-Party Libraries
 
-|Project|License|Comments|
-|-|-|-|
-[bzip2](https://www.sourceware.org/bzip2/)|[bzip2](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|Written by Julian Seward.|
-|[zlib](https://zlib.net/)|zlib|Written by Mark Adler and Jean-loup Gailly. Not included in this repository. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
-|[liblzma](https://tukaani.org/xz/)|Public domain|Written by Igor Pavlov and Lasse Collin. Modifications were made to support the ZIP file format specification.|
-|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|Facebook|
-|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|Written by Brian Gladman.|
-|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|Written by Brian Gladman.|
+|Project|License|CMake Option|Comments|
+|-|-|-|-|
+|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
+[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
+|[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|Written by Igor Pavlov and Lasse Collin. Modifications were made to support the ZIP file format specification.|
+|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
+|[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|Written by Mark Adler and Jean-loup Gailly. Not included in this repository. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
+|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|Written by Facebook. Not included in this repository.|
 
-The minizip project uses the zlib [license](LICENSE).
+This project uses the zlib [license](LICENSE).
 
 ## Acknowledgments
 
