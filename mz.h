@@ -63,8 +63,7 @@
 #define MZ_COMPRESS_METHOD_DEFLATE      (8)
 #define MZ_COMPRESS_METHOD_BZIP2        (12)
 #define MZ_COMPRESS_METHOD_LZMA         (14)
-#define MZ_COMPRESS_METHOD_ZSTD         (20)
-#define MZ_COMPRESS_METHOD_WZZSTD       (93)
+#define MZ_COMPRESS_METHOD_ZSTD         (93)
 #define MZ_COMPRESS_METHOD_AES          (99)
 
 #define MZ_COMPRESS_LEVEL_DEFAULT       (-1)
