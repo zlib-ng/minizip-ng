@@ -1,4 +1,4 @@
-name: CI Fuzz
+name: OSS-Fuzz
 on: [pull_request]
 jobs:
   Fuzzing:
