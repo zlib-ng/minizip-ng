@@ -14,7 +14,7 @@
 /***************************************************************************/
 
 /* MZ_VERSION */
-#define MZ_VERSION                      ("2.9.3")
+#define MZ_VERSION                      ("2.10.0")
 
 /* MZ_ERROR */
 #define MZ_OK                           (0)  /* zlib */
