@@ -129,7 +129,7 @@ if(MZ_ZSTD)
         message(STATUS "Fetching ZSTD ${ZSTD_REPOSITORY}")
 
         if(${CMAKE_VERSION} VERSION_LESS "3.11")
-            message(FATAL_ERROR "CMake 3.11 required to fetch zlib")
+            message(FATAL_ERROR "CMake 3.11 required to fetch zstd")
         else()
             include(FetchContent)
 
