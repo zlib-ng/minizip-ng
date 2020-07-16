@@ -109,9 +109,39 @@ install(TARGETS minizip EXPORT minizip-exports
   LIBRARY DESTINATION "lib"
   ARCHIVE DESTINATION "lib")
 
+set(INSTALL_CMAKE_DIR "cmake")
 install(EXPORT minizip-exports
-        DESTINATION "cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}"
         NAMESPACE "MINIZIP::")
+
+# Create and install CMake package config version file to allow find_package()
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/minizip-config-version.cmake"
+  VERSION 1.2
+  COMPATIBILITY SameMajorVersion)
+
+# Create config for find_package()
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in"
+"
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+find_dependency(ZLIB)
+include(\"\${CMAKE_CURRENT_LIST_DIR}/minizip-exports.cmake\")
+check_required_components(minizip)
+")
+
+configure_package_config_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in"
+  minizip-config.cmake
+  INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}"
+  NO_SET_AND_CHECK_MACRO)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/minizip-config-version.cmake"
+              "${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake"
+        DESTINATION "${INSTALL_CMAKE_DIR}")
 
 install(FILES ${MINIZIP_PUBLIC_HEADERS}
   DESTINATION "include/minizip")
