@@ -801,6 +801,8 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     configure_package_config_file(minizipConfig.cmake.in minizipConfig.cmake
         INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}")
 
+    file(REMOVE minizipConfig.cmake.in)
+
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/minizipConfigVersion.cmake
                   ${CMAKE_CURRENT_BINARY_DIR}/minizipConfig.cmake
             DESTINATION "${INSTALL_CMAKE_DIR}")
