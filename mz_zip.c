@@ -1224,7 +1224,7 @@ static int32_t mz_zip_recover_cd(void *handle) {
             mz_stream_seek(zip->stream, local_file_info.compressed_size, MZ_SEEK_CUR);
         }
 
-        while (1) {
+        for (;;) {
             /* Search for the next local header */
             err = mz_stream_find(zip->stream, (const void *)local_header_magic, sizeof(local_header_magic),
                     INT64_MAX, &next_header_pos);
@@ -1267,6 +1267,8 @@ static int32_t mz_zip_recover_cd(void *handle) {
                     }
 
                     compressed_end_pos = descriptor_pos;
+                } else if (eof) {
+                    compressed_end_pos = next_header_pos;
                 } else if (local_file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) {
                     /* Wrong local file entry found, keep searching */
                     next_header_pos += 1;
