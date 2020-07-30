@@ -792,19 +792,19 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
 
     # Create and install CMake package config version file to allow find_package()
     include(CMakePackageConfigHelpers)
-    write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/minizipConfigVersion.cmake
+    write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/minizip-config-version.cmake
         COMPATIBILITY SameMajorVersion)
 
-    file(WRITE minizipConfig.cmake.in "@PACKAGE_INIT@")
+    file(WRITE minizip-config.cmake.in "@PACKAGE_INIT@")
 
     # Create config for find_package()
-    configure_package_config_file(minizipConfig.cmake.in minizipConfig.cmake
+    configure_package_config_file(minizip-config.cmake.in minizip-config.cmake
         INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}")
 
-    file(REMOVE minizipConfig.cmake.in)
+    file(REMOVE minizip-config.cmake.in)
 
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/minizipConfigVersion.cmake
-                  ${CMAKE_CURRENT_BINARY_DIR}/minizipConfig.cmake
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/minizip-config-version.cmake
+                  ${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake
             DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
