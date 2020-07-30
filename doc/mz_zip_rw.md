@@ -42,6 +42,7 @@ The _mz_zip_reader_ and _mz_zip_writer_ objects allows you to easily extract or 
   - [mz_zip_reader_get_raw](#mz_zip_reader_get_raw)
   - [mz_zip_reader_get_zip_cd](#mz_zip_reader_get_zip_cd)
   - [mz_zip_reader_get_comment](#mz_zip_reader_get_comment)
+  - [mz_zip_reader_set_recover](#mz_zip_reader_set_recover)
   - [mz_zip_reader_set_encoding](#mz_zip_reader_set_encoding)
   - [mz_zip_reader_set_sign_required](#mz_zip_reader_set_sign_required)
   - [mz_zip_reader_set_overwrite_cb](#mz_zip_reader_set_overwrite_cb)
@@ -974,6 +975,26 @@ const char *global_comment = NULL;
 if (mz_zip_reader_get_comment(zip_reader, &global_comment) == MZ_OK) {
     printf("Zip comment: %s\n", global_comment);
 }
+```
+
+### mz_zip_reader_set_recover
+
+Sets the ability to recover the central dir by reading local file headers.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_reader_ instance|
+|uint8_t|recover|Set to 1 if recover method is supported, 0 otherwise.|
+
+**Return**
+|Type|Description|
+|-|-|
+|void|No return|
+
+**Example**
+```
+mz_zip_reader_set_recover(zip_reader, 1);
 ```
 
 ### mz_zip_reader_set_encoding

@@ -125,6 +125,9 @@ int32_t mz_zip_reader_get_zip_cd(void *handle, uint8_t *zip_cd);
 int32_t mz_zip_reader_get_comment(void *handle, const char **comment);
 /* Gets the comment for the central directory */
 
+int32_t mz_zip_reader_set_recover(void *handle, uint8_t recover);
+/* Sets the ability to recover the central dir by reading local file headers */
+
 void    mz_zip_reader_set_encoding(void *handle, int32_t encoding);
 /* Sets whether or not it should support a special character encoding in zip file names. */
 

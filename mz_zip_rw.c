@@ -62,6 +62,7 @@ typedef struct mz_zip_reader_s {
     uint8_t     cd_verified;
     uint8_t     cd_zipped;
     uint8_t     entry_verified;
+    uint8_t     recover;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -83,7 +84,7 @@ int32_t mz_zip_reader_open(void *handle, void *stream) {
     reader->cd_zipped = 0;
 
     mz_zip_create(&reader->zip_handle);
-    mz_zip_set_recover(reader->zip_handle, 1);
+    mz_zip_set_recover(reader->zip_handle, reader->recover);
 
     err = mz_zip_open(reader->zip_handle, stream, MZ_OPEN_MODE_READ);
 
@@ -906,6 +907,14 @@ int32_t mz_zip_reader_get_comment(void *handle, const char **comment) {
     return mz_zip_get_comment(reader->zip_handle, comment);
 }
 
+int32_t mz_zip_reader_set_recover(void *handle, uint8_t recover) {
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    if (reader == NULL)
+        return MZ_PARAM_ERROR;
+    reader->recover = recover;
+    return MZ_OK;
+}
+
 void mz_zip_reader_set_encoding(void *handle, int32_t encoding) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     reader->encoding = encoding;
@@ -963,6 +972,7 @@ void *mz_zip_reader_create(void **handle) {
     reader = (mz_zip_reader *)MZ_ALLOC(sizeof(mz_zip_reader));
     if (reader != NULL) {
         memset(reader, 0, sizeof(mz_zip_reader));
+        reader->recover = 1;
         reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
         *handle = reader;
     }
