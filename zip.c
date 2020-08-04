@@ -903,12 +903,12 @@ extern zipFile ZEXPORT zipOpen3_64(const void *path, int append, uint64_t disk_s
 
 extern zipFile ZEXPORT zipOpen(const char *path, int append)
 {
-    return zipOpen3((const void*)path, append, 0, NULL, NULL);
+    return zipOpen3(path, append, 0, NULL, NULL);
 }
 
 extern zipFile ZEXPORT zipOpen64(const void *path, int append)
 {
-    return zipOpen3(path, append, 0, NULL, NULL);
+    return zipOpen3_64(path, append, 0, NULL, NULL);
 }
 
 extern int ZEXPORT zipOpenNewFileInZip_internal(zipFile file,
