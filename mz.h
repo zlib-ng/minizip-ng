@@ -158,9 +158,13 @@
 #include <string.h> /* memset, strncpy, strlen */
 #include <limits.h>
 
-#if defined(HAVE_STDINT_H) || \
-   (defined(__has_include) && __has_include(<stdint.h>))
+#if defined(HAVE_STDINT_H)
 #  include <stdint.h>
+#endif
+#if defined(__has_include)
+#if __has_include(<stdint.h>)
+#  include <stdint.h>
+#endif
 #endif
 
 #ifndef __INT8_TYPE__
@@ -188,9 +192,13 @@ typedef unsigned int       uint32_t;
 typedef unsigned long long uint64_t;
 #endif
 
-#if defined(HAVE_INTTYPES_H) || \
-   (defined(__has_include) && __has_include(<inttypes.h>))
+#if defined(HAVE_INTTYPES_H)
 #  include <inttypes.h>
+#endif
+#if defined(__has_include)
+#if __has_include(<inttypes.h>)
+#  include <inttypes.h>
+#endif
 #endif
 
 #ifndef PRId8
