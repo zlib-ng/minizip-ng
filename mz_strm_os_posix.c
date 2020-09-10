@@ -32,12 +32,6 @@
 #    define ftello64 _ftelli64
 #    define fseeko64 _fseeki64
 #  endif
-#else
-#  if defined(__ANDROID_API__) && (__ANDROID_API__ < 21)
-#    include <unistd.h>
-#    define fseeko64(s,o,w) \
-        (lseek64(fileno(s),o,w) >= 0 ? 0 : -1)
-#  endif
 #endif
 #ifndef ftello64
 #  define ftello64 ftell
