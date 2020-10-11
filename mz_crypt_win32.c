@@ -258,6 +258,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
             result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, 0, &aes->key);
 
+            SecureZeroMemory(key_blob, key_blob_size);
             MZ_FREE(key_blob);
         } else {
             err = MZ_MEM_ERROR;
@@ -380,11 +381,15 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         hmac->error = GetLastError();
         err = MZ_CRYPT_ERROR;
     } else {
+        /* Zero-pad odd key lengths */
+        if (key_length % 2 == 1)
+            key_length += 1;
         key_blob_size = sizeof(key_blob_header_s) + key_length;
         key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
     }
 
     if (key_blob) {
+        memset(key_blob, 0, key_blob_size);
         key_blob_s = (key_blob_header_s *)key_blob;
         key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
         key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
@@ -400,6 +405,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         if (result)
             result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
 
+        SecureZeroMemory(key_blob, key_blob_size);
         MZ_FREE(key_blob);
     } else if (err == MZ_OK) {
         err = MZ_MEM_ERROR;

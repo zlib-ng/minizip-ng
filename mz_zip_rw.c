@@ -1294,7 +1294,6 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
     return err;
 }
 
-
 #if !defined(MZ_ZIP_NO_ENCRYPTION) && defined(MZ_ZIP_SIGNING)
 int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size,
     uint8_t *cert_data, int32_t cert_data_size, const char *cert_pwd) {
