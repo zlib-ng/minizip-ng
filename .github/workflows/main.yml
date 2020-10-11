@@ -163,7 +163,7 @@ jobs:
           - name: Windows MSVC
             os: windows-latest
             compiler: cl
-            deploy: true	
+            deploy: true
             deploy-name: windows
 
           - name: Windows GCC
@@ -199,17 +199,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v1
 
-    - name: Set environment variables (Windows)
-      run:  echo "::set-env name=temp::$($env:TEMP)"
-
-    - name: Cache packages (Windows)
-      uses: actions/cache@v2
-      if: runner.os == 'Windows'
-      with:
-        key: minizip-win-choco-${{matrix.compiler}}
-        path: |
-          ${{env.temp}}\chocolatey\
-
     - name: Install packages (macOS)
       if: runner.os == 'macOS'
       run: |
@@ -226,17 +215,10 @@ jobs:
       run: |
         choco install ninja --no-progress
 
-    - name: Install packages (Windows/GCC)
-      if: runner.os == 'Windows' && matrix.codecov && matrix.compiler == 'gcc'
-      # Use gcov-7 via mingw on windows because gcov-8 throws tons of warnings
-      # https://partner-bugzilla.redhat.com/show_bug.cgi?id=1577508
-      run: |
-        choco install mingw --version=7.3.0 --force --allow-downgrade --no-progress
-
     - name: Install codecov.io tools
       if: matrix.codecov
       run: |
-        python -u -m pip install git+https://github.com/codecov/codecov-python.git
+        python -u -m pip install codecov
 
     - name: Generate project files
       run: |
