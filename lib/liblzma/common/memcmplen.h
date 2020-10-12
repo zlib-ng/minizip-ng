@@ -16,11 +16,7 @@
 #include "common.h"
 
 #ifdef HAVE_IMMINTRIN_H
-#if (defined(__GNUC__) && defined(__SSE2_MATH__)) || \
-    (defined(__INTEL_COMPILER) && defined(__SSE2__)) || \
-    (defined(_MSC_VER) && defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #	include <immintrin.h>
-#endif
 #endif
 
 
@@ -65,11 +61,9 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 	// to __builtin_clzll().
 #define LZMA_MEMCMPLEN_EXTRA 8
 	while (len < limit) {
-		const uint64_t x = *(const uint64_t *)(buf1 + len)
-				- *(const uint64_t *)(buf2 + len);
+		const uint64_t x = read64ne(buf1 + len) - read64ne(buf2 + len);
 		if (x != 0) {
-#	if defined(_M_X64) && defined(_WIN32) \
-		&& (defined(_MSC_VER) || defined(__INTEL_COMPILER)) // MSVC or Intel C compiler on Windows
+#	if defined(_M_X64) // MSVC or Intel C compiler on Windows
 			unsigned long tmp;
 			_BitScanForward64(&tmp, x);
 			len += (uint32_t)tmp >> 3;
@@ -104,15 +98,7 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 			_mm_loadu_si128((const __m128i *)(buf2 + len))));
 
 		if (x != 0) {
-#	if defined(__INTEL_COMPILER)
-			len += _bit_scan_forward(x);
-#	elif defined(_MSC_VER)
-			unsigned long tmp = 0;
-			_BitScanForward(&tmp, x);
-			len += tmp;
-#	else
-			len += __builtin_ctz(x);
-#	endif
+			len += ctz32(x);
 			return my_min(len, limit);
 		}
 
@@ -125,8 +111,7 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 	// Generic 32-bit little endian method
 #	define LZMA_MEMCMPLEN_EXTRA 4
 	while (len < limit) {
-		uint32_t x = *(const uint32_t *)(buf1 + len)
-				- *(const uint32_t *)(buf2 + len);
+		uint32_t x = read32ne(buf1 + len) - read32ne(buf2 + len);
 		if (x != 0) {
 			if ((x & 0xFFFF) == 0) {
 				len += 2;
@@ -148,8 +133,7 @@ lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
 	// Generic 32-bit big endian method
 #	define LZMA_MEMCMPLEN_EXTRA 4
 	while (len < limit) {
-		uint32_t x = *(const uint32_t *)(buf1 + len)
-				^ *(const uint32_t *)(buf2 + len);
+		uint32_t x = read32ne(buf1 + len) ^ read32ne(buf2 + len);
 		if (x != 0) {
 			if ((x & 0xFFFF0000) == 0) {
 				len += 2;

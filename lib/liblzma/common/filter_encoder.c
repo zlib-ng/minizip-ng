@@ -163,8 +163,7 @@ static const lzma_filter_encoder encoders[] = {
 static const lzma_filter_encoder *
 encoder_find(lzma_vli id)
 {
-	size_t i = 0;
-	for (i = 0; i < ARRAY_SIZE(encoders); ++i)
+	for (size_t i = 0; i < ARRAY_SIZE(encoders); ++i)
 		if (encoders[i].id == id)
 			return encoders + i;
 
@@ -183,9 +182,8 @@ extern uint64_t
 lzma_mt_block_size(const lzma_filter *filters)
 {
 	uint64_t max = 0;
-	size_t i = 0;
 
-	for (i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
+	for (size_t i = 0; filters[i].id != LZMA_VLI_UNKNOWN; ++i) {
 		const lzma_filter_encoder *const fe
 				= encoder_find(filters[i].id);
 		if (fe->block_size != NULL) {
