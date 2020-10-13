@@ -273,6 +273,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     /* Create zip writer */
     mz_zip_writer_create(&writer);
     mz_zip_writer_set_password(writer, password);
+    mz_zip_writer_set_aes(writer, options->aes);
     mz_zip_writer_set_compress_method(writer, options->compress_method);
     mz_zip_writer_set_compress_level(writer, options->compress_level);
     mz_zip_writer_set_follow_links(writer, options->follow_links);
