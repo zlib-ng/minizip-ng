@@ -43,7 +43,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
 
     mz_stream_mem_create(&stream);
-    mz_stream_mem_set_buffer(stream, (void *)data, size);
+    mz_stream_mem_set_buffer(stream, (void *)data, (int32_t)size);
 
     mz_zip_create(&handle);
 

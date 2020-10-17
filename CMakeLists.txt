@@ -951,6 +951,7 @@ if(MZ_BUILD_FUZZ_TEST)
         set_target_properties(${target} PROPERTIES LINKER_LANGUAGE CXX)
         target_compile_definitions(${target} PRIVATE ${STDLIB_DEF})
         target_include_directories(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        target_link_libraries(${target} ${PROJECT_NAME})
 
         add_dependencies(${target} ${PROJECT_NAME})
         if(FUZZING_ENGINE_FOUND)
