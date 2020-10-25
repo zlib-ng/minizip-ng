@@ -1751,6 +1751,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 
             switch (zip->file_info.compression_method) {
             case MZ_COMPRESS_METHOD_LZMA:
+            case MZ_COMPRESS_METHOD_XZ:
                 set_end_of_stream = (zip->file_info.flag & MZ_ZIP_FLAG_LZMA_EOS_MARKER);
                 break;
             case MZ_COMPRESS_METHOD_ZSTD:
@@ -1921,7 +1922,8 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
             zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
     }
 #ifdef HAVE_LZMA
-    else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA)
+    else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA ||
+             zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ)
         zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;
 #endif
 
@@ -2671,8 +2673,7 @@ int32_t mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignore
 const char* mz_zip_get_compression_method_string(int32_t compression_method)
 {
     const char *method = "?";
-    switch (compression_method)
-    {
+    switch (compression_method) {
     case MZ_COMPRESS_METHOD_STORE:
         method = "stored";
         break;
