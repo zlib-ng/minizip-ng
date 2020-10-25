@@ -312,7 +312,7 @@ int32_t mz_stream_libcomp_get_prop_int64(void *stream, int32_t prop, int64_t *va
 int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t value) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
     switch (prop) {
-    case MZ_STREAM_PROP_COMPRESS_ALGORITHM:
+    case MZ_STREAM_PROP_COMPRESS_METHOD:
         libcomp->algorithm = (int16_t)value;
         break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
