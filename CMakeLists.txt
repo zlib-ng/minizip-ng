@@ -120,7 +120,7 @@ if(NOT HAVE_FSEEKO)
 endif()
 
 # Checkout remote repository
-macro(clone_repo name url cmake_dir)
+macro(clone_repo name url)
     if(NOT ${name}_REPOSITORY)
         set(${name}_REPOSITORY ${url})
     endif()
@@ -149,10 +149,6 @@ macro(clone_repo name url cmake_dir)
 
         if(NOT ${name}_POPULATED)
             FetchContent_Populate(${name})
-
-            # Don't automatically add all targets to the solution
-            add_subdirectory(${${name}_SOURCE_DIR}${cmake_dir} ${${name}_BINARY_DIR}
-                EXCLUDE_FROM_ALL)
         endif()
     endif()
 endmacro()
@@ -179,7 +175,10 @@ if(MZ_ZLIB)
 
             set(PC_PRIVATE_LIBS " -lz")
         else()
-            clone_repo(ZLIB https://github.com/madler/zlib /)
+            clone_repo(ZLIB https://github.com/madler/zlib)
+
+            # Don't automatically add all targets to the solution
+            add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
 
             list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
             # Have to add zlib to install targets
@@ -211,6 +210,10 @@ if(MZ_BZIP2)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
     else()
+        clone_repo(BZIP2 https://sourceware.org/git/bzip2.git)
+
+        # BZip2 repository does not support cmake so we have to create
+        # the bzip2 library ourselves
         set(BZIP2_SRC
             lib/bzip2/blocksort.c
             lib/bzip2/bzlib.c
@@ -260,6 +263,9 @@ if(MZ_LZMA)
     else()
         clone_repo(LIBLZMA https://git.tukaani.org/xz.git /)
 
+        # Don't automatically add all targets to the solution
+        add_subdirectory(${LIBLZMA_SOURCE_DIR} ${LIBLZMA_BINARY_DIR} EXCLUDE_FROM_ALL)
+
         list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
         list(APPEND MINIZIP_DEP liblzma)
         list(APPEND MINIZIP_LIB ${LIBLZMA_TARGET})
@@ -292,7 +298,10 @@ if(MZ_ZSTD)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     else()
-        clone_repo(ZSTD https://github.com/facebook/zstd /build/cmake)
+        clone_repo(ZSTD https://github.com/facebook/zstd)
+
+        # Don't automatically add all targets to the solution
+        add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake ${ZSTD_BINARY_DIR} EXCLUDE_FROM_ALL)
 
         list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
         if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})

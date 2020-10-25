@@ -97,7 +97,7 @@ cmake --build .
 |Project|License|CMake Option|Included|Comments|
 |-|-|-|:-:|-|
 |[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
-[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|YES|Written by Julian Seward.|
+[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|NO|Written by Julian Seward.|
 |[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|NO|Written by Igor Pavlov and Lasse Collin.|
 |[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
 |[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|NO|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
