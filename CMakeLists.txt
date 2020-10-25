@@ -126,7 +126,7 @@ if(MZ_ZLIB)
         list(APPEND MINIZIP_HDR mz_strm_libcomp.h)
         list(APPEND MINIZIP_LIB compression)
     else()
-        # Check if zlib installation is present
+        # Check if zlib is present
         if(NOT ZLIB_FORCE_FETCH)
             find_package(ZLIB QUIET)
         endif()
@@ -189,13 +189,13 @@ if(MZ_ZLIB)
 endif()
 
 if(MZ_ZSTD)
-    # Check if zstd installation is present
+    # Check if zstd is present
     if(NOT ZSTD_FORCE_FETCH)
         find_package(ZSTD QUIET)
     endif()
 
     if(ZSTD_FOUND AND NOT ZSTD_FORCE_FETCH)
-        message(STATUS "Using ZSTD")
+        message(STATUS "Using ZSTD ${ZSTD_VERSION_STRING}")
 
         list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
         list(APPEND MINIZIP_LIB ${ZSTD_LIBRARIES})
@@ -245,7 +245,7 @@ if(MZ_ZSTD)
 endif()
 
 if(MZ_BZIP2)
-    # Check if bzip2 installation is present
+    # Check if bzip2 is present
     find_package(BZip2)
     if(BZIP2_FOUND)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
@@ -279,6 +279,162 @@ if(MZ_BZIP2)
     list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
     list(APPEND MINIZIP_SRC mz_strm_bzip.c)
     list(APPEND MINIZIP_HDR mz_strm_bzip.h)
+endif()
+
+if(MZ_LZMA)
+    # Check if liblzma is present
+    find_package(PkgConfig)
+    if(PKGCONFIG_FOUND)
+        pkg_check_modules(LZMA liblzma)
+    endif()
+
+    if(LZMA_FOUND)
+        message(STATUS "Using LZMA ${LZMA_VERSION_STRING}")
+
+        list(APPEND MINIZIP_INC ${LZMA_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${LZMA_LIBRARIES})
+
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
+    else()
+        set(LZMA_CHECK_SRC
+            lib/liblzma/check/check.c
+            lib/liblzma/check/crc32_fast.c
+            lib/liblzma/check/crc32_table.c)
+        set(LZMA_COMMON_SRC
+            lib/liblzma/common/alone_decoder.c
+            lib/liblzma/common/alone_encoder.c
+            lib/liblzma/common/common.c
+            lib/liblzma/common/filter_encoder.c)
+        set(LZMA_LZ_SRC
+            lib/liblzma/lz/lz_decoder.c
+            lib/liblzma/lz/lz_encoder.c
+            lib/liblzma/lz/lz_encoder_mf.c)
+        set(LZMA_LZMA_SRC
+            lib/liblzma/lzma/fastpos.h
+            lib/liblzma/lzma/fastpos_table.c
+            lib/liblzma/lzma/lzma_decoder.c
+            lib/liblzma/lzma/lzma_encoder.c
+            lib/liblzma/lzma/lzma_encoder_optimum_fast.c
+            lib/liblzma/lzma/lzma_encoder_optimum_normal.c
+            lib/liblzma/lzma/lzma_encoder_presets.c)
+        set(LZMA_RANGECODER_SRC
+            lib/liblzma/rangecoder/price_table.c)
+
+        set(LZMA_CONFIG_HDR
+            lib/liblzma/config.h)
+        set(LZMA_API_HDR
+            lib/liblzma/api/lzma.h
+            lib/liblzma/api/lzma/base.h
+            lib/liblzma/api/lzma/check.h
+            lib/liblzma/api/lzma/container.h
+            lib/liblzma/api/lzma/filter.h
+            lib/liblzma/api/lzma/lzma12.h
+            lib/liblzma/api/lzma/version.h
+            lib/liblzma/api/lzma/vli.h)
+        set(LZMA_CHECK_HDR
+            lib/liblzma/check/check.h
+            lib/liblzma/check/crc32_table_be.h
+            lib/liblzma/check/crc32_table_le.h
+            lib/liblzma/check/crc_macros.h)
+        set(LZMA_COMMON_HDR
+            lib/liblzma/common/alone_decoder.h
+            lib/liblzma/common/common.h
+            lib/liblzma/common/filter_encoder.h
+            lib/liblzma/common/index.h
+            lib/liblzma/common/memcmplen.h
+            lib/liblzma/common/sysdefs.h
+            lib/liblzma/common/tuklib_common.h
+            lib/liblzma/common/tuklib_config.h
+            lib/liblzma/common/tuklib_integer.h)
+        set(LZMA_LZ_HDR
+            lib/liblzma/lz/lz_decoder.h
+            lib/liblzma/lz/lz_encoder.h
+            lib/liblzma/lz/lz_encoder_hash.h
+            lib/liblzma/lz/lz_encoder_hash_table.h)
+        set(LZMA_LZMA_HDR
+            lib/liblzma/lzma/lzma2_encoder.h
+            lib/liblzma/lzma/lzma_common.h
+            lib/liblzma/lzma/lzma_decoder.h
+            lib/liblzma/lzma/lzma_encoder.h
+            lib/liblzma/lzma/lzma_encoder_private.h)
+        set(LZMA_RANGECODER_HDR
+            lib/liblzma/rangecoder/price.h
+            lib/liblzma/rangecoder/range_common.h
+            lib/liblzma/rangecoder/range_decoder.h
+            lib/liblzma/rangecoder/range_encoder.h)
+
+        set(LZMA_HDR
+            ${LZMA_CONFIG_HDR}
+            ${LZMA_API_HDR}
+            ${LZMA_CHECK_HDR}
+            ${LZMA_COMMON_HDR}
+            ${LZMA_LZ_HDR}
+            ${LZMA_LZMA_HDR}
+            ${LZMA_RANGECODER_HDR})
+
+        set(LZMA_SRC
+            ${LZMA_CHECK_SRC}
+            ${LZMA_COMMON_SRC}
+            ${LZMA_LZ_SRC}
+            ${LZMA_LZMA_SRC}
+            ${LZMA_RANGECODER_SRC})
+
+        add_library(lzma STATIC ${LZMA_SRC} ${LZMA_HDR})
+
+        source_group("Config" FILES ${LZMA_CONFIG_HDR})
+        source_group("API" FILES ${LZMA_API_HDR})
+        source_group("Check" FILES ${LZMA_CHECK_SRC} ${LZMA_CHECK_HDR})
+        source_group("Common" FILES ${LZMA_COMMON_SRC} ${LZMA_COMMON_HDR})
+        source_group("LZ" FILES ${LZMA_LZ_SRC} ${LZMA_LZ_HDR})
+        source_group("LZMA" FILES ${LZMA_LZMA_SRC} ${LZMA_LZMA_HDR})
+        source_group("RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HDR})
+
+        check_include_file(limits.h     HAVE_LIMITS_H)
+        check_include_file(string.h     HAVE_STRING_H)
+        check_include_file(strings.h    HAVE_STRINGS_H)
+        check_include_file(memory.h     HAVE_MEMORY_H)
+        check_include_file(stdbool.h    HAVE_STDBOOL_H)
+        check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
+
+        target_compile_definitions(lzma PRIVATE -DLZMA_API_STATIC -DHAVE_CONFIG_H)
+        if(HAVE_STRING_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_STRING_H)
+        endif()
+        if(HAVE_STRINGS_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_STRINGS_H)
+        endif()
+        if(HAVE_MEMORY_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_MEMORY_H)
+        endif()
+        if(HAVE_STDBOOL_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_STDBOOL_H)
+        endif()
+        if(HAVE_STDINT_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_STDINT_H)
+        endif()
+        if(HAVE_INTTYPES_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_INTTYPES_H)
+        endif()
+        if(HAVE_IMMINTRIN_H)
+            target_compile_definitions(lzma PRIVATE -DHAVE_IMMINTRIN_H)
+        endif()
+
+        target_include_directories(lzma PRIVATE
+            lib/liblzma
+            lib/liblzma/api
+            lib/liblzma/check
+            lib/liblzma/common
+            lib/liblzma/lz
+            lib/liblzma/lzma
+            lib/liblzma/rangecoder)
+
+        list(APPEND MINIZIP_INC lib/liblzma/api)
+        list(APPEND MINIZIP_DEP lzma)
+    endif()
+
+    list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
+    list(APPEND MINIZIP_SRC mz_strm_lzma.c)
+    list(APPEND MINIZIP_HDR mz_strm_lzma.h)
 endif()
 
 if(MZ_OPENSSL)
@@ -474,147 +630,6 @@ if(MZ_BRG)
     list(APPEND MINIZIP_SRC mz_crypt_brg.c)
     list(APPEND MINIZIP_INC lib/brg)
     list(APPEND MINIZIP_DEP brg)
-endif()
-
-# Include LZMA
-if(MZ_LZMA)
-    set(LZMA_CHECK_SRC
-        lib/liblzma/check/check.c
-        lib/liblzma/check/crc32_fast.c
-        lib/liblzma/check/crc32_table.c)
-    set(LZMA_COMMON_SRC
-        lib/liblzma/common/alone_decoder.c
-        lib/liblzma/common/alone_encoder.c
-        lib/liblzma/common/common.c
-        lib/liblzma/common/filter_encoder.c)
-    set(LZMA_LZ_SRC
-        lib/liblzma/lz/lz_decoder.c
-        lib/liblzma/lz/lz_encoder.c
-        lib/liblzma/lz/lz_encoder_mf.c)
-    set(LZMA_LZMA_SRC
-        lib/liblzma/lzma/fastpos.h
-        lib/liblzma/lzma/fastpos_table.c
-        lib/liblzma/lzma/lzma_decoder.c
-        lib/liblzma/lzma/lzma_encoder.c
-        lib/liblzma/lzma/lzma_encoder_optimum_fast.c
-        lib/liblzma/lzma/lzma_encoder_optimum_normal.c
-        lib/liblzma/lzma/lzma_encoder_presets.c)
-    set(LZMA_RANGECODER_SRC
-        lib/liblzma/rangecoder/price_table.c)
-
-    set(LZMA_CONFIG_HDR
-        lib/liblzma/config.h)
-    set(LZMA_API_HDR
-        lib/liblzma/api/lzma.h
-        lib/liblzma/api/lzma/base.h
-        lib/liblzma/api/lzma/check.h
-        lib/liblzma/api/lzma/container.h
-        lib/liblzma/api/lzma/filter.h
-        lib/liblzma/api/lzma/lzma12.h
-        lib/liblzma/api/lzma/version.h
-        lib/liblzma/api/lzma/vli.h)
-    set(LZMA_CHECK_HDR
-        lib/liblzma/check/check.h
-        lib/liblzma/check/crc32_table_be.h
-        lib/liblzma/check/crc32_table_le.h
-        lib/liblzma/check/crc_macros.h)
-    set(LZMA_COMMON_HDR
-        lib/liblzma/common/alone_decoder.h
-        lib/liblzma/common/common.h
-        lib/liblzma/common/filter_encoder.h
-        lib/liblzma/common/index.h
-        lib/liblzma/common/memcmplen.h
-        lib/liblzma/common/sysdefs.h
-        lib/liblzma/common/tuklib_common.h
-        lib/liblzma/common/tuklib_config.h
-        lib/liblzma/common/tuklib_integer.h)
-    set(LZMA_LZ_HDR
-        lib/liblzma/lz/lz_decoder.h
-        lib/liblzma/lz/lz_encoder.h
-        lib/liblzma/lz/lz_encoder_hash.h
-        lib/liblzma/lz/lz_encoder_hash_table.h)
-    set(LZMA_LZMA_HDR
-        lib/liblzma/lzma/lzma2_encoder.h
-        lib/liblzma/lzma/lzma_common.h
-        lib/liblzma/lzma/lzma_decoder.h
-        lib/liblzma/lzma/lzma_encoder.h
-        lib/liblzma/lzma/lzma_encoder_private.h)
-    set(LZMA_RANGECODER_HDR
-        lib/liblzma/rangecoder/price.h
-        lib/liblzma/rangecoder/range_common.h
-        lib/liblzma/rangecoder/range_decoder.h
-        lib/liblzma/rangecoder/range_encoder.h)
-
-    set(LZMA_HDR
-        ${LZMA_CONFIG_HDR}
-        ${LZMA_API_HDR}
-        ${LZMA_CHECK_HDR}
-        ${LZMA_COMMON_HDR}
-        ${LZMA_LZ_HDR}
-        ${LZMA_LZMA_HDR}
-        ${LZMA_RANGECODER_HDR})
-
-    set(LZMA_SRC
-        ${LZMA_CHECK_SRC}
-        ${LZMA_COMMON_SRC}
-        ${LZMA_LZ_SRC}
-        ${LZMA_LZMA_SRC}
-        ${LZMA_RANGECODER_SRC})
-
-    add_library(lzma STATIC ${LZMA_SRC} ${LZMA_HDR})
-
-    source_group("Config" FILES ${LZMA_CONFIG_HDR})
-    source_group("API" FILES ${LZMA_API_HDR})
-    source_group("Check" FILES ${LZMA_CHECK_SRC} ${LZMA_CHECK_HDR})
-    source_group("Common" FILES ${LZMA_COMMON_SRC} ${LZMA_COMMON_HDR})
-    source_group("LZ" FILES ${LZMA_LZ_SRC} ${LZMA_LZ_HDR})
-    source_group("LZMA" FILES ${LZMA_LZMA_SRC} ${LZMA_LZMA_HDR})
-    source_group("RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HDR})
-
-    check_include_file(limits.h     HAVE_LIMITS_H)
-    check_include_file(string.h     HAVE_STRING_H)
-    check_include_file(strings.h    HAVE_STRINGS_H)
-    check_include_file(memory.h     HAVE_MEMORY_H)
-    check_include_file(stdbool.h    HAVE_STDBOOL_H)
-    check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
-
-    target_compile_definitions(lzma PRIVATE -DLZMA_API_STATIC -DHAVE_CONFIG_H)
-    if(HAVE_STRING_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_STRING_H)
-    endif()
-    if(HAVE_STRINGS_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_STRINGS_H)
-    endif()
-    if(HAVE_MEMORY_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_MEMORY_H)
-    endif()
-    if(HAVE_STDBOOL_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_STDBOOL_H)
-    endif()
-    if(HAVE_STDINT_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_STDINT_H)
-    endif()
-    if(HAVE_INTTYPES_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_INTTYPES_H)
-    endif()
-    if(HAVE_IMMINTRIN_H)
-        target_compile_definitions(lzma PRIVATE -DHAVE_IMMINTRIN_H)
-    endif()
-
-    target_include_directories(lzma PRIVATE
-        lib/liblzma
-        lib/liblzma/api
-        lib/liblzma/check
-        lib/liblzma/common
-        lib/liblzma/lz
-        lib/liblzma/lzma
-        lib/liblzma/rangecoder)
-
-    list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
-    list(APPEND MINIZIP_SRC mz_strm_lzma.c)
-    list(APPEND MINIZIP_HDR mz_strm_lzma.h)
-    list(APPEND MINIZIP_INC lib/liblzma/api)
-    list(APPEND MINIZIP_DEP lzma)
 endif()
 
 # Include compatibility layer
