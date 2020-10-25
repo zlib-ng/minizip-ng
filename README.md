@@ -36,7 +36,7 @@ the library as version 2 because it had become difficult to maintain and code re
 + Adding and removing entries from zip archives.
 + Read and write raw zip entry data.
 + Reading and writing zip archives from memory.
-+ Zlib, BZIP2, LZMA, and ZSTD compression methods.
++ Zlib, BZIP2, LZMA, XZ, and ZSTD compression methods.
 + Password protection through Traditional PKWARE and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
 + Buffered streaming for improved I/O performance.
 + NTFS timestamp support for UTC last modified, last accessed, and creation dates.
@@ -74,7 +74,7 @@ cmake --build .
 | MZ_COMPAT          | Enables compatibility layer           |      ON       |
 | MZ_ZLIB            | Enables ZLIB compression              |      ON       |
 | MZ_BZIP2           | Enables BZIP2 compression             |      ON       |
-| MZ_LZMA            | Enables LZMA compression              |      ON       |
+| MZ_LZMA            | Enables LZMA & XZ compression         |      ON       |
 | MZ_ZSTD            | Enables ZSTD compression              |      ON       |
 | MZ_PKCRYPT         | Enables PKWARE traditional encryption |      ON       |
 | MZ_WZAES           | Enables WinZIP AES encryption         |      ON       |
@@ -94,14 +94,16 @@ cmake --build .
 
 ## Third-Party Libraries
 
-|Project|License|CMake Option|Comments|
-|-|-|-|-|
-|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
-[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
-|[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|Written by Igor Pavlov and Lasse Collin.|
-|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
-|[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|Written by Mark Adler and Jean-loup Gailly. Not included in this repository. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
-|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|Written by Facebook. Not included in this repository.|
+|Project|License|CMake Option|Included|Comments|
+|-|-|-|:-:|-|
+|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
+[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|YES|Written by Julian Seward.|
+|[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|NO|Written by Igor Pavlov and Lasse Collin.|
+|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
+|[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|NO|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
+|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|NO|Written by Facebook.|
+
+When a third-party library that is not included in this repository is required based on the specified CMake options, it will be fetched from the official git repository and compiled in.
 
 This project uses the zlib [license](LICENSE).
 
