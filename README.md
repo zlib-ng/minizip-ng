@@ -48,7 +48,7 @@ the library as version 2 because it had become difficult to maintain and code re
 + Turn off compilation of compression, decompression, or encryption.
 + Windows (Win32 & WinRT), macOS and Linux platform support.
 + Streaming interface for easy implementation of additional platforms.
-+ Support for Apple's compression library ZLIB implementation.
++ Support for Apple's compression library ZLIB and XZ implementations.
 + Zero out local file header information.
 + Zip/unzip of central directory to reduce size.
 + Ability to generate and verify CMS signature for each entry.
@@ -94,8 +94,8 @@ cmake --build .
 
 ## Third-Party Libraries
 
-Based on the specified CMake options third-party libraries may be required. If the system already has the library
-installed it will be used, otherwise CMake will retrieve the source code for the library from its official git repository and compile it in.
+Third-party libraries may be required based on the CMake options selected. If the system already has the library
+installed then it will be used, otherwise CMake will retrieve the source code for the library from its official git repository and compile it in.
 
 |Project|License|CMake Option|Comments|
 |-|-|-|-|
