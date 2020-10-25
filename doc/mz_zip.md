@@ -63,6 +63,8 @@ The _mz_zip_ object allows for the reading and writing of the a zip file and its
   - [mz_zip_unix_to_ntfs_time](#mz_zip_unix_to_ntfs_time)
 - [Path](#path)
   - [mz_zip_path_compare](#mz_zip_path_compare)
+- [String](#string)
+  - [mz_zip_get_compression_method_string](#mz_zip_get_compression_method_string)
 
 ## Archive
 
@@ -1542,4 +1544,26 @@ if (mz_zip_entry_get_info(zip_handle, &file_info) == MZ_OK) {
     else
         printf("Not found %s\n", search_path);
 }
+```
+
+## String
+
+### mz_zip_get_compression_method_string
+
+Gets a string representing the compression method.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|int32_t|compression_method|Compression method index|
+
+**Return**
+|Type|Description|
+|-|-|
+|const char *|String representing compression method or "?" if not found|
+
+**Example**
+```
+const char *method = mz_zip_get_compression_method_string(MZ_ZIP_COMPRESS_METHOD_LZMA);
+printf("Compression method %s\n", method);
 ```

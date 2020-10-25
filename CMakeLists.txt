@@ -119,6 +119,44 @@ if(NOT HAVE_FSEEKO)
     list(APPEND STDLIB_DEF -DNO_FSEEKO)
 endif()
 
+# Checkout remote repository
+macro(clone_repo name url cmake_dir)
+    if(NOT ${name}_REPOSITORY)
+        set(${name}_REPOSITORY ${url})
+    endif()
+    if(NOT ${name}_TAG)
+        set(${name}_TAG master)
+    endif()
+
+    message(STATUS "Fetching ${name} ${${name}_REPOSITORY} ${${name}_TAG}")
+
+    # Check for FetchContent cmake support
+    if(${CMAKE_VERSION} VERSION_LESS "3.11")
+        message(FATAL_ERROR "CMake 3.11 required to fetch ${name}")
+    else()
+        include(FetchContent)
+
+        string(TOLOWER ${name} name_lower)
+        set(${name}_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${name_lower})
+
+        FetchContent_Declare(${name}
+            GIT_REPOSITORY ${${name}_REPOSITORY}
+            GIT_TAG ${${name}_TAG}
+            SOURCE_DIR ${${name}_SOURCE_DIR}
+            BINARY_DIR ${${name}_SOURCE_DIR})
+
+        FetchContent_GetProperties(${name} POPULATED ${name}_POPULATED)
+
+        if(NOT ${name}_POPULATED)
+            FetchContent_Populate(${name})
+
+            # Don't automatically add all targets to the solution
+            add_subdirectory(${${name}_SOURCE_DIR}${cmake_dir} ${${name}_BINARY_DIR}
+                EXCLUDE_FROM_ALL)
+        endif()
+    endif()
+endmacro()
+
 if(MZ_ZLIB)
     if(MZ_LIBCOMP)
         # Use Apple libcompression
@@ -130,6 +168,7 @@ if(MZ_ZLIB)
         # Check if zlib is present
         if(NOT ZLIB_FORCE_FETCH)
             find_package(ZLIB QUIET)
+            set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
         endif()
         if(ZLIB_FOUND AND NOT ZLIB_FORCE_FETCH)
             message(STATUS "Using ZLIB ${ZLIB_VERSION}")
@@ -140,39 +179,9 @@ if(MZ_ZLIB)
 
             set(PC_PRIVATE_LIBS " -lz")
         else()
-            if(NOT ZLIB_TAG)
-                set(ZLIB_TAG master)
-            endif()
-            if(NOT ZLIB_REPOSITORY)
-                set(ZLIB_REPOSITORY https://github.com/madler/zlib)
-            endif()
+            clone_repo(ZLIB https://github.com/madler/zlib /)
 
-            message(STATUS "Fetching ZLIB ${ZLIB_REPOSITORY} ${ZLIB_TAG}")
-
-            if(${CMAKE_VERSION} VERSION_LESS "3.11")
-                message(FATAL_ERROR "CMake 3.11 required to fetch zlib")
-            else()
-                include(FetchContent)
-
-                set(ZLIB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib)
-
-                FetchContent_Declare(zlib
-                    GIT_REPOSITORY ${ZLIB_REPOSITORY}
-                    GIT_TAG ${ZLIB_TAG}
-                    GIT_SHALLOW TRUE
-                    SOURCE_DIR ${ZLIB_SOURCE_DIR}
-                    BINARY_DIR ${ZLIB_SOURCE_DIR})
-
-                FetchContent_GetProperties(zlib
-                    POPULATED ZLIB_POPULATED)
-                if(NOT ZLIB_POPULATED)
-                    FetchContent_Populate(zlib)
-                    add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
-                endif()
-
-                list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
-            endif()
-
+            list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
             # Have to add zlib to install targets
             if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
                 list(APPEND MINIZIP_DEP zlibstatic)
@@ -190,74 +199,11 @@ if(MZ_ZLIB)
     endif()
 endif()
 
-if(MZ_ZSTD)
-    # Check if zstd is present
-    if(NOT ZSTD_FORCE_FETCH)
-        find_package(PkgConfig)
-        if(PKGCONFIG_FOUND)
-            pkg_check_modules(ZSTD libzstd)
-        endif()
-        if(NOT ZSTD_FOUND)
-            find_package(ZSTD QUIET)
-        endif()
-    endif()
-
-    if(ZSTD_FOUND AND NOT ZSTD_FORCE_FETCH)
-        message(STATUS "Using ZSTD ${ZSTD_VERSION}")
-
-        list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
-        list(APPEND MINIZIP_LIB ${ZSTD_LIBRARIES})
-        list(APPEND MINIZIP_LBD ${ZSTD_LIBRARY_DIRS})
-
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
-    else()
-        if(NOT ZSTD_REPOSITORY)
-            set(ZSTD_REPOSITORY https://github.com/facebook/zstd)
-        endif()
-
-        message(STATUS "Fetching ZSTD ${ZSTD_REPOSITORY}")
-
-        if(${CMAKE_VERSION} VERSION_LESS "3.11")
-            message(FATAL_ERROR "CMake 3.11 required to fetch zstd")
-        else()
-            include(FetchContent)
-
-            set(ZSTD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/zstd)
-
-            FetchContent_Declare(zstd
-                GIT_REPOSITORY ${ZSTD_REPOSITORY}
-                SOURCE_DIR ${ZSTD_SOURCE_DIR}
-                BINARY_DIR ${ZSTD_SOURCE_DIR})
-
-            FetchContent_GetProperties(zstd
-                POPULATED ZSTD_POPULATED)
-            if(NOT ZSTD_POPULATED)
-                FetchContent_Populate(zstd)
-                add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake ${ZSTD_BINARY_DIR} EXCLUDE_FROM_ALL)
-            endif()
-
-            list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
-        endif()
-
-        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
-            list(APPEND MINIZIP_DEP libzstd_static)
-        else()
-            list(APPEND MINIZIP_DEP libzstd_shared)
-        endif()
-
-        list(APPEND MINIZIP_LIB ${ZSTD_TARGET})
-    endif()
-
-    list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
-    list(APPEND MINIZIP_SRC mz_strm_zstd.c)
-    list(APPEND MINIZIP_HDR mz_strm_zstd.h)
-endif()
-
 if(MZ_BZIP2)
     # Check if bzip2 is present
     find_package(BZip2)
     if(BZIP2_FOUND)
-        message(STATUS "Using BZIP2 ${BZIP2_VERSION}")
+        message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
 
         list(APPEND MINIZIP_INC ${BZIP2_INCLUDE_DIRS})
         list(APPEND MINIZIP_LIB ${BZIP2_LIBRARIES})
@@ -293,158 +239,73 @@ endif()
 
 if(MZ_LZMA)
     # Check if liblzma is present
-    find_package(PkgConfig)
-    if(PKGCONFIG_FOUND)
-        pkg_check_modules(LZMA liblzma)
+    if(NOT LIBLZMA_FORCE_FETCH)
+        find_package(PkgConfig QUIET)
+        if(PKGCONFIG_FOUND)
+            pkg_check_modules(LIBLZMA liblzma)
+        endif()
+        if(NOT LIBLZMA_FOUND)
+            find_package(LibLZMA QUIET)
+            set(LIBLZMA_VERSION ${LIBLZMA_VERSION_STRING})
+        endif()
     endif()
 
-    if(LZMA_FOUND)
-        message(STATUS "Using LZMA ${LZMA_VERSION}")
+    if(LIBLZMA_FOUND AND NOT LIBLZMA_FORCE_FETCH)
+        message(STATUS "Using LZMA ${LIBLZMA_VERSION}")
 
-        list(APPEND MINIZIP_INC ${LZMA_INCLUDE_DIRS})
-        list(APPEND MINIZIP_LIB ${LZMA_LIBRARIES})
+        list(APPEND MINIZIP_INC ${LIBLZMA_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${LIBLZMA_LIBRARIES})
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
     else()
-        set(LZMA_CHECK_SRC
-            lib/liblzma/check/check.c
-            lib/liblzma/check/crc32_fast.c
-            lib/liblzma/check/crc32_table.c)
-        set(LZMA_COMMON_SRC
-            lib/liblzma/common/alone_decoder.c
-            lib/liblzma/common/alone_encoder.c
-            lib/liblzma/common/common.c
-            lib/liblzma/common/filter_encoder.c)
-        set(LZMA_LZ_SRC
-            lib/liblzma/lz/lz_decoder.c
-            lib/liblzma/lz/lz_encoder.c
-            lib/liblzma/lz/lz_encoder_mf.c)
-        set(LZMA_LZMA_SRC
-            lib/liblzma/lzma/fastpos.h
-            lib/liblzma/lzma/fastpos_table.c
-            lib/liblzma/lzma/lzma_decoder.c
-            lib/liblzma/lzma/lzma_encoder.c
-            lib/liblzma/lzma/lzma_encoder_optimum_fast.c
-            lib/liblzma/lzma/lzma_encoder_optimum_normal.c
-            lib/liblzma/lzma/lzma_encoder_presets.c)
-        set(LZMA_RANGECODER_SRC
-            lib/liblzma/rangecoder/price_table.c)
+        clone_repo(LIBLZMA https://git.tukaani.org/xz.git /)
 
-        set(LZMA_CONFIG_HDR
-            lib/liblzma/config.h)
-        set(LZMA_API_HDR
-            lib/liblzma/api/lzma.h
-            lib/liblzma/api/lzma/base.h
-            lib/liblzma/api/lzma/check.h
-            lib/liblzma/api/lzma/container.h
-            lib/liblzma/api/lzma/filter.h
-            lib/liblzma/api/lzma/lzma12.h
-            lib/liblzma/api/lzma/version.h
-            lib/liblzma/api/lzma/vli.h)
-        set(LZMA_CHECK_HDR
-            lib/liblzma/check/check.h
-            lib/liblzma/check/crc32_table_be.h
-            lib/liblzma/check/crc32_table_le.h
-            lib/liblzma/check/crc_macros.h)
-        set(LZMA_COMMON_HDR
-            lib/liblzma/common/alone_decoder.h
-            lib/liblzma/common/common.h
-            lib/liblzma/common/filter_encoder.h
-            lib/liblzma/common/index.h
-            lib/liblzma/common/memcmplen.h
-            lib/liblzma/common/sysdefs.h
-            lib/liblzma/common/tuklib_common.h
-            lib/liblzma/common/tuklib_config.h
-            lib/liblzma/common/tuklib_integer.h)
-        set(LZMA_LZ_HDR
-            lib/liblzma/lz/lz_decoder.h
-            lib/liblzma/lz/lz_encoder.h
-            lib/liblzma/lz/lz_encoder_hash.h
-            lib/liblzma/lz/lz_encoder_hash_table.h)
-        set(LZMA_LZMA_HDR
-            lib/liblzma/lzma/lzma2_encoder.h
-            lib/liblzma/lzma/lzma_common.h
-            lib/liblzma/lzma/lzma_decoder.h
-            lib/liblzma/lzma/lzma_encoder.h
-            lib/liblzma/lzma/lzma_encoder_private.h)
-        set(LZMA_RANGECODER_HDR
-            lib/liblzma/rangecoder/price.h
-            lib/liblzma/rangecoder/range_common.h
-            lib/liblzma/rangecoder/range_decoder.h
-            lib/liblzma/rangecoder/range_encoder.h)
-
-        set(LZMA_HDR
-            ${LZMA_CONFIG_HDR}
-            ${LZMA_API_HDR}
-            ${LZMA_CHECK_HDR}
-            ${LZMA_COMMON_HDR}
-            ${LZMA_LZ_HDR}
-            ${LZMA_LZMA_HDR}
-            ${LZMA_RANGECODER_HDR})
-
-        set(LZMA_SRC
-            ${LZMA_CHECK_SRC}
-            ${LZMA_COMMON_SRC}
-            ${LZMA_LZ_SRC}
-            ${LZMA_LZMA_SRC}
-            ${LZMA_RANGECODER_SRC})
-
-        add_library(lzma STATIC ${LZMA_SRC} ${LZMA_HDR})
-
-        source_group("Config" FILES ${LZMA_CONFIG_HDR})
-        source_group("API" FILES ${LZMA_API_HDR})
-        source_group("Check" FILES ${LZMA_CHECK_SRC} ${LZMA_CHECK_HDR})
-        source_group("Common" FILES ${LZMA_COMMON_SRC} ${LZMA_COMMON_HDR})
-        source_group("LZ" FILES ${LZMA_LZ_SRC} ${LZMA_LZ_HDR})
-        source_group("LZMA" FILES ${LZMA_LZMA_SRC} ${LZMA_LZMA_HDR})
-        source_group("RangeCoder" FILES ${LZMA_RANGECODER_SRC} ${LZMA_RANGECODER_HDR})
-
-        check_include_file(limits.h     HAVE_LIMITS_H)
-        check_include_file(string.h     HAVE_STRING_H)
-        check_include_file(strings.h    HAVE_STRINGS_H)
-        check_include_file(memory.h     HAVE_MEMORY_H)
-        check_include_file(stdbool.h    HAVE_STDBOOL_H)
-        check_include_file(immintrin.h  HAVE_IMMINTRIN_H)
-
-        target_compile_definitions(lzma PRIVATE -DLZMA_API_STATIC -DHAVE_CONFIG_H)
-        if(HAVE_STRING_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_STRING_H)
-        endif()
-        if(HAVE_STRINGS_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_STRINGS_H)
-        endif()
-        if(HAVE_MEMORY_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_MEMORY_H)
-        endif()
-        if(HAVE_STDBOOL_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_STDBOOL_H)
-        endif()
-        if(HAVE_STDINT_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_STDINT_H)
-        endif()
-        if(HAVE_INTTYPES_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_INTTYPES_H)
-        endif()
-        if(HAVE_IMMINTRIN_H)
-            target_compile_definitions(lzma PRIVATE -DHAVE_IMMINTRIN_H)
-        endif()
-
-        target_include_directories(lzma PRIVATE
-            lib/liblzma
-            lib/liblzma/api
-            lib/liblzma/check
-            lib/liblzma/common
-            lib/liblzma/lz
-            lib/liblzma/lzma
-            lib/liblzma/rangecoder)
-
-        list(APPEND MINIZIP_INC lib/liblzma/api)
-        list(APPEND MINIZIP_DEP lzma)
+        list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
+        list(APPEND MINIZIP_DEP liblzma)
+        list(APPEND MINIZIP_LIB ${LIBLZMA_TARGET})
     endif()
 
     list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
     list(APPEND MINIZIP_SRC mz_strm_lzma.c)
     list(APPEND MINIZIP_HDR mz_strm_lzma.h)
+endif()
+
+if(MZ_ZSTD)
+    # Check if zstd is present
+    if(NOT ZSTD_FORCE_FETCH)
+        find_package(PkgConfig QUIET)
+        if(PKGCONFIG_FOUND)
+            pkg_check_modules(ZSTD libzstd)
+        endif()
+        if(NOT ZSTD_FOUND)
+            find_package(ZSTD QUIET)
+            set(ZSTD_VERSION ${ZSTD_VERSION_STRING})
+        endif()
+    endif()
+
+    if(ZSTD_FOUND AND NOT ZSTD_FORCE_FETCH)
+        message(STATUS "Using ZSTD ${ZSTD_VERSION}")
+
+        list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${ZSTD_LIBRARIES})
+        list(APPEND MINIZIP_LBD ${ZSTD_LIBRARY_DIRS})
+
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
+    else()
+        clone_repo(ZSTD https://github.com/facebook/zstd /build/cmake)
+
+        list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+            list(APPEND MINIZIP_DEP libzstd_static)
+        else()
+            list(APPEND MINIZIP_DEP libzstd_shared)
+        endif()
+        list(APPEND MINIZIP_LIB ${ZSTD_TARGET})
+    endif()
+
+    list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
+    list(APPEND MINIZIP_SRC mz_strm_zstd.c)
+    list(APPEND MINIZIP_HDR mz_strm_zstd.h)
 endif()
 
 if(MZ_OPENSSL)
@@ -855,6 +716,8 @@ if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
         if(MZ_LZMA)
             list(APPEND COMPRESS_METHOD_NAMES "lzma")
             list(APPEND COMPRESS_METHOD_ARGS "-m")
+            list(APPEND COMPRESS_METHOD_NAMES "xz")
+            list(APPEND COMPRESS_METHOD_ARGS "-n")
         endif()
         if(MZ_ZSTD)
             list(APPEND COMPRESS_METHOD_NAMES "zstd")

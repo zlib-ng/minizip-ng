@@ -242,6 +242,12 @@ int32_t  mz_zip_path_compare(const char *path1, const char *path2, uint8_t ignor
 
 /***************************************************************************/
 
+const
+char*    mz_zip_get_compression_method_string(int32_t compression_method);
+/* Gets a string representing the compression method */
+
+/***************************************************************************/
+
 #ifdef __cplusplus
 }
 #endif

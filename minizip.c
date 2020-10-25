@@ -91,6 +91,7 @@ int32_t minizip_help(void) {
            "  -w  PKCS12 certificate password\n" \
            "  -b  BZIP2 compression\n" \
            "  -m  LZMA compression\n" \
+           "  -n  XZ compression\n" \
            "  -t  ZSTD compression\n\n");
     return MZ_OK;
 }
@@ -103,7 +104,7 @@ int32_t minizip_list(const char *path) {
     int16_t level = 0;
     int32_t err = MZ_OK;
     struct tm tmu_date;
-    const char *string_method = NULL;
+    const char *method = NULL;
     char crypt = ' ';
     void *reader = NULL;
 
@@ -146,38 +147,14 @@ int32_t minizip_list(const char *path) {
         else
             crypt = ' ';
 
-        switch (file_info->compression_method) {
-        case MZ_COMPRESS_METHOD_STORE:
-            string_method = "Stored";
-            break;
-        case MZ_COMPRESS_METHOD_DEFLATE:
-            level = (int16_t)((file_info->flag & 0x6) / 2);
-            if (level == 0)
-                string_method = "Defl:N";
-            else if (level == 1)
-                string_method = "Defl:X";
-            else if ((level == 2) || (level == 3))
-                string_method = "Defl:F"; /* 2: fast , 3: extra fast */
-            else
-                string_method = "Defl:?";
-            break;
-        case MZ_COMPRESS_METHOD_BZIP2:
-            string_method = "BZip2";
-            break;
-        case MZ_COMPRESS_METHOD_LZMA:
-            string_method = "LZMA";
-            break;
-        default:
-            string_method = "?";
-        }
-
+        method = mz_zip_get_compression_method_string(file_info->compression_method);
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
         /* Print entry information */
         printf("%12" PRId64 " %12" PRId64 "  %3" PRIu32 "%% %6s%c %8" PRIx32 " %2.2" PRIu32 \
                "-%2.2" PRIu32 "-%2.2" PRIu32 " %2.2" PRIu32 ":%2.2" PRIu32 " %8.8" PRIx32 "   %s\n",
                file_info->compressed_size, file_info->uncompressed_size, ratio,
-               string_method, crypt, file_info->external_fa,
+               method, crypt, file_info->external_fa,
                (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
                (uint32_t)tmu_date.tm_year % 100,
                (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
@@ -599,6 +576,12 @@ int main(int argc, const char *argv[]) {
             else if ((c == 'm') || (c == 'M'))
 #ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
+#else
+                err = MZ_SUPPORT_ERROR;
+#endif
+            else if ((c == 'N') || (c == 'N'))
+#ifdef HAVE_LZMA
+                options.compress_method = MZ_COMPRESS_METHOD_XZ;
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
