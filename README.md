@@ -94,16 +94,17 @@ cmake --build .
 
 ## Third-Party Libraries
 
-|Project|License|CMake Option|Included|Comments|
-|-|-|-|:-:|-|
-|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
-[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|NO|Written by Julian Seward.|
-|[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|NO|Written by Igor Pavlov and Lasse Collin.|
-|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|YES|Written by Brian Gladman. Compiled in when system crypto functions are unavailable.|
-|[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|NO|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
-|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|NO|Written by Facebook.|
+Based on the specified CMake options third-party libraries may be required. If the system already has the library
+installed it will be used, otherwise CMake will retrieve the source code for the library from its official git repository and compile it in.
 
-When a third-party library that is not included in this repository is required based on the specified CMake options, it will be fetched from the official git repository and compiled in.
+|Project|License|CMake Option|Comments|
+|-|-|-|-|
+|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman.|
+[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
+|[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|Written by Igor Pavlov and Lasse Collin.|
+|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman.|
+|[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
+|[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|Written by Facebook.|
 
 This project uses the zlib [license](LICENSE).
 

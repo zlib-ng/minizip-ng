@@ -491,29 +491,41 @@ endif()
 
 # Include Brian Gladman's crypto library
 if(MZ_BRG)
-    set(BRG_SRC
-        lib/brg/aescrypt.c
-        lib/brg/aeskey.c
-        lib/brg/aestab.c
-        lib/brg/hmac.c
-        lib/brg/sha1.c
-        lib/brg/sha2.c)
+    clone_repo(AES https://github.com/BrianGladman/aes)
+    clone_repo(SHA https://github.com/BrianGladman/sha)
 
-    set(BRG_HDR
-        lib/brg/aes.h
-        lib/brg/aesopt.h
-        lib/brg/aestab.h
-        lib/brg/brg_endian.h
-        lib/brg/brg_types.h
-        lib/brg/hmac.h
-        lib/brg/sha1.h
-        lib/brg/sha2.h)
+    set(BRG_AES_SRC
+        lib/aes/brg_endian.h
+        lib/aes/brg_types.h
+        lib/aes/aescrypt.c
+        lib/aes/aeskey.c
+        lib/aes/aeskey2.c
+        lib/aes/aes_modes.c
+        lib/aes/aestab.c)
 
-    add_library(brg STATIC ${BRG_SRC} ${BRG_HDR})
+    set(BRG_AES_HDR
+        lib/aes/aes.h
+        lib/aes/aesopt.h
+        lib/aes/aestab.h)
+
+    set(BRG_SHA_SRC
+        lib/sha/hmac.c
+        lib/sha/sha1.c
+        lib/sha/sha2.c)
+
+    set(BRG_SHA_HDR
+        lib/sha/brg_endian.h
+        lib/sha/brg_types.h
+        lib/sha/hmac.h
+        lib/sha/sha1.h
+        lib/sha/sha2.h)
+
+    add_library(aes STATIC ${BRG_AES_SRC} ${BRG_AES_HDR})
+    add_library(sha STATIC ${BRG_SHA_SRC} ${BRG_SHA_HDR})
 
     list(APPEND MINIZIP_SRC mz_crypt_brg.c)
-    list(APPEND MINIZIP_INC lib/brg)
-    list(APPEND MINIZIP_DEP brg)
+    list(APPEND MINIZIP_INC lib/aes lib/sha)
+    list(APPEND MINIZIP_DEP aes sha)
 endif()
 
 # Include compatibility layer
