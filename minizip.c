@@ -579,7 +579,7 @@ int main(int argc, const char *argv[]) {
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
-            else if ((c == 'N') || (c == 'N'))
+            else if ((c == 'n') || (c == 'N'))
 #ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_XZ;
 #else
