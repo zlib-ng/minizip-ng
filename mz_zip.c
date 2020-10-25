@@ -1710,7 +1710,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #endif
 #ifdef HAVE_LIBCOMP
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
-            mz_stream_lzma_create(&zip->compress_stream);
+            mz_stream_libcomp_create(&zip->compress_stream);
             mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_COMPRESS_METHOD,
                 zip->file_info.compression_method);
         }
