@@ -261,7 +261,7 @@ if(MZ_LZMA)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
     else()
-        clone_repo(LIBLZMA https://git.tukaani.org/xz.git /)
+        clone_repo(LIBLZMA https://git.tukaani.org/xz.git)
 
         # Don't automatically add all targets to the solution
         add_subdirectory(${LIBLZMA_SOURCE_DIR} ${LIBLZMA_BINARY_DIR} EXCLUDE_FROM_ALL)
@@ -499,14 +499,14 @@ if(MZ_BRG)
         lib/aes/brg_types.h
         lib/aes/aescrypt.c
         lib/aes/aeskey.c
-        lib/aes/aeskey2.c
-        lib/aes/aes_modes.c
-        lib/aes/aestab.c)
+        lib/aes/aestab.c
+        lib/aes/aes_ni.c)
 
     set(BRG_AES_HDR
         lib/aes/aes.h
         lib/aes/aesopt.h
-        lib/aes/aestab.h)
+        lib/aes/aestab.h
+        lib/aes/aes_ni.h)
 
     set(BRG_SHA_SRC
         lib/sha/hmac.c
