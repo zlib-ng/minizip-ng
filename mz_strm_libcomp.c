@@ -83,7 +83,9 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode) {
         algorithm = COMPRESSION_ZLIB;
     else if (libcomp->method == MZ_COMPRESS_METHOD_XZ)
         algorithm = COMPRESSION_LZMA;
-
+    else
+        return MZ_SUPPORT_ERROR;
+        
     err = compression_stream_init(&libcomp->cstream, (compression_stream_operation)operation, algorithm);
 
     if (err == COMPRESSION_STATUS_ERROR) {

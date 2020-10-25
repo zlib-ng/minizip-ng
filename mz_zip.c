@@ -658,7 +658,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
                 version_needed = 51;
 #endif
-#ifdef HAVE_LZMA
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
             if ((file_info->compression_method == MZ_COMPRESS_METHOD_LZMA) ||
                 (file_info->compression_method == MZ_COMPRESS_METHOD_XZ))
                 version_needed = 63;
@@ -1621,6 +1621,8 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #endif
 #ifdef HAVE_LZMA
     case MZ_COMPRESS_METHOD_LZMA:
+#endif
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
     case MZ_COMPRESS_METHOD_XZ:
 #endif
 #ifdef HAVE_ZSTD
@@ -1706,16 +1708,19 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_BZIP2)
             mz_stream_bzip_create(&zip->compress_stream);
 #endif
+#ifdef HAVE_LIBCOMP
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
+            mz_stream_lzma_create(&zip->compress_stream);
+            mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_COMPRESS_METHOD,
+                zip->file_info.compression_method);
+        }
+#endif
 #ifdef HAVE_LZMA
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA ||
                  zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
             mz_stream_lzma_create(&zip->compress_stream);
             mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_COMPRESS_METHOD,
                 zip->file_info.compression_method);
-        }
-#elif defined(HAVE_LIBCOMP)
-        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
-            mz_stream_lzma_create(&zip->compress_stream);
         }
 #endif
 #ifdef HAVE_ZSTD
@@ -1921,7 +1926,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         if (compress_level == 1)
             zip->file_info.flag |= MZ_ZIP_FLAG_DEFLATE_SUPER_FAST;
     }
-#ifdef HAVE_LZMA
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
     else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_LZMA ||
              zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ)
         zip->file_info.flag |= MZ_ZIP_FLAG_LZMA_EOS_MARKER;

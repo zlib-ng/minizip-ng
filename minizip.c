@@ -101,7 +101,6 @@ int32_t minizip_help(void) {
 int32_t minizip_list(const char *path) {
     mz_zip_file *file_info = NULL;
     uint32_t ratio = 0;
-    int16_t level = 0;
     int32_t err = MZ_OK;
     struct tm tmu_date;
     const char *method = NULL;
@@ -580,7 +579,7 @@ int main(int argc, const char *argv[]) {
                 err = MZ_SUPPORT_ERROR;
 #endif
             else if ((c == 'n') || (c == 'N'))
-#ifdef HAVE_LZMA
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
                 options.compress_method = MZ_COMPRESS_METHOD_XZ;
 #else
                 err = MZ_SUPPORT_ERROR;

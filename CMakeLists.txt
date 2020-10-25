@@ -153,49 +153,47 @@ macro(clone_repo name url)
     endif()
 endmacro()
 
-if(MZ_ZLIB)
-    if(MZ_LIBCOMP)
-        # Use Apple libcompression
-        list(APPEND MINIZIP_DEF -DHAVE_LIBCOMP)
-        list(APPEND MINIZIP_SRC mz_strm_libcomp.c)
-        list(APPEND MINIZIP_HDR mz_strm_libcomp.h)
-        list(APPEND MINIZIP_LIB compression)
-    else()
-        # Check if zlib is present
-        if(NOT ZLIB_FORCE_FETCH)
-            find_package(ZLIB QUIET)
-            set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
-        endif()
-        if(ZLIB_FOUND AND NOT ZLIB_FORCE_FETCH)
-            message(STATUS "Using ZLIB ${ZLIB_VERSION}")
-
-            list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
-            list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
-            list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
-
-            set(PC_PRIVATE_LIBS " -lz")
-        else()
-            clone_repo(ZLIB https://github.com/madler/zlib)
-
-            # Don't automatically add all targets to the solution
-            add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
-
-            list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
-            # Have to add zlib to install targets
-            if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
-                list(APPEND MINIZIP_DEP zlibstatic)
-            else()
-                list(APPEND MINIZIP_DEP zlib)
-            endif()
-        endif()
-
-        list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
-        if(ZLIB_COMPAT)
-            list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
-        endif()
-        list(APPEND MINIZIP_SRC mz_strm_zlib.c)
-        list(APPEND MINIZIP_HDR mz_strm_zlib.h)
+if(MZ_LIBCOMP)
+    # Use Apple libcompression
+    list(APPEND MINIZIP_DEF -DHAVE_LIBCOMP)
+    list(APPEND MINIZIP_SRC mz_strm_libcomp.c)
+    list(APPEND MINIZIP_HDR mz_strm_libcomp.h)
+    list(APPEND MINIZIP_LIB compression)
+elseif(MZ_ZLIB)
+    # Check if zlib is present
+    if(NOT ZLIB_FORCE_FETCH)
+        find_package(ZLIB QUIET)
+        set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
     endif()
+    if(ZLIB_FOUND AND NOT ZLIB_FORCE_FETCH)
+        message(STATUS "Using ZLIB ${ZLIB_VERSION}")
+
+        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
+        list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
+        list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
+
+        set(PC_PRIVATE_LIBS " -lz")
+    else()
+        clone_repo(ZLIB https://github.com/madler/zlib)
+
+        # Don't automatically add all targets to the solution
+        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
+
+        list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
+        # Have to add zlib to install targets
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+            list(APPEND MINIZIP_DEP zlibstatic)
+        else()
+            list(APPEND MINIZIP_DEP zlib)
+        endif()
+    endif()
+
+    list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
+    if(ZLIB_COMPAT)
+        list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
+    endif()
+    list(APPEND MINIZIP_SRC mz_strm_zlib.c)
+    list(APPEND MINIZIP_HDR mz_strm_zlib.h)
 endif()
 
 if(MZ_BZIP2)
@@ -737,6 +735,8 @@ if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
         if(MZ_LZMA)
             list(APPEND COMPRESS_METHOD_NAMES "lzma")
             list(APPEND COMPRESS_METHOD_ARGS "-m")
+        endif()
+        if(MZ_LZMA OR MZ_LIBCOMP)
             list(APPEND COMPRESS_METHOD_NAMES "xz")
             list(APPEND COMPRESS_METHOD_ARGS "-n")
         endif()
@@ -798,7 +798,7 @@ if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
 
     # Perform tests on others
     if(NOT MZ_COMPRESS_ONLY)
-        if(MZ_ZLIB)
+        if(MZ_ZLIB OR MZ_LIBCOMP)
             add_test(NAME unzip-tiny
                      COMMAND minizip_cmd -x -o ${EXTRA_ARGS} -d out
                         fuzz/unzip_fuzzer_seed_corpus/tiny.zip
