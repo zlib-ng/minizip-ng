@@ -31,8 +31,9 @@ option(MZ_FILE32_API "Builds using posix 32-bit file api" OFF)
 set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
 option(ZLIB_FORCE_FETCH "Skips find package for ZLIB" OFF)
 option(ZSTD_FORCE_FETCH "Skips find package for ZSTD" OFF)
+option(BRG_FORCE_FETCH "Clone Brian Gladman's encryption library from GIT" ON)
 
-mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX ZLIB_FORCE_FETCH ZSTD_FORCE_FETCH)
+mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX ZLIB_FORCE_FETCH ZSTD_FORCE_FETCH BRG_FORCE_FETCH)
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -489,8 +490,10 @@ endif()
 
 # Include Brian Gladman's crypto library
 if(MZ_BRG)
-    clone_repo(AES https://github.com/BrianGladman/aes)
-    clone_repo(SHA https://github.com/BrianGladman/sha)
+    if(BRG_FORCE_FETCH)
+        clone_repo(AES https://github.com/BrianGladman/aes)
+        clone_repo(SHA https://github.com/BrianGladman/sha)
+    endif()
 
     set(BRG_AES_SRC
         lib/aes/brg_endian.h
