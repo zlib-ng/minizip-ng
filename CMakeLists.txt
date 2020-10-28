@@ -345,7 +345,7 @@ if(WIN32)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
     if(MZ_PKCRYPT OR MZ_WZAES)
         if(NOT MZ_BRG)
-            if(NOT MZ_OPENSSL AND NOT OPENSSL_FOUND )
+            if(NOT MZ_OPENSSL AND NOT OPENSSL_FOUND)
                 list(APPEND MINIZIP_SRC mz_crypt_win32.c)
             endif()
             # GCC doesn't support #pragma lib
