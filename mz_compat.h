@@ -113,49 +113,49 @@ ZEXPORT void*   zipGetStream_MZ(zipFile file);
 
 ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level);
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level);
 ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int zip64);
 ZEXPORT int     zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw);
 ZEXPORT int     zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int zip64);
 ZEXPORT int     zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting);
 ZEXPORT int     zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     uint32_t crc_for_crypting, int zip64);
 ZEXPORT int     zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base);
 ZEXPORT int     zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64);
 ZEXPORT int     zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, uint16_t compression_method, int level,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64);
 
 ZEXPORT int     zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
 
 ZEXPORT int     zipCloseFileInZipRaw(zipFile file, unsigned long uncompressed_size, unsigned long crc32);
-ZEXPORT int     zipCloseFileInZipRaw64(zipFile file, int64_t uncompressed_size, unsigned long crc32);
+ZEXPORT int     zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, unsigned long crc32);
 ZEXPORT int     zipCloseFileInZip(zipFile file);
 ZEXPORT int     zipCloseFileInZip64(zipFile file);
 
@@ -317,12 +317,14 @@ ZEXPORT unsigned long
                 unzGetOffset(unzFile file);
 ZEXPORT int     unzSetOffset64(unzFile file, int64_t pos);
 ZEXPORT int     unzSetOffset(unzFile file, unsigned long pos);
-ZEXPORT int64_t unztell(unzFile file);
+ZEXPORT int32_t unztell(unzFile file);
 ZEXPORT int32_t unzTell(unzFile file);
-ZEXPORT int64_t unzTell64(unzFile file);
+ZEXPORT uint64_t unztell64(unzFile file);
+ZEXPORT uint64_t unzTell64(unzFile file);
 ZEXPORT int     unzSeek(unzFile file, int32_t offset, int origin);
 ZEXPORT int     unzSeek64(unzFile file, int64_t offset, int origin);
 ZEXPORT int     unzEndOfFile(unzFile file);
+ZEXPORT int     unzeof(unzFile file);
 ZEXPORT void*   unzGetStream(unzFile file);
 
 /***************************************************************************/
