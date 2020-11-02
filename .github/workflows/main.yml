@@ -10,31 +10,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [
-          Ubuntu 16 GCC 4.8,
-          Ubuntu 16 GCC,
-          Ubuntu 16 Clang 3.5,
-          Ubuntu 16 Clang,
-          Ubuntu GCC,
-          Ubuntu Clang,
-          Ubuntu Clang No Zlib,
-          Ubuntu Clang No Bzip2,
-          Ubuntu Clang No LZMA,
-          Ubuntu Clang No Zstd,
-          Ubuntu Clang No Pkcrypt,
-          Ubuntu Clang No Winzip AES,
-          Ubuntu Clang No Encryption,
-          Ubuntu Clang Compress Only,
-          Ubuntu Clang Decompress Only,
-          Ubuntu Clang OpenSSL,
-          Windows MSVC,
-          Windows GCC,
-          macOS Xcode 9.4.1,
-          macOS Xcode,
-          macOS Xcode LibCompression,
-          macOS Xcode OpenSSL
-        ]
-
         include:
           - name: Ubuntu 16 GCC 4.8
             os: ubuntu-16.04
