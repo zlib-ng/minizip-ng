@@ -74,7 +74,7 @@ By default, if zlib is not found, it will be pulled as an external project and i
 To compile using zlib-ng use the following cmake args:
 
 ```
--DZLIB_REPOSITORY=https://github.com/Dead2/zlib-ng -DZLIB_TAG=develop
+-DZLIB_REPOSITORY=https://github.com/zlib-ng/zlib-ng -DZLIB_TAG=develop
 ```
 **Compiling and Installing Zlib (Windows)**
 
