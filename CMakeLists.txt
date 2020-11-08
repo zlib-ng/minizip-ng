@@ -44,7 +44,7 @@ endif()
 enable_language(C)
 
 # Minizip library version
-set(VERSION "2.10.2")
+set(VERSION "2.10.3")
 
 # Minizip api version
 set(SOVERSION "2.5")
