@@ -293,7 +293,7 @@ typedef struct mz_crypt_hmac_s {
 
 /***************************************************************************/
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined(LIBRESSL_VERSION_NUMBER)
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER < 0x2070000fL))
 static HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
     if (ctx != NULL)
