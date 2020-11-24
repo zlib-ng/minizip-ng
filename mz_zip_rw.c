@@ -974,8 +974,9 @@ void *mz_zip_reader_create(void **handle) {
         memset(reader, 0, sizeof(mz_zip_reader));
         reader->recover = 1;
         reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
-        *handle = reader;
     }
+    if (handle != NULL)
+        *handle = reader;
 
     return reader;
 }
@@ -1905,9 +1906,9 @@ void *mz_zip_writer_create(void **handle) {
 #endif
         writer->compress_level = MZ_COMPRESS_LEVEL_BEST;
         writer->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
-
-        *handle = writer;
     }
+    if (handle != NULL)
+        *handle = writer;
 
     return writer;
 }
