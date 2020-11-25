@@ -177,7 +177,7 @@ elseif(MZ_ZLIB)
         clone_repo(ZLIB https://github.com/madler/zlib)
 
         # Don't automatically add all targets to the solution
-        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
+        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_SOURCE_DIR} EXCLUDE_FROM_ALL)
 
         list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
         # Have to add zlib to install targets
