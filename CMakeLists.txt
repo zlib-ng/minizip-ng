@@ -20,6 +20,7 @@ option(MZ_LIBCOMP "Enables Apple compression" OFF)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
 option(MZ_LIBBSD "Enable libbsd crypto random" ON)
 option(MZ_BRG "Enables Brian Gladman's encryption library" OFF)
+option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
 option(MZ_SIGNING "Enables zip signing support" ON)
 option(MZ_COMPRESS_ONLY "Only support compression" OFF)
 option(MZ_DECOMPRESS_ONLY "Only support decompression" OFF)
@@ -392,7 +393,10 @@ if(UNIX)
 
     # Iconv is only necessary when it is not already built-in
     # FindIconv requires cmake 3.11 or higher
-    find_package(Iconv QUIET)
+    if (MZ_ICONV)
+        find_package(Iconv QUIET)
+    endif()
+
     if(Iconv_FOUND)
         message(STATUS "Using Iconv")
 
@@ -405,7 +409,7 @@ if(UNIX)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
     else()
-        message(WARNING "Limited encoding support due to missing iconv")
+        message(WARNING "Limited encoding support due to disabled or missing iconv")
     endif()
 endif()
 
@@ -898,6 +902,7 @@ add_feature_info(MZ_LIBCOMP MZ_LIBCOMP "Enables Apple compression")
 add_feature_info(MZ_OPENSSL MZ_OPENSSL "Enables OpenSSL for encryption")
 add_feature_info(MZ_LIBBSD MZ_LIBBSD "Build with libbsd for crypto random")
 add_feature_info(MZ_BRG MZ_BRG "Enables Brian Gladman's encryption library")
+add_feature_info(MZ_ICONV MZ_ICONV "Enables iconv string encoding conversion library")
 add_feature_info(MZ_SIGNING MZ_SIGNING "Enables zip signing support")
 add_feature_info(MZ_COMPRESS_ONLY MZ_COMPRESS_ONLY "Only support compression")
 add_feature_info(MZ_DECOMPRESS_ONLY MZ_DECOMPRESS_ONLY "Only support decompression")
