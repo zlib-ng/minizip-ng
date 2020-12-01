@@ -141,7 +141,11 @@ int32_t mz_os_rename(const char *source_path, const char *target_path) {
     }
 
     if (err == MZ_OK) {
+#ifdef MZ_WINRT_API
+        result = MoveFileExW(source_path_wide, target_path_wide, MOVEFILE_WRITE_THROUGH);
+#else
         result = MoveFileW(source_path_wide, target_path_wide);
+#endif
         if (result == 0)
             err = MZ_EXIST_ERROR;
     }
@@ -207,7 +211,7 @@ int64_t mz_os_get_file_size(const char *path) {
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 #ifdef MZ_WINRT_API
-    handle = CreateFile2W(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    handle = CreateFile2(path_wide, GENERIC_READ, 0, OPEN_EXISTING, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 #endif
@@ -280,7 +284,7 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
         return MZ_PARAM_ERROR;
 
 #ifdef MZ_WINRT_API
-    handle = CreateFile2W(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+    handle = CreateFile2(path_wide, GENERIC_READ | GENERIC_WRITE, 0, OPEN_EXISTING, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
 #endif
@@ -494,7 +498,14 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     if (path == NULL)
         return MZ_PARAM_ERROR;
 
+#ifdef MZ_WINRT_API
+    MEMORY_BASIC_INFORMATION mbi = { 0 };
+    VirtualQuery(VirtualQuery, &mbi, sizeof(mbi));
+    kernel32_mod = (HMODULE)mbi.AllocationBase;
+#else
     kernel32_mod = GetModuleHandleW(L"kernel32.dll");
+#endif
+
     if (kernel32_mod == NULL)
         return MZ_SUPPORT_ERROR;
 
@@ -569,8 +580,19 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
+#ifdef MZ_WINRT_API
+    CREATEFILE2_EXTENDED_PARAMETERS extendedParams = { 0 };
+    extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
+    extendedParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
+    extendedParams.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT;
+    extendedParams.dwSecurityQosFlags = SECURITY_ANONYMOUS;
+    extendedParams.lpSecurityAttributes = NULL;
+    extendedParams.hTemplateFile = NULL;
+    handle = CreateFile2(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, &extendedParams);
+#else
     handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+#endif
 
     if (handle == INVALID_HANDLE_VALUE) {
         mz_os_unicode_string_delete(&path_wide);
