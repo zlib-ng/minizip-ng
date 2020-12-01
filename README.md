@@ -82,6 +82,7 @@ cmake --build .
 | MZ_OPENSSL         | Enables OpenSSL encryption            |      OFF      |
 | MZ_LIBBSD          | Builds with libbsd crypto random      |      ON       |
 | MZ_BRG             | Enables Brian Gladman's library       |      OFF      |
+| MZ_ICONV           | Enables iconv encoding conversion     |      ON       |
 | MZ_SIGNING         | Enables zip signing support           |      ON       |
 | MZ_COMPRESS_ONLY   | Only support compression              |      OFF      |
 | MZ_DECOMPRESS_ONLY | Only support decompression            |      OFF      |
