@@ -606,8 +606,9 @@ int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filenam
         return UNZ_PARAMERROR;
 
     err = mz_zip_entry_get_info(compat->handle, &file_info);
+    if (err != MZ_OK) return err;
 
-    if ((err == MZ_OK) && (pfile_info != NULL)) {
+    if (pfile_info != NULL) {
         pfile_info->version = file_info->version_madeby;
         pfile_info->version_needed = file_info->version_needed;
         pfile_info->flag = file_info->flag;
@@ -627,29 +628,28 @@ int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filenam
 
         pfile_info->compressed_size = (uint32_t)file_info->compressed_size;
         pfile_info->uncompressed_size = (uint32_t)file_info->uncompressed_size;
-
-        if (filename_size > 0 && filename != NULL && file_info->filename != NULL) {
-            bytes_to_copy = (uint16_t)filename_size;
-            if (bytes_to_copy > file_info->filename_size)
-                bytes_to_copy = file_info->filename_size;
-            memcpy(filename, file_info->filename, bytes_to_copy);
-            if (bytes_to_copy < filename_size)
-                filename[bytes_to_copy] = 0;
-        }
-        if (extrafield_size > 0 && extrafield != NULL) {
-            bytes_to_copy = (uint16_t)extrafield_size;
-            if (bytes_to_copy > file_info->extrafield_size)
-                bytes_to_copy = file_info->extrafield_size;
-            memcpy(extrafield, file_info->extrafield, bytes_to_copy);
-        }
-        if (comment_size > 0 && comment != NULL && file_info->comment != NULL) {
-            bytes_to_copy = (uint16_t)comment_size;
-            if (bytes_to_copy > file_info->comment_size)
-                bytes_to_copy = file_info->comment_size;
-            memcpy(comment, file_info->comment, bytes_to_copy);
-            if (bytes_to_copy < comment_size)
-                comment[bytes_to_copy] = 0;
-        }
+    }
+    if (filename_size > 0 && filename != NULL && file_info->filename != NULL) {
+        bytes_to_copy = (uint16_t)filename_size;
+        if (bytes_to_copy > file_info->filename_size)
+            bytes_to_copy = file_info->filename_size;
+        memcpy(filename, file_info->filename, bytes_to_copy);
+        if (bytes_to_copy < filename_size)
+            filename[bytes_to_copy] = 0;
+    }
+    if (extrafield_size > 0 && extrafield != NULL) {
+        bytes_to_copy = (uint16_t)extrafield_size;
+        if (bytes_to_copy > file_info->extrafield_size)
+            bytes_to_copy = file_info->extrafield_size;
+        memcpy(extrafield, file_info->extrafield, bytes_to_copy);
+    }
+    if (comment_size > 0 && comment != NULL && file_info->comment != NULL) {
+        bytes_to_copy = (uint16_t)comment_size;
+        if (bytes_to_copy > file_info->comment_size)
+            bytes_to_copy = file_info->comment_size;
+        memcpy(comment, file_info->comment, bytes_to_copy);
+        if (bytes_to_copy < comment_size)
+            comment[bytes_to_copy] = 0;
     }
     return err;
 }
