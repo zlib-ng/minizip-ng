@@ -239,7 +239,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
         }
         if (err == MZ_OK)
             err = mz_stream_read_uint32(stream, &file_info->crc);
-
+#ifdef HAVE_PKCRYPT
         if (err == MZ_OK && file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) {
             /* Info-ZIP modification to ZipCrypto format: if bit 3 of the general 
              * purpose bit flag is set, it uses high byte of 16-bit File Time. */
@@ -251,7 +251,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 file_info->pk_verify = ((file_info->crc >> 16) & 0xff) << 8 |
                                        ((file_info->crc >> 24) & 0xff);
         }
-
+#endif
         if (err == MZ_OK) {
             err = mz_stream_read_uint32(stream, &value32);
             file_info->compressed_size = value32;
