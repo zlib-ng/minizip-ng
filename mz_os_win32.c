@@ -499,7 +499,8 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
         return MZ_PARAM_ERROR;
 
 #ifdef MZ_WINRT_API
-    MEMORY_BASIC_INFORMATION mbi = { 0 };
+    MEMORY_BASIC_INFORMATION mbi;
+    memset(&mbi, 0, sizeof(mbi));
     VirtualQuery(VirtualQuery, &mbi, sizeof(mbi));
     kernel32_mod = (HMODULE)mbi.AllocationBase;
 #else
@@ -581,14 +582,15 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
         return MZ_PARAM_ERROR;
 
 #ifdef MZ_WINRT_API
-    CREATEFILE2_EXTENDED_PARAMETERS extendedParams = { 0 };
-    extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
-    extendedParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-    extendedParams.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT;
-    extendedParams.dwSecurityQosFlags = SECURITY_ANONYMOUS;
-    extendedParams.lpSecurityAttributes = NULL;
-    extendedParams.hTemplateFile = NULL;
-    handle = CreateFile2(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, &extendedParams);
+    CREATEFILE2_EXTENDED_PARAMETERS extended_params;
+    memset(&extended_params, 0, sizeof(extended_params));
+    extended_params.dwSize = sizeof(extended_params);
+    extended_params.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
+    extended_params.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT;
+    extended_params.dwSecurityQosFlags = SECURITY_ANONYMOUS;
+    extended_params.lpSecurityAttributes = NULL;
+    extended_params.hTemplateFile = NULL;
+    handle = CreateFile2(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, &extended_params);
 #else
     handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
