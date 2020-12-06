@@ -138,19 +138,21 @@ macro(clone_repo name url)
         include(FetchContent)
 
         string(TOLOWER ${name} name_lower)
-        set(${name}_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${name_lower})
+        string(TOUPPER ${name} name_upper)
 
         FetchContent_Declare(${name}
             GIT_REPOSITORY ${${name}_REPOSITORY}
             GIT_TAG ${${name}_TAG}
-            SOURCE_DIR ${${name}_SOURCE_DIR}
-            BINARY_DIR ${${name}_SOURCE_DIR})
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${name_lower})
 
-        FetchContent_GetProperties(${name} POPULATED ${name}_POPULATED)
+        FetchContent_GetProperties(${name} POPULATED ${name_lower}_POPULATED)
 
-        if(NOT ${name}_POPULATED)
+        if(NOT ${name_lower}_POPULATED)
             FetchContent_Populate(${name})
         endif()
+
+        set(${name_upper}_SOURCE_DIR ${${name_lower}_SOURCE_DIR})
+        set(${name_upper}_BINARY_DIR ${${name_lower}_BINARY_DIR})
     endif()
 endmacro()
 
@@ -175,12 +177,14 @@ elseif(MZ_ZLIB)
 
         set(PC_PRIVATE_LIBS " -lz")
     else()
-        clone_repo(ZLIB https://github.com/madler/zlib)
+        clone_repo(zlib https://github.com/madler/zlib)
 
         # Don't automatically add all targets to the solution
-        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_SOURCE_DIR} EXCLUDE_FROM_ALL)
+        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
 
         list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
+        list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
+
         # Have to add zlib to install targets
         if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
             list(APPEND MINIZIP_DEP zlibstatic)
@@ -209,7 +213,7 @@ if(MZ_BZIP2)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
     else()
-        clone_repo(BZIP2 https://sourceware.org/git/bzip2.git)
+        clone_repo(bzip2 https://sourceware.org/git/bzip2.git)
 
         # BZip2 repository does not support cmake so we have to create
         # the bzip2 library ourselves
@@ -260,7 +264,7 @@ if(MZ_LZMA)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
     else()
-        clone_repo(LIBLZMA https://git.tukaani.org/xz.git)
+        clone_repo(liblzma https://git.tukaani.org/xz.git)
 
         # Don't automatically add all targets to the solution
         add_subdirectory(${LIBLZMA_SOURCE_DIR} ${LIBLZMA_BINARY_DIR} EXCLUDE_FROM_ALL)
@@ -297,7 +301,7 @@ if(MZ_ZSTD)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     else()
-        clone_repo(ZSTD https://github.com/facebook/zstd)
+        clone_repo(zstd https://github.com/facebook/zstd)
 
         # Don't automatically add all targets to the solution
         add_subdirectory(${ZSTD_SOURCE_DIR}/build/cmake ${ZSTD_BINARY_DIR} EXCLUDE_FROM_ALL)
@@ -455,8 +459,8 @@ endif()
 
 # Include Brian Gladman's crypto library
 if(MZ_BRG)
-    clone_repo(AES https://github.com/BrianGladman/aes)
-    clone_repo(SHA https://github.com/BrianGladman/sha)
+    clone_repo(aes https://github.com/BrianGladman/aes)
+    clone_repo(sha https://github.com/BrianGladman/sha)
 
     set(BRG_AES_SRC
         lib/aes/brg_endian.h
