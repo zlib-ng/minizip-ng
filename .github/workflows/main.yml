@@ -46,6 +46,14 @@ jobs:
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_gcc
 
+          - name: Ubuntu GCC OSB
+            os: ubuntu-latest
+            compiler: gcc
+            build-dir: ../build
+            build-src-dir: ../minizip
+            cmake-args: -DMZ_CODE_COVERAGE=ON
+            codecov: ubuntu_gcc_osb
+
           - name: Ubuntu Clang
             os: ubuntu-latest
             compiler: clang
@@ -178,8 +186,7 @@ jobs:
 
     - name: Install packages (macOS)
       if: runner.os == 'macOS'
-      run: |
-        brew install pkgconfig ${{ matrix.packages }}
+      run: brew install pkgconfig ${{ matrix.packages }}
 
     - name: Install packages (Ubuntu)
       if: runner.os == 'Linux' && matrix.packages
@@ -189,13 +196,11 @@ jobs:
 
     - name: Install packages (Windows)
       if: runner.os == 'Windows' && matrix.codecov
-      run: |
-        choco install ninja --no-progress
+      run: choco install ninja --no-progress
 
     - name: Install codecov.io tools
       if: matrix.codecov
-      run: |
-        python -u -m pip install codecov
+      run: python -u -m pip install codecov
 
     - name: Generate project files
       run: |
@@ -209,22 +214,20 @@ jobs:
 
     - name: Compile source code
       run: |
-        cd ${{ matrix.build-src-dir || '.' }}
+        cd ${{ matrix.build-dir || '.' }}
         cmake --build . --config ${{ matrix.build-config || 'Release' }}
 
     - name: Install test certificate (macOS)
       if: runner.os == 'macOS'
-      run: |
-        sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
+      run: sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
     - name: Install test certificate (Windows)
       if: runner.os == 'Windows'
-      run: |
-        certutil -addstore -enterprise Root test/test.pem
+      run: certutil -addstore -enterprise Root test/test.pem
 
     - name: Run test cases
       run: |
-        cd ${{ matrix.build-src-dir || '.' }}
+        cd ${{ matrix.build-dir || '.' }}
         ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
       # Specify test certificate for OpenSSL tests
       env:
@@ -233,7 +236,7 @@ jobs:
     - name: Upload coverage report
       if: matrix.codecov && env.CODECOV_TOKEN != ''
       run: |
-        cd ${{ matrix.build-src-dir || '.' }}
+        cd ${{ matrix.build-dir || '.' }}
         python -m codecov -F "${{ matrix.codecov }}" --name "${{ matrix.name }}" --gcov-exec="${{ matrix.gcov-exec || 'gcov' }}"
       env:
         # Codecov integration does not yet support GitHub Actions
