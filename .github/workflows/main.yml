@@ -244,7 +244,7 @@ jobs:
 
     - name: Package release (Ubuntu/macOS)
       if: (runner.os == 'Linux' || runner.os == 'macOS') && matrix.deploy && startsWith(github.ref, 'refs/tags/')
-      run: ls -R *.a mini*zip | tar -czvf minizip-${{ matrix.deploy-name }}.tar.gz -T -
+      run: ls -R mini*zip | tar -czvf minizip-${{ matrix.deploy-name }}.tar.gz -T -
 
     - name: Upload release (Ubuntu/macOS)
       uses: svenstaro/upload-release-action@v1-release
@@ -260,7 +260,7 @@ jobs:
 
     - name: Package release (Windows)
       if: runner.os == 'Windows' && matrix.deploy && startsWith(github.ref, 'refs/tags/')
-      run: 7z a -tzip minizip-${{ matrix.deploy-name }}.zip ./Release/mini*zip.exe ./Release/*.lib ./lib/liblzma/Release/*.lib ./lib/zlib/Release/zlibstatic.lib ./lib/zstd/build/cmake/lib/Release/*.lib
+      run: 7z a -tzip minizip-${{ matrix.deploy-name }}.zip ./Release/mini*zip.exe
 
     - name: Upload release (Windows)
       uses: svenstaro/upload-release-action@v1-release
