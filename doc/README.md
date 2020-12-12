@@ -103,7 +103,7 @@ instance, some #defines will have to be set as they have changed.
 
 |1.x|2.x|Description|
 |-|-|:-|
-||HAVE_ZLIB|Compile with ZLIB library. Older verisons of Minizip required ZLIB. It is now possible to alternatively compile only using liblzma library.|
+||HAVE_ZLIB|Compile with ZLIB library. Older versions of Minizip required ZLIB. It is now possible to alternatively compile only using liblzma library.|
 ||HAVE_LZMA|Compile with LZMA support.|
 |HAVE_BZIP2|HAVE_BZIP2|Compile with BZIP2 library support.|
 |HAVE_APPLE_COMPRESSION|HAVE_LIBCOMP|Compile using Apple Compression library.|
