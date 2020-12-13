@@ -187,6 +187,16 @@ static int32_t mz_zip_search_zip64_eocd(void *stream, const int64_t end_central_
     return err;
 }
 
+/* Get PKWARE traditional encryption verifier */
+static uint16_t mz_zip_get_pk_verify(uint32_t dos_date, uint64_t crc, uint16_t flag)
+{
+    /* Info-ZIP modification to ZipCrypto format: if bit 3 of the general 
+     * purpose bit flag is set, it uses high byte of 16-bit File Time. */
+    if (flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR)
+        return ((dos_date >> 16) & 0xff) << 8 | ((dos_date >> 8) & 0xff);
+    return ((crc >> 16) & 0xff) << 8 | ((crc >> 24) & 0xff);
+}
+
 /* Get info about the current file in the zip file */
 static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file *file_info, void *file_extra_stream) {
     uint64_t ntfs_time = 0;
@@ -241,15 +251,8 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
             err = mz_stream_read_uint32(stream, &file_info->crc);
 #ifdef HAVE_PKCRYPT
         if (err == MZ_OK && file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) {
-            /* Info-ZIP modification to ZipCrypto format: if bit 3 of the general 
-             * purpose bit flag is set, it uses high byte of 16-bit File Time. */
-
-            if (file_info->flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR)
-                file_info->pk_verify = ((dos_date >> 16) & 0xff) << 8 |
-                                       ((dos_date >> 8) & 0xff);
-            else
-                file_info->pk_verify = ((file_info->crc >> 16) & 0xff) << 8 |
-                                       ((file_info->crc >> 24) & 0xff);
+            /* Use dos_date from header instead of derived from time in zip extensions */
+            file_info->pk_verify = mz_zip_get_pk_verify(dos_date, file_info->crc, file_info->flag);
         }
 #endif
         if (err == MZ_OK) {
@@ -1942,15 +1945,22 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
 
     mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &disk_number);
     zip->file_info.disk_number = (uint32_t)disk_number;
-
     zip->file_info.disk_offset = mz_stream_tell(zip->stream);
+
+    if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) {
+#ifdef HAVE_PKCRYPT
+        /* Pre-calculated CRC value is required for PKWARE traditional encryption */
+        uint32_t dos_date = mz_zip_time_t_to_dos_date(zip->file_info.modified_date);
+        zip->file_info.pk_verify = mz_zip_get_pk_verify(dos_date, zip->file_info.crc, zip->file_info.flag);
+#endif
+#ifdef HAVE_WZAES
+        if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
+            zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
+#endif
+    }
+
     zip->file_info.crc = 0;
     zip->file_info.compressed_size = 0;
-
-#ifdef HAVE_WZAES
-    if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
-        zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
-#endif
 
     if ((compress_level == 0) || (is_dir))
         zip->file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
