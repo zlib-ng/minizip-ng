@@ -14,6 +14,8 @@ option(MZ_ZLIB "Enables ZLIB compression" ON)
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
+option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ON)
+option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_LIBCOMP "Enables Apple compression" OFF)
@@ -30,10 +32,8 @@ option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
 option(MZ_FILE32_API "Builds using posix 32-bit file api" OFF)
 set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
-option(ZLIB_FORCE_FETCH "Skips find package for ZLIB" OFF)
-option(ZSTD_FORCE_FETCH "Skips find package for ZSTD" OFF)
 
-mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX ZLIB_FORCE_FETCH ZSTD_FORCE_FETCH)
+mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX)
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -164,11 +164,12 @@ if(MZ_LIBCOMP)
     list(APPEND MINIZIP_LIB compression)
 elseif(MZ_ZLIB)
     # Check if zlib is present
-    if(NOT ZLIB_FORCE_FETCH)
+    if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(ZLIB QUIET)
         set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
     endif()
-    if(ZLIB_FOUND AND NOT ZLIB_FORCE_FETCH)
+
+    if(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
 
         list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
@@ -176,7 +177,7 @@ elseif(MZ_ZLIB)
         list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
 
         set(PC_PRIVATE_LIBS " -lz")
-    else()
+    elseif(MZ_FETCH_LIBS)
         clone_repo(zlib https://github.com/madler/zlib)
 
         # Don't automatically add all targets to the solution
@@ -191,6 +192,8 @@ elseif(MZ_ZLIB)
         else()
             list(APPEND MINIZIP_DEP zlib)
         endif()
+    else()
+        message(FATAL_ERROR "ZLIB not found")
     endif()
 
     list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
@@ -203,8 +206,11 @@ endif()
 
 if(MZ_BZIP2)
     # Check if bzip2 is present
-    find_package(BZip2)
-    if(BZIP2_FOUND)
+    if(NOT MZ_FORCE_FETCH_LIBS)
+        find_package(BZip2)
+    endif()
+
+    if(BZIP2_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using BZIP2 ${BZIP2_VERSION_STRING}")
 
         list(APPEND MINIZIP_INC ${BZIP2_INCLUDE_DIRS})
@@ -212,7 +218,7 @@ if(MZ_BZIP2)
         list(APPEND MINIZIP_LBD ${BZIP2_LIBRARY_DIRS})
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
-    else()
+    elseif(MZ_FETCH_LIBS)
         clone_repo(bzip2 https://sourceware.org/git/bzip2.git)
 
         # BZip2 repository does not support cmake so we have to create
@@ -236,6 +242,8 @@ if(MZ_BZIP2)
 
         list(APPEND MINIZIP_DEP bzip2)
         list(APPEND MINIZIP_INC lib/bzip2)
+    else()
+        message(FATAL_ERROR "BZip2 not found")
     endif()
 
     list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
@@ -245,7 +253,7 @@ endif()
 
 if(MZ_LZMA)
     # Check if liblzma is present
-    if(NOT LIBLZMA_FORCE_FETCH)
+    if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(PkgConfig QUIET)
         if(PKGCONFIG_FOUND)
             pkg_check_modules(LIBLZMA liblzma)
@@ -256,14 +264,14 @@ if(MZ_LZMA)
         endif()
     endif()
 
-    if(LIBLZMA_FOUND AND NOT LIBLZMA_FORCE_FETCH)
+    if(LIBLZMA_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using LZMA ${LIBLZMA_VERSION}")
 
         list(APPEND MINIZIP_INC ${LIBLZMA_INCLUDE_DIRS})
         list(APPEND MINIZIP_LIB ${LIBLZMA_LIBRARIES})
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
-    else()
+    elseif(MZ_FETCH_LIBS)
         clone_repo(liblzma https://git.tukaani.org/xz.git)
 
         # Don't automatically add all targets to the solution
@@ -272,6 +280,8 @@ if(MZ_LZMA)
         list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
         list(APPEND MINIZIP_DEP liblzma)
         list(APPEND MINIZIP_LIB ${LIBLZMA_TARGET})
+    else()
+        message(FATAL_ERROR "LZMA not found")
     endif()
 
     list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
@@ -281,7 +291,7 @@ endif()
 
 if(MZ_ZSTD)
     # Check if zstd is present
-    if(NOT ZSTD_FORCE_FETCH)
+    if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(PkgConfig QUIET)
         if(PKGCONFIG_FOUND)
             pkg_check_modules(ZSTD libzstd)
@@ -292,7 +302,7 @@ if(MZ_ZSTD)
         endif()
     endif()
 
-    if(ZSTD_FOUND AND NOT ZSTD_FORCE_FETCH)
+    if(ZSTD_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZSTD ${ZSTD_VERSION}")
 
         list(APPEND MINIZIP_INC ${ZSTD_INCLUDE_DIRS})
@@ -459,6 +469,10 @@ endif()
 
 # Include Brian Gladman's crypto library
 if(MZ_BRG)
+    if(NOT MZ_FETCH_LIBS)
+        message(FATAL_ERROR "AES and SHA libraries not found")
+    endif()
+
     clone_repo(aes https://github.com/BrianGladman/aes)
     clone_repo(sha https://github.com/BrianGladman/sha)
 
@@ -900,6 +914,8 @@ add_feature_info(MZ_ZLIB MZ_ZLIB "Enables ZLIB compression")
 add_feature_info(MZ_BZIP2 MZ_BZIP2 "Enables BZIP2 compression")
 add_feature_info(MZ_LZMA MZ_LZMA "Enables LZMA & XZ compression")
 add_feature_info(MZ_ZSTD MZ_ZSTD "Enables ZSTD compression")
+add_feature_info(MZ_FETCH_LIBS MZ_FETCH_LIBS "Enables fetching third-party libraries if not found")
+add_feature_info(MZ_FORCE_FETCH_LIBS MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always")
 add_feature_info(MZ_PKCRYPT MZ_PKCRYPT "Enables PKWARE traditional encryption")
 add_feature_info(MZ_WZAES MZ_WZAES "Enables WinZIP AES encryption")
 add_feature_info(MZ_LIBCOMP MZ_LIBCOMP "Enables Apple compression")
@@ -914,5 +930,6 @@ add_feature_info(MZ_BUILD_TEST MZ_BUILD_TEST "Builds minizip test executable")
 add_feature_info(MZ_BUILD_UNIT_TEST MZ_BUILD_UNIT_TEST "Builds minizip unit test project")
 add_feature_info(MZ_BUILD_FUZZ_TEST MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables")
 add_feature_info(MZ_CODE_COVERAGE MZ_CODE_COVERAGE "Builds with code coverage flags")
+add_feature_info(MZ_FILE32_API MZ_FILE32_API "Builds using posix 32-bit file api")
 
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES INCLUDE_QUIET_PACKAGES)

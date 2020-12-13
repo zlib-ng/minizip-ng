@@ -69,29 +69,31 @@ cmake --build .
 
 ## Build Options
 
-| Name               | Description                           | Default Value |
-|:-------------------|:--------------------------------------|:-------------:|
-| MZ_COMPAT          | Enables compatibility layer           |      ON       |
-| MZ_ZLIB            | Enables ZLIB compression              |      ON       |
-| MZ_BZIP2           | Enables BZIP2 compression             |      ON       |
-| MZ_LZMA            | Enables LZMA & XZ compression         |      ON       |
-| MZ_ZSTD            | Enables ZSTD compression              |      ON       |
-| MZ_PKCRYPT         | Enables PKWARE traditional encryption |      ON       |
-| MZ_WZAES           | Enables WinZIP AES encryption         |      ON       |
-| MZ_LIBCOMP         | Enables Apple compression             |      OFF      |
-| MZ_OPENSSL         | Enables OpenSSL encryption            |      OFF      |
-| MZ_LIBBSD          | Builds with libbsd crypto random      |      ON       |
-| MZ_BRG             | Enables Brian Gladman's library       |      OFF      |
-| MZ_ICONV           | Enables iconv encoding conversion     |      ON       |
-| MZ_SIGNING         | Enables zip signing support           |      ON       |
-| MZ_COMPRESS_ONLY   | Only support compression              |      OFF      |
-| MZ_DECOMPRESS_ONLY | Only support decompression            |      OFF      |
-| MZ_BUILD_TEST      | Builds minizip test executable        |      OFF      |
-| MZ_BUILD_UNIT_TEST | Builds minizip unit test project      |      OFF      |
-| MZ_BUILD_FUZZ_TEST | Builds minizip fuzz executables       |      OFF      |
-| MZ_CODE_COVERAGE   | Build with code coverage flags        |      OFF      |
-| MZ_PROJECT_SUFFIX  | Project name suffix for packaging     |               |
-| MZ_FILE32_API      | Builds using posix 32-bit file api    |      OFF      |
+| Name                | Description                                         | Default Value |
+|:--------------------|:----------------------------------------------------|:-------------:|
+| MZ_COMPAT           | Enables compatibility layer                         |      ON       |
+| MZ_ZLIB             | Enables ZLIB compression                            |      ON       |
+| MZ_BZIP2            | Enables BZIP2 compression                           |      ON       |
+| MZ_LZMA             | Enables LZMA & XZ compression                       |      ON       |
+| MZ_ZSTD             | Enables ZSTD compression                            |      ON       |
+| MZ_FETCH_LIBS       | Enables fetching third-party libraries if not found |      ON       |
+| MZ_FORCE_FETCH_LIBS | Enables fetching third-party libraries always       |      OFF      |
+| MZ_PKCRYPT          | Enables PKWARE traditional encryption               |      ON       |
+| MZ_WZAES            | Enables WinZIP AES encryption                       |      ON       |
+| MZ_LIBCOMP          | Enables Apple compression                           |      OFF      |
+| MZ_OPENSSL          | Enables OpenSSL encryption                          |      OFF      |
+| MZ_LIBBSD           | Builds with libbsd crypto random                    |      ON       |
+| MZ_BRG              | Enables Brian Gladman's library                     |      OFF      |
+| MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
+| MZ_SIGNING          | Enables zip signing support                         |      ON       |
+| MZ_COMPRESS_ONLY    | Only support compression                            |      OFF      |
+| MZ_DECOMPRESS_ONLY  | Only support decompression                          |      OFF      |
+| MZ_BUILD_TEST       | Builds minizip test executable                      |      OFF      |
+| MZ_BUILD_UNIT_TEST  | Builds minizip unit test project                    |      OFF      |
+| MZ_BUILD_FUZZ_TEST  | Builds minizip fuzz executables                     |      OFF      |
+| MZ_CODE_COVERAGE    | Build with code coverage flags                      |      OFF      |
+| MZ_PROJECT_SUFFIX   | Project name suffix for packaging                   |               |
+| MZ_FILE32_API       | Builds using posix 32-bit file api                  |      OFF      |
 
 ## Third-Party Libraries
 
