@@ -147,7 +147,7 @@ jobs:
             os: windows-latest
             compiler: cl
             # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
-            cmake-args: -DZLIB_FORCE_FETCH=ON -DZSTD_FORCE_FETCH=ON -DLIBLZMA_FORCE_FETCH=ON
+            cmake-args: -DMZ_FORCE_FETCH_LIBS=ON
             deploy: true
             deploy-name: windows
 
@@ -155,7 +155,7 @@ jobs:
             os: windows-latest
             compiler: gcc
             # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
-            cmake-args: -DMZ_CODE_COVERAGE=ON -G Ninja -DZLIB_FORCE_FETCH=ON -DZSTD_FORCE_FETCH=ON -DLIBLZMA_FORCE_FETCH=ON
+            cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_FORCE_FETCH_LIBS=ON -G Ninja
             codecov: windows_gcc
 
           # No code coverage on release builds
