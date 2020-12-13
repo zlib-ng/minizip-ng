@@ -207,7 +207,7 @@ endif()
 if(MZ_BZIP2)
     # Check if bzip2 is present
     if(NOT MZ_FORCE_FETCH_LIBS)
-        find_package(BZip2)
+        find_package(BZip2 QUIET)
     endif()
 
     if(BZIP2_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
