@@ -310,7 +310,7 @@ if(MZ_ZSTD)
         list(APPEND MINIZIP_LBD ${ZSTD_LIBRARY_DIRS})
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
-    else()
+    elseif(MZ_FETCH_LIBS)
         clone_repo(zstd https://github.com/facebook/zstd)
 
         # Don't automatically add all targets to the solution
@@ -323,6 +323,8 @@ if(MZ_ZSTD)
             list(APPEND MINIZIP_DEP libzstd_shared)
         endif()
         list(APPEND MINIZIP_LIB ${ZSTD_TARGET})
+    else()
+        message(FATAL_ERROR "ZSTD not found")
     endif()
 
     list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
