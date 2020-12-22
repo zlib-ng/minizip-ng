@@ -136,6 +136,9 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     int64_t uncompressed_size);
 /* Close the current file for writing and set data descriptor values */
 
+int32_t mz_zip_entry_seek_local_header(void *handle);
+/* Seeks to the local header for the entry */
+
 int32_t mz_zip_entry_close_raw(void *handle, int64_t uncompressed_size, uint32_t crc32);
 /* Close the current file in the zip file where raw is compressed data */
 

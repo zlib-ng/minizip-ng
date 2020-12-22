@@ -190,7 +190,7 @@ static int32_t mz_zip_search_zip64_eocd(void *stream, const int64_t end_central_
 /* Get PKWARE traditional encryption verifier */
 static uint16_t mz_zip_get_pk_verify(uint32_t dos_date, uint64_t crc, uint16_t flag)
 {
-    /* Info-ZIP modification to ZipCrypto format: if bit 3 of the general 
+    /* Info-ZIP modification to ZipCrypto format: if bit 3 of the general
      * purpose bit flag is set, it uses high byte of 16-bit File Time. */
     if (flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR)
         return ((dos_date >> 16) & 0xff) << 8 | ((dos_date >> 8) & 0xff);
@@ -1795,30 +1795,6 @@ int32_t mz_zip_entry_is_open(void *handle) {
     return MZ_OK;
 }
 
-static int32_t mz_zip_seek_to_local_header(void *handle) {
-    mz_zip *zip = (mz_zip *)handle;
-    int64_t disk_size = 0;
-    uint32_t disk_number = zip->file_info.disk_number;
-
-    if (disk_number == zip->disk_number_with_cd) {
-        mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size);
-        if ((disk_size == 0) || ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0))
-            disk_number = (uint32_t)-1;
-    }
-
-    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, disk_number);
-
-    mz_zip_print("Zip - Entry - Seek local (disk %" PRId32 " offset %" PRId64 ")\n",
-        disk_number, zip->file_info.disk_offset);
-
-    /* Guard against seek overflows */
-    if ((zip->disk_offset_shift > 0) &&
-        (zip->file_info.disk_offset > (INT64_MAX - zip->disk_offset_shift)))
-        return MZ_FORMAT_ERROR;
-
-    return mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
-}
-
 int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password) {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
@@ -1837,7 +1813,7 @@ int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password) 
 
     mz_zip_print("Zip - Entry - Read open (raw %" PRId32 ")\n", raw);
 
-    err = mz_zip_seek_to_local_header(handle);
+    err = mz_zip_entry_seek_local_header(handle);
     if (err == MZ_OK)
         err = mz_zip_entry_read_header(zip->stream, 1, &zip->local_file_info, zip->local_file_info_stream);
 
@@ -2048,7 +2024,7 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
             zip->local_file_info.extrafield_size, MZ_ZIP_EXTENSION_ZIP64, NULL) == MZ_OK)
             zip64 = 1;
 
-        err = mz_zip_seek_to_local_header(handle);
+        err = mz_zip_entry_seek_local_header(handle);
 
         /* Seek to end of compressed stream since we might have over-read during compression */
         if (err == MZ_OK)
@@ -2158,7 +2134,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
         int64_t end_pos = mz_stream_tell(zip->stream);
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &end_disk_number);
 
-        err = mz_zip_seek_to_local_header(handle);
+        err = mz_zip_entry_seek_local_header(handle);
 
         if (err == MZ_OK) {
             /* Seek to crc32 and sizes offset in local header */
@@ -2177,6 +2153,30 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     mz_zip_entry_close_int(handle);
 
     return err;
+}
+
+int32_t mz_zip_entry_seek_local_header(void *handle) {
+    mz_zip *zip = (mz_zip *)handle;
+    int64_t disk_size = 0;
+    uint32_t disk_number = zip->file_info.disk_number;
+
+    if (disk_number == zip->disk_number_with_cd) {
+        mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size);
+        if ((disk_size == 0) || ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0))
+            disk_number = (uint32_t)-1;
+    }
+
+    mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, disk_number);
+
+    mz_zip_print("Zip - Entry - Seek local (disk %" PRId32 " offset %" PRId64 ")\n",
+        disk_number, zip->file_info.disk_offset);
+
+    /* Guard against seek overflows */
+    if ((zip->disk_offset_shift > 0) &&
+        (zip->file_info.disk_offset > (INT64_MAX - zip->disk_offset_shift)))
+        return MZ_FORMAT_ERROR;
+
+    return mz_stream_seek(zip->stream, zip->file_info.disk_offset + zip->disk_offset_shift, MZ_SEEK_SET);
 }
 
 int32_t mz_zip_entry_close(void *handle) {

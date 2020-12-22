@@ -28,6 +28,7 @@ The _mz_zip_ object allows for the reading and writing of the a zip file and its
   - [mz_zip_entry_write_open](#mz_zip_entry_write_open)
   - [mz_zip_entry_write](#mz_zip_entry_write)
   - [mz_zip_entry_write_close](#mz_zip_entry_write_close)
+  - [mz_zip_entry_seek_local_header](#mz_zip_entry_seek_local_header)
   - [mz_zip_entry_close_raw](#mz_zip_entry_close_raw)
   - [mz_zip_entry_close](#mz_zip_entry_close)
 - [Entry Enumeration](#entry-enumeration)
@@ -693,6 +694,32 @@ int64_t uncompressed size = 0;
 int32_t err = mz_zip_entry_write_close(zip_handle, crc32, compressed_size, uncompressed_size);
 if (err == MZ_OK)
     printf("Zip file entry closed for writing\n");
+```
+
+### mz_zip_entry_seek_local_header
+Seeks to the local header for the entry.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+**Example**
+```
+int32_t err = mz_zip_goto_first_entry(zip_handle);
+if (err == MZ_OK)
+    err = mz_zip_entry_seek_local_header(zip_handle);
+if (err == MZ_OK) {
+    void *stream = NULL;
+    mz_zip_get_stream(zip_handle, &stream);
+    int64_t position = mz_stream_tell(stream);
+    printf("Position of local header of first entry: %lld\n", position);
+}
 ```
 
 ### mz_zip_entry_close_raw
