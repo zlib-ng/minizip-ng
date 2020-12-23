@@ -621,6 +621,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     /* Start calculating extra field sizes */
     if (zip64) {
+        /* Both compressed and uncompressed sizes must be included (at least in local header) */
         field_length_zip64 = 8 + 8;
         if ((!local) && (file_info->disk_offset >= UINT32_MAX))
             field_length_zip64 += 8;
