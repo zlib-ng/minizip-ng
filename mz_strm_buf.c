@@ -118,7 +118,6 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written) {
 
 int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
-    int64_t position = 0;
     int32_t buf_len = 0;
     int32_t bytes_to_read = 0;
     int32_t bytes_to_copy = 0;
@@ -129,10 +128,9 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
     mz_stream_buffered_print("Buffered - Read (size %" PRId32 " pos %" PRId64 ")\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0) {
-        mz_stream_buffered_print("Buffered - Switch from write to read, flushing (pos %" PRId64 ")\n",
-            buffered->position);
+        int64_t position  = buffered->position + buffered->writebuf_pos
 
-        position = buffered->position + buffered->writebuf_pos;
+        mz_stream_buffered_print("Buffered - Switch from write to read, flushing (pos %" PRId64 ")\n", position);
 
         mz_stream_buffered_flush(stream, &bytes_flushed);
         mz_stream_buffered_seek(stream, position, MZ_SEEK_SET);
