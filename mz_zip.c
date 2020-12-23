@@ -2169,7 +2169,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
                 /* Find zip64 extrafield and update compressed and uncompressed sizes */
                 if (err == MZ_OK)
-                    err = mz_zip_extrafield_find(zip->stream, MZ_ZIP_EXTENSION_ZIP64, &length);
+                    err = mz_zip_extrafield_find(zip->stream, MZ_ZIP_EXTENSION_ZIP64, extrafield_size, &length);
                 if (err == MZ_OK) {
                     if (length >= 8)
                         err = mz_stream_write_uint64(zip->stream, zip->file_info.compressed_size);
@@ -2533,10 +2533,14 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
 
 /***************************************************************************/
 
-int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length) {
+int32_t mz_zip_extrafield_find(void *stream, uint16_t type, int32_t max_seek, uint16_t *length) {
     int32_t err = MZ_OK;
     uint16_t field_type = 0;
     uint16_t field_length = 0;
+
+
+    if (max_seek < 4)
+        return MZ_EXIST_ERROR;
 
     do {
         err = mz_stream_read_uint16(stream, &field_type);
@@ -2550,6 +2554,10 @@ int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length) {
                 *length = field_length;
             return MZ_OK;
         }
+
+        max_seek -= field_length - 4;
+        if (max_seek < 0)
+            return MZ_EXIST_ERROR;
 
         err = mz_stream_seek(stream, field_length, MZ_SEEK_CUR);
     } while (err == MZ_OK);
@@ -2568,7 +2576,7 @@ int32_t mz_zip_extrafield_contains(const uint8_t *extrafield, int32_t extrafield
     mz_stream_mem_create(&file_extra_stream);
     mz_stream_mem_set_buffer(file_extra_stream, (void *)extrafield, extrafield_size);
 
-    err = mz_zip_extrafield_find(file_extra_stream, type, length);
+    err = mz_zip_extrafield_find(file_extra_stream, type, extrafield_size, length);
 
     mz_stream_mem_delete(&file_extra_stream);
 

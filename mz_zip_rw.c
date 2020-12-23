@@ -247,7 +247,7 @@ int32_t mz_zip_reader_unzip_cd(void *handle) {
     mz_stream_mem_create(&file_extra_stream);
     mz_stream_mem_set_buffer(file_extra_stream, (void *)cd_info->extrafield, cd_info->extrafield_size);
 
-    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_CDCD, NULL);
+    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_CDCD, INT32_MAX, NULL);
     if (err == MZ_OK)
         err = mz_stream_read_uint64(file_extra_stream, &number_entry);
 
@@ -481,7 +481,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle) {
     mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield,
         reader->file_info->extrafield_size);
 
-    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, &signature_size);
+    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, INT32_MAX, &signature_size);
     if ((err == MZ_OK) && (signature_size > 0)) {
         signature = (uint8_t *)MZ_ALLOC(signature_size);
         if (mz_stream_read(file_extra_stream, signature, signature_size) != signature_size)
@@ -520,7 +520,7 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
         reader->file_info->extrafield_size);
 
     do {
-        err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
+        err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, INT32_MAX, NULL);
         if (err != MZ_OK)
             break;
 
@@ -557,7 +557,7 @@ int32_t mz_zip_reader_entry_get_first_hash(void *handle, uint16_t *algorithm, ui
     mz_stream_mem_set_buffer(file_extra_stream, (void *)reader->file_info->extrafield,
         reader->file_info->extrafield_size);
 
-    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, NULL);
+    err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_HASH, INT32_MAX, NULL);
     if (err == MZ_OK)
         err = mz_stream_read_uint16(file_extra_stream, &cur_algorithm);
     if (err == MZ_OK)

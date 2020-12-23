@@ -203,7 +203,7 @@ int32_t mz_zip_attrib_win32_to_posix(uint32_t win32_attrib, uint32_t *posix_attr
 
 /***************************************************************************/
 
-int32_t mz_zip_extrafield_find(void *stream, uint16_t type, uint16_t *length);
+int32_t mz_zip_extrafield_find(void *stream, uint16_t type, int32_t max_seek, uint16_t *length);
 /* Seeks to extra field by its type and returns its length */
 
 int32_t mz_zip_extrafield_contains(const uint8_t *extrafield, int32_t extrafield_size,

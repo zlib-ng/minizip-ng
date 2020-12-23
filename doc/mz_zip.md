@@ -1254,6 +1254,7 @@ Seeks using a _mz_stream_ to an extra field by its type and returns its length.
 |-|-|-|
 |void *|stream|_mz_stream_ instance|
 |uint16_t|type|Extra field type indentifier (See [PKWARE zip app note](zip/appnote.iz.txt) section 4.5.2)|
+|int32_t|max_seek|Maximum length to search for extrafield|
 |uint16_t *|length|Pointer to extra field length|
 
 **Return**
@@ -1273,7 +1274,7 @@ mz_stream_mem_create(&file_extra_stream);
 mz_stream_mem_set_buffer(file_extra_stream, (void *)file_info->extrafield,
     file_info->extrafield_size);
 
-if (mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_AES, &extrafield_length) == MZ_OK)
+if (mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_AES, INT32_MAX, &extrafield_length) == MZ_OK)
     printf("Found AES extra field, length %d\n", extrafield_length);
 else
     printf("Unable to find AES extra field in zip entry\n");
