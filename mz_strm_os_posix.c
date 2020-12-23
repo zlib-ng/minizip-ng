@@ -79,7 +79,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     else if (mode & MZ_OPEN_MODE_APPEND)
         mode_fopen = "r+b";
     else if (mode & MZ_OPEN_MODE_CREATE)
-        mode_fopen = "wb";
+        mode_fopen = "w+b";
     else
         return MZ_OPEN_ERROR;
 
