@@ -569,7 +569,8 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
 
     needs_zip64 = (file_info->uncompressed_size >= max_uncompressed_size) ||
                   (file_info->compressed_size >= UINT32_MAX) ||
-                  (file_info->disk_offset >= UINT32_MAX);
+                  (file_info->disk_offset >= UINT32_MAX) ||
+                  (file_info->disk_number >= UINT16_MAX);
 
     if (file_info->zip64 == MZ_ZIP64_AUTO) {
         /* If uncompressed size is unknown, assume zip64 for 64-bit data descriptors */
@@ -800,6 +801,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             err = mz_stream_write_int64(stream, file_info->compressed_size);
         if ((err == MZ_OK) && (!local) && (file_info->disk_offset >= UINT32_MAX))
             err = mz_stream_write_int64(stream, file_info->disk_offset);
+        if ((err == MZ_OK) && (!local) && (file_info->disk_number >= UINT16_MAX))
+            err = mz_stream_write_uint32(stream, file_info->disk_number);
     }
     /* Write NTFS extra field */
     if ((err == MZ_OK) && (field_length_ntfs > 0)) {
