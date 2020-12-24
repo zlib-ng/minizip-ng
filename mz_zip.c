@@ -557,7 +557,7 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
     if (zip64 == NULL)
         return MZ_PARAM_ERROR;
 
-    /* At local header we might not know yet whether compressed size will overflow unsigned 
+    /* At local header we might not know yet whether compressed size will overflow unsigned
        32-bit integer which might happen for high entropy data so we give it some cushion */
     if (local)
         max_uncompressed_size -= MZ_ZIP_UNCOMPR_SIZE64_CUSHION;
@@ -2180,9 +2180,9 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
                     err = mz_zip_extrafield_find(zip->stream, MZ_ZIP_EXTENSION_ZIP64, extrafield_size, &length);
                 if (err == MZ_OK) {
                     if (length >= 8)
-                        err = mz_stream_write_uint64(zip->stream, zip->file_info.compressed_size);
-                    if ((err == MZ_OK) && (length >= 16))
                         err = mz_stream_write_uint64(zip->stream, zip->file_info.uncompressed_size);
+                    if ((err == MZ_OK) && (length >= 16))
+                        err = mz_stream_write_uint64(zip->stream, zip->file_info.compressed_size);
                 }
             }
         }
