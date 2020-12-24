@@ -551,11 +551,16 @@ static int32_t mz_zip_entry_write_crc_sizes(void *stream, uint8_t zip64, uint8_t
 }
 
 static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, uint8_t *zip64) {
-    uint8_t needs_zip64 = 0;
     uint32_t max_uncompressed_size = UINT32_MAX;
+    uint8_t needs_zip64 = 0;
 
     if (zip64 == NULL)
         return MZ_PARAM_ERROR;
+
+    if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK) {
+        *zip64 = 0;
+        return MZ_OK;
+    }
 
     /* At local header we might not know yet whether compressed size will overflow unsigned
        32-bit integer which might happen for high entropy data so we give it some cushion */
