@@ -557,15 +557,19 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
     if (zip64 == NULL)
         return MZ_PARAM_ERROR;
 
-    if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK) {
-        *zip64 = 0;
-        return MZ_OK;
-    }
+    if (local) {
+        /* Local header directory entries do not need zip64 because sizes are zero */
 
-    /* At local header we might not know yet whether compressed size will overflow unsigned
-       32-bit integer which might happen for high entropy data so we give it some cushion */
-    if (local)
+        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK) {
+            *zip64 = 0;
+            return MZ_OK;
+        }
+
+        /* At local header we might not know yet whether compressed size will overflow unsigned
+           32-bit integer which might happen for high entropy data so we give it some cushion */
+
         max_uncompressed_size -= MZ_ZIP_UNCOMPR_SIZE64_CUSHION;
+    }
 
     needs_zip64 = (file_info->uncompressed_size >= max_uncompressed_size) ||
                   (file_info->compressed_size >= UINT32_MAX) ||
