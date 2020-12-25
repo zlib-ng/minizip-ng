@@ -2160,7 +2160,8 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
     /* Update local header with crc32 and sizes */
     if ((err == MZ_OK) && ((zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) == 0) &&
-        ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0)) {
+        ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0) &&
+        (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) != MZ_OK)) {
         /* Save the disk number and position we are to seek back after updating local header */
         int64_t end_pos = mz_stream_tell(zip->stream);
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &end_disk_number);
