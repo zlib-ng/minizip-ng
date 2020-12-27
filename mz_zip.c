@@ -557,14 +557,9 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
     if (zip64 == NULL)
         return MZ_PARAM_ERROR;
 
+    *zip64 = 0;
+
     if (local) {
-        /* Local header directory entries do not need zip64 because sizes are zero */
-
-        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK) {
-            *zip64 = 0;
-            return MZ_OK;
-        }
-
         /* At local header we might not know yet whether compressed size will overflow unsigned
            32-bit integer which might happen for high entropy data so we give it some cushion */
 
@@ -572,21 +567,29 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
     }
 
     needs_zip64 = (file_info->uncompressed_size >= max_uncompressed_size) ||
-                  (file_info->compressed_size >= UINT32_MAX) ||
-                  (file_info->disk_offset >= UINT32_MAX) ||
-                  (file_info->disk_number >= UINT16_MAX);
+                  (file_info->compressed_size >= UINT32_MAX);
+
+    if (!local) {
+        /* Disk offset and number only used in central directory header */
+        needs_zip64 |= (file_info->disk_offset >= UINT32_MAX) ||
+                       (file_info->disk_number >= UINT16_MAX);
+    }
 
     if (file_info->zip64 == MZ_ZIP64_AUTO) {
         /* If uncompressed size is unknown, assume zip64 for 64-bit data descriptors */
-        *zip64 = (local && file_info->uncompressed_size == 0) || (needs_zip64);
+        if (local && file_info->uncompressed_size == 0) {
+            /* Don't use zip64 for local header directory entries */
+            if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) != MZ_OK) {
+                *zip64 = 1;
+            }
+        }
+        *zip64 |= needs_zip64;
     } else if (file_info->zip64 == MZ_ZIP64_FORCE) {
         *zip64 = 1;
     } else if (file_info->zip64 == MZ_ZIP64_DISABLE) {
         /* Zip64 extension is required to zip file */
         if (needs_zip64)
             return MZ_PARAM_ERROR;
-
-        *zip64 = 0;
     }
 
     return MZ_OK;
@@ -2160,8 +2163,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
     /* Update local header with crc32 and sizes */
     if ((err == MZ_OK) && ((zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) == 0) &&
-        ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0) &&
-        (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) != MZ_OK)) {
+        ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0)) {
         /* Save the disk number and position we are to seek back after updating local header */
         int64_t end_pos = mz_stream_tell(zip->stream);
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &end_disk_number);
