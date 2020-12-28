@@ -237,7 +237,7 @@ jobs:
       if: matrix.codecov && env.CODECOV_TOKEN != ''
       run: |
         cd ${{ matrix.build-dir || '.' }}
-        python -m codecov -F "${{ matrix.codecov }}" --name "${{ matrix.name }}" --gcov-exec="${{ matrix.gcov-exec || 'gcov' }}"
+        python -m codecov -F "${{ matrix.codecov }}" --name "${{ matrix.name }}" --no-gcov-out --gcov-exec="${{ matrix.gcov-exec || 'gcov' }}"
       env:
         # Codecov integration does not yet support GitHub Actions
         CODECOV_TOKEN: "${{secrets.CODECOV_TOKEN}}"
