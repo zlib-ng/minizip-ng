@@ -85,7 +85,7 @@ int32_t mz_stream_libcomp_open(void *stream, const char *path, int32_t mode) {
         algorithm = COMPRESSION_LZMA;
     else
         return MZ_SUPPORT_ERROR;
-        
+
     err = compression_stream_init(&libcomp->cstream, (compression_stream_operation)operation, algorithm);
 
     if (err == COMPRESSION_STATUS_ERROR) {
@@ -353,39 +353,4 @@ void mz_stream_libcomp_delete(void **stream) {
     if (libcomp != NULL)
         MZ_FREE(libcomp);
     *stream = NULL;
-}
-
-/***************************************************************************/
-
-static mz_stream_vtbl mz_stream_zlib_vtbl = {
-    mz_stream_libcomp_open,
-    mz_stream_libcomp_is_open,
-    mz_stream_libcomp_read,
-    mz_stream_libcomp_write,
-    mz_stream_libcomp_tell,
-    mz_stream_libcomp_seek,
-    mz_stream_libcomp_close,
-    mz_stream_libcomp_error,
-    mz_stream_zlib_create,
-    mz_stream_libcomp_delete,
-    mz_stream_libcomp_get_prop_int64,
-    mz_stream_libcomp_set_prop_int64
-};
-
-void *mz_stream_zlib_create(void **stream) {
-    mz_stream_libcomp *libcomp = NULL;
-    void *stream_int = NULL;
-    mz_stream_libcomp_create(&stream_int);
-    if (stream_int != NULL) {
-        libcomp = (mz_stream_libcomp *)stream_int;
-        libcomp->stream.vtbl = &mz_stream_zlib_vtbl;
-        libcomp->method = MZ_COMPRESS_METHOD_DEFLATE;
-    }
-    if (stream != NULL)
-        *stream = stream_int;
-    return stream_int;
-}
-
-void *mz_stream_zlib_get_interface(void) {
-    return (void *)&mz_stream_zlib_vtbl;
 }

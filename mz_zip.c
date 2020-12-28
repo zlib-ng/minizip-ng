@@ -1745,7 +1745,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
     if (err == MZ_OK) {
         if (zip->entry_raw || zip->file_info.compression_method == MZ_COMPRESS_METHOD_STORE)
             mz_stream_raw_create(&zip->compress_stream);
-#if defined(HAVE_ZLIB) || defined(HAVE_LIBCOMP)
+#ifdef HAVE_ZLIB
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE)
             mz_stream_zlib_create(&zip->compress_stream);
 #endif
@@ -1754,7 +1754,8 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             mz_stream_bzip_create(&zip->compress_stream);
 #endif
 #ifdef HAVE_LIBCOMP
-        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_DEFLATE ||
+                 zip->file_info.compression_method == MZ_COMPRESS_METHOD_XZ) {
             mz_stream_libcomp_create(&zip->compress_stream);
             mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_COMPRESS_METHOD,
                 zip->file_info.compression_method);
