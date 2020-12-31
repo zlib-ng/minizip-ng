@@ -170,7 +170,7 @@ typedef int32_t (*mz_zip_writer_entry_cb)(void *handle, void *userdata, mz_zip_f
 int32_t mz_zip_writer_is_open(void *handle);
 /* Checks to see if the zip file is open */
 
-int32_t mz_zip_writer_open(void *handle, void *stream);
+int32_t mz_zip_writer_open(void *handle, void *stream, uint8_t append);
 /* Opens zip file from stream */
 
 int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_size, uint8_t append);

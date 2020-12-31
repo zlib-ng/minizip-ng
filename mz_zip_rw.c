@@ -1116,8 +1116,16 @@ static int32_t mz_zip_writer_open_int(void *handle, void *stream, int32_t mode) 
     return MZ_OK;
 }
 
-int32_t mz_zip_writer_open(void *handle, void *stream) {
-    return mz_zip_writer_open_int(handle, stream, MZ_OPEN_MODE_WRITE);
+int32_t mz_zip_writer_open(void *handle, void *stream, uint8_t append) {
+    int32_t mode = MZ_OPEN_MODE_WRITE;
+
+    if (append) {
+        mode |= MZ_OPEN_MODE_APPEND;
+    } else {
+        mode |= MZ_OPEN_MODE_CREATE;
+    }
+
+    return mz_zip_writer_open_int(handle, stream, mode);
 }
 
 int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_size, uint8_t append) {
@@ -1213,7 +1221,7 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path) {
     mz_stream_os_delete(&file_stream);
 
     if (err == MZ_OK)
-        err = mz_zip_writer_open(handle, writer->mem_stream);
+        err = mz_zip_writer_open(handle, writer->mem_stream, 1);
     if (err != MZ_OK)
         mz_zip_writer_close(handle);
 
