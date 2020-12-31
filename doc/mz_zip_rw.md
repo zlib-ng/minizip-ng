@@ -1331,6 +1331,7 @@ if (mz_zip_writer_is_open(zip_writer) == MZ_OK)
 |-|-|-|
 |void *|handle|_mz_zip_writer_ instance|
 |void *|stream|_mz_stream_ instance|
+|uint8_t|append|Opens in append mode if 1|
 
 **Return**
 |Type|Description|
@@ -1345,9 +1346,9 @@ const char *path = "c:\\my.zip";
 mz_zip_writer_create(&zip_writer);
 mz_stream_os_create(&file_stream);
 
-err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_READ);
+err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
 if (err == MZ_OK) {
-    err = mz_zip_writer_open(zip_writer, file_stream);
+    err = mz_zip_writer_open(zip_writer, file_stream, 0);
     if (err == MZ_OK) {
         printf("Zip writer was opened %s\n", path);
         mz_zip_writer_close(zip_writer);
