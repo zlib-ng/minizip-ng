@@ -206,7 +206,7 @@ jobs:
       run: |
         mkdir ${{ matrix.build-dir || '.not-used' }}
         cd ${{ matrix.build-dir || '.' }}
-        cmake ${{ matrix.build-src-dir || '.' }} -DMZ_BUILD_TEST=ON -DMZ_BUILD_UNIT_TEST=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake-args }}
+        cmake ${{ matrix.build-src-dir || '.' }} -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake-args }}
       env:
         CC: ${{ matrix.compiler }}
         CFLAGS: ${{ matrix.cflags }}
