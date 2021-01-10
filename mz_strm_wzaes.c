@@ -95,18 +95,10 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode) {
     salt_length = MZ_AES_SALT_LENGTH(wzaes->encryption_mode);
 
     if (mode & MZ_OPEN_MODE_WRITE) {
-#ifdef MZ_ZIP_NO_COMPRESSION
-        return MZ_SUPPORT_ERROR;
-#else
         mz_crypt_rand(salt_value, salt_length);
-#endif
     } else if (mode & MZ_OPEN_MODE_READ) {
-#ifdef MZ_ZIP_NO_DECOMPRESSION
-        return MZ_SUPPORT_ERROR;
-#else
         if (mz_stream_read(wzaes->stream.base, salt_value, salt_length) != salt_length)
             return MZ_READ_ERROR;
-#endif
     }
 
     key_length = MZ_AES_KEY_LENGTH(wzaes->encryption_mode);
