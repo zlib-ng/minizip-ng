@@ -615,7 +615,7 @@ int32_t convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *hex_s
     return MZ_OK;
 }
 
-#ifndef MZ_ZIP_NO_ENCRYPTION
+#ifndef MZ_ZIP_NO_CRYPTO
 int32_t test_crypt_sha(void)
 {
     void *sha1 = NULL;
@@ -1046,10 +1046,10 @@ int main(int argc, const char *argv[])
 #endif
 #endif
 
-#if !defined(MZ_ZIP_NO_ENCRYPTION)
 #ifdef HAVE_PKCRYPT
     err |= test_stream_pkcrypt();
 #endif
+#if !defined(MZ_ZIP_NO_CRYPTO)
 #ifdef HAVE_WZAES
     err |= test_stream_wzaes();
 #endif

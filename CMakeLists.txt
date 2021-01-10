@@ -416,9 +416,13 @@ if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
 
-    if((MZ_PKCRYPT OR MZ_WZAES) AND NOT MZ_OPENSSL)
-        list(APPEND MINIZIP_SRC mz_crypt_win32.c)
-        list(APPEND MINIZIP_LIB crypt32.lib)
+    if(MZ_PKCRYPT OR MZ_WZAES)
+        if(NOT MZ_OPENSSL)
+            message(STATUS "Using CryptoAPI")
+
+            list(APPEND MINIZIP_SRC mz_crypt_win32.c)
+            list(APPEND MINIZIP_LIB crypt32.lib)
+        endif()
     endif()
 endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
@@ -446,14 +450,30 @@ if(UNIX)
 
                 check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
                 if(COMMONCRYPTO_FOUND)
+                    message(STATUS "Using CommonCrypto")
+
                     list(APPEND MINIZIP_SRC mz_crypt_apple.c)
+
                     set(MZ_LIBBSD OFF)
-                elseif(MZ_WZAES)
+                else()
                     message(STATUS "CommonCrypto library not found")
-                    message(STATUS "WinZIP AES support requires CommonCrypto or OpenSSL")
-                    set(MZ_WZAES OFF)
+
+                    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)
+
+                    if(MZ_WZAES)
+                        message(STATUS "WinZIP AES support requires CommonCrypto or OpenSSL")
+
+                        set(MZ_WZAES OFF)
+                    endif()
+                    if(MZ_SIGNING)
+                        message(STATUS "Signing support requires CommonCrypto or OpenSSL")
+
+                        set(MZ_SIGNING OFF)
+                    endif()
                 endif()
             else()
+                list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)
+
                 if(MZ_WZAES)
                     message(STATUS "WinZIP AES support requires OpenSSL")
 
