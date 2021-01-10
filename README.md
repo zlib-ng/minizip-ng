@@ -15,7 +15,7 @@ Developed and maintained by Nathan Moinvaziri.
 
 |Name|Description|
 |:-|:-|
-|[master](https://github.com/nmoinvaz/minizip/tree/master)|Modern rewrite that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for older versions.|
+|[master](https://github.com/nmoinvaz/minizip/tree/master)|Modern rewrite that includes more advanced features, improvements in code maintainability and readability, and the reduction of duplicate code. Compatibility layer provided for consumers of original minizip.|
 |[dev](https://github.com/nmoinvaz/minizip/tree/dev)|Latest development code|
 |[1.2](https://github.com/nmoinvaz/minizip/tree/1.2)|Changes to original minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes. Not ABI compatible with original minizip.|
 |[1.1](https://github.com/nmoinvaz/minizip/tree/1.1)|Original minizip as of zlib 1.2.11.|
