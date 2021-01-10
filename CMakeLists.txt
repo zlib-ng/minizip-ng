@@ -55,6 +55,10 @@ endif()
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
 endif()
+if(POLICY CMP0054)
+    cmake_policy(SET CMP0054 NEW)
+endif()
+
 # ZLIB_ROOT - Parent directory of zlib installation
 # BZIP2_ROOT - Parent directory of BZip2 installation
 # OPENSSL_ROOT - Parent directory of OpenSSL installation
