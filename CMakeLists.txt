@@ -9,31 +9,48 @@ cmake_minimum_required(VERSION 3.0.2)
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
+# Compatibility options
 option(MZ_COMPAT "Enables compatibility layer" ON)
+# Compression library options
 option(MZ_ZLIB "Enables ZLIB compression" ON)
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
-option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ON)
+option(MZ_LIBCOMP "Enables Apple compression" APPLE)
+option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" WIN32)
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
+# Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
-option(MZ_LIBCOMP "Enables Apple compression" OFF)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" OFF)
-option(MZ_LIBBSD "Enable libbsd crypto random" ON)
-option(MZ_BRG "Enables Brian Gladman's encryption library" OFF)
-option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
+option(MZ_OPENSSL "Enables OpenSSL for encryption" UNIX)
+option(MZ_LIBBSD "Enable libbsd crypto random" UNIX)
 option(MZ_SIGNING "Enables zip signing support" ON)
+# Character conversion options
+option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
+# Code generation options
 option(MZ_COMPRESS_ONLY "Only support compression" OFF)
 option(MZ_DECOMPRESS_ONLY "Only support decompression" OFF)
-option(MZ_BUILD_TEST "Builds minizip test executable" OFF)
-option(MZ_BUILD_UNIT_TEST "Builds minizip unit test project" OFF)
-option(MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables" OFF)
-option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
 option(MZ_FILE32_API "Builds using posix 32-bit file api" OFF)
+# Build and continuous integration options
+option(MZ_BUILD_TESTS "Builds minizip test executable" OFF)
+option(MZ_BUILD_UNIT_TESTS "Builds minizip unit test project" OFF)
+option(MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables" OFF)
+option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
+# Package management options
 set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
 
 mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX)
+
+# Backwards compatibility
+if(DEFINED MZ_BUILD_TEST)
+    set(MZ_BUILD_TESTS ${MZ_BUILD_TEST})
+endif()
+if(DEFINED MZ_BUILD_UNIT_TEST)
+    set(MZ_BUILD_UNIT_TESTS ${MZ_BUILD_UNIT_TEST})
+endif()
+if(DEFINED MZ_BUILD_FUZZ_TEST)
+    set(MZ_BUILD_FUZZ_TESTS ${MZ_BUILD_FUZZ_TEST})
+endif()
 
 if(POLICY CMP0074)
     cmake_policy(SET CMP0074 OLD)
@@ -157,12 +174,23 @@ macro(clone_repo name url)
 endmacro()
 
 if(MZ_LIBCOMP)
-    # Use Apple libcompression
-    list(APPEND MINIZIP_DEF -DHAVE_LIBCOMP)
-    list(APPEND MINIZIP_SRC mz_strm_libcomp.c)
-    list(APPEND MINIZIP_HDR mz_strm_libcomp.h)
-    list(APPEND MINIZIP_LIB compression)
-elseif(MZ_ZLIB)
+    if(APPLE)
+        # Use Apple libcompression
+        list(APPEND MINIZIP_DEF -DHAVE_LIBCOMP)
+        list(APPEND MINIZIP_SRC mz_strm_libcomp.c)
+        list(APPEND MINIZIP_HDR mz_strm_libcomp.h)
+        list(APPEND MINIZIP_LIB compression)
+
+        # Disable zlib as libcompression is preferred
+        set(MZ_ZLIB OFF)
+    else()
+        message(STATUS "LibCompression not supported on the current platform")
+
+        set(MZ_LIBCOMP OFF)
+    endif()
+endif()
+
+if(MZ_ZLIB)
     # Check if zlib is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(ZLIB QUIET)
@@ -193,15 +221,19 @@ elseif(MZ_ZLIB)
             list(APPEND MINIZIP_DEP zlib)
         endif()
     else()
-        message(FATAL_ERROR "ZLIB not found")
+        message(STATUS "ZLIB library not found")
+
+        set(MZ_ZLIB OFF)
     endif()
 
-    list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
-    if(ZLIB_COMPAT)
-        list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
+    if(MZ_ZLIB)
+        list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
+        if(ZLIB_COMPAT)
+            list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
+        endif()
+        list(APPEND MINIZIP_SRC mz_strm_zlib.c)
+        list(APPEND MINIZIP_HDR mz_strm_zlib.h)
     endif()
-    list(APPEND MINIZIP_SRC mz_strm_zlib.c)
-    list(APPEND MINIZIP_HDR mz_strm_zlib.h)
 endif()
 
 if(MZ_BZIP2)
@@ -243,12 +275,16 @@ if(MZ_BZIP2)
         list(APPEND MINIZIP_DEP bzip2)
         list(APPEND MINIZIP_INC lib/bzip2)
     else()
-        message(FATAL_ERROR "BZip2 not found")
+        message(STATUS "BZip2 library not found")
+
+        set(MZ_BZIP2 OFF)
     endif()
 
-    list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
-    list(APPEND MINIZIP_SRC mz_strm_bzip.c)
-    list(APPEND MINIZIP_HDR mz_strm_bzip.h)
+    if(MZ_BZIP2)
+        list(APPEND MINIZIP_DEF -DHAVE_BZIP2)
+        list(APPEND MINIZIP_SRC mz_strm_bzip.c)
+        list(APPEND MINIZIP_HDR mz_strm_bzip.h)
+    endif()
 endif()
 
 if(MZ_LZMA)
@@ -281,12 +317,16 @@ if(MZ_LZMA)
         list(APPEND MINIZIP_DEP liblzma)
         list(APPEND MINIZIP_LIB ${LIBLZMA_TARGET})
     else()
-        message(FATAL_ERROR "LZMA not found")
+        message(STATUS "LibLZMA library not found")
+
+        set(MZ_LZMA OFF)
     endif()
 
-    list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
-    list(APPEND MINIZIP_SRC mz_strm_lzma.c)
-    list(APPEND MINIZIP_HDR mz_strm_lzma.h)
+    if(MZ_LZMA)
+        list(APPEND MINIZIP_DEF -DHAVE_LZMA -DLZMA_API_STATIC)
+        list(APPEND MINIZIP_SRC mz_strm_lzma.c)
+        list(APPEND MINIZIP_HDR mz_strm_lzma.h)
+    endif()
 endif()
 
 if(MZ_ZSTD)
@@ -324,12 +364,23 @@ if(MZ_ZSTD)
         endif()
         list(APPEND MINIZIP_LIB ${ZSTD_TARGET})
     else()
-        message(FATAL_ERROR "ZSTD not found")
+        message(STATUS "ZSTD library not found")
+
+        set(MZ_ZSTD OFF)
     endif()
 
-    list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
-    list(APPEND MINIZIP_SRC mz_strm_zstd.c)
-    list(APPEND MINIZIP_HDR mz_strm_zstd.h)
+    if(MZ_ZSTD)
+        list(APPEND MINIZIP_DEF -DHAVE_ZSTD)
+        list(APPEND MINIZIP_SRC mz_strm_zstd.c)
+        list(APPEND MINIZIP_HDR mz_strm_zstd.h)
+    endif()
+endif()
+
+if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZMA)
+    message(STATUS "Compression not supported due to missing libraries")
+
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_DECOMPRESSION)
+    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_COMPRESSION)
 endif()
 
 if(MZ_OPENSSL)
@@ -353,6 +404,10 @@ if(MZ_OPENSSL)
         if(OPENSSL_INCLUDE_DIRS)
             list(APPEND MINIZIP_INC ${OPENSSL_INCLUDE_DIRS})
         endif()
+    else()
+        message(STATUS "OpenSSL library not found")
+
+        set(MZ_OPENSSL OFF)
     endif()
 endif()
 
@@ -360,16 +415,10 @@ endif()
 if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
-    if(MZ_PKCRYPT OR MZ_WZAES)
-        if(NOT MZ_BRG)
-            if(NOT MZ_OPENSSL AND NOT OPENSSL_FOUND)
-                list(APPEND MINIZIP_SRC mz_crypt_win32.c)
-            endif()
-            # GCC doesn't support #pragma lib
-            if(CMAKE_C_COMPILER_ID MATCHES "GNU")
-                list(APPEND MINIZIP_LIB crypt32.lib)
-            endif()
-        endif()
+
+    if((MZ_PKCRYPT OR MZ_WZAES) AND NOT MZ_OPENSSL)
+        list(APPEND MINIZIP_SRC mz_crypt_win32.c)
+        list(APPEND MINIZIP_LIB crypt32.lib)
     endif()
 endif()
 if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
@@ -381,29 +430,82 @@ if(UNIX)
     list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
 
-    if((MZ_PKCRYPT OR MZ_WZAES) AND NOT (MZ_OPENSSL AND OPENSSL_FOUND))
+    if(MZ_PKCRYPT OR MZ_WZAES)
+        if(NOT MZ_OPENSSL)
+            if(APPLE)
+                message(STATUS "Using CoreFoundation Framework")
+                find_library(COREFOUNDATION_LIBRARY CoreFoundation)
 
-        if(APPLE AND NOT MZ_BRG)
-            message(STATUS "Using CoreFoundation Framework")
-            find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+                list(APPEND MINIZIP_LIB ${COREFOUNDATION_LIBRARY})
 
-            list(APPEND MINIZIP_LIB ${COREFOUNDATION_LIBRARY})
+                message(STATUS "Using Security Framework")
+                find_library(SECURITY_LIBRARY Security)
 
-            message(STATUS "Using Security Framework")
-            find_library(SECURITY_LIBRARY Security)
+                list(APPEND MINIZIP_LIB ${SECURITY_LIBRARY})
+                list(APPEND MINIZIP_LFG "-Wl,-F/Library/Frameworks")
 
-            list(APPEND MINIZIP_LIB ${SECURITY_LIBRARY})
-            list(APPEND MINIZIP_LFG "-Wl,-F/Library/Frameworks")
-
-            check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
-            if(COMMONCRYPTO_FOUND)
-                list(APPEND MINIZIP_SRC mz_crypt_apple.c)
-            else()
-                message(STATUS "CommonCrypto not found, using BRG instead")
-                set(MZ_BRG TRUE)
+                check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
+                if(COMMONCRYPTO_FOUND)
+                    list(APPEND MINIZIP_SRC mz_crypt_apple.c)
+                    set(MZ_LIBBSD OFF)
+                elseif(MZ_WZAES)
+                    message(STATUS "CommonCrypto library not found")
+                    message(STATUS "WinZIP AES not supported due to missing library")
+                    set(MZ_WZAES OFF)
+                endif()
+            elseif(MZ_WZAES)
+                message(STATUS "WinZIP AES not supported due to missing library")
+                set(MZ_WZAES OFF)
             endif()
-        else()
-            set(MZ_BRG TRUE)
+
+            if(MZ_PKCRYPT AND NOT MZ_WZAES)
+                # Check to see which random generation functions we have
+                check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
+                if(HAVE_GETRANDOM)
+                    list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
+                endif()
+                check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
+                if(HAVE_ARC4RANDOM_BUF)
+                    list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
+                else()
+                    check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
+                    if(HAVE_ARC4RANDOM)
+                        list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
+                    endif()
+                endif()
+
+                if(APPLE)
+                    # Requires _DARWIN_C_SOURCE for arcrandom functions
+                    list(APPEND MINIZIP_DEF -D_DARWIN_C_SOURCE)
+                endif()
+
+                if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
+                    find_package(PkgConfig REQUIRED)
+
+                    pkg_check_modules(LIBBSD libbsd)
+                    if(LIBBSD_FOUND)
+                        check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
+                            "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
+
+                        if(HAVE_LIBBSD_ARC4RANDOM_BUF)
+                            list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
+                            list(APPEND MINIZIP_INC ${LIBBSD_INCLUDE_DIRS})
+                            list(APPEND MINIZIP_LIB ${LIBBSD_LIBRARIES})
+                            list(APPEND MINIZIP_LBD ${LIBBSD_LIBRARY_DIRS})
+
+                            link_directories(${LIBBSD_LIBRARY_DIRS})
+                        endif()
+                    else()
+                        set(MZ_LIBBSD FALSE)
+                    endif()
+                else()
+                    set(MZ_LIBBSD FALSE)
+                endif()
+
+                if(NOT MZ_LIBBSD AND NOT HAVE_GETRANDOM AND NOT HAVE_ARC4RANDOM_BUF AND NOT HAVE_ARC4RANDOM)
+                    message(WARNING "Low quality entropy function used for encryption")
+                endif()
+            endif()
         endif()
     endif()
 
@@ -425,8 +527,13 @@ if(UNIX)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
     else()
-        message(WARNING "Limited encoding support due to disabled or missing iconv")
+        message(STATUS "Character encoding support limited due to missing iconv")
+
+        set(MZ_ICONV OFF)
     endif()
+else()
+    set(MZ_LIBBSD OFF)
+    set(MZ_ICONV OFF)
 endif()
 
 # Setup predefined macros
@@ -440,14 +547,10 @@ if(MZ_FILE32_API)
     list(APPEND MINIZIP_DEF -DMZ_FILE32_API)
 endif()
 
-# Determine if signing is supported
 if(NOT MZ_PKCRYPT AND NOT MZ_WZAES)
     list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_ENCRYPTION)
     message(STATUS "Signing not supported when encryption is disabled")
-    set(MZ_SIGNING OFF)
-endif()
-if(MZ_BRG OR (MZ_OPENSSL AND NOT OPENSSL_FOUND))
-    message(STATUS "Signing not supported with current configuration")
+
     set(MZ_SIGNING OFF)
 endif()
 
@@ -467,92 +570,6 @@ if(MZ_WZAES)
     list(APPEND MINIZIP_DEF -DHAVE_WZAES)
     list(APPEND MINIZIP_SRC mz_strm_wzaes.c)
     list(APPEND MINIZIP_HDR mz_strm_wzaes.h)
-endif()
-
-# Include Brian Gladman's crypto library
-if(MZ_BRG)
-    if(NOT MZ_FETCH_LIBS)
-        message(FATAL_ERROR "AES and SHA libraries not found")
-    endif()
-
-    clone_repo(aes https://github.com/BrianGladman/aes)
-    clone_repo(sha https://github.com/BrianGladman/sha)
-
-    set(BRG_AES_SRC
-        lib/aes/brg_endian.h
-        lib/aes/brg_types.h
-        lib/aes/aescrypt.c
-        lib/aes/aeskey.c
-        lib/aes/aestab.c
-        lib/aes/aes_ni.c)
-
-    set(BRG_AES_HDR
-        lib/aes/aes.h
-        lib/aes/aesopt.h
-        lib/aes/aestab.h
-        lib/aes/aes_ni.h)
-
-    set(BRG_SHA_SRC
-        lib/sha/hmac.c
-        lib/sha/sha1.c
-        lib/sha/sha2.c)
-
-    set(BRG_SHA_HDR
-        lib/sha/brg_endian.h
-        lib/sha/brg_types.h
-        lib/sha/hmac.h
-        lib/sha/sha1.h
-        lib/sha/sha2.h)
-
-    add_library(aes STATIC ${BRG_AES_SRC} ${BRG_AES_HDR})
-    add_library(sha STATIC ${BRG_SHA_SRC} ${BRG_SHA_HDR})
-
-    # Check to see which random generation functions we have
-    check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
-    if(HAVE_GETRANDOM)
-        list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
-    endif()
-    check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
-    if(HAVE_ARC4RANDOM_BUF)
-        list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
-    else()
-        check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
-        if(HAVE_ARC4RANDOM)
-            list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
-        endif()
-    endif()
-
-    if(APPLE)
-        # Requires _DARWIN_C_SOURCE for arcrandom functions
-        list(APPEND MINIZIP_DEF -D_DARWIN_C_SOURCE)
-    endif()
-
-    if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
-        find_package(PkgConfig REQUIRED)
-
-        pkg_check_modules(LIBBSD libbsd)
-        if(LIBBSD_FOUND)
-            check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
-                "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
-
-            if(HAVE_LIBBSD_ARC4RANDOM_BUF)
-                list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
-                list(APPEND MINIZIP_INC ${LIBBSD_INCLUDE_DIRS})
-                list(APPEND MINIZIP_LIB ${LIBBSD_LIBRARIES})
-                list(APPEND MINIZIP_LBD ${LIBBSD_LIBRARY_DIRS})
-
-                link_directories(${LIBBSD_LIBRARY_DIRS})
-            endif()
-        else()
-            set(MZ_LIBBSD FALSE)
-        endif()
-    else()
-        set(MZ_LIBBSD FALSE)
-    endif()
-
-    list(APPEND MINIZIP_SRC mz_crypt_brg.c)
-    list(APPEND MINIZIP_INC lib/aes lib/sha)
-    list(APPEND MINIZIP_DEP aes sha)
 endif()
 
 # Include compatibility layer
@@ -699,7 +716,7 @@ if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
 endif()
 
 # Build test executables
-if(MZ_BUILD_TEST)
+if(MZ_BUILD_TESTS)
     if(MZ_ZLIB AND NOT MZ_LIBCOMP)
         add_executable(minigzip_cmd minigzip.c)
         set_target_properties(minigzip_cmd PROPERTIES OUTPUT_NAME minigzip)
@@ -731,7 +748,7 @@ if(MZ_BUILD_TEST)
     target_link_libraries(test_cmd ${PROJECT_NAME})
 endif()
 
-if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
+if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
     enable_testing()
 
     # Can't disable zlib testing so ctest tries to run zlib example app
@@ -871,7 +888,7 @@ if(MZ_BUILD_TEST AND MZ_BUILD_UNIT_TEST)
 endif()
 
 #Build fuzzer executables
-if(MZ_BUILD_FUZZ_TEST)
+if(MZ_BUILD_FUZZ_TESTS)
     if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
         enable_language(CXX)
 
@@ -911,27 +928,32 @@ if(MZ_BUILD_FUZZ_TEST)
     endif()
 endif()
 
+# Compatibility options
 add_feature_info(MZ_COMPAT MZ_COMPAT "Enables compatibility layer")
+# Compression library options
 add_feature_info(MZ_ZLIB MZ_ZLIB "Enables ZLIB compression")
 add_feature_info(MZ_BZIP2 MZ_BZIP2 "Enables BZIP2 compression")
 add_feature_info(MZ_LZMA MZ_LZMA "Enables LZMA & XZ compression")
 add_feature_info(MZ_ZSTD MZ_ZSTD "Enables ZSTD compression")
+add_feature_info(MZ_LIBCOMP MZ_LIBCOMP "Enables Apple compression")
 add_feature_info(MZ_FETCH_LIBS MZ_FETCH_LIBS "Enables fetching third-party libraries if not found")
 add_feature_info(MZ_FORCE_FETCH_LIBS MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always")
+# Encryption support options
 add_feature_info(MZ_PKCRYPT MZ_PKCRYPT "Enables PKWARE traditional encryption")
 add_feature_info(MZ_WZAES MZ_WZAES "Enables WinZIP AES encryption")
-add_feature_info(MZ_LIBCOMP MZ_LIBCOMP "Enables Apple compression")
 add_feature_info(MZ_OPENSSL MZ_OPENSSL "Enables OpenSSL for encryption")
 add_feature_info(MZ_LIBBSD MZ_LIBBSD "Build with libbsd for crypto random")
-add_feature_info(MZ_BRG MZ_BRG "Enables Brian Gladman's encryption library")
-add_feature_info(MZ_ICONV MZ_ICONV "Enables iconv string encoding conversion library")
 add_feature_info(MZ_SIGNING MZ_SIGNING "Enables zip signing support")
+# Character conversion options
+add_feature_info(MZ_ICONV MZ_ICONV "Enables iconv string encoding conversion library")
+# Code generation options
 add_feature_info(MZ_COMPRESS_ONLY MZ_COMPRESS_ONLY "Only support compression")
 add_feature_info(MZ_DECOMPRESS_ONLY MZ_DECOMPRESS_ONLY "Only support decompression")
-add_feature_info(MZ_BUILD_TEST MZ_BUILD_TEST "Builds minizip test executable")
-add_feature_info(MZ_BUILD_UNIT_TEST MZ_BUILD_UNIT_TEST "Builds minizip unit test project")
-add_feature_info(MZ_BUILD_FUZZ_TEST MZ_BUILD_FUZZ_TEST "Builds minizip fuzzer executables")
-add_feature_info(MZ_CODE_COVERAGE MZ_CODE_COVERAGE "Builds with code coverage flags")
 add_feature_info(MZ_FILE32_API MZ_FILE32_API "Builds using posix 32-bit file api")
+# Build and continuous integration options
+add_feature_info(MZ_BUILD_TESTS MZ_BUILD_TESTS "Builds minizip test executable")
+add_feature_info(MZ_BUILD_UNIT_TESTS MZ_BUILD_UNIT_TESTS "Builds minizip unit test project")
+add_feature_info(MZ_BUILD_FUZZ_TESTS MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables")
+add_feature_info(MZ_CODE_COVERAGE MZ_CODE_COVERAGE "Builds with code coverage flags")
 
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES INCLUDE_QUIET_PACKAGES)

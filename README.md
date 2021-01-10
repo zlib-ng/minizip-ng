@@ -76,36 +76,33 @@ cmake --build .
 | MZ_BZIP2            | Enables BZIP2 compression                           |      ON       |
 | MZ_LZMA             | Enables LZMA & XZ compression                       |      ON       |
 | MZ_ZSTD             | Enables ZSTD compression                            |      ON       |
-| MZ_FETCH_LIBS       | Enables fetching third-party libraries if not found |      ON       |
+| MZ_LIBCOMP          | Enables Apple compression                           |     APPLE     |
+| MZ_FETCH_LIBS       | Enables fetching third-party libraries if not found |     WIN32     |
 | MZ_FORCE_FETCH_LIBS | Enables fetching third-party libraries always       |      OFF      |
 | MZ_PKCRYPT          | Enables PKWARE traditional encryption               |      ON       |
 | MZ_WZAES            | Enables WinZIP AES encryption                       |      ON       |
-| MZ_LIBCOMP          | Enables Apple compression                           |      OFF      |
-| MZ_OPENSSL          | Enables OpenSSL encryption                          |      OFF      |
-| MZ_LIBBSD           | Builds with libbsd crypto random                    |      ON       |
-| MZ_BRG              | Enables Brian Gladman's library                     |      OFF      |
-| MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
+| MZ_OPENSSL          | Enables OpenSSL encryption                          |     UNIX      |
+| MZ_LIBBSD           | Builds with libbsd crypto random                    |     UNIX      |
 | MZ_SIGNING          | Enables zip signing support                         |      ON       |
+| MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
 | MZ_COMPRESS_ONLY    | Only support compression                            |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                          |      OFF      |
-| MZ_BUILD_TEST       | Builds minizip test executable                      |      OFF      |
-| MZ_BUILD_UNIT_TEST  | Builds minizip unit test project                    |      OFF      |
-| MZ_BUILD_FUZZ_TEST  | Builds minizip fuzz executables                     |      OFF      |
+| MZ_FILE32_API       | Builds using posix 32-bit file api                  |      OFF      |
+| MZ_BUILD_TESTS      | Builds minizip test executable                      |      OFF      |
+| MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                    |      OFF      |
+| MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                     |      OFF      |
 | MZ_CODE_COVERAGE    | Build with code coverage flags                      |      OFF      |
 | MZ_PROJECT_SUFFIX   | Project name suffix for packaging                   |               |
-| MZ_FILE32_API       | Builds using posix 32-bit file api                  |      OFF      |
 
 ## Third-Party Libraries
 
 Third-party libraries may be required based on the CMake options selected. If the system already has the library
-installed then it will be used, otherwise CMake will retrieve the source code for the library from its official git repository and compile it in.
+installed then it will be used, otherwise CMake will retrieve the source code for the library from its official git repository and compile it in when the `MZ_FETCH_LIBS` option is enabled.
 
 |Project|License|CMake Option|Comments|
 |-|-|-|-|
-|[aes](https://github.com/BrianGladman/aes)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman.|
 [bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/nmoinvaz/minizip/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
 |[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|Written by Igor Pavlov and Lasse Collin.|
-|[sha](https://github.com/BrianGladman/sha)|[license](https://github.com/BrianGladman/aes/blob/master/license.txt)|`MZ_BRG`|Written by Brian Gladman.|
 |[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/Dead2/zlib-ng) by Hans Kristian Rosbach.|
 |[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|Written by Facebook.|
 
