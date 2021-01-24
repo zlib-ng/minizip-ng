@@ -50,7 +50,7 @@ jobs:
             os: ubuntu-latest
             compiler: gcc
             build-dir: ../build
-            build-src-dir: ../minizip
+            build-src-dir: ../minizip-ng
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_gcc_osb
 
