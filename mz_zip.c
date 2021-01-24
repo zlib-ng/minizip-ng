@@ -1,8 +1,8 @@
 /* zip.c -- Zip manipulation
-   part of the MiniZip project
+   part of the minizip-ng project
 
-   Copyright (C) 2010-2020 Nathan Moinvaziri
-     https://github.com/nmoinvaz/minizip
+   Copyright (C) 2010-2021 Nathan Moinvaziri
+     https://github.com/zlib-ng/minizip-ng
    Copyright (C) 2009-2010 Mathias Svensson
      Modifications for Zip64 support
      http://result42.com

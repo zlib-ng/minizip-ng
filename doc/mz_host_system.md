@@ -1,6 +1,6 @@
 # MZ_HOST_SYSTEM
 
-Minizip host system enumeration. These values correspond to section 4.4.2.2 of the [PKWARE zip app note](zip/appnote.txt).
+Host system enumeration. These values correspond to section 4.4.2.2 of the [PKWARE zip app note](zip/appnote.txt).
 
 |Name|Code|Description|
 |-|-|-|

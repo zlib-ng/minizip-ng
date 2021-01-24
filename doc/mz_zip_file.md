@@ -1,6 +1,6 @@
 # MZ_ZIP_FILE
 
-Minizip zip entry information structure. The _mz_zip_file_ structure is populated when reading zip entry information and can be used to populate zip entry information when writing zip entries.
+Zip entry information structure. The _mz_zip_file_ structure is populated when reading zip entry information and can be used to populate zip entry information when writing zip entries.
 
 |Type|Name|Description|[PKWARE zip app note](zip/appnote.txt) section|
 |-|-|-|-|

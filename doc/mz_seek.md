@@ -1,6 +1,6 @@
 # MZ_SEEK
 
-Minizip stream seek origin enumeration.
+Stream seek origin enumeration.
 
 |Name|Code|Description|
 |-|-|-|

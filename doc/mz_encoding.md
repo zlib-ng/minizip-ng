@@ -1,6 +1,6 @@
 # MZ_ENCODING
 
-Minizip character encoding enumeration. Older zip files may store the filename in a different character encoding.
+Character encoding enumeration. Older zip files may store the filename in a different character encoding.
 
 |Name|Code|Description|
 |-|-|-|

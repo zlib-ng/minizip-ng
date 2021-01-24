@@ -1,8 +1,8 @@
 /* minizip.c
-   part of the MiniZip project
+   part of the minizip-ng project
 
-   Copyright (C) 2010-2020 Nathan Moinvaziri
-     https://github.com/nmoinvaz/minizip
+   Copyright (C) 2010-2021 Nathan Moinvaziri
+     https://github.com/zlib-ng/minizip-ng
    Copyright (C) 1998-2010 Gilles Vollant
      https://www.winimage.com/zLibDll/minizip.html
 
@@ -62,7 +62,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 /***************************************************************************/
 
 int32_t minizip_banner(void) {
-    printf("Minizip %s - https://github.com/nmoinvaz/minizip\n", MZ_VERSION);
+    printf("minizip-ng %s - https://github.com/zlib-ng/minizip-ng\n", MZ_VERSION);
     printf("---------------------------------------------------\n");
     return MZ_OK;
 }

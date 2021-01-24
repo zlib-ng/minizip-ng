@@ -1,6 +1,6 @@
 # MZ_HASH
 
-Minizip hash algorithm enumeration. The _mz_zip_reader_ and _mz_zip_writer_ instances support storing more secure hash algorithms for each zip entry.
+Hash algorithm enumeration. The _mz_zip_reader_ and _mz_zip_writer_ instances support storing more secure hash algorithms for each zip entry.
 
 |Name|Code|Description|
 |-|-|-|

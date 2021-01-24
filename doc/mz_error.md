@@ -1,6 +1,6 @@
 # MZ_ERROR
 
-Minizip error enumeration. These errors codes are compatible with and extend zlib error codes.
+Error code enumeration. These errors codes are compatible with and extend zlib error codes.
 
 |Name|Code|Description|
 |-|-|-|

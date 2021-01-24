@@ -1,6 +1,6 @@
 # MZ_COMPRESS_METHOD
 
-Minizip compression method enumeration.
+Compression method enumeration.
 
 |Name|Code|Description|
 |-|-|-|

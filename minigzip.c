@@ -1,8 +1,8 @@
 /* minigzip.c
-   part of the MiniZip project
+   part of the minizip-ng project
 
-   Copyright (C) 2010-2020 Nathan Moinvaziri
-     https://github.com/nmoinvaz/minizip
+   Copyright (C) 2010-2021 Nathan Moinvaziri
+     https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
@@ -28,7 +28,7 @@ int32_t minigzip_help(void);
 /***************************************************************************/
 
 int32_t minigzip_banner(void) {
-    printf("Minigzip %s - https://github.com/nmoinvaz/minizip\n", MZ_VERSION);
+    printf("Minigzip %s - https://github.com/zlib-ng/minizip-ng\n", MZ_VERSION);
     printf("---------------------------------------------------\n");
     return MZ_OK;
 }

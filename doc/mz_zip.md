@@ -509,7 +509,7 @@ if (mz_zip_entry_is_open(zip_handle) == MZ_OK)
 
 Opens for reading the current entry in the zip file. To navigate to an entry use _mz_zip_goto_first_entry_, _mz_zip_goto_next_entry_, or _mz_zip_locate_entry_.
 
-Normally, when reading from a zip entry, the minizip library will automatically decrypt and decompress the entry data. To read the raw zip entry data, set the raw parameter to 1. This is useful if you want access to the raw gzip data (assuming the entry is gzip compressed).
+Normally, when reading from a zip entry, the data will be automatically decrypted and decompressed. To read the raw zip entry data, set the raw parameter to 1. This is useful if you want access to the raw gzip data (assuming the entry is gzip compressed).
 
 **Arguments**
 |Type|Name|Description|

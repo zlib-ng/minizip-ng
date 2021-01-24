@@ -1,6 +1,6 @@
 #***************************************************************************
 # Copyright (C) 2017-2020 Nathan Moinvaziri
-#                         https://github.com/nmoinvaz/minizip
+#                         https://github.com/zlib-ng/minizip-ng
 # Copyright (C)      2016 Matthias Schmieder
 #                         schmieder.matthias@gmail.com
 #***************************************************************************
@@ -603,7 +603,7 @@ endif()
 if(MZ_COMPAT)
     set(COMPAT_HEADER "\
 /* file.h -- Compatibility layer shim\n\
-   part of the MiniZip project\n\n\
+   part of the minizip-ng project\n\n\
    This program is distributed under the terms of the same license as zlib.\n\
    See the accompanying LICENSE file for the full text of the license.\n\
 */\n\n\

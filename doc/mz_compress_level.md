@@ -1,6 +1,6 @@
 # MZ_COMPRESS_LEVEL
 
-Minizip compression level enumeration.
+Compression level enumeration.
 
 |Name|Code|Description|
 |-|-|-|

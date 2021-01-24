@@ -1,6 +1,6 @@
 # MZ_ZIP64
 
-Minizip zip64 mode enumeration. The zip64 extension is documented in [PKWARE zip app note](zip/appnote.txt) section 4.5.3 and provides support for zip files and entries greater than 4GB. These modes are only supported while writing a zip entry.
+Zip64 mode enumeration. The zip64 extension is documented in [PKWARE zip app note](zip/appnote.txt) section 4.5.3 and provides support for zip files and entries greater than 4GB. These modes are only supported while writing a zip entry.
 
 |Name|Code|Description|
 |-|-|-|

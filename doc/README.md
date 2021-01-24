@@ -1,4 +1,4 @@
-# Minizip Documentation  <!-- omit in toc -->
+# minizip-ng Documentation  <!-- omit in toc -->
 
 ### Table of Contents
 
@@ -117,7 +117,7 @@ instance, some #defines will have to be set as they have changed.
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 
-At a minimum HAVE_ZLIB and HAVE_PKCRYPT will be necessary to be defined for drop-in replacement. To determine which files to drop in, see the Contents section of the [README](https://github.com/nmoinvaz/minizip/blob/master/README.md).
+At a minimum HAVE_ZLIB and HAVE_PKCRYPT will be necessary to be defined for drop-in replacement. To determine which files to drop in, see the Contents section of the [README](https://github.com/zlib-ng/minizip-ng/blob/master/README.md).
 
 The compatibility layer for 1.x does not currently provide support for the `ioapi` interface; it has been replaced with a new streaming interface. It is possible to create a stream interface in a similar way that you would have created an  ioapi interface.
 
@@ -125,7 +125,7 @@ The compatibility layer for 1.x does not currently provide support for the `ioap
 
 ### WinZip AES <!-- omit in toc -->
 
-When compressing an archive with WinZIP AES enabled, by default it uses 256 bit encryption. During decompression minizip will use whatever bit encryption was specified when the entry was added to the archive.
+When compressing an archive with WinZIP AES enabled, by default it uses 256 bit encryption. During decompression whatever bit encryption was specified when the entry was added to the archive will be used.
 
 WinZip AES encryption uses CTR on top of ECB which prevents identical ciphertext blocks that might occur when using ECB by itself. More details about the WinZIP AES format can be found in the [winzip documentation](zip/winzip_aes.md).
 

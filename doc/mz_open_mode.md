@@ -1,6 +1,6 @@
 # MZ_OPEN
 
-Minizip stream open flag enumeration.
+Stream open flag enumeration.
 
 |Name|Code|Description|
 |-|-|-|
