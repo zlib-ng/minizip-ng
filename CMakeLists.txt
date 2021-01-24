@@ -65,11 +65,11 @@ endif()
 
 enable_language(C)
 
-# Minizip library version
-set(VERSION "2.10.6")
+# Library version
+set(VERSION "3.0.0")
 
-# Minizip api version
-set(SOVERSION "2.5")
+# API version
+set(SOVERSION "3.0")
 
 include(CheckLibraryExists)
 include(CheckSymbolExists)

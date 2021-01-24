@@ -1,4 +1,4 @@
-# minizip-ng 2.10.6
+# minizip-ng 3.0.0
 
 minizip-ng is a zip manipulation library written in C that is supported on Windows, macOS, and Linux.
 
