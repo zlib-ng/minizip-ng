@@ -1072,7 +1072,7 @@ static int32_t mz_zip_read_cd(void *handle) {
         if (eocd_pos < zip->cd_offset) {
             /* End of central dir should always come after central dir */
             err = MZ_FORMAT_ERROR;
-        } else if (eocd_pos < zip->cd_offset + zip->cd_size) {
+        } else if (eocd_pos < (uint64_t)zip->cd_offset + zip->cd_size) {
             /* Truncate size of cd if incorrect size or offset provided */
             zip->cd_size = eocd_pos - zip->cd_offset;
         }
