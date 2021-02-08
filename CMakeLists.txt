@@ -716,7 +716,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-#create minizip alias
+# Create minizip alias
 add_library(MINIZIP::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 # Install files
