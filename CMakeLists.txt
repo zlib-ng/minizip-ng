@@ -5,7 +5,7 @@
 #                         schmieder.matthias@gmail.com
 #***************************************************************************
 
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.13)
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
