@@ -347,10 +347,10 @@ if(MZ_ZSTD)
         if(NOT ZSTD_FOUND)
             find_package(ZSTD QUIET)
             if(ZSTD_FOUND)
-                if(TARGET libzstd_static)
-                    list(APPEND ZSTD_LIBRARIES libzstd_static)
+                if(TARGET zstd::libzstd_static)
+                    list(APPEND ZSTD_LIBRARIES zstd::libzstd_static)
                 else()
-                    list(APPEND ZSTD_LIBRARIES libzstd_shared)
+                    list(APPEND ZSTD_LIBRARIES zstd::libzstd_shared)
                 endif()
             endif()
         endif()
@@ -756,8 +756,8 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
 
     file(REMOVE minizip-config.cmake.in)
 
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/minizip-config-version.cmake
-                  ${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+                  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
             DESTINATION "${INSTALL_CMAKE_DIR}")
 endif()
 if(NOT SKIP_INSTALL_HDR AND NOT SKIP_INSTALL_ALL)
