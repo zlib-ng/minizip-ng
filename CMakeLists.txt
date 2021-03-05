@@ -66,7 +66,7 @@ endif()
 enable_language(C)
 
 # Library version
-set(VERSION "3.0.0")
+set(VERSION "3.0.1")
 
 # API version
 set(SOVERSION "3.0")
