@@ -262,24 +262,24 @@ if(MZ_BZIP2)
         # BZip2 repository does not support cmake so we have to create
         # the bzip2 library ourselves
         set(BZIP2_SRC
-            lib/bzip2/blocksort.c
-            lib/bzip2/bzlib.c
-            lib/bzip2/compress.c
-            lib/bzip2/crctable.c
-            lib/bzip2/decompress.c
-            lib/bzip2/huffman.c
-            lib/bzip2/randtable.c)
+            ${BZIP2_SOURCE_DIR}/blocksort.c
+            ${BZIP2_SOURCE_DIR}/bzlib.c
+            ${BZIP2_SOURCE_DIR}/compress.c
+            ${BZIP2_SOURCE_DIR}/crctable.c
+            ${BZIP2_SOURCE_DIR}/decompress.c
+            ${BZIP2_SOURCE_DIR}/huffman.c
+            ${BZIP2_SOURCE_DIR}/randtable.c)
 
         set(BZIP2_HDR
-            lib/bzip2/bzlib.h
-            lib/bzip2/bzlib_private.h)
+            ${BZIP2_SOURCE_DIR}/bzlib.h
+            ${BZIP2_SOURCE_DIR}/bzlib_private.h)
 
         add_library(bzip2 STATIC ${BZIP2_SRC} ${BZIP2_HDR})
 
         target_compile_definitions(bzip2 PRIVATE -DBZ_NO_STDIO)
 
         list(APPEND MINIZIP_DEP bzip2)
-        list(APPEND MINIZIP_INC lib/bzip2)
+        list(APPEND MINIZIP_INC ${BZIP2_SOURCE_DIR})
     else()
         message(STATUS "BZip2 library not found")
 
