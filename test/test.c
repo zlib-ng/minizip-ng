@@ -85,7 +85,7 @@ int32_t test_utf8(void)
     uint8_t *utf8_string = mz_os_utf8_string_create(test_string, MZ_ENCODING_CODEPAGE_950);
     if (utf8_string == NULL)
         return MZ_BUF_ERROR;
-#if defined(_WINDOWS)
+#if defined(_WIN32)
     wchar_t *unicode_string = mz_os_unicode_string_create((const char *)utf8_string, MZ_ENCODING_UTF8);
     if (unicode_string == NULL)
         return MZ_BUF_ERROR;
