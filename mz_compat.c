@@ -55,7 +55,6 @@ static int32_t mz_stream_ioapi_error(void *stream);
 static void *mz_stream_ioapi_create(void **stream);
 static void mz_stream_ioapi_delete(void **stream);
 
-
 /***************************************************************************/
 
 static mz_stream_vtbl mz_stream_ioapi_vtbl = {
@@ -678,7 +677,6 @@ unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
    unzFile unz = NULL;
     void *stream = NULL;
 
-
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen_file != NULL) {
             if (mz_stream_ioapi_create(&stream) == NULL)
@@ -712,7 +710,6 @@ unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
 unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def) {
     unzFile unz = NULL;
     void *stream = NULL;
-
 
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen64_file != NULL) {
