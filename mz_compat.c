@@ -292,11 +292,9 @@ void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def) {
         memset(pzlib_filefunc_def, 0, sizeof(zlib_filefunc64_def));
 }
 
-void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def) {
-    /* NOTE: You should no longer pass in widechar string to zipOpen or unzOpen */
-    if (pzlib_filefunc_def != NULL)
-        memset(pzlib_filefunc_def, 0, sizeof(zlib_filefunc_def));
-}
+/* NOTE: fill_win32_filefunc64W is no longer necessary since wide-character 
+   support is automatically handled by the underlying os stream. Do not 
+   pass wide-characters to zipOpen or unzOpen. */
 
 void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def) {
     /* Use opaque to indicate which stream interface to create */

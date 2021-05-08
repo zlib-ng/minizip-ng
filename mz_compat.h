@@ -116,7 +116,6 @@ ZEXPORT void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def);
-ZEXPORT void fill_win32_filefunc64W(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 
 /***************************************************************************/
