@@ -119,8 +119,6 @@ instance, some #defines will have to be set as they have changed.
 
 At a minimum HAVE_ZLIB and HAVE_PKCRYPT will be necessary to be defined for drop-in replacement. To determine which files to drop in, see the Contents section of the [README](https://github.com/zlib-ng/minizip-ng/blob/master/README.md).
 
-The compatibility layer for 1.x does not currently provide support for the `ioapi` interface; it has been replaced with a new streaming interface. It is possible to create a stream interface in a similar way that you would have created an  ioapi interface.
-
 ## Security Considerations
 
 ### WinZip AES <!-- omit in toc -->
