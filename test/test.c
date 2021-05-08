@@ -1011,7 +1011,7 @@ static int32_t test_unzip_compat_int(unzFile unzip)
 #  define fseeko64 fseek
 #endif
 
-static void *ZCALLBACK fopen_file_func(void *opaque, const void *filename, int mode)
+static void *ZCALLBACK fopen_file_func(void *opaque, const char *filename, int mode)
 {
     FILE* file = NULL;
     const char* mode_fopen = NULL;
@@ -1024,7 +1024,7 @@ static void *ZCALLBACK fopen_file_func(void *opaque, const void *filename, int m
         mode_fopen = "wb";
 
     if ((filename != NULL) && (mode_fopen != NULL))
-        file = fopen((const char*)filename, mode_fopen);
+        file = fopen(filename, mode_fopen);
 
     return file;
 }
@@ -1119,7 +1119,7 @@ void fill_ioapi32_filefunc(zlib_filefunc_def *pzlib_filefunc_def)
 
 void fill_ioapi64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def)
 {
-    pzlib_filefunc_def->zopen64_file = fopen_file_func;
+    pzlib_filefunc_def->zopen64_file = (open64_file_func)fopen_file_func;
     pzlib_filefunc_def->zread_file = fread_file_func;
     pzlib_filefunc_def->zwrite_file = fwrite_file_func;
     pzlib_filefunc_def->ztell64_file = ftell64_file_func;
