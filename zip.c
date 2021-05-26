@@ -974,10 +974,7 @@ extern int ZEXPORT zipOpenNewFileInZip_internal(zipFile file,
     if (zipfi == NULL)
         zi->ci.dos_date = 0;
     else
-    {
-        if (zipfi->dos_date != 0)
-            zi->ci.dos_date = zipfi->dos_date;
-    }
+        zi->ci.dos_date = zipfi->dos_date;
 
     zi->ci.method = method;
     zi->ci.compression_method = method;
