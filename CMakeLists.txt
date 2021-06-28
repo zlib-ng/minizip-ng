@@ -945,7 +945,7 @@ endif()
 
 #Build fuzzer executables
 if(MZ_BUILD_FUZZ_TESTS)
-    if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
         enable_language(CXX)
 
         if(DEFINED ENV{LIB_FUZZING_ENGINE})
