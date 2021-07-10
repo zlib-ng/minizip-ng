@@ -16,10 +16,19 @@
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <openssl/aes.h>
+#include <openssl/crypto.h>
+#include <openssl/evp.h>
 #include <openssl/hmac.h>
-#include <openssl/pkcs12.h>
+
+#if defined(MZ_ZIP_SIGNING)
+/* Note: https://www.imperialviolet.org/2015/10/17/boringssl.html says that
+   BoringSSL does not support CMS. "#include <etc/cms.h>" will fail. See
+   https://bugs.chromium.org/p/boringssl/issues/detail?id=421
+*/
 #include <openssl/cms.h>
+#include <openssl/pkcs12.h>
 #include <openssl/x509.h>
+#endif
 
 /***************************************************************************/
 
