@@ -69,7 +69,7 @@ enable_language(C)
 set(VERSION "3.0.2")
 
 # API version
-set(SOVERSION "3.0")
+set(SOVERSION "3")
 
 include(CheckLibraryExists)
 include(CheckSymbolExists)
