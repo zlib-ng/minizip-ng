@@ -11,31 +11,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Ubuntu 16 GCC 4.8
-            os: ubuntu-16.04
+          - name: Ubuntu 18 GCC 4.8
+            os: ubuntu-18.04
             compiler: gcc
             cmake-args: -DMZ_CODE_COVERAGE=ON
             version: "4.8"
-            codecov: ubuntu_16_gcc_48
+            codecov: ubuntu_18_gcc_48
 
-          - name: Ubuntu 16 GCC
-            os: ubuntu-16.04
+          - name: Ubuntu 18 GCC
+            os: ubuntu-18.04
             compiler: gcc
             cmake-args: -DMZ_CODE_COVERAGE=ON
-            codecov: ubuntu_16_gcc
+            codecov: ubuntu_18_gcc
 
-          - name: Ubuntu 16 Clang 3.5
-            os: ubuntu-16.04
+          - name: Ubuntu 18 Clang 3.9
+            os: ubuntu-18.04
             compiler: clang
             cmake-args: -DMZ_CODE_COVERAGE=ON
-            codecov: ubuntu_16_clang_35
-            version: "3.5"
-            packages: llvm-3.5
-            gcov-exec: llvm-cov-3.5 gcov
+            codecov: ubuntu_18_clang_39
+            version: "3.7"
+            packages: llvm-3.9
+            gcov-exec: llvm-cov-3.9 gcov
 
           # No code coverage on release builds
-          - name: Ubuntu 16 Clang
-            os: ubuntu-16.04
+          - name: Ubuntu 18 Clang
+            os: ubuntu-18.04
             compiler: clang
             deploy: true
             deploy-name: linux
@@ -162,17 +162,18 @@ jobs:
           - name: macOS Xcode 9.4.1
             os: macOS-latest
             version: "9.4.1"
+            cmake-args: -DMZ_BUILD_UNIT_TESTS=OFF
             deploy: true
             deploy-name: macos
 
           - name: macOS Xcode
             os: macOS-latest
-            cmake-args: -DMZ_CODE_COVERAGE=ON
+            cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_SIGNING=OFF
             codecov: macos_xcode
 
           - name: macOS Xcode LibCompression
             os: macOS-latest
-            cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LIBCOMP=ON
+            cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LIBCOMP=ON -DMZ_SIGNING=OFF
             codecov: macos_xcode_libcompression
 
           - name: macOS Xcode OpenSSL
