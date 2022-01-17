@@ -619,11 +619,17 @@ int32_t convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *hex_s
 int32_t test_crypt_sha(void)
 {
     void *sha1 = NULL;
+    void *sha224 = NULL;
     void *sha256 = NULL;
+    void *sha384 = NULL;
+    void *sha512 = NULL;
     char *test = "the quick and lazy fox did his thang";
     char computed_hash[320];
     uint8_t hash[MZ_HASH_SHA1_SIZE];
+    uint8_t hash224[MZ_HASH_SHA224_SIZE];
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
+    uint8_t hash384[MZ_HASH_SHA384_SIZE];
+    uint8_t hash512[MZ_HASH_SHA512_SIZE];
 
     printf("Sha hash input - %s\n", test);
 
@@ -644,6 +650,23 @@ int32_t test_crypt_sha(void)
     if (strcmp(computed_hash, "3efb8392b6cd8e14bd76bd08081521dc73df418c") != 0)
         return MZ_HASH_ERROR;
 
+    memset(hash224, 0, sizeof(hash224));
+
+    mz_crypt_sha_create(&sha224);
+    mz_crypt_sha_set_algorithm(sha224, MZ_HASH_SHA224);
+    mz_crypt_sha_begin(sha224);
+    mz_crypt_sha_update(sha224, test, (int32_t)strlen(test));
+    mz_crypt_sha_end(sha224, hash224, sizeof(hash224));
+    mz_crypt_sha_delete(&sha224);
+
+    convert_buffer_to_hex_string(hash224, sizeof(hash224), computed_hash, sizeof(computed_hash));
+
+    printf("Sha224 hash computed - %s\n", computed_hash);
+    printf("Sha224 hash expected - 9e444f5f0b6582a923bd48696155f4a2f0d914e044cb64b8729a6600\n");
+
+    if (strcmp(computed_hash, "9e444f5f0b6582a923bd48696155f4a2f0d914e044cb64b8729a6600") != 0)
+        return MZ_HASH_ERROR;
+
     memset(hash256, 0, sizeof(hash256));
 
     mz_crypt_sha_create(&sha256);
@@ -659,6 +682,40 @@ int32_t test_crypt_sha(void)
     printf("Sha256 hash expected - 7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c\n");
 
     if (strcmp(computed_hash, "7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c") != 0)
+        return MZ_HASH_ERROR;
+
+    memset(hash384, 0, sizeof(hash384));
+
+    mz_crypt_sha_create(&sha384);
+    mz_crypt_sha_set_algorithm(sha384, MZ_HASH_SHA384);
+    mz_crypt_sha_begin(sha384);
+    mz_crypt_sha_update(sha384, test, (int32_t)strlen(test));
+    mz_crypt_sha_end(sha384, hash384, sizeof(hash384));
+    mz_crypt_sha_delete(&sha384);
+
+    convert_buffer_to_hex_string(hash384, sizeof(hash384), computed_hash, sizeof(computed_hash));
+
+    printf("Sha384 hash computed - %s\n", computed_hash);
+    printf("Sha384 hash expected - e1e42e5977965bb3621231a5df3a1e83c471fa91fde33b6a30c8c4fa0d8be29ba7171c7c9487db91e9ee7e85049f7b41\n");
+
+    if (strcmp(computed_hash, "e1e42e5977965bb3621231a5df3a1e83c471fa91fde33b6a30c8c4fa0d8be29ba7171c7c9487db91e9ee7e85049f7b41") != 0)
+        return MZ_HASH_ERROR;
+
+    memset(hash512, 0, sizeof(hash512));
+
+    mz_crypt_sha_create(&sha512);
+    mz_crypt_sha_set_algorithm(sha512, MZ_HASH_SHA512);
+    mz_crypt_sha_begin(sha512);
+    mz_crypt_sha_update(sha512, test, (int32_t)strlen(test));
+    mz_crypt_sha_end(sha512, hash512, sizeof(hash512));
+    mz_crypt_sha_delete(&sha512);
+
+    convert_buffer_to_hex_string(hash512, sizeof(hash512), computed_hash, sizeof(computed_hash));
+
+    printf("Sha384 hash computed - %s\n", computed_hash);
+    printf("Sha384 hash expected - 6627e7643ee7ce633e03f52d22329c3a32597364247c5275d4369985e1518626da46f595ad327667346479d246359b8b381af791ce2ac8c53a4788050eea11fe\n");
+
+    if (strcmp(computed_hash, "6627e7643ee7ce633e03f52d22329c3a32597364247c5275d4369985e1518626da46f595ad327667346479d246359b8b381af791ce2ac8c53a4788050eea11fe") != 0)
         return MZ_HASH_ERROR;
 
     printf("Sha.. OK\n");
