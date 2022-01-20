@@ -163,8 +163,6 @@ static int64_t mz_stream_ioapi_tell(void *stream) {
 
 static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
-    int32_t written = 0;
-    void *opaque = NULL;
 
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
@@ -1231,8 +1229,8 @@ uint64_t unzTell64(unzFile file) {
 uint64_t unztell64(unzFile file) {
     mz_compat *compat = (mz_compat *)file;
     if (compat == NULL)
-        return UNZ_PARAMERROR;
-    return compat->total_out;
+        return (uint64_t)UNZ_PARAMERROR;
+    return (uint64_t)compat->total_out;
 }
 
 int unzSeek(unzFile file, int32_t offset, int origin) {

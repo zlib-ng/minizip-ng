@@ -13,6 +13,7 @@
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_buf.h"
+#include "mz_secure_api.h"
 
 /***************************************************************************/
 
@@ -128,7 +129,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
     mz_stream_buffered_print("Buffered - Read (size %" PRId32 " pos %" PRId64 ")\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0) {
-        int64_t position  = buffered->position + buffered->writebuf_pos
+        int64_t position = buffered->position + buffered->writebuf_pos
 
         mz_stream_buffered_print("Buffered - Switch from write to read, flushing (pos %" PRId64 ")\n", position);
 
@@ -164,7 +165,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
             if (bytes_to_copy > bytes_left_to_read)
                 bytes_to_copy = bytes_left_to_read;
 
-            memcpy((char *)buf + buf_len, buffered->readbuf + buffered->readbuf_pos, bytes_to_copy);
+            memcpy_s((char*) buf + buf_len, size - buf_len, buffered->readbuf + buffered->readbuf_pos, bytes_to_copy);
 
             buf_len += bytes_to_copy;
             bytes_left_to_read -= bytes_to_copy;
@@ -225,8 +226,8 @@ int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size) {
             continue;
         }
 
-        memcpy(buffered->writebuf + buffered->writebuf_pos,
-            (const char *)buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
+        memcpy_s(buffered->writebuf + buffered->writebuf_pos, buffered->writebuf_len - buffered->writebuf_pos,
+                 (const char*) buf + (bytes_to_write - bytes_left_to_write), bytes_to_copy);
 
         mz_stream_buffered_print("Buffered - Write copy (remaining %" PRId32 " write %" PRId32 ":%" PRId32 " len %" PRId32 ")\n",
             bytes_to_copy, bytes_to_write, bytes_left_to_write, buffered->writebuf_len);

@@ -22,7 +22,7 @@ option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
+option(MZ_OPENSSL "Enables OpenSSL for encryption" ON)
 option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
 option(MZ_SIGNING "Enables zip signing support" ON)
 # Character conversion options
@@ -97,6 +97,7 @@ set(MINIZIP_LFG)
 set(MINIZIP_SRC
     mz_crypt.c
     mz_os.c
+    mz_secure_api.c
     mz_strm.c
     mz_strm_buf.c
     mz_strm_mem.c
@@ -107,13 +108,14 @@ set(MINIZIP_SRC
 # Initial header files
 set(MINIZIP_HDR
     mz.h
-    mz_os.h
     mz_crypt.h
+    mz_os.h
+    mz_secure_api.h
     mz_strm.h
     mz_strm_buf.h
     mz_strm_mem.h
-    mz_strm_split.h
     mz_strm_os.h
+    mz_strm_split.h
     mz_zip.h
     mz_zip_rw.h)
 
@@ -449,7 +451,7 @@ endif()
 
 # Unix specific
 if(UNIX)
-    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
+    #list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
 
     if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING)
@@ -701,7 +703,11 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                       VERSION ${VERSION}
                       SOVERSION ${SOVERSION}
                       LINKER_LANGUAGE C
-                      DEFINE_SYMBOL "MZ_EXPORTS")
+                      DEFINE_SYMBOL "MZ_EXPORTS"
+                      C_STANDARD 11)
+
+target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
+
 
 if(MINIZIP_LFG)
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${MINIZIP_LFG})

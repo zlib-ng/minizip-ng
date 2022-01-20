@@ -13,45 +13,48 @@
 #include "mz.h"
 #include "mz_crypt.h"
 #include "mz_os.h"
-#include "mz_strm.h"
 #include "mz_strm_os.h"
+#include "mz_secure_api.h"
 
 #include <ctype.h> /* tolower */
+
+#define MAX_PATH (512)
 
 /***************************************************************************/
 
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path) {
-    int32_t path_len = 0;
+    size_t path_len = 0, join_len = 0;
 
     if (path == NULL || join == NULL || max_path == 0)
         return MZ_PARAM_ERROR;
 
-    path_len = (int32_t)strlen(path);
+    path_len = strnlen(path, max_path);
+    join_len = strnlen(join, max_path);
 
     if (path_len == 0) {
-        strncpy(path, join, max_path - 1);
+        strncpy_s(path, max_path, join, join_len);
         path[max_path - 1] = 0;
     } else {
         mz_path_append_slash(path, max_path, MZ_PATH_SLASH_PLATFORM);
-        strncat(path, join, max_path - path_len);
+        strncat_s(path, max_path, join, join_len);
     }
 
     return MZ_OK;
 }
 
 int32_t mz_path_append_slash(char *path, int32_t max_path, char slash) {
-    int32_t path_len = (int32_t)strlen(path);
+    size_t path_len = strnlen(path, max_path);
     if ((path_len + 2) >= max_path)
         return MZ_BUF_ERROR;
     if (path[path_len - 1] != '\\' && path[path_len - 1] != '/') {
-        path[path_len] = slash;
-        path[path_len + 1] = 0;
+        path[path_len - 1] = slash;
+        path[path_len] = 0;
     }
     return MZ_OK;
 }
 
 int32_t mz_path_remove_slash(char *path) {
-    int32_t path_len = (int32_t)strlen(path);
+    size_t path_len = strnlen(path, MAX_PATH);
     while (path_len > 0) {
         if (path[path_len - 1] == '\\' || path[path_len - 1] == '/')
             path[path_len - 1] = 0;
@@ -64,9 +67,10 @@ int32_t mz_path_remove_slash(char *path) {
 }
 
 int32_t mz_path_has_slash(const char *path) {
-    int32_t path_len = (int32_t)strlen(path);
+    size_t path_len = strnlen(path, MAX_PATH);
     if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
         return MZ_EXIST_ERROR;
+
     return MZ_OK;
 }
 

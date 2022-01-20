@@ -11,6 +11,7 @@
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_os.h"
+#include "mz_secure_api.h"
 
 #include <stdio.h> /* rename */
 #include <errno.h>
@@ -73,7 +74,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     if (cd == (iconv_t)-1)
         return NULL;
 
-    string_length = strlen(string);
+    string_length = strlen_s(string);
     string_utf8_size = string_length * 2;
     string_utf8 = (uint8_t *)MZ_ALLOC((int32_t)(string_utf8_size + 1));
     string_utf8_ptr = string_utf8;
@@ -220,9 +221,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
 
     if (strcmp(path, "-") != 0) {
         /* Not all systems allow stat'ing a file with / appended */
-        len = strlen(path);
-        name = (char *)malloc(len + 1);
-        strncpy(name, path, len + 1);
+        name = strdup(path);
         mz_path_remove_slash(name);
 
         if (stat(name, &path_stat) == 0) {
