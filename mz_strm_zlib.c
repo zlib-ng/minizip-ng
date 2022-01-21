@@ -160,7 +160,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size) {
             if (read < 0)
                 return read;
 
-            zlib->zstream.next_in = zlib->buffer;
+            zlib->zstream.next_in = (Bytef*)zlib->buffer;
             zlib->zstream.avail_in = (uint32_t)read;
         }
 

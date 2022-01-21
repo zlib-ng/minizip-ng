@@ -14,6 +14,7 @@
 #include "mz_crypt.h"
 #include "mz_strm.h"
 #include "mz_strm_wzaes.h"
+#include "mz_secure_api.h"
 
 /***************************************************************************/
 
@@ -221,7 +222,7 @@ int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size) {
         if (bytes_to_write > (size - total_written))
             bytes_to_write = (size - total_written);
 
-        memcpy(wzaes->buffer, buf_ptr, bytes_to_write);
+        memcpy_s(wzaes->buffer, sizeof(wzaes->buffer), buf_ptr, bytes_to_write);
         buf_ptr += bytes_to_write;
 
         mz_stream_wzaes_ctr_encrypt(stream, (uint8_t *)wzaes->buffer, bytes_to_write);

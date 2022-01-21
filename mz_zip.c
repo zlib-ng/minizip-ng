@@ -567,7 +567,7 @@ static int32_t mz_zip_entry_needs_zip64(mz_zip_file *file_info, uint8_t local, u
         max_uncompressed_size -= MZ_ZIP_UNCOMPR_SIZE64_CUSHION;
     }
 
-    needs_zip64 = (file_info->uncompressed_size >= max_uncompressed_size) ||
+    needs_zip64 = (uint8_t)(file_info->uncompressed_size >= max_uncompressed_size) ||
                   (file_info->compressed_size >= UINT32_MAX);
 
     if (!local) {
@@ -982,7 +982,7 @@ static int32_t mz_zip_read_cd(void *handle) {
         if ((err == MZ_OK) && (comment_size > 0)) {
             zip->comment = (char *)MZ_ALLOC(comment_size + 1);
             if (zip->comment != NULL) {
-                comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
+                comment_read = mz_stream_read(zip->stream, zip->comment, (int32_t)comment_size);
                 /* Don't fail if incorrect comment length read, not critical */
                 if (comment_read < 0)
                     comment_read = 0;

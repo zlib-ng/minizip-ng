@@ -58,6 +58,9 @@ static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
     int32_t new_size = size;
     uint8_t *new_buf = NULL;
 
+    if (new_size < 0) {
+        return MZ_PARAM_ERROR;
+    }
 
     new_buf = (uint8_t *)MZ_ALLOC((uint32_t)new_size);
     if (new_buf == NULL)
