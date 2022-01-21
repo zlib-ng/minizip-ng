@@ -1632,7 +1632,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
         strncpy(path_dir, path, sizeof(path_dir) - 1);
         path_dir[sizeof(path_dir) - 1] = 0;
         mz_path_remove_filename(path_dir);
-        wildcard_ptr = path_dir + strlen(path_dir) + 1;
+        wildcard_ptr = path_dir + strnlen(path_dir, sizeof(path_dir)) + 1;
         root_path = path = path_dir;
     } else {
         if (mz_os_is_dir(path) == MZ_OK)
@@ -1648,7 +1648,7 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
                 if (mz_path_get_filename(filenameinzip, &filename) == MZ_OK)
                     filenameinzip = filename;
             } else {
-                filenameinzip += strlen(root_path);
+                filenameinzip += strnlen(root_path, 1024);
             }
         }
 
