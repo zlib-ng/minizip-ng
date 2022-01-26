@@ -69,18 +69,22 @@ int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
             header[0] = '\0';
             return MZ_BUF_ERROR;
         }
-        while ((*dest++ = *src++) != '\0' && --availableSize > 0) {
+
+        while (count != 0 && availableSize != 0) {
             if (src == overlapGuard) {
                 header[0] = '\0';
                 return MZ_BUF_ERROR;
             }
+
+            *dest++ = *src++;
+
+            --count;
+            --availableSize;
         }
     }
 
-    /* dest have not enough space, return error */
-    if (availableSize == 0) {
-        header[0] = '\0';
-        return MZ_BUF_ERROR;
+    if (availableSize != 0) {
+        *dest = '\0';
     }
 
     return MZ_OK;
@@ -93,6 +97,10 @@ size_t strlen_s(const char* s)
 
 int32_t strncpy_s(char* dest, size_t destMax, const char* src, size_t count)
 {
+    const char* overlapGuard = NULL;
+    size_t availableSize = destMax;
+    char* header = dest;
+
     if (destMax == 0 || destMax > STRING_MAX_LEN) {
         return MZ_PARAM_ERROR;
     }
@@ -107,6 +115,17 @@ int32_t strncpy_s(char* dest, size_t destMax, const char* src, size_t count)
     if (count > STRING_MAX_LEN || count == 0) {
         dest[0] = '\0'; /*clear dest string*/
         return MZ_PARAM_ERROR;
+    }
+
+    if (dest < src) {
+        overlapGuard = src;
+    }
+
+    while ((*dest++ = *src++) != '\0' && --availableSize > 0) {
+        if (src == overlapGuard) {
+            header[0] = '\0';
+            return MZ_BUF_ERROR;
+        }
     }
 
     return MZ_OK;
@@ -131,7 +150,6 @@ int32_t memcpy_s(void* dest, size_t destMax, const void* src, size_t count)
     }
 
     memcpy(dest, src, count);
-
 
     return MZ_OK;
 }

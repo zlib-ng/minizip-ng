@@ -30,6 +30,7 @@
 #include "mz_strm_zlib.h"
 #endif
 #include "mz_zip.h"
+#include "mz_secure_api.h"
 
 #include <stdio.h> /* printf, snprintf */
 
@@ -1200,6 +1201,75 @@ int32_t test_unzip_compat64(void)
 }
 #endif
 
+int32_t test_secure_api(void)
+{
+    char dest[40];
+    char small[4];
+
+    // secure memcpy tests
+    printf("Testing memcpy_s...");
+
+    int rc = memcpy_s(dest, 40, "memcpy_s", 9);
+    if (rc != MZ_OK) {
+        printf("Unexpected error in memcpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    rc = memcmp(dest, "memcpy_s", 9);
+    if (rc != MZ_OK) {
+        printf("Unexpected error in memcpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    rc = memcpy_s(small, 4, "memcpy_s", 9);
+    if (rc != MZ_PARAM_ERROR) {
+        printf("Unexpected error in memcpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    printf("OK\n");
+
+    // secure strncpy tests
+    printf("Testing strncpy_s...");
+    rc = strncpy_s(dest, sizeof(dest), "strncpy_s", 10);
+    if (rc != MZ_OK) {
+        printf("Unexpected error in strncpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    rc = memcmp(dest, "strncpy_s", 10);
+    if (rc != MZ_OK) {
+        printf("Unexpected error in strncpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    rc = strncpy_s(small, 4, "strncpy_s", 10);
+    if (rc != MZ_OK) {
+        printf("Unexpected error in strncpy_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    printf("OK\n");
+
+    // strncat_s tests
+    printf("Testing strncpy_s...");
+    rc = strncat_s(dest, sizeof(dest), small, sizeof(small));
+    if (rc != MZ_OK) {
+        printf("Unexpected error in strncat_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    rc = strcmp(dest, "strncpy_sstrn");
+    if (rc != MZ_OK) {
+        printf("Unexpected error in strncat_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    printf("OK\n");
+
+    return MZ_OK;
+}
+
 /***************************************************************************/
 
 int main(int argc, const char *argv[])
@@ -1241,6 +1311,8 @@ int main(int argc, const char *argv[])
     err |= test_crypt_aes();
     err |= test_crypt_hmac();
 #endif
+
+    err |= test_secure_api();
 
     return err;
 }
