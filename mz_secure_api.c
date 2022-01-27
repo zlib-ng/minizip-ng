@@ -1,19 +1,39 @@
+/* mz_secure_api.h -- Secure string and memory API
+   part of the minizip-ng project
+
+   https://github.com/Maxar-Corp/minizip-ng
+
+   This program is distributed under the terms of the same license as zlib.
+   See the accompanying LICENSE file for the full text of the license.
+*/
 
 #include "mz.h"
 #include "mz_secure_api.h"
 
-#define STRING_MAX_LEN (0x7fffffffUL)
-
-/***************************************************************************/
-
-/*
- *  The strncat_s function try to append the first D characters of src to
- *  the end of dest, where D is the least of count and the length of src.
- *  If appending those D characters will fit within dest (whose size is given
- *  as destMax) and still leave room for a null terminator, then those characters
- *  are appended, starting at the original terminating null of dest, and a
- *  new terminating null is appended; otherwise, dest[0] is set to the null
- *  character.
+/**
+ * NAME
+ *    strncat_s
+ *
+ * DESCRIPTION
+ *    This function concatenates at most count bytes
+ *    from src to destination string
+ *
+ * INPUT PARAMETERS
+ *    dest      pointer to string that will be concatenated to.
+ *
+ *    destMax   maximum length of the dest buffer
+ *
+ *    src       pointer to the memory that will be concatenated from.
+ *
+ *    count     maximum number bytes of src to concatenate
+ *
+ * RETURN VALUE
+ *    MZ_OK             successful operation
+ *    MZ_PARAM_ERROR    parameter error
+ *    MZ_BUF_ERROR      buffer error
+ *
+ * COMMENTS
+ *    dest is null terminated on error if space is available
  */
 int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
 {
@@ -29,7 +49,7 @@ int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
         if (dest != NULL) {
             header[0] = '\0';
         }
-        return MZ_BUF_ERROR;
+        return MZ_PARAM_ERROR;
     }
 
     if (dest < src) {
@@ -39,7 +59,6 @@ int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
                 header[0] = '\0';
                 return MZ_BUF_ERROR;
             }
-            /*seek to string end*/
             dest++;
             availableSize--;
         }
@@ -57,9 +76,7 @@ int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
             }
         }
     } else {
-        overlapGuard = dest;
         while (availableSize > 0 && *dest != '\0') {
-            /*seek to string end, and no need to check overlap*/
             dest++;
             availableSize--;
         }
@@ -90,11 +107,64 @@ int32_t strncat_s(char* dest, size_t destMax, const char* src, size_t count)
     return MZ_OK;
 }
 
-size_t strlen_s(const char* s)
+/**
+ * NAME
+ *    strnlen_s
+ *
+ * DESCRIPTION
+ *    This function returns the length of the input string or
+ *    0 if error.
+ *
+ * INPUT PARAMETERS
+ *    s         pointer to the input string
+ *    maxLen    maximum length of the string
+ *
+ * RETURN VALUE
+ *    length of the string or 0 if error
+ *
+ */
+size_t strnlen_s(const char* s, size_t maxlen)
 {
-    return strnlen(s, STRING_MAX_LEN);
+    size_t len;
+
+    if (s == NULL || maxlen > STRING_MAX_LEN) {
+        return 0;
+    }
+
+    for (len = 0; len < maxlen; len++, s++) {
+        if (!*s) {
+            break;
+        }
+    }
+
+    return len;
 }
 
+/**
+ * NAME
+ *    strncpy_s
+ *
+ * DESCRIPTION
+ *    This function copies at most count bytes from src to dest, up to
+ *    destMax including terminating null if space is available.
+ *
+ * INPUT PARAMETERS
+ *    dest      pointer to memory that will be copied from src.
+ *
+ *    destMax   maximum length of the dest buffer
+ *
+ *    src       pointer to the memory that will be copied to dest
+ *
+ *    count     maximum number bytes of src to copy
+ *
+ * RETURN VALUE
+ *    MZ_OK             successful operation
+ *    MZ_PARAM_ERROR    parameter error
+ *    MZ_BUF_ERROR      buffer overlap error
+ *
+ * COMMENTS
+ *    dest is null terminated on error if space is available
+ */
 int32_t strncpy_s(char* dest, size_t destMax, const char* src, size_t count)
 {
     const char* overlapGuard = NULL;
@@ -113,7 +183,7 @@ int32_t strncpy_s(char* dest, size_t destMax, const char* src, size_t count)
     }
 
     if (count > STRING_MAX_LEN || count == 0) {
-        dest[0] = '\0'; /*clear dest string*/
+        dest[0] = '\0';
         return MZ_PARAM_ERROR;
     }
 
@@ -131,6 +201,27 @@ int32_t strncpy_s(char* dest, size_t destMax, const char* src, size_t count)
     return MZ_OK;
 }
 
+/**
+ * NAME
+ *    memcpy_s
+ *
+ * DESCRIPTION
+ *    This function copies at most count bytes from src to dest, up to
+ *    destMax.
+ *
+ * INPUT PARAMETERS
+ *    dest      pointer to memory that will be copied from src.
+ *
+ *    destMax   maximum length of the dest buffer
+ *
+ *    src       pointer to the memory that will be copied to dest
+ *
+ *    count      maximum number bytes of src to copy
+ *
+ * RETURN VALUE
+ *    MZ_OK             successful operation
+ *    MZ_PARAM_ERROR    parameter error
+ */
 int32_t memcpy_s(void* dest, size_t destMax, const void* src, size_t count)
 {
     if (count == 0) {

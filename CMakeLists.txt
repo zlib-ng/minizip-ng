@@ -22,7 +22,7 @@ option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" ON)
+option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
 option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
 option(MZ_SIGNING "Enables zip signing support" ON)
 # Character conversion options
@@ -451,7 +451,7 @@ endif()
 
 # Unix specific
 if(UNIX)
-    #list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
+    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
 
     if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING)
@@ -703,11 +703,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
                       VERSION ${VERSION}
                       SOVERSION ${SOVERSION}
                       LINKER_LANGUAGE C
-                      DEFINE_SYMBOL "MZ_EXPORTS"
-                      C_STANDARD 11)
-
-target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
-
+                      DEFINE_SYMBOL "MZ_EXPORTS")
 
 if(MINIZIP_LFG)
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS ${MINIZIP_LFG})

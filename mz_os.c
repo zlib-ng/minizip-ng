@@ -28,8 +28,8 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path) {
     if (path == NULL || join == NULL || max_path == 0)
         return MZ_PARAM_ERROR;
 
-    path_len = strnlen(path, max_path);
-    join_len = strnlen(join, max_path);
+    path_len = strnlen_s(path, max_path);
+    join_len = strnlen_s(join, max_path);
 
     if (path_len == 0) {
         strncpy_s(path, max_path, join, join_len);
@@ -43,7 +43,7 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path) {
 }
 
 int32_t mz_path_append_slash(char *path, int32_t max_path, char slash) {
-    size_t path_len = strnlen(path, max_path);
+    size_t path_len = strnlen_s(path, max_path);
     if ((path_len + 2) >= max_path)
         return MZ_BUF_ERROR;
     if (path[path_len - 1] != '\\' && path[path_len - 1] != '/') {
@@ -54,7 +54,7 @@ int32_t mz_path_append_slash(char *path, int32_t max_path, char slash) {
 }
 
 int32_t mz_path_remove_slash(char *path) {
-    size_t path_len = strnlen(path, MAX_PATH);
+    size_t path_len = strnlen_s(path, MAX_PATH);
     while (path_len > 0) {
         if (path[path_len - 1] == '\\' || path[path_len - 1] == '/')
             path[path_len - 1] = 0;
@@ -67,7 +67,7 @@ int32_t mz_path_remove_slash(char *path) {
 }
 
 int32_t mz_path_has_slash(const char *path) {
-    size_t path_len = strnlen(path, MAX_PATH);
+    size_t path_len = strnlen_s(path, MAX_PATH);
     if (path[path_len - 1] != '\\' && path[path_len - 1] != '/')
         return MZ_EXIST_ERROR;
 

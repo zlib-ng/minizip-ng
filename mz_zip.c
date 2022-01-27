@@ -692,7 +692,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     /* Unix1 symbolic links */
     if (file_info->linkname != NULL && *file_info->linkname != 0) {
-        linkname_size = (uint16_t)strnlen(file_info->linkname, file_info->filename_size);
+        linkname_size = (uint16_t)strnlen_s(file_info->linkname, file_info->filename_size);
         field_length_unix1 = 12 + linkname_size;
         extrafield_size += 4 + field_length_unix1;
     }
@@ -751,7 +751,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         filename = file_info->filename;
     }
 
-    filename_length = (uint16_t)strnlen(filename, file_info->filename_size);
+    filename_length = (uint16_t)strnlen_s(filename, file_info->filename_size);
     filename_size += filename_length;
 
     if ((mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK) &&
@@ -767,7 +767,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 
     if (!local) {
         if (file_info->comment != NULL) {
-            comment_size = (int32_t)strnlen(file_info->comment, file_info->comment_size);
+            comment_size = (int32_t)strnlen_s(file_info->comment, file_info->comment_size);
             if (comment_size > UINT16_MAX)
                 comment_size = UINT16_MAX;
         }
@@ -1204,7 +1204,7 @@ static int32_t mz_zip_write_cd(void *handle) {
 
     /* Write global comment */
     if (zip->comment != NULL) {
-        comment_size = (int32_t)strlen_s(zip->comment);
+        comment_size = (int32_t)strnlen_s(zip->comment, STRING_MAX_LEN);
         if (comment_size > UINT16_MAX)
             comment_size = UINT16_MAX;
     }
@@ -1543,7 +1543,7 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
         return MZ_PARAM_ERROR;
     if (zip->comment != NULL)
         MZ_FREE(zip->comment);
-    comment_size = (int32_t)strlen_s(comment);
+    comment_size = (int32_t)strnlen_s(comment, STRING_MAX_LEN);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
     zip->comment = (char *)MZ_ALLOC(comment_size+1);
@@ -1918,7 +1918,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     /* Copy filename, extrafield, and comment internally */
     filename_pos = mz_stream_tell(zip->file_info_stream);
     if (file_info->filename != NULL)
-        mz_stream_write(zip->file_info_stream, file_info->filename, (int32_t)strnlen(file_info->filename, file_info->filename_size));
+        mz_stream_write(zip->file_info_stream, file_info->filename, (int32_t)strnlen_s(file_info->filename, file_info->filename_size));
     mz_stream_write_uint8(zip->file_info_stream, 0);
 
     extrafield_pos = mz_stream_tell(zip->file_info_stream);
@@ -1933,7 +1933,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
 
     linkname_pos = mz_stream_tell(zip->file_info_stream);
     if (file_info->linkname != NULL)
-        mz_stream_write(zip->file_info_stream, file_info->linkname, (int32_t)strnlen(file_info->linkname, file_info->filename_size));
+        mz_stream_write(zip->file_info_stream, file_info->linkname, (int32_t)strnlen_s(file_info->linkname, file_info->filename_size));
     mz_stream_write_uint8(zip->file_info_stream, 0);
 
     mz_stream_mem_get_buffer_at(zip->file_info_stream, filename_pos, (const void **)&zip->file_info.filename);
@@ -2185,7 +2185,7 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
             int64_t filename_size = zip->file_info.filename_size;
 
             if (filename_size == 0)
-                filename_size = (int64_t)strnlen(zip->file_info.filename, zip->file_info.filename_size);
+                filename_size = (int64_t)strnlen_s(zip->file_info.filename, zip->file_info.filename_size);
 
             /* Since we write zip64 extension first we know its offset */
             err = mz_stream_seek(zip->stream, 2 + 2 + filename_size + 4, MZ_SEEK_CUR);
@@ -2261,7 +2261,7 @@ int32_t mz_zip_entry_is_dir(void *handle) {
     if (mz_zip_attrib_is_dir(zip->file_info.external_fa, zip->file_info.version_madeby) == MZ_OK)
         return MZ_OK;
 
-    filename_length = (int32_t)strnlen(zip->file_info.filename, zip->file_info.filename_size);
+    filename_length = (int32_t)strnlen_s(zip->file_info.filename, zip->file_info.filename_size);
     if (filename_length > 0) {
         if ((zip->file_info.filename[filename_length - 1] == '/') ||
             (zip->file_info.filename[filename_length - 1] == '\\'))

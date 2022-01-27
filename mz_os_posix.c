@@ -74,7 +74,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     if (cd == (iconv_t)-1)
         return NULL;
 
-    string_length = strlen_s(string);
+    string_length = strnlen_s(string, STRING_MAX_LEN);
     string_utf8_size = string_length * 2;
     string_utf8 = (uint8_t *)MZ_ALLOC((int32_t)(string_utf8_size + 1));
     string_utf8_ptr = string_utf8;
@@ -214,13 +214,16 @@ int64_t mz_os_get_file_size(const char *path) {
 int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date) {
     struct stat path_stat;
     char *name = NULL;
+    size_t len = 0;
     int32_t err = MZ_INTERNAL_ERROR;
 
     memset(&path_stat, 0, sizeof(path_stat));
 
     if (strcmp(path, "-") != 0) {
         /* Not all systems allow stat'ing a file with / appended */
-        name = strdup(path);
+        len = strlen(path);
+        name = (char *)malloc(len + 1);
+        strncpy_s(name, len + 1, path, len + 1);
         mz_path_remove_slash(name);
 
         if (stat(name, &path_stat) == 0) {

@@ -1267,6 +1267,29 @@ int32_t test_secure_api(void)
 
     printf("OK\n");
 
+    // strnlen_s tests
+    printf("Testing strnlen_s...");
+
+    size_t len = strnlen_s(dest, sizeof(dest));
+    if (len != 13) {
+        printf("Unexpected error in strnlen_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    len = strnlen_s(dest, sizeof(small));
+    if (len != 4) {
+        printf("Unexpected error in strnlen_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    len = strnlen_s(NULL, STRING_MAX_LEN);
+    if (len != 0) {
+        printf("Unexpected error in strnlen_s!\n");
+        return MZ_INTERNAL_ERROR;
+    }
+
+    printf("OK\n");
+
     return MZ_OK;
 }
 
