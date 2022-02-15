@@ -710,7 +710,7 @@ if(MSVC)
     # VS debugger has problems when executable and static library are named the same
     set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME lib${PROJECT_NAME})
 endif()
-if(NOT RISCOS)
+if(NOT RISCOS AND NOT PSP)
     set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
 if(MZ_LZMA)
