@@ -33,7 +33,9 @@ int32_t mz_path_combine(char *path, const char *join, int32_t max_path) {
         path[max_path - 1] = 0;
     } else {
         mz_path_append_slash(path, max_path, MZ_PATH_SLASH_PLATFORM);
-        strncat(path, join, max_path - path_len);
+        path_len = (int32_t)strlen(path);
+        if (max_path > path_len)
+            strncat(path, join, max_path - path_len - 1);
     }
 
     return MZ_OK;
