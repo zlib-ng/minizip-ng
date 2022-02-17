@@ -279,17 +279,17 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 
 int32_t mz_dir_make(const char *path) {
     int32_t err = MZ_OK;
-    int16_t len = 0;
+    size_t len = 0;
     char *current_dir = NULL;
     char *match = NULL;
     char hold = 0;
 
 
-    len = (int16_t)strlen(path);
-    if (len <= 0)
+    len = strlen(path);
+    if (len <= 0 || len > INT16_MAX)
         return 0;
 
-    current_dir = (char *)MZ_ALLOC((uint16_t)len + 1);
+    current_dir = (char *)MZ_ALLOC(len + 1);
     if (current_dir == NULL)
         return MZ_MEM_ERROR;
 
