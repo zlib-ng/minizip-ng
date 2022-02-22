@@ -267,7 +267,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
         if (sha->sha224 == NULL)
             return MZ_PARAM_ERROR;
         mz_crypt_sha224_update(sha->sha224, buf, size);
-        return MZ_OK;
+        return size;
     }
 
     if (sha->hash == 0)
