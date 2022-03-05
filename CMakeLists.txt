@@ -229,12 +229,18 @@ if(MZ_ZLIB)
         list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
 
         # Have to add zlib to install targets
-        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT BUILD_SHARED_LIBS)
             list(APPEND MINIZIP_DEP zlibstatic)
         else()
             list(APPEND MINIZIP_DEP zlib)
         endif()
-        set(ZLIB_COMPAT ON)
+
+        if(EXISTS "${ZLIB_BINARY_DIR}/zlib-ng.h")
+            message(STATUS "ZLIB repository detected as ZLIBNG")
+            set(ZLIB_COMPAT OFF)
+        else()
+            set(ZLIB_COMPAT ON)
+        endif()
     else()
         message(STATUS "ZLIB library not found")
 
