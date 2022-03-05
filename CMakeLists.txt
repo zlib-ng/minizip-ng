@@ -611,30 +611,19 @@ endif()
 
 # Include compatibility layer
 if(MZ_COMPAT)
-    set(COMPAT_HEADER "\
-/* file.h -- Compatibility layer shim\n\
-   part of the minizip-ng project\n\n\
-   This program is distributed under the terms of the same license as zlib.\n\
-   See the accompanying LICENSE file for the full text of the license.\n\
-*/\n\n\
-#ifndef MZ_COMPAT_FILE\n\
-#define MZ_COMPAT_FILE\n\n\
-#include \"mz_compat.h\"\n\n\
-#endif\n")
+    set(FILE_H "zip.h")
+    set(MZ_COMPAT_FILE "MZ_COMPAT_ZIP")
+    configure_file(mz_compat_shim.h.in zip.h)
 
-    string(REPLACE "file.h" "zip.h" ZIP_COMPAT_HEADER ${COMPAT_HEADER})
-    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_ZIP" ZIP_COMPAT_HEADER ${ZIP_COMPAT_HEADER})
-    file(WRITE "zip.h" ${ZIP_COMPAT_HEADER})
-
-    string(REPLACE "file.h" "unzip.h" UNZIP_COMPAT_HEADER ${COMPAT_HEADER})
-    string(REPLACE "MZ_COMPAT_FILE" "MZ_COMPAT_UNZIP" UNZIP_COMPAT_HEADER ${UNZIP_COMPAT_HEADER})
-    file(WRITE "unzip.h" ${UNZIP_COMPAT_HEADER})
+    set(FILE_H "unzip.h")
+    set(MZ_COMPAT_FILE "MZ_COMPAT_UNZIP")
+    configure_file(mz_compat_shim.h.in unzip.h)
 
     if(MZ_COMPAT_VERSION)
         list(APPEND MINIZIP_DEF -DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
     endif()
     list(APPEND MINIZIP_SRC mz_compat.c)
-    list(APPEND MINIZIP_HDR mz_compat.h zip.h unzip.h)
+    list(APPEND MINIZIP_HDR mz_compat.h ${CMAKE_CURRENT_BINARY_DIR}/zip.h ${CMAKE_CURRENT_BINARY_DIR}/unzip.h)
 endif()
 
 # Set compiler options
