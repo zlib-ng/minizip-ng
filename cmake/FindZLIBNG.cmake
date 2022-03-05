@@ -1,16 +1,16 @@
 find_path(ZLIBNG_INCLUDE_DIRS NAMES zlib-ng.h)
 
 if(ZLIB_INCLUDE_DIRS)
-  set(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_INCLUDE_DIRS})
+    set(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_INCLUDE_DIRS})
 
-  if("${ZLIBNG_LIBRARY_DIRS}" MATCHES "/include$")
-    # Strip off the trailing "/include" in the path.
-    GET_FILENAME_COMPONENT(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_LIBRARY_DIRS} PATH)
-  endif("${ZLIBNG_LIBRARY_DIRS}" MATCHES "/include$")
+    if("${ZLIBNG_LIBRARY_DIRS}" MATCHES "/include$")
+        # Strip off the trailing "/include" in the path.
+        get_filename_component(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_LIBRARY_DIRS} PATH)
+    endif()
 
-  if(EXISTS "${ZLIBNG_LIBRARY_DIRS}/lib")
-    set(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_LIBRARY_DIRS}/lib)
-  endif(EXISTS "${ZLIBNG_LIBRARY_DIRS}/lib")
+    if(EXISTS "${ZLIBNG_LIBRARY_DIRS}/lib")
+        set(ZLIBNG_LIBRARY_DIRS ${ZLIBNG_LIBRARY_DIRS}/lib)
+    endif()
 endif()
 
 find_library(ZLIBNG_LIBRARY NAMES z-ng libz-ng libz-ng.a)
@@ -22,11 +22,11 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(ZLIBNG DEFAULT_MSG ZLIBNG_LIBRARY ZLIBNG_INCLUDE_DIRS)
 
 if(ZLIBNG_INCLUDE_DIRS AND ZLIBNG_LIBRARIES)
-  set(ZLIBNG_FOUND TRUE)
+    set(ZLIBNG_FOUND TRUE)
 else(ZLIBNG_INCLUDE_DIRS AND ZLIBNG_LIBRARIES)
-  set(ZLIBNG_FOUND FALSE)
-endif(ZLIBNG_INCLUDE_DIRS AND ZLIBNG_LIBRARIES)
+    set(ZLIBNG_FOUND FALSE)
+endif()
 
 if(ZLIBNG_FOUND)
-  message(STATUS "Found zlib-ng: ${ZLIBNG_LIBRARIES}, ${ZLIBNG_INCLUDE_DIRS}")
-endif(ZLIBNG_FOUND)
+    message(STATUS "Found zlib-ng: ${ZLIBNG_LIBRARIES}, ${ZLIBNG_INCLUDE_DIRS}")
+endif()
