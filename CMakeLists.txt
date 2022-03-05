@@ -6,6 +6,7 @@
 #***************************************************************************
 
 cmake_minimum_required(VERSION 3.13)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
@@ -77,6 +78,8 @@ include(CheckTypeSize)
 include(GNUInstallDirs)
 include(FeatureSummary)
 
+include(cmake/clone-repo.cmake)
+
 set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE PATH "Installation directory for libraries")
 set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for headers")
@@ -139,42 +142,6 @@ check_function_exists(fseeko HAVE_FSEEKO)
 if(NOT HAVE_FSEEKO)
     list(APPEND STDLIB_DEF -DNO_FSEEKO)
 endif()
-
-# Checkout remote repository
-macro(clone_repo name url)
-    string(TOLOWER ${name} name_lower)
-    string(TOUPPER ${name} name_upper)
-
-    if(NOT ${name_upper}_REPOSITORY)
-        set(${name_upper}_REPOSITORY ${url})
-    endif()
-    if(NOT ${name_upper}_TAG)
-        set(${name_upper}_TAG master)
-    endif()
-
-    message(STATUS "Fetching ${name} ${${name_upper}_REPOSITORY} ${${name_upper}_TAG}")
-
-    # Check for FetchContent cmake support
-    if(${CMAKE_VERSION} VERSION_LESS "3.11")
-        message(FATAL_ERROR "CMake 3.11 required to fetch ${name}")
-    else()
-        include(FetchContent)
-
-        FetchContent_Declare(${name}
-            GIT_REPOSITORY ${${name_upper}_REPOSITORY}
-            GIT_TAG ${${name_upper}_TAG}
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${name_lower})
-
-        FetchContent_GetProperties(${name} POPULATED ${name_lower}_POPULATED)
-
-        if(NOT ${name_lower}_POPULATED)
-            FetchContent_Populate(${name})
-        endif()
-
-        set(${name_upper}_SOURCE_DIR ${${name_lower}_SOURCE_DIR})
-        set(${name_upper}_BINARY_DIR ${${name_lower}_BINARY_DIR})
-    endif()
-endmacro()
 
 if(MZ_LIBCOMP)
     if(APPLE)
