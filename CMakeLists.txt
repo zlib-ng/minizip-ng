@@ -39,7 +39,11 @@ option(MZ_BUILD_UNIT_TESTS "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
 # Package management options
-set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
+if(NOT MZ_COMPAT AND NOT DEFINED MZ_PROJECT_SUFFIX)
+    set(MZ_PROJECT_SUFFIX "-ng" CACHE STRING "Project name suffix for package managers")
+else()
+    set(MZ_PROJECT_SUFFIX "" CACHE STRING "Project name suffix for package managers")
+endif()
 
 mark_as_advanced(MZ_FILE32_API MZ_PROJECT_SUFFIX)
 
