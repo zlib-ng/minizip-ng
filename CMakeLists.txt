@@ -165,59 +165,71 @@ if(MZ_LIBCOMP)
 endif()
 
 if(MZ_ZLIB)
-    # Check if zlib is present
-    if(NOT MZ_FORCE_FETCH_LIBS)
-        find_package(ZLIBNG QUIET)
-        find_package(ZLIB QUIET)
-        set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
-    endif()
-
-    if(ZLIBNG_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
-        message(STATUS "Using ZLIBNG")
-
-        list(APPEND MINIZIP_INC ${ZLIBNG_INCLUDE_DIRS})
-        list(APPEND MINIZIP_LIB ${ZLIBNG_LIBRARIES})
-        list(APPEND MINIZIP_LBD ${ZLIBNG_LIBRARY_DIRS})
-
-        set(PC_PRIVATE_LIBS " -lz-ng")
-        set(ZLIB_COMPAT OFF)
-    elseif(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
-        message(STATUS "Using ZLIB ${ZLIB_VERSION}")
-
-        list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
-        list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
-        list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
-
-        set(PC_PRIVATE_LIBS " -lz")
-        set(ZLIB_COMPAT ON)
-    elseif(MZ_FETCH_LIBS)
-        clone_repo(zlib https://github.com/madler/zlib)
-
-        # Don't automatically add all targets to the solution
-        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
-
-        list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
-        list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
-
-        # Have to add zlib to install targets
+    if((TARGET zlibstatic) OR (TARGET zlib))
+        message(STATUS "Using in-project ZLIB")
+        
         if(NOT DEFINED BUILD_SHARED_LIBS OR NOT BUILD_SHARED_LIBS)
             list(APPEND MINIZIP_DEP zlibstatic)
         else()
             list(APPEND MINIZIP_DEP zlib)
         endif()
-
-        if(EXISTS "${ZLIB_BINARY_DIR}/zlib-ng.h")
-            message(STATUS "ZLIB repository detected as ZLIBNG")
-            set(ZLIB_COMPAT OFF)
-        else()
-            set(ZLIB_COMPAT ON)
-        endif()
+        
+        # TODO: How to detected the branch of zlib? It is zlib, or zlib-ng?
     else()
-        message(STATUS "ZLIB library not found")
+        # Check if zlib is present
+        if(NOT MZ_FORCE_FETCH_LIBS)
+            find_package(ZLIBNG QUIET)
+            find_package(ZLIB QUIET)
+            set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
+        endif()
 
-        set(MZ_ZLIB OFF)
+        if(ZLIBNG_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
+            message(STATUS "Using ZLIBNG")
+
+            list(APPEND MINIZIP_INC ${ZLIBNG_INCLUDE_DIRS})
+            list(APPEND MINIZIP_LIB ${ZLIBNG_LIBRARIES})
+            list(APPEND MINIZIP_LBD ${ZLIBNG_LIBRARY_DIRS})
+
+            set(PC_PRIVATE_LIBS " -lz-ng")
+            set(ZLIB_COMPAT OFF)
+        elseif(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
+            message(STATUS "Using ZLIB ${ZLIB_VERSION}")
+
+            list(APPEND MINIZIP_INC ${ZLIB_INCLUDE_DIRS})
+            list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
+            list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
+
+            set(PC_PRIVATE_LIBS " -lz")
+            set(ZLIB_COMPAT ON)
+        elseif(MZ_FETCH_LIBS)
+            clone_repo(zlib https://github.com/madler/zlib)
+
+            # Don't automatically add all targets to the solution
+            add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
+
+            list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
+            list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
+
+            # Have to add zlib to install targets
+            if(NOT DEFINED BUILD_SHARED_LIBS OR NOT BUILD_SHARED_LIBS)
+                list(APPEND MINIZIP_DEP zlibstatic)
+            else()
+                list(APPEND MINIZIP_DEP zlib)
+            endif()
+
+            if(EXISTS "${ZLIB_BINARY_DIR}/zlib-ng.h")
+                message(STATUS "ZLIB repository detected as ZLIBNG")
+                set(ZLIB_COMPAT OFF)
+            else()
+                set(ZLIB_COMPAT ON)
+            endif()
+        else()
+            message(STATUS "ZLIB library not found")
+
+            set(MZ_ZLIB OFF)
+        endif()
     endif()
-
+    
     if(MZ_ZLIB)
         list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
         if(ZLIB_COMPAT)
