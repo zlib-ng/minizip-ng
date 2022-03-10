@@ -702,14 +702,20 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${MINIZIP_LBD})
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
 target_include_directories(${PROJECT_NAME} PRIVATE ${MINIZIP_INC})
 target_include_directories(${PROJECT_NAME} PUBLIC
-    $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+if(MZ_COMPAT)
+    target_include_directories(${PROJECT_NAME} PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+endif()
 
 # Create minizip alias
 add_library(MINIZIP::minizip ALIAS ${PROJECT_NAME})
 
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
+    target_include_directories(${PROJECT_NAME} PUBLIC
+        $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>)
+
     install(TARGETS ${PROJECT_NAME} ${MINIZIP_DEP}
             EXPORT ${PROJECT_NAME}
             INCLUDES DESTINATION "${INSTALL_INC_DIR}"
