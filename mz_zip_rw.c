@@ -211,8 +211,8 @@ int32_t mz_zip_reader_close(void *handle) {
         mz_stream_os_delete(&reader->file_stream);
 
     if (reader->mem_stream != NULL) {
-        mz_stream_mem_close(reader->mem_stream);
-        mz_stream_mem_delete(&reader->mem_stream);
+        mz_stream_close(reader->mem_stream);
+        mz_stream_delete(&reader->mem_stream);
     }
 
     return err;
