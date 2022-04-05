@@ -661,7 +661,7 @@ endif()
 list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Create minizip library
-project(minizip${MZ_PROJECT_SUFFIX} VERSION ${VERSION})
+project(minizip${MZ_PROJECT_SUFFIX} LANGUAGES C VERSION ${VERSION})
 
 if(NOT ${MZ_PROJECT_SUFFIX} STREQUAL "")
     message(STATUS "Project configured as ${PROJECT_NAME}")
