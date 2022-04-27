@@ -29,6 +29,7 @@ The _mz_zip_ object allows for the reading and writing of the a zip file and its
   - [mz_zip_entry_write](#mz_zip_entry_write)
   - [mz_zip_entry_write_close](#mz_zip_entry_write_close)
   - [mz_zip_entry_seek_local_header](#mz_zip_entry_seek_local_header)
+  - [mz_zip_entry_get_compress_stream](#mz_zip_entry_get_compress_stream)
   - [mz_zip_entry_close_raw](#mz_zip_entry_close_raw)
   - [mz_zip_entry_close](#mz_zip_entry_close)
 - [Entry Enumeration](#entry-enumeration)
@@ -703,6 +704,20 @@ Seeks to the local header for the entry.
 |Type|Name|Description|
 |-|-|-|
 |void *|handle|_mz_zip_ instance|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful.|
+
+### mz_zip_entry_get_compress_stream
+Gets a pointer to the compression stream for the current entry. Can be used to retrieve the compressed bytes read during an operation.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|void *|handle|_mz_zip_ instance|
+|void **|compress_stream|Pointer to _mz_stream_ instance|
 
 **Return**
 |Type|Description|
