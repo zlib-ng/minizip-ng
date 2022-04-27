@@ -6,7 +6,7 @@ minizip-ng is a zip manipulation library written in C that is supported on Windo
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/minizip.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:minizip)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/53d48ca8fec549f4a8b39cf95cba6ad6)](https://www.codacy.com/manual/nmoinvaz/minizip?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nmoinvaz/minizip&amp;utm_campaign=Badge_Grade)
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/zlib-ng/minizip-ng/blob/master/LICENSE)
-[![codecov.io](https://codecov.io/github/nmoinvaz/minizip/coverage.svg?branch=dev)](https://codecov.io/github/nmoinvaz/minizip/)
+[![codecov.io](https://codecov.io/github/nmoinvaz/minizip/coverage.svg?branch=develop)](https://codecov.io/github/nmoinvaz/minizip/)
 
 Developed and maintained by Nathan Moinvaziri.
 
@@ -15,7 +15,7 @@ Developed and maintained by Nathan Moinvaziri.
 |Name|Description|
 |:-|:-|
 |[master](https://github.com/zlib-ng/minizip-ng/tree/master)|Most recent release.|
-|[dev](https://github.com/zlib-ng/minizip-ng/tree/dev)|Latest development code.|
+|[develop](https://github.com/zlib-ng/minizip-ng/tree/develop)|Latest development code.|
 |[1.2](https://github.com/zlib-ng/minizip-ng/tree/1.2)|Old changes to original minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes. Not ABI compatible with original minizip.|
 |[1.1](https://github.com/zlib-ng/minizip-ng/tree/1.1)|Original minizip as of zlib 1.2.11.|
 
@@ -97,7 +97,7 @@ installed then it will be used, otherwise CMake will retrieve the source code fo
 
 |Project|License|CMake Option|Comments|
 |-|-|-|-|
-[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/zlib-ng/minizip-ng/blob/dev/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
+[bzip2](https://www.sourceware.org/bzip2/)|[license](https://github.com/zlib-ng/minizip-ng/blob/develop/lib/bzip2/LICENSE)|`MZ_BZIP2`|Written by Julian Seward.|
 |[liblzma](https://tukaani.org/xz/)|Public domain|`MZ_LZMA`|Written by Igor Pavlov and Lasse Collin.|
 |[zlib](https://zlib.net/)|zlib|`MZ_ZLIB`|Written by Mark Adler and Jean-loup Gailly. Or alternatively, [zlib-ng](https://github.com/zlib-ng/zlib-ng) by Hans Kristian Rosbach.|
 |[zstd](https://github.com/facebook/zstd)|[BSD](https://github.com/facebook/zstd/blob/dev/LICENSE)|`MZ_ZSTD`|Written by Facebook.|
