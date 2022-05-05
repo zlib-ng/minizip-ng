@@ -743,13 +743,11 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
         endforeach()
     endif()
     string(APPEND MINIZIP_CONFIG_CONTENT "include(\"\${CMAKE_CURRENT_LIST_DIR}/${PROJECT_NAME}.cmake\")")
-    file(WRITE minizip-config.cmake.in ${MINIZIP_CONFIG_CONTENT})
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in ${MINIZIP_CONFIG_CONTENT})
 
     # Create config for find_package()
-    configure_package_config_file(minizip-config.cmake.in ${PROJECT_NAME}-config.cmake
+    configure_package_config_file(${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in ${PROJECT_NAME}-config.cmake
         INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}")
-
-    file(REMOVE minizip-config.cmake.in)
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
                   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
