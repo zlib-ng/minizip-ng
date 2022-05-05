@@ -411,6 +411,10 @@ if(MZ_OPENSSL)
         if(OPENSSL_INCLUDE_DIR)
             list(APPEND MINIZIP_INC ${OPENSSL_INCLUDE_DIR})
         endif()
+
+        foreach(i ${OPENSSL_LIBRARIES})
+            set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -l${i}")
+        endforeach()
     else()
         message(STATUS "OpenSSL library not found")
 
@@ -567,9 +571,8 @@ if(UNIX)
         if(NOT Iconv_IS_BUILT_IN)
             list(APPEND MINIZIP_LIB ${Iconv_LIBRARIES})
             list(APPEND MINIZIP_LBD ${Iconv_LIBRARY_DIRS})
+            set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
         endif()
-
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -liconv")
     else()
         message(STATUS "Character encoding support requires iconv")
 
