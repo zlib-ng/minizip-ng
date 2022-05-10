@@ -1257,6 +1257,17 @@ int32_t test_unzip_compat64(void)
 }
 #endif
 
+int32_t test_get_file_date(const char *path)
+{
+    int32_t err = mz_os_get_file_date(path, NULL, NULL, NULL);
+    if (err != MZ_OK) {
+        printf("get file date %s returned %" PRId32 "\n", path, err);
+        return err;
+    }
+    printf("get file date.. Ok\n");
+    return err;
+}
+
 /***************************************************************************/
 
 int main(int argc, const char *argv[])
@@ -1298,6 +1309,7 @@ int main(int argc, const char *argv[])
     err |= test_crypt_aes();
     err |= test_crypt_hmac();
 #endif
+    err |= test_get_file_date(argv[0]);
 
     return err;
 }
