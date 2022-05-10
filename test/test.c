@@ -1261,10 +1261,10 @@ int32_t test_get_file_date(const char *path)
 {
     int32_t err = mz_os_get_file_date(path, NULL, NULL, NULL);
     if (err != MZ_OK) {
-        printf("get file date %s returned %" PRId32 "\n", path, err);
+        printf("Get file date %s returned %" PRId32 "\n", path, err);
         return err;
     }
-    printf("get file date.. Ok\n");
+    printf("Get file date.. OK\n");
     return err;
 }
 
