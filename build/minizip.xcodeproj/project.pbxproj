@@ -1,0 +1,1038 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		05F962D329B341B0AEBA18B9 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 72968796A38248499FFF69EC /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				9D65A130B6C7E934CADB0031 /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+		518207B95BF64E6293E5C7FE /* install */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 3D39FE68118E42D6A8764B92 /* Build configuration list for PBXAggregateTarget "install" */;
+			buildPhases = (
+				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+				ACDCB6F511F345A39C4AABE8 /* PBXTargetDependency */,
+			);
+			name = install;
+			productName = install;
+		};
+		C0857D30FD3B430C82C25076 /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F335DC4F64F14F6A92FB929F /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				DF3CA751A62E0D26FAA5334F /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				4EF8786E901A4236A5E81527 /* PBXTargetDependency */,
+				A8D6D954783643AE894CE15D /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		15B540684C2D480CB520C5CC /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.c */ = {isa = PBXBuildFile; fileRef = F176B568933C43B1907BB214 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.c */; };
+		1DF99B8F1220422C86091B49 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.h */ = {isa = PBXBuildFile; fileRef = 7AAB4F8DDF44432F80B17175 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.h */; };
+		270922107F9B45698B591D58 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.c */ = {isa = PBXBuildFile; fileRef = 3999B4BF430942EDA966901D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.c */; };
+		2A7C96CF69D249E782B0F986 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.h */ = {isa = PBXBuildFile; fileRef = 5D5F7F3453254A359A9CFEEB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.h */; };
+		36DC58CAC57940B7BFA693B9 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz.h */ = {isa = PBXBuildFile; fileRef = A52B7876A77F40CA83967D30 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz.h */; };
+		4087CA2F22A84F5CA9D1E951 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt_apple.c */ = {isa = PBXBuildFile; fileRef = 365E34B2D0A64877B15B8A11 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt_apple.c */; };
+		42935F55C4584685B0E36563 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.c */ = {isa = PBXBuildFile; fileRef = D18DFB17928D4101A735235E /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.c */; };
+		4C3F4547222E4C61ABA0C756 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.h */ = {isa = PBXBuildFile; fileRef = B81A0B5D27AB4BD8B8771D21 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.h */; };
+		4F45BA0433244FCEB07CF753 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.h */ = {isa = PBXBuildFile; fileRef = 010337EACC2243B9B7F6D8F3 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.h */; };
+		583E8A38E8EE4764A879052F /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.c */ = {isa = PBXBuildFile; fileRef = 472FF65B8B544C4C9CF7CF8C /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.c */; };
+		5AB2042179DC4BC299B52B3E /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.h */ = {isa = PBXBuildFile; fileRef = 73DFD34C77E946FDB8636997 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.h */; };
+		5C2C91E5DC8D4CE9863F95FB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.c */ = {isa = PBXBuildFile; fileRef = 6A4522DA69A8447993BD1BC9 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.c */; };
+		62ED2B5F876348CFBA331673 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os.h */ = {isa = PBXBuildFile; fileRef = 7B5F5AF4C6D94A3E8B0DB6AB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os.h */; };
+		6A451258D3EF4E42B854A105 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os_posix.c */ = {isa = PBXBuildFile; fileRef = 687C9C6FD0F14E279DA23F2B /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os_posix.c */; };
+		79927D8A681143C18D1ACF52 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.h */ = {isa = PBXBuildFile; fileRef = EB5AE294FEF74632B383EB31 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.h */; };
+		844C882285BB4CCFA1183C4B /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.h */ = {isa = PBXBuildFile; fileRef = EF5938311DAC4E48B9E366CC /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.h */; };
+		973B61332055466DAB681289 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.h */ = {isa = PBXBuildFile; fileRef = 10F9863E23FF489B9A102B05 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.h */; };
+		A57F68C4163C4BB8A1911F03 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/unzip.h */ = {isa = PBXBuildFile; fileRef = A86EEE8448874C2ABF371A41 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/unzip.h */; };
+		A7C4B468319946F5801C2C65 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.c */ = {isa = PBXBuildFile; fileRef = 6A39246055384574859253F8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.c */; };
+		AA50526C3F684FE8B9F70E71 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/zip.h */ = {isa = PBXBuildFile; fileRef = 8CCA15BC1CC54336BDE0A09F /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/zip.h */; };
+		AE27B6129B044822B86D56C2 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os_posix.c */ = {isa = PBXBuildFile; fileRef = DB2E171CF35141A19F09AA95 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os_posix.c */; };
+		B036E3CBFF4441088714091A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.c */ = {isa = PBXBuildFile; fileRef = 982C054708FE4C0F8E4C16D6 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.c */; };
+		B80EBD9AD4434A4395903D14 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.c */ = {isa = PBXBuildFile; fileRef = 0625B620B6FE43918BC81A17 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.c */; };
+		BE1D8D70E11D46D8B20752B7 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.h */ = {isa = PBXBuildFile; fileRef = CC537FAEC1864621AC170725 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.h */; };
+		C20C1C6E862741EE852B582D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.h */ = {isa = PBXBuildFile; fileRef = 6697DFF7273941E88376FACD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.h */; };
+		C5F642E63A1D40AA8BE7359A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = CFC009B415434B1EB7516B2A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */; };
+		C81DB9C14F154B8CB002EBAF /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.c */ = {isa = PBXBuildFile; fileRef = 8DB10D280FC04CC695533FAD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.c */; };
+		C8F55C16914E4EEC995FEB5D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.h */ = {isa = PBXBuildFile; fileRef = 05BDB50A5CBB4B6DB0711B39 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.h */; };
+		CA1991867FBB47DF93C0CE83 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.c */ = {isa = PBXBuildFile; fileRef = CDFFB1118E804B09A5DB1D90 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.c */; };
+		CED311591B424928B89026B7 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/minizip.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = 939DE04FE3944571B91C5674 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/minizip.dir/Info.plist */; };
+		D5814827118C4AB5AFD5E6BB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.c */ = {isa = PBXBuildFile; fileRef = 4E28654208854490A0975E84 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.c */; };
+		DE9EB42384E644CFA44C48E2 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.c */ = {isa = PBXBuildFile; fileRef = 19DB345520A64673A3718AA8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.c */; };
+		E2B1FF6F409E444CB88E2833 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.h */ = {isa = PBXBuildFile; fileRef = BA08C676E2E94E5A8C4A1162 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.h */; };
+		E673A00D669448CAAD8F00C5 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.c */ = {isa = PBXBuildFile; fileRef = B5AA168C0F174D8FB8A36D03 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.c */; };
+		EE927C4EABAA4BCDBD6FCA19 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.h */ = {isa = PBXBuildFile; fileRef = 98A31CAB579645A7BB8C6B8D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		79D0EDB436A149FF8A4697F0 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+		7B02A5238C984B8686395C6D /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		8134F9ACD7A54F6F91C42D6F /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		ADDBDD23898F4784819457EC /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		26BB404FE4BE4CC08BE03A2A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F09F2F110FE0435DA59E5D5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 05F962D329B341B0AEBA18B9;
+			remoteInfo = ZERO_CHECK;
+		};
+		2E782036B3A849F5987EC1F0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F09F2F110FE0435DA59E5D5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 05F962D329B341B0AEBA18B9;
+			remoteInfo = ZERO_CHECK;
+		};
+		991BF19D12E64177AB770AAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F09F2F110FE0435DA59E5D5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 81141B85023C44529EC94833;
+			remoteInfo = minizip;
+		};
+		D4F124DFB84C47BBB6B439B9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F09F2F110FE0435DA59E5D5C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C0857D30FD3B430C82C25076;
+			remoteInfo = ALL_BUILD;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		010337EACC2243B9B7F6D8F3 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_buf.h; path = mz_strm_buf.h; sourceTree = SOURCE_ROOT; };
+		05BDB50A5CBB4B6DB0711B39 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_mem.h; path = mz_strm_mem.h; sourceTree = SOURCE_ROOT; };
+		0625B620B6FE43918BC81A17 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_mem.c; path = mz_strm_mem.c; sourceTree = SOURCE_ROOT; };
+		10F9863E23FF489B9A102B05 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_zip_rw.h; path = mz_zip_rw.h; sourceTree = SOURCE_ROOT; };
+		19DB345520A64673A3718AA8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_crypt.c; path = mz_crypt.c; sourceTree = SOURCE_ROOT; };
+		363EA6B9A3D44601B0FD86D6 /* minizip */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libminizip.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		365E34B2D0A64877B15B8A11 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt_apple.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_crypt_apple.c; path = mz_crypt_apple.c; sourceTree = SOURCE_ROOT; };
+		3999B4BF430942EDA966901D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_wzaes.c; path = mz_strm_wzaes.c; sourceTree = SOURCE_ROOT; };
+		45C035BD95614915B0F4FA4A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		472FF65B8B544C4C9CF7CF8C /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_compat.c; path = mz_compat.c; sourceTree = SOURCE_ROOT; };
+		4E28654208854490A0975E84 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_pkcrypt.c; path = mz_strm_pkcrypt.c; sourceTree = SOURCE_ROOT; };
+		5D5F7F3453254A359A9CFEEB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_compat.h; path = mz_compat.h; sourceTree = SOURCE_ROOT; };
+		6697DFF7273941E88376FACD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_zip.h; path = mz_zip.h; sourceTree = SOURCE_ROOT; };
+		687C9C6FD0F14E279DA23F2B /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os_posix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_os_posix.c; path = mz_strm_os_posix.c; sourceTree = SOURCE_ROOT; };
+		6A39246055384574859253F8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_os.c; path = mz_os.c; sourceTree = SOURCE_ROOT; };
+		6A4522DA69A8447993BD1BC9 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_libcomp.c; path = mz_strm_libcomp.c; sourceTree = SOURCE_ROOT; };
+		73DFD34C77E946FDB8636997 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_crypt.h; path = mz_crypt.h; sourceTree = SOURCE_ROOT; };
+		7AAB4F8DDF44432F80B17175 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_libcomp.h; path = mz_strm_libcomp.h; sourceTree = SOURCE_ROOT; };
+		7B5F5AF4C6D94A3E8B0DB6AB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_os.h; path = mz_strm_os.h; sourceTree = SOURCE_ROOT; };
+		8CCA15BC1CC54336BDE0A09F /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/zip.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = zip.h; path = build/zip.h; sourceTree = SOURCE_ROOT; };
+		8DB10D280FC04CC695533FAD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_zip_rw.c; path = mz_zip_rw.c; sourceTree = SOURCE_ROOT; };
+		939DE04FE3944571B91C5674 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/minizip.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = build/CMakeFiles/minizip.dir/Info.plist; sourceTree = SOURCE_ROOT; };
+		982C054708FE4C0F8E4C16D6 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_split.c; path = mz_strm_split.c; sourceTree = SOURCE_ROOT; };
+		98A31CAB579645A7BB8C6B8D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_os.h; path = mz_os.h; sourceTree = SOURCE_ROOT; };
+		A52B7876A77F40CA83967D30 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz.h; path = mz.h; sourceTree = SOURCE_ROOT; };
+		A86EEE8448874C2ABF371A41 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/unzip.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = unzip.h; path = build/unzip.h; sourceTree = SOURCE_ROOT; };
+		B5AA168C0F174D8FB8A36D03 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm.c; path = mz_strm.c; sourceTree = SOURCE_ROOT; };
+		B81A0B5D27AB4BD8B8771D21 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_wzaes.h; path = mz_strm_wzaes.h; sourceTree = SOURCE_ROOT; };
+		BA08C676E2E94E5A8C4A1162 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_bzip.h; path = mz_strm_bzip.h; sourceTree = SOURCE_ROOT; };
+		CC537FAEC1864621AC170725 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_pkcrypt.h; path = mz_strm_pkcrypt.h; sourceTree = SOURCE_ROOT; };
+		CDFFB1118E804B09A5DB1D90 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_bzip.c; path = mz_strm_bzip.c; sourceTree = SOURCE_ROOT; };
+		CFC009B415434B1EB7516B2A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		D18DFB17928D4101A735235E /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_zip.c; path = mz_zip.c; sourceTree = SOURCE_ROOT; };
+		DB2E171CF35141A19F09AA95 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os_posix.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_os_posix.c; path = mz_os_posix.c; sourceTree = SOURCE_ROOT; };
+		EB5AE294FEF74632B383EB31 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm.h; path = mz_strm.h; sourceTree = SOURCE_ROOT; };
+		EF5938311DAC4E48B9E366CC /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = mz_strm_split.h; path = mz_strm_split.h; sourceTree = SOURCE_ROOT; };
+		F176B568933C43B1907BB214 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = mz_strm_buf.c; path = mz_strm_buf.c; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A6439E1638E743FFB55C61CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		13088ADDCA26414E8FD72BFE /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		4FEC80F3F59E4DF9B813A660 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				472FF65B8B544C4C9CF7CF8C /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.c */,
+				19DB345520A64673A3718AA8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.c */,
+				365E34B2D0A64877B15B8A11 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt_apple.c */,
+				6A39246055384574859253F8 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.c */,
+				DB2E171CF35141A19F09AA95 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os_posix.c */,
+				B5AA168C0F174D8FB8A36D03 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.c */,
+				F176B568933C43B1907BB214 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.c */,
+				CDFFB1118E804B09A5DB1D90 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.c */,
+				6A4522DA69A8447993BD1BC9 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.c */,
+				0625B620B6FE43918BC81A17 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.c */,
+				687C9C6FD0F14E279DA23F2B /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os_posix.c */,
+				4E28654208854490A0975E84 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.c */,
+				982C054708FE4C0F8E4C16D6 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.c */,
+				3999B4BF430942EDA966901D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.c */,
+				D18DFB17928D4101A735235E /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.c */,
+				8DB10D280FC04CC695533FAD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.c */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		6B0E1F32CEAF47AAA6C14663 = {
+			isa = PBXGroup;
+			children = (
+				8D74D1C025E34A29812432CB /* minizip */,
+				F55814A281FC42F0A7AE2CBF /* ALL_BUILD */,
+				DF9148D877FD4F4D9DEF4945 /* Products */,
+				E6A725EDD63547B5A3F79884 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		8D74D1C025E34A29812432CB /* minizip */ = {
+			isa = PBXGroup;
+			children = (
+				4FEC80F3F59E4DF9B813A660 /* Source Files */,
+				C9D1CABD25DE4329A719C8F4 /* Header Files */,
+				955FB880AB914F3A8EAC2B5D /* Resources */,
+				CFC009B415434B1EB7516B2A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */,
+			);
+			name = minizip;
+			sourceTree = "<group>";
+		};
+		955FB880AB914F3A8EAC2B5D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				939DE04FE3944571B91C5674 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/minizip.dir/Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		C9D1CABD25DE4329A719C8F4 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				A86EEE8448874C2ABF371A41 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/unzip.h */,
+				8CCA15BC1CC54336BDE0A09F /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/zip.h */,
+				A52B7876A77F40CA83967D30 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz.h */,
+				5D5F7F3453254A359A9CFEEB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.h */,
+				73DFD34C77E946FDB8636997 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.h */,
+				98A31CAB579645A7BB8C6B8D /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.h */,
+				EB5AE294FEF74632B383EB31 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.h */,
+				010337EACC2243B9B7F6D8F3 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.h */,
+				BA08C676E2E94E5A8C4A1162 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.h */,
+				7AAB4F8DDF44432F80B17175 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.h */,
+				05BDB50A5CBB4B6DB0711B39 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.h */,
+				7B5F5AF4C6D94A3E8B0DB6AB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os.h */,
+				CC537FAEC1864621AC170725 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.h */,
+				EF5938311DAC4E48B9E366CC /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.h */,
+				B81A0B5D27AB4BD8B8771D21 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.h */,
+				6697DFF7273941E88376FACD /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.h */,
+				10F9863E23FF489B9A102B05 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		DF9148D877FD4F4D9DEF4945 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				363EA6B9A3D44601B0FD86D6 /* minizip */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E6A725EDD63547B5A3F79884 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F55814A281FC42F0A7AE2CBF /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				13088ADDCA26414E8FD72BFE /* CMake Rules */,
+				45C035BD95614915B0F4FA4A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		81141B85023C44529EC94833 /* minizip */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A8D8FCC35FE748DCB4B31844 /* Build configuration list for PBXNativeTarget "minizip" */;
+			buildPhases = (
+				675AD52114404998AD6AE139 /* Sources */,
+				A6439E1638E743FFB55C61CD /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				141AE041EFDD423B9EE90B7C /* PBXTargetDependency */,
+			);
+			name = minizip;
+			productName = minizip;
+			productReference = 363EA6B9A3D44601B0FD86D6 /* minizip */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F09F2F110FE0435DA59E5D5C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1340;
+			};
+			buildConfigurationList = BE9D4A2F2A3246249E99DAC2 /* Build configuration list for PBXProject "minizip" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				7B02A5238C984B8686395C6D /* Debug */,
+				ADDBDD23898F4784819457EC /* Release */,
+				79D0EDB436A149FF8A4697F0 /* MinSizeRel */,
+				8134F9ACD7A54F6F91C42D6F /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 6B0E1F32CEAF47AAA6C14663;
+			projectDirPath = ../;
+			projectRoot = "";
+			targets = (
+				C0857D30FD3B430C82C25076 /* ALL_BUILD */,
+				05F962D329B341B0AEBA18B9 /* ZERO_CHECK */,
+				518207B95BF64E6293E5C7FE /* install */,
+				81141B85023C44529EC94833 /* minizip */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		87AF4882E018677E2624B544 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  /opt/homebrew/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  /opt/homebrew/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  /opt/homebrew/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  /opt/homebrew/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		9D65A130B6C7E934CADB0031 /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/ZERO_CHECK			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  make -f /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  make -f /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  make -f /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  make -f /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		DF3CA751A62E0D26FAA5334F /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/ALL_BUILD			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		675AD52114404998AD6AE139 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				583E8A38E8EE4764A879052F /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_compat.c */,
+				DE9EB42384E644CFA44C48E2 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt.c */,
+				4087CA2F22A84F5CA9D1E951 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_crypt_apple.c */,
+				A7C4B468319946F5801C2C65 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os.c */,
+				AE27B6129B044822B86D56C2 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_os_posix.c */,
+				E673A00D669448CAAD8F00C5 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm.c */,
+				15B540684C2D480CB520C5CC /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_buf.c */,
+				CA1991867FBB47DF93C0CE83 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_bzip.c */,
+				5C2C91E5DC8D4CE9863F95FB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_libcomp.c */,
+				B80EBD9AD4434A4395903D14 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_mem.c */,
+				6A451258D3EF4E42B854A105 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_os_posix.c */,
+				D5814827118C4AB5AFD5E6BB /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_pkcrypt.c */,
+				B036E3CBFF4441088714091A /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_split.c */,
+				270922107F9B45698B591D58 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_strm_wzaes.c */,
+				42935F55C4584685B0E36563 /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip.c */,
+				C81DB9C14F154B8CB002EBAF /* /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/mz_zip_rw.c */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		141AE041EFDD423B9EE90B7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 05F962D329B341B0AEBA18B9 /* ZERO_CHECK */;
+			targetProxy = 2E782036B3A849F5987EC1F0 /* PBXContainerItemProxy */;
+		};
+		4EF8786E901A4236A5E81527 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 05F962D329B341B0AEBA18B9 /* ZERO_CHECK */;
+			targetProxy = 26BB404FE4BE4CC08BE03A2A /* PBXContainerItemProxy */;
+		};
+		A8D6D954783643AE894CE15D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 81141B85023C44529EC94833 /* minizip */;
+			targetProxy = 991BF19D12E64177AB770AAB /* PBXContainerItemProxy */;
+		};
+		ACDCB6F511F345A39C4AABE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C0857D30FD3B430C82C25076 /* ALL_BUILD */;
+			targetProxy = D4F124DFB84C47BBB6B439B9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0663D2797C6B49BDA4DDEA82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		1EADB24C31E848FC82B54858 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		2FA4F5129F8A42418D9C086C /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		3702AC93D0214FBA95D4E062 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		413627A232BD4AFFA27BD2B5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		46844FC909EA4B40A7F7132F /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		5EC1D0F068E24878AACB3ED6 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		69DB90A4160D46C19319123F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",HAVE_STDINT_H,HAVE_INTTYPES_H,"'_POSIX_C_SOURCE=200112L'",HAVE_LIBCOMP,HAVE_BZIP2,HAVE_ICONV,MZ_ZIP_SIGNING,HAVE_PKCRYPT,HAVE_WZAES,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip,/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC     ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = minizip;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		78682253B3954CC39BF35DCE /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",HAVE_STDINT_H,HAVE_INTTYPES_H,"'_POSIX_C_SOURCE=200112L'",HAVE_LIBCOMP,HAVE_BZIP2,HAVE_ICONV,MZ_ZIP_SIGNING,HAVE_PKCRYPT,HAVE_WZAES,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip,/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("    -DNDEBUG -fPIC ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = minizip;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		A21E5F2A33C14346BA57D9AD /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		A23B92487DC1412D85D60787 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/build;
+				"VALID_ARCHS[sdk=iphoneos*]" = arm64;
+			};
+			name = MinSizeRel;
+		};
+		A39AE0B54AAE49339E51AA43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		A95E9F01C8204AC88C8B6A9C /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",HAVE_STDINT_H,HAVE_INTTYPES_H,"'_POSIX_C_SOURCE=200112L'",HAVE_LIBCOMP,HAVE_BZIP2,HAVE_ICONV,MZ_ZIP_SIGNING,HAVE_PKCRYPT,HAVE_WZAES,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip,/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("       -DNDEBUG -fPIC ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = minizip;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		B5AB1FA14DBD488EBCA8CBC6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		CB2CD0E8FD854AC4B0DE3A3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",HAVE_STDINT_H,HAVE_INTTYPES_H,"'_POSIX_C_SOURCE=200112L'",HAVE_LIBCOMP,HAVE_BZIP2,HAVE_ICONV,MZ_ZIP_SIGNING,HAVE_PKCRYPT,HAVE_WZAES,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip,/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = ("   -fPIC    -Wall ","$(inherited)");
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = minizip;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		CE7AC080ADA74CEAAD7D65EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/build;
+				"VALID_ARCHS[sdk=iphoneos*]" = arm64;
+			};
+			name = Release;
+		};
+		D56DFEBE4D70405490E76688 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		EED5DDB8A7CD49179D2E91AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build;
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		EFE302E82E514FFFADFE247C /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/build;
+				"VALID_ARCHS[sdk=iphoneos*]" = arm64;
+			};
+			name = RelWithDebInfo;
+		};
+		F958683EC2E0456E894739B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/build;
+				"VALID_ARCHS[sdk=iphoneos*]" = arm64;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3D39FE68118E42D6A8764B92 /* Build configuration list for PBXAggregateTarget "install" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A39AE0B54AAE49339E51AA43 /* Debug */,
+				D56DFEBE4D70405490E76688 /* Release */,
+				3702AC93D0214FBA95D4E062 /* MinSizeRel */,
+				A21E5F2A33C14346BA57D9AD /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		72968796A38248499FFF69EC /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				413627A232BD4AFFA27BD2B5 /* Debug */,
+				EED5DDB8A7CD49179D2E91AF /* Release */,
+				2FA4F5129F8A42418D9C086C /* MinSizeRel */,
+				46844FC909EA4B40A7F7132F /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A8D8FCC35FE748DCB4B31844 /* Build configuration list for PBXNativeTarget "minizip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB2CD0E8FD854AC4B0DE3A3C /* Debug */,
+				69DB90A4160D46C19319123F /* Release */,
+				78682253B3954CC39BF35DCE /* MinSizeRel */,
+				A95E9F01C8204AC88C8B6A9C /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BE9D4A2F2A3246249E99DAC2 /* Build configuration list for PBXProject "minizip" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F958683EC2E0456E894739B1 /* Debug */,
+				CE7AC080ADA74CEAAD7D65EE /* Release */,
+				A23B92487DC1412D85D60787 /* MinSizeRel */,
+				EFE302E82E514FFFADFE247C /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F335DC4F64F14F6A92FB929F /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B5AB1FA14DBD488EBCA8CBC6 /* Debug */,
+				0663D2797C6B49BDA4DDEA82 /* Release */,
+				5EC1D0F068E24878AACB3ED6 /* MinSizeRel */,
+				1EADB24C31E848FC82B54858 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F09F2F110FE0435DA59E5D5C /* Project object */;
+}

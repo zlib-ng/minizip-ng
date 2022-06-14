@@ -1,0 +1,804 @@
+The target system is: iOS - 15.5 - aarch64
+The host system is: Darwin - 21.4.0 - arm64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang 
+Build flags: 
+Id flags: -c;--target=aarch64-apple-ios11.0 
+
+The output was:
+0
+2022-06-14 12:31:49.246 xcodebuild[86604:4801492] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:49.246 xcodebuild[86604:4801492] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: d97a8ba4cdbdb5b1d52631613888748d
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/./XCBuildData/d97a8ba4cdbdb5b1d52631613888748d-desc.xcbuild
+
+note: Build preparation complete
+warning: Building targets in manual order is deprecated - check "Parallelize build for command-line builds" in the project editor, or set DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING in any of the targets in the current build to suppress this warning
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+
+warning: Traditional headermap style is no longer supported; please migrate to using separate headermaps and set 'ALWAYS_SEARCH_USER_PATHS' to NO. (in target 'CompilerIdC' from project 'CompilerIdC')
+MkDir /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    /bin/mkdir -p /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-own-target-headers.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-project-headers.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-project-headers.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-all-non-framework-target-headers.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-all-target-headers.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/all-product-headers.yaml (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/all-product-headers.yaml
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-generated-files.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-generated-files.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC.hmap (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC.hmap
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CompilerIdC.LinkFileList (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CompilerIdC.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CMakeCCompilerId.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CMakeCCompilerId.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    export LANG\=en_US.US-ASCII
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios15.5 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -Os -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -iquote /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-generated-files.hmap -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-own-target-headers.hmap -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-all-target-headers.hmap -iquote /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/CompilerIdC-project-headers.hmap -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/Developer/Library/Frameworks -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CMakeCCompilerId.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CMakeCCompilerId.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CMakeCCompilerId.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CMakeCCompilerId.o
+
+Ld /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest/CompilerIdC normal (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -target arm64-apple-ios15.5 -bundle -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks -iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/Developer/Library/Frameworks -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CompilerIdC.LinkFileList -Xlinker -rpath -Xlinker @loader_path/Frameworks -dead_strip -Xlinker -object_path_lto -Xlinker /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CompilerIdC_lto.o -framework XCTest -Xlinker -dependency_info -Xlinker /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Objects-normal/arm64/CompilerIdC_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest/CompilerIdC
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Script-2C8FEB8E15DC1A1A00E56A5D.sh (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Script-2C8FEB8E15DC1A1A00E56A5D.sh
+
+GenerateDSYMFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest.dSYM /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest/CompilerIdC (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest/CompilerIdC -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest.dSYM
+
+PhaseScriptExecution Run\ Script /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Script-2C8FEB8E15DC1A1A00E56A5D.sh (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    /bin/sh -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.build/Debug-iphoneos/CompilerIdC.build/Script-2C8FEB8E15DC1A1A00E56A5D.sh
+GCC_VERSION=com.apple.compilers.llvm.clang.1_0
+ARCHS=arm64
+
+RegisterExecutionPolicyException /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    builtin-RegisterExecutionPolicyException /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest
+
+Touch /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest (in target 'CompilerIdC' from project 'CompilerIdC')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC
+    /usr/bin/touch -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest
+
+** BUILD SUCCEEDED **
+
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.xctest/CompilerIdC"
+
+The C compiler identification is AppleClang, found in "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/3.23.2/CompilerIdC/CompilerIdC.xctest/CompilerIdC"
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e78a -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:50.452 xcodebuild[86633:4801700] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:50.452 xcodebuild[86633:4801700] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e78a -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: eb49e74ea2d0cd3daa1ab35cbbbe550e
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/eb49e74ea2d0cd3daa1ab35cbbbe550e-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -v -Wl,-v -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o
+Apple clang version 13.1.6 (clang-1316.0.21.2.5)
+Target: arm64-apple-ios11.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+clang: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
+ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-ios11.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj --mrelax-relocations -fembed-bitcode=marker -fembed-bitcode=marker -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -fno-rounding-math -munwind-tables -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -target-cpu apple-a7 -target-feature +fp-armv8 -target-feature +neon -target-feature +crypto -target-feature +zcm -target-feature +zcz -target-feature +sha2 -target-feature +aes -target-abi darwinpcs -fallow-half-arguments-and-returns -debug-info-kind=standalone -dwarf-version=4 -debugger-tuning=lldb -target-linker-version 763 -v -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6 -dependency-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.d -skip-unused-modulemap-deps -MT dependencies -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -D "CMAKE_INTDIR=\"Debug-iphoneos\"" -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64 -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64 -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -O0 -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wdeprecated-declarations -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-objc-load-method -fdebug-compilation-dir=/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp -ferror-limit 19 -fmacro-backtrace-limit 0 -stack-protector 1 -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fpascal-strings -fmax-type-align=16 -fcommon -fdiagnostics-show-note-include-stack -serialize-diagnostic-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.dia -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o -x c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c
+clang -cc1 version 13.1.6 (clang-1316.0.21.2.5) default target arm64-apple-darwin21.4.0
+ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include"
+ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64"
+ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64"
+ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources"
+ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/local/include"
+ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug (framework directory)
+ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include
+ /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include
+ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
+ /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/System/Library/Frameworks (framework directory)
+End of search list.
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e78a.a normal (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e78a.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include]
+    add: [/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include]
+    add: [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+  end of search list found
+  collapse include dir [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include] ==> [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include]
+  collapse include dir [/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include] ==> [/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include]
+  collapse include dir [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include] ==> [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+  implicit include dirs: [/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include;/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e78a -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:50.452 xcodebuild[86633:4801700] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore]
+  ignore line: [2022-06-14 12:31:50.452 xcodebuild[86633:4801700] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore]
+  ignore line: [Command line invocation:]
+  ignore line: [    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e78a -parallelizeTargets -configuration Debug -hideShellScriptEnvironment]
+  ignore line: []
+  ignore line: [User defaults from command line:]
+  ignore line: [    HideShellScriptEnvironment = YES]
+  ignore line: [    IDEPackageSupportUseBuiltinSCM = YES]
+  ignore line: []
+  ignore line: [note: Using new build system]
+  ignore line: [note: Planning]
+  ignore line: [Analyze workspace]
+  ignore line: []
+  ignore line: [Create build description]
+  ignore line: [Build description signature: eb49e74ea2d0cd3daa1ab35cbbbe550e]
+  ignore line: [Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/eb49e74ea2d0cd3daa1ab35cbbbe550e-desc.xcbuild]
+  ignore line: []
+  ignore line: [note: Build preparation complete]
+  ignore line: [note: Building targets in dependency order]
+  ignore line: [CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: [    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj]
+  ignore line: [    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug]
+  ignore line: [    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj]
+  ignore line: [    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug]
+  ignore line: []
+  ignore line: [CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')]
+  ignore line: [    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: [    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -v -Wl -v -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o]
+  ignore line: [Apple clang version 13.1.6 (clang-1316.0.21.2.5)]
+  ignore line: [Target: arm64-apple-ios11.0]
+  ignore line: [Thread model: posix]
+  ignore line: [InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin]
+  ignore line: [clang: warning: -Wl -v: 'linker' input unused [-Wunused-command-line-argument]]
+  ignore line: [ "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang" -cc1 -triple arm64-apple-ios11.0.0 -Wundef-prefix=TARGET_OS_ -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -Werror=implicit-function-declaration -emit-obj --mrelax-relocations -fembed-bitcode=marker -fembed-bitcode=marker -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf -fno-strict-return -fno-rounding-math -munwind-tables -target-sdk-version=15.5 -fvisibility-inlines-hidden-static-local-var -target-cpu apple-a7 -target-feature +fp-armv8 -target-feature +neon -target-feature +crypto -target-feature +zcm -target-feature +zcz -target-feature +sha2 -target-feature +aes -target-abi darwinpcs -fallow-half-arguments-and-returns -debug-info-kind=standalone -dwarf-version=4 -debugger-tuning=lldb -target-linker-version 763 -v -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6 -dependency-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.d -skip-unused-modulemap-deps -MT dependencies -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -D "CMAKE_INTDIR=\"Debug-iphoneos\"" -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64 -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64 -I /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -O0 -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wdeprecated-declarations -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -Wno-reorder-init-list -Wno-implicit-int-float-conversion -Wno-c99-designator -Wno-final-dtor-non-final-class -Wno-extra-semi-stmt -Wno-misleading-indentation -Wno-quoted-include-in-framework-header -Wno-implicit-fallthrough -Wno-enum-enum-conversion -Wno-enum-float-conversion -Wno-elaborated-enum-base -Wno-reserved-identifier -Wno-gnu-folding-constant -Wno-objc-load-method -fdebug-compilation-dir=/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp -ferror-limit 19 -fmacro-backtrace-limit 0 -stack-protector 1 -mdarwin-stkchk-strong-link -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fpascal-strings -fmax-type-align=16 -fcommon -fdiagnostics-show-note-include-stack -serialize-diagnostic-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.dia -clang-vendor-feature=+messageToSelfInClassMethodIdReturnType -clang-vendor-feature=+disableInferNewAvailabilityFromInit -clang-vendor-feature=+disableNonDependentMemberExprInCurrentInstantiation -fno-odr-hash-protocols -clang-vendor-feature=+enableAggressiveVLAFolding -clang-vendor-feature=+revert09abecef7bbf -clang-vendor-feature=+thisNoAlignAttr -clang-vendor-feature=+thisNoNullAttr -D__GCC_HAVE_DWARF2_CFI_ASM=1 -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/CMakeCCompilerABI.o -x c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [clang -cc1 version 13.1.6 (clang-1316.0.21.2.5) default target arm64-apple-darwin21.4.0]
+  ignore line: [ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include"]
+  ignore line: [ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources-normal/arm64"]
+  ignore line: [ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources/arm64"]
+  ignore line: [ignoring nonexistent directory "/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/DerivedSources"]
+  ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/local/include"]
+  ignore line: [ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/Library/Frameworks"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug (framework directory)]
+  ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include]
+  ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/include]
+  ignore line: [ /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include]
+  ignore line: [ /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/System/Library/Frameworks (framework directory)]
+  ignore line: [End of search list.]
+  ignore line: []
+  ignore line: [WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')]
+  ignore line: [    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: [    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList]
+  ignore line: []
+  ignore line: [Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e78a.a normal (in target 'cmTC_6e78a' from project 'CMAKE_TRY_COMPILE')]
+  ignore line: [    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp]
+  ignore line: [    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e78a.build/Objects-normal/arm64/cmTC_6e78a_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e78a.a]
+  ignore line: []
+  ignore line: [** BUILD SUCCEEDED **]
+  ignore line: []
+  ignore line: []
+  ignore line: []
+  implicit libs: []
+  implicit objs: []
+  implicit dirs: []
+  implicit fwks: []
+
+
+Determining if the include file stdint.h exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_fc0a7 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:51.174 xcodebuild[86649:4801820] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:51.174 xcodebuild[86649:4801820] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_fc0a7 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 19840fb1d618bbf96dc23348901ede4e
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/19840fb1d618bbf96dc23348901ede4e-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/cmTC_fc0a7.LinkFileList (in target 'cmTC_fc0a7' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/cmTC_fc0a7.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/CheckIncludeFile.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_fc0a7' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/CheckIncludeFile.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/CheckIncludeFile.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/CheckIncludeFile.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_fc0a7.a normal (in target 'cmTC_fc0a7' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/cmTC_fc0a7.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_fc0a7.build/Objects-normal/arm64/cmTC_fc0a7_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_fc0a7.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the include file inttypes.h exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_a9455 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:51.881 xcodebuild[86668:4801963] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:51.882 xcodebuild[86668:4801963] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_a9455 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: c18695d8a0bbe79dcb061f7c329d8cc2
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/c18695d8a0bbe79dcb061f7c329d8cc2-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/CheckIncludeFile.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_a9455' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/CheckIncludeFile.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/CheckIncludeFile.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/CheckIncludeFile.o
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/cmTC_a9455.LinkFileList (in target 'cmTC_a9455' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/cmTC_a9455.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_a9455.a normal (in target 'cmTC_a9455' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/cmTC_a9455.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_a9455.build/Objects-normal/arm64/cmTC_a9455_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_a9455.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the include file sys/types.h exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_17c0b -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:52.598 xcodebuild[86682:4802060] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:52.598 xcodebuild[86682:4802060] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_17c0b -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 8d21cfbfec3d2c7d89a7f6e4c6ef44b1
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/8d21cfbfec3d2c7d89a7f6e4c6ef44b1-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/cmTC_17c0b.LinkFileList (in target 'cmTC_17c0b' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/cmTC_17c0b.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/CheckIncludeFile.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_17c0b' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/CheckIncludeFile.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/CheckIncludeFile.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/CheckIncludeFile.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_17c0b.a normal (in target 'cmTC_17c0b' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/cmTC_17c0b.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_17c0b.build/Objects-normal/arm64/cmTC_17c0b_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_17c0b.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the include file stddef.h exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_10ae9 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:53.311 xcodebuild[86696:4802181] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:53.311 xcodebuild[86696:4802181] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_10ae9 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 1bfb9a38f63b4efb95bbec2b2cbe6126
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/1bfb9a38f63b4efb95bbec2b2cbe6126-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/CheckIncludeFile.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_10ae9' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/CheckIncludeFile.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/CheckIncludeFile.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/CheckIncludeFile.o
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/cmTC_10ae9.LinkFileList (in target 'cmTC_10ae9' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/cmTC_10ae9.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_10ae9.a normal (in target 'cmTC_10ae9' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/cmTC_10ae9.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_10ae9.build/Objects-normal/arm64/cmTC_10ae9_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_10ae9.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the function fseeko exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_44db2 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:54.734 xcodebuild[86723:4802395] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:54.734 xcodebuild[86723:4802395] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_44db2 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 209d1f831cacdc5572630732bc3d64ac
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/209d1f831cacdc5572630732bc3d64ac-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/cmTC_44db2.LinkFileList (in target 'cmTC_44db2' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/cmTC_44db2.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/CheckFunctionExists.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_44db2' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS\=fseeko -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/CheckFunctionExists.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/CheckFunctionExists.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/CheckFunctionExists.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_44db2.a normal (in target 'cmTC_44db2' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/cmTC_44db2.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_44db2.build/Objects-normal/arm64/cmTC_44db2_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_44db2.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the BZ2_bzCompressInit exist passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_aca70 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:55.498 xcodebuild[86737:4802492] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:55.498 xcodebuild[86737:4802492] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_aca70 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: dd6c439357d16f5ffe83d66975f0776b
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/dd6c439357d16f5ffe83d66975f0776b-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/CheckSymbolExists.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_aca70' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/CheckSymbolExists.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/CheckSymbolExists.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/CheckSymbolExists.o
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/cmTC_aca70.LinkFileList (in target 'cmTC_aca70' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/cmTC_aca70.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_aca70.a normal (in target 'cmTC_aca70' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/cmTC_aca70.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_aca70.build/Objects-normal/arm64/cmTC_aca70_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_aca70.a
+
+** BUILD SUCCEEDED **
+
+
+
+File /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <bzlib.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef BZ2_bzCompressInit
+  return ((int*)(&BZ2_bzCompressInit))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the function lzma_auto_decoder exists in the /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/lib/liblzma.tbd passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_8e751 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:56.266 xcodebuild[86753:4802592] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:56.267 xcodebuild[86753:4802592] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_8e751 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: f5fd066009ef0cf28d3e59ae2bc77b59
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/f5fd066009ef0cf28d3e59ae2bc77b59-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/cmTC_8e751.LinkFileList (in target 'cmTC_8e751' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/cmTC_8e751.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/CheckFunctionExists.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_8e751' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS\=lzma_auto_decoder -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/CheckFunctionExists.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/CheckFunctionExists.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/CheckFunctionExists.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_8e751.a normal (in target 'cmTC_8e751' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/cmTC_8e751.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_8e751.build/Objects-normal/arm64/cmTC_8e751_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_8e751.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the function lzma_easy_encoder exists in the /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/lib/liblzma.tbd passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_91b61 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:56.959 xcodebuild[86767:4802689] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:56.959 xcodebuild[86767:4802689] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_91b61 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 0b47f429ef6746f2e35aae0d984c87d4
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/0b47f429ef6746f2e35aae0d984c87d4-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/cmTC_91b61.LinkFileList (in target 'cmTC_91b61' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/cmTC_91b61.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/CheckFunctionExists.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_91b61' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS\=lzma_easy_encoder -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/CheckFunctionExists.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/CheckFunctionExists.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/CheckFunctionExists.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_91b61.a normal (in target 'cmTC_91b61' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/cmTC_91b61.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_91b61.build/Objects-normal/arm64/cmTC_91b61_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_91b61.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the function lzma_lzma_preset exists in the /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk/usr/lib/liblzma.tbd passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_f2764 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:57.651 xcodebuild[86781:4802785] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:57.652 xcodebuild[86781:4802785] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_f2764 -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: f82aab5fe6dde0ba649fc3ec65a59d28
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/f82aab5fe6dde0ba649fc3ec65a59d28-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/cmTC_f2764.LinkFileList (in target 'cmTC_f2764' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/cmTC_f2764.LinkFileList
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/CheckFunctionExists.o /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_f2764' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -DCHECK_FUNCTION_EXISTS\=lzma_lzma_preset -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/CheckFunctionExists.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/CheckFunctionExists.dia -c /opt/homebrew/Cellar/cmake/3.23.2/share/cmake/Modules/CheckFunctionExists.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/CheckFunctionExists.o
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_f2764.a normal (in target 'cmTC_f2764' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/cmTC_f2764.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_f2764.build/Objects-normal/arm64/cmTC_f2764_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_f2764.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Determining if the include file CommonCrypto/CommonCrypto.h exists passed with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_528bb -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:58.476 xcodebuild[86801:4802898] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:58.476 xcodebuild[86801:4802898] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_528bb -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 9b1c1e8e21b2317dc342a7a5817aab8c
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/9b1c1e8e21b2317dc342a7a5817aab8c-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/CheckIncludeFile.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_528bb' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/CheckIncludeFile.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/CheckIncludeFile.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CheckIncludeFile.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/CheckIncludeFile.o
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/cmTC_528bb.LinkFileList (in target 'cmTC_528bb' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/cmTC_528bb.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_528bb.a normal (in target 'cmTC_528bb' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/cmTC_528bb.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_528bb.build/Objects-normal/arm64/cmTC_528bb_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_528bb.a
+
+** BUILD SUCCEEDED **
+
+
+
+
+Performing C SOURCE FILE Test Iconv_IS_BUILT_IN succeeded with the following output:
+Change Dir: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e1ad -parallelizeTargets -configuration Debug -hideShellScriptEnvironment && 2022-06-14 12:31:59.185 xcodebuild[86815:4802996] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionSentinelHostApplications for extension Xcode.DebuggerFoundation.AppExtensionHosts.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+2022-06-14 12:31:59.185 xcodebuild[86815:4802996] Requested but did not find extension point with identifier Xcode.IDEKit.ExtensionPointIdentifierToBundleIdentifier for extension Xcode.DebuggerFoundation.AppExtensionToBundleIdentifierMap.watchOS of plug-in com.apple.dt.IDEWatchSupportCore
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project CMAKE_TRY_COMPILE.xcodeproj build -target cmTC_6e1ad -parallelizeTargets -configuration Debug -hideShellScriptEnvironment
+
+User defaults from command line:
+    HideShellScriptEnvironment = YES
+    IDEPackageSupportUseBuiltinSCM = YES
+
+note: Using new build system
+note: Planning
+Analyze workspace
+
+Create build description
+Build description signature: 1a4528c1e8deba8bf6beb45dbcdf0535
+Build description path: /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/build/XCBuildData/1a4528c1e8deba8bf6beb45dbcdf0535-desc.xcbuild
+
+note: Build preparation complete
+note: Building targets in dependency order
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+
+CreateBuildDirectory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.xcodeproj
+    builtin-create-build-directory /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug
+
+CompileC /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/src.o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/src.c normal arm64 c com.apple.compilers.llvm.clang.1_0.compiler (in target 'cmTC_6e1ad' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x c -target arm64-apple-ios11.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -Wno-trigraphs -fpascal-strings -O0 -Wno-missing-field-initializers -Wno-missing-prototypes -Wno-return-type -Wno-missing-braces -Wparentheses -Wswitch -Wno-unused-function -Wno-unused-label -Wno-unused-parameter -Wno-unused-variable -Wunused-value -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wno-constant-conversion -Wno-int-conversion -Wno-bool-conversion -Wno-enum-conversion -Wno-float-conversion -Wno-non-literal-null-conversion -Wno-objc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -DCMAKE_INTDIR\=\"Debug-iphoneos\" -DIconv_IS_BUILT_IN -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -fstrict-aliasing -Wdeprecated-declarations -g -Wno-sign-conversion -Wno-infinite-recursion -Wno-comma -Wno-block-capture-autoreleasing -Wno-strict-prototypes -Wno-semicolon-before-method-body -fembed-bitcode-marker -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/include -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/DerivedSources-normal/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/DerivedSources/arm64 -I/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/DerivedSources -F/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -MMD -MT dependencies -MF /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/src.d --serialize-diagnostics /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/src.dia -c /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/src.c -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/src.o
+
+WriteAuxiliaryFile /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/cmTC_6e1ad.LinkFileList (in target 'cmTC_6e1ad' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    write-file /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/cmTC_6e1ad.LinkFileList
+
+Libtool /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e1ad.a normal (in target 'cmTC_6e1ad' from project 'CMAKE_TRY_COMPILE')
+    cd /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -static -arch_only arm64 -D -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk -L/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug -filelist /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/cmTC_6e1ad.LinkFileList -dependency_info /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/CMAKE_TRY_COMPILE.build/Debug-iphoneos/cmTC_6e1ad.build/Objects-normal/arm64/cmTC_6e1ad_libtool_dependency_info.dat -o /Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/CMakeTmp/Debug/libcmTC_6e1ad.a
+
+** BUILD SUCCEEDED **
+
+
+
+Source file was:
+
+      #include <stddef.h>
+      #include <iconv.h>
+      int main() {
+        char *a, *b;
+        size_t i, j;
+        iconv_t ic;
+        ic = iconv_open("to", "from");
+        iconv(ic, &a, &i, &b, &j);
+        iconv_close(ic);
+      }
+      

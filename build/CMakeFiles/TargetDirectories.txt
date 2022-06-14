@@ -1,0 +1,4 @@
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/minizip.dir
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/install.dir
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/ALL_BUILD.dir
+/Users/alina/Desktop/rd2/Dependencies/rdarchiver/Dependencies/minizip/build/CMakeFiles/ZERO_CHECK.dir
