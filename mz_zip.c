@@ -18,6 +18,7 @@
 
 #include "mz.h"
 #include "mz_crypt.h"
+#include "mz_os.h"
 #include "mz_strm.h"
 #ifdef HAVE_BZIP2
 #  include "mz_strm_bzip.h"
@@ -787,12 +788,16 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     if (err == MZ_OK) {
-        if (mz_stream_write(stream, filename, filename_length) != filename_length)
+        char conformed_filename[512];
+        strncpy(conformed_filename, filename, sizeof(conformed_filename) - 1);
+        mz_path_convert_slashes(conformed_filename, MZ_PATH_SLASH_UNIX);
+
+        if (mz_stream_write(stream, conformed_filename, filename_length) != filename_length)
             err = MZ_WRITE_ERROR;
 
         /* Ensure that directories have a slash appended to them for compatibility */
         if (err == MZ_OK && write_end_slash)
-            err = mz_stream_write_uint8(stream, '/');
+            err = mz_stream_write_uint8(stream, MZ_PATH_SLASH_UNIX);
     }
 
     /* Write ZIP64 extra field first so we can update sizes later if data descriptor not used */
