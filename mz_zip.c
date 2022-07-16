@@ -188,6 +188,7 @@ static int32_t mz_zip_search_zip64_eocd(void *stream, const int64_t end_central_
     return err;
 }
 
+#ifdef HAVE_PKCRYPT
 /* Get PKWARE traditional encryption verifier */
 static uint16_t mz_zip_get_pk_verify(uint32_t dos_date, uint64_t crc, uint16_t flag)
 {
@@ -197,6 +198,7 @@ static uint16_t mz_zip_get_pk_verify(uint32_t dos_date, uint64_t crc, uint16_t f
         return ((dos_date >> 16) & 0xff) << 8 | ((dos_date >> 8) & 0xff);
     return ((crc >> 16) & 0xff) << 8 | ((crc >> 24) & 0xff);
 }
+#endif
 
 /* Get info about the current file in the zip file */
 static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file *file_info, void *file_extra_stream) {
