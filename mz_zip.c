@@ -788,12 +788,17 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     if (err == MZ_OK) {
-        char conformed_filename[512];
-        strncpy(conformed_filename, filename, sizeof(conformed_filename) - 1);
-        mz_path_convert_slashes(conformed_filename, MZ_PATH_SLASH_UNIX);
+        char *conformed_filename = (char *)MZ_ALLOC(filename_length + 1);
+        if (conformed_filename != NULL) {
+            strncpy(conformed_filename, filename, filename_length);
+            mz_path_convert_slashes(conformed_filename, MZ_PATH_SLASH_UNIX);
 
-        if (mz_stream_write(stream, conformed_filename, filename_length) != filename_length)
-            err = MZ_WRITE_ERROR;
+            if (mz_stream_write(stream, conformed_filename, filename_length) != filename_length)
+                err = MZ_WRITE_ERROR;
+            MZ_FREE(conformed_filename);
+        }
+        else
+            err = MZ_MEM_ERROR;
 
         /* Ensure that directories have a slash appended to them for compatibility */
         if (err == MZ_OK && write_end_slash)
