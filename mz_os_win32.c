@@ -398,8 +398,10 @@ DIR *mz_os_open_dir(const char *path) {
         return NULL;
 
     dir_int = (DIR_int *)MZ_ALLOC(sizeof(DIR_int));
-    if (dir_int == NULL)
+    if (dir_int == NULL) {
+        FindClose(handle);
         return NULL;
+    }
     dir_int->find_handle = handle;
     dir_int->end = 0;
 
