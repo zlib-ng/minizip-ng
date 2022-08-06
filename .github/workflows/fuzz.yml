@@ -9,12 +9,14 @@ jobs:
       with:
         oss-fuzz-project-name: 'minizip'
         dry-run: true
+
     - name: Run Fuzzers
       uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
       with:
         oss-fuzz-project-name: 'minizip'
         fuzz-seconds: 600
         dry-run: true
+
     - name: Upload Crash
       uses: actions/upload-artifact@v1
       if: failure()

@@ -1,12 +1,9 @@
-name: CMake
-
+name: Build
 on: [push, pull_request]
-
 jobs:
   ci:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
