@@ -32,6 +32,7 @@ not been maintained for a long period of time. The code has been largely refacto
 + Adding and removing entries from zip archives.
 + Read and write raw zip entry data.
 + Reading and writing zip archives from memory.
++ Support for large files with ZIP64 extension.
 + Zlib, BZIP2, LZMA, XZ, and ZSTD compression methods.
 + Password protection through Traditional PKWARE and [WinZIP AES](https://www.winzip.com/aes_info.htm) encryption.
 + Buffered streaming for improved I/O performance.
@@ -49,7 +50,7 @@ not been maintained for a long period of time. The code has been largely refacto
 + Zip/unzip of central directory to reduce size.
 + Ability to generate and verify CMS signature for each entry.
 + Recover the central directory if it is corrupt or missing.
-+ Example minizip command line tool.
++ Example minizip and minigzip command line tools.
 
 ## Build
 
