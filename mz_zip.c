@@ -789,8 +789,26 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     if (err == MZ_OK) {
-        if (mz_stream_write(stream, filename, filename_length) != filename_length)
-            err = MZ_WRITE_ERROR;
+        const char *backslash = NULL;
+        const char *next = filename;
+        int32_t left = filename_length;
+        
+        /* Ensure all slashes are written as forward slashes according to 4.4.17.1 */
+        while ((err == MZ_OK) && (backslash = strrchr(next, '\\')) != NULL) {
+            int32_t part_length = (int32_t)(backslash - next);
+
+            if (mz_stream_write(stream, next, part_length) != part_length ||
+                mz_stream_write(stream, "/", 1) != 1) 
+                err = MZ_WRITE_ERROR;
+
+            left -= part_length + 1;
+            next = backslash + 1;
+        }
+
+        if (err == MZ_OK && left > 0) {
+            if (mz_stream_write(stream, next, left) != left)
+                err = MZ_WRITE_ERROR;
+        }
 
         /* Ensure that directories have a slash appended to them for compatibility */
         if (err == MZ_OK && write_end_slash)
