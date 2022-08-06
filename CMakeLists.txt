@@ -801,8 +801,10 @@ if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
 
     # Can't disable zlib testing so ctest tries to run zlib example app
     if(MZ_ZLIB AND NOT MZ_LIBCOMP AND NOT ZLIB_FOUND)
+        target_include_directories(example PRIVATE ${ZLIB_SOURCE_DIR})
         add_dependencies(${PROJECT_NAME} example)
         if(HAVE_OFF64_T)
+            target_include_directories(example64 PRIVATE ${ZLIB_SOURCE_DIR})
             add_dependencies(${PROJECT_NAME} example64)
         endif()
     endif()
