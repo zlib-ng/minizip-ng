@@ -21,7 +21,7 @@ macro(clone_repo name url)
         FetchContent_Declare(${name}
             GIT_REPOSITORY ${${name_upper}_REPOSITORY}
             GIT_TAG ${${name_upper}_TAG}
-            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${name_lower})
+            SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/${name_lower})
 
         FetchContent_GetProperties(${name} POPULATED ${name_lower}_POPULATED)
 
