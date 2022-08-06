@@ -11,6 +11,7 @@ jobs:
           - name: Ubuntu 18 GCC 4.8
             os: ubuntu-18.04
             compiler: gcc
+            cxx-compiler: g++
             cmake-args: -DMZ_CODE_COVERAGE=ON
             version: "4.8"
             codecov: ubuntu_18_gcc_48
@@ -18,12 +19,14 @@ jobs:
           - name: Ubuntu 18 GCC
             os: ubuntu-18.04
             compiler: gcc
+            cxx-compiler: g++
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_18_gcc
 
           - name: Ubuntu 18 Clang 3.9
             os: ubuntu-18.04
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_18_clang_39
             version: "3.7"
@@ -34,18 +37,21 @@ jobs:
           - name: Ubuntu 18 Clang
             os: ubuntu-18.04
             compiler: clang
+            cxx-compiler: clang++
             deploy: true
             deploy-name: linux
 
           - name: Ubuntu GCC
             os: ubuntu-latest
             compiler: gcc
+            cxx-compiler: g++
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_gcc
 
           - name: Ubuntu GCC OSB
             os: ubuntu-latest
             compiler: gcc
+            cxx-compiler: g++
             build-dir: ../build
             build-src-dir: ../minizip-ng
             cmake-args: -DMZ_CODE_COVERAGE=ON
@@ -54,6 +60,7 @@ jobs:
           - name: Ubuntu Clang
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON
             codecov: ubuntu_clang
             packages: llvm-6.0
@@ -62,6 +69,7 @@ jobs:
           - name: Ubuntu Clang No Zlib
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_ZLIB=OFF
             codecov: ubuntu_clang_no_zlib
             packages: llvm-6.0
@@ -70,6 +78,7 @@ jobs:
           - name: Ubuntu Clang No Bzip2
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_BZIP=OFF
             codecov: ubuntu_clang_no_bzip2
             packages: llvm-6.0
@@ -78,6 +87,7 @@ jobs:
           - name: Ubuntu Clang No LZMA
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_LZMA=OFF
             codecov: ubuntu_clang_no_lzma
             packages: llvm-6.0
@@ -86,6 +96,7 @@ jobs:
           - name: Ubuntu Clang No Zstd
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_ZSTD=OFF
             codecov: ubuntu_clang_no_zstd
             packages: llvm-6.0
@@ -94,6 +105,7 @@ jobs:
           - name: Ubuntu Clang No Pkcrypt
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_PKCRYPT=OFF
             codecov: ubuntu_clang_no_pkcrypt
             packages: llvm-6.0
@@ -102,6 +114,7 @@ jobs:
           - name: Ubuntu Clang No Winzip AES
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_WZAES=OFF
             codecov: ubuntu_clang_no_winzip_aes
             packages: llvm-6.0
@@ -110,6 +123,7 @@ jobs:
           - name: Ubuntu Clang No Encryption
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_PKCRYPT=OFF -DMZ_WZAES=OFF
             codecov: ubuntu_clang_no_encryption
             packages: llvm-6.0
@@ -118,6 +132,7 @@ jobs:
           - name: Ubuntu Clang Compress Only
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_COMPRESS_ONLY=ON
             codecov: ubuntu_clang_compress_only
             packages: llvm-6.0
@@ -126,6 +141,7 @@ jobs:
           - name: Ubuntu Clang Decompress Only
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_DECOMPRESS_ONLY=ON
             codecov: ubuntu_clang_decompress_only
             packages: llvm-6.0
@@ -134,6 +150,7 @@ jobs:
           - name: Ubuntu Clang OpenSSL
             os: ubuntu-latest
             compiler: clang
+            cxx-compiler: clang++
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_OPENSSL=ON
             codecov: ubuntu_clang_openssl
             packages: llvm-6.0
@@ -151,6 +168,7 @@ jobs:
           - name: Windows GCC
             os: windows-latest
             compiler: gcc
+            cxx-compiler: g++
             # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
             cmake-args: -DMZ_CODE_COVERAGE=ON -DMZ_FORCE_FETCH_LIBS=ON -G Ninja
             codecov: windows_gcc
@@ -207,6 +225,7 @@ jobs:
         cmake ${{ matrix.build-src-dir || '.' }} -DMZ_BUILD_TESTS=ON -DMZ_BUILD_UNIT_TESTS=ON -DCMAKE_BUILD_TYPE=Release ${{ matrix.cmake-args }}
       env:
         CC: ${{ matrix.compiler }}
+        CXX: ${{ matrix.cxx-compiler }}
         CFLAGS: ${{ matrix.cflags }}
         LDFLAGS: ${{ matrix.ldflags }}
 

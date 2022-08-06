@@ -786,18 +786,12 @@ if(MZ_BUILD_TESTS)
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
         install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
     endif()
-
-    add_executable(test_cmd test/test.c test/test.h)
-    target_compile_definitions(test_cmd PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
-    if(MZ_COMPAT)
-        target_compile_definitions(test_cmd PRIVATE -DHAVE_COMPAT)
-    endif()
-    target_include_directories(test_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-    target_link_libraries(test_cmd ${PROJECT_NAME})
 endif()
 
 if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
     enable_testing()
+    
+    add_subdirectory(test)
 
     # Can't disable zlib testing so ctest tries to run zlib example app
     if(MZ_ZLIB AND NOT MZ_LIBCOMP AND NOT ZLIB_FOUND)
@@ -810,8 +804,6 @@ if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
     endif()
 
     set(TEST_TEMP_DIR ${CMAKE_CURRENT_BINARY_DIR}/Testing/Temporary)
-
-    add_test(NAME test_cmd COMMAND test_cmd WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
     function(create_compress_tests EXTRA_NAME EXTRA_ARGS)
         if(MZ_DECOMPRESS_ONLY)
