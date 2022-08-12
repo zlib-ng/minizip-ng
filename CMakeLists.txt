@@ -527,7 +527,7 @@ if(UNIX)
                 if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
                     find_package(PkgConfig REQUIRED)
 
-                    pkg_check_modules(LIBBSD libbsd)
+                    pkg_check_modules(LIBBSD libbsd-overlay)
                     if(LIBBSD_FOUND)
                         check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
                             "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
