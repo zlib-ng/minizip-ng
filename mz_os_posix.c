@@ -113,7 +113,22 @@ void mz_os_utf8_string_delete(uint8_t **string) {
 
 /***************************************************************************/
 
-#if defined(HAVE_ARC4RANDOM_BUF)
+#if defined(HAVE_GETRANDOM)
+int32_t mz_os_rand(uint8_t *buf, int32_t size) {
+    int32_t left = size;
+    int32_t written = 0;
+
+    while (left > 0) {
+        written = getrandom(buf, left, 0);
+        if (written < 0)
+            return MZ_INTERNAL_ERROR;
+
+        buf += written;
+        left -= written;
+    }
+    return size - left;
+}
+#elif defined(HAVE_ARC4RANDOM_BUF)
 int32_t mz_os_rand(uint8_t *buf, int32_t size) {
     if (size < 0)
         return 0;
@@ -132,21 +147,6 @@ int32_t mz_os_rand(uint8_t *buf, int32_t size) {
     }
     for (; left > 0; left--, buf++) {
         *buf = arc4random() & 0xFF;
-    }
-    return size - left;
-}
-#elif defined(HAVE_GETRANDOM)
-int32_t mz_os_rand(uint8_t *buf, int32_t size) {
-    int32_t left = size;
-    int32_t written = 0;
-
-    while (left > 0) {
-        written = getrandom(buf, left, 0);
-        if (written < 0)
-            return MZ_INTERNAL_ERROR;
-
-        buf += written;
-        left -= written;
     }
     return size - left;
 }
