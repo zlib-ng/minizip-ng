@@ -2500,11 +2500,11 @@ int32_t mz_zip_attrib_convert(uint8_t src_sys, uint32_t src_attrib, uint8_t targ
         if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN) || (target_sys == MZ_HOST_SYSTEM_RISCOS))
             return mz_zip_attrib_win32_to_posix(src_attrib, target_attrib);
     } else if ((src_sys == MZ_HOST_SYSTEM_UNIX) || (src_sys == MZ_HOST_SYSTEM_OSX_DARWIN) || (src_sys == MZ_HOST_SYSTEM_RISCOS)) {
-        if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN) || (target_sys == MZ_HOST_SYSTEM_RISCOS)) {
-            /* If high bytes are set, it contains unix specific attributes */
-            if ((src_attrib >> 16) != 0)
-                src_attrib >>= 16;
+        /* If high bytes are set, it contains unix specific attributes */
+        if ((src_attrib >> 16) != 0)
+            src_attrib >>= 16;
 
+        if ((target_sys == MZ_HOST_SYSTEM_UNIX) || (target_sys == MZ_HOST_SYSTEM_OSX_DARWIN) || (target_sys == MZ_HOST_SYSTEM_RISCOS)) {
             *target_attrib = src_attrib;
             return MZ_OK;
         }
