@@ -163,8 +163,6 @@ static int64_t mz_stream_ioapi_tell(void *stream) {
 
 static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
-    int32_t written = 0;
-    void *opaque = NULL;
 
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
