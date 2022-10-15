@@ -212,7 +212,10 @@ jobs:
 
     - name: Install packages (Windows)
       if: runner.os == 'Windows' && matrix.codecov
-      run: choco install ninja --no-progress
+      run: |
+        # strawberryperl installs incompatibile libraries so remove it
+        choco uninstall --no-progress strawberryperl
+        choco install ninja --no-progress
 
     - name: Install codecov.io tools
       if: matrix.codecov
