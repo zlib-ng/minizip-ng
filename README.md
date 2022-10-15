@@ -5,7 +5,7 @@ minizip-ng is a zip manipulation library written in C that is supported on Windo
 [![Master Branch Status](https://github.com/zlib-ng/minizip-ng/workflows/CI/badge.svg)](https://github.com/zlib-ng/minizip-ng/actions)
 [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/minizip.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:minizip)
 [![License: Zlib](https://img.shields.io/badge/license-zlib-lightgrey.svg)](https://github.com/zlib-ng/minizip-ng/blob/master/LICENSE)
-[![codecov.io](https://codecov.io/github/nmoinvaz/minizip/coverage.svg?branch=develop)](https://codecov.io/github/nmoinvaz/minizip/)
+[![codecov.io](https://codecov.io/github/zlib-ng/minizip-ng/coverage.svg?branch=develop)](https://codecov.io/github/zlib-ng/minizip-ng/)
 
 Developed and maintained by Nathan Moinvaziri.
 
