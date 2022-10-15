@@ -5,9 +5,13 @@ include(FetchContent)
 enable_language(CXX)
 
 if(NOT TARGET GTest::GTest)
-    # Prevent overriding the parent project's compiler/linker settings for Windows
-    set(gtest_force_shared_crt ON CACHE BOOL
-        "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+    if (WIN32)
+        # Prevent overriding the parent project's compiler/linker settings for Windows
+        set(gtest_force_shared_crt ON CACHE BOOL
+            "Use shared (DLL) run-time lib even when Google Test is built as static lib." FORCE)
+
+        set(gtest_disable_pthreads ON CACHE BOOL "Disable pthreads" FORCE)
+    endif()
 
     # Allow specifying alternative Google test repository
     if(NOT DEFINED GTEST_REPOSITORY)
