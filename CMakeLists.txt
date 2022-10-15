@@ -306,6 +306,8 @@ if(MZ_LZMA)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
     elseif(MZ_FETCH_LIBS)
+        set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
+
         clone_repo(liblzma https://git.tukaani.org/xz.git)
 
         # Don't automatically add all targets to the solution
