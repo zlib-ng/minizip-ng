@@ -356,6 +356,8 @@ if(MZ_ZSTD)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     elseif(MZ_FETCH_LIBS)
+        set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "Build zstd programs")
+
         clone_repo(zstd https://github.com/facebook/zstd)
 
         # Don't automatically add all targets to the solution
@@ -790,7 +792,7 @@ endif()
 
 if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
     enable_testing()
-    
+
     add_subdirectory(test)
 
     # Can't disable zlib testing so ctest tries to run zlib example app
