@@ -2105,7 +2105,7 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
     }
 
     /* If entire entry was not read verification will fail */
-    if ((err == MZ_OK) && (total_in > 0) && (!zip->entry_raw)) {
+    if ((err == MZ_OK) && (total_in == zip->file_info.compressed_size) && (!zip->entry_raw)) {
 #ifdef HAVE_WZAES
         /* AES zip version AE-1 will expect a valid crc as well */
         if (zip->file_info.aes_version <= 0x0001)
