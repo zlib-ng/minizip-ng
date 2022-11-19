@@ -210,6 +210,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install ${{ matrix.packages }}
 
+    - name: Install packages (Windows)
+      if: runner.os == 'Windows' && matrix.compiler == 'gcc'
+      run: |
+        # strawberryperl installs incompatible libraries so remove it
+        choco uninstall --no-progress strawberryperl
+        choco install ninja --no-progress
+
     - name: Generate project files
       run: |
         mkdir ${{ matrix.build-dir || '.not-used' }}
