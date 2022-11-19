@@ -4,6 +4,8 @@ include(FetchContent)
 
 enable_language(CXX)
 
+find_package(GTest)
+
 if(NOT TARGET GTest::GTest)
     if (WIN32)
         # Prevent overriding the parent project's compiler/linker settings for Windows
