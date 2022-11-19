@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 include(FetchContent)
 
+find_package(GTest)
+
 enable_language(CXX)
 
 if(NOT TARGET GTest::GTest)
