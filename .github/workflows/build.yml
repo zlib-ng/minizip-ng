@@ -250,6 +250,7 @@ jobs:
         SSL_CERT_FILE: test.pem
 
     - name: Generate coverage report
+      shell: bash
       if: always() && matrix.codecov
       run: |
         python3 -u -m pip install --user gcovr --ignore-installed
