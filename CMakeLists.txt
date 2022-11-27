@@ -685,6 +685,7 @@ set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
     CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
 add_library(${PROJECT_NAME} ${MINIZIP_SRC} ${MINIZIP_HDR})
+add_library(MINIZIP::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
                       VERSION ${VERSION}
@@ -716,9 +717,6 @@ if(MZ_COMPAT)
     target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 endif()
-
-# Create minizip alias
-add_library(MINIZIP::minizip ALIAS ${PROJECT_NAME})
 
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
