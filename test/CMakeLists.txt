@@ -4,7 +4,9 @@ include(FetchContent)
 
 enable_language(CXX)
 
-find_package(GTest QUIET)
+if(NOT TARGET GTest::GTest)
+    find_package(GTest QUIET)
+endif()
 
 if(NOT TARGET GTest::GTest)
     if (WIN32)
