@@ -59,8 +59,8 @@ To generate project files for your platform:
 2. Run cmake in the minizip directory.
 
 ```
-cmake . -DMZ_BUILD_TESTS=ON
-cmake --build .
+cmake -S . -B build -D MZ_BUILD_TESTS=ON
+cmake --build build
 ```
 
 ## Build Options
