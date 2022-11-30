@@ -792,13 +792,13 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         const char *backslash = NULL;
         const char *next = filename;
         int32_t left = filename_length;
-        
+
         /* Ensure all slashes are written as forward slashes according to 4.4.17.1 */
         while ((err == MZ_OK) && (backslash = strrchr(next, '\\')) != NULL) {
             int32_t part_length = (int32_t)(backslash - next);
 
             if (mz_stream_write(stream, next, part_length) != part_length ||
-                mz_stream_write(stream, "/", 1) != 1) 
+                mz_stream_write(stream, "/", 1) != 1)
                 err = MZ_WRITE_ERROR;
 
             left -= part_length + 1;
@@ -2307,8 +2307,6 @@ int32_t mz_zip_entry_is_symlink(void *handle) {
     if (zip->entry_scanned == 0)
         return MZ_PARAM_ERROR;
     if (mz_zip_attrib_is_symlink(zip->file_info.external_fa, zip->file_info.version_madeby) != MZ_OK)
-        return MZ_EXIST_ERROR;
-    if (zip->file_info.linkname == NULL || *zip->file_info.linkname == 0)
         return MZ_EXIST_ERROR;
 
     return MZ_OK;

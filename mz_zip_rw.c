@@ -738,7 +738,29 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
     /* If it is a symbolic link then create symbolic link instead of writing file */
     if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) {
-        mz_os_make_symlink(pathwfs, reader->file_info->linkname);
+        if (reader->file_info->linkname != NULL && *reader->file_info->linkname != 0) {
+            /* Create symbolic link from UNIX1 extrafield */
+            err = mz_os_make_symlink(pathwfs, reader->file_info->linkname);
+        } else {
+            /* Create symbolic link from zip entry contents */
+            mz_stream_mem_create(&stream);
+            mz_stream_mem_set_buffer_limit(stream, reader->file_info->uncompressed_size);
+
+            err = mz_stream_mem_open(stream, NULL, MZ_OPEN_MODE_CREATE);
+
+            if (err == MZ_OK)
+                err = mz_zip_reader_entry_save(handle, stream, mz_stream_write);
+
+            if (err == MZ_OK) {
+                const char *linkname = NULL;
+                if (mz_stream_mem_get_buffer(stream, (const void **)&linkname) == MZ_OK)
+                    err = mz_os_make_symlink(pathwfs, linkname);
+            }
+
+            mz_stream_mem_close(stream);
+            mz_stream_mem_delete(&stream);
+        }
+
         /* Don't check return value because we aren't validating symbolic link target */
         return err;
     }
