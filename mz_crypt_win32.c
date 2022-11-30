@@ -21,7 +21,6 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
     HCRYPTPROV provider;
     int32_t result = 0;
 
-
     result = CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
     if (result) {
         result = CryptGenRandom(provider, size, buf);
@@ -210,7 +209,6 @@ int32_t mz_crypt_sha_begin(void *handle) {
     ALG_ID alg_id = 0;
     int32_t result = 0;
     int32_t err = MZ_OK;
-
 
     if (sha == NULL)
         return MZ_PARAM_ERROR;
@@ -414,7 +412,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     int32_t result = 0;
     int32_t err = MZ_OK;
 
-
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
 
@@ -547,7 +544,6 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     int32_t key_blob_size = 0;
     int32_t result = 0;
     int32_t err = MZ_OK;
-
 
     if (hmac == NULL || key == NULL)
         return MZ_PARAM_ERROR;
@@ -710,7 +706,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     uint32_t messages_sizes[1];
     uint8_t *messages[1];
 
-
     if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
@@ -821,7 +816,6 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     int32_t err = MZ_SIGN_ERROR;
     uint8_t *decoded = NULL;
     int32_t decoded_size = 0;
-
 
     memset(&verify_params, 0, sizeof(verify_params));
 

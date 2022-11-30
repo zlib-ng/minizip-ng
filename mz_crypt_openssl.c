@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 
 #include <openssl/err.h>
@@ -273,7 +272,6 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
     int32_t result = 0;
     int32_t key_bits = 0;
 
-
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
 
@@ -293,7 +291,6 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
     int32_t key_bits = 0;
-
 
     if (aes == NULL || key == NULL)
         return MZ_PARAM_ERROR;
@@ -516,7 +513,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     int32_t result = 0;
     int32_t err = MZ_OK;
 
-
     if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;
 
@@ -599,7 +595,6 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     int32_t result = 0;
     int32_t i = 0;
     int32_t err = MZ_SIGN_ERROR;
-
 
     if (message == NULL || message_size == 0 || signature == NULL || signature_size == 0)
         return MZ_PARAM_ERROR;

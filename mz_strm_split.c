@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
@@ -79,7 +78,6 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk) {
     int32_t i = 0;
     int32_t err = MZ_OK;
     int16_t disk_part = 0;
-
 
     /* Check if we are reading or writing a disk part or the cd disk */
     if (number_disk >= 0) {

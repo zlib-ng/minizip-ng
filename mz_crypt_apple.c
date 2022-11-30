@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -239,7 +238,6 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
 int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-
     if (aes == NULL || key == NULL || key_length == 0)
         return MZ_PARAM_ERROR;
 
@@ -256,7 +254,6 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-
 
     if (aes == NULL || key == NULL || key_length == 0)
         return MZ_PARAM_ERROR;
@@ -431,7 +428,6 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     const void *options_key[2] = { kSecImportExportPassphrase, kSecReturnRef };
     const void *options_values[2] = { 0, kCFBooleanTrue };
     int32_t err = MZ_SIGN_ERROR;
-
 
     if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
         return MZ_PARAM_ERROR;

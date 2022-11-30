@@ -13,7 +13,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
@@ -79,7 +78,6 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     uint32_t share_mode = FILE_SHARE_READ;
     uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
     wchar_t *path_wide = NULL;
-
 
     if (path == NULL)
         return MZ_PARAM_ERROR;
@@ -220,7 +218,6 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
     uint32_t move_method = 0xFFFFFFFF;
     int32_t err = MZ_OK;
     LARGE_INTEGER large_pos;
-
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;

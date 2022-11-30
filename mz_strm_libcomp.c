@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_libcomp.h"
@@ -197,7 +196,6 @@ static int32_t mz_stream_libcomp_deflate(void *stream, int flush) {
     uint32_t out_bytes = 0;
     int32_t err = MZ_OK;
 
-
     do {
         if (libcomp->cstream.dst_size == 0) {
             err = mz_stream_libcomp_flush(libcomp);
@@ -266,7 +264,6 @@ int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_libcomp_close(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
-
 
     if (libcomp->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION

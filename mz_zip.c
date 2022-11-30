@@ -15,7 +15,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_crypt.h"
 #include "mz_strm.h"
@@ -152,7 +151,6 @@ static int32_t mz_zip_search_zip64_eocd(void *stream, const int64_t end_central_
     uint32_t value32 = 0;
     int32_t err = MZ_OK;
 
-
     *central_pos = 0;
 
     /* Zip64 end of central directory locator */
@@ -221,7 +219,6 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
     int64_t saved_pos = 0;
     int32_t err = MZ_OK;
     char *linkname = NULL;
-
 
     memset(file_info, 0, sizeof(mz_zip_file));
 
@@ -486,7 +483,6 @@ static int32_t mz_zip_entry_read_descriptor(void *stream, uint8_t zip64, uint32_
     uint32_t value32 = 0;
     int64_t value64 = 0;
     int32_t err = MZ_OK;
-
 
     err = mz_stream_read_uint32(stream, &value32);
     if (value32 != MZ_ZIP_MAGIC_DATADESCRIPTOR)
@@ -959,7 +955,6 @@ static int32_t mz_zip_read_cd(void *handle) {
     int32_t comment_read = 0;
     int32_t err = MZ_OK;
 
-
     if (zip == NULL)
         return MZ_PARAM_ERROR;
 
@@ -1078,7 +1073,6 @@ static int32_t mz_zip_read_cd(void *handle) {
             if (err == MZ_OK)
                 err = mz_stream_read_uint32(zip->stream, &zip->cd_signature);
             if ((err == MZ_OK) && (zip->cd_signature == MZ_ZIP_MAGIC_CENTRALHEADER)) {
-
                 /* If found compensate for incorrect locations */
                 value64i = zip->cd_offset;
                 zip->cd_offset = eocd_pos - zip->cd_size;
@@ -1108,7 +1102,6 @@ static int32_t mz_zip_write_cd(void *handle) {
     int64_t disk_size = 0;
     int32_t comment_size = 0;
     int32_t err = MZ_OK;
-
 
     if (zip == NULL)
         return MZ_PARAM_ERROR;
@@ -1258,7 +1251,6 @@ static int32_t mz_zip_recover_cd(void *handle) {
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
     uint8_t eof = 0;
-
 
     mz_zip_print("Zip - Recover - Start\n");
 
@@ -1433,7 +1425,6 @@ void mz_zip_delete(void **handle) {
 int32_t mz_zip_open(void *handle, void *stream, int32_t mode) {
     mz_zip *zip = (mz_zip *)handle;
     int32_t err = MZ_OK;
-
 
     if (zip == NULL)
         return MZ_PARAM_ERROR;
@@ -2581,7 +2572,6 @@ int32_t mz_zip_extrafield_find(void *stream, uint16_t type, int32_t max_seek, ui
     int32_t err = MZ_OK;
     uint16_t field_type = 0;
     uint16_t field_length = 0;
-
 
     if (max_seek < 4)
         return MZ_EXIST_ERROR;

@@ -13,7 +13,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_os.h"

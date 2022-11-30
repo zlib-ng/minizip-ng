@@ -16,7 +16,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
@@ -56,7 +55,6 @@ static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int32_t new_size = size;
     uint8_t *new_buf = NULL;
-
 
     new_buf = (uint8_t *)MZ_ALLOC((uint32_t)new_size);
     if (new_buf == NULL)

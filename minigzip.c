@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
@@ -52,7 +51,6 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
     const char *filename = NULL;
     char target_path[1024];
     int32_t err = 0;
-
 
     memset(target_path, 0, sizeof(target_path));
 
@@ -133,7 +131,6 @@ int main(int argc, const char *argv[]) {
     uint8_t operation = MZ_GZIP_COMPRESS;
     const char *path = NULL;
     const char *destination = NULL;
-
 
     minigzip_banner();
     if (argc == 1) {

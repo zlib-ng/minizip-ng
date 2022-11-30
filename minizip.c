@@ -10,7 +10,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
@@ -353,7 +352,6 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
 
-
     printf("Archive %s\n", path);
 
     /* Create zip reader */
@@ -524,7 +522,6 @@ int main(int argc, const char *argv[]) {
     const char *password = NULL;
     const char *destination = NULL;
     const char *filename_to_extract = NULL;
-
 
     minizip_banner();
     if (argc == 1) {

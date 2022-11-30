@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_zlib.h"
@@ -217,7 +216,6 @@ static int32_t mz_stream_zlib_deflate(void *stream, int flush) {
     int32_t out_bytes = 0;
     int32_t err = Z_OK;
 
-
     do {
         if (zlib->zstream.avail_out == 0) {
             err = mz_stream_zlib_flush(zlib);
@@ -290,7 +288,6 @@ int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_zlib_close(void *stream) {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
-
 
     if (zlib->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION

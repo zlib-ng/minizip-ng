@@ -101,7 +101,6 @@ int32_t mz_zip_reader_open_file(void *handle, const char *path) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
 
-
     mz_zip_reader_close(handle);
 
     mz_stream_os_create(&reader->file_stream);
@@ -122,7 +121,6 @@ int32_t mz_zip_reader_open_file_in_memory(void *handle, const char *path) {
     void *file_stream = NULL;
     int64_t file_size = 0;
     int32_t err = 0;
-
 
     mz_zip_reader_close(handle);
 
@@ -228,7 +226,6 @@ int32_t mz_zip_reader_unzip_cd(void *handle) {
     void *file_extra_stream = NULL;
     uint64_t number_entry = 0;
     int32_t err = MZ_OK;
-
 
     err = mz_zip_reader_goto_first_entry(handle);
     if (err != MZ_OK)
@@ -357,7 +354,6 @@ int32_t mz_zip_reader_entry_open(void *handle) {
     int32_t err = MZ_OK;
     const char *password = NULL;
     char password_buf[120];
-
 
     reader->entry_verified = 0;
 
@@ -596,7 +592,6 @@ int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_w
     int32_t err = MZ_OK;
     int32_t read = 0;
     int32_t written = 0;
-
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -1066,7 +1061,6 @@ int32_t mz_zip_writer_zip_cd(void *handle) {
     void *file_extra_stream = NULL;
     void *cd_mem_stream = NULL;
 
-
     memset(&cd_file, 0, sizeof(cd_file));
 
     mz_zip_get_number_entry(writer->zip_handle, &number_entry);
@@ -1208,7 +1202,6 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path) {
     int64_t file_size = 0;
     int32_t err = 0;
 
-
     mz_zip_writer_close(handle);
 
     mz_stream_os_create(&file_stream);
@@ -1254,7 +1247,6 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path) {
 int32_t mz_zip_writer_close(void *handle) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
-
 
     if (writer->zip_handle != NULL) {
         mz_zip_set_version_madeby(writer->zip_handle, MZ_VERSION_MADEBY);
@@ -1334,7 +1326,6 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
     int32_t signature_size = 0;
     uint8_t *signature = NULL;
 
-
     if (writer == NULL || cert_data == NULL || cert_data_size <= 0)
         return MZ_PARAM_ERROR;
     if (mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
@@ -1369,7 +1360,6 @@ int32_t mz_zip_writer_entry_close(void *handle) {
     int32_t extrafield_size = 0;
     int16_t field_length_hash = 0;
     uint8_t sha256[MZ_HASH_SHA256_SIZE];
-
 
     if (writer->sha256 != NULL) {
         mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
@@ -1513,7 +1503,6 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
 
-
     if (mz_zip_writer_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
     if (file_info == NULL)
@@ -1568,7 +1557,6 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     void *stream = NULL;
     char link_path[1024];
     const char *filename = filename_in_zip;
-
 
     if (mz_zip_writer_is_open(handle) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -1650,7 +1638,6 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     char full_path[1024];
     char path_dir[1024];
 
-
     if (strrchr(path, '*') != NULL) {
         strncpy(path_dir, path, sizeof(path_dir) - 1);
         path_dir[sizeof(path_dir) - 1] = 0;
@@ -1730,7 +1717,6 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader) {
     uint8_t original_raw = 0;
     void *reader_zip_handle = NULL;
     void *writer_zip_handle = NULL;
-
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;

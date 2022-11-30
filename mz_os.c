@@ -130,7 +130,6 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
     const char *check = output;
     char *target = output;
 
-
     if (max_output <= 0)
         return MZ_PARAM_ERROR;
 
@@ -283,7 +282,6 @@ int32_t mz_dir_make(const char *path) {
     char *current_dir = NULL;
     char *match = NULL;
     char hold = 0;
-
 
     len = strlen(path);
     if (len <= 0 || len > INT16_MAX)

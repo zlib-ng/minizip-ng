@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_strm_lzma.h"
@@ -286,7 +285,6 @@ static int32_t mz_stream_lzma_code(void *stream, int32_t flush) {
     uint64_t total_out_after = 0;
     uint32_t out_bytes = 0;
     int32_t err = LZMA_OK;
-
 
     do {
         if (lzma->lstream.avail_out == 0) {
