@@ -79,7 +79,7 @@ cmake --build .
 | MZ_WZAES            | Enables WinZIP AES encryption                       |      ON       |
 | MZ_OPENSSL          | Enables OpenSSL encryption                          |     UNIX      |
 | MZ_LIBBSD           | Builds with libbsd crypto random                    |     UNIX      |
-| MZ_SIGNING          | Enables zip signing support                         |      ON       |
+| MZ_SIGNING          | Enables zip signing support                         |      OFF      |
 | MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
 | MZ_COMPRESS_ONLY    | Only support compression                            |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                          |      OFF      |

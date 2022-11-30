@@ -26,7 +26,7 @@ option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
 option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
-option(MZ_SIGNING "Enables zip signing support" ON)
+option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
 # Code generation options
