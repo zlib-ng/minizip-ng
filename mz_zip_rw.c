@@ -739,8 +739,6 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         } else if (reader->file_info->uncompressed_size < UINT16_MAX) {
             /* Create symbolic link from zip entry contents */
             mz_stream_mem_create(&stream);
-            mz_stream_mem_set_buffer_limit(stream, reader->file_info->uncompressed_size);
-
             err = mz_stream_mem_open(stream, NULL, MZ_OPEN_MODE_CREATE);
 
             if (err == MZ_OK)
