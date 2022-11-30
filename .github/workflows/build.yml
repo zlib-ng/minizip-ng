@@ -243,7 +243,7 @@ jobs:
         SSL_CERT_FILE: test.pem
 
     - name: Generate coverage report
-      if: always() && matrix.codecov && env.CODECOV_TOKEN != ''
+      if: always() && matrix.codecov
       run: |
         python3 -u -m pip install --user gcovr --ignore-installed
         python3 -m gcovr \
