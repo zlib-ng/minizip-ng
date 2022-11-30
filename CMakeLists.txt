@@ -654,17 +654,9 @@ if(MZ_CODE_COVERAGE)
     endif()
 else()
     if(MSVC)
-        add_compile_options(
-            $<$<CONFIG:Debug>:/Zi>
-            $<$<CONFIG:Debug>:/Od>
-            $<$<CONFIG:Debug>:/W3>
-            $<$<CONFIG:Release>:/Ox>
-            $<$<CONFIG:Release>:/Os>)
+        add_compile_options($<$<CONFIG:Debug>:/W3>)
     else()
-        add_compile_options(
-            $<$<CONFIG:Debug>:-g>
-            $<$<CONFIG:Debug>:-Wall>
-            $<$<CONFIG:Release>:-Os>)
+        add_compile_options($<$<CONFIG:Debug>:-Wall>)
     endif()
 endif()
 
