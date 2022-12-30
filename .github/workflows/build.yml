@@ -261,7 +261,7 @@ jobs:
           --verbose
 
     - name: Upload coverage report
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       if: always() && matrix.codecov && env.CODECOV_TOKEN != ''
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
