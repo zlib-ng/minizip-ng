@@ -252,12 +252,12 @@ jobs:
       shell: bash
       if: always() && matrix.codecov
       run: |
-        python3 -u -m pip install --user gcovr --ignore-installed
+        python3 -u -m pip install --user gcovr==5.0 --ignore-installed
         python3 -m gcovr \
           --exclude-unreachable-branches \
           --gcov-ignore-parse-errors \
           --gcov-executable "${{ matrix.gcov-exec || 'gcov' }}" \
-          --root . \
+          --root ${{ matrix.build-src-dir || '.' }} \
           --xml \
           --output coverage.xml \
           --verbose
