@@ -218,10 +218,12 @@ jobs:
         choco install ninja --no-progress
 
     - name: Generate project files
+      shell: bash
       run: |
-        mkdir ${{ matrix.build-dir || '.not-used' }}
-        cd ${{ matrix.build-dir || '.' }}
-        cmake ${{ matrix.build-src-dir || '.' }} -D MZ_BUILD_TESTS=ON -D MZ_BUILD_UNIT_TESTS=ON -D CMAKE_BUILD_TYPE=Release ${{ matrix.cmake-args }}
+        cmake -S ${{ matrix.build-src-dir || '.' }} -B ${{ matrix.build-dir || '.' }} ${{ matrix.cmake-args }} \
+          -D MZ_BUILD_TESTS=ON \
+          -D MZ_BUILD_UNIT_TESTS=ON \
+          -D CMAKE_BUILD_TYPE=Release
       env:
         CC: ${{ matrix.compiler }}
         CXX: ${{ matrix.cxx-compiler }}
