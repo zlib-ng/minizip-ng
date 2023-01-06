@@ -305,7 +305,7 @@ if(MZ_LZMA)
         list(APPEND MINIZIP_LIB ${LIBLZMA_LIBRARIES})
         list(APPEND MINIZIP_LBD ${LIBLZMA_LIBRARY_DIRS})
 
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -llzma")
     elseif(MZ_FETCH_LIBS)
         set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
 
