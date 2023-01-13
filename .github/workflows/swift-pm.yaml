@@ -10,3 +10,5 @@ jobs:
         run: swift build --verbose --configuration debug
       - name: "Swift Build(Release)"
         run: swift build --configuration release
+      - name: "Show Dependencies"
+        run: otool -L .build/x86_64-apple-macosx/debug/libminizip.3.dylib
