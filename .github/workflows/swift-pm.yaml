@@ -1,0 +1,12 @@
+name: "SwiftPM"
+on: [push, pull_request]
+
+jobs:
+  build_macosx:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Swift Build(Debug)"
+        run: swift build --verbose --configuration debug
+      - name: "Swift Build(Release)"
+        run: swift build --configuration release
