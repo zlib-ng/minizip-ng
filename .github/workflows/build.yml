@@ -235,7 +235,9 @@ jobs:
 
     - name: Install test certificate (macOS)
       if: runner.os == 'macOS'
-      run: sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
+      run: |
+        sudo security authorizationdb write com.apple.trust-settings.admin allow
+        sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
     - name: Install test certificate (Windows)
       if: runner.os == 'Windows'
