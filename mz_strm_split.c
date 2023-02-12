@@ -285,6 +285,8 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
                 err = mz_stream_split_goto_disk(stream, number_disk);
                 if (err != MZ_OK)
                     return err;
+
+                position = 0;
             }
 
             if (split->number_disk != -1) {
@@ -306,10 +308,9 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
         split->total_out += written;
         split->total_out_disk += written;
 
-        if (position == split->current_disk_size) {
-            split->current_disk_size += written;
-            position = split->current_disk_size;
-        }
+        position += written;
+        if (position > split->current_disk_size)
+            split->current_disk_size = position;
     }
 
     return size - bytes_left;
