@@ -34,7 +34,7 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 
 /***************************************************************************/
 
-/* Adapted from RFC4634 &Igor Pavlov's 2010 public domain implementation */
+/* Adapted from RFC4634 and Igor Pavlov's 2010 public domain implementation */
 
 typedef struct mz_crypt_sha224_s {
     uint8_t  buffer[64];

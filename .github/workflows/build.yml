@@ -165,6 +165,15 @@ jobs:
             deploy: true
             deploy-name: windows
 
+          # No code coverage supported
+          - name: Windows MSVC BCrypt
+            os: windows-latest
+            compiler: cl
+            # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
+            cmake-args: -D MZ_FORCE_FETCH_LIBS=ON -D MZ_SIGNING=ON -D MZ_BCRYPT=ON
+            deploy: true
+            deploy-name: uwp
+
           - name: Windows GCC
             os: windows-latest
             compiler: gcc
