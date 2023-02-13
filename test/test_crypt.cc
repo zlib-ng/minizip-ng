@@ -204,14 +204,14 @@ TEST(crypt, hmac_sha256) {
 
 #ifdef HAVE_WZAES
 TEST(crypt, pbkdf2) {
-    int32_t iteration_count = 1000;
+    uint16_t iteration_count = 1000;
     uint8_t key[MZ_HASH_SHA1_SIZE];
     char key_hex[256];
     const char *password = "passwordpasswordpasswordpassword";
     const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
 
     EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
-        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key)), MZ_OK);
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
 
     convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
 
