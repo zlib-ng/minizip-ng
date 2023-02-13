@@ -11,6 +11,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
 
+if(WIN32 AND CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+    set(WIN32UWP ON)
+endif()
+
 # Compatibility options
 option(MZ_COMPAT "Enables compatibility layer" ON)
 # Compression library options
@@ -25,6 +29,7 @@ option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
+option(MZ_BCRYPT "Enables BCrypt for encryption" ${WIN32UWP})
 option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
 option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
@@ -432,14 +437,19 @@ if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
 
-    if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING)
+    if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING OR MZ_BCRYPT)
         if(MZ_OPENSSL)
             list(APPEND MINIZIP_DEP_PKG OpenSSL)
         else()
-            message(STATUS "Using CryptoAPI")
-
-            list(APPEND MINIZIP_SRC mz_crypt_win32.c)
-            list(APPEND MINIZIP_LIB crypt32.lib)
+            if(MZ_BCRYPT)
+                message(STATUS "Using BCrypt API")
+                list(APPEND MINIZIP_SRC mz_crypt_winrt.c)
+                list(APPEND MINIZIP_LIB bcrypt.lib)
+            else()
+                message(STATUS "Using CryptoAPI")
+                list(APPEND MINIZIP_SRC mz_crypt_win32.c)
+                list(APPEND MINIZIP_LIB crypt32.lib)
+            endif()
         endif()
     else()
         list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)

@@ -138,16 +138,13 @@ TEST(crypt, sha512) {
     EXPECT_STREQ(computed_hash, "6627e7643ee7ce633e03f52d22329c3a32597364247c5275d4369985e1518626da46f595ad327667346479d246359b8b381af791ce2ac8c53a4788050eea11fe");
 }
 
-TEST(crypt, aes) {
+TEST(crypt, aes128) {
     void *aes = NULL;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
-    uint8_t hash[MZ_HASH_SHA256_SIZE];
-
-    memset(hash, 0, sizeof(hash));
 
     key_length = (int32_t)strlen(key);
     test_length = (int32_t)strlen(test);
@@ -155,7 +152,6 @@ TEST(crypt, aes) {
     strncpy((char *)buf, test, sizeof(buf));
 
     mz_crypt_aes_create(&aes);
-    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
@@ -163,7 +159,62 @@ TEST(crypt, aes) {
     EXPECT_STRNE((char *)buf, test);
 
     mz_crypt_aes_create(&aes);
-    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STREQ((char *)buf, test);
+}
+
+TEST(crypt, aes194) {
+    void *aes = NULL;
+    const char *key = "awesomekeythisisbeefyone";
+    const char *test = "youknowitsogrowi";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    uint8_t buf[120];
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+
+    strncpy((char *)buf, test, sizeof(buf));
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char *)buf, test);
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STREQ((char *)buf, test);
+}
+
+TEST(crypt, aes256) {
+    void *aes = NULL;
+    const char *key = "awesomekeythisisevenmoresolidone";
+    const char *test = "youknowitsogrowi";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    uint8_t buf[120];
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+
+    strncpy((char *)buf, test, sizeof(buf));
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char *)buf, test);
+
+    mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
