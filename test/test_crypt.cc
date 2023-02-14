@@ -12,6 +12,8 @@
 #include "mz_os.h"
 #include "mz_crypt.h"
 
+#include <string>
+
 #include <gtest/gtest.h>
 
 #include <stdio.h> /* printf, snprintf */
@@ -29,6 +31,16 @@ static void convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *h
         snprintf(hex_string + p, max_hex_string - p, "%02x", buf[i]);
     if (p < max_hex_string)
         hex_string[p] = 0;
+}
+
+TEST(crypt, rand) {
+    uint8_t random_bytes[256];
+
+    memset(random_bytes, 0, sizeof(random_bytes));
+
+    EXPECT_EQ(mz_crypt_rand(random_bytes, sizeof(random_bytes)), sizeof(random_bytes));
+
+    EXPECT_NE(std::string((char *)random_bytes).find_first_not_of('\0'), std::string::npos);
 }
 
 TEST(crypt, sha1) {
