@@ -145,13 +145,15 @@ TEST(crypt, aes) {
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
-    mz_crypt_aes_encrypt(aes, buf, test_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
-   
+
+    EXPECT_STRNE((char *)buf, test);
+
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
-    mz_crypt_aes_decrypt(aes, buf, test_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
