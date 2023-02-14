@@ -542,6 +542,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     key_blob_header_s *key_blob_s = NULL;
     uint8_t *key_blob = NULL;
     int32_t key_blob_size = 0;
+    int32_t pad_key_length = key_length;
     int32_t result = 0;
     int32_t err = MZ_OK;
 
@@ -565,9 +566,9 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         err = MZ_CRYPT_ERROR;
     } else {
         /* Zero-pad odd key lengths */
-        if (key_length % 2 == 1)
-            key_length += 1;
-        key_blob_size = sizeof(key_blob_header_s) + key_length;
+        if (pad_key_length % 2 == 1)
+            pad_key_length += 1;
+        key_blob_size = sizeof(key_blob_header_s) + pad_key_length;
         key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
     }
 
@@ -578,7 +579,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         key_blob_s->hdr.bVersion = CUR_BLOB_VERSION;
         key_blob_s->hdr.aiKeyAlg = CALG_RC2;
         key_blob_s->hdr.reserved = 0;
-        key_blob_s->key_length = key_length;
+        key_blob_s->key_length = pad_key_length;
 
         memcpy(key_blob + sizeof(key_blob_header_s), key, key_length);
 
