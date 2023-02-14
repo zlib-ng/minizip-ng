@@ -234,13 +234,13 @@ jobs:
       run: cmake --build ${{ matrix.build-dir || '.' }} --config ${{ matrix.build-config || 'Release' }}
 
     - name: Install test certificate (macOS)
-      if: runner.os == 'macOS'
+      if: runner.os == 'macOS' && contains(matrix.cmake-args, 'MZ_SIGNING=ON')
       run: |
         sudo security authorizationdb write com.apple.trust-settings.admin allow
         sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain test/test.pem || true
 
     - name: Install test certificate (Windows)
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && contains(matrix.cmake-args, 'MZ_SIGNING=ON')
       run: certutil -addstore -enterprise Root test/test.pem
 
     - name: Run test cases
