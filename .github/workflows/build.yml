@@ -175,7 +175,8 @@ jobs:
 
           # No code coverage on release builds
           - name: macOS Xcode 9.4.1
-            os: macOS-latest
+          # Use older version of macOS to install test certificate without user interaction
+            os: macos-10.15
             version: "9.4.1"
             cmake-args: -D MZ_BUILD_UNIT_TESTS=OFF -D MZ_SIGNING=ON
             deploy: true
@@ -192,7 +193,8 @@ jobs:
             codecov: macos_xcode_libcompression
 
           - name: macOS Xcode OpenSSL
-            os: macOS-latest
+            # Use older version of macOS to install test certificate without user interaction
+            os: macos-10.15
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_SIGNING=ON -D MZ_OPENSSL=ON -D OPENSSL_ROOT_DIR=/usr/local/opt/openssl -D OPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -D OPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -D OPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib
             codecov: macos_xcode_openssl
 
