@@ -130,7 +130,6 @@ TEST(crypt, aes) {
     void *aes = NULL;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
-    char computed_hash[320];
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
@@ -143,23 +142,17 @@ TEST(crypt, aes) {
 
     strncpy((char *)buf, test, sizeof(buf));
 
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
-
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     mz_crypt_aes_encrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
-
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
-
+   
     mz_crypt_aes_create(&aes);
     mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     mz_crypt_aes_decrypt(aes, buf, test_length);
     mz_crypt_aes_delete(&aes);
-
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ((char *)buf, test);
 }
