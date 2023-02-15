@@ -667,9 +667,236 @@ void mz_crypt_hmac_delete(void **handle) {
 int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data, int32_t cert_data_size,
     const char *cert_pwd, uint8_t **signature, int32_t *signature_size) {
     return MZ_SIGN_ERROR;
+#if 0
+    HCRYPTPROV_OR_NCRYPT_KEY_HANDLE private_key = 0;
+    uint32_t private_key_spec = 0;
+    BOOL release_private_key = FALSE;
+    CRYPT_DATA_BLOB cert_data_blob;
+    PCCERT_CONTEXT cert_context = NULL;
+    HCERTSTORE cert_store = 0;
+    BCRYPT_PKCS1_PADDING_INFO pad_info;
+    wchar_t *password_wide = NULL;
+    int32_t result = 0;
+    int32_t err = MZ_OK;
+
+    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
+        return MZ_PARAM_ERROR;
+
+    *signature = NULL;
+    *signature_size = 0;
+
+    pad_info.pszAlgId = BCRYPT_SHA256_ALGORITHM;
+    cert_data_blob.pbData = cert_data;
+    cert_data_blob.cbData = cert_data_size;
+
+    password_wide = mz_os_unicode_string_create(cert_pwd, MZ_ENCODING_UTF8);
+    if (password_wide) {
+        cert_store = PFXImportCertStore(&cert_data_blob, password_wide, 0);
+        mz_os_unicode_string_delete(&password_wide);
+    }
+
+    if (cert_store == NULL)
+        cert_store = PFXImportCertStore(&cert_data_blob, L"", 0);
+    if (cert_store == NULL)
+        cert_store = PFXImportCertStore(&cert_data_blob, NULL, 0);
+    if (cert_store == NULL)
+        return MZ_PARAM_ERROR;
+
+    if (err == MZ_OK) {
+        cert_context = CertFindCertificateInStore(cert_store,
+            X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_HAS_PRIVATE_KEY, NULL, NULL);
+        if (cert_context == NULL)
+            err = MZ_PARAM_ERROR;
+    }
+    if (err == MZ_OK) {
+        if (!CryptAcquireCertificatePrivateKey(cert_context, CRYPT_ACQUIRE_PREFER_NCRYPT_KEY_FLAG, NULL, &private_key,
+            &private_key_spec, &release_private_key)) {
+            err = MZ_PARAM_ERROR;
+        }
+    }
+    if (err == MZ_OK) {
+
+#if 0 /* Timestamp support */
+        CRYPT_ATTR_BLOB crypt_blob;
+        CRYPT_TIMESTAMP_CONTEXT *ts_context = NULL;
+        CRYPT_ATTRIBUTE unauth_attribs[1];
+        wchar_t *timestamp_url_wide = NULL;
+        const char *timestamp_url = NULL;
+
+        if (timestamp_url != NULL)
+            timestamp_url_wide = mz_os_unicode_string_create(timestamp_url);
+        if (timestamp_url_wide != NULL) {
+            result = CryptRetrieveTimeStamp(timestamp_url_wide,
+                TIMESTAMP_NO_AUTH_RETRIEVAL | TIMESTAMP_VERIFY_CONTEXT_SIGNATURE, 0, szOID_NIST_sha256,
+                NULL, message, message_size, &ts_context, NULL, NULL);
+
+            mz_os_unicode_string_delete(&timestamp_url_wide);
+
+            if ((result) && (ts_context != NULL)) {
+                crypt_blob.cbData = ts_context->cbEncoded;
+                crypt_blob.pbData = ts_context->pbEncoded;
+
+                unauth_attribs[0].pszObjId = "1.2.840.113549.1.9.16.2.14"; //id-smime-aa-timeStampToken
+                unauth_attribs[0].cValue = 1;
+                unauth_attribs[0].rgValue = &crypt_blob;
+
+                sign_params.rgUnauthAttr = &unauth_attribs[0];
+                sign_params.cUnauthAttr = 1;
+            }
+        }
+
+        if (ts_context != NULL)
+            CryptMemFree(ts_context);
+
+        if (result)
+#endif
+            result = !NCryptSignHash(private_key, &pad_info, message, message_size, NULL, 0, signature_size,
+                BCRYPT_PAD_PKCS1 | NCRYPT_SILENT_FLAG);
+
+        if (result && *signature_size > 0)
+            *signature = (uint8_t *)MZ_ALLOC(*signature_size);
+
+        if (result && *signature != NULL) {
+            result = !NCryptSignHash(private_key, &pad_info, message, message_size, *signature, *signature_size,
+                signature_size, BCRYPT_PAD_PKCS1 | NCRYPT_SILENT_FLAG);
+        }
+
+        if (release_private_key) {
+            if (private_key_spec == CERT_NCRYPT_KEY_SPEC)
+                NCryptFreeObject(private_key);
+            else
+                CryptReleaseContext(private_key, 0);
+        }
+
+        if (!result)
+            err = MZ_SIGN_ERROR;
+    }
+
+    if (cert_context != NULL)
+        CertFreeCertificateContext(cert_context);
+    if (cert_store != NULL)
+        CertCloseStore(cert_store, 0);
+    return err;
+    #endif
 }
 
 int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *signature, int32_t signature_size) {
     return MZ_SIGN_ERROR;
+#if 0
+    CRYPT_VERIFY_MESSAGE_PARA verify_params;
+    CERT_CONTEXT *signer_cert = NULL;
+    CERT_CHAIN_PARA  chain_para;
+    CERT_CHAIN_CONTEXT *chain_context = NULL;
+    CERT_CHAIN_POLICY_PARA chain_policy;
+    CERT_CHAIN_POLICY_STATUS chain_policy_status;
+    HCRYPTMSG crypt_msg = 0;
+    int32_t result = 0;
+    int32_t err = MZ_SIGN_ERROR;
+    uint8_t *decoded = NULL;
+    int32_t decoded_size = 0;
+
+    memset(&verify_params, 0, sizeof(verify_params));
+
+    verify_params.cbSize = sizeof(verify_params);
+    verify_params.dwMsgAndCertEncodingType = PKCS_7_ASN_ENCODING | X509_ASN_ENCODING;
+    result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
+        NULL, (DWORD *)&decoded_size, NULL);
+
+    if (result && decoded_size > 0)
+        decoded = (uint8_t *)MZ_ALLOC(decoded_size);
+
+    if (result && decoded != NULL)
+        result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
+            decoded, (DWORD *)&decoded_size, (const CERT_CONTEXT **)&signer_cert);
+
+    /* Get and validate certificate chain */
+    memset(&chain_para, 0, sizeof(chain_para));
+
+    if (result && signer_cert != NULL)
+        result = CertGetCertificateChain(NULL, signer_cert, NULL, NULL, &chain_para,
+            CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT, NULL, (const CERT_CHAIN_CONTEXT **)&chain_context);
+
+    memset(&chain_policy, 0, sizeof(chain_policy));
+    chain_policy.cbSize = sizeof(CERT_CHAIN_POLICY_PARA);
+
+    memset(&chain_policy_status, 0, sizeof(chain_policy_status));
+    chain_policy_status.cbSize = sizeof(CERT_CHAIN_POLICY_STATUS);
+
+    if (result && chain_context != NULL)
+        result = CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_BASE, chain_context,
+            &chain_policy, &chain_policy_status);
+
+    if (chain_policy_status.dwError != S_OK)
+        result = 0;
+
+#if 0
+    crypt_msg = CryptMsgOpenToDecode(PKCS_7_ASN_ENCODING | X509_ASN_ENCODING, 0, 0, 0, NULL, NULL);
+    if (crypt_msg != NULL) {
+        /* Timestamp support */
+        PCRYPT_ATTRIBUTES unauth_attribs = NULL;
+        HCRYPTMSG ts_msg = 0;
+        uint8_t *ts_content = NULL;
+        int32_t ts_content_size = 0;
+        uint8_t *ts_signature = NULL;
+        int32_t ts_signature_size = 0;
+
+        result = CryptMsgUpdate(crypt_msg, signature, signature_size, 1);
+
+        if (result)
+            CryptMsgGetParam(crypt_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, 0, NULL, &ts_signature_size);
+
+        if ((result) && (ts_signature_size > 0))
+            ts_signature = (uint8_t *)MZ_ALLOC(ts_signature_size);
+
+        if ((result) && (ts_signature != NULL)) {
+            result = CryptMsgGetParam(crypt_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, 0, ts_signature,
+                &ts_signature_size);
+            if (result)
+            {
+                unauth_attribs = (PCRYPT_ATTRIBUTES)ts_signature;
+
+                if ((unauth_attribs->cAttr > 0) && (unauth_attribs->rgAttr[0].cValue > 0))
+                {
+                    ts_content = unauth_attribs->rgAttr[0].rgValue->pbData;
+                    ts_content_size = unauth_attribs->rgAttr[0].rgValue->cbData;
+                }
+            }
+
+            if ((result) && (ts_content != NULL))
+                result = CryptVerifyTimeStampSignature(ts_content, ts_content_size, decoded,
+                    decoded_size, 0, &crypt_context, NULL, NULL);
+
+            if (result)
+                err = MZ_OK;
+        }
+
+        if (ts_signature != NULL)
+            MZ_FREE(ts_signature);
+
+        if (crypt_context != NULL)
+            CryptMemFree(crypt_context);
+    } else {
+        result = 0;
+    }
+#endif
+
+    if ((result) && (decoded != NULL) && (decoded_size == message_size)) {
+        /* Verify cms message with our stored message */
+        if (memcmp(decoded, message, message_size) == 0)
+            err = MZ_OK;
+    }
+
+    if (chain_context != NULL)
+        CertFreeCertificateChain(chain_context);
+    if (signer_cert != NULL)
+        CertFreeCertificateContext(signer_cert);
+    if (crypt_msg != NULL)
+        CryptMsgClose(crypt_msg);
+
+    if (decoded != NULL)
+        MZ_FREE(decoded);
+
+    return err;
+#endif
 }
 #endif
