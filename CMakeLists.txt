@@ -6,14 +6,11 @@
 #***************************************************************************
 
 cmake_minimum_required(VERSION 3.13)
+include(CMakeDependentOption)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
-
-if(WIN32 AND CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-    set(WIN32UWP ON)
-endif()
 
 # Compatibility options
 option(MZ_COMPAT "Enables compatibility layer" ON)
@@ -29,7 +26,7 @@ option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
 option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
-option(MZ_BCRYPT "Enables BCrypt for encryption" ${WIN32UWP})
+cmake_dependent_option(MZ_BCRYPT "Enables BCrypt for encryption" OFF "NOT CMAKE_SYSTEM_NAME STREQUAL WindowsStore" ON)
 option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
 option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
@@ -437,7 +434,7 @@ if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
 
-    if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING OR MZ_BCRYPT)
+    if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING)
         if(MZ_OPENSSL)
             list(APPEND MINIZIP_DEP_PKG OpenSSL)
         else()
