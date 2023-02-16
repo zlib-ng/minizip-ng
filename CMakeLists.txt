@@ -6,7 +6,15 @@
 #***************************************************************************
 
 cmake_minimum_required(VERSION 3.13)
+
 include(CMakeDependentOption)
+include(CheckLibraryExists)
+include(CheckSymbolExists)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckTypeSize)
+include(GNUInstallDirs)
+include(FeatureSummary)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -19,15 +27,15 @@ option(MZ_ZLIB "Enables ZLIB compression" ON)
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
-option(MZ_LIBCOMP "Enables Apple compression" ${APPLE})
-option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ${WIN32})
+cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
+cmake_dependent_option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ON "WIN32" OFF)
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
-cmake_dependent_option(MZ_BCRYPT "Enables BCrypt for encryption" OFF "NOT CMAKE_SYSTEM_NAME STREQUAL WindowsStore" ON)
-option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
+cmake_dependent_option(MZ_OPENSSL "Enables OpenSSL for encryption" ON "UNIX" OFF)
+cmake_dependent_option(MZ_BCRYPT "Enables Win32 Crypto API Next Generation" ON "CMAKE_SYSTEM_NAME STREQUAL WindowsStore" OFF)
+cmake_dependent_option(MZ_LIBBSD "Builds with libbsd crypto random" ON "UNIX" OFF)
 option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
@@ -75,14 +83,6 @@ set(VERSION "3.0.8")
 
 # API version
 set(SOVERSION "3")
-
-include(CheckLibraryExists)
-include(CheckSymbolExists)
-include(CheckFunctionExists)
-include(CheckIncludeFile)
-include(CheckTypeSize)
-include(GNUInstallDirs)
-include(FeatureSummary)
 
 include(cmake/clone-repo.cmake)
 
@@ -1004,7 +1004,8 @@ add_feature_info(MZ_FORCE_FETCH_LIBS MZ_FORCE_FETCH_LIBS "Enables fetching third
 add_feature_info(MZ_PKCRYPT MZ_PKCRYPT "Enables PKWARE traditional encryption")
 add_feature_info(MZ_WZAES MZ_WZAES "Enables WinZIP AES encryption")
 add_feature_info(MZ_OPENSSL MZ_OPENSSL "Enables OpenSSL for encryption")
-add_feature_info(MZ_LIBBSD MZ_LIBBSD "Build with libbsd for crypto random")
+add_feature_info(MZ_BCRYPT MZ_BCRYPT "Enables Win32 Crypto API Next Generation (CNG)")
+add_feature_info(MZ_LIBBSD MZ_LIBBSD "Builds with libbsd crypto random")
 add_feature_info(MZ_SIGNING MZ_SIGNING "Enables zip signing support")
 # Character conversion options
 add_feature_info(MZ_ICONV MZ_ICONV "Enables iconv string encoding conversion library")
