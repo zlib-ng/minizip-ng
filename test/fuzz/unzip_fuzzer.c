@@ -3,7 +3,7 @@
 
    Copyright (C) 2018 The Chromium Authors
    Copyright (C) 2018 Anand K. Mistry
-   Copyright (C) 2018-2020 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.

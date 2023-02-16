@@ -1,7 +1,7 @@
 /* mz_strm_posix.c -- Stream for filesystem access for posix/linux
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
    Modifications for Zip64 support
      Copyright (C) 2009-2010 Mathias Svensson

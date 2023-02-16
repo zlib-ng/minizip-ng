@@ -1,7 +1,7 @@
 /* mz_strm_wzaes.c -- Stream for WinZip AES encryption
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
       https://github.com/zlib-ng/minizip-ng
    Copyright (C) 1998-2010 Brian Gladman, Worcester, UK
 

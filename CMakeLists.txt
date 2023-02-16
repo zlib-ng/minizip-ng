@@ -1,9 +1,9 @@
-#***************************************************************************
-# Copyright (C) 2017-2020 Nathan Moinvaziri
-#                         https://github.com/zlib-ng/minizip-ng
-# Copyright (C)      2016 Matthias Schmieder
-#                         schmieder.matthias@gmail.com
-#***************************************************************************
+# minizip-ng project
+#
+# Copyright (C) Nathan Moinvaziri
+#   https://github.com/zlib-ng/minizip-ng
+# Copyright (C) 2016 Matthias Schmieder
+#   schmieder.matthias@gmail.com
 
 cmake_minimum_required(VERSION 3.13)
 

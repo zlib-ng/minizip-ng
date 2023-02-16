@@ -1,7 +1,7 @@
 /* mz_compat.c -- Backwards compatible interface for older versions
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
    Copyright (C) 1998-2010 Gilles Vollant
      https://www.winimage.com/zLibDll/minizip.html
@@ -289,8 +289,8 @@ void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def) {
         memset(pzlib_filefunc_def, 0, sizeof(zlib_filefunc64_def));
 }
 
-/* NOTE: fill_win32_filefunc64W is no longer necessary since wide-character 
-   support is automatically handled by the underlying os stream. Do not 
+/* NOTE: fill_win32_filefunc64W is no longer necessary since wide-character
+   support is automatically handled by the underlying os stream. Do not
    pass wide-characters to zipOpen or unzOpen. */
 
 void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def) {
@@ -327,7 +327,7 @@ zipFile zipOpen64(const void *path, int append) {
     return zipOpen2(path, append, NULL, NULL);
 }
 
-zipFile zipOpen2(const char *path, int append, const char **globalcomment, 
+zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     zlib_filefunc_def *pzlib_filefunc_def) {
     zipFile zip = NULL;
     int32_t mode = zipConvertAppendToStreamMode(append);
@@ -364,7 +364,7 @@ zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     return zip;
 }
 
-zipFile zipOpen2_64(const void *path, int append, const char **globalcomment, 
+zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def) {
     zipFile zip = NULL;
     int32_t mode = zipConvertAppendToStreamMode(append);

@@ -1,7 +1,7 @@
 /* mz_strm_win32.c -- Stream for filesystem access for windows
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
    Copyright (C) 2009-2010 Mathias Svensson
      Modifications for Zip64 support

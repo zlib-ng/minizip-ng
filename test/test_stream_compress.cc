@@ -1,7 +1,7 @@
 /* test_stream_compress.cc - Test basic compression
    part of the minizip-ng project
 
-   Copyright (C) 2018-2022 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
