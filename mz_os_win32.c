@@ -17,12 +17,6 @@
 
 /***************************************************************************/
 
-#if defined(WINAPI_FAMILY_PARTITION) && (!(defined(MZ_WINRT_API)))
-#  if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    define MZ_WINRT_API 1
-#  endif
-#endif
-
 #ifndef SYMBOLIC_LINK_FLAG_DIRECTORY
 #  define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
 #endif
@@ -141,7 +135,7 @@ int32_t mz_os_rename(const char *source_path, const char *target_path) {
     }
 
     if (err == MZ_OK) {
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WINXP
         result = MoveFileExW(source_path_wide, target_path_wide, MOVEFILE_WRITE_THROUGH);
 #else
         result = MoveFileW(source_path_wide, target_path_wide);
@@ -210,7 +204,7 @@ int64_t mz_os_get_file_size(const char *path) {
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     handle = CreateFile2(path_wide, GENERIC_READ, 0, OPEN_EXISTING, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -283,7 +277,7 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     handle = CreateFile2(path_wide, GENERIC_READ | GENERIC_WRITE, 0, OPEN_EXISTING, NULL);
 #else
     handle = CreateFileW(path_wide, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -489,6 +483,7 @@ int32_t mz_os_is_symlink(const char *path) {
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     typedef BOOLEAN (WINAPI *LPCREATESYMBOLICLINKW)(LPCWSTR, LPCWSTR, DWORD);
+    MEMORY_BASIC_INFORMATION mbi;
     LPCREATESYMBOLICLINKW create_symbolic_link_w = NULL;
     HMODULE kernel32_mod = NULL;
     wchar_t *path_wide = NULL;
@@ -499,14 +494,10 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     if (path == NULL)
         return MZ_PARAM_ERROR;
 
-#ifdef MZ_WINRT_API
-    MEMORY_BASIC_INFORMATION mbi;
+    // Use VirtualQuery instead of GetModuleHandleW for UWP
     memset(&mbi, 0, sizeof(mbi));
     VirtualQuery(VirtualQuery, &mbi, sizeof(mbi));
     kernel32_mod = (HMODULE)mbi.AllocationBase;
-#else
-    kernel32_mod = GetModuleHandleW(L"kernel32.dll");
-#endif
 
     if (kernel32_mod == NULL)
         return MZ_SUPPORT_ERROR;
@@ -582,7 +573,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     CREATEFILE2_EXTENDED_PARAMETERS extended_params;
     memset(&extended_params, 0, sizeof(extended_params));
     extended_params.dwSize = sizeof(extended_params);

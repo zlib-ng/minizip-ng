@@ -30,12 +30,6 @@
 #  define INVALID_SET_FILE_POINTER ((DWORD)-1)
 #endif
 
-#if defined(WINAPI_FAMILY_ONE_PARTITION) && !defined(MZ_WINRT_API)
-#  if WINAPI_FAMILY_ONE_PARTITION(WINAPI_FAMILY, WINAPI_PARTITION_APP)
-#    define MZ_WINRT_API 1
-#  endif
-#endif
-
 /***************************************************************************/
 
 static mz_stream_vtbl mz_stream_os_vtbl = {
@@ -104,7 +98,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     if (path_wide == NULL)
         return MZ_PARAM_ERROR;
 
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     win32->handle = CreateFile2(path_wide, desired_access, share_mode,
         creation_disposition, NULL);
 #else
@@ -170,7 +164,7 @@ int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size) {
 
 static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos,
     LARGE_INTEGER *new_pos, uint32_t move_method) {
-#ifdef MZ_WINRT_API
+#if _WIN32_WINNT >= _WIN32_WINNT_WINXP
     BOOL success = FALSE;
     success = SetFilePointerEx(handle, large_pos, new_pos, move_method);
     if ((success == FALSE) && (GetLastError() != NO_ERROR))

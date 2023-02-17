@@ -118,7 +118,6 @@ instance, some #defines will have to be set as they have changed.
 |NOCRYPT|Nearest to MZ_ZIP_NO_ENCRYPTION|Previously turned off all encryption support.|
 ||MZ_ZIP_NO_ENCRYPTION|Turns off all encryption/decryption support.|
 |NO_ADDFILEINEXISTINGZIP||Not currently supported.|
-|IOWIN32_USING_WINRT_API|MZ_WINRT_API|Enable WinRT API support in Win32 file I/O stream.|
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 

@@ -452,9 +452,6 @@ if(WIN32)
         list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)
     endif()
 endif()
-if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-    list(APPEND MINIZIP_DEF -DMZ_WINRT_API)
-endif()
 
 # Unix specific
 if(UNIX)
