@@ -166,7 +166,7 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size) {
         total_out_before = zlib->zstream.total_out;
 
         err = ZLIB_PREFIX(inflate)(&zlib->zstream, Z_SYNC_FLUSH);
-        if ((err >= Z_OK) && (zlib->zstream.msg != NULL)) {
+        if ((err >= Z_OK) && (zlib->zstream.msg)) {
             zlib->error = Z_DATA_ERROR;
             break;
         }
@@ -363,13 +363,13 @@ void *mz_stream_zlib_create(void **stream) {
     mz_stream_zlib *zlib = NULL;
 
     zlib = (mz_stream_zlib *)MZ_ALLOC(sizeof(mz_stream_zlib));
-    if (zlib != NULL) {
+    if (zlib) {
         memset(zlib, 0, sizeof(mz_stream_zlib));
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
         zlib->window_bits = -MAX_WBITS;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = zlib;
 
     return zlib;
@@ -377,10 +377,10 @@ void *mz_stream_zlib_create(void **stream) {
 
 void mz_stream_zlib_delete(void **stream) {
     mz_stream_zlib *zlib = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     zlib = (mz_stream_zlib *)*stream;
-    if (zlib != NULL)
+    if (zlib)
         MZ_FREE(zlib);
     *stream = NULL;
 }

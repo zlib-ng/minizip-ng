@@ -71,7 +71,7 @@ int main(int argc, char **argv)
             if (buf_length > 0)
                 buf = MZ_ALLOC(buf_length);
 
-            if (buf != NULL)
+            if (buf)
             {
                 printf("Running %s %"PRId32"\n", argv[i], buf_length);
                 read = mz_stream_os_read(stream, buf, buf_length);

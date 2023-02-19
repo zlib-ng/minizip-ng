@@ -80,9 +80,9 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode) {
     if (mz_stream_is_open(wzaes->stream.base) != MZ_OK)
         return MZ_OPEN_ERROR;
 
-    if (password == NULL)
+    if (!password)
         password = wzaes->password;
-    if (password == NULL)
+    if (!password)
         return MZ_PARAM_ERROR;
     password_length = (uint16_t)strlen(password);
     if (password_length > MZ_AES_PW_LENGTH_MAX)
@@ -152,7 +152,7 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode) {
 
 int32_t mz_stream_wzaes_is_open(void *stream) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
-    if (wzaes->initialized == 0)
+    if (!wzaes->initialized)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
@@ -329,7 +329,7 @@ void *mz_stream_wzaes_create(void **stream) {
     mz_stream_wzaes *wzaes = NULL;
 
     wzaes = (mz_stream_wzaes *)MZ_ALLOC(sizeof(mz_stream_wzaes));
-    if (wzaes != NULL) {
+    if (wzaes) {
         memset(wzaes, 0, sizeof(mz_stream_wzaes));
         wzaes->stream.vtbl = &mz_stream_wzaes_vtbl;
         wzaes->encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
@@ -337,7 +337,7 @@ void *mz_stream_wzaes_create(void **stream) {
         mz_crypt_hmac_create(&wzaes->hmac);
         mz_crypt_aes_create(&wzaes->aes);
     }
-    if (stream != NULL)
+    if (stream)
         *stream = wzaes;
 
     return wzaes;
@@ -345,10 +345,10 @@ void *mz_stream_wzaes_create(void **stream) {
 
 void mz_stream_wzaes_delete(void **stream) {
     mz_stream_wzaes *wzaes = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     wzaes = (mz_stream_wzaes *)*stream;
-    if (wzaes != NULL) {
+    if (wzaes) {
         mz_crypt_aes_delete(&wzaes->aes);
         mz_crypt_hmac_delete(&wzaes->hmac);
         MZ_FREE(wzaes);

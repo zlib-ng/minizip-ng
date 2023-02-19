@@ -332,11 +332,11 @@ void *mz_stream_libcomp_create(void **stream) {
     mz_stream_libcomp *libcomp = NULL;
 
     libcomp = (mz_stream_libcomp *)MZ_ALLOC(sizeof(mz_stream_libcomp));
-    if (libcomp != NULL) {
+    if (libcomp) {
         memset(libcomp, 0, sizeof(mz_stream_libcomp));
         libcomp->stream.vtbl = &mz_stream_libcomp_vtbl;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = libcomp;
 
     return libcomp;
@@ -344,10 +344,10 @@ void *mz_stream_libcomp_create(void **stream) {
 
 void mz_stream_libcomp_delete(void **stream) {
     mz_stream_libcomp *libcomp = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     libcomp = (mz_stream_libcomp *)*stream;
-    if (libcomp != NULL)
+    if (libcomp)
         MZ_FREE(libcomp);
     *stream = NULL;
 }

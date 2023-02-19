@@ -342,12 +342,12 @@ void *mz_stream_bzip_create(void **stream) {
     mz_stream_bzip *bzip = NULL;
 
     bzip = (mz_stream_bzip *)MZ_ALLOC(sizeof(mz_stream_bzip));
-    if (bzip != NULL) {
+    if (bzip) {
         memset(bzip, 0, sizeof(mz_stream_bzip));
         bzip->stream.vtbl = &mz_stream_bzip_vtbl;
         bzip->level = 6;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = bzip;
 
     return bzip;
@@ -355,10 +355,10 @@ void *mz_stream_bzip_create(void **stream) {
 
 void mz_stream_bzip_delete(void **stream) {
     mz_stream_bzip *bzip = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     bzip = (mz_stream_bzip *)*stream;
-    if (bzip != NULL)
+    if (bzip)
         MZ_FREE(bzip);
     *stream = NULL;
 }

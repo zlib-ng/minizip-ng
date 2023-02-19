@@ -360,11 +360,11 @@ void *mz_stream_buffered_create(void **stream) {
     mz_stream_buffered *buffered = NULL;
 
     buffered = (mz_stream_buffered *)MZ_ALLOC(sizeof(mz_stream_buffered));
-    if (buffered != NULL) {
+    if (buffered) {
         memset(buffered, 0, sizeof(mz_stream_buffered));
         buffered->stream.vtbl = &mz_stream_buffered_vtbl;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = buffered;
 
     return buffered;
@@ -372,10 +372,10 @@ void *mz_stream_buffered_create(void **stream) {
 
 void mz_stream_buffered_delete(void **stream) {
     mz_stream_buffered *buffered = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     buffered = (mz_stream_buffered *)*stream;
-    if (buffered != NULL)
+    if (buffered)
         MZ_FREE(buffered);
     *stream = NULL;
 }

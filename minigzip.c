@@ -54,7 +54,7 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
 
     memset(target_path, 0, sizeof(target_path));
 
-    if (destination != NULL) {
+    if (destination) {
         if (mz_os_file_exists(destination) != MZ_OK)
             mz_dir_make(destination);
     }
@@ -64,7 +64,7 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
         strncat(target_path, ".gz", sizeof(target_path) - strlen(target_path) - 1);
         printf("Compressing to %s\n", target_path);
     } else if (operation == MZ_GZIP_DECOMPRESS) {
-        if (destination != NULL)
+        if (destination)
             mz_path_combine(target_path, destination, sizeof(target_path));
 
         if (mz_path_get_filename(path, &filename) != MZ_OK)

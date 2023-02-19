@@ -73,7 +73,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     uint32_t flags_attribs = FILE_ATTRIBUTE_NORMAL;
     wchar_t *path_wide = NULL;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
 
     /* Some use cases require write sharing as well */
@@ -95,7 +95,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     mz_stream_os_print("Win32 - Open - %s (mode %" PRId32 ")\n", path);
 
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN8
@@ -121,7 +121,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
 
 int32_t mz_stream_os_is_open(void *stream) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
-    if (win32->handle == NULL || win32->handle == INVALID_HANDLE_VALUE)
+    if (!win32->handle || win32->handle == INVALID_HANDLE_VALUE)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
@@ -181,7 +181,7 @@ static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos,
     if ((pos == INVALID_SET_FILE_POINTER) && (GetLastError() != NO_ERROR))
         return MZ_SEEK_ERROR;
 
-    if (new_pos != NULL) {
+    if (new_pos) {
         new_pos->LowPart = pos;
         new_pos->HighPart = high_part;
     }
@@ -246,7 +246,7 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
 int32_t mz_stream_os_close(void *stream) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
 
-    if (win32->handle != NULL)
+    if (win32->handle)
         CloseHandle(win32->handle);
     mz_stream_os_print("Win32 - Close\n");
     win32->handle = NULL;
@@ -262,11 +262,11 @@ void *mz_stream_os_create(void **stream) {
     mz_stream_win32 *win32 = NULL;
 
     win32 = (mz_stream_win32 *)MZ_ALLOC(sizeof(mz_stream_win32));
-    if (win32 != NULL) {
+    if (win32) {
         memset(win32, 0, sizeof(mz_stream_win32));
         win32->stream.vtbl = &mz_stream_os_vtbl;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = win32;
 
     return win32;
@@ -274,10 +274,10 @@ void *mz_stream_os_create(void **stream) {
 
 void mz_stream_os_delete(void **stream) {
     mz_stream_win32 *win32 = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     win32 = (mz_stream_win32 *)*stream;
-    if (win32 != NULL)
+    if (win32)
         MZ_FREE(win32);
     *stream = NULL;
 }

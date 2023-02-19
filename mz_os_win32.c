@@ -40,7 +40,7 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding) {
     if (string_wide_size == 0)
         return NULL;
     string_wide = (wchar_t *)MZ_ALLOC((string_wide_size + 1) * sizeof(wchar_t));
-    if (string_wide == NULL)
+    if (!string_wide)
         return NULL;
 
     memset(string_wide, 0, sizeof(wchar_t) * (string_wide_size + 1));
@@ -50,7 +50,7 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding) {
 }
 
 void mz_os_unicode_string_delete(wchar_t **string) {
-    if (string != NULL) {
+    if (string) {
         MZ_FREE(*string);
         *string = NULL;
     }
@@ -95,7 +95,7 @@ uint8_t *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t en
 }
 
 void mz_os_utf8_string_delete(uint8_t **string) {
-    if (string != NULL) {
+    if (string) {
         MZ_FREE(*string);
         *string = NULL;
     }
@@ -122,15 +122,15 @@ int32_t mz_os_rename(const char *source_path, const char *target_path) {
     int32_t result = 0;
     int32_t err = MZ_OK;
 
-    if (source_path == NULL || target_path == NULL)
+    if (!source_path || !target_path)
         return MZ_PARAM_ERROR;
 
     source_path_wide = mz_os_unicode_string_create(source_path, MZ_ENCODING_UTF8);
-    if (source_path_wide == NULL) {
+    if (!source_path_wide) {
         err = MZ_PARAM_ERROR;
     } else {
         target_path_wide = mz_os_unicode_string_create(target_path, MZ_ENCODING_UTF8);
-        if (target_path_wide == NULL)
+        if (!target_path_wide)
             err = MZ_PARAM_ERROR;
     }
 
@@ -156,10 +156,10 @@ int32_t mz_os_unlink(const char *path) {
     wchar_t *path_wide = NULL;
     int32_t result = 0;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     if (mz_os_is_dir(path) == MZ_OK)
@@ -179,10 +179,10 @@ int32_t mz_os_file_exists(const char *path) {
     wchar_t *path_wide = NULL;
     DWORD attribs = 0;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     attribs = GetFileAttributesW(path_wide);
@@ -199,10 +199,10 @@ int64_t mz_os_get_file_size(const char *path) {
     LARGE_INTEGER large_size;
     wchar_t *path_wide = NULL;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     handle = CreateFile2(path_wide, GENERIC_READ, 0, OPEN_EXISTING, NULL);
@@ -241,21 +241,21 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
     wchar_t *path_wide = NULL;
     int32_t err = MZ_INTERNAL_ERROR;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     handle = FindFirstFileW(path_wide, &ff32);
     MZ_FREE(path_wide);
 
     if (handle != INVALID_HANDLE_VALUE) {
-        if (modified_date != NULL)
+        if (modified_date)
             mz_os_file_to_unix_time(ff32.ftLastWriteTime, modified_date);
-        if (accessed_date != NULL)
+        if (accessed_date)
             mz_os_file_to_unix_time(ff32.ftLastAccessTime, accessed_date);
-        if (creation_date != NULL)
+        if (creation_date)
             mz_os_file_to_unix_time(ff32.ftCreationTime, creation_date);
 
         FindClose(handle);
@@ -271,10 +271,10 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN8
@@ -307,10 +307,10 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes) {
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    if (path == NULL || attributes == NULL)
+    if (!path || !attributes)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     *attributes = GetFileAttributesW(path_wide);
@@ -326,10 +326,10 @@ int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes) {
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     if (SetFileAttributesW(path_wide, attributes) == 0)
@@ -343,7 +343,7 @@ int32_t mz_os_make_dir(const char *path) {
     wchar_t *path_wide = NULL;
     int32_t err = MZ_OK;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
 
     /* Don't try to create a drive letter */
@@ -351,7 +351,7 @@ int32_t mz_os_make_dir(const char *path) {
         return mz_os_is_dir(path);
 
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     if (CreateDirectoryW(path_wide, NULL) == 0) {
@@ -371,7 +371,7 @@ DIR *mz_os_open_dir(const char *path) {
     char fixed_path[320];
     void *handle = NULL;
 
-    if (path == NULL)
+    if (!path)
         return NULL;
 
     strncpy(fixed_path, path, sizeof(fixed_path) - 1);
@@ -381,7 +381,7 @@ DIR *mz_os_open_dir(const char *path) {
     mz_path_combine(fixed_path, "*", sizeof(fixed_path));
 
     path_wide = mz_os_unicode_string_create(fixed_path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return NULL;
 
     handle = FindFirstFileW(path_wide, &find_data);
@@ -391,7 +391,7 @@ DIR *mz_os_open_dir(const char *path) {
         return NULL;
 
     dir_int = (DIR_int *)MZ_ALLOC(sizeof(DIR_int));
-    if (dir_int == NULL) {
+    if (!dir_int) {
         FindClose(handle);
         return NULL;
     }
@@ -406,7 +406,7 @@ DIR *mz_os_open_dir(const char *path) {
 struct dirent* mz_os_read_dir(DIR *dir) {
     DIR_int *dir_int;
 
-    if (dir == NULL)
+    if (!dir)
         return NULL;
 
     dir_int = (DIR_int *)dir;
@@ -429,7 +429,7 @@ struct dirent* mz_os_read_dir(DIR *dir) {
 int32_t mz_os_close_dir(DIR *dir) {
     DIR_int *dir_int;
 
-    if (dir == NULL)
+    if (!dir)
         return MZ_PARAM_ERROR;
 
     dir_int = (DIR_int *)dir;
@@ -443,10 +443,10 @@ int32_t mz_os_is_dir(const char *path) {
     wchar_t *path_wide = NULL;
     uint32_t attribs = 0;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     attribs = GetFileAttributesW(path_wide);
@@ -464,10 +464,10 @@ int32_t mz_os_is_symlink(const char *path) {
     wchar_t *path_wide = NULL;
     uint32_t attribs = 0;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
     attribs = GetFileAttributesW(path_wide);
@@ -491,7 +491,7 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     int32_t err = MZ_OK;
     int32_t flags = 0;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
 
     // Use VirtualQuery instead of GetModuleHandleW for UWP
@@ -499,21 +499,21 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     VirtualQuery(VirtualQuery, &mbi, sizeof(mbi));
     kernel32_mod = (HMODULE)mbi.AllocationBase;
 
-    if (kernel32_mod == NULL)
+    if (!kernel32_mod)
         return MZ_SUPPORT_ERROR;
 
     create_symbolic_link_w = (LPCREATESYMBOLICLINKW)GetProcAddress(kernel32_mod, "CreateSymbolicLinkW");
-    if (create_symbolic_link_w == NULL) {
+    if (!create_symbolic_link_w) {
         return MZ_SUPPORT_ERROR;
     }
 
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL) {
+    if (!path_wide) {
         return MZ_PARAM_ERROR;
     }
 
     target_path_wide = mz_os_unicode_string_create(target_path, MZ_ENCODING_UTF8);
-    if (target_path_wide != NULL) {
+    if (target_path_wide) {
         if (mz_path_has_slash(target_path) == MZ_OK)
             flags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
 
@@ -567,10 +567,10 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     int32_t err = MZ_OK;
     uint8_t *target_path_utf8 = NULL;
 
-    if (path == NULL)
+    if (!path)
         return MZ_PARAM_ERROR;
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (path_wide == NULL)
+    if (!path_wide)
         return MZ_PARAM_ERROR;
 
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN8

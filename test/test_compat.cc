@@ -172,7 +172,7 @@ static void *ZCALLBACK fopen_file_func(void *opaque, const char *filename, int m
     else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
         mode_fopen = "wb";
 
-    if ((filename != NULL) && (mode_fopen != NULL))
+    if (filename && mode_fopen)
         file = fopen(filename, mode_fopen);
 
     return file;

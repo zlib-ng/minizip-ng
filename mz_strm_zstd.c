@@ -326,22 +326,22 @@ int32_t mz_stream_zstd_set_prop_int64(void *stream, int32_t prop, int64_t value)
 void *mz_stream_zstd_create(void **stream) {
     mz_stream_zstd *zstd = NULL;
     zstd = (mz_stream_zstd *)MZ_ALLOC(sizeof(mz_stream_zstd));
-    if (zstd != NULL) {
+    if (zstd) {
         memset(zstd, 0, sizeof(mz_stream_zstd));
         zstd->stream.vtbl = &mz_stream_zstd_vtbl;
         zstd->max_total_out = -1;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = zstd;
     return zstd;
 }
 
 void mz_stream_zstd_delete(void **stream) {
     mz_stream_zstd *zstd = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     zstd = (mz_stream_zstd *)*stream;
-    if (zstd != NULL)
+    if (zstd)
         MZ_FREE(zstd);
     *stream = NULL;
 }

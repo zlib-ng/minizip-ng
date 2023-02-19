@@ -439,14 +439,14 @@ void *mz_stream_lzma_create(void **stream) {
     mz_stream_lzma *lzma = NULL;
 
     lzma = (mz_stream_lzma *)MZ_ALLOC(sizeof(mz_stream_lzma));
-    if (lzma != NULL) {
+    if (lzma) {
         memset(lzma, 0, sizeof(mz_stream_lzma));
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->method = MZ_COMPRESS_METHOD_LZMA;
         lzma->preset = LZMA_PRESET_DEFAULT;
         lzma->max_total_out = -1;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = lzma;
 
     return lzma;
@@ -454,10 +454,10 @@ void *mz_stream_lzma_create(void **stream) {
 
 void mz_stream_lzma_delete(void **stream) {
     mz_stream_lzma *lzma = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
-    if (lzma != NULL)
+    if (lzma)
         MZ_FREE(lzma);
     *stream = NULL;
 }

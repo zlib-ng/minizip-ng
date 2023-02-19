@@ -57,7 +57,7 @@ static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
     uint8_t *new_buf = NULL;
 
     new_buf = (uint8_t *)MZ_ALLOC((uint32_t)new_size);
-    if (new_buf == NULL)
+    if (!new_buf)
         return MZ_BUF_ERROR;
 
     if (mem->buffer) {
@@ -90,7 +90,7 @@ int32_t mz_stream_mem_open(void *stream, const char *path, int32_t mode) {
 
 int32_t mz_stream_mem_is_open(void *stream) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    if (mem->buffer == NULL)
+    if (!mem->buffer)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
@@ -117,7 +117,7 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size) {
     int32_t new_size = 0;
     int32_t err = MZ_OK;
 
-    if (size == 0)
+    if (!size)
         return size;
 
     if (size > mem->size - mem->position) {
@@ -211,7 +211,7 @@ int32_t mz_stream_mem_get_buffer(void *stream, const void **buf) {
 
 int32_t mz_stream_mem_get_buffer_at(void *stream, int64_t position, const void **buf) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    if (buf == NULL || position < 0 || mem->size < position || mem->buffer == NULL)
+    if (!buf || position < 0 || !mem->buffer|| mem->size < position)
         return MZ_SEEK_ERROR;
     *buf = mem->buffer + position;
     return MZ_OK;
@@ -241,12 +241,12 @@ void *mz_stream_mem_create(void **stream) {
     mz_stream_mem *mem = NULL;
 
     mem = (mz_stream_mem *)MZ_ALLOC(sizeof(mz_stream_mem));
-    if (mem != NULL) {
+    if (mem) {
         memset(mem, 0, sizeof(mz_stream_mem));
         mem->stream.vtbl = &mz_stream_mem_vtbl;
         mem->grow_size = 4096;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = mem;
 
     return mem;
@@ -254,11 +254,11 @@ void *mz_stream_mem_create(void **stream) {
 
 void mz_stream_mem_delete(void **stream) {
     mz_stream_mem *mem = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     mem = (mz_stream_mem *)*stream;
-    if (mem != NULL) {
-        if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer != NULL))
+    if (mem) {
+        if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer))
             MZ_FREE(mem->buffer);
         MZ_FREE(mem);
     }

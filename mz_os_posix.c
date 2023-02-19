@@ -49,7 +49,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     uint8_t *string_utf8 = NULL;
     uint8_t *string_utf8_ptr = NULL;
 
-    if (string == NULL)
+    if (!string)
         return NULL;
 
     if (encoding == MZ_ENCODING_CODEPAGE_437)
@@ -105,7 +105,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 #endif
 
 void mz_os_utf8_string_delete(uint8_t **string) {
-    if (string != NULL) {
+    if (string) {
         MZ_FREE(*string);
         *string = NULL;
     }
@@ -222,12 +222,12 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
         mz_path_remove_slash(name);
 
         if (stat(name, &path_stat) == 0) {
-            if (modified_date != NULL)
+            if (modified_date)
                 *modified_date = path_stat.st_mtime;
-            if (accessed_date != NULL)
+            if (accessed_date)
                 *accessed_date = path_stat.st_atime;
             /* Creation date not supported */
-            if (creation_date != NULL)
+            if (creation_date)
                 *creation_date = 0;
 
             err = MZ_OK;
@@ -290,13 +290,13 @@ DIR* mz_os_open_dir(const char *path) {
 }
 
 struct dirent* mz_os_read_dir(DIR *dir) {
-    if (dir == NULL)
+    if (!dir)
         return NULL;
     return readdir(dir);
 }
 
 int32_t mz_os_close_dir(DIR *dir) {
-    if (dir == NULL)
+    if (!dir)
         return MZ_PARAM_ERROR;
     if (closedir(dir) == -1)
         return MZ_INTERNAL_ERROR;

@@ -116,7 +116,7 @@ int32_t  mz_crypt_pbkdf2(uint8_t *password, int32_t password_length, uint8_t *sa
     uint8_t uu[MZ_HASH_SHA1_SIZE];
     uint8_t ux[MZ_HASH_SHA1_SIZE];
 
-    if (password == NULL || salt == NULL || key == NULL)
+    if (!password || !salt || !key)
         return MZ_PARAM_ERROR;
 
     memset(key, 0, key_length);

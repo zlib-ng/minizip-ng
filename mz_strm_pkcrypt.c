@@ -129,9 +129,9 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode) {
     if (mz_stream_is_open(pkcrypt->stream.base) != MZ_OK)
         return MZ_OPEN_ERROR;
 
-    if (password == NULL)
+    if (!password)
         password = pkcrypt->password;
-    if (password == NULL)
+    if (!password)
         return MZ_PARAM_ERROR;
 
     mz_stream_pkcrypt_init_keys(stream, password);
@@ -175,7 +175,7 @@ int32_t mz_stream_pkcrypt_open(void *stream, const char *path, int32_t mode) {
 
 int32_t mz_stream_pkcrypt_is_open(void *stream) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
-    if (pkcrypt->initialized == 0)
+    if (!pkcrypt->initialized)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
@@ -311,22 +311,22 @@ void *mz_stream_pkcrypt_create(void **stream) {
     mz_stream_pkcrypt *pkcrypt = NULL;
 
     pkcrypt = (mz_stream_pkcrypt *)MZ_ALLOC(sizeof(mz_stream_pkcrypt));
-    if (pkcrypt != NULL) {
+    if (pkcrypt) {
         memset(pkcrypt, 0, sizeof(mz_stream_pkcrypt));
         pkcrypt->stream.vtbl = &mz_stream_pkcrypt_vtbl;
     }
 
-    if (stream != NULL)
+    if (stream)
         *stream = pkcrypt;
     return pkcrypt;
 }
 
 void mz_stream_pkcrypt_delete(void **stream) {
     mz_stream_pkcrypt *pkcrypt = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     pkcrypt = (mz_stream_pkcrypt *)*stream;
-    if (pkcrypt != NULL)
+    if (pkcrypt)
         MZ_FREE(pkcrypt);
     *stream = NULL;
 }

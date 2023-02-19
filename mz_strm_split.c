@@ -185,7 +185,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode) {
     split->path_cd_size = (uint32_t)strlen(path) + 1;
     split->path_cd = (char *)MZ_ALLOC(split->path_cd_size);
 
-    if (split->path_cd == NULL)
+    if (!split->path_cd)
         return MZ_MEM_ERROR;
 
     strncpy(split->path_cd, path, split->path_cd_size - 1);
@@ -196,7 +196,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode) {
     split->path_disk_size = (uint32_t)strlen(path) + 10;
     split->path_disk = (char *)MZ_ALLOC(split->path_disk_size);
 
-    if (split->path_disk == NULL) {
+    if (!split->path_disk) {
         MZ_FREE(split->path_cd);
         return MZ_MEM_ERROR;
     }
@@ -406,11 +406,11 @@ void *mz_stream_split_create(void **stream) {
     mz_stream_split *split = NULL;
 
     split = (mz_stream_split *)MZ_ALLOC(sizeof(mz_stream_split));
-    if (split != NULL) {
+    if (split) {
         memset(split, 0, sizeof(mz_stream_split));
         split->stream.vtbl = &mz_stream_split_vtbl;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = split;
 
     return split;
@@ -418,10 +418,10 @@ void *mz_stream_split_create(void **stream) {
 
 void mz_stream_split_delete(void **stream) {
     mz_stream_split *split = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     split = (mz_stream_split *)*stream;
-    if (split != NULL) {
+    if (split) {
         if (split->path_cd)
             MZ_FREE(split->path_cd);
         if (split->path_disk)
