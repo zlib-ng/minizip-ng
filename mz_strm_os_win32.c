@@ -60,7 +60,7 @@ typedef struct mz_stream_win32_s {
 #if 0
 #  define mz_stream_os_print printf
 #else
-#  define mz_stream_os_print(fmt,...)
+#  define mz_stream_os_print(fmt, ...)
 #endif
 
 /***************************************************************************/

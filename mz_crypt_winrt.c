@@ -197,8 +197,7 @@ void mz_crypt_sha_reset(void *handle) {
     if (sha->algorithm == MZ_HASH_SHA224) {
         MZ_FREE(sha->sha224);
         sha->sha224 = NULL;
-    }
-    else {
+    } else {
         if (sha->hash)
             BCryptDestroyHash(sha->hash);
         if (sha->provider)
@@ -230,8 +229,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
         return MZ_OK;
     }
 
-    switch (sha->algorithm)
-    {
+    switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         alg_id = BCRYPT_SHA1_ALGORITHM;
         break;

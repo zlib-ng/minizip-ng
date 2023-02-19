@@ -122,7 +122,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
     int32_t read = 0;
     int32_t err = BZ_OK;
 
-
     if (bzip->stream_end)
         return 0;
 

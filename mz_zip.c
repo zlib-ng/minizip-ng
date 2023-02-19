@@ -47,7 +47,7 @@
 #include <stdio.h> /* snprintf */
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
-#  define localtime_r(t1,t2) (localtime_s(t2,t1) == 0 ? t1 : NULL)
+#  define localtime_r(t1, t2) (localtime_s(t2, t1) == 0 ? t1 : NULL)
 #endif
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #  define snprintf _snprintf
@@ -121,7 +121,7 @@ typedef struct mz_zip_s {
 #if 0
 #  define mz_zip_print printf
 #else
-#  define mz_zip_print(fmt,...)
+#  define mz_zip_print(fmt, ...)
 #endif
 
 /***************************************************************************/
@@ -1556,10 +1556,10 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
     comment_size = (int32_t)strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
-    zip->comment = (char *)MZ_ALLOC(comment_size+1);
+    zip->comment = (char *)MZ_ALLOC(comment_size + 1);
     if (zip->comment == NULL)
         return MZ_MEM_ERROR;
-    memset(zip->comment, 0, comment_size+1);
+    memset(zip->comment, 0, comment_size + 1);
     strncpy(zip->comment, comment, comment_size);
     return MZ_OK;
 }

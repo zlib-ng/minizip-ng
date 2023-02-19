@@ -66,7 +66,7 @@ typedef struct mz_stream_split_s {
 #if 0
 #  define mz_stream_split_print printf
 #else
-#  define mz_stream_split_print(fmt,...)
+#  define mz_stream_split_print(fmt, ...)
 #endif
 
 /***************************************************************************/

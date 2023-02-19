@@ -133,7 +133,7 @@ static int32_t mz_stream_ioapi_write(void *stream, const void *buf, int32_t size
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
 
-     if (ioapi->filefunc64.zwrite_file != NULL) {
+    if (ioapi->filefunc64.zwrite_file != NULL) {
         zwrite = ioapi->filefunc64.zwrite_file;
         opaque = ioapi->filefunc64.opaque;
     } else if (ioapi->filefunc.zwrite_file != NULL) {

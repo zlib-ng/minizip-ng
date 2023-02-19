@@ -425,8 +425,8 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     SecIdentityRef identity = NULL;
     SecTrustRef trust = NULL;
     OSStatus status = noErr;
-    const void *options_key[2] = { kSecImportExportPassphrase, kSecReturnRef };
-    const void *options_values[2] = { 0, kCFBooleanTrue };
+    const void *options_key[2] = {kSecImportExportPassphrase, kSecReturnRef};
+    const void *options_values[2] = {0, kCFBooleanTrue};
     int32_t err = MZ_SIGN_ERROR;
 
     if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)

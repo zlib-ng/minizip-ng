@@ -114,7 +114,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
     int32_t read = 0;
     size_t result = 0;
 
-    zstd->out.dst = (void*)buf;
+    zstd->out.dst = (void *)buf;
     zstd->out.size = (size_t)size;
     zstd->out.pos = 0;
 
@@ -130,7 +130,7 @@ int32_t mz_stream_zstd_read(void *stream, void *buf, int32_t size) {
             if (read < 0)
                 return read;
 
-            zstd->in.src = (const void*)zstd->buffer;
+            zstd->in.src = (const void *)zstd->buffer;
             zstd->in.pos = 0;
             zstd->in.size = (size_t)read;
         }

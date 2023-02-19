@@ -110,7 +110,7 @@ int32_t mz_os_rand(uint8_t *buf, int32_t size) {
     for (len = 0; len < (int)size; len += 1) {
         if (len % 8 == 0)
             QueryPerformanceCounter((LARGE_INTEGER *)pentium_tsc);
-        buf[len] = ((unsigned char*)pentium_tsc)[len % 8];
+        buf[len] = ((unsigned char *)pentium_tsc)[len % 8];
     }
 
     return len;

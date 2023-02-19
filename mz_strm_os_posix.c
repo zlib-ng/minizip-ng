@@ -95,14 +95,14 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
 }
 
 int32_t mz_stream_os_is_open(void *stream) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     if (posix->handle == NULL)
         return MZ_OPEN_ERROR;
     return MZ_OK;
 }
 
 int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t read = (int32_t)fread(buf, 1, (size_t)size, posix->handle);
     if (read < size && ferror(posix->handle)) {
         posix->error = errno;
@@ -112,7 +112,7 @@ int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
 }
 
 int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t written = (int32_t)fwrite(buf, 1, (size_t)size, posix->handle);
     if (written < size && ferror(posix->handle)) {
         posix->error = errno;
@@ -122,7 +122,7 @@ int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size) {
 }
 
 int64_t mz_stream_os_tell(void *stream) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     int64_t position = ftello64(posix->handle);
     if (position == -1) {
         posix->error = errno;
@@ -132,7 +132,7 @@ int64_t mz_stream_os_tell(void *stream) {
 }
 
 int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t fseek_origin = 0;
 
     switch (origin) {
@@ -158,7 +158,7 @@ int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
 }
 
 int32_t mz_stream_os_close(void *stream) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t closed = 0;
     if (posix->handle != NULL) {
         closed = fclose(posix->handle);
@@ -172,7 +172,7 @@ int32_t mz_stream_os_close(void *stream) {
 }
 
 int32_t mz_stream_os_error(void *stream) {
-    mz_stream_posix *posix = (mz_stream_posix*)stream;
+    mz_stream_posix *posix = (mz_stream_posix *)stream;
     return posix->error;
 }
 

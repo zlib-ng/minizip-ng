@@ -174,8 +174,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size) {
     int32_t read = 0;
     int32_t err = LZMA_OK;
 
-
-    lzma->lstream.next_out = (uint8_t*)buf;
+    lzma->lstream.next_out = (uint8_t *)buf;
     lzma->lstream.avail_out = (size_t)size;
 
     do {
@@ -327,7 +326,7 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size) {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     int32_t err = MZ_OK;
 
-    lzma->lstream.next_in = (uint8_t*)(intptr_t)buf;
+    lzma->lstream.next_in = (uint8_t *)(intptr_t)buf;
     lzma->lstream.avail_in = (size_t)size;
 
     err = mz_stream_lzma_code(stream, LZMA_RUN);

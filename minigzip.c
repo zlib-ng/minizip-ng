@@ -14,12 +14,12 @@
 #include "mz_strm_os.h"
 #include "mz_strm_zlib.h"
 
-#include <stdio.h>  /* printf */
+#include <stdio.h> /* printf */
 
 /***************************************************************************/
 
-#define MZ_GZIP_COMPRESS    (1)
-#define MZ_GZIP_DECOMPRESS  (2)
+#define MZ_GZIP_COMPRESS   (1)
+#define MZ_GZIP_DECOMPRESS (2)
 
 int32_t minigzip_banner(void);
 int32_t minigzip_help(void);

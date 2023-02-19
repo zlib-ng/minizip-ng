@@ -15,7 +15,7 @@
 #if defined(HAVE_ZLIB)
 #  if !defined(ZLIB_COMPAT)
 #    include "zlib-ng.h"
-#    define ZLIB_PREFIX(x) zng_ ## x
+#    define ZLIB_PREFIX(x) zng_##x
 #  else
 #    include "zlib.h"
 #    define ZLIB_PREFIX(x) x
@@ -156,7 +156,7 @@ int32_t  mz_crypt_pbkdf2(uint8_t *password, int32_t password_length, uint8_t *sa
             if (err != MZ_OK)
                 break;
 
-            for(k = 0; k < MZ_HASH_SHA1_SIZE; k += 1)
+            for (k = 0; k < MZ_HASH_SHA1_SIZE; k += 1)
                 ux[k] ^= uu[k];
 
             err = mz_crypt_hmac_copy(hmac1, hmac3);
