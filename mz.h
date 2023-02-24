@@ -146,13 +146,6 @@
 /* MZ_UTILITY */
 #define MZ_UNUSED(SYMBOL)               ((void)SYMBOL)
 
-#ifndef MZ_CUSTOM_ALLOC
-#define MZ_ALLOC(SIZE)                  (malloc((SIZE)))
-#endif
-#ifndef MZ_CUSTOM_FREE
-#define MZ_FREE(PTR)                    (free(PTR))
-#endif
-
 #if defined(_WIN32) && defined(MZ_EXPORTS)
 #define MZ_EXPORT __declspec(dllexport)
 #else

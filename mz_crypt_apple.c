@@ -160,7 +160,7 @@ void mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
 void *mz_crypt_sha_create(void **handle) {
     mz_crypt_sha *sha = NULL;
 
-    sha = (mz_crypt_sha *)MZ_ALLOC(sizeof(mz_crypt_sha));
+    sha = (mz_crypt_sha *)malloc(sizeof(mz_crypt_sha));
     if (sha) {
         memset(sha, 0, sizeof(mz_crypt_sha));
         sha->algorithm = MZ_HASH_SHA256;
@@ -178,7 +178,7 @@ void mz_crypt_sha_delete(void **handle) {
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
         mz_crypt_sha_reset(*handle);
-        MZ_FREE(sha);
+        free(sha);
     }
     *handle = NULL;
 }
@@ -277,7 +277,7 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 void *mz_crypt_aes_create(void **handle) {
     mz_crypt_aes *aes = NULL;
 
-    aes = (mz_crypt_aes *)MZ_ALLOC(sizeof(mz_crypt_aes));
+    aes = (mz_crypt_aes *)malloc(sizeof(mz_crypt_aes));
     if (aes)
         memset(aes, 0, sizeof(mz_crypt_aes));
     if (handle)
@@ -293,7 +293,7 @@ void mz_crypt_aes_delete(void **handle) {
     aes = (mz_crypt_aes *)*handle;
     if (aes) {
         mz_crypt_aes_reset(*handle);
-        MZ_FREE(aes);
+        free(aes);
     }
     *handle = NULL;
 }
@@ -388,7 +388,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 void *mz_crypt_hmac_create(void **handle) {
     mz_crypt_hmac *hmac = NULL;
 
-    hmac = (mz_crypt_hmac *)MZ_ALLOC(sizeof(mz_crypt_hmac));
+    hmac = (mz_crypt_hmac *)malloc(sizeof(mz_crypt_hmac));
     if (hmac) {
         memset(hmac, 0, sizeof(mz_crypt_hmac));
         hmac->algorithm = MZ_HASH_SHA256;
@@ -406,7 +406,7 @@ void mz_crypt_hmac_delete(void **handle) {
     hmac = (mz_crypt_hmac *)*handle;
     if (hmac) {
         mz_crypt_hmac_free(*handle);
-        MZ_FREE(hmac);
+        free(hmac);
     }
     *handle = NULL;
 }
@@ -454,7 +454,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
 
         if (status == errSecSuccess) {
             *signature_size = CFDataGetLength(signature_out);
-            *signature = (uint8_t *)MZ_ALLOC(*signature_size);
+            *signature = (uint8_t *)malloc(*signature_size);
 
             memcpy(*signature, CFDataGetBytePtr(signature_out), *signature_size);
 

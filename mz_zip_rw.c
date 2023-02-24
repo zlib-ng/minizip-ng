@@ -478,7 +478,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle) {
 
     err = mz_zip_extrafield_find(file_extra_stream, MZ_ZIP_EXTENSION_SIGN, INT32_MAX, &signature_size);
     if ((err == MZ_OK) && (signature_size > 0)) {
-        signature = (uint8_t *)MZ_ALLOC(signature_size);
+        signature = (uint8_t *)malloc(signature_size);
         if (mz_stream_read(file_extra_stream, signature, signature_size) != signature_size)
             err = MZ_READ_ERROR;
     }
@@ -496,7 +496,7 @@ int32_t mz_zip_reader_entry_sign_verify(void *handle) {
     }
 
     if (signature)
-        MZ_FREE(signature);
+        free(signature);
 
     return err;
 }
@@ -977,7 +977,7 @@ int32_t mz_zip_reader_get_zip_handle(void *handle, void **zip_handle) {
 void *mz_zip_reader_create(void **handle) {
     mz_zip_reader *reader = NULL;
 
-    reader = (mz_zip_reader *)MZ_ALLOC(sizeof(mz_zip_reader));
+    reader = (mz_zip_reader *)malloc(sizeof(mz_zip_reader));
     if (reader) {
         memset(reader, 0, sizeof(mz_zip_reader));
         reader->recover = 1;
@@ -996,7 +996,7 @@ void mz_zip_reader_delete(void **handle) {
     reader = (mz_zip_reader *)*handle;
     if (reader) {
         mz_zip_reader_close(reader);
-        MZ_FREE(reader);
+        free(reader);
     }
     *handle = NULL;
 }
@@ -1333,7 +1333,7 @@ int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message
                 err = MZ_WRITE_ERROR;
         }
 
-        MZ_FREE(signature);
+        free(signature);
     }
 
     return err;
@@ -1823,11 +1823,11 @@ int32_t mz_zip_writer_set_certificate(void *handle, const char *cert_path, const
         return MZ_PARAM_ERROR;
 
     if (writer->cert_data) {
-        MZ_FREE(writer->cert_data);
+        free(writer->cert_data);
         writer->cert_data = NULL;
     }
 
-    cert_data = (uint8_t *)MZ_ALLOC(cert_data_size);
+    cert_data = (uint8_t *)malloc(cert_data_size);
 
     /* Read pkcs12 certificate from disk */
     mz_stream_os_create(&cert_stream);
@@ -1844,7 +1844,7 @@ int32_t mz_zip_writer_set_certificate(void *handle, const char *cert_path, const
         writer->cert_data_size = cert_data_size;
         writer->cert_pwd = cert_pwd;
     } else {
-        MZ_FREE(cert_data);
+        free(cert_data);
     }
 
     return err;
@@ -1894,7 +1894,7 @@ int32_t mz_zip_writer_get_zip_handle(void *handle, void **zip_handle) {
 void *mz_zip_writer_create(void **handle) {
     mz_zip_writer *writer = NULL;
 
-    writer = (mz_zip_writer *)MZ_ALLOC(sizeof(mz_zip_writer));
+    writer = (mz_zip_writer *)malloc(sizeof(mz_zip_writer));
     if (writer) {
         memset(writer, 0, sizeof(mz_zip_writer));
 #if defined(HAVE_WZAES)
@@ -1927,12 +1927,12 @@ void mz_zip_writer_delete(void **handle) {
         mz_zip_writer_close(writer);
 
         if (writer->cert_data)
-            MZ_FREE(writer->cert_data);
+            free(writer->cert_data);
 
         writer->cert_data = NULL;
         writer->cert_data_size = 0;
 
-        MZ_FREE(writer);
+        free(writer);
     }
     *handle = NULL;
 }

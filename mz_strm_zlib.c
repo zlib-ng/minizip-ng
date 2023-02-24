@@ -362,7 +362,7 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
 void *mz_stream_zlib_create(void **stream) {
     mz_stream_zlib *zlib = NULL;
 
-    zlib = (mz_stream_zlib *)MZ_ALLOC(sizeof(mz_stream_zlib));
+    zlib = (mz_stream_zlib *)malloc(sizeof(mz_stream_zlib));
     if (zlib) {
         memset(zlib, 0, sizeof(mz_stream_zlib));
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
@@ -381,7 +381,7 @@ void mz_stream_zlib_delete(void **stream) {
         return;
     zlib = (mz_stream_zlib *)*stream;
     if (zlib)
-        MZ_FREE(zlib);
+        free(zlib);
     *stream = NULL;
 }
 

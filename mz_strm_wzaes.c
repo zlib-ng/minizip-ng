@@ -328,7 +328,7 @@ int32_t mz_stream_wzaes_set_prop_int64(void *stream, int32_t prop, int64_t value
 void *mz_stream_wzaes_create(void **stream) {
     mz_stream_wzaes *wzaes = NULL;
 
-    wzaes = (mz_stream_wzaes *)MZ_ALLOC(sizeof(mz_stream_wzaes));
+    wzaes = (mz_stream_wzaes *)malloc(sizeof(mz_stream_wzaes));
     if (wzaes) {
         memset(wzaes, 0, sizeof(mz_stream_wzaes));
         wzaes->stream.vtbl = &mz_stream_wzaes_vtbl;
@@ -351,7 +351,7 @@ void mz_stream_wzaes_delete(void **stream) {
     if (wzaes) {
         mz_crypt_aes_delete(&wzaes->aes);
         mz_crypt_hmac_delete(&wzaes->hmac);
-        MZ_FREE(wzaes);
+        free(wzaes);
     }
     *stream = NULL;
 }

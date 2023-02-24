@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
             buf = NULL;
             if (buf_length > 0)
-                buf = MZ_ALLOC(buf_length);
+                buf = malloc(buf_length);
 
             if (buf) {
                 printf("Running %s %" PRId32 "\n", argv[i], buf_length);
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
                 else
                     err = MZ_BUF_ERROR;
 
-                MZ_FREE(buf);
+                free(buf);
             }
 
             mz_stream_os_close(stream);

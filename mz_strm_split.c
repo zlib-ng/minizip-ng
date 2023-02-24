@@ -183,7 +183,7 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode) {
     split->mode = mode;
 
     split->path_cd_size = (uint32_t)strlen(path) + 1;
-    split->path_cd = (char *)MZ_ALLOC(split->path_cd_size);
+    split->path_cd = (char *)malloc(split->path_cd_size);
 
     if (!split->path_cd)
         return MZ_MEM_ERROR;
@@ -194,10 +194,10 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode) {
     mz_stream_split_print("Split - Open - %s (disk %" PRId32 ")\n", split->path_cd, number_disk);
 
     split->path_disk_size = (uint32_t)strlen(path) + 10;
-    split->path_disk = (char *)MZ_ALLOC(split->path_disk_size);
+    split->path_disk = (char *)malloc(split->path_disk_size);
 
     if (!split->path_disk) {
-        MZ_FREE(split->path_cd);
+        free(split->path_cd);
         return MZ_MEM_ERROR;
     }
 
@@ -405,7 +405,7 @@ int32_t mz_stream_split_set_prop_int64(void *stream, int32_t prop, int64_t value
 void *mz_stream_split_create(void **stream) {
     mz_stream_split *split = NULL;
 
-    split = (mz_stream_split *)MZ_ALLOC(sizeof(mz_stream_split));
+    split = (mz_stream_split *)malloc(sizeof(mz_stream_split));
     if (split) {
         memset(split, 0, sizeof(mz_stream_split));
         split->stream.vtbl = &mz_stream_split_vtbl;
@@ -423,11 +423,11 @@ void mz_stream_split_delete(void **stream) {
     split = (mz_stream_split *)*stream;
     if (split) {
         if (split->path_cd)
-            MZ_FREE(split->path_cd);
+            free(split->path_cd);
         if (split->path_disk)
-            MZ_FREE(split->path_disk);
+            free(split->path_disk);
 
-        MZ_FREE(split);
+        free(split);
     }
     *stream = NULL;
 }

@@ -536,7 +536,7 @@ static mz_stream_vtbl mz_stream_raw_vtbl = {
 void *mz_stream_raw_create(void **stream) {
     mz_stream_raw *raw = NULL;
 
-    raw = (mz_stream_raw *)MZ_ALLOC(sizeof(mz_stream_raw));
+    raw = (mz_stream_raw *)malloc(sizeof(mz_stream_raw));
     if (raw) {
         memset(raw, 0, sizeof(mz_stream_raw));
         raw->stream.vtbl = &mz_stream_raw_vtbl;
@@ -553,6 +553,6 @@ void mz_stream_raw_delete(void **stream) {
         return;
     raw = (mz_stream_raw *)*stream;
     if (raw)
-        MZ_FREE(raw);
+        free(raw);
     *stream = NULL;
 }

@@ -190,7 +190,7 @@ typedef struct mz_crypt_sha_s {
 void mz_crypt_sha_reset(void *handle) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     if (sha->algorithm == MZ_HASH_SHA224) {
-        MZ_FREE(sha->sha224);
+        free(sha->sha224);
         sha->sha224 = NULL;
     } else {
         if (sha->hash)
@@ -213,7 +213,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
         return MZ_PARAM_ERROR;
 
     if (sha->algorithm == MZ_HASH_SHA224) {
-        sha->sha224 = MZ_ALLOC(sizeof(mz_crypt_sha224));
+        sha->sha224 = malloc(sizeof(mz_crypt_sha224));
         if (!sha->sha224)
             return MZ_MEM_ERROR;
         mz_crypt_sha224_init(sha->sha224);
@@ -316,7 +316,7 @@ void mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
 void *mz_crypt_sha_create(void **handle) {
     mz_crypt_sha *sha = NULL;
 
-    sha = (mz_crypt_sha *)MZ_ALLOC(sizeof(mz_crypt_sha));
+    sha = (mz_crypt_sha *)malloc(sizeof(mz_crypt_sha));
     if (sha) {
         memset(sha, 0, sizeof(mz_crypt_sha));
         sha->algorithm = MZ_HASH_SHA256;
@@ -334,7 +334,7 @@ void mz_crypt_sha_delete(void **handle) {
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
         mz_crypt_sha_reset(*handle);
-        MZ_FREE(sha);
+        free(sha);
     }
     *handle = NULL;
 }
@@ -427,7 +427,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     result = CryptAcquireContext(&aes->provider, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
     if (result) {
         key_blob_size = sizeof(key_blob_header_s) + key_length;
-        key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+        key_blob = (uint8_t *)malloc(key_blob_size);
         if (key_blob) {
             key_blob_s = (key_blob_header_s *)key_blob;
             key_blob_s->hdr.bType = PLAINTEXTKEYBLOB;
@@ -441,7 +441,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
             result = CryptImportKey(aes->provider, key_blob, key_blob_size, 0, 0, &aes->key);
 
             SecureZeroMemory(key_blob, key_blob_size);
-            MZ_FREE(key_blob);
+            free(key_blob);
         } else {
             err = MZ_MEM_ERROR;
         }
@@ -477,7 +477,7 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 void *mz_crypt_aes_create(void **handle) {
     mz_crypt_aes *aes = NULL;
 
-    aes = (mz_crypt_aes *)MZ_ALLOC(sizeof(mz_crypt_aes));
+    aes = (mz_crypt_aes *)malloc(sizeof(mz_crypt_aes));
     if (aes)
         memset(aes, 0, sizeof(mz_crypt_aes));
     if (handle)
@@ -493,7 +493,7 @@ void mz_crypt_aes_delete(void **handle) {
     aes = (mz_crypt_aes *)*handle;
     if (aes) {
         mz_crypt_aes_free(*handle);
-        MZ_FREE(aes);
+        free(aes);
     }
     *handle = NULL;
 }
@@ -567,7 +567,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         if (pad_key_length % 2 == 1)
             pad_key_length += 1;
         key_blob_size = sizeof(key_blob_header_s) + pad_key_length;
-        key_blob = (uint8_t *)MZ_ALLOC(key_blob_size);
+        key_blob = (uint8_t *)malloc(key_blob_size);
     }
 
     if (key_blob) {
@@ -588,7 +588,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
             result = CryptSetHashParam(hmac->hash, HP_HMAC_INFO, (uint8_t *)&hmac->info, 0);
 
         SecureZeroMemory(key_blob, key_blob_size);
-        MZ_FREE(key_blob);
+        free(key_blob);
     } else if (err == MZ_OK) {
         err = MZ_MEM_ERROR;
     }
@@ -667,7 +667,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 void *mz_crypt_hmac_create(void **handle) {
     mz_crypt_hmac *hmac = NULL;
 
-    hmac = (mz_crypt_hmac *)MZ_ALLOC(sizeof(mz_crypt_hmac));
+    hmac = (mz_crypt_hmac *)malloc(sizeof(mz_crypt_hmac));
     if (hmac) {
         memset(hmac, 0, sizeof(mz_crypt_hmac));
         hmac->algorithm = MZ_HASH_SHA256;
@@ -685,7 +685,7 @@ void mz_crypt_hmac_delete(void **handle) {
     hmac = (mz_crypt_hmac *)*handle;
     if (hmac) {
         mz_crypt_hmac_free(*handle);
-        MZ_FREE(hmac);
+        free(hmac);
     }
     *handle = NULL;
 }
@@ -785,7 +785,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
                 NULL, (DWORD *)signature_size);
 
         if (result && *signature_size > 0)
-            *signature = (uint8_t *)MZ_ALLOC(*signature_size);
+            *signature = (uint8_t *)malloc(*signature_size);
 
         if (result && *signature)
             result = CryptSignMessage(&sign_params, FALSE, 1, (const BYTE **)messages, (DWORD *)messages_sizes,
@@ -825,7 +825,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         NULL, (DWORD *)&decoded_size, NULL);
 
     if (result && decoded_size > 0)
-        decoded = (uint8_t *)MZ_ALLOC(decoded_size);
+        decoded = (uint8_t *)malloc(decoded_size);
 
     if (result && decoded)
         result = CryptVerifyMessageSignature(&verify_params, 0, signature, signature_size,
@@ -868,7 +868,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
             CryptMsgGetParam(crypt_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, 0, NULL, &ts_signature_size);
 
         if (result && ts_signature_size > 0)
-            ts_signature = (uint8_t *)MZ_ALLOC(ts_signature_size);
+            ts_signature = (uint8_t *)malloc(ts_signature_size);
 
         if (result && ts_signature) {
             result = CryptMsgGetParam(crypt_msg, CMSG_SIGNER_UNAUTH_ATTR_PARAM, 0, ts_signature,
@@ -893,7 +893,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         }
 
         if (ts_signature)
-            MZ_FREE(ts_signature);
+            free(ts_signature);
 
         if (crypt_context)
             CryptMemFree(crypt_context);
@@ -916,7 +916,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
         CryptMsgClose(crypt_msg);
 
     if (decoded)
-        MZ_FREE(decoded);
+        free(decoded);
 
     return err;
 }

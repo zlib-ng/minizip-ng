@@ -310,7 +310,7 @@ int32_t mz_stream_pkcrypt_set_prop_int64(void *stream, int32_t prop, int64_t val
 void *mz_stream_pkcrypt_create(void **stream) {
     mz_stream_pkcrypt *pkcrypt = NULL;
 
-    pkcrypt = (mz_stream_pkcrypt *)MZ_ALLOC(sizeof(mz_stream_pkcrypt));
+    pkcrypt = (mz_stream_pkcrypt *)malloc(sizeof(mz_stream_pkcrypt));
     if (pkcrypt) {
         memset(pkcrypt, 0, sizeof(mz_stream_pkcrypt));
         pkcrypt->stream.vtbl = &mz_stream_pkcrypt_vtbl;
@@ -327,7 +327,7 @@ void mz_stream_pkcrypt_delete(void **stream) {
         return;
     pkcrypt = (mz_stream_pkcrypt *)*stream;
     if (pkcrypt)
-        MZ_FREE(pkcrypt);
+        free(pkcrypt);
     *stream = NULL;
 }
 

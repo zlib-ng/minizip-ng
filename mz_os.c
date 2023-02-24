@@ -287,7 +287,7 @@ int32_t mz_dir_make(const char *path) {
     if (len <= 0 || len > INT16_MAX)
         return 0;
 
-    current_dir = (char *)MZ_ALLOC(len + 1);
+    current_dir = (char *)malloc(len + 1);
     if (!current_dir)
         return MZ_MEM_ERROR;
 
@@ -314,7 +314,7 @@ int32_t mz_dir_make(const char *path) {
         }
     }
 
-    MZ_FREE(current_dir);
+    free(current_dir);
     return err;
 }
 

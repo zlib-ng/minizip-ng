@@ -71,7 +71,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 
     string_length = strlen(string);
     string_utf8_size = string_length * 2;
-    string_utf8 = (uint8_t *)MZ_ALLOC((int32_t)(string_utf8_size + 1));
+    string_utf8 = (uint8_t *)malloc((int32_t)(string_utf8_size + 1));
     string_utf8_ptr = string_utf8;
 
     if (string_utf8) {
@@ -84,7 +84,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     iconv_close(cd);
 
     if (result == (size_t)-1) {
-        MZ_FREE(string_utf8);
+        free(string_utf8);
         string_utf8 = NULL;
     }
 
@@ -96,7 +96,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     uint8_t *string_copy = NULL;
 
     string_length = strlen(string);
-    string_copy = (uint8_t *)MZ_ALLOC((int32_t)(string_length + 1));
+    string_copy = (uint8_t *)malloc((int32_t)(string_length + 1));
     strncpy((char *)string_copy, string, string_length);
     string_copy[string_length] = 0;
 
@@ -106,7 +106,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 
 void mz_os_utf8_string_delete(uint8_t **string) {
     if (string) {
-        MZ_FREE(*string);
+        free(*string);
         *string = NULL;
     }
 }

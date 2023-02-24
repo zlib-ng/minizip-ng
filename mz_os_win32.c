@@ -39,7 +39,7 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding) {
     string_wide_size = MultiByteToWideChar(encoding, 0, string, -1, NULL, 0);
     if (string_wide_size == 0)
         return NULL;
-    string_wide = (wchar_t *)MZ_ALLOC((string_wide_size + 1) * sizeof(wchar_t));
+    string_wide = (wchar_t *)malloc((string_wide_size + 1) * sizeof(wchar_t));
     if (!string_wide)
         return NULL;
 
@@ -51,7 +51,7 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding) {
 
 void mz_os_unicode_string_delete(wchar_t **string) {
     if (string) {
-        MZ_FREE(*string);
+        free(*string);
         *string = NULL;
     }
 }
@@ -64,7 +64,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     string_wide = mz_os_unicode_string_create(string, encoding);
     if (string_wide) {
         string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, NULL, 0, NULL, NULL);
-        string_utf8 = (uint8_t *)MZ_ALLOC((string_utf8_size + 1) * sizeof(wchar_t));
+        string_utf8 = (uint8_t *)malloc((string_utf8_size + 1) * sizeof(wchar_t));
 
         if (string_utf8) {
             memset(string_utf8, 0, string_utf8_size + 1);
@@ -84,7 +84,7 @@ uint8_t *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t en
     MZ_UNUSED(encoding);
 
     string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string, -1, NULL, 0, NULL, NULL);
-    string_utf8 = (uint8_t *)MZ_ALLOC((string_utf8_size + 1) * sizeof(wchar_t));
+    string_utf8 = (uint8_t *)malloc((string_utf8_size + 1) * sizeof(wchar_t));
 
     if (string_utf8) {
         memset(string_utf8, 0, string_utf8_size + 1);
@@ -96,7 +96,7 @@ uint8_t *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t en
 
 void mz_os_utf8_string_delete(uint8_t **string) {
     if (string) {
-        MZ_FREE(*string);
+        free(*string);
         *string = NULL;
     }
 }
@@ -248,7 +248,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
         return MZ_PARAM_ERROR;
 
     handle = FindFirstFileW(path_wide, &ff32);
-    MZ_FREE(path_wide);
+    free(path_wide);
 
     if (handle != INVALID_HANDLE_VALUE) {
         if (modified_date)
@@ -390,7 +390,7 @@ DIR *mz_os_open_dir(const char *path) {
     if (handle == INVALID_HANDLE_VALUE)
         return NULL;
 
-    dir_int = (DIR_int *)MZ_ALLOC(sizeof(DIR_int));
+    dir_int = (DIR_int *)malloc(sizeof(DIR_int));
     if (!dir_int) {
         FindClose(handle);
         return NULL;
@@ -435,7 +435,7 @@ int32_t mz_os_close_dir(DIR *dir) {
     dir_int = (DIR_int *)dir;
     if (dir_int->find_handle != INVALID_HANDLE_VALUE)
         FindClose(dir_int->find_handle);
-    MZ_FREE(dir_int);
+    free(dir_int);
     return MZ_OK;
 }
 
@@ -601,7 +601,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
             if (target_path_len > reparse_data->SymbolicLinkReparseBuffer.PrintNameLength)
                 target_path_len = reparse_data->SymbolicLinkReparseBuffer.PrintNameLength;
 
-            target_path_wide = (wchar_t *)MZ_ALLOC(target_path_len + sizeof(wchar_t));
+            target_path_wide = (wchar_t *)malloc(target_path_len + sizeof(wchar_t));
             if (target_path_wide) {
                 target_path_idx = reparse_data->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
                 memcpy(target_path_wide, &reparse_data->SymbolicLinkReparseBuffer.PathBuffer[target_path_idx],
@@ -621,7 +621,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
                     err = MZ_MEM_ERROR;
                 }
 
-                MZ_FREE(target_path_wide);
+                free(target_path_wide);
             } else {
                 err = MZ_MEM_ERROR;
             }

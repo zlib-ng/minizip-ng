@@ -236,7 +236,7 @@ static int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def 
 static void *mz_stream_ioapi_create(void **stream) {
     mz_stream_ioapi *ioapi = NULL;
 
-    ioapi = (mz_stream_ioapi *)MZ_ALLOC(sizeof(mz_stream_ioapi));
+    ioapi = (mz_stream_ioapi *)malloc(sizeof(mz_stream_ioapi));
     if (ioapi) {
         memset(ioapi, 0, sizeof(mz_stream_ioapi));
         ioapi->stream.vtbl = &mz_stream_ioapi_vtbl;
@@ -253,7 +253,7 @@ static void mz_stream_ioapi_delete(void **stream) {
         return;
     ioapi = (mz_stream_ioapi *)*stream;
     if (ioapi)
-        MZ_FREE(ioapi);
+        free(ioapi);
     *stream = NULL;
 }
 
@@ -418,7 +418,7 @@ zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment) {
     if (globalcomment)
         mz_zip_get_comment(handle, globalcomment);
 
-    compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
+    compat = (mz_compat *)malloc(sizeof(mz_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;
@@ -628,7 +628,7 @@ int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_made
         mz_stream_delete(&compat->stream);
     }
 
-    MZ_FREE(compat);
+    free(compat);
 
     return err;
 }
@@ -763,7 +763,7 @@ unzFile unzOpen_MZ(void *stream) {
         return NULL;
     }
 
-    compat = (mz_compat *)MZ_ALLOC(sizeof(mz_compat));
+    compat = (mz_compat *)malloc(sizeof(mz_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;
@@ -791,7 +791,7 @@ int unzClose(unzFile file) {
         mz_stream_delete(&compat->stream);
     }
 
-    MZ_FREE(compat);
+    free(compat);
 
     return err;
 }
