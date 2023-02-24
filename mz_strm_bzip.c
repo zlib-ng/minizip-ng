@@ -341,9 +341,8 @@ int32_t mz_stream_bzip_set_prop_int64(void *stream, int32_t prop, int64_t value)
 void *mz_stream_bzip_create(void **stream) {
     mz_stream_bzip *bzip = NULL;
 
-    bzip = (mz_stream_bzip *)malloc(sizeof(mz_stream_bzip));
+    bzip = (mz_stream_bzip *)calloc(1, sizeof(mz_stream_bzip));
     if (bzip) {
-        memset(bzip, 0, sizeof(mz_stream_bzip));
         bzip->stream.vtbl = &mz_stream_bzip_vtbl;
         bzip->level = 6;
     }

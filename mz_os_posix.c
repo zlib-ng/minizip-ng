@@ -71,12 +71,10 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 
     string_length = strlen(string);
     string_utf8_size = string_length * 2;
-    string_utf8 = (uint8_t *)malloc((int32_t)(string_utf8_size + 1));
+    string_utf8 = (uint8_t *)calloc((int32_t)(string_utf8_size + 1), sizeof(char));
     string_utf8_ptr = string_utf8;
 
     if (string_utf8) {
-        memset(string_utf8, 0, string_utf8_size + 1);
-
         result = iconv(cd, (char **)&string, &string_length,
                 (char **)&string_utf8_ptr, &string_utf8_size);
     }
@@ -92,15 +90,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 }
 #else
 uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
-    size_t string_length = 0;
-    uint8_t *string_copy = NULL;
-
-    string_length = strlen(string);
-    string_copy = (uint8_t *)malloc((int32_t)(string_length + 1));
-    strncpy((char *)string_copy, string, string_length);
-    string_copy[string_length] = 0;
-
-    return string_copy;
+    return strdup(string);
 }
 #endif
 
@@ -216,9 +206,7 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
 
     if (strcmp(path, "-") != 0) {
         /* Not all systems allow stat'ing a file with / appended */
-        len = strlen(path);
-        name = (char *)malloc(len + 1);
-        strncpy(name, path, len + 1);
+        name = strdup(path);
         mz_path_remove_slash(name);
 
         if (stat(name, &path_stat) == 0) {

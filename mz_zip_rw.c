@@ -977,9 +977,8 @@ int32_t mz_zip_reader_get_zip_handle(void *handle, void **zip_handle) {
 void *mz_zip_reader_create(void **handle) {
     mz_zip_reader *reader = NULL;
 
-    reader = (mz_zip_reader *)malloc(sizeof(mz_zip_reader));
+    reader = (mz_zip_reader *)calloc(1, sizeof(mz_zip_reader));
     if (reader) {
-        memset(reader, 0, sizeof(mz_zip_reader));
         reader->recover = 1;
         reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
     }
@@ -1894,9 +1893,8 @@ int32_t mz_zip_writer_get_zip_handle(void *handle, void **zip_handle) {
 void *mz_zip_writer_create(void **handle) {
     mz_zip_writer *writer = NULL;
 
-    writer = (mz_zip_writer *)malloc(sizeof(mz_zip_writer));
+    writer = (mz_zip_writer *)calloc(1, sizeof(mz_zip_writer));
     if (writer) {
-        memset(writer, 0, sizeof(mz_zip_writer));
 #if defined(HAVE_WZAES)
         writer->aes = 1;
 #endif

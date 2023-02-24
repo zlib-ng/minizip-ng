@@ -160,7 +160,7 @@ void mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
 void *mz_crypt_sha_create(void **handle) {
     mz_crypt_sha *sha = NULL;
 
-    sha = (mz_crypt_sha *)malloc(sizeof(mz_crypt_sha));
+    sha = (mz_crypt_sha *)calloc(1, sizeof(mz_crypt_sha));
     if (sha) {
         memset(sha, 0, sizeof(mz_crypt_sha));
         sha->algorithm = MZ_HASH_SHA256;
@@ -277,9 +277,7 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 void *mz_crypt_aes_create(void **handle) {
     mz_crypt_aes *aes = NULL;
 
-    aes = (mz_crypt_aes *)malloc(sizeof(mz_crypt_aes));
-    if (aes)
-        memset(aes, 0, sizeof(mz_crypt_aes));
+    aes = (mz_crypt_aes *)calloc(1, sizeof(mz_crypt_aes));
     if (handle)
         *handle = aes;
 
@@ -388,11 +386,9 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 void *mz_crypt_hmac_create(void **handle) {
     mz_crypt_hmac *hmac = NULL;
 
-    hmac = (mz_crypt_hmac *)malloc(sizeof(mz_crypt_hmac));
-    if (hmac) {
-        memset(hmac, 0, sizeof(mz_crypt_hmac));
+    hmac = (mz_crypt_hmac *)calloc(1, sizeof(mz_crypt_hmac));
+    if (hmac)
         hmac->algorithm = MZ_HASH_SHA256;
-    }
     if (handle)
         *handle = hmac;
 

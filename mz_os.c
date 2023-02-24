@@ -278,20 +278,14 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 
 int32_t mz_dir_make(const char *path) {
     int32_t err = MZ_OK;
-    size_t len = 0;
     char *current_dir = NULL;
     char *match = NULL;
     char hold = 0;
 
-    len = strlen(path);
-    if (len <= 0 || len > INT16_MAX)
-        return 0;
-
-    current_dir = (char *)malloc(len + 1);
+    current_dir = strdup(path);
     if (!current_dir)
         return MZ_MEM_ERROR;
 
-    strcpy(current_dir, path);
     mz_path_remove_slash(current_dir);
 
     err = mz_os_make_dir(current_dir);

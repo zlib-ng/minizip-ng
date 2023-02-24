@@ -325,9 +325,8 @@ int32_t mz_stream_zstd_set_prop_int64(void *stream, int32_t prop, int64_t value)
 
 void *mz_stream_zstd_create(void **stream) {
     mz_stream_zstd *zstd = NULL;
-    zstd = (mz_stream_zstd *)malloc(sizeof(mz_stream_zstd));
+    zstd = (mz_stream_zstd *)calloc(1, sizeof(mz_stream_zstd));
     if (zstd) {
-        memset(zstd, 0, sizeof(mz_stream_zstd));
         zstd->stream.vtbl = &mz_stream_zstd_vtbl;
         zstd->max_total_out = -1;
     }

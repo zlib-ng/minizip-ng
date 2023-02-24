@@ -179,11 +179,9 @@ int32_t mz_stream_os_error(void *stream) {
 void *mz_stream_os_create(void **stream) {
     mz_stream_posix *posix = NULL;
 
-    posix = (mz_stream_posix *)malloc(sizeof(mz_stream_posix));
-    if (posix) {
-        memset(posix, 0, sizeof(mz_stream_posix));
+    posix = (mz_stream_posix *)calloc(1, sizeof(mz_stream_posix));
+    if (posix)
         posix->stream.vtbl = &mz_stream_os_vtbl;
-    }
     if (stream)
         *stream = posix;
 

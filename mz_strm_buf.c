@@ -359,11 +359,9 @@ int32_t mz_stream_buffered_error(void *stream) {
 void *mz_stream_buffered_create(void **stream) {
     mz_stream_buffered *buffered = NULL;
 
-    buffered = (mz_stream_buffered *)malloc(sizeof(mz_stream_buffered));
-    if (buffered) {
-        memset(buffered, 0, sizeof(mz_stream_buffered));
+    buffered = (mz_stream_buffered *)calloc(1, sizeof(mz_stream_buffered));
+    if (buffered)
         buffered->stream.vtbl = &mz_stream_buffered_vtbl;
-    }
     if (stream)
         *stream = buffered;
 

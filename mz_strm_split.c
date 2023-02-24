@@ -52,7 +52,6 @@ typedef struct mz_stream_split_s {
     int64_t     total_out_disk;
     int32_t     mode;
     char        *path_cd;
-    uint32_t    path_cd_size;
     char        *path_disk;
     uint32_t    path_disk_size;
     int32_t     number_disk;
@@ -181,15 +180,10 @@ int32_t mz_stream_split_open(void *stream, const char *path, int32_t mode) {
     int32_t number_disk = 0;
 
     split->mode = mode;
-
-    split->path_cd_size = (uint32_t)strlen(path) + 1;
-    split->path_cd = (char *)malloc(split->path_cd_size);
+    split->path_cd = strdup(path);
 
     if (!split->path_cd)
         return MZ_MEM_ERROR;
-
-    strncpy(split->path_cd, path, split->path_cd_size - 1);
-    split->path_cd[split->path_cd_size - 1] = 0;
 
     mz_stream_split_print("Split - Open - %s (disk %" PRId32 ")\n", split->path_cd, number_disk);
 
@@ -405,11 +399,9 @@ int32_t mz_stream_split_set_prop_int64(void *stream, int32_t prop, int64_t value
 void *mz_stream_split_create(void **stream) {
     mz_stream_split *split = NULL;
 
-    split = (mz_stream_split *)malloc(sizeof(mz_stream_split));
-    if (split) {
-        memset(split, 0, sizeof(mz_stream_split));
+    split = (mz_stream_split *)calloc(1, sizeof(mz_stream_split));
+    if (split)
         split->stream.vtbl = &mz_stream_split_vtbl;
-    }
     if (stream)
         *stream = split;
 

@@ -479,9 +479,7 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 void *mz_crypt_aes_create(void **handle) {
     mz_crypt_aes *aes = NULL;
 
-    aes = (mz_crypt_aes *)malloc(sizeof(mz_crypt_aes));
-    if (aes)
-        memset(aes, 0, sizeof(mz_crypt_aes));
+    aes = (mz_crypt_aes *)calloc(1, sizeof(mz_crypt_aes));
     if (handle)
         *handle = aes;
 

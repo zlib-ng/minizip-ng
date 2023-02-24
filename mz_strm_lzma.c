@@ -438,9 +438,8 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
 void *mz_stream_lzma_create(void **stream) {
     mz_stream_lzma *lzma = NULL;
 
-    lzma = (mz_stream_lzma *)malloc(sizeof(mz_stream_lzma));
+    lzma = (mz_stream_lzma *)calloc(1, sizeof(mz_stream_lzma));
     if (lzma) {
-        memset(lzma, 0, sizeof(mz_stream_lzma));
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->method = MZ_COMPRESS_METHOD_LZMA;
         lzma->preset = LZMA_PRESET_DEFAULT;

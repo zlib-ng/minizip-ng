@@ -236,11 +236,9 @@ static int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def 
 static void *mz_stream_ioapi_create(void **stream) {
     mz_stream_ioapi *ioapi = NULL;
 
-    ioapi = (mz_stream_ioapi *)malloc(sizeof(mz_stream_ioapi));
-    if (ioapi) {
-        memset(ioapi, 0, sizeof(mz_stream_ioapi));
+    ioapi = (mz_stream_ioapi *)calloc(1, sizeof(mz_stream_ioapi));
+    if (ioapi)
         ioapi->stream.vtbl = &mz_stream_ioapi_vtbl;
-    }
     if (stream)
         *stream = ioapi;
 
@@ -418,7 +416,7 @@ zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment) {
     if (globalcomment)
         mz_zip_get_comment(handle, globalcomment);
 
-    compat = (mz_compat *)malloc(sizeof(mz_compat));
+    compat = (mz_compat *)calloc(1, sizeof(mz_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;
@@ -763,7 +761,7 @@ unzFile unzOpen_MZ(void *stream) {
         return NULL;
     }
 
-    compat = (mz_compat *)malloc(sizeof(mz_compat));
+    compat = (mz_compat *)calloc(1, sizeof(mz_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;

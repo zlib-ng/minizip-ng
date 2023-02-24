@@ -39,13 +39,11 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding) {
     string_wide_size = MultiByteToWideChar(encoding, 0, string, -1, NULL, 0);
     if (string_wide_size == 0)
         return NULL;
-    string_wide = (wchar_t *)malloc((string_wide_size + 1) * sizeof(wchar_t));
+    string_wide = (wchar_t *)calloc(string_wide_size + 1, sizeof(wchar_t));
     if (!string_wide)
         return NULL;
 
-    memset(string_wide, 0, sizeof(wchar_t) * (string_wide_size + 1));
     MultiByteToWideChar(encoding, 0, string, -1, string_wide, string_wide_size);
-
     return string_wide;
 }
 
@@ -64,12 +62,10 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     string_wide = mz_os_unicode_string_create(string, encoding);
     if (string_wide) {
         string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, NULL, 0, NULL, NULL);
-        string_utf8 = (uint8_t *)malloc((string_utf8_size + 1) * sizeof(wchar_t));
+        string_utf8 = (uint8_t *)calloc(string_utf8_size + 1, sizeof(wchar_t));
 
-        if (string_utf8) {
-            memset(string_utf8, 0, string_utf8_size + 1);
+        if (string_utf8)
             WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, (char *)string_utf8, string_utf8_size, NULL, NULL);
-        }
 
         mz_os_unicode_string_delete(&string_wide);
     }
@@ -84,12 +80,10 @@ uint8_t *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t en
     MZ_UNUSED(encoding);
 
     string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string, -1, NULL, 0, NULL, NULL);
-    string_utf8 = (uint8_t *)malloc((string_utf8_size + 1) * sizeof(wchar_t));
+    string_utf8 = (uint8_t *)calloc(string_utf8_size + 1, sizeof(wchar_t));
 
-    if (string_utf8) {
-        memset(string_utf8, 0, string_utf8_size + 1);
+    if (string_utf8)
         WideCharToMultiByte(CP_UTF8, 0, string, -1, (char *)string_utf8, string_utf8_size, NULL, NULL);
-    }
 
     return string_utf8;
 }

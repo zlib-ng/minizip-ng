@@ -261,11 +261,9 @@ int32_t mz_stream_os_error(void *stream) {
 void *mz_stream_os_create(void **stream) {
     mz_stream_win32 *win32 = NULL;
 
-    win32 = (mz_stream_win32 *)malloc(sizeof(mz_stream_win32));
-    if (win32) {
-        memset(win32, 0, sizeof(mz_stream_win32));
+    win32 = (mz_stream_win32 *)calloc(1, sizeof(mz_stream_win32));
+    if (win32)
         win32->stream.vtbl = &mz_stream_os_vtbl;
-    }
     if (stream)
         *stream = win32;
 
