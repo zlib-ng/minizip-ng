@@ -719,7 +719,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     }
 
     /* If symbolic link then properly construct destination path and link path */
-    if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) {
+    if ((mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) &&
+        (mz_path_has_slash(pathwfs) == MZ_OK)) {
         mz_path_remove_slash(pathwfs);
         mz_path_remove_filename(directory);
     }
