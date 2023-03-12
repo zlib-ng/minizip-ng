@@ -744,6 +744,9 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
             if (err == MZ_OK)
                 err = mz_zip_reader_entry_save(handle, stream, mz_stream_write);
 
+            if (err == MZ_OK)
+                err = mz_stream_write_uint8(stream, 0);
+
             if (err == MZ_OK) {
                 const char *linkname = NULL;
                 if (mz_stream_mem_get_buffer(stream, (const void **)&linkname) == MZ_OK)
