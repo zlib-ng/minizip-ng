@@ -224,11 +224,10 @@ if (mz_zip_reader_is_open(zip_reader) == MZ_OK)
 
 **Example**
 ```
-void *file_stream = NULL;
 const char *path = "c:\\my.zip";
 
-mz_zip_reader_create(&zip_reader);
-mz_stream_os_create(&file_stream);
+void *zip_reader = mz_zip_reader_create();
+void *file_stream = mz_stream_os_create();
 
 err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_READ);
 if (err == MZ_OK) {
@@ -261,7 +260,7 @@ Opens zip file from a file path.
 **Example**
 ```
 const char *path = "c:\\my.zip";
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 if (mz_zip_reader_open_file(zip_reader, path) == MZ_OK) {
     printf("Zip reader was opened %s\n", path);
     mz_zip_reader_close(zip_reader);
@@ -287,7 +286,7 @@ Opens zip file from a file path into memory for faster access.
 **Example**
 ```
 const char *path = "c:\\my.zip";
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 if (mz_zip_reader_open_file_in_memory(zip_reader, path) == MZ_OK) {
     printf("Zip reader was opened in memory %s\n", path);
     mz_zip_reader_close(zip_reader);
@@ -317,7 +316,7 @@ Opens zip file from memory buffer.
 uint8 *buffer = NULL;
 int32 buffer_length = 0;
 // TODO: Load zip file into memory buffer
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 if (mz_zip_reader_open_buffer(zip_reader, buffer, buffer_length) == MZ_OK) {
     printf("Zip reader was opened from buffer\n");
     mz_zip_reader_close(zip_reader);
@@ -631,18 +630,19 @@ Save the current entry to a stream. Each time the function needs to write to the
 
 **Example**
 ```
-void *file_stream = NULL;
+// TODO: Open file stream
+
 const char *path = "c:\\my.zip";
 const char *entry_path = "c:\\entry.dat";
 
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 
 err = mz_zip_reader_open_file(zip_reader, path);
 if (err == MZ_OK) {
     printf("Zip reader was opened %s\n", path);
     err = mz_zip_reader_goto_first_entry(zip_reader);
     if (err == MZ_OK) {
-        mz_stream_os_create(&entry_stream);
+        void *entry_stream = mz_stream_os_create();
         err = mz_stream_os_open(entry_stream, entry_path, MZ_OPEN_MODE_WRITE);
         if (err == MZ_OK) {
             err = mz_zip_reader_entry_save(zip_reader, file_stream, mz_stream_os_write);
@@ -1106,8 +1106,7 @@ Creates a _mz_zip_reader_ instance and returns its pointer.
 
 **Example**
 ```
-void *zip_reader = NULL;
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 ```
 
 ### mz_zip_reader_delete
@@ -1126,8 +1125,7 @@ Deletes a _mz_zip_reader_ instance and resets its pointer to zero.
 
 **Example**
 ```
-void *zip_reader = NULL;
-mz_zip_reader_create(&zip_reader);
+void *zip_reader = mz_zip_reader_create();
 mz_zip_reader_delete(&zip_reader);
 ```
 
@@ -1271,11 +1269,10 @@ if (mz_zip_writer_is_open(zip_writer) == MZ_OK)
 
 **Example**
 ```
-void *file_stream = NULL;
 const char *path = "c:\\my.zip";
 
-mz_zip_writer_create(&zip_writer);
-mz_stream_os_create(&file_stream);
+void *zip_writer = mz_zip_writer_create();
+void *file_stream = mz_stream_os_create();
 
 err = mz_stream_os_open(file_stream, path, MZ_OPEN_MODE_WRITE | MZ_OPEN_MODE_CREATE);
 if (err == MZ_OK) {
@@ -1310,7 +1307,7 @@ Opens zip file from a file path.
 **Example**
 ```
 const char *path = "c:\\my.zip";
-mz_zip_writer_create(&zip_writer);
+void *zip_writer = mz_zip_writer_create();
 if (mz_zip_writer_open_file(zip_writer, path, 0, 0) == MZ_OK) {
     printf("Zip writer was opened %s\n", path);
     mz_zip_writer_close(zip_writer);
@@ -1336,7 +1333,7 @@ Opens zip file from a file path into memory for faster access.
 **Example**
 ```
 const char *path = "c:\\my.zip";
-mz_zip_writer_create(&zip_writer);
+void *zip_writer = mz_zip_writer_create();
 if (mz_zip_writer_open_file_in_memory(zip_writer, path) == MZ_OK) {
     printf("Zip writer was opened in memory %s\n", path);
     mz_zip_writer_close(zip_writer);
@@ -1474,7 +1471,7 @@ Writes all data to the currently open entry in the zip.
 
 **Example**
 ```
-mz_stream_mem_create(&mem_stream);
+void *mem_stream = mz_stream_mem_create();
 mz_stream_mem_set_grow(mem_stream, 1);
 mz_stream_mem_write(mem_stream, "test", 4);
 mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
@@ -1536,7 +1533,7 @@ Adds an entry to the zip based on the info.
 
 **Example**
 ```
-mz_stream_mem_create(&mem_stream);
+void *mem_stream = mz_stream_mem_create();
 mz_stream_mem_set_grow(mem_stream, 1);
 mz_stream_mem_write(mem_stream, "test", 4);
 mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
@@ -1981,8 +1978,7 @@ Creates a _mz_zip_writer_ instance and returns its pointer.
 
 **Example**
 ```
-void *zip_writer = NULL;
-mz_zip_writer_create(&zip_writer);
+void *zip_writer = mz_zip_writer_create();
 ```
 
 ### mz_zip_writer_delete
@@ -2001,7 +1997,6 @@ Deletes a _mz_zip_writer_ instance and resets its pointer to zero.
 
 **Example**
 ```
-void *zip_writer = NULL;
-mz_zip_writer_create(&zip_writer);
+void *zip_writer = mz_zip_writer_create();
 mz_zip_writer_delete(&zip_writer);
 ```

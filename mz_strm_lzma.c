@@ -435,19 +435,14 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
     return MZ_OK;
 }
 
-void *mz_stream_lzma_create(void **stream) {
-    mz_stream_lzma *lzma = NULL;
-
-    lzma = (mz_stream_lzma *)calloc(1, sizeof(mz_stream_lzma));
+void *mz_stream_lzma_create(void) {
+    mz_stream_lzma *lzma = (mz_stream_lzma *)calloc(1, sizeof(mz_stream_lzma));
     if (lzma) {
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->method = MZ_COMPRESS_METHOD_LZMA;
         lzma->preset = LZMA_PRESET_DEFAULT;
         lzma->max_total_out = -1;
     }
-    if (stream)
-        *stream = lzma;
-
     return lzma;
 }
 

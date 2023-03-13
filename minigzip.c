@@ -75,14 +75,14 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
         printf("Decompressing to %s\n", target_path);
     }
 
-    mz_stream_zlib_create(&zlib_stream);
+    zlib_stream = mz_stream_zlib_create();
     mz_stream_zlib_set_prop_int64(zlib_stream, MZ_STREAM_PROP_COMPRESS_WINDOW, 15 + 16);
 
-    mz_stream_os_create(&source_stream);
+    source_stream = mz_stream_os_create();
     err = mz_stream_os_open(source_stream, path, MZ_OPEN_MODE_READ);
 
     if (err == MZ_OK) {
-        mz_stream_os_create(&target_stream);
+        target_stream = mz_stream_os_create();
         err = mz_stream_os_open(target_stream, target_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
 
         if (err == MZ_OK) {

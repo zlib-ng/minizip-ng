@@ -320,10 +320,11 @@ int32_t mz_file_get_crc(const char *path, uint32_t *result_crc) {
     int32_t err = MZ_OK;
     uint8_t buf[16384];
 
-    mz_stream_os_create(&stream);
+    stream = mz_stream_os_create();
+    if (!stream)
+        return MZ_MEM_ERROR;
 
     err = mz_stream_os_open(stream, path, MZ_OPEN_MODE_READ);
-
     if (err == MZ_OK) {
         do {
             read = mz_stream_os_read(stream, buf, sizeof(buf));

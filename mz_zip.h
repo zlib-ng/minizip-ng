@@ -59,7 +59,7 @@ typedef int32_t (*mz_zip_locate_entry_cb)(void *handle, void *userdata, mz_zip_f
 
 /***************************************************************************/
 
-void *  mz_zip_create(void **handle);
+void *  mz_zip_create(void);
 /* Create zip instance for opening */
 
 void    mz_zip_delete(void **handle);

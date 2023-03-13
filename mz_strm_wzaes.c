@@ -327,20 +327,24 @@ int32_t mz_stream_wzaes_set_prop_int64(void *stream, int32_t prop, int64_t value
     return MZ_OK;
 }
 
-void *mz_stream_wzaes_create(void **stream) {
-    mz_stream_wzaes *wzaes = NULL;
-
-    wzaes = (mz_stream_wzaes *)calloc(1, sizeof(mz_stream_wzaes));
+void *mz_stream_wzaes_create(void) {
+    mz_stream_wzaes *wzaes = (mz_stream_wzaes *)calloc(1, sizeof(mz_stream_wzaes));
     if (wzaes) {
         wzaes->stream.vtbl = &mz_stream_wzaes_vtbl;
         wzaes->encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
 
-        mz_crypt_hmac_create(&wzaes->hmac);
-        mz_crypt_aes_create(&wzaes->aes);
+        wzaes->hmac = mz_crypt_hmac_create();
+        if (!wzaes->hmac) {
+            free(wzaes);
+            return NULL;
+        }
+        wzaes->aes = mz_crypt_aes_create();
+        if (!wzaes->aes) {
+            mz_crypt_hmac_delete(&wzaes->hmac);
+            free(wzaes);
+            return NULL;
+        }
     }
-    if (stream)
-        *stream = wzaes;
-
     return wzaes;
 }
 

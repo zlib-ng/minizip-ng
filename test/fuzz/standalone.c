@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     for (i = 1; (i < argc) && (err == MZ_OK); i++) {
         read = 0;
 
-        mz_stream_os_create(&stream);
+        stream = mz_stream_os_create();
         err = mz_stream_os_open(stream, argv[i], MZ_OPEN_MODE_READ);
 
         if (err != MZ_OK) {

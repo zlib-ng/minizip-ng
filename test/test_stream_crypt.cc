@@ -38,7 +38,8 @@ static void test_encrypt(const char *path, const char *method, mz_stream_create_
     snprintf(decrypt_path, sizeof(decrypt_path), "%s.dec.%s", path, method);
 
     /* Read file to encrypt into memory buffer */
-    mz_stream_os_create(&in_stream);
+    in_stream = mz_stream_os_create();
+    ASSERT_NE(in_stream, nullptr);
     EXPECT_EQ(mz_stream_os_open(in_stream, path, MZ_OPEN_MODE_READ), MZ_OK);
     {
         read = mz_stream_os_read(in_stream, org_buf, sizeof(org_buf));
@@ -48,10 +49,12 @@ static void test_encrypt(const char *path, const char *method, mz_stream_create_
     EXPECT_GT(read, 0);
 
     /* Encrypt data to disk */
-    mz_stream_os_create(&out_stream);
+    out_stream = mz_stream_os_create();
+    ASSERT_NE(out_stream, nullptr);
     EXPECT_EQ(mz_stream_os_open(out_stream, encrypt_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE), MZ_OK);
     {
-        crypt_create(&crypt_out_stream);
+        crypt_out_stream = crypt_create();
+        ASSERT_NE(crypt_out_stream, nullptr);
 
         mz_stream_set_base(crypt_out_stream, out_stream);
 
@@ -69,10 +72,12 @@ static void test_encrypt(const char *path, const char *method, mz_stream_create_
     EXPECT_GT(written, 0);
 
     /* Decrypt data from disk */
-    mz_stream_os_create(&in_stream);
+    in_stream = mz_stream_os_create();
+    ASSERT_NE(in_stream, nullptr);
     EXPECT_EQ(mz_stream_os_open(in_stream, encrypt_path, MZ_OPEN_MODE_READ), MZ_OK);
     {
-        crypt_create(&crypt_out_stream);
+        crypt_out_stream = crypt_create();
+        ASSERT_NE(crypt_out_stream, nullptr);
 
         mz_stream_set_base(crypt_out_stream, in_stream);
         mz_stream_set_prop_int64(crypt_out_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, total_written);
@@ -91,7 +96,8 @@ static void test_encrypt(const char *path, const char *method, mz_stream_create_
     EXPECT_GT(read, 0);
 
     /* Write out decrypted contents to disk for debugging */
-    mz_stream_os_create(&out_stream);
+    out_stream = mz_stream_os_create();
+    ASSERT_NE(out_stream, nullptr);
     EXPECT_EQ(mz_stream_os_open(out_stream, decrypt_path, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE), MZ_OK);
     {
         mz_stream_os_write(out_stream, mod_buf, read);

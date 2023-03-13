@@ -3,70 +3,70 @@
 The _mz_zip_ object allows for the reading and writing of the a zip file and its entries.
 
 - [Archive](#archive)
-  - [mz_zip_create](#mz_zip_create)
-  - [mz_zip_delete](#mz_zip_delete)
-  - [mz_zip_open](#mz_zip_open)
-  - [mz_zip_close](#mz_zip_close)
-  - [mz_zip_get_comment](#mz_zip_get_comment)
-  - [mz_zip_set_comment](#mz_zip_set_comment)
-  - [mz_zip_get_version_madeby](#mz_zip_get_version_madeby)
-  - [mz_zip_set_version_madeby](#mz_zip_set_version_madeby)
-  - [mz_zip_set_recover](#mz_zip_set_recover)
-  - [mz_zip_set_data_descriptor](#mz_zip_set_data_descriptor)
-  - [mz_zip_get_stream](#mz_zip_get_stream)
-  - [mz_zip_set_cd_stream](#mz_zip_set_cd_stream)
-  - [mz_zip_get_cd_mem_stream](#mz_zip_get_cd_mem_stream)
-  - [mz_zip_set_number_entry](#mz_zip_set_number_entry)
-  - [mz_zip_get_number_entry](#mz_zip_get_number_entry)
-  - [mz_zip_set_disk_number_with_cd](#mz_zip_set_disk_number_with_cd)
-  - [mz_zip_get_disk_number_with_cd](#mz_zip_get_disk_number_with_cd)
+  - [mz\_zip\_create](#mz_zip_create)
+  - [mz\_zip\_delete](#mz_zip_delete)
+  - [mz\_zip\_open](#mz_zip_open)
+  - [mz\_zip\_close](#mz_zip_close)
+  - [mz\_zip\_get\_comment](#mz_zip_get_comment)
+  - [mz\_zip\_set\_comment](#mz_zip_set_comment)
+  - [mz\_zip\_get\_version\_madeby](#mz_zip_get_version_madeby)
+  - [mz\_zip\_set\_version\_madeby](#mz_zip_set_version_madeby)
+  - [mz\_zip\_set\_recover](#mz_zip_set_recover)
+  - [mz\_zip\_set\_data\_descriptor](#mz_zip_set_data_descriptor)
+  - [mz\_zip\_get\_stream](#mz_zip_get_stream)
+  - [mz\_zip\_set\_cd\_stream](#mz_zip_set_cd_stream)
+  - [mz\_zip\_get\_cd\_mem\_stream](#mz_zip_get_cd_mem_stream)
+  - [mz\_zip\_set\_number\_entry](#mz_zip_set_number_entry)
+  - [mz\_zip\_get\_number\_entry](#mz_zip_get_number_entry)
+  - [mz\_zip\_set\_disk\_number\_with\_cd](#mz_zip_set_disk_number_with_cd)
+  - [mz\_zip\_get\_disk\_number\_with\_cd](#mz_zip_get_disk_number_with_cd)
 - [Entry I/O](#entry-io)
-  - [mz_zip_entry_is_open](#mz_zip_entry_is_open)
-  - [mz_zip_entry_read_open](#mz_zip_entry_read_open)
-  - [mz_zip_entry_read](#mz_zip_entry_read)
-  - [mz_zip_entry_read_close](#mz_zip_entry_read_close)
-  - [mz_zip_entry_write_open](#mz_zip_entry_write_open)
-  - [mz_zip_entry_write](#mz_zip_entry_write)
-  - [mz_zip_entry_write_close](#mz_zip_entry_write_close)
-  - [mz_zip_entry_seek_local_header](#mz_zip_entry_seek_local_header)
-  - [mz_zip_entry_get_compress_stream](#mz_zip_entry_get_compress_stream)
-  - [mz_zip_entry_close_raw](#mz_zip_entry_close_raw)
-  - [mz_zip_entry_close](#mz_zip_entry_close)
+  - [mz\_zip\_entry\_is\_open](#mz_zip_entry_is_open)
+  - [mz\_zip\_entry\_read\_open](#mz_zip_entry_read_open)
+  - [mz\_zip\_entry\_read](#mz_zip_entry_read)
+  - [mz\_zip\_entry\_read\_close](#mz_zip_entry_read_close)
+  - [mz\_zip\_entry\_write\_open](#mz_zip_entry_write_open)
+  - [mz\_zip\_entry\_write](#mz_zip_entry_write)
+  - [mz\_zip\_entry\_write\_close](#mz_zip_entry_write_close)
+  - [mz\_zip\_entry\_seek\_local\_header](#mz_zip_entry_seek_local_header)
+  - [mz\_zip\_entry\_get\_compress\_stream](#mz_zip_entry_get_compress_stream)
+  - [mz\_zip\_entry\_close\_raw](#mz_zip_entry_close_raw)
+  - [mz\_zip\_entry\_close](#mz_zip_entry_close)
 - [Entry Enumeration](#entry-enumeration)
-  - [mz_zip_entry_is_dir](#mz_zip_entry_is_dir)
-  - [mz_zip_entry_is_symlink](#mz_zip_entry_is_symlink)
-  - [mz_zip_entry_get_info](#mz_zip_entry_get_info)
-  - [mz_zip_entry_get_local_info](#mz_zip_entry_get_local_info)
-  - [mz_zip_get_entry](#mz_zip_get_entry)
-  - [mz_zip_goto_entry](#mz_zip_goto_entry)
-  - [mz_zip_goto_first_entry](#mz_zip_goto_first_entry)
-  - [mz_zip_goto_next_entry](#mz_zip_goto_next_entry)
-  - [mz_zip_locate_entry](#mz_zip_locate_entry)
-  - [mz_zip_locate_first_entry](#mz_zip_locate_first_entry)
-  - [mz_zip_locate_next_entry](#mz_zip_locate_next_entry)
+  - [mz\_zip\_entry\_is\_dir](#mz_zip_entry_is_dir)
+  - [mz\_zip\_entry\_is\_symlink](#mz_zip_entry_is_symlink)
+  - [mz\_zip\_entry\_get\_info](#mz_zip_entry_get_info)
+  - [mz\_zip\_entry\_get\_local\_info](#mz_zip_entry_get_local_info)
+  - [mz\_zip\_get\_entry](#mz_zip_get_entry)
+  - [mz\_zip\_goto\_entry](#mz_zip_goto_entry)
+  - [mz\_zip\_goto\_first\_entry](#mz_zip_goto_first_entry)
+  - [mz\_zip\_goto\_next\_entry](#mz_zip_goto_next_entry)
+  - [mz\_zip\_locate\_entry](#mz_zip_locate_entry)
+  - [mz\_zip\_locate\_first\_entry](#mz_zip_locate_first_entry)
+  - [mz\_zip\_locate\_next\_entry](#mz_zip_locate_next_entry)
 - [System Attributes](#system-attributes)
-  - [mz_zip_attrib_is_dir](#mz_zip_attrib_is_dir)
-  - [mz_zip_attrib_is_symlink](#mz_zip_attrib_is_symlink)
-  - [mz_zip_attrib_convert](#mz_zip_attrib_convert)
-  - [mz_zip_attrib_posix_to_win32](#mz_zip_attrib_posix_to_win32)
-  - [mz_zip_attrib_win32_to_posix](#mz_zip_attrib_win32_to_posix)
+  - [mz\_zip\_attrib\_is\_dir](#mz_zip_attrib_is_dir)
+  - [mz\_zip\_attrib\_is\_symlink](#mz_zip_attrib_is_symlink)
+  - [mz\_zip\_attrib\_convert](#mz_zip_attrib_convert)
+  - [mz\_zip\_attrib\_posix\_to\_win32](#mz_zip_attrib_posix_to_win32)
+  - [mz\_zip\_attrib\_win32\_to\_posix](#mz_zip_attrib_win32_to_posix)
 - [Extrafield](#extrafield)
-  - [mz_zip_extrafield_find](#mz_zip_extrafield_find)
-  - [mz_zip_extrafield_contains](#mz_zip_extrafield_contains)
-  - [mz_zip_extrafield_read](#mz_zip_extrafield_read)
-  - [mz_zip_extrafield_write](#mz_zip_extrafield_write)
+  - [mz\_zip\_extrafield\_find](#mz_zip_extrafield_find)
+  - [mz\_zip\_extrafield\_contains](#mz_zip_extrafield_contains)
+  - [mz\_zip\_extrafield\_read](#mz_zip_extrafield_read)
+  - [mz\_zip\_extrafield\_write](#mz_zip_extrafield_write)
 - [Time/Date](#timedate)
-  - [mz_zip_dosdate_to_tm](#mz_zip_dosdate_to_tm)
-  - [mz_zip_dosdate_to_time_t](#mz_zip_dosdate_to_time_t)
-  - [mz_zip_time_t_to_tm](#mz_zip_time_t_to_tm)
-  - [mz_zip_time_t_to_dos_date](#mz_zip_time_t_to_dos_date)
-  - [mz_zip_tm_to_dosdate](#mz_zip_tm_to_dosdate)
-  - [mz_zip_ntfs_to_unix_time](#mz_zip_ntfs_to_unix_time)
-  - [mz_zip_unix_to_ntfs_time](#mz_zip_unix_to_ntfs_time)
+  - [mz\_zip\_dosdate\_to\_tm](#mz_zip_dosdate_to_tm)
+  - [mz\_zip\_dosdate\_to\_time\_t](#mz_zip_dosdate_to_time_t)
+  - [mz\_zip\_time\_t\_to\_tm](#mz_zip_time_t_to_tm)
+  - [mz\_zip\_time\_t\_to\_dos\_date](#mz_zip_time_t_to_dos_date)
+  - [mz\_zip\_tm\_to\_dosdate](#mz_zip_tm_to_dosdate)
+  - [mz\_zip\_ntfs\_to\_unix\_time](#mz_zip_ntfs_to_unix_time)
+  - [mz\_zip\_unix\_to\_ntfs\_time](#mz_zip_unix_to_ntfs_time)
 - [Path](#path)
-  - [mz_zip_path_compare](#mz_zip_path_compare)
+  - [mz\_zip\_path\_compare](#mz_zip_path_compare)
 - [String](#string)
-  - [mz_zip_get_compression_method_string](#mz_zip_get_compression_method_string)
+  - [mz\_zip\_get\_compression\_method\_string](#mz_zip_get_compression_method_string)
 
 ## Archive
 
@@ -86,8 +86,7 @@ Creates a _mz_zip_ instance and returns its pointer.
 
 **Example**
 ```
-void *zip_handle = NULL;
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 ```
 
 ### mz_zip_delete
@@ -106,8 +105,7 @@ Deletes a _mz_zip_ instance and resets its pointer to zero.
 
 **Example**
 ```
-void *zip_handle = NULL;
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 mz_zip_delete(&zip_handle);
 ```
 
@@ -129,11 +127,9 @@ Opens a zip file given a stream.
 
 **Example**
 ```
-void *zip_handle = NULL;
-
 // TODO: Create stream
 
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, stream, MZ_OPEN_MODE_READ);
 if (err != MZ_OK)
     printf("Error opening zip file for reading\n");
@@ -276,8 +272,7 @@ Sets the ability to recover/repair the central directory. When the central direc
 
 **Example**
 ```
-void *zip_handle = NULL;
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 // Enable central directory recover/repair
 if (mz_zip_set_recover(zip_handle, 1) == MZ_OK)
     printf("Central directory recovery enabled if necessary\n");
@@ -300,8 +295,7 @@ Sets wehther or not zip file entries will be written with a data descriptor. Whe
 
 **Example**
 ```
-void *zip_handle = NULL;
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 // Enable data descriptor writing for zip entries
 if (mz_zip_set_data_descriptor(zip_handle, 0) == MZ_OK)
     printf("Local file header entries will be written with crc32 and sizes\n");
@@ -324,8 +318,7 @@ Gets the _mz_stream_ handle used in the call to _mz_zip_open_.
 
 **Example**
 ```
-void *zip_handle = NULL;
-mz_zip_create(&zip_handle);
+void *zip_handle = mz_zip_create();
 if (mz_zip_open(zip_handle, stream_handle, MZ_OPEN_MODE_READ) == MZ_OK) {
     void *stream2_handle = NULL;
     mz_zip_get_stream(zip_handle, &stream2_handle);
@@ -355,8 +348,7 @@ This function is used when encrypting the central directory, it is decrypted and
 
 **Example**
 ```
-void *cd_mem_stream = NULL;
-mz_stream_mem_create(&cd_mem_stream);
+void *cd_mem_stream = mz_stream_mem_create();
 // TODO: Write central directory to memory stream
 mz_zip_set_cd_stream(zip_handle, 0, cd_mem_stream);
 ```
@@ -1279,13 +1271,12 @@ Seeks using a _mz_stream_ to an extra field by its type and returns its length.
 
 **Example**
 ```
-void *file_extra_stream = NULL;
 mz_zip_file *file_info = NULL;
 uint16_t extrafield_length = 0;
 
 mz_zip_entry_get_info(zip_handle, &file_info);
 
-mz_stream_mem_create(&file_extra_stream);
+void *file_extra_stream = mz_stream_mem_create();
 mz_stream_mem_set_buffer(file_extra_stream, (void *)file_info->extrafield,
     file_info->extrafield_size);
 
@@ -1345,12 +1336,11 @@ Reads an extrafield header from a stream.
 
 **Example**
 ```
-void *file_extra_stream = NULL;
 mz_zip_file *file_info = NULL;
 uint16_t extrafield_type = 0;
 uint16_t extrafield_length = 0;
 
-mz_stream_mem_create(&file_extra_stream);
+void *file_extra_stream = mz_stream_mem_create();
 mz_stream_mem_set_buffer(file_extra_stream, (void *)file_info->extrafield,
     file_info->extrafield_size);
 

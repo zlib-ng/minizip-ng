@@ -39,10 +39,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     int32_t err = MZ_OK;
     uint8_t encrypted = 0;
 
-    mz_stream_mem_create(&stream);
+    stream = mz_stream_mem_create();
+    if (!stream)
+        return 1;
+
     mz_stream_mem_set_buffer(stream, (void *)data, (int32_t)size);
 
-    mz_zip_create(&handle);
+    handle = mz_zip_create();
+    if (!handle)
+        return 1;
 
     err = mz_zip_open(handle, stream, MZ_OPEN_MODE_READ);
 

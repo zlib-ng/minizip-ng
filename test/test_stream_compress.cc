@@ -57,14 +57,17 @@ static void test_compress(const char *method, mz_stream_create_cb create_compres
     void *inflate_stream = NULL;
 
     /* Open file to be compressed */
-    mz_stream_os_create(&org_stream);
+    org_stream = mz_stream_os_create();
+    ASSERT_NE(org_stream, nullptr);
     ASSERT_EQ(mz_stream_os_open(org_stream, "LICENSE", MZ_OPEN_MODE_READ), MZ_OK);
 
     /* Compress data into memory stream */
-    mz_stream_mem_create(&compress_stream);
+    compress_stream = mz_stream_mem_create();
+    ASSERT_NE(compress_stream, nullptr);
     ASSERT_EQ(mz_stream_mem_open(compress_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
 
-    create_compress(&deflate_stream);
+    deflate_stream = create_compress();
+    ASSERT_NE(deflate_stream, nullptr);
     mz_stream_set_base(deflate_stream, compress_stream);
 
     /* Copy data from file stream and write to compression stream */
@@ -83,12 +86,14 @@ static void test_compress(const char *method, mz_stream_create_cb create_compres
     printf("%s compressed from %u to %u\n", method, (uint32_t)total_in, (uint32_t)total_out);
 
     /* Decompress data into memory stream */
-    mz_stream_mem_create(&uncompress_stream);
+    uncompress_stream = mz_stream_mem_create();
+    ASSERT_NE(uncompress_stream, nullptr);
     ASSERT_EQ(mz_stream_mem_open(uncompress_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
 
     mz_stream_seek(compress_stream, 0, MZ_SEEK_SET);
 
-    create_compress(&inflate_stream);
+    inflate_stream = create_compress();
+    ASSERT_NE(inflate_stream, nullptr);
     mz_stream_set_base(inflate_stream, compress_stream);
 
     mz_stream_open(inflate_stream, NULL, MZ_OPEN_MODE_READ);

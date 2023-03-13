@@ -38,7 +38,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     int32_t fuzz_length = 0;
     uint8_t *fuzz_buf = NULL;
 
-    mz_stream_mem_create(&fuzz_stream);
+    fuzz_stream = mz_stream_mem_create();
+    if (!fuzz_stream)
+        return 1;
     mz_stream_mem_set_buffer(fuzz_stream, (void *)data, (int32_t)size);
 
     memset(&file_info, 0, sizeof(file_info));
@@ -70,8 +72,17 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             compress_level = value16;
     }
 
-    mz_stream_mem_create(&stream);
-    mz_zip_create(&handle);
+    stream = mz_stream_mem_create();
+    if (!stream) {
+        mz_stream_mem_delete(&fuzz_stream);
+        return 1;
+    }
+    handle = mz_zip_create();
+    if (!handle) {
+        mz_stream_mem_delete(&stream);
+        mz_stream_mem_delete(&fuzz_stream);
+        return 1;
+    }
 
     err = mz_zip_open(handle, stream, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
     if (err == MZ_OK) {

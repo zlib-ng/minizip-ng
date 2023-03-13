@@ -50,7 +50,8 @@ TEST(crypt, sha1) {
 
     memset(hash1, 0, sizeof(hash1));
 
-    mz_crypt_sha_create(&sha1);
+    sha1 = mz_crypt_sha_create();
+    ASSERT_NE(sha1, nullptr);
     mz_crypt_sha_set_algorithm(sha1, MZ_HASH_SHA1);
     mz_crypt_sha_begin(sha1);
     mz_crypt_sha_update(sha1, hash_test_string, (int32_t)strlen(hash_test_string));
@@ -69,7 +70,8 @@ TEST(crypt, sha224) {
 
     memset(hash224, 0, sizeof(hash224));
 
-    mz_crypt_sha_create(&sha224);
+    sha224 = mz_crypt_sha_create();
+    ASSERT_NE(sha224, nullptr);
     mz_crypt_sha_set_algorithm(sha224, MZ_HASH_SHA224);
     mz_crypt_sha_begin(sha224);
     mz_crypt_sha_update(sha224, hash_test_string, (int32_t)strlen(hash_test_string));
@@ -88,7 +90,8 @@ TEST(crypt, sha256) {
 
     memset(hash256, 0, sizeof(hash256));
 
-    mz_crypt_sha_create(&sha256);
+    sha256 = mz_crypt_sha_create();
+    ASSERT_NE(sha256, nullptr);
     mz_crypt_sha_set_algorithm(sha256, MZ_HASH_SHA256);
     mz_crypt_sha_begin(sha256);
     mz_crypt_sha_update(sha256, hash_test_string, (int32_t)strlen(hash_test_string));
@@ -107,7 +110,8 @@ TEST(crypt, sha384) {
 
     memset(hash384, 0, sizeof(hash384));
 
-    mz_crypt_sha_create(&sha384);
+    sha384 = mz_crypt_sha_create();
+    ASSERT_NE(sha384, nullptr);
     mz_crypt_sha_set_algorithm(sha384, MZ_HASH_SHA384);
     mz_crypt_sha_begin(sha384);
     mz_crypt_sha_update(sha384, hash_test_string, (int32_t)strlen(hash_test_string));
@@ -126,7 +130,8 @@ TEST(crypt, sha512) {
 
     memset(hash512, 0, sizeof(hash512));
 
-    mz_crypt_sha_create(&sha512);
+    sha512 = mz_crypt_sha_create();
+    ASSERT_NE(sha512, nullptr);
     mz_crypt_sha_set_algorithm(sha512, MZ_HASH_SHA512);
     mz_crypt_sha_begin(sha512);
     mz_crypt_sha_update(sha512, hash_test_string, (int32_t)strlen(hash_test_string));
@@ -151,14 +156,16 @@ TEST(crypt, aes128) {
 
     strncpy((char *)buf, test, sizeof(buf));
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
@@ -179,14 +186,16 @@ TEST(crypt, aes194) {
 
     strncpy((char *)buf, test, sizeof(buf));
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
@@ -207,14 +216,16 @@ TEST(crypt, aes256) {
 
     strncpy((char *)buf, test, sizeof(buf));
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
-    mz_crypt_aes_create(&aes);
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
@@ -229,7 +240,8 @@ TEST(crypt, hmac_sha1) {
     char computed_hash[256];
     uint8_t hash1[MZ_HASH_SHA1_SIZE];
 
-    mz_crypt_hmac_create(&hmac);
+    hmac = mz_crypt_hmac_create();
+    ASSERT_NE(hmac, nullptr);
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
     mz_crypt_hmac_init(hmac, key, (int32_t)strlen(key));
     mz_crypt_hmac_update(hmac, test, (int32_t)strlen(test));
@@ -270,7 +282,8 @@ TEST(crypt, hmac_sha256) {
     char computed_hash[256];
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
 
-    mz_crypt_hmac_create(&hmac);
+    hmac = mz_crypt_hmac_create();
+    ASSERT_NE(hmac, nullptr);
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA256);
     mz_crypt_hmac_init(hmac, key, (int32_t)strlen(key));
     mz_crypt_hmac_update(hmac, test, (int32_t)strlen(test));

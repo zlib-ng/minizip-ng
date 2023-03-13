@@ -359,18 +359,13 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
     return MZ_OK;
 }
 
-void *mz_stream_zlib_create(void **stream) {
-    mz_stream_zlib *zlib = NULL;
-
-    zlib = (mz_stream_zlib *)calloc(1, sizeof(mz_stream_zlib));
+void *mz_stream_zlib_create(void) {
+    mz_stream_zlib *zlib = zlib = (mz_stream_zlib *)calloc(1, sizeof(mz_stream_zlib));
     if (zlib) {
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
         zlib->window_bits = -MAX_WBITS;
     }
-    if (stream)
-        *stream = zlib;
-
     return zlib;
 }
 

@@ -51,7 +51,7 @@ static int64_t mz_stream_ioapi_tell(void *stream);
 static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin);
 static int32_t mz_stream_ioapi_close(void *stream);
 static int32_t mz_stream_ioapi_error(void *stream);
-static void *mz_stream_ioapi_create(void **stream);
+static void *mz_stream_ioapi_create();
 static void mz_stream_ioapi_delete(void **stream);
 
 /***************************************************************************/
@@ -233,15 +233,10 @@ static int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def 
     return MZ_OK;
 }
 
-static void *mz_stream_ioapi_create(void **stream) {
-    mz_stream_ioapi *ioapi = NULL;
-
-    ioapi = (mz_stream_ioapi *)calloc(1, sizeof(mz_stream_ioapi));
+static void *mz_stream_ioapi_create(void) {
+    mz_stream_ioapi *ioapi = (mz_stream_ioapi *)calloc(1, sizeof(mz_stream_ioapi));
     if (ioapi)
         ioapi->stream.vtbl = &mz_stream_ioapi_vtbl;
-    if (stream)
-        *stream = ioapi;
-
     return ioapi;
 }
 
@@ -333,17 +328,20 @@ zipFile zipOpen2(const char *path, int append, const char **globalcomment,
 
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen_file) {
-            if (!mz_stream_ioapi_create(&stream))
+            stream = mz_stream_ioapi_create();
+            if (!stream)
                 return NULL;
             mz_stream_ioapi_set_filefunc(stream, pzlib_filefunc_def);
         } else if (pzlib_filefunc_def->opaque) {
-            if (!mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def->opaque))
+            stream = mz_stream_create((mz_stream_vtbl *)pzlib_filefunc_def->opaque);
+            if (!stream)
                 return NULL;
         }
     }
 
     if (!stream) {
-        if (!mz_stream_os_create(&stream))
+        stream = mz_stream_os_create();
+        if (!stream)
             return NULL;
     }
 
@@ -370,17 +368,20 @@ zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
 
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen64_file) {
-            if (!mz_stream_ioapi_create(&stream))
+            stream = mz_stream_ioapi_create();
+            if (!stream)
                 return NULL;
             mz_stream_ioapi_set_filefunc64(stream, pzlib_filefunc_def);
         } else if (pzlib_filefunc_def->opaque) {
-            if (!mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def->opaque))
+            stream = mz_stream_create((mz_stream_vtbl *)pzlib_filefunc_def->opaque);
+            if (!stream)
                 return NULL;
         }
     }
 
     if (!stream) {
-        if (!mz_stream_os_create(&stream))
+        stream = mz_stream_os_create();
+        if (!stream)
             return NULL;
     }
 
@@ -405,7 +406,10 @@ zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment) {
     int32_t mode = zipConvertAppendToStreamMode(append);
     void *handle = NULL;
 
-    mz_zip_create(&handle);
+    handle = mz_zip_create();
+    if (!handle)
+        return NULL;
+
     err = mz_zip_open(handle, stream, mode);
 
     if (err != MZ_OK) {
@@ -672,17 +676,20 @@ unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
 
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen_file) {
-            if (!mz_stream_ioapi_create(&stream))
+            stream = mz_stream_ioapi_create();
+            if (!stream)
                 return NULL;
             mz_stream_ioapi_set_filefunc(stream, pzlib_filefunc_def);
         } else if (pzlib_filefunc_def->opaque) {
-            if (!mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def->opaque))
+            stream = mz_stream_create((mz_stream_vtbl *)pzlib_filefunc_def->opaque);
+            if (!stream)
                 return NULL;
         }
     }
 
     if (!stream) {
-        if (!mz_stream_os_create(&stream))
+        stream = mz_stream_os_create();
+        if (!stream)
             return NULL;
     }
 
@@ -706,17 +713,20 @@ unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def) {
 
     if (pzlib_filefunc_def) {
         if (pzlib_filefunc_def->zopen64_file) {
-            if (!mz_stream_ioapi_create(&stream))
+            stream = mz_stream_ioapi_create();
+            if (!stream)
                 return NULL;
             mz_stream_ioapi_set_filefunc64(stream, pzlib_filefunc_def);
         } else if (pzlib_filefunc_def->opaque) {
-            if (!mz_stream_create(&stream, (mz_stream_vtbl *)pzlib_filefunc_def->opaque))
+            stream = mz_stream_create((mz_stream_vtbl *)pzlib_filefunc_def->opaque);
+            if (!stream)
                 return NULL;
         }
     }
 
     if (!stream) {
-        if (!mz_stream_os_create(&stream))
+        stream = mz_stream_os_create();
+        if (!stream)
             return NULL;
     }
 
@@ -753,9 +763,11 @@ unzFile unzOpen_MZ(void *stream) {
     int32_t err = MZ_OK;
     void *handle = NULL;
 
-    mz_zip_create(&handle);
-    err = mz_zip_open(handle, stream, MZ_OPEN_MODE_READ);
+    handle = mz_zip_create();
+    if (!handle)
+        return NULL;
 
+    err = mz_zip_open(handle, stream, MZ_OPEN_MODE_READ);
     if (err != MZ_OK) {
         mz_zip_delete(&handle);
         return NULL;

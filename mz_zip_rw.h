@@ -143,7 +143,7 @@ void    mz_zip_reader_set_entry_cb(void *handle, void *userdata, mz_zip_reader_e
 int32_t mz_zip_reader_get_zip_handle(void *handle, void **zip_handle);
 /* Gets the underlying zip instance handle */
 
-void*   mz_zip_reader_create(void **handle);
+void*   mz_zip_reader_create(void);
 /* Create new instance of zip reader */
 
 void    mz_zip_reader_delete(void **handle);
@@ -261,7 +261,7 @@ void    mz_zip_writer_set_entry_cb(void *handle, void *userdata, mz_zip_writer_e
 int32_t mz_zip_writer_get_zip_handle(void *handle, void **zip_handle);
 /* Gets the underlying zip handle */
 
-void*   mz_zip_writer_create(void **handle);
+void*   mz_zip_writer_create(void);
 /* Create new instance of zip writer */
 
 void    mz_zip_writer_delete(void **handle);

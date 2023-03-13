@@ -156,11 +156,11 @@ void *zip_handle = NULL;
 
 /* TODO: fill zip_buffer with zip contents.. */
 
-mz_stream_mem_create(&mem_stream);
+mem_stream = mz_stream_mem_create();
 mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
 mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
 
-mz_zip_create(&zip_handle);
+zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, mem_stream, MZ_OPEN_MODE_READ);
 
 /* TODO: unzip operations.. */
@@ -177,11 +177,11 @@ To create a zip file in memory first create a growable memory stream and pass it
 void *mem_stream = NULL;
 void *zip_handle = NULL;
 
-mz_stream_mem_create(&mem_stream);
+mem_stream = mz_stream_mem_create();
 mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
 mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-mz_zip_create(&zip_handle);
+zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, mem_stream, MZ_OPEN_MODE_WRITE);
 
 /* TODO: unzip operations.. */
@@ -203,15 +203,15 @@ void *stream = NULL;
 void *buf_stream = NULL;
 void *zip_handle = NULL;
 
-mz_stream_os_create(&stream)
+stream = mz_stream_os_create()
 
 /* TODO: open os stream.. */
 
-mz_stream_buffered_create(&buf_stream);
+buf_stream = mz_stream_buffered_create();
 mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ);
 mz_stream_buffered_set_base(buf_stream, stream);
 
-mz_zip_create(&zip_handle);
+zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, buf_stream, MZ_OPEN_MODE_READ);
 
 /* TODO: unzip operation.. */
@@ -231,14 +231,14 @@ void *stream = NULL;
 void *split_stream = NULL;
 void *zip_handle = NULL;
 
-mz_stream_os_create(&stream);
+stream = mz_stream_os_create();
 
-mz_stream_split_create(&split_stream);
+split_stream = mz_stream_split_create();
 mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, 64 * 1024);
 mz_stream_set_base(split_stream, stream);
 mz_stream_open(split_stream, path..
 
-mz_zip_create(&zip_handle);
+zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, split_stream, MZ_OPEN_MODE_WRITE);
 
 /* TODO: unzip operation.. */
