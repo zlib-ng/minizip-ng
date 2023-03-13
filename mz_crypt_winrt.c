@@ -634,11 +634,9 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 void *mz_crypt_hmac_create(void **handle) {
     mz_crypt_hmac *hmac = NULL;
 
-    hmac = (mz_crypt_hmac *)malloc(sizeof(mz_crypt_hmac));
-    if (hmac) {
-        memset(hmac, 0, sizeof(mz_crypt_hmac));
+    hmac = (mz_crypt_hmac *)calloc(1, sizeof(mz_crypt_hmac));
+    if (hmac)
         hmac->algorithm = MZ_HASH_SHA256;
-    }
     if (handle)
         *handle = hmac;
 
