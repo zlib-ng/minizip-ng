@@ -86,8 +86,6 @@ int32_t minizip_help(void) {
            "  -z  Zip central directory\n" \
            "  -p  Encryption password\n" \
            "  -s  AES encryption\n" \
-           "  -h  PKCS12 certificate path\n" \
-           "  -w  PKCS12 certificate password\n" \
            "  -b  BZIP2 compression\n" \
            "  -m  LZMA compression\n" \
            "  -n  XZ compression\n" \
@@ -593,23 +591,7 @@ int main(int argc, const char *argv[]) {
 #else
                 err = MZ_SUPPORT_ERROR;
 #endif
-            else if (((c == 'h') || (c == 'H')) && (i + 1 < argc)) {
-#ifdef MZ_ZIP_SIGNING
-                options.cert_path = argv[i + 1];
-                printf("%s ", argv[i + 1]);
-#else
-                err = MZ_SUPPORT_ERROR;
-#endif
-                i += 1;
-            } else if (((c == 'w') || (c == 'W')) && (i + 1 < argc)) {
-#ifdef MZ_ZIP_SIGNING
-                options.cert_pwd = argv[i + 1];
-                printf("%s ", argv[i + 1]);
-#else
-                err = MZ_SUPPORT_ERROR;
-#endif
-                i += 1;
-            } else if (((c == 'c') || (c == 'C')) && (i + 1 < argc)) {
+            else if (((c == 'c') || (c == 'C')) && (i + 1 < argc)) {
                 options.encoding = (int32_t)atoi(argv[i + 1]);
                 i += 1;
             } else if (((c == 'k') || (c == 'K')) && (i + 1 < argc)) {

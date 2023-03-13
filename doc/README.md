@@ -47,7 +47,7 @@
 
 ### Extrafield Proposals <!-- omit in toc -->
 
-The zip reader and writer interface provides support for extended hash algorithms for zip entries, compression of the central directory, and the adding and verifying of CMS signatures for each entry. In order to add support for these features, extrafields were added and are described in the [minizip extrafield documentation](mz_extrafield.md).
+The zip reader and writer interface provides support for extended hash algorithms for zip entries and compression of the central directory. In order to add support for these features, extrafields were added and are described in the [minizip extrafield documentation](mz_extrafield.md).
 
 ## Limitations
 

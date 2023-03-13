@@ -47,7 +47,6 @@ not been maintained for a long period of time. The code has been largely refacto
 + Support for Apple's compression library ZLIB and XZ implementations.
 + Zero out local file header information.
 + Zip/unzip of central directory to reduce size.
-+ Ability to generate and verify CMS signature for each entry.
 + Recover the central directory if it is corrupt or missing.
 + Example minizip and minigzip command line tools.
 
@@ -80,7 +79,6 @@ cmake --build build
 | MZ_BCRYPT           | Builds with Win32 Crypto API New Generation (CNG)   |      OFF      |
 | MZ_OPENSSL          | Enables OpenSSL encryption                          |     UNIX      |
 | MZ_LIBBSD           | Builds with libbsd crypto random                    |     UNIX      |
-| MZ_SIGNING          | Enables zip signing support                         |      OFF      |
 | MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
 | MZ_COMPRESS_ONLY    | Only support compression                            |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                          |      OFF      |
