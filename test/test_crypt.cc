@@ -208,6 +208,8 @@ TEST(crypt, pbkdf2) {
     uint8_t key[MZ_HASH_SHA1_SIZE];
     char key_hex[256];
     const char *password = "passwordpasswordpasswordpassword";
+    const char *longpassword = "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordp";
+    const char *onecharpassword = "p";
     const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
 
     EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
@@ -216,6 +218,20 @@ TEST(crypt, pbkdf2) {
     convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
 
     EXPECT_STREQ(key_hex, "852c7b71a104aaa8d8996c840c3d4d5d0db780aa");
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)longpassword, (int32_t)strlen(longpassword),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "b3e0b5ece77332506972e97b63b3a0a6d36c39a9");
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)onecharpassword, (int32_t)strlen(onecharpassword),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "91cf25bb4c2978620255d7fed8cc1751c7d283b9");
 }
 #endif
 #endif
