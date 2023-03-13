@@ -664,7 +664,7 @@ if (mz_zip_reader_goto_first_entry(zip_reader) == MZ_OK) {
 
 ### mz_zip_reader_entry_save
 
-Save the current entry to a steam. Each time the function needs to write to the stream it will call the _mz_stream_write_cb_ callback with the _stream_ pointer. This is a blocking call that will not return until the entire entry is written to the stream or until an error has occured.
+Save the current entry to a stream. Each time the function needs to write to the stream it will call the _mz_stream_write_cb_ callback with the _stream_ pointer. This is a blocking call that will not return until the entire entry is written to the stream or until an error has occured.
 
 **Arguments**
 |Type|Name|Description|

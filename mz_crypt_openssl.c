@@ -1,7 +1,7 @@
 /* mz_crypt_openssl.c -- Crypto/hash functions for OpenSSL
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
@@ -33,7 +33,7 @@
 
 static void mz_crypt_init(void) {
     static int32_t openssl_initialized = 0;
-    if (openssl_initialized == 0) {
+    if (!openssl_initialized) {
         OpenSSL_add_all_algorithms();
 
         ERR_load_BIO_strings();
@@ -92,7 +92,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     int32_t result = 0;
 
-    if (sha == NULL)
+    if (!sha)
         return MZ_PARAM_ERROR;
 
     mz_crypt_sha_reset(handle);
@@ -128,7 +128,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     int32_t result = 0;
 
-    if (sha == NULL || buf == NULL || !sha->initialized)
+    if (!sha || !buf || !sha->initialized)
         return MZ_PARAM_ERROR;
 
     switch (sha->algorithm) {
@@ -161,7 +161,7 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     int32_t result = 0;
 
-    if (sha == NULL || digest == NULL || !sha->initialized)
+    if (!sha || !digest || !sha->initialized)
         return MZ_PARAM_ERROR;
     if (digest_size < mz_crypt_sha_digest_size[sha->algorithm - MZ_HASH_SHA1])
         return MZ_PARAM_ERROR;
@@ -201,12 +201,10 @@ void mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
 void *mz_crypt_sha_create(void **handle) {
     mz_crypt_sha *sha = NULL;
 
-    sha = (mz_crypt_sha *)MZ_ALLOC(sizeof(mz_crypt_sha));
-    if (sha != NULL) {
-        memset(sha, 0, sizeof(mz_crypt_sha));
+    sha = (mz_crypt_sha *)calloc(1, sizeof(mz_crypt_sha));
+    if (sha)
         sha->algorithm = MZ_HASH_SHA256;
-    }
-    if (handle != NULL)
+    if (handle)
         *handle = sha;
 
     return sha;
@@ -214,12 +212,12 @@ void *mz_crypt_sha_create(void **handle) {
 
 void mz_crypt_sha_delete(void **handle) {
     mz_crypt_sha *sha = NULL;
-    if (handle == NULL)
+    if (!handle)
         return;
     sha = (mz_crypt_sha *)*handle;
-    if (sha != NULL) {
+    if (sha) {
         mz_crypt_sha_reset(*handle);
-        MZ_FREE(sha);
+        free(sha);
     }
     *handle = NULL;
 }
@@ -245,7 +243,7 @@ void mz_crypt_aes_reset(void *handle) {
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (aes == NULL || buf == NULL)
+    if (!aes || !buf)
         return MZ_PARAM_ERROR;
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
@@ -257,7 +255,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
 
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    if (aes == NULL || buf == NULL)
+    if (!aes || !buf)
         return MZ_PARAM_ERROR;
     if (size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
@@ -272,7 +270,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
     int32_t result = 0;
     int32_t key_bits = 0;
 
-    if (aes == NULL || key == NULL)
+    if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
@@ -292,7 +290,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
     int32_t result = 0;
     int32_t key_bits = 0;
 
-    if (aes == NULL || key == NULL)
+    if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
@@ -315,10 +313,8 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 void *mz_crypt_aes_create(void **handle) {
     mz_crypt_aes *aes = NULL;
 
-    aes = (mz_crypt_aes *)MZ_ALLOC(sizeof(mz_crypt_aes));
-    if (aes != NULL)
-        memset(aes, 0, sizeof(mz_crypt_aes));
-    if (handle != NULL)
+    aes = (mz_crypt_aes *)calloc(1, sizeof(mz_crypt_aes));
+    if (handle)
         *handle = aes;
 
     return aes;
@@ -326,11 +322,11 @@ void *mz_crypt_aes_create(void **handle) {
 
 void mz_crypt_aes_delete(void **handle) {
     mz_crypt_aes *aes = NULL;
-    if (handle == NULL)
+    if (!handle)
         return;
     aes = (mz_crypt_aes *)*handle;
-    if (aes != NULL)
-        MZ_FREE(aes);
+    if (aes)
+        free(aes);
     *handle = NULL;
 }
 
@@ -348,13 +344,13 @@ typedef struct mz_crypt_hmac_s {
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER < 0x2070000fL))
 static HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
-    if (ctx != NULL)
+    if (ctx)
         HMAC_CTX_init(ctx);
     return ctx;
 }
 
 static void HMAC_CTX_free(HMAC_CTX *ctx) {
-    if (ctx != NULL) {
+    if (ctx) {
         HMAC_CTX_cleanup(ctx);
         OPENSSL_free(ctx);
     }
@@ -379,7 +375,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     int32_t result = 0;
     const EVP_MD *evp_md = NULL;
 
-    if (hmac == NULL || key == NULL)
+    if (!hmac || !key)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(handle);
@@ -404,7 +400,7 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
 
-    if (hmac == NULL || buf == NULL)
+    if (!hmac || !buf)
         return MZ_PARAM_ERROR;
 
     result = HMAC_Update(hmac->ctx, buf, size);
@@ -420,7 +416,7 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
 
-    if (hmac == NULL || digest == NULL)
+    if (!hmac || !digest)
         return MZ_PARAM_ERROR;
 
     if (hmac->algorithm == MZ_HASH_SHA1) {
@@ -452,12 +448,12 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
     mz_crypt_hmac *target = (mz_crypt_hmac *)target_handle;
     int32_t result = 0;
 
-    if (source == NULL || target == NULL)
+    if (!source || !target)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(target_handle);
 
-    if (target->ctx == NULL)
+    if (!target->ctx)
         target->ctx = HMAC_CTX_new();
 
     result = HMAC_CTX_copy(target->ctx, source->ctx);
@@ -472,12 +468,10 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 void *mz_crypt_hmac_create(void **handle) {
     mz_crypt_hmac *hmac = NULL;
 
-    hmac = (mz_crypt_hmac *)MZ_ALLOC(sizeof(mz_crypt_hmac));
-    if (hmac != NULL) {
-        memset(hmac, 0, sizeof(mz_crypt_hmac));
+    hmac = (mz_crypt_hmac *)calloc(1, sizeof(mz_crypt_hmac));
+    if (hmac)
         hmac->algorithm = MZ_HASH_SHA256;
-    }
-    if (handle != NULL)
+    if (handle)
         *handle = hmac;
 
     return hmac;
@@ -485,12 +479,12 @@ void *mz_crypt_hmac_create(void **handle) {
 
 void mz_crypt_hmac_delete(void **handle) {
     mz_crypt_hmac *hmac = NULL;
-    if (handle == NULL)
+    if (!handle)
         return;
     hmac = (mz_crypt_hmac *)*handle;
-    if (hmac != NULL) {
+    if (hmac) {
         mz_crypt_hmac_reset(*handle);
-        MZ_FREE(hmac);
+        free(hmac);
     }
     *handle = NULL;
 }
@@ -513,7 +507,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     int32_t result = 0;
     int32_t err = MZ_OK;
 
-    if (message == NULL || cert_data == NULL || signature == NULL || signature_size == NULL)
+    if (!message || !cert_data || !signature || !signature_size)
         return MZ_PARAM_ERROR;
 
     mz_crypt_init();
@@ -523,7 +517,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
 
     cert_bio = BIO_new_mem_buf(cert_data, cert_data_size);
 
-    if (d2i_PKCS12_bio(cert_bio, &p12) == NULL)
+    if (!d2i_PKCS12_bio(cert_bio, &p12))
         err = MZ_SIGN_ERROR;
     if (err == MZ_OK)
         result = PKCS12_parse(p12, cert_pwd, &evp_pkey, &cert, &ca_stack);
@@ -531,7 +525,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
         cms = CMS_sign(NULL, NULL, ca_stack, NULL, CMS_BINARY | CMS_PARTIAL);
         if (cms)
             signer_info = CMS_add1_signer(cms, cert, evp_pkey, EVP_sha256(), 0);
-        if (signer_info == NULL) {
+        if (!signer_info) {
             err = MZ_SIGN_ERROR;
         } else {
             message_bio = BIO_new_mem_buf(message, message_size);
@@ -545,7 +539,7 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
                 BIO_get_mem_ptr(signature_bio, &buf_mem);
 
                 *signature_size = buf_mem->length;
-                *signature = MZ_ALLOC(buf_mem->length);
+                *signature = malloc(buf_mem->length);
 
                 memcpy(*signature, buf_mem->data, buf_mem->length);
             }
@@ -572,8 +566,8 @@ int32_t mz_crypt_sign(uint8_t *message, int32_t message_size, uint8_t *cert_data
     if (p12)
         PKCS12_free(p12);
 
-    if (err != MZ_OK && *signature != NULL) {
-        MZ_FREE(*signature);
+    if (err != MZ_OK && *signature) {
+        free(*signature);
         *signature = NULL;
         *signature_size = 0;
     }
@@ -596,7 +590,7 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
     int32_t i = 0;
     int32_t err = MZ_SIGN_ERROR;
 
-    if (message == NULL || message_size == 0 || signature == NULL || signature_size == 0)
+    if (!message || !message_size || !signature || !signature_size)
         return MZ_PARAM_ERROR;
 
     mz_crypt_init();
@@ -614,10 +608,10 @@ int32_t mz_crypt_sign_verify(uint8_t *message, int32_t message_size, uint8_t *si
 #endif
 
     lookup = X509_STORE_add_lookup(cert_store, X509_LOOKUP_file());
-    if (lookup != NULL)
+    if (lookup)
         X509_LOOKUP_load_file(lookup, "cacert.pem", X509_FILETYPE_PEM);
     lookup = X509_STORE_add_lookup(cert_store, X509_LOOKUP_hash_dir());
-    if (lookup != NULL)
+    if (lookup)
         X509_LOOKUP_add_dir(lookup, NULL, X509_FILETYPE_DEFAULT);
 
     signature_bio = BIO_new_mem_buf(signature, signature_size);

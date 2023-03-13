@@ -1,11 +1,20 @@
-#***************************************************************************
-# Copyright (C) 2017-2020 Nathan Moinvaziri
-#                         https://github.com/zlib-ng/minizip-ng
-# Copyright (C)      2016 Matthias Schmieder
-#                         schmieder.matthias@gmail.com
-#***************************************************************************
+# minizip-ng project
+#
+# Copyright (C) Nathan Moinvaziri
+#   https://github.com/zlib-ng/minizip-ng
+# Copyright (C) 2016 Matthias Schmieder
+#   schmieder.matthias@gmail.com
 
 cmake_minimum_required(VERSION 3.13)
+
+include(CMakeDependentOption)
+include(CheckLibraryExists)
+include(CheckSymbolExists)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckTypeSize)
+include(GNUInstallDirs)
+include(FeatureSummary)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -18,14 +27,15 @@ option(MZ_ZLIB "Enables ZLIB compression" ON)
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
-option(MZ_LIBCOMP "Enables Apple compression" ${APPLE})
-option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ${WIN32})
+cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
+cmake_dependent_option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ON "WIN32" OFF)
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
 # Encryption support options
 option(MZ_PKCRYPT "Enables PKWARE traditional encryption" ON)
 option(MZ_WZAES "Enables WinZIP AES encryption" ON)
-option(MZ_OPENSSL "Enables OpenSSL for encryption" ${UNIX})
-option(MZ_LIBBSD "Enable libbsd crypto random" ${UNIX})
+cmake_dependent_option(MZ_OPENSSL "Enables OpenSSL for encryption" ON "UNIX" OFF)
+cmake_dependent_option(MZ_BCRYPT "Enables Win32 Crypto API Next Generation" ON "CMAKE_SYSTEM_NAME STREQUAL WindowsStore" OFF)
+cmake_dependent_option(MZ_LIBBSD "Builds with libbsd crypto random" ON "UNIX" OFF)
 option(MZ_SIGNING "Enables zip signing support" OFF)
 # Character conversion options
 option(MZ_ICONV "Enables iconv for string encoding conversion" ON)
@@ -73,14 +83,6 @@ set(VERSION "3.0.8")
 
 # API version
 set(SOVERSION "3")
-
-include(CheckLibraryExists)
-include(CheckSymbolExists)
-include(CheckFunctionExists)
-include(CheckIncludeFile)
-include(CheckTypeSize)
-include(GNUInstallDirs)
-include(FeatureSummary)
 
 include(cmake/clone-repo.cmake)
 
@@ -305,7 +307,7 @@ if(MZ_LZMA)
         list(APPEND MINIZIP_LIB ${LIBLZMA_LIBRARIES})
         list(APPEND MINIZIP_LBD ${LIBLZMA_LIBRARY_DIRS})
 
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lliblzma")
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -llzma")
     elseif(MZ_FETCH_LIBS)
         set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
 
@@ -436,17 +438,19 @@ if(WIN32)
         if(MZ_OPENSSL)
             list(APPEND MINIZIP_DEP_PKG OpenSSL)
         else()
-            message(STATUS "Using CryptoAPI")
-
-            list(APPEND MINIZIP_SRC mz_crypt_win32.c)
-            list(APPEND MINIZIP_LIB crypt32.lib)
+            if(MZ_BCRYPT)
+                message(STATUS "Using BCrypt API")
+                list(APPEND MINIZIP_SRC mz_crypt_winrt.c)
+                list(APPEND MINIZIP_LIB bcrypt.lib crypt32.lib ncrypt.lib)
+            else()
+                message(STATUS "Using CryptoAPI")
+                list(APPEND MINIZIP_SRC mz_crypt_win32.c)
+                list(APPEND MINIZIP_LIB crypt32.lib)
+            endif()
         endif()
     else()
         list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)
     endif()
-endif()
-if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-    list(APPEND MINIZIP_DEF -DMZ_WINRT_API)
 endif()
 
 # Unix specific
@@ -508,53 +512,51 @@ if(UNIX)
                 endif()
             endif()
 
-            if(MZ_PKCRYPT AND NOT MZ_WZAES)
-                # Check to see which random generation functions we have
-                check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
-                if(HAVE_GETRANDOM)
-                    list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
+            # Check to see which random generation functions we have
+            check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
+            if(HAVE_GETRANDOM)
+                list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
+            endif()
+            check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
+            if(HAVE_ARC4RANDOM_BUF)
+                list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
+            else()
+                check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
+                if(HAVE_ARC4RANDOM)
+                    list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
                 endif()
-                check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
-                if(HAVE_ARC4RANDOM_BUF)
-                    list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
-                else()
-                    check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
-                    if(HAVE_ARC4RANDOM)
-                        list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
-                    endif()
-                endif()
+            endif()
 
-                if(APPLE)
-                    # Requires _DARWIN_C_SOURCE for arcrandom functions
-                    list(APPEND MINIZIP_DEF -D_DARWIN_C_SOURCE)
-                endif()
+            if(APPLE)
+                # Requires _DARWIN_C_SOURCE for arcrandom functions
+                list(APPEND MINIZIP_DEF -D_DARWIN_C_SOURCE)
+            endif()
 
-                if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
-                    find_package(PkgConfig REQUIRED)
+            if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
+                find_package(PkgConfig REQUIRED)
 
-                    pkg_check_modules(LIBBSD libbsd-overlay)
-                    if(LIBBSD_FOUND)
-                        check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
-                            "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
+                pkg_check_modules(LIBBSD libbsd-overlay)
+                if(LIBBSD_FOUND)
+                    check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
+                        "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
 
-                        if(HAVE_LIBBSD_ARC4RANDOM_BUF)
-                            list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
-                            list(APPEND MINIZIP_INC ${LIBBSD_INCLUDE_DIRS})
-                            list(APPEND MINIZIP_LIB ${LIBBSD_LIBRARIES})
-                            list(APPEND MINIZIP_LBD ${LIBBSD_LIBRARY_DIRS})
+                    if(HAVE_LIBBSD_ARC4RANDOM_BUF)
+                        list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
+                        list(APPEND MINIZIP_INC ${LIBBSD_INCLUDE_DIRS})
+                        list(APPEND MINIZIP_LIB ${LIBBSD_LIBRARIES})
+                        list(APPEND MINIZIP_LBD ${LIBBSD_LIBRARY_DIRS})
 
-                            link_directories(${LIBBSD_LIBRARY_DIRS})
-                        endif()
-                    else()
-                        set(MZ_LIBBSD OFF)
+                        link_directories(${LIBBSD_LIBRARY_DIRS})
                     endif()
                 else()
                     set(MZ_LIBBSD OFF)
                 endif()
+            else()
+                set(MZ_LIBBSD OFF)
+            endif()
 
-                if(NOT MZ_LIBBSD AND NOT HAVE_GETRANDOM AND NOT HAVE_ARC4RANDOM_BUF AND NOT HAVE_ARC4RANDOM)
-                    message(WARNING "Low quality entropy function used for encryption")
-                endif()
+            if(NOT MZ_LIBBSD AND NOT HAVE_GETRANDOM AND NOT HAVE_ARC4RANDOM_BUF AND NOT HAVE_ARC4RANDOM)
+                message(WARNING "Low quality entropy function used for encryption")
             endif()
         endif()
     else()
@@ -777,7 +779,7 @@ if(MZ_BUILD_TESTS)
     target_include_directories(minizip_cmd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(minizip_cmd ${PROJECT_NAME})
     if(WIN32)
-        set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJCT minizip_cmd)
+        set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT minizip_cmd)
     endif()
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
@@ -999,7 +1001,8 @@ add_feature_info(MZ_FORCE_FETCH_LIBS MZ_FORCE_FETCH_LIBS "Enables fetching third
 add_feature_info(MZ_PKCRYPT MZ_PKCRYPT "Enables PKWARE traditional encryption")
 add_feature_info(MZ_WZAES MZ_WZAES "Enables WinZIP AES encryption")
 add_feature_info(MZ_OPENSSL MZ_OPENSSL "Enables OpenSSL for encryption")
-add_feature_info(MZ_LIBBSD MZ_LIBBSD "Build with libbsd for crypto random")
+add_feature_info(MZ_BCRYPT MZ_BCRYPT "Enables Win32 Crypto API Next Generation (CNG)")
+add_feature_info(MZ_LIBBSD MZ_LIBBSD "Builds with libbsd crypto random")
 add_feature_info(MZ_SIGNING MZ_SIGNING "Enables zip signing support")
 # Character conversion options
 add_feature_info(MZ_ICONV MZ_ICONV "Enables iconv string encoding conversion library")

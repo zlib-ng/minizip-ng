@@ -1,7 +1,7 @@
 /* minizip.c
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
    Copyright (C) 1998-2010 Gilles Vollant
      https://www.winimage.com/zLibDll/minizip.html
@@ -211,7 +211,7 @@ int32_t minizip_add_overwrite_cb(void *handle, void *userdata, const char *path)
 
     MZ_UNUSED(handle);
 
-    if (options->overwrite == 0) {
+    if (!options->overwrite) {
         /* If ask the user what to do because append and overwrite args not set */
         char rep = 0;
         do {
@@ -257,7 +257,7 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     mz_zip_writer_set_progress_cb(writer, options, minizip_add_progress_cb);
     mz_zip_writer_set_entry_cb(writer, options, minizip_add_entry_cb);
     mz_zip_writer_set_zip_cd(writer, options->zip_cd);
-    if (options->cert_path != NULL)
+    if (options->cert_path)
         mz_zip_writer_set_certificate(writer, options->cert_path, options->cert_pwd);
 
     err = mz_zip_writer_open_file(writer, path, options->disk_size, options->append);
@@ -326,7 +326,7 @@ int32_t minizip_extract_overwrite_cb(void *handle, void *userdata, mz_zip_file *
     MZ_UNUSED(file_info);
 
     /* Verify if we want to overwrite current entry on disk */
-    if (options->overwrite == 0) {
+    if (!options->overwrite) {
         char rep = 0;
         do {
             char answer[128];
@@ -372,7 +372,7 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
         err = mz_zip_reader_save_all(reader, destination);
 
         if (err == MZ_END_OF_LIST) {
-            if (pattern != NULL) {
+            if (pattern) {
                 printf("Files matching %s not found in archive\n", pattern);
             } else {
                 printf("No files in archive\n");
@@ -408,7 +408,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     char bak_path[256];
     char tmp_path[256];
 
-    if (target_path == NULL) {
+    if (!target_path) {
         /* Construct temporary zip name */
         strncpy(tmp_path, src_path, sizeof(tmp_path) - 1);
         tmp_path[sizeof(tmp_path) - 1] = 0;
@@ -485,7 +485,7 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     mz_zip_writer_delete(&writer);
 
     if (err == MZ_END_OF_LIST) {
-        if (target_path == NULL) {
+        if (!target_path) {
             /* Swap original archive with temporary archive, backup old archive if possible */
             strncpy(bak_path, src_path, sizeof(bak_path) - 1);
             bak_path[sizeof(bak_path) - 1] = 0;

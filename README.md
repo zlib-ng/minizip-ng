@@ -77,6 +77,7 @@ cmake --build build
 | MZ_FORCE_FETCH_LIBS | Enables fetching third-party libraries always       |      OFF      |
 | MZ_PKCRYPT          | Enables PKWARE traditional encryption               |      ON       |
 | MZ_WZAES            | Enables WinZIP AES encryption                       |      ON       |
+| MZ_BCRYPT           | Builds with Win32 Crypto API New Generation (CNG)   |      OFF      |
 | MZ_OPENSSL          | Enables OpenSSL encryption                          |     UNIX      |
 | MZ_LIBBSD           | Builds with libbsd crypto random                    |     UNIX      |
 | MZ_SIGNING          | Enables zip signing support                         |      OFF      |

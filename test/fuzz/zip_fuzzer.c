@@ -3,13 +3,12 @@
 
    Copyright (C) 2018 The Chromium Authors
    Copyright (C) 2018 Anand K. Mistry
-   Copyright (C) 2018-2020 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
    See the accompanying LICENSE file for the full text of the license.
 */
-
 
 #include "mz.h"
 #include "mz_strm.h"
@@ -22,12 +21,11 @@ extern "C" {
 
 /***************************************************************************/
 
-#define MZ_FUZZ_TEST_FILENAME   "foo"
+#define MZ_FUZZ_TEST_FILENAME "foo"
 
 /***************************************************************************/
 
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
-{
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     mz_zip_file file_info;
     void *fuzz_stream = NULL;
     void *stream = NULL;
@@ -46,24 +44,19 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     memset(&file_info, 0, sizeof(file_info));
 
     file_info.flag = MZ_ZIP_FLAG_UTF8;
-    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08))
-    {
+    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08)) {
         if (mz_stream_read_uint16(fuzz_stream, &value16) == MZ_OK)
             file_info.flag = value16;
     }
     file_info.compression_method = MZ_COMPRESS_METHOD_DEFLATE;
-    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08))
-    {
+    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08)) {
         file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
-    }
-    else if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08))
-    {
+    } else if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08)) {
         if (mz_stream_read_uint16(fuzz_stream, &value16) == MZ_OK)
             file_info.compression_method = value16;
     }
 
-    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08))
-    {
+    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08)) {
         if (mz_stream_read_uint16(fuzz_stream, &value16) == MZ_OK)
             file_info.zip64 = value16;
     }
@@ -72,8 +65,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     file_info.filename_size = (uint16_t)strlen(MZ_FUZZ_TEST_FILENAME);
 
     compress_level = MZ_COMPRESS_LEVEL_DEFAULT;
-    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08))
-    {
+    if ((mz_stream_read_uint8(fuzz_stream, &value8) == MZ_OK) && (value8 < 0x08)) {
         if (mz_stream_read_uint16(fuzz_stream, &value16) == MZ_OK)
             compress_level = value16;
     }
@@ -82,11 +74,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     mz_zip_create(&handle);
 
     err = mz_zip_open(handle, stream, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
-    if (err == MZ_OK)
-    {
+    if (err == MZ_OK) {
         err = mz_zip_entry_write_open(handle, &file_info, compress_level, 0, NULL);
-        if (err == MZ_OK)
-        {
+        if (err == MZ_OK) {
             mz_stream_mem_get_buffer_at_current(fuzz_stream, (const void **)&fuzz_buf);
             fuzz_pos = mz_stream_tell(fuzz_stream);
             mz_stream_mem_get_buffer_length(fuzz_stream, &fuzz_length);

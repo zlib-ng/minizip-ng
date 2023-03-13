@@ -1,7 +1,7 @@
 /* test_compat.cc - Test compatibility layer
    part of the minizip-ng project
 
-   Copyright (C) 2018-2022 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
@@ -172,7 +172,7 @@ static void *ZCALLBACK fopen_file_func(void *opaque, const char *filename, int m
     else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
         mode_fopen = "wb";
 
-    if ((filename != NULL) && (mode_fopen != NULL))
+    if (filename && mode_fopen)
         file = fopen(filename, mode_fopen);
 
     return file;

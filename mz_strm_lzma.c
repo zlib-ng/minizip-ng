@@ -1,7 +1,7 @@
 /* mz_strm_lzma.c -- Stream for lzma inflate/deflate
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
       https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
@@ -174,8 +174,7 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size) {
     int32_t read = 0;
     int32_t err = LZMA_OK;
 
-
-    lzma->lstream.next_out = (uint8_t*)buf;
+    lzma->lstream.next_out = (uint8_t *)buf;
     lzma->lstream.avail_out = (size_t)size;
 
     do {
@@ -327,7 +326,7 @@ int32_t mz_stream_lzma_write(void *stream, const void *buf, int32_t size) {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     int32_t err = MZ_OK;
 
-    lzma->lstream.next_in = (uint8_t*)(intptr_t)buf;
+    lzma->lstream.next_in = (uint8_t *)(intptr_t)buf;
     lzma->lstream.avail_in = (size_t)size;
 
     err = mz_stream_lzma_code(stream, LZMA_RUN);
@@ -439,15 +438,14 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
 void *mz_stream_lzma_create(void **stream) {
     mz_stream_lzma *lzma = NULL;
 
-    lzma = (mz_stream_lzma *)MZ_ALLOC(sizeof(mz_stream_lzma));
-    if (lzma != NULL) {
-        memset(lzma, 0, sizeof(mz_stream_lzma));
+    lzma = (mz_stream_lzma *)calloc(1, sizeof(mz_stream_lzma));
+    if (lzma) {
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->method = MZ_COMPRESS_METHOD_LZMA;
         lzma->preset = LZMA_PRESET_DEFAULT;
         lzma->max_total_out = -1;
     }
-    if (stream != NULL)
+    if (stream)
         *stream = lzma;
 
     return lzma;
@@ -455,11 +453,11 @@ void *mz_stream_lzma_create(void **stream) {
 
 void mz_stream_lzma_delete(void **stream) {
     mz_stream_lzma *lzma = NULL;
-    if (stream == NULL)
+    if (!stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
-    if (lzma != NULL)
-        MZ_FREE(lzma);
+    if (lzma)
+        free(lzma);
     *stream = NULL;
 }
 

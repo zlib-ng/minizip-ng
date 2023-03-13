@@ -8,6 +8,11 @@
 - [Zlib Configuration](#zlib-configuration)
 - [Upgrading from 1.x](#upgrading-from-1x)
 - [Security Considerations](#security-considerations)
+- [Using Streams](#using-streams)
+  - [Memory Stream](#memory-stream)
+  - [Buffered Stream](#buffered-stream)
+  - [Disk Splitting Stream](#disk-splitting-stream)
+  - [Additional Code Examples](#additional-code-examples)
 
 ## API
 
@@ -113,7 +118,6 @@ instance, some #defines will have to be set as they have changed.
 |NOCRYPT|Nearest to MZ_ZIP_NO_ENCRYPTION|Previously turned off all encryption support.|
 ||MZ_ZIP_NO_ENCRYPTION|Turns off all encryption/decryption support.|
 |NO_ADDFILEINEXISTINGZIP||Not currently supported.|
-|IOWIN32_USING_WINRT_API|MZ_WINRT_API|Enable WinRT API support in Win32 file I/O stream.|
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 ||MZ_ZIP_NO_COMPRESSION|Intended to reduce compilation size if not using zipping functionality.|
 
@@ -136,3 +140,119 @@ In order to create a secure zip file you must:
 * Sign the zip file using a certificate
 
 The combination of using AES encryption and zipping the central directory prevents data leakage through filename exposure.
+
+## Using Streams
+
+All input/output operations are done through the use of streams.
+
+### Memory Stream
+
+To unzip from a zip file in memory pass the memory stream to the open function.
+```c
+uint8_t *zip_buffer = NULL;
+int32_t zip_buffer_size = 0;
+void *mem_stream = NULL;
+void *zip_handle = NULL;
+
+/* TODO: fill zip_buffer with zip contents.. */
+
+mz_stream_mem_create(&mem_stream);
+mz_stream_mem_set_buffer(mem_stream, zip_buffer, zip_buffer_size);
+mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
+
+mz_zip_create(&zip_handle);
+err = mz_zip_open(zip_handle, mem_stream, MZ_OPEN_MODE_READ);
+
+/* TODO: unzip operations.. */
+
+mz_zip_close(zip_handle);
+mz_zip_delete(&zip_handle);
+
+mz_stream_mem_delete(&mem_stream);
+```
+
+To create a zip file in memory first create a growable memory stream and pass it to the open function.
+
+```c
+void *mem_stream = NULL;
+void *zip_handle = NULL;
+
+mz_stream_mem_create(&mem_stream);
+mz_stream_mem_set_grow_size(mem_stream, (128 * 1024));
+mz_stream_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
+
+mz_zip_create(&zip_handle);
+err = mz_zip_open(zip_handle, mem_stream, MZ_OPEN_MODE_WRITE);
+
+/* TODO: unzip operations.. */
+
+mz_zip_close(zip_handle);
+mz_zip_delete(&zip_handle);
+
+mz_stream_mem_delete(&mem_stream);
+```
+
+For a complete example, see test_stream_mem() in [test.c](https://github.com/nmoinvaz/minizip/blob/master/test/test.c).
+
+### Buffered Stream
+
+By default the library will read bytes typically one at a time. The buffered stream allows for buffered read and write operations to improve I/O performance.
+
+```c
+void *stream = NULL;
+void *buf_stream = NULL;
+void *zip_handle = NULL;
+
+mz_stream_os_create(&stream)
+
+/* TODO: open os stream.. */
+
+mz_stream_buffered_create(&buf_stream);
+mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ);
+mz_stream_buffered_set_base(buf_stream, stream);
+
+mz_zip_create(&zip_handle);
+err = mz_zip_open(zip_handle, buf_stream, MZ_OPEN_MODE_READ);
+
+/* TODO: unzip operation.. */
+
+mz_zip_close(zip_handle);
+mz_zip_delete(&zip_handle);
+
+mz_stream_buffered_delete(&buf_stream);
+```
+
+### Disk Splitting Stream
+
+To create an archive with multiple disks use the disk splitting stream and supply a disk size value in bytes.
+
+```c
+void *stream = NULL;
+void *split_stream = NULL;
+void *zip_handle = NULL;
+
+mz_stream_os_create(&stream);
+
+mz_stream_split_create(&split_stream);
+mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, 64 * 1024);
+mz_stream_set_base(split_stream, stream);
+mz_stream_open(split_stream, path..
+
+mz_zip_create(&zip_handle);
+err = mz_zip_open(zip_handle, split_stream, MZ_OPEN_MODE_WRITE);
+
+/* TODO: unzip operation.. */
+
+mz_zip_close(zip_handle);
+mz_zip_delete(&zip_handle);
+
+mz_stream_buffered_delete(&split_stream);
+```
+
+### Additional Code Examples
+
+Some of these may be out of date, but they can also be helpful.
+
+* [Compressed stream tests](https://github.com/zlib-ng/minizip-ng/blob/master/test/test_stream_compress.cc)
+* [Code to copy raw entries from one zip file to another](https://gist.github.com/chenxiaolong/bcbb0835182ef16a25f09db8d99e0619) by chenxiaolong
+* [Buffered streaming](https://gist.github.com/chenxiaolong/dbab3fbef51b9d0fa969e220dbb85967) by chenxiaolong

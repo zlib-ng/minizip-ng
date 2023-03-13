@@ -1,7 +1,7 @@
 /* minigzip.c
    part of the minizip-ng project
 
-   Copyright (C) 2010-2021 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
@@ -14,12 +14,12 @@
 #include "mz_strm_os.h"
 #include "mz_strm_zlib.h"
 
-#include <stdio.h>  /* printf */
+#include <stdio.h> /* printf */
 
 /***************************************************************************/
 
-#define MZ_GZIP_COMPRESS    (1)
-#define MZ_GZIP_DECOMPRESS  (2)
+#define MZ_GZIP_COMPRESS   (1)
+#define MZ_GZIP_DECOMPRESS (2)
 
 int32_t minigzip_banner(void);
 int32_t minigzip_help(void);
@@ -54,7 +54,7 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
 
     memset(target_path, 0, sizeof(target_path));
 
-    if (destination != NULL) {
+    if (destination) {
         if (mz_os_file_exists(destination) != MZ_OK)
             mz_dir_make(destination);
     }
@@ -64,7 +64,7 @@ int32_t minigzip_copy(const char *path, const char *destination, int16_t operati
         strncat(target_path, ".gz", sizeof(target_path) - strlen(target_path) - 1);
         printf("Compressing to %s\n", target_path);
     } else if (operation == MZ_GZIP_DECOMPRESS) {
-        if (destination != NULL)
+        if (destination)
             mz_path_combine(target_path, destination, sizeof(target_path));
 
         if (mz_path_get_filename(path, &filename) != MZ_OK)

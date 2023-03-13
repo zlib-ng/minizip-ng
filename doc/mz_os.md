@@ -357,7 +357,7 @@ Create unicode string from a string with another encoding.
 ```
 char *test = "test";
 wchar_t *test_unicode = mz_os_unicode_string_create(test, MZ_ENCODING_UTF8);
-if (test_unicode != NULL) {
+if (test_unicode) {
     printf("Unicode test string created\n");
     mz_os_unicode_string_delete(&test_unicode);
 }
@@ -376,7 +376,7 @@ Delete a unicode string that was created with _mz_os_unicode_string_create_.
 ```
 char *test = "test";
 wchar_t *test_unicode = mz_os_unicode_string_create(test, MZ_ENCODING_UTF8);
-if (test_unicode != NULL) {
+if (test_unicode) {
     printf("Unicode test string created\n");
     mz_os_unicode_string_delete(&test_unicode);
 }
@@ -401,7 +401,7 @@ Create a utf8 string from a string with another encoding.
 ```
 char *test = "test";
 wchar_t *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
-if (test_utf8 != NULL) {
+if (test_utf8) {
     printf("UTF-8 test string created\n");
     mz_os_utf8_string_create(&test_utf8);
 }
@@ -420,7 +420,7 @@ Delete a utf8 string that was created with _mz_os_utf8_string_create_.
 ```
 char *test = "test";
 wchar_t *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
-if (test_utf8 != NULL) {
+if (test_utf8) {
     printf("UTF-8 test string created\n");
     mz_os_utf8_string_create(&test_utf8);
 }
@@ -681,7 +681,7 @@ Opens a directory for listing.
 ```
 const char *search_dir = "c:\\test1\\";
 DIR *dir = mz_open_dir(search_dir);
-if (dir != NULL) {
+if (dir) {
     printf("Dir %s was opened\n", search_dir);
     mz_os_close_dir(dir);
 }
@@ -705,10 +705,10 @@ Reads a directory listing entry.
 ```
 const char *search_dir = "c:\\test2\\";
 DIR *dir = mz_open_dir(search_dir);
-if (dir != NULL) {
+if (dir) {
     struct dirent *entry = NULL;
     printf("Dir %s was opened\n", search_dir);
-    while ((entry = mz_os_read_dir(dir)) != NULL) {
+    while ((entry = mz_os_read_dir(dir))) {
         printf("Dir entry: %s was opened\n", entry->d_name);
     }
     mz_os_close_dir(dir);
@@ -733,10 +733,10 @@ Closes a directory that has been opened for listing.
 ```
 const char *search_dir = "c:\\test3\\";
 DIR *dir = mz_open_dir(search_dir);
-if (dir != NULL) {
+if (dir) {
     struct dirent *entry = NULL;
     printf("Dir %s was opened\n", search_dir);
-    while ((entry = mz_os_read_dir(dir)) != NULL) {
+    while ((entry = mz_os_read_dir(dir))) {
         printf("Dir entry: %s was opened\n", entry->d_name);
     }
     mz_os_close_dir(dir);

@@ -1,7 +1,7 @@
 /* test_crypt.cc - Test cryptography implementation
    part of the minizip-ng project
 
-   Copyright (C) 2018-2022 Nathan Moinvaziri
+   Copyright (C) Nathan Moinvaziri
      https://github.com/zlib-ng/minizip-ng
 
    This program is distributed under the terms of the same license as zlib.
@@ -11,6 +11,8 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_crypt.h"
+
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -29,6 +31,16 @@ static void convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *h
         snprintf(hex_string + p, max_hex_string - p, "%02x", buf[i]);
     if (p < max_hex_string)
         hex_string[p] = 0;
+}
+
+TEST(crypt, rand) {
+    uint8_t random_bytes[256];
+
+    memset(random_bytes, 0, sizeof(random_bytes));
+
+    EXPECT_EQ(mz_crypt_rand(random_bytes, sizeof(random_bytes)), sizeof(random_bytes));
+
+    EXPECT_NE(std::string((char *)random_bytes).find_first_not_of('\0'), std::string::npos);
 }
 
 TEST(crypt, sha1) {
@@ -126,40 +138,86 @@ TEST(crypt, sha512) {
     EXPECT_STREQ(computed_hash, "6627e7643ee7ce633e03f52d22329c3a32597364247c5275d4369985e1518626da46f595ad327667346479d246359b8b381af791ce2ac8c53a4788050eea11fe");
 }
 
-TEST(crypt, aes) {
+TEST(crypt, aes128) {
     void *aes = NULL;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
-    char computed_hash[320];
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
-    uint8_t hash[MZ_HASH_SHA256_SIZE];
-
-    memset(hash, 0, sizeof(hash));
 
     key_length = (int32_t)strlen(key);
     test_length = (int32_t)strlen(test);
 
     strncpy((char *)buf, test, sizeof(buf));
 
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
-
     mz_crypt_aes_create(&aes);
-    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
-    mz_crypt_aes_encrypt(aes, buf, test_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
+    EXPECT_STRNE((char *)buf, test);
 
     mz_crypt_aes_create(&aes);
-    mz_crypt_aes_set_mode(aes, MZ_AES_ENCRYPTION_MODE_256);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
-    mz_crypt_aes_decrypt(aes, buf, test_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
     mz_crypt_aes_delete(&aes);
 
-    convert_buffer_to_hex_string(buf, test_length, computed_hash, sizeof(computed_hash));
+    EXPECT_STREQ((char *)buf, test);
+}
+
+TEST(crypt, aes194) {
+    void *aes = NULL;
+    const char *key = "awesomekeythisisbeefyone";
+    const char *test = "youknowitsogrowi";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    uint8_t buf[120];
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+
+    strncpy((char *)buf, test, sizeof(buf));
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char *)buf, test);
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STREQ((char *)buf, test);
+}
+
+TEST(crypt, aes256) {
+    void *aes = NULL;
+    const char *key = "awesomekeythisisevenmoresolidone";
+    const char *test = "youknowitsogrowi";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    uint8_t buf[120];
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+
+    strncpy((char *)buf, test, sizeof(buf));
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char *)buf, test);
+
+    mz_crypt_aes_create(&aes);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
 }
@@ -204,7 +262,7 @@ TEST(crypt, hmac_sha256) {
 
 #ifdef HAVE_WZAES
 TEST(crypt, pbkdf2) {
-    int32_t iteration_count = 1000;
+    uint16_t iteration_count = 1000;
     uint8_t key[MZ_HASH_SHA1_SIZE];
     char key_hex[256];
     const char *password = "passwordpasswordpasswordpassword";
@@ -213,7 +271,7 @@ TEST(crypt, pbkdf2) {
     const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
 
     EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
-        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, sizeof(key)), MZ_OK);
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
 
     convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
 
