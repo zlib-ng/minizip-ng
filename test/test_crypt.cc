@@ -241,6 +241,28 @@ TEST(crypt, hmac_sha1) {
     EXPECT_STREQ(computed_hash, "c785a02ff303c886c304d9a4c06073dfe4c24aa9");
 }
 
+TEST(crypt, hmac_sha1_short_password) {
+    /* Test fixes for CryptImportKey returning ERROR_INVALID_PARAMETER on Windows */
+    void *hmac;
+    /* Intended key is "h", the extra "x" helps test that padding does not read past supplied length */
+    const char *key = "hx";
+    const char *test = "helloworld";
+    char computed_hash[256];
+    uint8_t hash1[MZ_HASH_SHA1_SIZE];
+
+    mz_crypt_hmac_create(&hmac);
+    mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
+    /* Key length is 1, only first char from key should used for this test */
+    mz_crypt_hmac_init(hmac, key, 1);
+    mz_crypt_hmac_update(hmac, test, (int32_t)strlen(test));
+    mz_crypt_hmac_end(hmac, hash1, sizeof(hash1));
+    mz_crypt_hmac_delete(&hmac);
+
+    convert_buffer_to_hex_string(hash1, sizeof(hash1), computed_hash, sizeof(computed_hash));
+
+    EXPECT_STREQ(computed_hash, "0d216a670164deca30181479908f65b6b01199e2");
+}
+
 TEST(crypt, hmac_sha256) {
     void *hmac;
     const char *key = "hm123";
@@ -274,6 +296,38 @@ TEST(crypt, pbkdf2) {
     convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
 
     EXPECT_STREQ(key_hex, "852c7b71a104aaa8d8996c840c3d4d5d0db780aa");
+}
+
+TEST(crypt, pbkdf2_long_odd_password) {
+    uint16_t iteration_count = 1000;
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+    char key_hex[256];
+    /* Password has odd length and longer than 64 chars */
+    const char *password = "passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordp";
+    const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "b3e0b5ece77332506972e97b63b3a0a6d36c39a9");
+}
+
+TEST(crypt, pbkdf2_short_password) {
+    /* Test fixes for CryptImportKey returns ERROR_INVALID_PARAMETER on Windows */
+    uint16_t iteration_count = 1000;
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+    char key_hex[256];
+    const char *password = "p";
+    const char *salt = "8F3472E4EA57F56E36F30246DC22C173";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "91cf25bb4c2978620255d7fed8cc1751c7d283b9");
 }
 #endif
 #endif

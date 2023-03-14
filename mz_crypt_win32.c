@@ -561,8 +561,8 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         hmac->error = GetLastError();
         err = MZ_CRYPT_ERROR;
     } else {
-        /* Zero-pad odd key lengths */
-        if (pad_key_length % 2 == 1)
+        /* Pad single char key to work around CryptImportKey returning ERROR_INVALID_PARAMETER */
+        if (pad_key_length == 1)
             pad_key_length += 1;
         key_blob_size = sizeof(key_blob_header_s) + pad_key_length;
         key_blob = (uint8_t *)malloc(key_blob_size);
