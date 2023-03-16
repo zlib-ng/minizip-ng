@@ -455,7 +455,7 @@ endif()
 
 # Unix specific
 if(UNIX)
-    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200112L)
+    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200809L)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
 
     if(MZ_PKCRYPT OR MZ_WZAES OR MZ_SIGNING)
