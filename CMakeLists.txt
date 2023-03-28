@@ -429,7 +429,7 @@ if(MZ_OPENSSL)
     endif()
 endif()
 
-# Windows specific
+# Platform specific
 if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
@@ -451,10 +451,10 @@ if(WIN32)
     else()
         list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPTO)
     endif()
-endif()
 
-# Unix specific
-if(UNIX)
+    set(MZ_LIBBSD OFF)
+    set(MZ_ICONV OFF)
+else()
     list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200809L)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
 
@@ -585,9 +585,6 @@ if(UNIX)
 
         set(MZ_ICONV OFF)
     endif()
-else()
-    set(MZ_LIBBSD OFF)
-    set(MZ_ICONV OFF)
 endif()
 
 # Setup predefined macros
