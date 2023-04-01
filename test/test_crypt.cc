@@ -64,6 +64,9 @@ TEST(crypt, sha1) {
 }
 
 TEST(crypt, sha224) {
+#if GTEST_OS_WINDOWS
+    GTEST_SKIP() << "SHA224 not supported on Windows";
+#else
     void *sha224 = NULL;
     uint8_t hash224[MZ_HASH_SHA224_SIZE];
     char computed_hash[256];
@@ -81,6 +84,7 @@ TEST(crypt, sha224) {
     convert_buffer_to_hex_string(hash224, sizeof(hash224), computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ(computed_hash, "9e444f5f0b6582a923bd48696155f4a2f0d914e044cb64b8729a6600");
+#endif
 }
 
 TEST(crypt, sha256) {
