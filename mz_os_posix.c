@@ -17,7 +17,7 @@
 #if defined(HAVE_ICONV)
 #include <iconv.h>
 #endif
-
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
