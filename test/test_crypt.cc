@@ -266,7 +266,8 @@ TEST(crypt, hmac_sha1_short_password) {
     char computed_hash[256];
     uint8_t hash1[MZ_HASH_SHA1_SIZE];
 
-    mz_crypt_hmac_create(&hmac);
+    hmac = mz_crypt_hmac_create();
+    ASSERT_NE(hmac, nullptr);
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
     /* Key length is 1, only first char from key should used for this test */
     mz_crypt_hmac_init(hmac, key, 1);
