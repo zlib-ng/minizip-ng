@@ -329,5 +329,85 @@ TEST(crypt, pbkdf2_short_password) {
 
     EXPECT_STREQ(key_hex, "91cf25bb4c2978620255d7fed8cc1751c7d283b9");
 }
+
+TEST(crypt, pbkdf2_rfc6070_v1) {
+    /* https://www.ietf.org/rfc/rfc6070.txt */
+    uint16_t iteration_count = 2;
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+    char key_hex[256];
+    const char *password = "password";
+    const char *salt = "salt";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "ea6c014dc72d6f8ccd1ed92ace1d41f0d8de8957");
+}
+
+TEST(crypt, pbkdf2_rfc6070_v2) {
+    /* https://www.ietf.org/rfc/rfc6070.txt */
+    uint16_t iteration_count = 4096;
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+    char key_hex[256];
+    const char *password = "password";
+    const char *salt = "salt";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "4b007901b765489abead49d926f721d065a429c1");
+}
+
+TEST(crypt, pbkdf2_rfc6070_v3) {
+    /* https://www.ietf.org/rfc/rfc6070.txt */
+    uint32_t iteration_count = 16777216U;
+    uint8_t key[MZ_HASH_SHA1_SIZE];
+    char key_hex[256];
+    const char *password = "password";
+    const char *salt = "salt";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "eefe3d61cd4da4e4e9945b3d6ba2158c2634e984");
+}
+
+TEST(crypt, pbkdf2_rfc6070_v4) {
+    /* https://www.ietf.org/rfc/rfc6070.txt */
+    uint16_t iteration_count = 4096;
+    uint8_t key[25];
+    char key_hex[256];
+    const char *password = "passwordPASSWORDpassword";
+    const char *salt = "saltSALTsaltSALTsaltSALTsaltSALTsalt";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, (int32_t)strlen(password),
+        (uint8_t *)salt, (int32_t)strlen(salt), iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "3d2eec4fe41c849b80c8d83662c0e44a8b291a964cf2f07038");
+}
+
+TEST(crypt, pbkdf2_rfc6070_v5) {
+    /* https://www.ietf.org/rfc/rfc6070.txt */
+    uint16_t iteration_count = 4096;
+    uint8_t key[16];
+    char key_hex[256];
+    const char *password = "pass\0word";
+    const char *salt = "sa\0lt";
+
+    EXPECT_EQ(mz_crypt_pbkdf2((uint8_t *)password, 9,
+        (uint8_t *)salt, 5, iteration_count, key, (uint16_t)sizeof(key)), MZ_OK);
+
+    convert_buffer_to_hex_string(key, sizeof(key), key_hex, sizeof(key_hex));
+
+    EXPECT_STREQ(key_hex, "56fa6aa75548099dcc37d7f03425e0c3");
+}
 #endif
 #endif
