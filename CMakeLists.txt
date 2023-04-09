@@ -6,6 +6,11 @@
 #   schmieder.matthias@gmail.com
 
 cmake_minimum_required(VERSION 3.13)
+project(minuzip-ng
+	VERSION 3.0.10
+	DESCRIPTION "minizip-ng is a zip manipulation library"
+	HOMEPAGE_URL https://github.com/zlib-ng/minizip-ng/
+	LANGUAGES C)
 
 include(CMakeDependentOption)
 include(CheckLibraryExists)
@@ -85,11 +90,6 @@ set(VERSION "3.0.10")
 set(SOVERSION "3")
 
 include(cmake/clone-repo.cmake)
-
-set(INSTALL_BIN_DIR ${CMAKE_INSTALL_BINDIR} CACHE PATH "Installation directory for executables")
-set(INSTALL_LIB_DIR ${CMAKE_INSTALL_LIBDIR} CACHE PATH "Installation directory for libraries")
-set(INSTALL_INC_DIR ${CMAKE_INSTALL_INCLUDEDIR} CACHE PATH "Installation directory for headers")
-set(INSTALL_MAN_DIR ${CMAKE_INSTALL_MANDIR} CACHE PATH "Installation directory for manual pages")
 
 set(STDLIB_DEF)
 set(MINIZIP_DEF)
@@ -671,11 +671,6 @@ endif()
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc)
 configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
-set(INSTALL_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-    CACHE PATH "Installation directory for cmake files.")
-set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
-    CACHE PATH "Installation directory for pkgconfig (.pc) files")
-
 add_library(${PROJECT_NAME} ${MINIZIP_SRC} ${MINIZIP_HDR})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -715,16 +710,16 @@ add_library(MINIZIP::minizip ALIAS ${PROJECT_NAME})
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     target_include_directories(${PROJECT_NAME} PUBLIC
-        $<INSTALL_INTERFACE:${INSTALL_INC_DIR}>)
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
     install(TARGETS ${PROJECT_NAME} ${MINIZIP_DEP}
             EXPORT ${PROJECT_NAME}
-            INCLUDES DESTINATION "${INSTALL_INC_DIR}"
-            RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
-            ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
-            LIBRARY DESTINATION "${INSTALL_LIB_DIR}")
+            INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     install(EXPORT ${PROJECT_NAME}
-            DESTINATION "${INSTALL_CMAKE_DIR}"
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake"
             NAMESPACE "MINIZIP::")
 
     # Create and install CMake package config version file to allow find_package()
@@ -743,17 +738,17 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
 
     # Create config for find_package()
     configure_package_config_file(${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in ${PROJECT_NAME}-config.cmake
-        INSTALL_DESTINATION "${INSTALL_CMAKE_DIR}")
+        INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
                   ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-            DESTINATION "${INSTALL_CMAKE_DIR}")
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake")
 endif()
 if(NOT SKIP_INSTALL_HDR AND NOT SKIP_INSTALL_ALL)
-    install(FILES ${MINIZIP_HDR} DESTINATION "${INSTALL_INC_DIR}")
+    install(FILES ${MINIZIP_HDR} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 endif()
 if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
-    install(FILES ${MINIZIP_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
+    install(FILES ${MINIZIP_PC} DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 endif()
 
 # Build test executables
@@ -766,7 +761,7 @@ if(MZ_BUILD_TESTS)
         target_link_libraries(minigzip_cmd ${PROJECT_NAME})
 
         if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-            install(TARGETS minigzip_cmd RUNTIME DESTINATION "bin")
+            install(TARGETS minigzip_cmd RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
         endif()
     endif()
 
@@ -780,7 +775,7 @@ if(MZ_BUILD_TESTS)
     endif()
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-        install(TARGETS minizip_cmd RUNTIME DESTINATION "bin")
+        install(TARGETS minizip_cmd RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endif()
 endif()
 
@@ -979,8 +974,8 @@ if(MZ_BUILD_FUZZ_TESTS)
     configure_fuzz_test(unzip_fuzzer)
 
     if(NOT SKIP_INSTALL_BINARIES AND NOT SKIP_INSTALL_ALL)
-        install(TARGETS zip_fuzzer RUNTIME DESTINATION "bin")
-        install(TARGETS unzip_fuzzer RUNTIME DESTINATION "bin")
+        install(TARGETS zip_fuzzer RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        install(TARGETS unzip_fuzzer RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endif()
 endif()
 
