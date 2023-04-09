@@ -6,7 +6,7 @@
 #   schmieder.matthias@gmail.com
 
 cmake_minimum_required(VERSION 3.13)
-project(minuzip-ng
+project(minizip-ng
 	VERSION 3.0.10
 	DESCRIPTION "minizip-ng is a zip manipulation library"
 	HOMEPAGE_URL https://github.com/zlib-ng/minizip-ng/
