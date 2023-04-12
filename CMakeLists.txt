@@ -430,7 +430,7 @@ endif()
 
 # Platform specific
 if(WIN32)
-    list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE)
+    list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
 
     if(MZ_PKCRYPT OR MZ_WZAES)
