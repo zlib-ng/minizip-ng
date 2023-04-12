@@ -27,7 +27,7 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 
     status = BCryptOpenAlgorithmProvider(&provider, BCRYPT_RNG_ALGORITHM, NULL, 0);
     if (NT_SUCCESS(status)) {
-        status = BCryptGenRandom(BCRYPT_RNG_ALG_HANDLE, buf, size, 0);
+        status = BCryptGenRandom(provider, buf, size, 0);
         BCryptCloseAlgorithmProvider(provider, 0);
     }
     if (NT_SUCCESS(status))
