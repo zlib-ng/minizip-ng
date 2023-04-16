@@ -4,11 +4,11 @@ libdir=@CMAKE_INSTALL_FULL_LIBDIR@
 sharedlibdir=@CMAKE_INSTALL_FULL_LIBDIR@
 includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
 
-Name: @PROJECT_NAME@
+Name: @MINIZIP_TARGET@
 Description: Minizip zip file manipulation library
 Version: @VERSION@
 
 Requires: zlib
-Libs: -L${libdir} -L${sharedlibdir} -l@PROJECT_NAME@
+Libs: -L${libdir} -L${sharedlibdir} -l@MINIZIP_TARGET@
 Libs.private:@PC_PRIVATE_LIBS@
 Cflags: -I${includedir}

@@ -87,7 +87,7 @@ cmake --build build
 | MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                    |      OFF      |
 | MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                     |      OFF      |
 | MZ_CODE_COVERAGE    | Build with code coverage flags                      |      OFF      |
-| MZ_PROJECT_SUFFIX   | Project name suffix for packaging                   |               |
+| MZ_LIB_SUFFIX       | Library name suffix for packaging                   |               |
 
 ## Third-Party Libraries
 
