@@ -12,7 +12,11 @@ set(VERSION "3.0.10")
 # API version
 set(SOVERSION "3")
 
-project(minizip-ng LANGUAGES C VERSION ${VERSION})
+project(minizip-ng
+    VERSION ${VERSION}
+    LANGUAGES C
+    DESCRIPTION "Zip manipulation library"
+	HOMEPAGE_URL https://github.com/zlib-ng/minizip-ng/)
 
 include(CMakeDependentOption)
 include(CheckLibraryExists)
