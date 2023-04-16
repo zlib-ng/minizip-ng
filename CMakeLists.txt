@@ -649,7 +649,12 @@ set(MINIZIP_TARGET minizip${MZ_LIB_SUFFIX})
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}.pc)
 configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
 
+# Create minizip library and aliases
 add_library(${MINIZIP_TARGET} ${MINIZIP_SRC} ${MINIZIP_HDR})
+add_library(MINIZIP::${MINIZIP_TARGET} ALIAS ${MINIZIP_TARGET})
+if(NOT TARGET MINIZIP::minizip)
+    add_library(MINIZIP::minizip ALIAS ${MINIZIP_TARGET})
+endif()
 
 set_target_properties(${MINIZIP_TARGET} PROPERTIES
                       VERSION ${VERSION}
@@ -681,9 +686,6 @@ if(MZ_COMPAT)
     target_include_directories(${MINIZIP_TARGET} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 endif()
-
-# Create minizip alias
-add_library(MINIZIP::minizip ALIAS ${MINIZIP_TARGET})
 
 # Install files
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
