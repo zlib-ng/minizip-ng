@@ -269,8 +269,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
             0);
     }
     if (NT_SUCCESS(status)) {
-        status = BCryptSetProperty(aes->provider, BCRYPT_CHAINING_MODE, (PBYTE)BCRYPT_CHAIN_MODE_CBC,
-            sizeof(BCRYPT_CHAIN_MODE_CBC), 0);
+        status = BCryptSetProperty(aes->provider, BCRYPT_CHAINING_MODE, (PBYTE)BCRYPT_CHAIN_MODE_ECB,
+            sizeof(BCRYPT_CHAIN_MODE_ECB), 0);
     }
     if (NT_SUCCESS(status)) {
         aes->key_buffer = malloc(key_size);
