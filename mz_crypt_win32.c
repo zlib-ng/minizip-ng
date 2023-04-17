@@ -180,7 +180,6 @@ typedef struct mz_crypt_aes_s {
     HCRYPTPROV provider;
     HCRYPTKEY  key;
     int32_t    mode;
-    int32_t    mode_bits;
     int32_t    error;
 } mz_crypt_aes;
 
@@ -204,7 +203,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
 
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
     result = CryptEncrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size, size);
     if (!result) {
@@ -217,7 +216,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
     result = CryptDecrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size);
     if (!result) {

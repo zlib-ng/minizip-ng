@@ -216,7 +216,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     ULONG output_size = 0;
     NTSTATUS status = 0;
 
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
     status = BCryptEncrypt(aes->key, buf, size, NULL, NULL, 0, buf, size, &output_size, 0);
@@ -232,7 +232,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     ULONG output_size = 0;
     NTSTATUS status = 0;
 
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
     status = BCryptDecrypt(aes->key, buf, size, NULL, NULL, 0, buf, size, &output_size, 0);

@@ -243,10 +243,15 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
         return MZ_PARAM_ERROR;
 
     if (aes->mode == MZ_AES_MODE_CBC)
-        AES_cbc_encrypt(buf, buf, &aes->key, aes->iv, AES_ENCRYPT);
-    else if (aes->mode == MZ_AES_MODE_ECB)
-        AES_ecb_encrypt(buf, buf, &aes->key, AES_ENCRYPT);
-    else
+        AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_ENCRYPT);
+    else if (aes->mode == MZ_AES_MODE_ECB) {
+        while (size) {
+            AES_ecb_encrypt(buf, buf, &aes->key, AES_ENCRYPT);
+
+            buf += MZ_AES_BLOCK_SIZE;
+            size -= MZ_AES_BLOCK_SIZE;
+        }
+    } else
         return MZ_PARAM_ERROR;
 
     return size;
@@ -259,10 +264,15 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
         return MZ_PARAM_ERROR;
 
     if (aes->mode == MZ_AES_MODE_CBC)
-        AES_cbc_encrypt(buf, buf, &aes->key, aes->iv, AES_DECRYPT);
-    else if (aes->mode == MZ_AES_MODE_ECB)
-        AES_ecb_encrypt(buf, buf, &aes->key, AES_DECRYPT);
-    else
+        AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_DECRYPT);
+    else if (aes->mode == MZ_AES_MODE_ECB) {
+        while (size) {
+            AES_ecb_encrypt(buf, buf, &aes->key, AES_DECRYPT);
+
+            buf += MZ_AES_BLOCK_SIZE;
+            size -= MZ_AES_BLOCK_SIZE;
+        }
+    } else
         return MZ_PARAM_ERROR;
 
     return size;
