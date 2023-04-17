@@ -26,7 +26,7 @@ Zip entry information structure. The _mz_zip_file_ structure is populated when r
 |const char *|comment|Comment UTF-8 null-terminated string|4.4.18|
 |uint16_t|zip64|Zip64 extension mode|[MZ_ZIP64](mz_zip64.md)|
 |uint16_t|aes_version|WinZip AES version|[WinZip AES App Note](zip/winzip_aes.md)|
-|uint16_t|aes_encryption_mode|WinZip AES encryption mode|[WinZip AES App Note](zip/winzip_aes.md)|
+|uint8_t|aes_strength|WinZip AES encryption strength|[WinZip AES App Note](zip/winzip_aes.md)|
 
 For more information about each field please consult the referenced app note section.
 
@@ -68,12 +68,12 @@ External file attributes. These attributes are native host system attribute valu
 
 This attribute must be set to `MZ_AES_VERSION` when AES encryption is used.
 
-### aes_encryption_mode
+### aes_strength
 
-AES encryption mode, by default 256-bit encryption is used for compression.
+AES encryption strength, by default 256-bit encryption is used for compression.
 
 |Flag|Value|Description|
 |-|-|-|
-| MZ_AES_ENCRYPTION_MODE_128 | 0x01 | 128-bit AES encryption |
-| MZ_AES_ENCRYPTION_MODE_192 | 0x02 | 192-bit AES encryption |
-| MZ_AES_ENCRYPTION_MODE_256 | 0x03 | 256-bit AES encryption |
+| MZ_AES_STRENGTH_128 | 0x01 | 128-bit AES encryption |
+| MZ_AES_STRENGTH_192 | 0x02 | 192-bit AES encryption |
+| MZ_AES_STRENGTH_256 | 0x03 | 256-bit AES encryption |

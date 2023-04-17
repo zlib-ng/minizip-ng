@@ -431,7 +431,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                 /* Get AES encryption strength and actual compression method */
                 if (err == MZ_OK) {
                     err = mz_stream_read_uint8(file_extra_stream, &value8);
-                    file_info->aes_encryption_mode = value8;
+                    file_info->aes_strength = value8;
                 }
                 if (err == MZ_OK) {
                     err = mz_stream_read_uint16(file_extra_stream, &value16);
@@ -878,7 +878,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         if (err == MZ_OK)
             err = mz_stream_write_uint8(stream, 'E');
         if (err == MZ_OK)
-            err = mz_stream_write_uint8(stream, file_info->aes_encryption_mode);
+            err = mz_stream_write_uint8(stream, file_info->aes_strength);
         if (err == MZ_OK)
             err = mz_stream_write_uint16(stream, file_info->compression_method);
     }
@@ -1737,7 +1737,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             if (!zip->crypt_stream)
                 return MZ_MEM_ERROR;
             mz_stream_wzaes_set_password(zip->crypt_stream, password);
-            mz_stream_wzaes_set_encryption_mode(zip->crypt_stream, zip->file_info.aes_encryption_mode);
+            mz_stream_wzaes_set_strength(zip->crypt_stream, zip->file_info.aes_strength);
         } else
 #endif
         {
@@ -2001,8 +2001,8 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
         zip->file_info.pk_verify = mz_zip_get_pk_verify(dos_date, zip->file_info.crc, zip->file_info.flag);
 #endif
 #ifdef HAVE_WZAES
-        if (zip->file_info.aes_version && zip->file_info.aes_encryption_mode == 0)
-            zip->file_info.aes_encryption_mode = MZ_AES_ENCRYPTION_MODE_256;
+        if (zip->file_info.aes_version && zip->file_info.aes_strength == 0)
+            zip->file_info.aes_strength = MZ_AES_STRENGTH_256;
 #endif
     }
 

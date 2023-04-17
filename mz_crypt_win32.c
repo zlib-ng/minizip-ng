@@ -180,6 +180,7 @@ typedef struct mz_crypt_aes_s {
     HCRYPTPROV provider;
     HCRYPTKEY  key;
     int32_t    mode;
+    int32_t    mode_bits;
     int32_t    error;
 } mz_crypt_aes;
 
@@ -203,9 +204,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
 
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
     result = CryptEncrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size, size);
     if (!result) {
@@ -218,9 +217,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
     result = CryptDecrypt(aes->key, 0, 0, 0, buf, (DWORD *)&size);
     if (!result) {
@@ -250,16 +247,20 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     mz_crypt_aes_reset(handle);
 
-    if (key_length == MZ_AES_KEY_LENGTH(MZ_AES_ENCRYPTION_MODE_128))
+    if (aes->mode == MZ_AES_MODE_CBC)
+        mode = CRYPT_MODE_CBC;
+
+    if (key_length == 16)
         alg_id = CALG_AES_128;
-    else if (key_length == MZ_AES_KEY_LENGTH(MZ_AES_ENCRYPTION_MODE_192))
+    else if (key_length == 24)
         alg_id = CALG_AES_192;
-    else if (key_length == MZ_AES_KEY_LENGTH(MZ_AES_ENCRYPTION_MODE_256))
+    else if (key_length == 32)
         alg_id = CALG_AES_256;
     else
         return MZ_PARAM_ERROR;
 
-    result = CryptAcquireContext(&aes->provider, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    result = CryptAcquireContext(&aes->provider, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES,
+        CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
     if (result) {
         key_blob_size = sizeof(key_blob_header_s) + key_length;
         key_blob = (uint8_t *)malloc(key_blob_size);
@@ -302,6 +303,19 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length) {
     return mz_crypt_aes_set_key(handle, key, key_length);
+}
+
+int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    int32_t result = 0;
+    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE || !aes->provider)
+        return MZ_PARAM_ERROR;
+    result = CryptSetKeyParam(aes->key, KP_IV, iv, 0);
+    if (!result) {
+        aes->error = GetLastError();
+        return MZ_CRYPT_ERROR;
+    }
+    return MZ_OK;
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {

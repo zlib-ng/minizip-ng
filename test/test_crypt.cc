@@ -163,7 +163,7 @@ TEST(crypt, aes128) {
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_encrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
@@ -171,7 +171,44 @@ TEST(crypt, aes128) {
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_decrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STREQ((char *)buf, test);
+}
+
+TEST(crypt, aes128_cbc_iv) {
+    void *aes = NULL;
+    const char *key = "awesomekeythisis";
+    const char *test = "youknowitsogrowi";
+    const char *iv = "0123456789123456";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    int32_t iv_length = 0;
+    uint8_t buf[120];
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+    iv_length = (int32_t)strlen(iv);
+
+    strncpy((char *)buf, test, sizeof(buf));
+
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
+    mz_crypt_aes_set_mode(aes, MZ_AES_MODE_CBC);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_set_iv(aes, (const uint8_t *)iv, iv_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char *)buf, test);
+
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
+    mz_crypt_aes_set_mode(aes, MZ_AES_MODE_CBC);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_set_iv(aes, (const uint8_t *)iv, iv_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
@@ -192,16 +229,16 @@ TEST(crypt, aes194) {
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
@@ -222,16 +259,16 @@ TEST(crypt, aes256) {
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_encrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_decrypt_key(aes, key, key_length);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), 16);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);

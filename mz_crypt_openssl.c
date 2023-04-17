@@ -225,6 +225,7 @@ typedef struct mz_crypt_aes_s {
     int32_t    error;
     uint8_t    *key_copy;
     int32_t    key_length;
+    uint8_t    iv[MZ_AES_BLOCK_SIZE];
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -238,25 +239,32 @@ void mz_crypt_aes_reset(void *handle) {
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-    AES_encrypt(buf, buf, &aes->key);
-    /* Equivalent to AES_ecb_encrypt with AES_ENCRYPT */
+    if (aes->mode == MZ_AES_MODE_CBC)
+        AES_cbc_encrypt(buf, buf, &aes->key, aes->iv, AES_ENCRYPT);
+    else if (aes->mode == MZ_AES_MODE_ECB)
+        AES_ecb_encrypt(buf, buf, &aes->key, AES_ENCRYPT);
+    else
+        return MZ_PARAM_ERROR;
+
     return size;
 }
 
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+
+    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-    AES_decrypt(buf, buf, &aes->key);
-    /* Equivalent to AES_ecb_encrypt with AES_DECRYPT */
+    if (aes->mode == MZ_AES_MODE_CBC)
+        AES_cbc_encrypt(buf, buf, &aes->key, aes->iv, AES_DECRYPT);
+    else if (aes->mode == MZ_AES_MODE_ECB)
+        AES_ecb_encrypt(buf, buf, &aes->key, AES_DECRYPT);
+    else
+        return MZ_PARAM_ERROR;
+
     return size;
 }
 
@@ -266,6 +274,8 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
     int32_t key_bits = 0;
 
     if (!aes || !key || !key_length)
+        return MZ_PARAM_ERROR;
+    if (key_length != 16 && key_length != 24 && key_length != 32)
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
@@ -287,6 +297,8 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 
     if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
+    if (key_length != 16 && key_length != 24 && key_length != 32)
+        return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
 
@@ -297,6 +309,15 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
         return MZ_HASH_ERROR;
     }
 
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    int32_t result = 0;
+    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE || !aes->provider)
+        return MZ_PARAM_ERROR;
+    memcpy(aes->iv, iv, iv_length);
     return MZ_OK;
 }
 
