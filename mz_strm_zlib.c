@@ -191,6 +191,8 @@ int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size) {
         }
     } while (zlib->zstream.avail_out > 0);
 
+    MZ_UNUSED(total_in);
+
     if (zlib->error != 0) {
         /* Zlib errors are compatible with MZ */
         return zlib->error;

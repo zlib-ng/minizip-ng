@@ -241,6 +241,8 @@ int32_t mz_stream_lzma_read(void *stream, void *buf, int32_t size) {
         }
     } while (lzma->lstream.avail_out > 0);
 
+    MZ_UNUSED(total_in);
+
     if (lzma->error != 0)
         return MZ_DATA_ERROR;
 
