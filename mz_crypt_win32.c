@@ -226,7 +226,8 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length) {
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
@@ -242,6 +243,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     int32_t err = MZ_OK;
 
     if (!aes || !key || !key_length)
+        return MZ_PARAM_ERROR;
+    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
@@ -285,9 +288,19 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (result && err == MZ_OK)
         result = CryptSetKeyParam(aes->key, KP_MODE, (const uint8_t *)&mode, 0);
 
+
     if (!result && err == MZ_OK) {
         aes->error = GetLastError();
         err = MZ_CRYPT_ERROR;
+    }
+
+    if (result && err == MZ_OK && iv) {
+        result = CryptSetKeyParam(aes->key, KP_IV, iv, 0);
+
+        if (!result) {
+            aes->error = GetLastError();
+            return MZ_CRYPT_ERROR;
+        }
     }
 
     if (hash)
@@ -296,25 +309,14 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     return err;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length) {
-    return mz_crypt_aes_set_key(handle, key, key_length);
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length) {
-    return mz_crypt_aes_set_key(handle, key, key_length);
-}
-
-int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t result = 0;
-    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE || !aes->provider)
-        return MZ_PARAM_ERROR;
-    result = CryptSetKeyParam(aes->key, KP_IV, iv, 0);
-    if (!result) {
-        aes->error = GetLastError();
-        return MZ_CRYPT_ERROR;
-    }
-    return MZ_OK;
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {

@@ -19,14 +19,8 @@
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 
-#if defined(MZ_ZIP_SIGNING)
-/* Note: https://www.imperialviolet.org/2015/10/17/boringssl.html says that
-   BoringSSL does not support CMS. "#include <etc/cms.h>" will fail. See
-   https://bugs.chromium.org/p/boringssl/issues/detail?id=421
-*/
-#include <openssl/cms.h>
-#include <openssl/pkcs12.h>
-#include <openssl/x509.h>
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#  include <openssl/core_names.h>
 #endif
 
 /***************************************************************************/
@@ -34,6 +28,7 @@
 static void mz_crypt_init(void) {
     static int32_t openssl_initialized = 0;
     if (!openssl_initialized) {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
         OpenSSL_add_all_algorithms();
 
         ERR_load_BIO_strings();
@@ -41,17 +36,16 @@ static void mz_crypt_init(void) {
 
         ENGINE_load_builtin_engines();
         ENGINE_register_all_complete();
+#else
+        OPENSSL_init_crypto(OPENSSL_INIT_ENGINE_ALL_BUILTIN, NULL);
+#endif
 
         openssl_initialized = 1;
     }
 }
 
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
-    int32_t result = 0;
-
-    result = RAND_bytes(buf, size);
-
-    if (!result)
+    if (!RAND_bytes(buf, size))
         return MZ_CRYPT_ERROR;
 
     return size;
@@ -60,11 +54,15 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 /***************************************************************************/
 
 typedef struct mz_crypt_sha_s {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     union {
         SHA512_CTX ctx512;
         SHA256_CTX ctx256;
         SHA_CTX    ctx1;
     };
+#else
+    EVP_MD_CTX     *ctx;
+#endif
     int32_t        initialized;
     int32_t        error;
     uint16_t       algorithm;
@@ -97,6 +95,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
 
     mz_crypt_sha_reset(handle);
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Init(&sha->ctx1);
@@ -114,6 +113,33 @@ int32_t mz_crypt_sha_begin(void *handle) {
         result = SHA512_Init(&sha->ctx512);
         break;
     }
+#else
+    const EVP_MD *md = NULL;
+    switch (sha->algorithm) {
+    case MZ_HASH_SHA1:
+        md = EVP_sha1();
+        break;
+    case MZ_HASH_SHA224:
+        md = EVP_sha224();
+        break;
+    case MZ_HASH_SHA256:
+        md = EVP_sha256();
+        break;
+    case MZ_HASH_SHA384:
+        md = EVP_sha384();
+        break;
+    case MZ_HASH_SHA512:
+        md = EVP_sha512();
+        break;
+    }
+    if (!md)
+        return MZ_PARAM_ERROR;
+
+    sha->ctx = EVP_MD_CTX_new();
+    if (!sha->ctx)
+        return MZ_MEM_ERROR;
+    result = EVP_DigestInit_ex(sha->ctx, md, NULL);
+#endif
 
     if (!result) {
         sha->error = ERR_get_error();
@@ -131,6 +157,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
     if (!sha || !buf || !sha->initialized)
         return MZ_PARAM_ERROR;
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Update(&sha->ctx1, buf, size);
@@ -148,6 +175,9 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
         result = SHA512_Update(&sha->ctx512, buf, size);
         break;
     }
+#else
+    result = EVP_DigestUpdate(sha->ctx, buf, size);
+#endif
 
     if (!result) {
         sha->error = ERR_get_error();
@@ -166,6 +196,7 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size) {
     if (digest_size < mz_crypt_sha_digest_size[sha->algorithm - MZ_HASH_SHA1])
         return MZ_PARAM_ERROR;
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Final(digest, &sha->ctx1);
@@ -183,6 +214,9 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size) {
         result = SHA512_Final(digest, &sha->ctx512);
         break;
     }
+#else
+    result = EVP_DigestFinal_ex(sha->ctx, digest, NULL);
+#endif
 
     if (!result) {
         sha->error = ERR_get_error();
@@ -226,6 +260,9 @@ typedef struct mz_crypt_aes_s {
     uint8_t    *key_copy;
     int32_t    key_length;
     uint8_t    iv[MZ_AES_BLOCK_SIZE];
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    EVP_CIPHER_CTX *ctx;
+#endif
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -239,20 +276,26 @@ void mz_crypt_aes_reset(void *handle) {
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    if (aes->mode == MZ_AES_MODE_CBC)
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (aes->mode == MZ_AES_MODE_CBC) {
         AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_ENCRYPT);
-    else if (aes->mode == MZ_AES_MODE_ECB) {
-        while (size) {
+    } else if (aes->mode == MZ_AES_MODE_ECB) {
+        int32_t left = size;
+        while (left) {
             AES_ecb_encrypt(buf, buf, &aes->key, AES_ENCRYPT);
 
             buf += MZ_AES_BLOCK_SIZE;
-            size -= MZ_AES_BLOCK_SIZE;
+            left -= MZ_AES_BLOCK_SIZE;
         }
     } else
         return MZ_PARAM_ERROR;
+#else
+    if (!EVP_EncryptUpdate(aes->ctx, buf, &size, buf, size))
+        return MZ_CRYPT_ERROR;
+#endif
 
     return size;
 }
@@ -263,71 +306,119 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-    if (aes->mode == MZ_AES_MODE_CBC)
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (aes->mode == MZ_AES_MODE_CBC) {
         AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_DECRYPT);
-    else if (aes->mode == MZ_AES_MODE_ECB) {
-        while (size) {
+    } else if (aes->mode == MZ_AES_MODE_ECB) {
+        int32_t left = size;
+        while (left) {
             AES_ecb_encrypt(buf, buf, &aes->key, AES_DECRYPT);
 
             buf += MZ_AES_BLOCK_SIZE;
-            size -= MZ_AES_BLOCK_SIZE;
+            left -= MZ_AES_BLOCK_SIZE;
         }
     } else
         return MZ_PARAM_ERROR;
+#else
+    if (!EVP_DecryptUpdate(aes->ctx, buf, &size, buf, size))
+        return MZ_CRYPT_ERROR;
+#endif
 
     return size;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length) {
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length, int32_t encrypt) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t result = 0;
-    int32_t key_bits = 0;
+    const EVP_CIPHER *type = NULL;
 
-    if (!aes || !key || !key_length)
+    switch (aes->mode) {
+    case MZ_AES_MODE_CBC:
+        if (key_length == 16)
+            type = EVP_aes_128_cbc();
+        else if (key_length == 24)
+            type = EVP_aes_192_cbc();
+        else if (key_length == 32)
+            type = EVP_aes_256_cbc();
+        break;
+    case MZ_AES_MODE_ECB:
+        if (key_length == 16)
+            type = EVP_aes_128_ecb();
+        else if (key_length == 24)
+            type = EVP_aes_192_ecb();
+        else if (key_length == 32)
+            type = EVP_aes_256_ecb();
+        break;
+    }
+    if (!type)
         return MZ_PARAM_ERROR;
-    if (key_length != 16 && key_length != 24 && key_length != 32)
-        return MZ_PARAM_ERROR;
 
-    mz_crypt_aes_reset(handle);
+    aes->ctx = EVP_CIPHER_CTX_new();
+    if (!aes->ctx)
+        return MZ_MEM_ERROR;
 
-    key_bits = key_length * 8;
-    result = AES_set_encrypt_key(key, key_bits, &aes->key);
-    if (result) {
+    EVP_CIPHER_CTX_set_padding(aes->ctx, 0);
+
+    if (!EVP_CipherInit_ex(aes->ctx, type, NULL, key, iv, encrypt)) {
         aes->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
 
     return MZ_OK;
 }
+#endif
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length) {
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t result = 0;
-    int32_t key_bits = 0;
 
     if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
     if (key_length != 16 && key_length != 24 && key_length != 32)
         return MZ_PARAM_ERROR;
+    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+        return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
 
-    key_bits = key_length * 8;
-    result = AES_set_decrypt_key(key, key_bits, &aes->key);
-    if (result) {
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (AES_set_encrypt_key(key, key_length * 8, &aes->key) != 0) {
         aes->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
-
+    if (iv)
+        memcpy(aes->iv, iv, MZ_AES_BLOCK_SIZE);
     return MZ_OK;
+#else
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, 1);
+#endif
 }
 
-int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
+    const uint8_t *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE)
+
+    if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
-    memcpy(aes->iv, iv, iv_length);
+    if (key_length != 16 && key_length != 24 && key_length != 32)
+        return MZ_PARAM_ERROR;
+    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+        return MZ_PARAM_ERROR;
+
+    mz_crypt_aes_reset(handle);
+
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    if (AES_set_decrypt_key(key, key_length * 8, &aes->key) != 0) {
+        aes->error = ERR_get_error();
+        return MZ_HASH_ERROR;
+    }
+    if (iv)
+        memcpy(aes->iv, iv, iv_length);
     return MZ_OK;
+#else
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, 0);
+#endif
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
@@ -353,15 +444,21 @@ void mz_crypt_aes_delete(void **handle) {
 /***************************************************************************/
 
 typedef struct mz_crypt_hmac_s {
-    HMAC_CTX   *ctx;
-    int32_t    initialized;
-    int32_t    error;
-    uint16_t   algorithm;
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    HMAC_CTX    *ctx;
+#else
+    EVP_MAC     *mac;
+    EVP_MAC_CTX *ctx;
+#endif
+    int32_t     initialized;
+    int32_t     error;
+    uint16_t    algorithm;
 } mz_crypt_hmac;
 
 /***************************************************************************/
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER < 0x2070000fL))
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || \
+    (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER < 0x2070000fL))
 static HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));
     if (ctx)
@@ -382,7 +479,14 @@ static void HMAC_CTX_free(HMAC_CTX *ctx) {
 void mz_crypt_hmac_reset(void *handle) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     HMAC_CTX_free(hmac->ctx);
+#else
+    EVP_MAC_CTX_free(hmac->ctx);
+    EVP_MAC_free(hmac->mac);
+
+    hmac->mac = NULL;
+#endif
 
     hmac->ctx = NULL;
     hmac->error = 0;
@@ -393,21 +497,46 @@ void mz_crypt_hmac_reset(void *handle) {
 int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     int32_t result = 0;
-    const EVP_MD *evp_md = NULL;
 
     if (!hmac || !key)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(handle);
 
-    hmac->ctx = HMAC_CTX_new();
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    const EVP_MD *evp_md = NULL;
 
     if (hmac->algorithm == MZ_HASH_SHA1)
         evp_md = EVP_sha1();
     else
         evp_md = EVP_sha256();
 
+    hmac->ctx = HMAC_CTX_new();
+    if (!hmac->ctx)
+        return MZ_MEM_ERROR;
+
     result = HMAC_Init_ex(hmac->ctx, key, key_length, evp_md, NULL);
+#else
+    char *digest_algorithm = NULL;
+    OSSL_PARAM params[2];
+
+    if (hmac->algorithm == MZ_HASH_SHA1)
+        digest_algorithm = "sha1";
+    else
+        digest_algorithm = "sha256";
+
+    params[0] = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST, digest_algorithm, 0);
+	params[1] = OSSL_PARAM_construct_end();
+
+    hmac->mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
+    if (!hmac->mac)
+        return MZ_MEM_ERROR;
+    hmac->ctx = EVP_MAC_CTX_new(hmac->mac);
+    if (!hmac->ctx)
+        return MZ_MEM_ERROR;
+    result = EVP_MAC_init(hmac->ctx, key, key_length, params);
+#endif
+
     if (!result) {
         hmac->error = ERR_get_error();
         return MZ_HASH_ERROR;
@@ -423,7 +552,11 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size) {
     if (!hmac || !buf)
         return MZ_PARAM_ERROR;
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     result = HMAC_Update(hmac->ctx, buf, size);
+#else
+    result = EVP_MAC_update(hmac->ctx, buf, size);
+#endif
     if (!result) {
         hmac->error = ERR_get_error();
         return MZ_HASH_ERROR;
@@ -439,6 +572,7 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size) {
     if (!hmac || !digest)
         return MZ_PARAM_ERROR;
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     if (hmac->algorithm == MZ_HASH_SHA1) {
         if (digest_size < MZ_HASH_SHA1_SIZE)
             return MZ_BUF_ERROR;
@@ -449,6 +583,9 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size) {
             return MZ_BUF_ERROR;
         result = HMAC_Final(hmac->ctx, digest, (uint32_t *)&digest_size);
     }
+#else
+    result = EVP_MAC_final(hmac->ctx, digest, (size_t *)&digest_size, digest_size);
+#endif
 
     if (!result) {
         hmac->error = ERR_get_error();
@@ -466,21 +603,26 @@ void mz_crypt_hmac_set_algorithm(void *handle, uint16_t algorithm) {
 int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
     mz_crypt_hmac *source = (mz_crypt_hmac *)src_handle;
     mz_crypt_hmac *target = (mz_crypt_hmac *)target_handle;
-    int32_t result = 0;
 
     if (!source || !target)
         return MZ_PARAM_ERROR;
 
     mz_crypt_hmac_reset(target_handle);
 
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
     if (!target->ctx)
         target->ctx = HMAC_CTX_new();
 
-    result = HMAC_CTX_copy(target->ctx, source->ctx);
-    if (!result) {
+    if (!HMAC_CTX_copy(target->ctx, source->ctx)) {
         target->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
+#else
+    if (!target->ctx)
+        target->ctx = EVP_MAC_CTX_dup(source->ctx);
+    if (!target->ctx)
+        return MZ_MEM_ERROR;
+#endif
 
     return MZ_OK;
 }

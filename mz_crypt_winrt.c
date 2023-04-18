@@ -243,7 +243,8 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length) {
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     BCRYPT_KEY_DATA_BLOB_HEADER *key_blob = NULL;
     int32_t key_blob_size = 0;
@@ -256,6 +257,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (!aes || !key || !key_length)
         return MZ_PARAM_ERROR;
     if (key_length != 16 && key_length != 24 && key_length != 32)
+        return MZ_PARAM_ERROR;
+    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
     if (aes->mode == MZ_AES_MODE_ECB)
@@ -274,6 +277,9 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     }
     if (NT_SUCCESS(status)) {
         status = BCryptSetProperty(aes->provider, BCRYPT_CHAINING_MODE, (PBYTE)mode, sizeof(mode), 0);
+    }
+    if (NT_SUCCESS(status) && iv) {
+        status = BCryptSetProperty(aes->provider, BCRYPT_INITIALIZATION_VECTOR, (PUCHAR)iv, iv_length, 0);
     }
     if (NT_SUCCESS(status)) {
         aes->key_buffer = malloc(key_size);
@@ -298,28 +304,18 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         aes->error = status;
         err = MZ_CRYPT_ERROR;
     }
+
     return err;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length) {
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length);
 }
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length) {
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length);
-}
-
-int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    NTSTATUS status = 0;
-    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE || !aes->provider)
-        return MZ_PARAM_ERROR;
-    status = BCryptSetProperty(aes->provider, BCRYPT_INITIALIZATION_VECTOR, (PUCHAR)iv, iv_length, 0);
-    if (!NT_SUCCESS(status)) {
-        aes->error = status;
-        return MZ_CRYPT_ERROR;
-    }
-    return MZ_OK;
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {

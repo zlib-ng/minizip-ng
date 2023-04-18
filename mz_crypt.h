@@ -37,9 +37,10 @@ void     mz_crypt_sha_delete(void **handle);
 void     mz_crypt_aes_reset(void *handle);
 int32_t  mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size);
 int32_t  mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size);
-int32_t  mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length);
-int32_t  mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length);
-int32_t  mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length);
+int32_t  mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
+  const void *iv, int32_t iv_length);
+int32_t  mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
+  const void *iv, int32_t iv_length);
 void     mz_crypt_aes_set_mode(void *handle, int32_t mode);
 void*    mz_crypt_aes_create(void);
 void     mz_crypt_aes_delete(void **handle);

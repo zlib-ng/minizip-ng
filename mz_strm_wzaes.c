@@ -114,7 +114,7 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode) {
 
     /* Initialize for encryption using key 1 */
     mz_crypt_aes_reset(wzaes->aes);
-    mz_crypt_aes_set_encrypt_key(wzaes->aes, kbuf, key_length);
+    mz_crypt_aes_set_encrypt_key(wzaes->aes, kbuf, key_length, NULL, 0);
 
     /* Initialize for authentication using key 2 */
     mz_crypt_hmac_reset(wzaes->hmac);
