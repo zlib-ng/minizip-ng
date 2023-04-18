@@ -1300,40 +1300,6 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
     return err;
 }
 
-#if !defined(MZ_ZIP_NO_CRYPTO) && defined(MZ_ZIP_SIGNING)
-int32_t mz_zip_writer_entry_sign(void *handle, uint8_t *message, int32_t message_size,
-    uint8_t *cert_data, int32_t cert_data_size, const char *cert_pwd) {
-    mz_zip_writer *writer = (mz_zip_writer *)handle;
-    int32_t err = MZ_OK;
-    int32_t signature_size = 0;
-    uint8_t *signature = NULL;
-
-    if (!writer || !cert_data || cert_data_size <= 0)
-        return MZ_PARAM_ERROR;
-    if (mz_zip_entry_is_open(writer->zip_handle) != MZ_OK)
-        return MZ_PARAM_ERROR;
-
-    /* Sign message with certificate */
-    err = mz_crypt_sign(message, message_size, cert_data, cert_data_size, cert_pwd,
-        &signature, &signature_size);
-
-    if (err == MZ_OK && signature) {
-        /* Write signature zip extra field */
-        err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_SIGN,
-            (uint16_t)signature_size);
-
-        if (err == MZ_OK) {
-            if (mz_stream_write(writer->file_extra_stream, signature, signature_size) != signature_size)
-                err = MZ_WRITE_ERROR;
-        }
-
-        free(signature);
-    }
-
-    return err;
-}
-#endif
-
 int32_t mz_zip_writer_entry_close(void *handle) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
@@ -1365,16 +1331,6 @@ int32_t mz_zip_writer_entry_close(void *handle) {
             if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
                 err = MZ_WRITE_ERROR;
         }
-
-#ifdef MZ_ZIP_SIGNING
-        if ((err == MZ_OK) && (writer->cert_data) && (writer->cert_data_size > 0)) {
-            /* Sign entry if not zipping cd or if it is cd being zipped */
-            if (!writer->zip_cd || strcmp(writer->file_info.filename, MZ_ZIP_CD_FILENAME) == 0) {
-                err = mz_zip_writer_entry_sign(handle, sha256, sizeof(sha256),
-                    writer->cert_data, writer->cert_data_size, writer->cert_pwd);
-            }
-        }
-#endif
 
         if ((writer->file_info.extrafield) && (writer->file_info.extrafield_size > 0))
             mz_stream_mem_write(writer->file_extra_stream, writer->file_info.extrafield,
