@@ -325,7 +325,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 int32_t mz_crypt_aes_set_iv(void *handle, const uint8_t *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
-    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE || !aes->provider)
+    if (!aes || !iv || iv_length != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
     memcpy(aes->iv, iv, iv_length);
     return MZ_OK;
