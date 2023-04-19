@@ -200,15 +200,16 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     size_t data_moved = 0;
 
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
+    if (aes->mode == MZ_AES_MODE_GCM)
+        aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
+    else
+        aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
 
     if (aes->error != kCCSuccess)
-        return MZ_HASH_ERROR;
+        return MZ_CRYPT_ERROR;
 
     return size;
 }
@@ -217,75 +218,76 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     size_t data_moved = 0;
 
-    if (!aes || !buf)
-        return MZ_PARAM_ERROR;
-    if (size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
+    if (aes->mode == MZ_AES_MODE_GCM)
+        aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
+    else
+        aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
 
     if (aes->error != kCCSuccess)
-        return MZ_HASH_ERROR;
+        return MZ_CRYPT_ERROR;
 
     return size;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t mode;
 
-    if (!aes || !key || !key_length)
+    if (!aes || !tag || !tag_size)
         return MZ_PARAM_ERROR;
-    if (key_length != 16 && key_length != 24 && key_length != 32)
-        return MZ_PARAM_ERROR;
-    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
-        return MZ_PARAM_ERROR;
+
+    aes->error = CCCryptorGCMFinal(aes->crypt, tag, &tag_size);
+
+    if (aes->error != kCCSuccess)
+        return MZ_CRYPT_ERROR;
+
+    return tag_size;
+}
+
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length, CCOperation op) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    CCMode mode;
 
     if (aes->mode == MZ_AES_MODE_CBC)
-        mode = 0; /* CBC mode is default */
+        mode = kCCModeCBC;
     else if (aes->mode == MZ_AES_MODE_ECB)
-        mode = kCCOptionECBMode;
+        mode = kCCModeECB;
+    else if (aes->mode == MZ_AES_MODE_CTR)
+        mode = kCCMOdeCTR;
+    else if (aes->mode == MZ_AES_MODE_GCM)
+        mode = kCCModeGCM;
     else
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
 
-    aes->error = CCCryptorCreate(kCCEncrypt, kCCAlgorithmAES, mode, key, key_length, iv, &aes->crypt);
+    aes->error = CCCryptorCreateWithMode(op, mode, kCCAlgorithmAES, iv, key, key_length,
+        NULL, 0, 0, 0, &aes->crypt);
 
     if (aes->error != kCCSuccess)
         return MZ_HASH_ERROR;
 
-    return MZ_OK;
+    if (aes->mode == MZ_AES_MODE_GCM) {
+        aes->error = CCCryptorGCMAddIV(aes->crypt, iv, iv_length);
+
+        if (aes->error != kCCSuccess)
+            return MZ_HASH_ERROR;
+    }
+
+    return true;
+}
+
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
+    const void *iv, int32_t iv_length) {
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, kCCEncrypt);
 }
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    int32_t mode;
-
-    if (!aes || !key || !key_length)
-        return MZ_PARAM_ERROR;
-    if (key_length != 16 && key_length != 24 && key_length != 32)
-        return MZ_PARAM_ERROR;
-    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
-        return MZ_PARAM_ERROR;
-
-    if (aes->mode == MZ_AES_MODE_CBC)
-        mode = 0; /* CBC mode is default */
-    else if (aes->mode == MZ_AES_MODE_ECB)
-        mode = kCCOptionECBMode;
-    else
-        return MZ_PARAM_ERROR;
-
-    mz_crypt_aes_reset(handle);
-
-    aes->error = CCCryptorCreate(kCCDecrypt, kCCAlgorithmAES, mode, key, key_length, iv, &aes->crypt);
-
-    if (aes->error != kCCSuccess)
-        return MZ_HASH_ERROR;
-
-    return MZ_OK;
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, kCCDecrypt);
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {

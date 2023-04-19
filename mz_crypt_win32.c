@@ -226,6 +226,10 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    return MZ_SUPPORT_ERROR;
+}
+
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
@@ -236,7 +240,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         uint32_t   key_length;
     } key_blob_header_s;
     key_blob_header_s *key_blob_s = NULL;
-    uint32_t mode = CRYPT_MODE_ECB;
+    uint32_t mode;
     uint8_t *key_blob = NULL;
     int32_t key_blob_size = 0;
     int32_t result = 0;
@@ -251,6 +255,12 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     if (aes->mode == MZ_AES_MODE_CBC)
         mode = CRYPT_MODE_CBC;
+    else if (aes->mode == MZ_AES_MODE_ECB)
+        mode = CRYPT_MODE_ECB;
+    else if (aes->mode == MZ_AES_MODE_CTR || aes->mode == MZ_AES_MODE_GCM)
+        return MZ_SUPPORT_ERROR;
+    else
+        return MZ_PARAM_ERROR;
 
     if (key_length == 16)
         alg_id = CALG_AES_128;

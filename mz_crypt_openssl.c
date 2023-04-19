@@ -327,6 +327,24 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+
+    if (!aes || !tag || !tag_size)
+        return MZ_PARAM_ERROR;
+
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
+    return MZ_SUPPORT_ERROR;
+#else
+    if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_size, tag)) {
+        aes->error = ERR_get_error();
+        return MZ_CRYPT_ERROR;
+    }
+
+    return MZ_OK;
+#endif
+}
+
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length, int32_t encrypt) {
@@ -349,6 +367,22 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
             type = EVP_aes_192_ecb();
         else if (key_length == 32)
             type = EVP_aes_256_ecb();
+        break;
+    case MZ_AES_MODE_CTR:
+        if (key_length == 16)
+            type = EVP_aes_128_ctr();
+        else if (key_length == 24)
+            type = EVP_aes_192_ctr();
+        else if (key_length == 32)
+            type = EVP_aes_256_ctr();
+        break;
+    case MZ_AES_MODE_GCM:
+        if (key_length == 16)
+            type = EVP_aes_128_gcm();
+        else if (key_length == 24)
+            type = EVP_aes_192_gcm();
+        else if (key_length == 32)
+            type = EVP_aes_256_gcm();
         break;
     }
     if (!type)
@@ -385,7 +419,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     if (AES_set_encrypt_key(key, key_length * 8, &aes->key) != 0) {
         aes->error = ERR_get_error();
-        return MZ_HASH_ERROR;
+        return MZ_CRYPT_ERROR;
     }
     if (iv)
         memcpy(aes->iv, iv, MZ_AES_BLOCK_SIZE);
@@ -411,7 +445,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     if (AES_set_decrypt_key(key, key_length * 8, &aes->key) != 0) {
         aes->error = ERR_get_error();
-        return MZ_HASH_ERROR;
+        return MZ_CRYPT_ERROR;
     }
     if (iv)
         memcpy(aes->iv, iv, iv_length);
@@ -526,7 +560,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
         digest_algorithm = "sha256";
 
     params[0] = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST, digest_algorithm, 0);
-	params[1] = OSSL_PARAM_construct_end();
+    params[1] = OSSL_PARAM_construct_end();
 
     hmac->mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
     if (!hmac->mac)

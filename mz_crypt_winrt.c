@@ -243,6 +243,27 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO auth_info;
+    NTSTATUS status = 0;
+
+    if (!aes || !tag || !tag_size)
+        return MZ_PARAM_ERROR;
+
+    BCRYPT_INIT_AUTH_MODE_INFO(auth_info);
+
+    auth_info.pbTag = tag;
+    auth_info.cbTag = tag_size;
+
+    status = BCryptDecrypt(aes->key, NULL, 0, &auth_info, 0, 0, NULL, 0, NULL, 0);
+    if (!NT_SUCCESS(status)) {
+        aes->error = status;
+        return MZ_CRYPT_ERROR;
+    }
+    return MZ_OK;
+}
+
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
@@ -265,6 +286,10 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         mode = BCRYPT_CHAIN_MODE_ECB;
     else if (aes->mode == MZ_AES_MODE_CBC)
         mode = BCRYPT_CHAIN_MODE_CBC;
+    else if (aes->mode == MZ_AES_MODE_CTR)
+        return MZ_SUPPORT_ERROR;
+    else if (aes->mode == MZ_AES_MODE_GCM)
+        mode = BCRYPT_CHAIN_MODE_GCM;
     else
         return MZ_PARAM_ERROR;
 
@@ -272,8 +297,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     status = BCryptOpenAlgorithmProvider(&aes->provider, BCRYPT_AES_ALGORITHM, NULL, 0);
     if (NT_SUCCESS(status)) {
-        status = BCryptGetProperty(aes->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&key_size, result_size, &result_size,
-            0);
+        status = BCryptGetProperty(aes->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&key_size,
+            result_size, &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
         status = BCryptSetProperty(aes->provider, BCRYPT_CHAINING_MODE, (PBYTE)mode, sizeof(mode), 0);
@@ -294,8 +319,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
             memcpy((uint8_t*)key_blob + sizeof(*key_blob), key, key_length);
 
-            status = BCryptImportKey(aes->provider, NULL, BCRYPT_KEY_DATA_BLOB, &aes->key, aes->key_buffer, key_size,
-                (PUCHAR)key_blob, key_blob_size, 0);
+            status = BCryptImportKey(aes->provider, NULL, BCRYPT_KEY_DATA_BLOB, &aes->key, aes->key_buffer,
+                key_size, (PUCHAR)key_blob, key_blob_size, 0);
             SecureZeroMemory(key_blob, key_blob_size);
             free(key_blob);
         }
@@ -310,12 +335,12 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
 int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
-    return mz_crypt_aes_set_key(handle, key, key_length);
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
-    return mz_crypt_aes_set_key(handle, key, key_length);
+    return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
