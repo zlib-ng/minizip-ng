@@ -292,8 +292,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         mode = BCRYPT_CHAIN_MODE_ECB;
     else if (aes->mode == MZ_AES_MODE_CBC)
         mode = BCRYPT_CHAIN_MODE_CBC;
-    else if (aes->mode == MZ_AES_MODE_CTR)
-        return MZ_SUPPORT_ERROR;
     else if (aes->mode == MZ_AES_MODE_GCM)
         mode = BCRYPT_CHAIN_MODE_GCM;
     else

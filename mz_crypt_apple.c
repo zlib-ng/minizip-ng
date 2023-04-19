@@ -268,8 +268,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         mode = kCCModeCBC;
     else if (aes->mode == MZ_AES_MODE_ECB)
         mode = kCCModeECB;
-    else if (aes->mode == MZ_AES_MODE_CTR)
-        mode = kCCModeCTR;
     else if (aes->mode == MZ_AES_MODE_GCM)
         mode = kCCModeGCM;
     else

@@ -368,14 +368,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         else if (key_length == 32)
             type = EVP_aes_256_ecb();
         break;
-    case MZ_AES_MODE_CTR:
-        if (key_length == 16)
-            type = EVP_aes_128_ctr();
-        else if (key_length == 24)
-            type = EVP_aes_192_ctr();
-        else if (key_length == 32)
-            type = EVP_aes_256_ctr();
-        break;
     case MZ_AES_MODE_GCM:
         if (key_length == 16)
             type = EVP_aes_128_gcm();
