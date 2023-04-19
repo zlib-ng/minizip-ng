@@ -51,7 +51,7 @@ static int64_t mz_stream_ioapi_tell(void *stream);
 static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin);
 static int32_t mz_stream_ioapi_close(void *stream);
 static int32_t mz_stream_ioapi_error(void *stream);
-static void *mz_stream_ioapi_create();
+static void *mz_stream_ioapi_create(void);
 static void mz_stream_ioapi_delete(void **stream);
 
 /***************************************************************************/
