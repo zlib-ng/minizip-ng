@@ -1,4 +1,4 @@
-/* mz_crypt_win32.c -- Crypto/hash functions for Windows
+/* mz_crypt_win32.c -- Crypto/hash functions for Windows XP
    part of the minizip-ng project
 
    Copyright (C) Nathan Moinvaziri
@@ -13,6 +13,10 @@
 #include "mz_crypt.h"
 
 #include <windows.h>
+
+#if _WIN32_WINNT <= _WIN32_WINNT_WINXP
+#pragma comment(lib, "crypt32.lib")
+
 #include <wincrypt.h>
 
 /***************************************************************************/
@@ -535,3 +539,5 @@ void mz_crypt_hmac_delete(void **handle) {
     }
     *handle = NULL;
 }
+
+#endif

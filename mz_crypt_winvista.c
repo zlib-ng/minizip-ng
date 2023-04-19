@@ -1,4 +1,4 @@
-/* mz_crypt_winrt.c -- Crypto/hash functions for UWP
+/* mz_crypt_winrt.c -- Crypto/hash functions for Windows Vista or later
    part of the minizip-ng project
 
    Copyright (C) 2010-2022 Nathan Moinvaziri
@@ -13,6 +13,12 @@
 #include "mz_crypt.h"
 
 #include <windows.h>
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WINVISTA
+#pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "crypt32.lib")
+#pragma comment(lib, "ncrypt.lib")
+
 #include <bcrypt.h>
 
 /***************************************************************************/
@@ -516,3 +522,5 @@ void mz_crypt_hmac_delete(void **handle) {
     }
     *handle = NULL;
 }
+
+#endif
