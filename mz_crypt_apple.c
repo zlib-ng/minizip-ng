@@ -19,6 +19,18 @@
 
 /***************************************************************************/
 
+enum {
+    kCCModeGCM = 11,
+};
+
+CCCryptorStatus CCCryptorGCMReset(CCCryptorRef cryptorRef);
+CCCryptorStatus CCCryptorGCMAddIV(CCCryptorRef cryptorRef, const void *iv, size_t ivLen);
+CCCryptorStatus CCCryptorGCMEncrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
+CCCryptorStatus CCCryptorGCMDecrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
+CCCryptorStatus CCCryptorGCMFinal(CCCryptorRef cryptorRef, void *tagOut, size_t *tagLength);
+
+/***************************************************************************/
+
 int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
     if (SecRandomCopyBytes(kSecRandomDefault, size, buf) != errSecSuccess)
         return 0;
@@ -234,11 +246,12 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
 
 int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    size_t tag_length = (size_t)tag_size;
 
     if (!aes || !tag || !tag_size)
         return MZ_PARAM_ERROR;
 
-    aes->error = CCCryptorGCMFinal(aes->crypt, tag, &tag_size);
+    aes->error = CCCryptorGCMFinal(aes->crypt, tag, &tag_length);
 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
@@ -256,7 +269,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     else if (aes->mode == MZ_AES_MODE_ECB)
         mode = kCCModeECB;
     else if (aes->mode == MZ_AES_MODE_CTR)
-        mode = kCCMOdeCTR;
+        mode = kCCModeCTR;
     else if (aes->mode == MZ_AES_MODE_GCM)
         mode = kCCModeGCM;
     else
@@ -264,7 +277,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     mz_crypt_aes_reset(handle);
 
-    aes->error = CCCryptorCreateWithMode(op, mode, kCCAlgorithmAES, iv, key, key_length,
+    aes->error = CCCryptorCreateWithMode(op, mode, kCCAlgorithmAES, ccNoPadding, iv, key, key_length,
         NULL, 0, 0, 0, &aes->crypt);
 
     if (aes->error != kCCSuccess)
@@ -277,7 +290,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
             return MZ_HASH_ERROR;
     }
 
-    return true;
+    return MZ_OK;
 }
 
 int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
