@@ -197,6 +197,7 @@ typedef struct mz_crypt_aes_s {
     uint8_t           *key_buffer;
     int32_t           mode;
     int32_t           error;
+    uint8_t           iv[MZ_AES_BLOCK_SIZE];
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -225,7 +226,9 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    status = BCryptEncrypt(aes->key, buf, size, NULL, NULL, 0, buf, size, &output_size, 0);
+    status = BCryptEncrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size, 
+        &output_size, 0);
+
     if (!NT_SUCCESS(status)) {
         aes->error = status;
         return MZ_CRYPT_ERROR;
@@ -241,7 +244,9 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    status = BCryptDecrypt(aes->key, buf, size, NULL, NULL, 0, buf, size, &output_size, 0);
+    status = BCryptDecrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size, 
+        &output_size, 0);
+
     if (!NT_SUCCESS(status)) {
         aes->error = status;
         return MZ_CRYPT_ERROR;
@@ -262,7 +267,7 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
     auth_info.pbTag = tag;
     auth_info.cbTag = tag_size;
 
-    status = BCryptDecrypt(aes->key, NULL, 0, &auth_info, 0, 0, NULL, 0, NULL, 0);
+    status = BCryptDecrypt(aes->key, NULL, 0, &auth_info, NULL, 0, NULL, 0, NULL, 0);
     if (!NT_SUCCESS(status)) {
         aes->error = status;
         return MZ_CRYPT_ERROR;
@@ -299,6 +304,9 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     mz_crypt_aes_reset(handle);
 
+    if (iv)
+        memcpy(aes->iv, iv, iv_length);
+
     status = BCryptOpenAlgorithmProvider(&aes->provider, BCRYPT_AES_ALGORITHM, NULL, 0);
     if (NT_SUCCESS(status)) {
         status = BCryptGetProperty(aes->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&key_size,
@@ -307,9 +315,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (NT_SUCCESS(status)) {
         status = BCryptSetProperty(aes->provider, BCRYPT_CHAINING_MODE, (PBYTE)mode, sizeof(mode), 0);
     }
-    if (NT_SUCCESS(status) && iv) {
-        status = BCryptSetProperty(aes->provider, BCRYPT_INITIALIZATION_VECTOR, (PUCHAR)iv, iv_length, 0);
-    }
+
     if (NT_SUCCESS(status)) {
         aes->key_buffer = malloc(key_size);
         if (!aes->key_buffer)
