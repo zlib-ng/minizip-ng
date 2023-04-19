@@ -15,8 +15,6 @@
 #include <windows.h>
 
 #if _WIN32_WINNT <= _WIN32_WINNT_WINXP
-#pragma comment(lib, "crypt32.lib")
-
 #include <wincrypt.h>
 
 /***************************************************************************/
@@ -423,7 +421,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
 #else
         return MZ_SUPPORT_ERROR;
 #endif
-    
+
     hmac->info.HashAlgid = alg_id;
 
     result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL,

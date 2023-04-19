@@ -19,10 +19,6 @@
 #endif
 
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-#pragma comment(lib, "bcrypt.lib")
-#pragma comment(lib, "crypt32.lib")
-#pragma comment(lib, "ncrypt.lib")
-
 #include <bcrypt.h>
 
 /***************************************************************************/
@@ -230,7 +226,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    status = BCryptEncrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size, 
+    status = BCryptEncrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size,
         &output_size, 0);
 
     if (!NT_SUCCESS(status)) {
@@ -248,7 +244,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-    status = BCryptDecrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size, 
+    status = BCryptDecrypt(aes->key, buf, size, NULL, aes->iv, sizeof(aes->iv), buf, size,
         &output_size, 0);
 
     if (!NT_SUCCESS(status)) {
