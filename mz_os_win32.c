@@ -21,6 +21,10 @@
 #  define SYMBOLIC_LINK_FLAG_DIRECTORY 0x1
 #endif
 
+#ifndef _WIN32_WINNT_WIN8
+#  define _WIN32_WINNT_WIN8 0x0602
+#endif
+
 /***************************************************************************/
 
 typedef struct DIR_int_s {

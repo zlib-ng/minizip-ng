@@ -23,11 +23,15 @@
 /***************************************************************************/
 
 #ifndef INVALID_HANDLE_VALUE
-#  define INVALID_HANDLE_VALUE (0xFFFFFFFF)
+#  define INVALID_HANDLE_VALUE 0xFFFFFFFF
 #endif
 
 #ifndef INVALID_SET_FILE_POINTER
-#  define INVALID_SET_FILE_POINTER ((DWORD)-1)
+#  define INVALID_SET_FILE_POINTER (DWORD)-1
+#endif
+
+#ifndef _WIN32_WINNT_WIN8
+#  define _WIN32_WINNT_WIN8 0x0602
 #endif
 
 /***************************************************************************/

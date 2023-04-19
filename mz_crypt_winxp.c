@@ -78,6 +78,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
     case MZ_HASH_SHA1:
         alg_id = CALG_SHA1;
         break;
+#if NTDDI_VERSION > NTDDI_WINXPSP2
     case MZ_HASH_SHA256:
         alg_id = CALG_SHA_256;
         break;
@@ -87,6 +88,14 @@ int32_t mz_crypt_sha_begin(void *handle) {
     case MZ_HASH_SHA512:
         alg_id = CALG_SHA_512;
         break;
+#else
+    case MZ_HASH_SHA256:
+    case MZ_HASH_SHA384:
+    case MZ_HASH_SHA512:
+        return MZ_SUPPORT_ERROR;
+#endif
+    default:
+        return MZ_PARAM_ERROR;
     }
 
     result = CryptAcquireContext(&sha->provider, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
@@ -409,8 +418,12 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     if (hmac->algorithm == MZ_HASH_SHA1)
         alg_id = CALG_SHA1;
     else
+#ifdef CALG_SHA_256
         alg_id = CALG_SHA_256;
-
+#else
+        return MZ_SUPPORT_ERROR;
+#endif
+    
     hmac->info.HashAlgid = alg_id;
 
     result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL,

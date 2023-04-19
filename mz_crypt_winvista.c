@@ -14,7 +14,11 @@
 
 #include <windows.h>
 
-#if _WIN32_WINNT >= _WIN32_WINNT_WINVISTA
+#ifndef _WIN32_WINNT_VISTA
+#  define _WIN32_WINNT_VISTA 0x0600
+#endif
+
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
 #pragma comment(lib, "bcrypt.lib")
 #pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "ncrypt.lib")
