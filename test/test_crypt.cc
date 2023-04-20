@@ -88,6 +88,9 @@ TEST(crypt, sha224) {
 }
 
 TEST(crypt, sha256) {
+#if _WIN32_WINNT <= _WIN32_WINNT_XP
+    GTEST_SKIP() << "SHA256 not supported on Windows XP";
+#else
     void *sha256 = NULL;
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
     char computed_hash[256];
@@ -105,9 +108,13 @@ TEST(crypt, sha256) {
     convert_buffer_to_hex_string(hash256, sizeof(hash256), computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ(computed_hash, "7a31ea0848525f7ebfeec9ee532bcc5d6d26772427e097b86cf440a56546541c");
+#endif
 }
 
 TEST(crypt, sha384) {
+#if _WIN32_WINNT <= _WIN32_WINNT_XP
+    GTEST_SKIP() << "SHA384 not supported on Windows XP";
+#else
     void *sha384 = NULL;
     uint8_t hash384[MZ_HASH_SHA384_SIZE];
     char computed_hash[256];
@@ -125,9 +132,13 @@ TEST(crypt, sha384) {
     convert_buffer_to_hex_string(hash384, sizeof(hash384), computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ(computed_hash, "e1e42e5977965bb3621231a5df3a1e83c471fa91fde33b6a30c8c4fa0d8be29ba7171c7c9487db91e9ee7e85049f7b41");
+#endif
 }
 
 TEST(crypt, sha512) {
+#if _WIN32_WINNT <= _WIN32_WINNT_XP
+    GTEST_SKIP() << "SHA512 not supported on Windows XP";
+#else
     void *sha512 = NULL;
     uint8_t hash512[MZ_HASH_SHA512_SIZE];
     char computed_hash[256];
@@ -145,6 +156,7 @@ TEST(crypt, sha512) {
     convert_buffer_to_hex_string(hash512, sizeof(hash512), computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ(computed_hash, "6627e7643ee7ce633e03f52d22329c3a32597364247c5275d4369985e1518626da46f595ad327667346479d246359b8b381af791ce2ac8c53a4788050eea11fe");
+#endif
 }
 
 TEST(crypt, aes128) {
@@ -316,6 +328,9 @@ TEST(crypt, hmac_sha1_short_password) {
 }
 
 TEST(crypt, hmac_sha256) {
+#if _WIN32_WINNT <= _WIN32_WINNT_XP
+    GTEST_SKIP() << "SHA256 not supported on Windows XP";
+#else
     void *hmac;
     const char *key = "hm123";
     const char *test = "12345678";
@@ -333,6 +348,7 @@ TEST(crypt, hmac_sha256) {
     convert_buffer_to_hex_string(hash256, sizeof(hash256), computed_hash, sizeof(computed_hash));
 
     EXPECT_STREQ(computed_hash, "fb22a9c715a47a06bad4f6cee9badc31c921562f5d6b24adf2be009f73181f7a");
+#endif
 }
 
 #ifdef HAVE_WZAES
