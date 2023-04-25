@@ -30,7 +30,7 @@ void     mz_crypt_sha_reset(void *handle);
 int32_t  mz_crypt_sha_begin(void *handle);
 int32_t  mz_crypt_sha_update(void *handle, const void *buf, int32_t size);
 int32_t  mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size);
-void     mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm);
+int32_t  mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm);
 void*    mz_crypt_sha_create(void);
 void     mz_crypt_sha_delete(void **handle);
 

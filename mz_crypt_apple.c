@@ -163,10 +163,12 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size) {
     return MZ_OK;
 }
 
-void mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
+int32_t mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
-    if (MZ_HASH_SHA1 <= algorithm && algorithm <= MZ_HASH_SHA512)
-        sha->algorithm = algorithm;
+    if (algorithm < MZ_HASH_SHA1 || algorithm > MZ_HASH_SHA512)
+        return MZ_PARAM_ERROR;
+    sha->algorithm = algorithm;
+    return MZ_OK;
 }
 
 void *mz_crypt_sha_create(void) {

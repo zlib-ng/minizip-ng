@@ -411,9 +411,9 @@ int32_t mz_zip_reader_entry_open(void *handle) {
             return MZ_MEM_ERROR;
 
         if (reader->hash_algorithm == MZ_HASH_SHA1)
-            mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA1);
+            err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA1);
         else if (reader->hash_algorithm == MZ_HASH_SHA256)
-            mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
+            err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
         else
             err = MZ_SUPPORT_ERROR;
 
@@ -981,7 +981,8 @@ typedef struct mz_zip_writer_s {
     void        *file_stream;
     void        *buffered_stream;
     void        *split_stream;
-    void        *sha256;
+    void        *hash;
+    uint16_t    hash_algorithm;
     void        *mem_stream;
     void        *file_extra_stream;
     mz_zip_file file_info;
@@ -1284,12 +1285,18 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
 
 #ifndef MZ_ZIP_NO_CRYPTO
     if (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK) {
-        /* Start calculating sha256 */
-        writer->sha256 = mz_crypt_sha_create();
-        if (!writer->sha256)
+        /* Start calculating hash */
+        writer->hash = mz_crypt_sha_create();
+        writer->hash_algorithm = MZ_HASH_SHA256;
+        if (!writer->hash)
             return MZ_MEM_ERROR;
-        mz_crypt_sha_set_algorithm(writer->sha256, MZ_HASH_SHA256);
-        mz_crypt_sha_begin(writer->sha256);
+        err = mz_crypt_sha_set_algorithm(writer->hash, writer->hash_algorithm);
+        if (err != MZ_OK) {
+            writer->hash_algorithm = MZ_HASH_SHA1;
+            err = mz_crypt_sha_set_algorithm(writer->hash, writer->hash_algorithm);
+        }
+
+        mz_crypt_sha_begin(writer->hash);
     }
 #endif
 
@@ -1307,11 +1314,24 @@ int32_t mz_zip_writer_entry_close(void *handle) {
     const uint8_t *extrafield = NULL;
     int32_t extrafield_size = 0;
     int16_t field_length_hash = 0;
-    uint8_t sha256[MZ_HASH_SHA256_SIZE];
+    uint8_t hash_digest[MZ_HASH_MAX_SIZE];
 
-    if (writer->sha256) {
-        mz_crypt_sha_end(writer->sha256, sha256, sizeof(sha256));
-        mz_crypt_sha_delete(&writer->sha256);
+    if (writer->hash) {
+        uint16_t hash_digest_size = 0;
+
+        switch (writer->hash_algorithm) {
+            case MZ_HASH_SHA1:
+                hash_digest_size = MZ_HASH_SHA1_SIZE;
+                break;
+            case MZ_HASH_SHA256:
+                hash_digest_size = MZ_HASH_SHA256_SIZE;
+                break;
+            default:
+                return MZ_PARAM_ERROR;
+        }
+
+        mz_crypt_sha_end(writer->hash, hash_digest, hash_digest_size);
+        mz_crypt_sha_delete(&writer->hash);
 
         /* Copy extrafield so we can append our own fields before close */
         writer->file_extra_stream = mz_stream_mem_create();
@@ -1320,15 +1340,15 @@ int32_t mz_zip_writer_entry_close(void *handle) {
 
         mz_stream_mem_open(writer->file_extra_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-        /* Write sha256 hash to extrafield */
-        field_length_hash = 4 + MZ_HASH_SHA256_SIZE;
+        /* Write digest to extrafield */
+        field_length_hash = 4 + hash_digest_size;
         err = mz_zip_extrafield_write(writer->file_extra_stream, MZ_ZIP_EXTENSION_HASH, field_length_hash);
         if (err == MZ_OK)
-            err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256);
+            err = mz_stream_write_uint16(writer->file_extra_stream, writer->hash_algorithm);
         if (err == MZ_OK)
-            err = mz_stream_write_uint16(writer->file_extra_stream, MZ_HASH_SHA256_SIZE);
+            err = mz_stream_write_uint16(writer->file_extra_stream, hash_digest_size);
         if (err == MZ_OK) {
-            if (mz_stream_write(writer->file_extra_stream, sha256, sizeof(sha256)) != MZ_HASH_SHA256_SIZE)
+            if (mz_stream_write(writer->file_extra_stream, hash_digest, hash_digest_size) != hash_digest_size)
                 err = MZ_WRITE_ERROR;
         }
 
@@ -1363,8 +1383,8 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len) {
     int32_t written = 0;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
 #ifndef MZ_ZIP_NO_CRYPTO
-    if (written > 0 && writer->sha256)
-        mz_crypt_sha_update(writer->sha256, buf, written);
+    if (written > 0 && writer->hash)
+        mz_crypt_sha_update(writer->hash, buf, written);
 #endif
     return written;
 }
