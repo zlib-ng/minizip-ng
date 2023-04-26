@@ -244,6 +244,10 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
     return MZ_SUPPORT_ERROR;
 }
 
+int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    return MZ_SUPPORT_ERROR;
+}
+
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;

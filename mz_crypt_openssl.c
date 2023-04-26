@@ -330,15 +330,55 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
 }
 
 int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
+    return MZ_SUPPORT_ERROR;
+#else
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    uint8_t temp[MZ_AES_BLOCK_SIZE];
+    int temp_len = sizeof(temp);
+    int result = 0;
 
     if (!aes || !tag || !tag_size)
         return MZ_PARAM_ERROR;
 
+    /* Must call EncryptFinal for tag to be calculated */
+    result = EVP_EncryptFinal_ex(aes->ctx, NULL, &temp_len);
+
+    if (result)
+        result = EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_GET_TAG, tag_size, tag);
+
+    if (!result) {
+        aes->error = ERR_get_error();
+        return MZ_CRYPT_ERROR;
+    }
+
+    return MZ_OK;
+#endif
+}
+
+
+int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
 #if OPENSSL_VERSION_NUMBER < 0x00900070L
     return MZ_SUPPORT_ERROR;
 #else
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    uint8_t temp[MZ_AES_BLOCK_SIZE];
+    int temp_len = sizeof(temp);
+    int result = 0;
+
+    if (!aes || !tag || !tag_size)
+        return MZ_PARAM_ERROR;
+
+    /* Set expected tag */
     if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_size, tag)) {
+        aes->error = ERR_get_error();
+        return MZ_CRYPT_ERROR;
+    }
+
+    /* Must call DecryptFinal for tag verification */
+    result = EVP_DecryptFinal_ex(aes->ctx, temp, &temp_len);
+
+    if (!result) {
         aes->error = ERR_get_error();
         return MZ_CRYPT_ERROR;
     }
@@ -386,12 +426,12 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (!aes->ctx)
         return MZ_MEM_ERROR;
 
-    EVP_CIPHER_CTX_set_padding(aes->ctx, 0);
-
     if (!EVP_CipherInit_ex(aes->ctx, type, NULL, key, iv, encrypt)) {
         aes->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
+
+    EVP_CIPHER_CTX_set_padding(aes->ctx, 0);
 
     return MZ_OK;
 }

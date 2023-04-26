@@ -18,9 +18,8 @@
 
 #include <stdio.h> /* printf, snprintf */
 
-/* Include _WIN32_WINNT if not defined */
-#if GTEST_OS_WINDOWS && !defined(_WIN32_WINNT)
-#  include <windows.h>
+#if GTEST_OS_WINDOWS
+#  include <sdkddkver.h> /* _WIN32_WINNT defines */
 #endif
 
 #ifndef MZ_ZIP_NO_CRYPTO
@@ -242,8 +241,7 @@ TEST(crypt, aes128_gcm_iv) {
     int32_t test_length = 0;
     int32_t iv_length = 0;
     uint8_t buf[120];
-    uint8_t tag1[MZ_AES_BLOCK_SIZE] = {0};
-    uint8_t tag2[MZ_AES_BLOCK_SIZE] = {0};
+    uint8_t tag[MZ_AES_BLOCK_SIZE] = {0};
 
     key_length = (int32_t)strlen(key);
     test_length = (int32_t)strlen(test);
@@ -258,7 +256,7 @@ TEST(crypt, aes128_gcm_iv) {
     EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf + test_length, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag1, sizeof(tag1)), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag, sizeof(tag)), MZ_OK);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char*)buf, test);
@@ -269,10 +267,9 @@ TEST(crypt, aes128_gcm_iv) {
     EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf + test_length, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag2, sizeof(tag2)), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_set_auth_tag(aes, tag, sizeof(tag)), MZ_OK);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_EQ(memcmp(tag1, tag2, MZ_AES_BLOCK_SIZE), 0);
     EXPECT_EQ(memcmp(buf, test, test_length), 0);
     EXPECT_EQ(memcmp(buf + test_length, test, test_length), 0);
 #endif

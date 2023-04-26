@@ -246,14 +246,42 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    size_t tag_length = (size_t)tag_size;
+    uint8_t tag_actual_buf[MZ_AES_BLOCK_SIZE];
+    size_t tag_actual_len = sizeof(tag_actual_buf);
+    uint8_t *tag_actual = tag_actual_buf;
+    int32_t c = tag_size;
+    int32_t is_ok = 0;
 
     if (!aes || !tag || !tag_size)
         return MZ_PARAM_ERROR;
 
-    aes->error = CCCryptorGCMFinal(aes->crypt, tag, &tag_length);
+    /* CCCryptorGCMFinal does not verify tag */
+    aes->error = CCCryptorGCMFinal(aes->crypt, tag_actual, &tag_actual_len);
+
+    if (aes->error != kCCSuccess)
+        return MZ_CRYPT_ERROR;
+    if (tag_size != tag_actual_len)
+        return MZ_CRYPT_ERROR;
+
+    /* Timing safe comparison */
+    for (; c > 0; c--)
+        is_ok |= *tag++ ^ *tag_actual++;
+
+    if (is_ok)
+        return MZ_CRYPT_ERROR;
+
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+
+    if (!aes || !tag || !tag_size)
+        return MZ_PARAM_ERROR;
+
+    aes->error = CCCryptorGCMFinal(aes->crypt, tag, (size_t *)&tag_size);
 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;

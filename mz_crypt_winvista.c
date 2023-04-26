@@ -290,6 +290,31 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
         aes->error = status;
         return MZ_CRYPT_ERROR;
     }
+
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    NTSTATUS status = 0;
+    ULONG output_size = 0;
+
+    if (!aes || !tag || !tag_size || !aes->auth_info)
+        return MZ_PARAM_ERROR;
+
+    aes->auth_info->pbTag = tag;
+    aes->auth_info->cbTag = tag_size;
+
+    aes->auth_info->dwFlags &= ~BCRYPT_AUTH_MODE_CHAIN_CALLS_FLAG;
+
+    status = BCryptDecrypt(aes->key, NULL, 0, aes->auth_info, aes->iv, aes->iv_length, NULL, 0,
+        &output_size, 0);
+
+    if (!NT_SUCCESS(status)) {
+        aes->error = status;
+        return MZ_CRYPT_ERROR;
+    }
+
     return MZ_OK;
 }
 
