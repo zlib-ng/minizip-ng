@@ -156,14 +156,14 @@ jobs:
             deploy: true
             deploy-name: windows
 
-          # No code coverage supported
-          - name: Windows MSVC XP
-            os: windows-latest
-            compiler: cl
-            # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
-            cmake-args: -D MZ_FORCE_FETCH_LIBS=ON -D CMAKE_C_FLAGS="-D_WIN32_WINNT=0x501" -D CMAKE_CXX_FLAGS="-D_WIN32_WINNT=0x501"
-            deploy: true
-            deploy-name: windowsxp
+          # # No code coverage supported
+          # - name: Windows MSVC XP
+          #   os: windows-latest
+          #   compiler: cl
+          #   # Don't use find_package for 3rd party libraries which are installed incorrectly on GitHub CI instances
+          #   cmake-args: -D MZ_FORCE_FETCH_LIBS=ON -D CMAKE_C_FLAGS="-D_WIN32_WINNT=0x501" -D CMAKE_CXX_FLAGS="-D_WIN32_WINNT=0x501"
+          #   deploy: true
+          #   deploy-name: windowsxp
 
           - name: Windows GCC
             os: windows-latest
