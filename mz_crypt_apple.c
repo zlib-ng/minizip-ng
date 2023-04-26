@@ -258,7 +258,7 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
 
-    return tag_size;
+    return MZ_OK;
 }
 
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,

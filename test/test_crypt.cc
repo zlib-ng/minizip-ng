@@ -18,6 +18,11 @@
 
 #include <stdio.h> /* printf, snprintf */
 
+/* Include _WIN32_WINNT if not defined */
+#if GTEST_OS_WINDOWS && !defined(_WIN32_WINNT)
+#  include <windows.h>
+#endif
+
 #ifndef MZ_ZIP_NO_CRYPTO
 static const char *hash_test_string = "the quick and lazy fox did his thang";
 
@@ -88,7 +93,7 @@ TEST(crypt, sha224) {
 }
 
 TEST(crypt, sha256) {
-#if _WIN32_WINNT <= _WIN32_WINNT_XP
+#if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA256 not supported on Windows XP";
 #else
     void *sha256 = NULL;
@@ -112,7 +117,7 @@ TEST(crypt, sha256) {
 }
 
 TEST(crypt, sha384) {
-#if _WIN32_WINNT <= _WIN32_WINNT_XP
+#if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA384 not supported on Windows XP";
 #else
     void *sha384 = NULL;
@@ -136,7 +141,7 @@ TEST(crypt, sha384) {
 }
 
 TEST(crypt, sha512) {
-#if _WIN32_WINNT <= _WIN32_WINNT_XP
+#if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA512 not supported on Windows XP";
 #else
     void *sha512 = NULL;
@@ -222,6 +227,55 @@ TEST(crypt, aes128_cbc_iv) {
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
+}
+
+
+TEST(crypt, aes128_gcm_iv) {
+#if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
+    GTEST_SKIP() << "SHA256 not supported on Windows XP";
+#else
+    void* aes = NULL;
+    const char* key = "awesomekeythisis";
+    const char* test = "youknowitsogrowi";
+    const char* iv = "0123456789123456";
+    int32_t key_length = 0;
+    int32_t test_length = 0;
+    int32_t iv_length = 0;
+    uint8_t buf[120];
+    uint8_t tag1[MZ_AES_BLOCK_SIZE] = {0};
+    uint8_t tag2[MZ_AES_BLOCK_SIZE] = {0};
+
+    key_length = (int32_t)strlen(key);
+    test_length = (int32_t)strlen(test);
+    iv_length = (int32_t)strlen(iv);
+
+    strncpy((char*)buf, test, sizeof(buf));
+    strncpy((char*)buf + test_length, test, sizeof(buf) - test_length);
+
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
+    mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf + test_length, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag1, sizeof(tag1)), MZ_OK);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_STRNE((char*)buf, test);
+
+    aes = mz_crypt_aes_create();
+    ASSERT_NE(aes, nullptr);
+    mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf + test_length, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag2, sizeof(tag2)), MZ_OK);
+    mz_crypt_aes_delete(&aes);
+
+    EXPECT_EQ(memcmp(tag1, tag2, MZ_AES_BLOCK_SIZE), 0);
+    EXPECT_EQ(memcmp(buf, test, test_length), 0);
+    EXPECT_EQ(memcmp(buf + test_length, test, test_length), 0);
+#endif
 }
 
 TEST(crypt, aes194) {
@@ -329,7 +383,7 @@ TEST(crypt, hmac_sha1_short_password) {
 }
 
 TEST(crypt, hmac_sha256) {
-#if _WIN32_WINNT <= _WIN32_WINNT_XP
+#if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA256 not supported on Windows XP";
 #else
     void *hmac;

@@ -28,7 +28,7 @@
 static void mz_crypt_init(void) {
     static int32_t openssl_initialized = 0;
     if (!openssl_initialized) {
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         OpenSSL_add_all_algorithms();
 
         ERR_load_BIO_strings();
@@ -54,7 +54,7 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 /***************************************************************************/
 
 typedef struct mz_crypt_sha_s {
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     union {
         SHA512_CTX ctx512;
         SHA256_CTX ctx256;
@@ -95,7 +95,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
 
     mz_crypt_sha_reset(handle);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Init(&sha->ctx1);
@@ -157,7 +157,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
     if (!sha || !buf || !sha->initialized)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Update(&sha->ctx1, buf, size);
@@ -196,7 +196,7 @@ int32_t mz_crypt_sha_end(void *handle, uint8_t *digest, int32_t digest_size) {
     if (digest_size < mz_crypt_sha_digest_size[sha->algorithm - MZ_HASH_SHA1])
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     switch (sha->algorithm) {
     case MZ_HASH_SHA1:
         result = SHA1_Final(digest, &sha->ctx1);
@@ -262,7 +262,7 @@ typedef struct mz_crypt_aes_s {
     uint8_t    *key_copy;
     int32_t    key_length;
     uint8_t    iv[MZ_AES_BLOCK_SIZE];
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_NUMBER >= 0x00900070L
     EVP_CIPHER_CTX *ctx;
 #endif
 } mz_crypt_aes;
@@ -281,7 +281,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
     if (aes->mode == MZ_AES_MODE_CBC) {
         AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_ENCRYPT);
     } else if (aes->mode == MZ_AES_MODE_ECB) {
@@ -308,7 +308,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
     if (aes->mode == MZ_AES_MODE_CBC) {
         AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_DECRYPT);
     } else if (aes->mode == MZ_AES_MODE_ECB) {
@@ -335,7 +335,7 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
     if (!aes || !tag || !tag_size)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
     return MZ_SUPPORT_ERROR;
 #else
     if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_size, tag)) {
@@ -347,7 +347,7 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
 #endif
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+#if OPENSSL_VERSION_NUMBER >= 0x00900070L
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length, int32_t encrypt) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
@@ -410,7 +410,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
     mz_crypt_aes_reset(handle);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
     if (AES_set_encrypt_key(key, key_length * 8, &aes->key) != 0) {
         aes->error = ERR_get_error();
         return MZ_CRYPT_ERROR;
@@ -436,7 +436,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 
     mz_crypt_aes_reset(handle);
 
-#if OPENSSL_VERSION_NUMBER < 0x30000000L
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
     if (AES_set_decrypt_key(key, key_length * 8, &aes->key) != 0) {
         aes->error = ERR_get_error();
         return MZ_CRYPT_ERROR;
