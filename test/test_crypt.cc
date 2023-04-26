@@ -296,12 +296,13 @@ TEST(crypt, hmac_sha1) {
     mz_crypt_hmac_set_algorithm(hmac, MZ_HASH_SHA1);
     mz_crypt_hmac_init(hmac, key, (int32_t)strlen(key));
     mz_crypt_hmac_update(hmac, test, (int32_t)strlen(test));
+    mz_crypt_hmac_update(hmac, test, (int32_t)strlen(test));
     mz_crypt_hmac_end(hmac, hash1, sizeof(hash1));
     mz_crypt_hmac_delete(&hmac);
 
     convert_buffer_to_hex_string(hash1, sizeof(hash1), computed_hash, sizeof(computed_hash));
 
-    EXPECT_STREQ(computed_hash, "c785a02ff303c886c304d9a4c06073dfe4c24aa9");
+    EXPECT_STREQ(computed_hash, "3c8c576d947994177af9366c05a6d6cb060edab7");
 }
 
 TEST(crypt, hmac_sha1_short_password) {
