@@ -193,7 +193,7 @@ TEST(crypt, aes128) {
     EXPECT_STREQ((char *)buf, test);
 }
 
-TEST(crypt, aes128_cbc_iv) {
+TEST(crypt, aes128_cbc) {
     void *aes = NULL;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
@@ -229,7 +229,7 @@ TEST(crypt, aes128_cbc_iv) {
 }
 
 
-TEST(crypt, aes128_gcm_iv) {
+TEST(crypt, aes128_gcm) {
 #if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA256 not supported on Windows XP";
 #else
