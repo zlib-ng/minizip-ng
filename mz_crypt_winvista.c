@@ -230,7 +230,6 @@ static void mz_crypt_aes_free(void *handle) {
 }
 
 void mz_crypt_aes_reset(void *handle) {
-    mz_crypt_aes* aes = (mz_crypt_aes*)handle;
     mz_crypt_aes_free(handle);
 }
 
@@ -270,7 +269,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     NTSTATUS status = 0;
     ULONG output_size = 0;
@@ -294,16 +293,16 @@ int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) 
     return MZ_OK;
 }
 
-int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     NTSTATUS status = 0;
     ULONG output_size = 0;
 
-    if (!aes || !tag || !tag_size || !aes->auth_info)
+    if (!aes || !tag || !tag_length || !aes->auth_info)
         return MZ_PARAM_ERROR;
 
     aes->auth_info->pbTag = tag;
-    aes->auth_info->cbTag = tag_size;
+    aes->auth_info->cbTag = tag_length;
 
     aes->auth_info->dwFlags &= ~BCRYPT_AUTH_MODE_CHAIN_CALLS_FLAG;
 
@@ -324,7 +323,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     BCRYPT_KEY_DATA_BLOB_HEADER *key_blob = NULL;
     int32_t key_blob_size = 0;
     ULONG key_size;
-    ULONG tag_size = 0;
     wchar_t *mode = NULL;
     NTSTATUS status = 0;
     int32_t err = MZ_OK;

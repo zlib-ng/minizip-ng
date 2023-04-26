@@ -256,7 +256,7 @@ TEST(crypt, aes128_gcm) {
     EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf + test_length, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_get_auth_tag(aes, tag, sizeof(tag)), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_get_tag(aes, tag, sizeof(tag)), MZ_OK);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char*)buf, test);
@@ -267,7 +267,7 @@ TEST(crypt, aes128_gcm) {
     EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf + test_length, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_set_auth_tag(aes, tag, sizeof(tag)), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_verify_tag(aes, tag, sizeof(tag)), MZ_OK);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_EQ(memcmp(buf, test, test_length), 0);

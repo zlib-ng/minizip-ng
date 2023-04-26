@@ -240,11 +240,11 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size) {
     return MZ_SUPPORT_ERROR;
 }
 
-int32_t mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) {
     return MZ_SUPPORT_ERROR;
 }
 

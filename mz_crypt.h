@@ -37,8 +37,8 @@ void     mz_crypt_sha_delete(void **handle);
 void     mz_crypt_aes_reset(void *handle);
 int32_t  mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size);
 int32_t  mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size);
-int32_t  mz_crypt_aes_get_auth_tag(void *handle, uint8_t *tag, int32_t tag_size);
-int32_t  mz_crypt_aes_set_auth_tag(void *handle, uint8_t *tag, int32_t tag_size);
+int32_t  mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size);
+int32_t  mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length);
 int32_t  mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
   const void *iv, int32_t iv_length);
 int32_t  mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
