@@ -487,7 +487,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
         return MZ_PARAM_ERROR;
     if (key_length != 16 && key_length != 24 && key_length != 32)
         return MZ_PARAM_ERROR;
-    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+    if (iv && iv_length > MZ_AES_BLOCK_SIZE)
         return MZ_PARAM_ERROR;
 
     mz_crypt_aes_reset(handle);
