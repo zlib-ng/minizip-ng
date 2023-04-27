@@ -58,16 +58,21 @@ typedef struct mz_crypt_sha_s {
 
 /***************************************************************************/
 
-void mz_crypt_sha_reset(void *handle) {
+static void mz_crypt_sha_free(void *handle) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     if (sha->hash)
         BCryptDestroyHash(sha->hash);
+    sha->hash = NULL;
     if (sha->provider)
         BCryptCloseAlgorithmProvider(sha->provider, 0);
-    free(sha->buffer);
-    sha->hash = NULL;
     sha->provider = NULL;
+    free(sha->buffer);
     sha->buffer = NULL;
+}
+
+void mz_crypt_sha_reset(void *handle) {
+    mz_crypt_sha *sha = (mz_crypt_sha *)handle;
+    mz_crypt_sha_free(handle);
     sha->error = 0;
 }
 
@@ -99,7 +104,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
 
     status = BCryptOpenAlgorithmProvider(&sha->provider, alg_id, NULL, 0);
     if (NT_SUCCESS(status)) {
-        status = BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, 
+        status = BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size,
             &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
@@ -186,7 +191,7 @@ void mz_crypt_sha_delete(void **handle) {
         return;
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
-        mz_crypt_sha_reset(*handle);
+        mz_crypt_sha_free(*handle);
         free(sha);
     }
     *handle = NULL;

@@ -562,7 +562,7 @@ static void HMAC_CTX_free(HMAC_CTX *ctx) {
 
 /***************************************************************************/
 
-void mz_crypt_hmac_reset(void *handle) {
+static void mz_crypt_hmac_free(void *handle) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
 
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
@@ -575,9 +575,15 @@ void mz_crypt_hmac_reset(void *handle) {
 #endif
 
     hmac->ctx = NULL;
-    hmac->error = 0;
+}
+
+void mz_crypt_hmac_reset(void *handle) {
+    mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
 
     mz_crypt_init();
+    mz_crypt_hmac_free(handle);
+
+    hmac->error = 0;
 }
 
 int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {

@@ -49,7 +49,7 @@ typedef struct mz_crypt_sha_s {
 
 /***************************************************************************/
 
-void mz_crypt_sha_reset(void *handle) {
+static void mz_crypt_sha_free(void *handle) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
     if (sha->hash)
         CryptDestroyHash(sha->hash);
@@ -57,6 +57,11 @@ void mz_crypt_sha_reset(void *handle) {
     if (sha->provider)
         CryptReleaseContext(sha->provider, 0);
     sha->provider = 0;
+}
+
+void mz_crypt_sha_reset(void *handle) {
+    mz_crypt_sha *sha = (mz_crypt_sha *)handle;
+    mz_crypt_sha_free(handle);
     sha->error = 0;
 }
 
@@ -182,7 +187,7 @@ void mz_crypt_sha_delete(void **handle) {
         return;
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
-        mz_crypt_sha_reset(*handle);
+        mz_crypt_sha_free(*handle);
         free(sha);
     }
     *handle = NULL;
