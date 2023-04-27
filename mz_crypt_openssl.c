@@ -77,13 +77,25 @@ static const uint8_t mz_crypt_sha_digest_size[] = {
 
 /***************************************************************************/
 
+static void mz_crypt_sha_free(void *handle) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    mz_crypt_sha *sha = (mz_crypt_sha *)handle;
+    if (sha->ctx)
+        EVP_MD_CTX_free(sha->ctx);
+    sha->ctx = NULL;
+#else
+    MZ_UNUSED(handle);
+#endif
+}
+
 void mz_crypt_sha_reset(void *handle) {
     mz_crypt_sha *sha = (mz_crypt_sha *)handle;
 
+    mz_crypt_init();
+    mz_crypt_sha_free(handle);
+
     sha->error = 0;
     sha->initialized = 0;
-
-    mz_crypt_init();
 }
 
 int32_t mz_crypt_sha_begin(void *handle) {
@@ -247,7 +259,7 @@ void mz_crypt_sha_delete(void **handle) {
         return;
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
-        mz_crypt_sha_reset(*handle);
+        mz_crypt_sha_free(*handle);
         free(sha);
     }
     *handle = NULL;
@@ -568,9 +580,10 @@ static void mz_crypt_hmac_free(void *handle) {
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
     HMAC_CTX_free(hmac->ctx);
 #else
-    EVP_MAC_CTX_free(hmac->ctx);
-    EVP_MAC_free(hmac->mac);
-
+    if (hmac->ctx)
+        EVP_MAC_CTX_free(hmac->ctx);
+    if (hmac->mac)
+        EVP_MAC_free(hmac->mac);
     hmac->mac = NULL;
 #endif
 
@@ -732,7 +745,7 @@ void mz_crypt_hmac_delete(void **handle) {
         return;
     hmac = (mz_crypt_hmac *)*handle;
     if (hmac) {
-        mz_crypt_hmac_reset(*handle);
+        mz_crypt_hmac_free(*handle);
         free(hmac);
     }
     *handle = NULL;
