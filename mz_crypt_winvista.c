@@ -99,8 +99,8 @@ int32_t mz_crypt_sha_begin(void *handle) {
 
     status = BCryptOpenAlgorithmProvider(&sha->provider, alg_id, NULL, 0);
     if (NT_SUCCESS(status)) {
-        status = BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, &result_size,
-            0);
+        status = BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, 
+            &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
         sha->buffer = malloc(buffer_size);
@@ -352,10 +352,11 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     mz_crypt_aes_reset(handle);
 
     if (iv) {
-        aes->iv_length = iv_length;
-        aes->iv = calloc(iv_length, sizeof(uint8_t));
+        aes->iv_length = MZ_AES_BLOCK_SIZE;
+        aes->iv = calloc(MZ_AES_BLOCK_SIZE, sizeof(uint8_t));
         if (!aes->iv)
             return MZ_MEM_ERROR;
+        memcpy(aes->iv, iv, iv_length);
     }
 
     status = BCryptOpenAlgorithmProvider(&aes->provider, BCRYPT_AES_ALGORITHM, NULL, 0);
@@ -427,7 +428,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
                 if (aes->iv_length > block_length)
                     return MZ_CRYPT_ERROR;
 
-                aes->nonce_length = aes->iv_length;
+                aes->nonce_length = iv_length;
                 if (aes->nonce_length > MZ_AES_MAX_NONCE_SIZE)
                     aes->nonce_length = MZ_AES_MAX_NONCE_SIZE;
                 memcpy(aes->nonce, iv, aes->nonce_length);
