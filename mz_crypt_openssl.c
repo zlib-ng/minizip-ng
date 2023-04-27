@@ -269,10 +269,20 @@ typedef struct mz_crypt_aes_s {
 
 /***************************************************************************/
 
-void mz_crypt_aes_reset(void *handle) {
+static void mz_crypt_aes_free(void *handle) {
+#if OPENSSL_VERSION_NUMBER >= 0x00900070L
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    if (aes->ctx)
+        EVP_CIPHER_CTX_free(aes->ctx);
+    aes->ctx = NULL;
+#else
     MZ_UNUSED(handle);
+#endif
+}
 
+void mz_crypt_aes_reset(void *handle) {
     mz_crypt_init();
+    mz_crypt_aes_free(handle);
 }
 
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
@@ -510,8 +520,10 @@ void mz_crypt_aes_delete(void **handle) {
     if (!handle)
         return;
     aes = (mz_crypt_aes *)*handle;
-    if (aes)
+    if (aes) {
+        mz_crypt_aes_free(*handle);
         free(aes);
+    }
     *handle = NULL;
 }
 
