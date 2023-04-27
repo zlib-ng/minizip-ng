@@ -202,12 +202,16 @@ typedef struct mz_crypt_aes_s {
 
 /***************************************************************************/
 
-void mz_crypt_aes_reset(void *handle) {
+static void mz_crypt_aes_free(void *handle) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
     if (aes->crypt)
         CCCryptorRelease(aes->crypt);
     aes->crypt = NULL;
+}
+
+void mz_crypt_aes_reset(void *handle) {
+    mz_crypt_aes_free(handle);
 }
 
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
@@ -355,7 +359,7 @@ void mz_crypt_aes_delete(void **handle) {
         return;
     aes = (mz_crypt_aes *)*handle;
     if (aes) {
-        mz_crypt_aes_reset(*handle);
+        mz_crypt_aes_free(*handle);
         free(aes);
     }
     *handle = NULL;

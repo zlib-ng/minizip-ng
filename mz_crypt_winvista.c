@@ -219,14 +219,16 @@ static void mz_crypt_aes_free(void *handle) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     if (aes->key)
         BCryptDestroyKey(aes->key);
+    aes->key = NULL;
     if (aes->provider)
         BCryptCloseAlgorithmProvider(aes->provider, 0);
-    free(aes->key_buffer);
-    free(aes->iv);
-    free(aes->auth_info);
     aes->provider = NULL;
-    aes->key = NULL;
+    free(aes->key_buffer);
     aes->key_buffer = NULL;
+    free(aes->iv);
+    aes->iv = NULL;
+    free(aes->auth_info);
+    aes->auth_info = NULL;
 }
 
 void mz_crypt_aes_reset(void *handle) {
@@ -493,14 +495,14 @@ static void mz_crypt_hmac_free(void *handle) {
     mz_crypt_hmac *hmac = (mz_crypt_hmac *)handle;
     if (hmac->hash)
         BCryptDestroyHash(hmac->hash);
+    hmac->hash = NULL;
     if (hmac->key)
         BCryptDestroyKey(hmac->key);
+    hmac->key = NULL;
     if (hmac->provider)
         BCryptCloseAlgorithmProvider(hmac->provider, 0);
-    free(hmac->buffer);
-    hmac->hash = NULL;
-    hmac->key = NULL;
     hmac->provider = NULL;
+    free(hmac->buffer);
     hmac->buffer = NULL;
 }
 
