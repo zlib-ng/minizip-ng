@@ -278,7 +278,9 @@ void mz_crypt_aes_reset(void *handle) {
 int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
+    if (!aes || !buf)
+        return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM && size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
 #if OPENSSL_VERSION_NUMBER < 0x00900070L
@@ -302,10 +304,41 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
+#if OPENSSL_VERSION_NUMBER < 0x00900070L
+    return MZ_SUPPORT_ERROR;
+#else
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+    int result = 0;
+    int out_len = 0;
+
+    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM)
+        return MZ_PARAM_ERROR;
+
+    if (buf && size) {
+        if (!EVP_EncryptUpdate(aes->ctx, buf, &size, buf, size))
+            return MZ_CRYPT_ERROR;
+    }
+
+    /* Must call EncryptFinal for tag to be calculated */
+    result = EVP_EncryptFinal_ex(aes->ctx, NULL, &out_len);
+
+    if (result)
+        result = EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_GET_TAG, tag_size, tag);
+
+    if (!result) {
+        aes->error = ERR_get_error();
+        return MZ_CRYPT_ERROR;
+    }
+
+    return size;
+#endif
+}
+
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf || size != MZ_AES_BLOCK_SIZE)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
 #if OPENSSL_VERSION_NUMBER < 0x00900070L
@@ -329,44 +362,20 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
 #if OPENSSL_VERSION_NUMBER < 0x00900070L
     return MZ_SUPPORT_ERROR;
 #else
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    uint8_t temp[MZ_AES_BLOCK_SIZE];
-    int temp_len = sizeof(temp);
-    int result = 0;
+    int out_len = 0;
 
-    if (!aes || !tag || !tag_size)
+    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
-    /* Must call EncryptFinal for tag to be calculated */
-    result = EVP_EncryptFinal_ex(aes->ctx, NULL, &temp_len);
-
-    if (result)
-        result = EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_GET_TAG, tag_size, tag);
-
-    if (!result) {
-        aes->error = ERR_get_error();
-        return MZ_CRYPT_ERROR;
+    if (buf && size) {
+        if (!EVP_DecryptUpdate(aes->ctx, buf, &size, buf, size))
+            return MZ_CRYPT_ERROR;
     }
-
-    return MZ_OK;
-#endif
-}
-
-int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) {
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    return MZ_SUPPORT_ERROR;
-#else
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-    uint8_t temp[MZ_AES_BLOCK_SIZE];
-    int temp_len = sizeof(temp);
-    int result = 0;
-
-    if (!aes || !tag || !tag_length)
-        return MZ_PARAM_ERROR;
 
     /* Set expected tag */
     if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_length, tag)) {
@@ -375,14 +384,12 @@ int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) 
     }
 
     /* Must call DecryptFinal for tag verification */
-    result = EVP_DecryptFinal_ex(aes->ctx, temp, &temp_len);
-
-    if (!result) {
+    if (!EVP_DecryptFinal_ex(aes->ctx, NULL, &out_len)) {
         aes->error = ERR_get_error();
         return MZ_CRYPT_ERROR;
     }
 
-    return MZ_OK;
+    return size;
 #endif
 }
 
@@ -430,7 +437,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         return MZ_HASH_ERROR;
     }
 
-    EVP_CIPHER_CTX_set_padding(aes->ctx, 0);
+    EVP_CIPHER_CTX_set_padding(aes->ctx, aes->mode == MZ_AES_MODE_GCM);
 
     return MZ_OK;
 }

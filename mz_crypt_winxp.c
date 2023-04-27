@@ -227,6 +227,10 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
+    return MZ_SUPPORT_ERROR;
+}
+
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int32_t result = 0;
@@ -240,11 +244,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size) {
-    return MZ_SUPPORT_ERROR;
-}
-
-int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
     return MZ_SUPPORT_ERROR;
 }
 

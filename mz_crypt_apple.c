@@ -228,6 +228,24 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
+int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
+    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+
+    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM)
+        return MZ_PARAM_ERROR;
+
+    aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
+    if (aes->error != kCCSuccess)
+        return MZ_CRYPT_ERROR;
+
+    aes->error = CCCryptorGCMFinal(aes->crypt, tag, (size_t *)&tag_size);
+
+    if (aes->error != kCCSuccess)
+        return MZ_CRYPT_ERROR;
+
+    return size;
+}
+
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     size_t data_moved = 0;
@@ -246,21 +264,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_get_tag(void *handle, uint8_t *tag, int32_t tag_size) {
-    mz_crypt_aes *aes = (mz_crypt_aes *)handle;
-
-    if (!aes || !tag || !tag_size)
-        return MZ_PARAM_ERROR;
-
-    aes->error = CCCryptorGCMFinal(aes->crypt, tag, (size_t *)&tag_size);
-
-    if (aes->error != kCCSuccess)
-        return MZ_CRYPT_ERROR;
-
-    return MZ_OK;
-}
-
-int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     uint8_t tag_actual_buf[MZ_AES_BLOCK_SIZE];
     size_t tag_actual_len = sizeof(tag_actual_buf);
@@ -268,8 +272,12 @@ int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) 
     int32_t c = tag_length;
     int32_t is_ok = 0;
 
-    if (!aes || !tag || !tag_length)
+    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
+
+    aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
+    if (aes->error != kCCSuccess)
+        return MZ_CRYPT_ERROR;
 
     /* CCCryptorGCMFinal does not verify tag */
     aes->error = CCCryptorGCMFinal(aes->crypt, tag_actual, &tag_actual_len);
@@ -286,7 +294,7 @@ int32_t mz_crypt_aes_verify_tag(void *handle, uint8_t *tag, int32_t tag_length) 
     if (is_ok)
         return MZ_CRYPT_ERROR;
 
-    return MZ_OK;
+    return size;
 }
 
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
