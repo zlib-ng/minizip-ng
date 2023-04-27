@@ -288,7 +288,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uin
 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
-    if (tag_length != tag_actual_len)
+    if (tag_length != (int32_t)tag_actual_len)
         return MZ_CRYPT_ERROR;
 
     /* Timing safe comparison */
