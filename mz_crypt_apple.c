@@ -9,6 +9,7 @@
 */
 
 #include "mz.h"
+#include "mz_crypt.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <CommonCrypto/CommonCryptor.h>
@@ -25,6 +26,7 @@ enum {
 
 CCCryptorStatus CCCryptorGCMReset(CCCryptorRef cryptorRef);
 CCCryptorStatus CCCryptorGCMAddIV(CCCryptorRef cryptorRef, const void *iv, size_t ivLen);
+CCCryptorStatus CCCryptorGCMAddAAD(CCCryptorRef cryptorRef, const void *aData, size_t aDataLen);
 CCCryptorStatus CCCryptorGCMEncrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
 CCCryptorStatus CCCryptorGCMDecrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
 CCCryptorStatus CCCryptorGCMFinal(CCCryptorRef cryptorRef, void *tagOut, size_t *tagLength);
@@ -214,17 +216,25 @@ void mz_crypt_aes_reset(void *handle) {
     mz_crypt_aes_free(handle);
 }
 
-int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     size_t data_moved = 0;
 
-    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0 || !aes->crypt)
         return MZ_PARAM_ERROR;
 
-    if (aes->mode == MZ_AES_MODE_GCM)
+    if (aes->mode == MZ_AES_MODE_GCM) {
+        if (aad && aad_size > 0) {
+            aes->error = CCCryptorGCMAddAAD(aes->crypt, aad, aad_size);
+            if (aes->error != kCCSuccess)
+                return MZ_CRYPT_ERROR;
+        }
         aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
-    else
+    } else {
+        if (aad && aad_size > 0)
+            return MZ_PARAM_ERROR;
         aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
+    }
 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
@@ -250,17 +260,25 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     size_t data_moved = 0;
 
-    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0 || !aes->crypt)
         return MZ_PARAM_ERROR;
 
-    if (aes->mode == MZ_AES_MODE_GCM)
+    if (aes->mode == MZ_AES_MODE_GCM) {
+        if (aad && aad_size > 0) {
+            aes->error = CCCryptorGCMAddAAD(aes->crypt, aad, aad_size);
+            if (aes->error != kCCSuccess)
+                return MZ_CRYPT_ERROR;
+        }
         aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
-    else
+    } else {
+        if (aad && aad_size > 0)
+            return MZ_PARAM_ERROR;
         aes->error = CCCryptorUpdate(aes->crypt, buf, size, buf, size, &data_moved);
+    }
 
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
@@ -268,7 +286,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, const uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     uint8_t tag_actual_buf[MZ_AES_BLOCK_SIZE];
     size_t tag_actual_len = sizeof(tag_actual_buf);

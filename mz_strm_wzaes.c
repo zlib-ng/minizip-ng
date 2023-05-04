@@ -174,7 +174,7 @@ static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t s
 
             /* Encrypt the nonce using ECB mode to form next xor buffer */
             memcpy(wzaes->crypt_block, wzaes->nonce, MZ_AES_BLOCK_SIZE);
-            mz_crypt_aes_encrypt(wzaes->aes, wzaes->crypt_block, sizeof(wzaes->crypt_block));
+            mz_crypt_aes_encrypt(wzaes->aes, NULL, 0, wzaes->crypt_block, sizeof(wzaes->crypt_block));
             pos = 0;
         }
 

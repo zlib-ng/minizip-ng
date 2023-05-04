@@ -48,7 +48,7 @@ TEST(crypt, rand) {
 }
 
 TEST(crypt, sha1) {
-    void *sha1 = NULL;
+    void *sha1 = nullptr;
     uint8_t hash1[MZ_HASH_SHA1_SIZE];
     char computed_hash[256];
 
@@ -71,7 +71,7 @@ TEST(crypt, sha224) {
 #if GTEST_OS_WINDOWS
     GTEST_SKIP() << "SHA224 not supported on Windows";
 #else
-    void *sha224 = NULL;
+    void *sha224 = nullptr;
     uint8_t hash224[MZ_HASH_SHA224_SIZE];
     char computed_hash[256];
 
@@ -95,7 +95,7 @@ TEST(crypt, sha256) {
 #if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA256 not supported on Windows XP";
 #else
-    void *sha256 = NULL;
+    void *sha256 = nullptr;
     uint8_t hash256[MZ_HASH_SHA256_SIZE];
     char computed_hash[256];
 
@@ -119,7 +119,7 @@ TEST(crypt, sha384) {
 #if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA384 not supported on Windows XP";
 #else
-    void *sha384 = NULL;
+    void *sha384 = nullptr;
     uint8_t hash384[MZ_HASH_SHA384_SIZE];
     char computed_hash[256];
 
@@ -143,7 +143,7 @@ TEST(crypt, sha512) {
 #if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA512 not supported on Windows XP";
 #else
-    void *sha512 = NULL;
+    void *sha512 = nullptr;
     uint8_t hash512[MZ_HASH_SHA512_SIZE];
     char computed_hash[256];
 
@@ -164,7 +164,7 @@ TEST(crypt, sha512) {
 }
 
 TEST(crypt, aes128) {
-    void *aes = NULL;
+    void *aes = nullptr;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
     int32_t key_length = 0;
@@ -178,23 +178,23 @@ TEST(crypt, aes128) {
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_encrypt_key(aes, key, key_length, NULL, 0);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    mz_crypt_aes_set_encrypt_key(aes, key, key_length, nullptr, 0);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    mz_crypt_aes_set_decrypt_key(aes, key, key_length, NULL, 0);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    mz_crypt_aes_set_decrypt_key(aes, key, key_length, nullptr, 0);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
 }
 
 TEST(crypt, aes128_cbc) {
-    void *aes = NULL;
+    void *aes = nullptr;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
     const char *iv = "0123456789123456";
@@ -213,7 +213,7 @@ TEST(crypt, aes128_cbc) {
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_CBC);
     EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
@@ -222,7 +222,7 @@ TEST(crypt, aes128_cbc) {
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_CBC);
     EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
@@ -233,19 +233,22 @@ TEST(crypt, aes128_gcm) {
 #if GTEST_OS_WINDOWS && _WIN32_WINNT <= _WIN32_WINNT_XP
     GTEST_SKIP() << "SHA256 not supported on Windows XP";
 #else
-    void* aes = NULL;
+    void* aes = nullptr;
     const char* key = "awesomekeythisis";
     const char* test = "youknowitsogrowi";
     const char* iv = "0123456789123456";
+    const char *aad = "additional authentication data";
     int32_t key_length = 0;
     int32_t test_length = 0;
     int32_t iv_length = 0;
+    int32_t aad_length = 0;
     uint8_t buf[120];
     uint8_t tag[MZ_AES_BLOCK_SIZE] = {0};
 
     key_length = (int32_t)strlen(key);
     test_length = (int32_t)strlen(test);
     iv_length = (int32_t)strlen(iv);
+    aad_length = (int32_t)strlen(aad);
 
     strncpy((char*)buf, test, sizeof(buf));
     strncpy((char*)buf + test_length, test, sizeof(buf) - test_length);
@@ -254,7 +257,7 @@ TEST(crypt, aes128_gcm) {
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
     EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, aad, aad_length, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_encrypt_final(aes, buf + test_length, test_length - 1, tag, sizeof(tag)), test_length - 1);
     mz_crypt_aes_delete(&aes);
 
@@ -264,7 +267,7 @@ TEST(crypt, aes128_gcm) {
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
     EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, aad, aad_length, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_decrypt_final(aes, buf + test_length, test_length - 1, tag, sizeof(tag)), test_length - 1);
     mz_crypt_aes_delete(&aes);
 
@@ -274,7 +277,7 @@ TEST(crypt, aes128_gcm) {
 }
 
 TEST(crypt, aes194) {
-    void *aes = NULL;
+    void *aes = nullptr;
     const char *key = "awesomekeythisisbeefyone";
     const char *test = "youknowitsogrowi";
     int32_t key_length = 0;
@@ -288,23 +291,23 @@ TEST(crypt, aes194) {
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, NULL, 0), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, nullptr, 0), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, NULL, 0), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, nullptr, 0), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
 }
 
 TEST(crypt, aes256) {
-    void *aes = NULL;
+    void *aes = nullptr;
     const char *key = "awesomekeythisisevenmoresolidone";
     const char *test = "youknowitsogrowi";
     int32_t key_length = 0;
@@ -318,16 +321,16 @@ TEST(crypt, aes256) {
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, NULL, 0), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_encrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, nullptr, 0), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STRNE((char *)buf, test);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
-    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, NULL, 0), MZ_OK);
-    EXPECT_EQ(mz_crypt_aes_decrypt(aes, buf, test_length), test_length);
+    EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, nullptr, 0), MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_decrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
     EXPECT_STREQ((char *)buf, test);
