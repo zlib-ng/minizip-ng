@@ -9,6 +9,7 @@
 */
 
 #include "mz.h"
+#include "mz_crypt.h"
 
 #include <openssl/err.h>
 #include <openssl/engine.h>
@@ -287,13 +288,21 @@ void mz_crypt_aes_reset(void *handle) {
     mz_crypt_aes_free(handle);
 }
 
-int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
     if (!aes || !buf)
         return MZ_PARAM_ERROR;
-    if (aes->mode != MZ_AES_MODE_GCM && size % MZ_AES_BLOCK_SIZE != 0)
+    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
         return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM && size % MZ_AES_BLOCK_SIZE != 0 || !aes->ctx)
+        return MZ_PARAM_ERROR;
+
+    if (aad && aad_size > 0) {
+        int32_t how_many = 0;
+        if (!EVP_EncryptUpdate(aes->ctx, NULL, &how_many, aad, aad_size))
+            return MZ_CRYPT_ERROR;
+    }
 
     if (!EVP_EncryptUpdate(aes->ctx, buf, &size, buf, size))
         return MZ_CRYPT_ERROR;
@@ -306,7 +315,7 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     int result = 0;
     int out_len = 0;
 
-    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM)
+    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM || !aes->ctx)
         return MZ_PARAM_ERROR;
 
     if (buf && size) {
@@ -328,11 +337,19 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
+    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
         return MZ_PARAM_ERROR;
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0 || !aes->ctx)
+        return MZ_PARAM_ERROR;
+
+    if (aad && aad_size > 0) {
+        int32_t how_many = 0;
+        if (!EVP_DecryptUpdate(aes->ctx, NULL, &how_many, aad, aad_size))
+            return MZ_CRYPT_ERROR;
+    }
 
     if (!EVP_DecryptUpdate(aes->ctx, buf, &size, buf, size))
         return MZ_CRYPT_ERROR;
@@ -340,11 +357,11 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, const uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int out_len = 0;
 
-    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM)
+    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM || !aes->ctx)
         return MZ_PARAM_ERROR;
 
     if (buf && size) {
@@ -353,7 +370,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     }
 
     /* Set expected tag */
-    if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_length, tag)) {
+    if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_TAG, tag_length, (void *)tag)) {
         aes->error = ERR_get_error();
         return MZ_CRYPT_ERROR;
     }
@@ -432,7 +449,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 }
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
-    const uint8_t *iv, int32_t iv_length) {
+    const void *iv, int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
     if (!aes || !key || !key_length)

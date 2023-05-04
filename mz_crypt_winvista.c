@@ -240,18 +240,30 @@ void mz_crypt_aes_reset(void *handle) {
     mz_crypt_aes_free(handle);
 }
 
-int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     ULONG output_size = 0;
     NTSTATUS status = 0;
 
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
+        return MZ_PARAM_ERROR;
     if (aes->mode == MZ_AES_MODE_GCM && !aes->auth_info)
         return MZ_PARAM_ERROR;
 
+    if (aad && aes->auth_info && !(aes->auth_info->dwFlags & BCRYPT_AUTH_MODE_IN_PROGRESS_FLAG)) {
+        aes->auth_info->pbAuthData = (uint8_t*)aad;
+        aes->auth_info->cbAuthData = aad_size;
+    }
+
     status = BCryptEncrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
         &output_size, 0);
+
+    if (aad && aes->auth_info) {
+        aes->auth_info->pbAuthData = NULL;
+        aes->auth_info->cbAuthData = 0;
+    }
 
     if (!NT_SUCCESS(status)) {
         aes->error = status;
@@ -284,18 +296,30 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
+int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     ULONG output_size = 0;
     NTSTATUS status = 0;
 
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
+        return MZ_PARAM_ERROR;
     if (aes->mode == MZ_AES_MODE_GCM && !aes->auth_info)
         return MZ_PARAM_ERROR;
 
+    if (aad && aes->auth_info && !(aes->auth_info->dwFlags & BCRYPT_AUTH_MODE_IN_PROGRESS_FLAG)) {
+        aes->auth_info->pbAuthData = (uint8_t*)aad;
+        aes->auth_info->cbAuthData = aad_size;
+    }
+
     status = BCryptDecrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
         &output_size, 0);
+
+    if (aad && aes->auth_info) {
+        aes->auth_info->pbAuthData = NULL;
+        aes->auth_info->cbAuthData = 0;
+    }
 
     if (!NT_SUCCESS(status)) {
         aes->error = status;
@@ -304,7 +328,7 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     return size;
 }
 
-int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
+int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, const uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     NTSTATUS status = 0;
     ULONG output_size = 0;
@@ -312,7 +336,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM || !aes->auth_info)
         return MZ_PARAM_ERROR;
 
-    aes->auth_info->pbTag = tag;
+    aes->auth_info->pbTag = (uint8_t *)tag;
     aes->auth_info->cbTag = tag_length;
 
     aes->auth_info->dwFlags &= ~BCRYPT_AUTH_MODE_CHAIN_CALLS_FLAG;
@@ -356,7 +380,10 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     mz_crypt_aes_reset(handle);
 
-    if (iv) {
+    if (iv && iv_length) {
+        if (aes->mode == MZ_AES_MODE_ECB)
+            return MZ_PARAM_ERROR;
+
         aes->iv_length = MZ_AES_BLOCK_SIZE;
         aes->iv = calloc(MZ_AES_BLOCK_SIZE, sizeof(uint8_t));
         if (!aes->iv)
