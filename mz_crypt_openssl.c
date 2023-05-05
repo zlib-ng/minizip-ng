@@ -268,28 +268,18 @@ void mz_crypt_sha_delete(void **handle) {
 /***************************************************************************/
 
 typedef struct mz_crypt_aes_s {
-    AES_KEY    key;
     int32_t    mode;
     int32_t    error;
-    uint8_t    *key_copy;
-    int32_t    key_length;
-    uint8_t    iv[MZ_AES_BLOCK_SIZE];
-#if OPENSSL_VERSION_NUMBER >= 0x00900070L
     EVP_CIPHER_CTX *ctx;
-#endif
 } mz_crypt_aes;
 
 /***************************************************************************/
 
 static void mz_crypt_aes_free(void *handle) {
-#if OPENSSL_VERSION_NUMBER >= 0x00900070L
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     if (aes->ctx)
         EVP_CIPHER_CTX_free(aes->ctx);
     aes->ctx = NULL;
-#else
-    MZ_UNUSED(handle);
-#endif
 }
 
 void mz_crypt_aes_reset(void *handle) {
@@ -305,31 +295,13 @@ int32_t mz_crypt_aes_encrypt(void *handle, uint8_t *buf, int32_t size) {
     if (aes->mode != MZ_AES_MODE_GCM && size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    if (aes->mode == MZ_AES_MODE_CBC) {
-        AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_ENCRYPT);
-    } else if (aes->mode == MZ_AES_MODE_ECB) {
-        int32_t left = size;
-        while (left) {
-            AES_ecb_encrypt(buf, buf, &aes->key, AES_ENCRYPT);
-
-            buf += MZ_AES_BLOCK_SIZE;
-            left -= MZ_AES_BLOCK_SIZE;
-        }
-    } else
-        return MZ_PARAM_ERROR;
-#else
     if (!EVP_EncryptUpdate(aes->ctx, buf, &size, buf, size))
         return MZ_CRYPT_ERROR;
-#endif
 
     return size;
 }
 
 int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    return MZ_SUPPORT_ERROR;
-#else
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int result = 0;
     int out_len = 0;
@@ -354,7 +326,6 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     }
 
     return size;
-#endif
 }
 
 int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
@@ -363,31 +334,13 @@ int32_t mz_crypt_aes_decrypt(void *handle, uint8_t *buf, int32_t size) {
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0)
         return MZ_PARAM_ERROR;
 
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    if (aes->mode == MZ_AES_MODE_CBC) {
-        AES_cbc_encrypt(buf, buf, size, &aes->key, aes->iv, AES_DECRYPT);
-    } else if (aes->mode == MZ_AES_MODE_ECB) {
-        int32_t left = size;
-        while (left) {
-            AES_ecb_encrypt(buf, buf, &aes->key, AES_DECRYPT);
-
-            buf += MZ_AES_BLOCK_SIZE;
-            left -= MZ_AES_BLOCK_SIZE;
-        }
-    } else
-        return MZ_PARAM_ERROR;
-#else
     if (!EVP_DecryptUpdate(aes->ctx, buf, &size, buf, size))
         return MZ_CRYPT_ERROR;
-#endif
 
     return size;
 }
 
 int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_length) {
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    return MZ_SUPPORT_ERROR;
-#else
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int out_len = 0;
 
@@ -412,10 +365,8 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     }
 
     return size;
-#endif
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x00900070L
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length, int32_t encrypt) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
@@ -463,7 +414,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     return MZ_OK;
 }
-#endif
 
 int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
     const void *iv, int32_t iv_length) {
@@ -478,17 +428,7 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
 
     mz_crypt_aes_reset(handle);
 
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    if (AES_set_encrypt_key(key, key_length * 8, &aes->key) != 0) {
-        aes->error = ERR_get_error();
-        return MZ_CRYPT_ERROR;
-    }
-    if (iv)
-        memcpy(aes->iv, iv, MZ_AES_BLOCK_SIZE);
-    return MZ_OK;
-#else
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, 1);
-#endif
 }
 
 int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
@@ -504,17 +444,7 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
 
     mz_crypt_aes_reset(handle);
 
-#if OPENSSL_VERSION_NUMBER < 0x00900070L
-    if (AES_set_decrypt_key(key, key_length * 8, &aes->key) != 0) {
-        aes->error = ERR_get_error();
-        return MZ_CRYPT_ERROR;
-    }
-    if (iv)
-        memcpy(aes->iv, iv, iv_length);
-    return MZ_OK;
-#else
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, 0);
-#endif
 }
 
 void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
