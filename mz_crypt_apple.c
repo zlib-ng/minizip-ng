@@ -245,7 +245,7 @@ int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, ui
 int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM)
+    if (!aes || !tag || !tag_size || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
     aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
@@ -294,7 +294,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
     int32_t c = tag_length;
     int32_t is_ok = 0;
 
-    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM)
+    if (!aes || !tag || !tag_length || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
     aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);

@@ -291,11 +291,9 @@ void mz_crypt_aes_reset(void *handle) {
 int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (!aes || !buf)
+    if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0 || !aes->ctx)
         return MZ_PARAM_ERROR;
     if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
-        return MZ_PARAM_ERROR;
-    if (aes->mode != MZ_AES_MODE_GCM && size % MZ_AES_BLOCK_SIZE != 0 || !aes->ctx)
         return MZ_PARAM_ERROR;
 
     if (aad && aad_size > 0) {
@@ -315,7 +313,7 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
     int result = 0;
     int out_len = 0;
 
-    if (!aes || !tag || !tag_size || aes->mode != MZ_AES_MODE_GCM || !aes->ctx)
+    if (!aes || !tag || !tag_size || !aes->ctx || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
     if (buf && size) {
@@ -340,9 +338,9 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
 int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
-    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
-        return MZ_PARAM_ERROR;
     if (!aes || !buf || size % MZ_AES_BLOCK_SIZE != 0 || !aes->ctx)
+        return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM && aad && aad_size > 0)
         return MZ_PARAM_ERROR;
 
     if (aad && aad_size > 0) {
@@ -361,7 +359,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     int out_len = 0;
 
-    if (!aes || !tag || !tag_length || aes->mode != MZ_AES_MODE_GCM || !aes->ctx)
+    if (!aes || !tag || !tag_length || !aes->ctx || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
     if (buf && size) {
