@@ -634,7 +634,10 @@ int32_t mz_crypt_hmac_end(void *handle, uint8_t *digest, int32_t digest_size) {
         result = HMAC_Final(hmac->ctx, digest, (uint32_t *)&digest_size);
     }
 #else
-    result = EVP_MAC_final(hmac->ctx, digest, (size_t *)&digest_size, digest_size);
+    {
+        size_t digest_outsize = digest_size;
+        result = EVP_MAC_final(hmac->ctx, digest, &digest_outsize, digest_size);
+    }
 #endif
 
     if (!result) {
