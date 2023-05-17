@@ -74,11 +74,6 @@ The _mz_zip_ object allows for the reading and writing of the a zip file and its
 
 Creates a _mz_zip_ instance and returns its pointer.
 
-**Arguments**
-|Type|Name|Description|
-|-|-|-|
-|void **|handle|Pointer to store the _mz_zip_ instance|
-
 **Return**
 |Type|Description|
 |-|-|

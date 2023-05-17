@@ -1094,11 +1094,6 @@ mz_zip_goto_first_entry(zip_handle);
 
 Creates a _mz_zip_reader_ instance and returns its pointer.
 
-**Arguments**
-|Type|Name|Description|
-|-|-|-|
-|void **|handle|Pointer to store the _mz_zip_reader_ instance|
-
 **Return**
 |Type|Description|
 |-|-|
@@ -1965,11 +1960,6 @@ mz_zip_writer_get_zip_handle(zip_writer, &zip_handle);
 ### mz_zip_writer_create
 
 Creates a _mz_zip_writer_ instance and returns its pointer.
-
-**Arguments**
-|Type|Name|Description|
-|-|-|-|
-|void **|handle|Pointer to store the _mz_zip_writer_ instance|
 
 **Return**
 |Type|Description|
