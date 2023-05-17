@@ -44,7 +44,7 @@ TEST(crypt, rand) {
 
     EXPECT_EQ(mz_crypt_rand(random_bytes, sizeof(random_bytes)), sizeof(random_bytes));
 
-    EXPECT_NE(std::string((char *)random_bytes).find_first_not_of('\0'), std::string::npos);
+    EXPECT_NE(std::string((char *)random_bytes, sizeof(random_bytes)).find_first_not_of('\0'), std::string::npos);
 }
 
 TEST(crypt, sha1) {
