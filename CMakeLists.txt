@@ -8,9 +8,9 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Library version
-set(VERSION "3.0.10")
+set(VERSION "4.0.0")
 # API version
-set(SOVERSION "3")
+set(SOVERSION "4")
 
 project(minizip-ng
     VERSION ${VERSION}
