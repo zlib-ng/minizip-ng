@@ -357,7 +357,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     BCRYPT_KEY_DATA_BLOB_HEADER *key_blob = NULL;
     int32_t key_blob_size = 0;
-    ULONG key_size;
+    ULONG key_size = 0;
     wchar_t *mode = NULL;
     NTSTATUS status = 0;
     int32_t err = MZ_OK;
