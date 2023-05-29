@@ -792,7 +792,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
         int32_t left = filename_length;
 
         /* Ensure all slashes are written as forward slashes according to 4.4.17.1 */
-        while ((err == MZ_OK) && (backslash = strrchr(next, '\\'))) {
+        while ((err == MZ_OK) && (backslash = strchr(next, '\\'))) {
             int32_t part_length = (int32_t)(backslash - next);
 
             if (mz_stream_write(stream, next, part_length) != part_length ||
