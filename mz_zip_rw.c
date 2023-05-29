@@ -650,8 +650,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
-    char pathwfs[512];
-    char directory[512];
+    char pathwfs[strlen(path) + 1];
+    char directory[strlen(path) + 1];
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -809,9 +809,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
     uint8_t *utf8_string = NULL;
-    char path[512];
-    char utf8_name[256];
-    char resolved_name[256];
+    char *path = NULL;
+    char *utf8_name = NULL;
+    char *resolved_name = NULL;
 
     err = mz_zip_reader_goto_first_entry(handle);
 
@@ -819,29 +819,41 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         return err;
 
     while (err == MZ_OK) {
+        /* Assume 4 bytes per character needed + 1 for terminating null */
+        int buff_size = reader->file_info->filename_size * 4 + 1;
+        int resolved_size = buff_size;
+
+        if(destination_dir)
+            /* +1 is for the "/" sparator */
+            resolved_size += strlen(destination_dir) + 1;
+
+        path = (char *)malloc(resolved_size);
+        utf8_name = (char *)malloc(buff_size);
+        resolved_name = (char *)malloc(resolved_size);
+
         /* Construct output path */
         path[0] = 0;
 
-        strncpy(utf8_name, reader->file_info->filename, sizeof(utf8_name) - 1);
-        utf8_name[sizeof(utf8_name) - 1] = 0;
+        strncpy(utf8_name, reader->file_info->filename, buff_size - 1);
+        utf8_name[buff_size - 1] = 0;
 
         if ((reader->encoding > 0) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
             utf8_string = mz_os_utf8_string_create(reader->file_info->filename, reader->encoding);
             if (utf8_string) {
-                strncpy(utf8_name, (char *)utf8_string, sizeof(utf8_name) - 1);
-                utf8_name[sizeof(utf8_name) - 1] = 0;
+                strncpy(utf8_name, (char *)utf8_string, buff_size - 1);
+                utf8_name[buff_size - 1] = 0;
                 mz_os_utf8_string_delete(&utf8_string);
             }
         }
 
-        err = mz_path_resolve(utf8_name, resolved_name, sizeof(resolved_name));
+        err = mz_path_resolve(utf8_name, resolved_name, resolved_size);
         if (err != MZ_OK)
             break;
 
         if (destination_dir)
-            mz_path_combine(path, destination_dir, sizeof(path));
+            mz_path_combine(path, destination_dir, resolved_size);
 
-        mz_path_combine(path, resolved_name, sizeof(path));
+        mz_path_combine(path, resolved_name, resolved_size);
 
         /* Save file to disk */
         err = mz_zip_reader_entry_save_file(handle, path);
@@ -849,6 +861,13 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         if (err == MZ_OK)
             err = mz_zip_reader_goto_next_entry(handle);
     }
+
+    if (path)
+        free(path) ;
+    if (utf8_name)
+        free(utf8_name) ;
+    if (resolved_name)
+        free(resolved_name) ;
 
     if (err == MZ_END_OF_LIST)
         return MZ_OK;
