@@ -643,15 +643,15 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
     return err;
 }
 
-int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
+int32_t mz_zip_reader_entry_save_file(void *handle, const char *path, size_t path_length) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     void *stream = NULL;
     uint32_t target_attrib = 0;
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
-    char pathwfs[strlen(path) + 1];
-    char directory[strlen(path) + 1];
+    char pathwfs[path_length + 1];
+    char directory[path_length + 1];
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -659,15 +659,15 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         return MZ_PARAM_ERROR;
 
     /* Convert to forward slashes for unix which doesn't like backslashes */
-    strncpy(pathwfs, path, sizeof(pathwfs) - 1);
-    pathwfs[sizeof(pathwfs) - 1] = 0;
+    pathwfs[0] = 0;
+    strncat(pathwfs, path, path_length);
     mz_path_convert_slashes(pathwfs, MZ_PATH_SLASH_UNIX);
 
     if (reader->entry_cb)
         reader->entry_cb(handle, reader->entry_userdata, reader->file_info, pathwfs);
 
-    strncpy(directory, pathwfs, sizeof(directory) - 1);
-    directory[sizeof(directory) - 1] = 0;
+    directory[0] = 0;
+    strncat(directory, pathwfs, path_length);
     mz_path_remove_filename(directory);
 
     /* If it is a directory entry then create a directory instead of writing file */
@@ -824,8 +824,8 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         int resolved_size = buff_size;
 
         if(destination_dir)
-            /* +1 is for the "/" sparator */
-            resolved_size += strlen(destination_dir) + 1;
+            /* +1 is for the "/" separator */
+            resolved_size += (int)strlen(destination_dir) + 1;
 
         path = (char *)malloc(resolved_size);
         utf8_name = (char *)malloc(buff_size);
@@ -856,7 +856,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         mz_path_combine(path, resolved_name, resolved_size);
 
         /* Save file to disk */
-        err = mz_zip_reader_entry_save_file(handle, path);
+        err = mz_zip_reader_entry_save_file(handle, path, strlen(path));
 
         if (err == MZ_OK)
             err = mz_zip_reader_goto_next_entry(handle);

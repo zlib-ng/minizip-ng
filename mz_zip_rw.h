@@ -85,7 +85,7 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
 int32_t mz_zip_reader_entry_save_process(void *handle, void *stream, mz_stream_write_cb write_cb);
 /* Saves a portion of the current entry to a stream callback */
 
-int32_t mz_zip_reader_entry_save_file(void *handle, const char *path);
+int32_t mz_zip_reader_entry_save_file(void *handle, const char *path, size_t path_length);
 /* Save the current entry to a file */
 
 int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len);
