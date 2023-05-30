@@ -672,7 +672,7 @@ if(MSVC)
     # VS debugger has problems when executable and static library are named the same
     set_target_properties(${MINIZIP_TARGET} PROPERTIES OUTPUT_NAME lib${MINIZIP_TARGET})
 endif()
-if(NOT RISCOS AND NOT PSP)
+if(NOT RISCOS AND NOT PSP AND NOT VITA)
     set_target_properties(${MINIZIP_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE 1)
 endif()
 if(MZ_LZMA)
