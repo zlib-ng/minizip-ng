@@ -23,6 +23,16 @@
 
 /***************************************************************************/
 
+/* for alloca */
+
+#if defined(_WIN32)
+  #include <malloc.h>
+#else
+  #include <alloca.h>
+#endif
+
+/***************************************************************************/
+
 #define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
 
 #define MZ_ZIP_CD_FILENAME              ("__cdcd__")
