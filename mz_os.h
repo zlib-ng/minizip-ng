@@ -60,6 +60,14 @@ typedef void* DIR;
 #endif
 
 /***************************************************************************/
+
+#if defined(_WIN32)
+  #include <malloc.h>
+#else
+  #include <alloca.h>
+#endif
+
+/***************************************************************************/
 /* Shared functions */
 
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
