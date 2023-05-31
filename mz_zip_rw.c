@@ -21,6 +21,10 @@
 
 #include "mz_zip_rw.h"
 
+#if defined(_WIN32)
+#include <alloca.h>
+#endif
+
 /***************************************************************************/
 
 #define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
@@ -643,16 +647,23 @@ int32_t mz_zip_reader_entry_save(void *handle, void *stream, mz_stream_write_cb 
     return err;
 }
 
-int32_t _mz_zip_reader_entry_save_file_wrapped(void *handle, const char *path, size_t path_length, char* pathwfs, char* directory) {
+int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     void *stream = NULL;
     uint32_t target_attrib = 0;
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
-    /* If C99 is mandated can use this instead of repkying on a wrapper function.*/
-    // char pathwfs[path_length + 1];
-    // char directory[path_length + 1];
+
+    size_t path_length = strlen(path);
+#if defined(_WIN32)
+    char *pathwfs = (char *)alloca(path_length + 1) ;
+    char *directory = (char *)alloca(path_length + 1) ;
+#else
+    /* Below needs C99 */
+    char pathwfs[path_length + 1];
+    char directory[path_length + 1];
+#endif
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -765,31 +776,31 @@ int32_t _mz_zip_reader_entry_save_file_wrapped(void *handle, const char *path, s
     return err;
 }
 
-int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
+// int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
-    /* wrapper for _mz_zip_reader_entry_save_file_wrapped to simplify the erro exits.
-       without this wrapper , all the exit points in _mz_zip_reader_entry_save_file_wrapped
-       would have to free the pathwfs and directory pointers
-       Can do away with this if the code uses C99 as a prerequisite.
-       Then can just use this & do away with this wrapper.
-            char pathwfs[strlen(path)+1];
-            char directory[strlen(path)+1] ;
+//     /* wrapper for _mz_zip_reader_entry_save_file_wrapped to simplify the erro exits.
+//        without this wrapper , all the exit points in _mz_zip_reader_entry_save_file_wrapped
+//        would have to free the pathwfs and directory pointers
+//        Can do away with this if the code uses C99 as a prerequisite.
+//        Then can just use this & do away with this wrapper.
+//             char pathwfs[strlen(path)+1];
+//             char directory[strlen(path)+1] ;
 
-    */
-    size_t len = strlen(path);
-    char *pathwfs = (char *)malloc(len + 1) ;
-    char *directory = (char *)malloc(len + 1) ;
+//     */
+//     size_t len = strlen(path);
+//     char *pathwfs = (char *)malloc(len + 1) ;
+//     char *directory = (char *)malloc(len + 1) ;
 
-    int32_t status = _mz_zip_reader_entry_save_file_wrapped(handle, path, len, pathwfs, directory);
+//     int32_t status = _mz_zip_reader_entry_save_file_wrapped(handle, path, len, pathwfs, directory);
 
-    if (pathwfs)
-        free(pathwfs);
+//     if (pathwfs)
+//         free(pathwfs);
 
-    if (directory)
-        free(directory);
+//     if (directory)
+//         free(directory);
 
-    return status;
-}
+//     return status;
+// }
 
 
 int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len) {
