@@ -21,10 +21,6 @@
 
 #include "mz_zip_rw.h"
 
-#if defined(_WIN32)
-#include <alloca.h>
-#endif
-
 /***************************************************************************/
 
 #define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
