@@ -857,18 +857,26 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
     if (err == MZ_END_OF_LIST)
         return err;
 
+    /* Assume 4 bytes per character needed + 1 for terminating null */
+    int buff_size = reader->file_info->filename_size * 4 + 1;
+    int resolved_size = buff_size;
+
+    path = (char *)malloc(resolved_size);
+    utf8_name = (char *)malloc(buff_size);
+    resolved_name = (char *)malloc(resolved_size);
+
     while (err == MZ_OK) {
         /* Assume 4 bytes per character needed + 1 for terminating null */
-        int buff_size = reader->file_info->filename_size * 4 + 1;
-        int resolved_size = buff_size;
+        buff_size = reader->file_info->filename_size * 4 + 1;
+        resolved_size = buff_size;
 
         if(destination_dir)
             /* +1 is for the "/" separator */
             resolved_size += (int)strlen(destination_dir) + 1;
 
-        path = (char *)malloc(resolved_size);
-        utf8_name = (char *)malloc(buff_size);
-        resolved_name = (char *)malloc(resolved_size);
+        path = (char *)realloc(path, resolved_size);
+        utf8_name = (char *)realloc(utf8_name, buff_size);
+        resolved_name = (char *)realloc(resolved_name, resolved_size);
 
         /* Construct output path */
         path[0] = 0;
