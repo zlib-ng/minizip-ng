@@ -90,7 +90,7 @@ uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
 }
 #else
 uint8_t *mz_os_utf8_string_create(const char *string, int32_t encoding) {
-    return strdup(string);
+    return (uint8_t*)strdup(string);
 }
 #endif
 
