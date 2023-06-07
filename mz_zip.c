@@ -2199,9 +2199,8 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
         if (err == MZ_OK) {
             /* Seek to crc32 and sizes offset in local header */
-            err = mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
-            if (err == MZ_OK)
-                err = mz_stream_seek(zip->stream, zip->file_info.disk_offset + MZ_ZIP_OFFSET_CRC_SIZES, MZ_SEEK_SET);
+            mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, zip->file_info.disk_number);
+            err = mz_stream_seek(zip->stream, zip->file_info.disk_offset + MZ_ZIP_OFFSET_CRC_SIZES, MZ_SEEK_SET);
         }
 
         if (err == MZ_OK)
