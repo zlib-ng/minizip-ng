@@ -18,7 +18,7 @@ TEST(os, utf8_unicode_string) {
     char *utf8_string = mz_os_utf8_string_create(test_string, MZ_ENCODING_CODEPAGE_950);
     ASSERT_NE(utf8_string, nullptr);
 #if defined(_WIN32)
-    wchar_t *unicode_string = mz_os_unicode_string_create((const char *)utf8_string, MZ_ENCODING_UTF8);
+    wchar_t *unicode_string = mz_os_unicode_string_create(utf8_string, MZ_ENCODING_UTF8);
     ASSERT_NE(unicode_string, nullptr);
     mz_os_unicode_string_delete(&unicode_string);
 #endif

@@ -107,7 +107,7 @@ wchar_t *mz_os_unicode_string_create(const char *string, int32_t encoding);
 void     mz_os_unicode_string_delete(wchar_t **string);
 /* Delete a unicode string that was created */
 
-char *mz_os_utf8_string_create(const char *string, int32_t encoding);
+char    *mz_os_utf8_string_create(const char *string, int32_t encoding);
 /* Create a utf8 string from a string with another encoding */
 
 void     mz_os_utf8_string_delete(char **string);
