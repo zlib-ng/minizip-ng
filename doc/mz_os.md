@@ -395,15 +395,15 @@ Create a utf8 string from a string with another encoding.
 **Return**
 |Type|Description|
 |-|-|
-|uint8_t *|Returns pointer to UTF-8 encoded string if successful, otherwise NULL.|
+|char *|Returns pointer to UTF-8 encoded string if successful, otherwise NULL.|
 
 **Example**
 ```
 char *test = "test";
-wchar_t *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
+char *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
 if (test_utf8) {
     printf("UTF-8 test string created\n");
-    mz_os_utf8_string_create(&test_utf8);
+    mz_os_utf8_string_delete(&test_utf8);
 }
 ```
 
@@ -414,15 +414,15 @@ Delete a utf8 string that was created with _mz_os_utf8_string_create_.
 **Arguments**
 |Type|Name|Description|
 |-|-|-|
-|uint8_t **|string|Pointer to utf8 encoded string|
+|char **|string|Pointer to utf8 encoded string|
 
 **Example**
 ```
 char *test = "test";
-wchar_t *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
+char *test_utf8 = mz_os_utf8_string_create(test, MZ_ENCODING_CODEPAGE_437);
 if (test_utf8) {
     printf("UTF-8 test string created\n");
-    mz_os_utf8_string_create(&test_utf8);
+    mz_os_utf8_string_delete(&test_utf8);
 }
 ```
 
