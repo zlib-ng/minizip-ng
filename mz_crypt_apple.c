@@ -20,6 +20,8 @@
 
 /***************************************************************************/
 
+/* Avoid use of private API for iOS, Apple does not allow it on App Store. Zip format doesn't need GCM. */
+#if !TARGET_OS_IPHONE
 enum {
     kCCModeGCM = 11,
 };
@@ -30,6 +32,7 @@ CCCryptorStatus CCCryptorGCMAddAAD(CCCryptorRef cryptorRef, const void *aData, s
 CCCryptorStatus CCCryptorGCMEncrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
 CCCryptorStatus CCCryptorGCMDecrypt(CCCryptorRef cryptorRef, const void *dataIn, size_t dataInLength, void *dataOut);
 CCCryptorStatus CCCryptorGCMFinal(CCCryptorRef cryptorRef, void *tagOut, size_t *tagLength);
+#endif
 
 /***************************************************************************/
 
@@ -224,12 +227,16 @@ int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, ui
         return MZ_PARAM_ERROR;
 
     if (aes->mode == MZ_AES_MODE_GCM) {
+#if TARGET_OS_IPHONE
+        return MZ_SUPPORT_ERROR;
+#else
         if (aad && aad_size > 0) {
             aes->error = CCCryptorGCMAddAAD(aes->crypt, aad, aad_size);
             if (aes->error != kCCSuccess)
                 return MZ_CRYPT_ERROR;
         }
         aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
+#endif
     } else {
         if (aad && aad_size > 0)
             return MZ_PARAM_ERROR;
@@ -244,11 +251,16 @@ int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, ui
 
 int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uint8_t *tag, int32_t tag_size) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+#if !TARGET_OS_IPHONE
     size_t tag_outsize = tag_size;
+#endif
 
     if (!aes || !tag || !tag_size || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
+#if TARGET_OS_IPHONE
+    return MZ_SUPPORT_ERROR;
+#else
     aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
@@ -259,6 +271,7 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
         return MZ_CRYPT_ERROR;
 
     return size;
+#endif
 }
 
 int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, uint8_t *buf, int32_t size) {
@@ -269,12 +282,16 @@ int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, ui
         return MZ_PARAM_ERROR;
 
     if (aes->mode == MZ_AES_MODE_GCM) {
+#if TARGET_OS_IPHONE
+        return MZ_SUPPORT_ERROR;
+#else
         if (aad && aad_size > 0) {
             aes->error = CCCryptorGCMAddAAD(aes->crypt, aad, aad_size);
             if (aes->error != kCCSuccess)
                 return MZ_CRYPT_ERROR;
         }
         aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
+#endif
     } else {
         if (aad && aad_size > 0)
             return MZ_PARAM_ERROR;
@@ -289,15 +306,20 @@ int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, ui
 
 int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, const uint8_t *tag, int32_t tag_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
+#if !TARGET_OS_IPHONE
     uint8_t tag_actual_buf[MZ_AES_BLOCK_SIZE];
     size_t tag_actual_len = sizeof(tag_actual_buf);
     uint8_t *tag_actual = tag_actual_buf;
     int32_t c = tag_length;
     int32_t is_ok = 0;
+#endif
 
     if (!aes || !tag || !tag_length || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
 
+#if TARGET_OS_IPHONE
+    return MZ_SUPPORT_ERROR;
+#else
     aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
     if (aes->error != kCCSuccess)
         return MZ_CRYPT_ERROR;
@@ -318,6 +340,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
         return MZ_CRYPT_ERROR;
 
     return size;
+#endif
 }
 
 static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
@@ -330,7 +353,11 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     else if (aes->mode == MZ_AES_MODE_ECB)
         mode = kCCModeECB;
     else if (aes->mode == MZ_AES_MODE_GCM)
+#if !TARGET_OS_IPHONE
         mode = kCCModeGCM;
+#else
+        return MZ_SUPPORT_ERROR;
+#endif
     else
         return MZ_PARAM_ERROR;
 
@@ -342,12 +369,14 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (aes->error != kCCSuccess)
         return MZ_HASH_ERROR;
 
+#if !TARGET_OS_IPHONE
     if (aes->mode == MZ_AES_MODE_GCM) {
         aes->error = CCCryptorGCMAddIV(aes->crypt, iv, iv_length);
 
         if (aes->error != kCCSuccess)
             return MZ_HASH_ERROR;
     }
+#endif
 
     return MZ_OK;
 }
