@@ -20,6 +20,7 @@
 
 /***************************************************************************/
 
+/* Avoid use of private API for iOS, Apple does not allow it on App Store. Zip format doesn't need GCM. */
 #if !TARGET_OS_IPHONE
 enum {
     kCCModeGCM = 11,
