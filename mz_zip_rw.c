@@ -1763,7 +1763,9 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader) {
 
         err = mz_zip_writer_entry_open(writer, file_info);
 
+#ifndef MZ_ZIP_NO_CRYPTO
         mz_crypt_sha_delete(&writer->hash);
+#endif
 
         if ((err == MZ_OK) &&
             (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK)) {
