@@ -1724,6 +1724,10 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader) {
         if (mz_zip_entry_is_open(writer_zip_handle) == MZ_OK)
             mz_zip_entry_close(writer_zip_handle);
 
+#ifndef MZ_ZIP_NO_CRYPTO
+        mz_crypt_sha_delete(&writer->hash);
+#endif
+
         writer->raw = original_raw;
     }
 
