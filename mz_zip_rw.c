@@ -656,10 +656,16 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     char *pathwfs = (char *)malloc(path_length + 1) ;
     char *directory = (char *)malloc(path_length + 1) ;
 
-    if (mz_zip_reader_is_open(reader) != MZ_OK)
+    if (mz_zip_reader_is_open(reader) != MZ_OK) {
+        free(pathwfs);
+        free(directory);
         return MZ_PARAM_ERROR;
-    if (!reader->file_info || !path)
+    }
+    if (!reader->file_info || !path) {
+        free(pathwfs);
+        free(directory);
         return MZ_PARAM_ERROR;
+    }
 
     /* Convert to forward slashes for unix which doesn't like backslashes */
     pathwfs[0] = 0;
@@ -677,14 +683,19 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     if ((mz_zip_entry_is_dir(reader->zip_handle) == MZ_OK) &&
         (mz_zip_entry_is_symlink(reader->zip_handle) != MZ_OK)) {
         err = mz_dir_make(directory);
+        free(pathwfs);
+        free(directory);
         return err;
     }
 
     /* Check if file exists and ask if we want to overwrite */
     if (reader->overwrite_cb && mz_os_file_exists(pathwfs) == MZ_OK) {
         err_cb = reader->overwrite_cb(handle, reader->overwrite_userdata, reader->file_info, pathwfs);
-        if (err_cb != MZ_OK)
+        if (err_cb != MZ_OK) {
+            free(pathwfs);
+            free(directory);
             return err;
+        }
         /* We want to overwrite the file so we delete the existing one */
         mz_os_unlink(pathwfs);
     }
@@ -699,8 +710,11 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     /* Create the output directory if it doesn't already exist */
     if (mz_os_is_dir(directory) != MZ_OK) {
         err = mz_dir_make(directory);
-        if (err != MZ_OK)
+        if (err != MZ_OK) {
+            free(pathwfs);
+            free(directory);
             return err;
+        }
     }
 
     /* If it is a symbolic link then create symbolic link instead of writing file */
@@ -711,8 +725,11 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         } else if (reader->file_info->uncompressed_size < UINT16_MAX) {
             /* Create symbolic link from zip entry contents */
             stream = mz_stream_mem_create();
-            if (!stream)
+            if (!stream) {
+                free(pathwfs);
+                free(directory);
                 return MZ_MEM_ERROR;
+            }
 
             err = mz_stream_mem_open(stream, NULL, MZ_OPEN_MODE_CREATE);
 
@@ -732,14 +749,20 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
             mz_stream_mem_delete(&stream);
         }
 
+        free(pathwfs);
+        free(directory);
+
         /* Don't check return value because we aren't validating symbolic link target */
         return err;
     }
 
     /* Create the file on disk so we can save to it */
     stream = mz_stream_os_create();
-    if (!stream)
+    if (!stream) {
+        free(pathwfs);
+        free(directory);
         return MZ_MEM_ERROR;
+    }
 
     err = mz_stream_os_open(stream, pathwfs, MZ_OPEN_MODE_CREATE);
 
@@ -763,6 +786,9 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         if (err_attrib == MZ_OK)
             mz_os_set_file_attribs(pathwfs, target_attrib);
     }
+
+    free(pathwfs);
+    free(directory);
 
     return err;
 }
