@@ -20,6 +20,19 @@ jobs:
             cmake-args: -D MZ_WITH_SANITIZER=Address
             codecov: ubuntu_gcc
 
+          - name: Ubuntu GCC UBSAN
+            os: ubuntu-latest
+            compiler: gcc
+            cxx-compiler: g++
+            cmake-args: -D MZ_WITH_SANITIZER=Undefined
+            codecov: ubuntu_gcc
+
+          - name: Ubuntu GCC MSAN
+            os: ubuntu-latest
+            compiler: gcc
+            cxx-compiler: g++
+            cmake-args: -D MZ_WITH_SANITIZER=Memory
+            codecov: ubuntu_gcc
 
           # No code coverage on release builds
           - name: Ubuntu 20 Clang
