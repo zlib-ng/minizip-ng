@@ -23,16 +23,6 @@
 
 /***************************************************************************/
 
-/* for alloca */
-
-#if defined(_WIN32)
-  #include <malloc.h>
-#else
-  #include <alloca.h>
-#endif
-
-/***************************************************************************/
-
 #define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
 
 #define MZ_ZIP_CD_FILENAME              ("__cdcd__")
@@ -663,12 +653,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
     size_t path_length = strlen(path);
 
-/* If code ever sets C99 as a minimum can use this instead of alloca
-     char pathwfs[path_length + 1];
-     char directory[path_length + 1];
-*/
-    char *pathwfs = (char *)alloca(path_length + 1) ;
-    char *directory = (char *)alloca(path_length + 1) ;
+    char *pathwfs = (char *)malloc(path_length + 1) ;
+    char *directory = (char *)malloc(path_length + 1) ;
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
