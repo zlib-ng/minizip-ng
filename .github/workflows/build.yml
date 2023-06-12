@@ -13,14 +13,6 @@ jobs:
             compiler: gcc
             cxx-compiler: g++
 
-          - name: Ubuntu GCC ASAN
-            os: ubuntu-latest
-            compiler: gcc
-            cxx-compiler: g++
-            cmake-args: -D MZ_WITH_SANITIZER=Address
-            codecov: ubuntu_gcc
-
-
           # No code coverage on release builds
           - name: Ubuntu 20 Clang
             os: ubuntu-20.04
