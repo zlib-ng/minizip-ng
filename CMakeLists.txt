@@ -607,6 +607,8 @@ endif()
 
 # Include compatibility layer
 if(MZ_COMPAT)
+    set(SOVERSION "1")
+
     set(FILE_H "zip.h")
     set(MZ_COMPAT_FILE "MZ_COMPAT_ZIP")
     configure_file(mz_compat_shim.h.in zip.h)
