@@ -68,6 +68,7 @@ int32_t mz_stream_zstd_open(void *stream, const char *path, int32_t mode) {
         zstd->out.dst = zstd->buffer;
         zstd->out.size = sizeof(zstd->buffer);
         zstd->out.pos = 0;
+        ZSTD_CCtx_setParameter(zstd->zcstream, ZSTD_c_compressionLevel, zstd->preset);
 #endif
     } else if (mode & MZ_OPEN_MODE_READ) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
