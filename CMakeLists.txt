@@ -29,6 +29,8 @@ include(CheckTypeSize)
 include(GNUInstallDirs)
 include(FeatureSummary)
 
+include(cmake/detect-sanitizer.cmake)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 message(STATUS "Using CMake version ${CMAKE_VERSION}")
@@ -59,6 +61,9 @@ option(MZ_BUILD_TESTS "Builds minizip test executable" OFF)
 option(MZ_BUILD_UNIT_TESTS "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
+# Multi-choice code sanitizer option
+set(MZ_SANITIZER AUTO CACHE STRING "Enable sanitizer support")
+set_property(CACHE MZ_SANITIZER PROPERTY STRINGS "Memory" "Address" "Undefined" "Thread")
 
 # Backwards compatibility
 if(DEFINED MZ_BUILD_TEST)
@@ -622,6 +627,17 @@ if(MZ_COMPAT)
     endif()
     list(APPEND MINIZIP_SRC mz_compat.c)
     list(APPEND MINIZIP_HDR mz_compat.h ${CMAKE_CURRENT_BINARY_DIR}/zip.h ${CMAKE_CURRENT_BINARY_DIR}/unzip.h)
+endif()
+
+# Detect available sanitizers
+if(MZ_SANITIZER STREQUAL "Address")
+    add_address_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "Memory")
+    add_memory_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "Thread")
+    add_thread_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "Undefined")
+    add_undefined_sanitizer()
 endif()
 
 # Set compiler options

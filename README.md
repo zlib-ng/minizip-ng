@@ -11,12 +11,12 @@ Developed and maintained by Nathan Moinvaziri.
 
 ## Branches
 
-|Name|Description|
-|:-|:-|
-|[master](https://github.com/zlib-ng/minizip-ng/tree/master)|Most recent release.|
-|[develop](https://github.com/zlib-ng/minizip-ng/tree/develop)|Latest development code.|
-|[1.2](https://github.com/zlib-ng/minizip-ng/tree/1.2)|Old changes to original minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes. Not ABI compatible with original minizip.|
-|[1.1](https://github.com/zlib-ng/minizip-ng/tree/1.1)|Original minizip as of zlib 1.2.11.|
+| Name                                                          | Description                                                                                                                                                             |
+|:--------------------------------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [master](https://github.com/zlib-ng/minizip-ng/tree/master)   | Most recent release.                                                                                                                                                    |
+| [develop](https://github.com/zlib-ng/minizip-ng/tree/develop) | Latest development code.                                                                                                                                                |
+| [1.2](https://github.com/zlib-ng/minizip-ng/tree/1.2)         | Old changes to original minizip that includes WinZip AES encryption, disk splitting, I/O buffering and some additional fixes. Not ABI compatible with original minizip. |
+| [1.1](https://github.com/zlib-ng/minizip-ng/tree/1.1)         | Original minizip as of zlib 1.2.11.                                                                                                                                     |
 
 ## History
 
@@ -64,29 +64,30 @@ cmake --build build
 
 ## Build Options
 
-| Name                | Description                                         | Default Value |
-|:--------------------|:----------------------------------------------------|:-------------:|
-| MZ_COMPAT           | Enables compatibility layer                         |      ON       |
-| MZ_ZLIB             | Enables ZLIB compression                            |      ON       |
-| MZ_BZIP2            | Enables BZIP2 compression                           |      ON       |
-| MZ_LZMA             | Enables LZMA & XZ compression                       |      ON       |
-| MZ_ZSTD             | Enables ZSTD compression                            |      ON       |
-| MZ_LIBCOMP          | Enables Apple compression                           |     APPLE     |
-| MZ_FETCH_LIBS       | Enables fetching third-party libraries if not found |     WIN32     |
-| MZ_FORCE_FETCH_LIBS | Enables fetching third-party libraries always       |      OFF      |
-| MZ_PKCRYPT          | Enables PKWARE traditional encryption               |      ON       |
-| MZ_WZAES            | Enables WinZIP AES encryption                       |      ON       |
-| MZ_OPENSSL          | Enables OpenSSL encryption                          |     UNIX      |
-| MZ_LIBBSD           | Builds with libbsd crypto random                    |     UNIX      |
-| MZ_ICONV            | Enables iconv encoding conversion                   |      ON       |
-| MZ_COMPRESS_ONLY    | Only support compression                            |      OFF      |
-| MZ_DECOMPRESS_ONLY  | Only support decompression                          |      OFF      |
-| MZ_FILE32_API       | Builds using posix 32-bit file api                  |      OFF      |
-| MZ_BUILD_TESTS      | Builds minizip test executable                      |      OFF      |
-| MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                    |      OFF      |
-| MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                     |      OFF      |
-| MZ_CODE_COVERAGE    | Build with code coverage flags                      |      OFF      |
-| MZ_LIB_SUFFIX       | Library name suffix for packaging                   |               |
+| Name                | Description                                                    | Default Value |
+|:--------------------|:---------------------------------------------------------------|:-------------:|
+| MZ_COMPAT           | Enables compatibility layer                                    |      ON       |
+| MZ_ZLIB             | Enables ZLIB compression                                       |      ON       |
+| MZ_BZIP2            | Enables BZIP2 compression                                      |      ON       |
+| MZ_LZMA             | Enables LZMA & XZ compression                                  |      ON       |
+| MZ_ZSTD             | Enables ZSTD compression                                       |      ON       |
+| MZ_LIBCOMP          | Enables Apple compression                                      |     APPLE     |
+| MZ_FETCH_LIBS       | Enables fetching third-party libraries if not found            |     WIN32     |
+| MZ_FORCE_FETCH_LIBS | Enables fetching third-party libraries always                  |      OFF      |
+| MZ_PKCRYPT          | Enables PKWARE traditional encryption                          |      ON       |
+| MZ_WZAES            | Enables WinZIP AES encryption                                  |      ON       |
+| MZ_OPENSSL          | Enables OpenSSL encryption                                     |     UNIX      |
+| MZ_LIBBSD           | Builds with libbsd crypto random                               |     UNIX      |
+| MZ_ICONV            | Enables iconv encoding conversion                              |      ON       |
+| MZ_COMPRESS_ONLY    | Only support compression                                       |      OFF      |
+| MZ_DECOMPRESS_ONLY  | Only support decompression                                     |      OFF      |
+| MZ_FILE32_API       | Builds using posix 32-bit file api                             |      OFF      |
+| MZ_BUILD_TESTS      | Builds minizip test executable                                 |      OFF      |
+| MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                               |      OFF      |
+| MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                                |      OFF      |
+| MZ_CODE_COVERAGE    | Build with code coverage flags                                 |      OFF      |
+| MZ_SANITIZER        | Build with code sanitizer (Memory, Thread, Address, Undefined) |               |
+| MZ_LIB_SUFFIX       | Library name suffix for packaging                              |               |
 
 ## Third-Party Libraries
 
