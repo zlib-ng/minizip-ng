@@ -1802,8 +1802,10 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             err = MZ_PARAM_ERROR;
     }
 
-    if (!zip->compress_stream)
-        err = MZ_MEM_ERROR;
+    if (err == MZ_OK) {
+        if (!zip->compress_stream)
+            err = MZ_MEM_ERROR;
+    }
 
     if (err == MZ_OK) {
         if (zip->open_mode & MZ_OPEN_MODE_WRITE) {
