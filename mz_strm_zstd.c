@@ -326,6 +326,7 @@ void *mz_stream_zstd_create(void) {
     if (zstd) {
         zstd->stream.vtbl = &mz_stream_zstd_vtbl;
         zstd->max_total_out = -1;
+        zstd->preset = ZSTD_CLEVEL_DEFAULT;
     }
     return zstd;
 }
