@@ -121,7 +121,7 @@ static int32_t mz_stream_ioapi_read(void *stream, void *buf, int32_t size) {
     } else
         return MZ_PARAM_ERROR;
 
-    return zread(opaque, ioapi->handle, buf, size);
+    return (int32_t)zread(opaque, ioapi->handle, buf, size);
 }
 
 static int32_t mz_stream_ioapi_write(void *stream, const void *buf, int32_t size) {
@@ -142,7 +142,7 @@ static int32_t mz_stream_ioapi_write(void *stream, const void *buf, int32_t size
     } else
         return MZ_PARAM_ERROR;
 
-    written = zwrite(opaque, ioapi->handle, buf, size);
+    written = (int32_t)zwrite(opaque, ioapi->handle, buf, size);
     return written;
 }
 
@@ -596,7 +596,7 @@ int zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, unsigned lo
     mz_compat *compat = (mz_compat *)file;
     if (!compat)
         return ZIP_PARAMERROR;
-    return mz_zip_entry_close_raw(compat->handle, (int64_t)uncompressed_size, crc32);
+    return mz_zip_entry_close_raw(compat->handle, (int64_t)uncompressed_size, (uint32_t)crc32);
 }
 
 int zipCloseFileInZip(zipFile file) {
