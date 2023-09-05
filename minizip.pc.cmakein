@@ -8,7 +8,7 @@ Name: @MINIZIP_TARGET@
 Description: Zip manipulation library
 Version: @VERSION@
 
-Requires: zlib
+Requires.private: @PC_PRIVATE_DEPS@
 Libs: -L${libdir} -L${sharedlibdir} -l@MINIZIP_TARGET@
 Libs.private:@PC_PRIVATE_LIBS@
 Cflags: -I${includedir}

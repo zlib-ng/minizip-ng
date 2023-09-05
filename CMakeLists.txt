@@ -128,6 +128,7 @@ set(MINIZIP_HDR
     mz_zip_rw.h)
 
 set(PC_PRIVATE_LIBS)
+set(PC_PRIVATE_DEPS)
 
 # Check for system includes
 check_include_file(stdint.h   HAVE_STDINT_H)
@@ -184,7 +185,7 @@ if(MZ_ZLIB)
         list(APPEND MINIZIP_LIB ${ZLIBNG_LIBRARIES})
         list(APPEND MINIZIP_LBD ${ZLIBNG_LIBRARY_DIRS})
 
-        set(PC_PRIVATE_LIBS " -lz-ng")
+        set(PC_PRIVATE_DEPS "zlib-ng")
         set(ZLIB_COMPAT OFF)
     elseif(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
@@ -193,7 +194,7 @@ if(MZ_ZLIB)
         list(APPEND MINIZIP_LIB ${ZLIB_LIBRARIES})
         list(APPEND MINIZIP_LBD ${ZLIB_LIBRARY_DIRS})
 
-        set(PC_PRIVATE_LIBS " -lz")
+        set(PC_PRIVATE_DEPS "zlib")
         set(ZLIB_COMPAT ON)
     elseif(MZ_FETCH_LIBS)
         clone_repo(zlib https://github.com/madler/zlib)
