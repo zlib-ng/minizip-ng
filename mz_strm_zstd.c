@@ -313,7 +313,7 @@ int32_t mz_stream_zstd_set_prop_int64(void *stream, int32_t prop, int64_t value)
     switch (prop) {
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
         if (value < 0)
-            zstd->preset = 6;
+            zstd->preset = 0; // Use zstd default.
         else
             zstd->preset = (int16_t)value;
         return MZ_OK;

@@ -573,7 +573,7 @@ int main(int argc, const char *argv[]) {
             else if ((c == 'v') || (c == 'V'))
                 options.verbose = 1;
             else if ((c >= '0') && (c <= '9')) {
-                options.compress_level = (c - '0');
+                options.compress_level = (int16_t)atoi(&argv[i][1]);
                 if (options.compress_level == 0)
                     options.compress_method = MZ_COMPRESS_METHOD_STORE;
             } else if ((c == 'b') || (c == 'B'))
