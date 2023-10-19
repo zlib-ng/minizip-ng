@@ -615,6 +615,10 @@ endif()
 if(MZ_COMPAT)
     set(SOVERSION "1")
 
+    set(FILE_H "ioapi.h")
+    set(MZ_COMPAT_FILE "MZ_COMPAT_IOAPI")
+    configure_file(mz_compat_shim.h.in ioapi.h)
+
     set(FILE_H "zip.h")
     set(MZ_COMPAT_FILE "MZ_COMPAT_ZIP")
     configure_file(mz_compat_shim.h.in zip.h)
@@ -626,8 +630,12 @@ if(MZ_COMPAT)
     if(MZ_COMPAT_VERSION)
         list(APPEND MINIZIP_DEF -DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
     endif()
+
     list(APPEND MINIZIP_SRC mz_compat.c)
-    list(APPEND MINIZIP_HDR mz_compat.h ${CMAKE_CURRENT_BINARY_DIR}/zip.h ${CMAKE_CURRENT_BINARY_DIR}/unzip.h)
+    list(APPEND MINIZIP_HDR mz_compat.h
+        ${CMAKE_CURRENT_BINARY_DIR}/ioapi.h
+        ${CMAKE_CURRENT_BINARY_DIR}/zip.h
+        ${CMAKE_CURRENT_BINARY_DIR}/unzip.h)
 endif()
 
 # Detect available sanitizers
