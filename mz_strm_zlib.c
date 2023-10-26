@@ -347,7 +347,10 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
     switch (prop) {
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
-        zlib->level = (int16_t)value;
+        if (value == MZ_COMPRESS_LEVEL_DEFAULT)
+            zlib->level = Z_DEFAULT_COMPRESSION;
+        else
+            zlib->level = (int16_t)value;
         break;
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
         zlib->max_total_in = value;

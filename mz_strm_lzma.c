@@ -415,7 +415,7 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     switch (prop) {
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
-        if (value < 0 || value > 9)
+        if (value == MZ_COMPRESS_LEVEL_DEFAULT)
             lzma->preset = LZMA_PRESET_DEFAULT;
         else
             lzma->preset = (uint32_t)value;
