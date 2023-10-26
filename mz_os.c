@@ -283,6 +283,10 @@ int32_t mz_dir_make(const char *path) {
     char *match = NULL;
     char hold = 0;
 
+    /* return immediately of no path needed */
+    if (!*path)
+        return MZ_OK;
+
     current_dir = strdup(path);
     if (!current_dir)
         return MZ_MEM_ERROR;
