@@ -829,6 +829,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
     char *path = NULL;
     char *utf8_name = NULL;
     char *resolved_name = NULL;
+    char* new_alloc = NULL;
 
     err = mz_zip_reader_goto_first_entry(handle);
 
@@ -845,20 +846,24 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
             resolved_name_size += (int)strlen(destination_dir) + 1;
         }
 
-        if (!path) {
-            path = (char *)malloc(resolved_name_size);
-            utf8_name = (char *)malloc(utf8_name_size);
-            resolved_name = (char *)malloc(resolved_name_size);
-        } else {
-            path = (char *)realloc(path, resolved_name_size);
-            utf8_name = (char *)realloc(utf8_name, utf8_name_size);
-            resolved_name = (char *)realloc(resolved_name, resolved_name_size);
-        }
-
-        if (!path || !utf8_name || !resolved_name) {
+        new_alloc = (char *)realloc(path, resolved_name_size);
+        if (!new_alloc) {
             err = MZ_MEM_ERROR;
             goto save_all_cleanup;
         }
+        path = new_alloc;
+        new_alloc = (char *)realloc(utf8_name, utf8_name_size);
+        if (!new_alloc) {
+            err = MZ_MEM_ERROR;
+            goto save_all_cleanup;
+        }
+        utf8_name = new_alloc;
+        new_alloc = (char *)realloc(resolved_name, resolved_name_size);
+        if ( !new_alloc) {
+            err = MZ_MEM_ERROR;
+            goto save_all_cleanup;
+        }
+        resolved_name = new_alloc;
 
         /* Construct output path */
         path[0] = 0;
