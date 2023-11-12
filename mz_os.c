@@ -171,11 +171,11 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
                     if ((*check == 0) || (*check == '\\' || *check == '/')) {
                         source += (check - source);
 
-                        /* Search backwards for previous slash */
+                        /* Search backwards for previous slash or the start of the output string */
                         if (target != output) {
                             target -= 1;
                             do {
-                                if ((*target == '\\') || (*target == '/'))
+                                if ((target == output) ||(*target == '\\') || (*target == '/'))
                                     break;
 
                                 target -= 1;
