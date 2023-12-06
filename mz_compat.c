@@ -464,9 +464,9 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
         return ZIP_PARAMERROR;
 
     // The filename and comment length must fit in 16 bits.
-    if ((filename != NULL) && (strlen(filename) > 0xffff))
+    if (filename && strlen(filename) > 0xffff)
         return ZIP_PARAMERROR;
-    if ((comment != NULL) && (strlen(comment) > 0xffff))
+    if (comment && strlen(comment) > 0xffff)
         return ZIP_PARAMERROR;
 
     memset(&file_info, 0, sizeof(file_info));
