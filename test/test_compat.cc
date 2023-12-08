@@ -90,7 +90,7 @@ static void test_unzip_compat(unzFile unzip) {
     EXPECT_EQ(global_info64.number_disk_with_CD, 0)
         << "invalid disk with cd 64-bit";
 
-    EXPECT_EQ(err = unzLocateFile(unzip, "test.txt", (unzFileNameComparer)(void *)1), UNZ_OK)
+    EXPECT_EQ(err = unzLocateFile(unzip, "test.txt", 1), UNZ_OK)
         << "cannot locate test file (err: " << err << ")";
 
     EXPECT_EQ(err = unzGoToFirstFile(unzip), UNZ_OK);
