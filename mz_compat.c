@@ -1099,7 +1099,7 @@ int unzGoToNextFile(unzFile file) {
     return err;
 }
 
-#if MZ_COMPAT_VERSION < 110
+#if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION < 110
 #ifdef WIN32
 #  define UNZ_DEFAULT_IGNORE_CASE 1
 #else

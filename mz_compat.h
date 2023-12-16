@@ -120,7 +120,7 @@ ZEXPORT void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 
 /***************************************************************************/
 
-#if MZ_COMPAT_VERSION <= 110
+#if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION <= 110
 #define mz_dos_date dosDate
 #else
 #define mz_dos_date dos_date
@@ -310,7 +310,7 @@ typedef struct unz_file_info_s {
 
 /***************************************************************************/
 
-#if MZ_COMPAT_VERSION < 110
+#if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION < 110
 /* Possible values:
    0 - Uses OS default, e.g. Windows ignores case.
    1 - Is case sensitive.
@@ -360,7 +360,7 @@ ZEXPORT int     unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_in
 
 ZEXPORT int     unzGoToFirstFile(unzFile file);
 ZEXPORT int     unzGoToNextFile(unzFile file);
-#if MZ_COMPAT_VERSION < 110
+#if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION < 110
 ZEXPORT int     unzLocateFile(unzFile file, const char *filename, unzFileNameCase filename_case);
 #else
 ZEXPORT int     unzLocateFile(unzFile file, const char* filename, unzFileNameComparer filename_compare_func);
