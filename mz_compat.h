@@ -15,6 +15,10 @@
 
 #include "mz.h"
 
+#ifndef ZLIB_H
+#include <zlib.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -147,9 +151,6 @@ typedef const char *zipcharpc;
 #define ZIP_BADZIPFILE                  (-103)
 #define ZIP_INTERNALERROR               (-104)
 
-#ifndef Z_DEFLATED
-#define Z_DEFLATED                      (8)
-#endif
 #define Z_BZIP2ED                       (12)
 
 #define APPEND_STATUS_CREATE            (0)
