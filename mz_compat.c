@@ -480,8 +480,8 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
             dos_date = mz_zip_tm_to_dosdate(&zipfi->tmz_date);
 
         file_info.modified_date = mz_zip_dosdate_to_time_t(dos_date);
-        file_info.external_fa = zipfi->external_fa;
-        file_info.internal_fa = zipfi->internal_fa;
+        file_info.external_fa = (uint32_t)zipfi->external_fa;
+        file_info.internal_fa = (uint16_t)zipfi->internal_fa;
     }
 
     if (!filename)
