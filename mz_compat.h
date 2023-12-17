@@ -308,12 +308,16 @@ typedef struct unz_file_info_s {
 
 /***************************************************************************/
 
+#if MZ_COMPAT_VERSION < 110
 /* Possible values:
    0 - Uses OS default, e.g. Windows ignores case.
    1 - Is case sensitive.
    >= 2 - Ignore case.
 */
 typedef int unzFileNameCase;
+#else
+typedef int (*unzFileNameComparer)(unzFile file, const char* filename1, const char* filename2);
+#endif
 typedef int (*unzIteratorFunction)(unzFile file);
 typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, char *filename,
     uint16_t filename_size, void *extrafield, uint16_t extrafield_size, char *comment,
@@ -354,7 +358,11 @@ ZEXPORT int     unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_in
 
 ZEXPORT int     unzGoToFirstFile(unzFile file);
 ZEXPORT int     unzGoToNextFile(unzFile file);
+#if MZ_COMPAT_VERSION < 110
 ZEXPORT int     unzLocateFile(unzFile file, const char *filename, unzFileNameCase filename_case);
+#else
+ZEXPORT int     unzLocateFile(unzFile file, const char* filename, unzFileNameComparer filename_compare_func);
+#endif
 
 ZEXPORT int     unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len);
 
