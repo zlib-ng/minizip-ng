@@ -114,7 +114,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
     uint64_t total_out_before = 0;
     uint64_t total_in_after = 0;
     uint64_t total_out_after = 0;
-    int32_t total_in = 0;
     int32_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
@@ -157,7 +156,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
         in_bytes = (int32_t)(total_in_before - total_in_after);
         out_bytes = (int32_t)(total_out_after - total_out_before);
 
-        total_in += in_bytes;
         total_out += out_bytes;
 
         bzip->total_in += in_bytes;
