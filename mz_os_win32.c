@@ -492,7 +492,7 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
     if (!path)
         return MZ_PARAM_ERROR;
 
-    // Use VirtualQuery instead of GetModuleHandleW for UWP
+    /* Use VirtualQuery instead of GetModuleHandleW for UWP */
     memset(&mbi, 0, sizeof(mbi));
     VirtualQuery(VirtualQuery, &mbi, sizeof(mbi));
     kernel32_mod = (HMODULE)mbi.AllocationBase;
