@@ -1114,7 +1114,7 @@ static int32_t mz_zip_write_cd(void *handle) {
         zip->disk_number_with_cd += 1;
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
     if ((zip->disk_number_with_cd > 0) && (zip->open_mode & MZ_OPEN_MODE_APPEND)) {
-        // Overwrite existing central directory if using split disks
+        /* Overwrite existing central directory if using split disks */
         mz_stream_seek(zip->stream, 0, MZ_SEEK_SET);
     }
 
@@ -1129,7 +1129,7 @@ static int32_t mz_zip_write_cd(void *handle) {
         zip->disk_number_with_cd, zip->number_entry, zip->cd_offset, zip->cd_size);
 
     if (zip->cd_size == 0 && zip->number_entry > 0) {
-        // Zip does not contain central directory, open with recovery option
+        /* Zip does not contain central directory, open with recovery option */
         return MZ_FORMAT_ERROR;
     }
 
