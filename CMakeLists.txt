@@ -252,7 +252,7 @@ if(MZ_BZIP2)
         list(APPEND MINIZIP_LIB ${BZIP2_LIBRARIES})
         list(APPEND MINIZIP_LBD ${BZIP2_LIBRARY_DIRS})
 
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbzip2")
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbz2")
     elseif(MZ_FETCH_LIBS)
         clone_repo(bzip2 https://sourceware.org/git/bzip2.git)
 
