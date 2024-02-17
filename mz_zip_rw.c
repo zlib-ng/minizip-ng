@@ -1052,9 +1052,6 @@ typedef struct mz_zip_writer_s {
                 entry_cb;
     const char  *password;
     const char  *comment;
-    uint8_t     *cert_data;
-    int32_t     cert_data_size;
-    const char  *cert_pwd;
     uint16_t    compress_method;
     int16_t     compress_level;
     uint8_t     follow_links;
@@ -1840,52 +1837,6 @@ void mz_zip_writer_set_zip_cd(void *handle, uint8_t zip_cd) {
     writer->zip_cd = zip_cd;
 }
 
-int32_t mz_zip_writer_set_certificate(void *handle, const char *cert_path, const char *cert_pwd) {
-    mz_zip_writer *writer = (mz_zip_writer *)handle;
-    void *cert_stream = NULL;
-    uint8_t *cert_data = NULL;
-    int32_t cert_data_size = 0;
-    int32_t err = MZ_OK;
-
-    if (!cert_path)
-        return MZ_PARAM_ERROR;
-
-    cert_data_size = (int32_t)mz_os_get_file_size(cert_path);
-
-    if (cert_data_size == 0)
-        return MZ_PARAM_ERROR;
-
-    if (writer->cert_data) {
-        free(writer->cert_data);
-        writer->cert_data = NULL;
-    }
-
-    cert_data = (uint8_t *)malloc(cert_data_size);
-
-    /* Read pkcs12 certificate from disk */
-    cert_stream = mz_stream_os_create();
-    if (!cert_stream)
-        return MZ_MEM_ERROR;
-
-    err = mz_stream_os_open(cert_stream, cert_path, MZ_OPEN_MODE_READ);
-    if (err == MZ_OK) {
-        if (mz_stream_os_read(cert_stream, cert_data, cert_data_size) != cert_data_size)
-            err = MZ_READ_ERROR;
-        mz_stream_os_close(cert_stream);
-    }
-    mz_stream_os_delete(&cert_stream);
-
-    if (err == MZ_OK) {
-        writer->cert_data = cert_data;
-        writer->cert_data_size = cert_data_size;
-        writer->cert_pwd = cert_pwd;
-    } else {
-        free(cert_data);
-    }
-
-    return err;
-}
-
 void mz_zip_writer_set_overwrite_cb(void *handle, void *userdata, mz_zip_writer_overwrite_cb cb) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     writer->overwrite_cb = cb;
@@ -1955,13 +1906,6 @@ void mz_zip_writer_delete(void **handle) {
     writer = (mz_zip_writer *)*handle;
     if (writer) {
         mz_zip_writer_close(writer);
-
-        if (writer->cert_data)
-            free(writer->cert_data);
-
-        writer->cert_data = NULL;
-        writer->cert_data_size = 0;
-
         free(writer);
     }
     *handle = NULL;

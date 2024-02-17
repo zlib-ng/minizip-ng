@@ -82,7 +82,6 @@ The _mz_zip_reader_ and _mz_zip_writer_ objects allows you to easily extract or 
   - [mz\_zip\_writer\_set\_compress\_method](#mz_zip_writer_set_compress_method)
   - [mz\_zip\_writer\_set\_compress\_level](#mz_zip_writer_set_compress_level)
   - [mz\_zip\_writer\_set\_zip\_cd](#mz_zip_writer_set_zip_cd)
-  - [mz\_zip\_writer\_set\_certificate](#mz_zip_writer_set_certificate)
   - [mz\_zip\_writer\_set\_overwrite\_cb](#mz_zip_writer_set_overwrite_cb)
   - [mz\_zip\_writer\_set\_password\_cb](#mz_zip_writer_set_password_cb)
   - [mz\_zip\_writer\_set\_progress\_cb](#mz_zip_writer_set_progress_cb)
@@ -1813,27 +1812,6 @@ Sets whether or not the central directory should be zipped.
 **Example**
 ```
 mz_zip_writer_set_zip_cd(zip_writer, 1);
-```
-
-### mz_zip_writer_set_certificate
-
-Sets the certificate and timestamp url to use for signing when adding files in zip.
-
-**Arguments**
-|Type|Name|Description|
-|-|-|-|
-|void *|handle|_mz_zip_writer_ instance|
-|const char *|cert_path|Path to certificate to sign entries with|
-|const char *|cert_pwd|Password for certificate to sign with|
-
-**Return**
-|Type|Description|
-|-|-|
-|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
-
-**Example**
-```
-mz_zip_writer_set_certificate(zip_writer, "c:\\mycerts\\zip_cert.pfx", "mycertpwd");
 ```
 
 ### mz_zip_writer_set_overwrite_cb
