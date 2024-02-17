@@ -711,6 +711,10 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             version_needed = 20;
             if (zip64)
                 version_needed = 45;
+#ifdef HAVE_BZIP2
+            if (file_info->compression_method == MZ_COMPRESS_METHOD_BZIP2)
+                version_needed = 46;
+#endif
 #ifdef HAVE_WZAES
             if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
                 version_needed = 51;
