@@ -282,7 +282,7 @@ jobs:
       run: ls -R mini*zip | tar -czvf minizip-ng-${{ matrix.deploy-name }}.tar.gz -T -
 
     - name: Upload release (Ubuntu/macOS)
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@2.9.0
       if: (runner.os == 'Linux' || runner.os == 'macOS') && matrix.deploy && startsWith(github.ref, 'refs/tags/') && env.GITHUB_TOKEN != ''
       with:
         asset_name: minizip-ng-${{ matrix.deploy-name }}.tar.gz
@@ -298,7 +298,7 @@ jobs:
       run: 7z a -tzip minizip-ng-${{ matrix.deploy-name }}.zip ./Release/mini*zip.exe
 
     - name: Upload release (Windows)
-      uses: svenstaro/upload-release-action@v1-release
+      uses: svenstaro/upload-release-action@2.9.0
       if: runner.os == 'Windows' && matrix.deploy && startsWith(github.ref, 'refs/tags/') && env.GITHUB_TOKEN != ''
       with:
         asset_name: minizip-ng-${{ matrix.deploy-name }}.zip
