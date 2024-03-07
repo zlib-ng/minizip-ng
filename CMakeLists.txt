@@ -711,7 +711,9 @@ target_include_directories(${MINIZIP_TARGET} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 if(MZ_COMPAT)
     target_include_directories(${MINIZIP_TARGET} PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        ${ZLIB_SOURCE_DIR}
+        ${ZLIB_BINARY_DIR})
 endif()
 
 # Install files
