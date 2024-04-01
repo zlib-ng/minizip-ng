@@ -1,5 +1,5 @@
 # Checkout remote repository
-macro(clone_repo name url)
+macro(clone_repo name url tag)
     string(TOLOWER ${name} name_lower)
     string(TOUPPER ${name} name_upper)
 
@@ -7,7 +7,7 @@ macro(clone_repo name url)
         set(${name_upper}_REPOSITORY ${url})
     endif()
     if(NOT ${name_upper}_TAG)
-        set(${name_upper}_TAG master)
+        set(${name_upper}_TAG ${tag})
     endif()
 
     message(STATUS "Fetching ${name} ${${name_upper}_REPOSITORY} ${${name_upper}_TAG}")
