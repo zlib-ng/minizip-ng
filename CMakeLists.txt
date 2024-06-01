@@ -315,7 +315,7 @@ if(MZ_LZMA)
     elseif(MZ_FETCH_LIBS)
         set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
 
-        clone_repo(liblzma https://git.tukaani.org/xz.git master)
+        clone_repo(liblzma https://github.com/tukaani-project/xz master)
 
         # Don't automatically add all targets to the solution
         add_subdirectory(${LIBLZMA_SOURCE_DIR} ${LIBLZMA_BINARY_DIR} EXCLUDE_FROM_ALL)
