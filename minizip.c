@@ -126,7 +126,7 @@ int32_t minizip_list(const char *path) {
     printf("      ------     -------- ----- ------   ------- ----     ----  ------     ----\n");
 
     /* Enumerate all entries in the archive */
-    do {
+    while (err == MZ_OK) {
         err = mz_zip_reader_entry_get_info(reader, &file_info);
 
         if (err != MZ_OK) {
@@ -163,7 +163,7 @@ int32_t minizip_list(const char *path) {
             printf("Error %" PRId32 " going to next entry in archive\n", err);
             break;
         }
-    } while (err == MZ_OK);
+    }
 
     mz_zip_reader_delete(&reader);
 
