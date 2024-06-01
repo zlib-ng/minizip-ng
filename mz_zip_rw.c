@@ -1646,7 +1646,6 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
     struct dirent *entry = NULL;
     int32_t err = MZ_OK;
     int16_t is_dir = 0;
-    int32_t files_added = 0;
     const char *filename = NULL;
     const char *filenameinzip = path;
     char *wildcard_ptr = NULL;
@@ -1716,18 +1715,6 @@ int32_t mz_zip_writer_add_path(void *handle, const char *path, const char *root_
         err = mz_zip_writer_add_path(handle, full_path, root_path, include_path, recursive);
         if (err != MZ_OK)
             break;
-
-        files_added++;
-    }
-
-    if (files_added == 0 && path != root_path) {
-        mz_path_get_filename(path, &filename);
-
-        strncpy(path_dir, path, sizeof(path_dir) - 1);
-        path_dir[sizeof(path_dir) - 1] = 0;
-        mz_path_remove_filename(path_dir);
-
-        err = mz_zip_writer_add_file(handle, path_dir, filename);
     }
 
     mz_os_close_dir(dir);
