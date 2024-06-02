@@ -252,12 +252,17 @@ jobs:
     - name: Run test cases
       run: ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
       working-directory: ${{ matrix.build-dir }}
+      
+    - name: Setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
 
     - name: Generate coverage report
       shell: bash
       if: always() && matrix.codecov
       run: |
-        python3 -u -m pip install --user gcovr==5.0 --ignore-installed
+        python3 -u -m pip install gcovr
         python3 -m gcovr \
           --exclude-unreachable-branches \
           --gcov-ignore-parse-errors \
