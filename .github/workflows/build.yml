@@ -239,6 +239,7 @@ jobs:
         cmake -S ${{ matrix.build-src-dir || '.' }} -B ${{ matrix.build-dir || '.' }} ${{ matrix.cmake-args }} \
           -D MZ_BUILD_TESTS=ON \
           -D MZ_BUILD_UNIT_TESTS=ON \
+          -D BUILD_SHARED_LIBS=OFF \
           -D CMAKE_BUILD_TYPE=Release
       env:
         CC: ${{ matrix.compiler }}
