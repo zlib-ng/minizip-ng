@@ -697,10 +697,6 @@ set_target_properties(${MINIZIP_TARGET} PROPERTIES
 if(MINIZIP_LFG)
     set_target_properties(${MINIZIP_TARGET} PROPERTIES LINK_FLAGS ${MINIZIP_LFG})
 endif()
-if(MSVC)
-    # VS debugger has problems when executable and static library are named the same
-    set_target_properties(${MINIZIP_TARGET} PROPERTIES OUTPUT_NAME lib${MINIZIP_TARGET})
-endif()
 if(MZ_LZMA)
     set_target_properties(${MINIZIP_TARGET} PROPERTIES C_STANDARD 99)
 endif()
@@ -777,7 +773,14 @@ if(MZ_BUILD_TESTS)
     endif()
 
     add_executable(minizip_cli minizip.c)
-    set_target_properties(minizip_cli PROPERTIES OUTPUT_NAME ${MINIZIP_TARGET})
+
+    if(MSVC AND MZ_COMPAT AND CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
+        # VS debugger has problems when executable and static library are named the same
+        set_target_properties(minizip_cli PROPERTIES OUTPUT_NAME minizip_cli)
+    else()
+        set_target_properties(minizip_cli PROPERTIES OUTPUT_NAME minizip)
+    endif()
+
     target_compile_definitions(minizip_cli PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
     target_include_directories(minizip_cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
     target_link_libraries(minizip_cli ${MINIZIP_TARGET})
