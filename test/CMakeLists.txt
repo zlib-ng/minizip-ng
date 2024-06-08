@@ -26,7 +26,7 @@ if(NOT TARGET GTest::GTest)
         if (CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS_EQUAL 5.3)
             set(GTEST_TAG release-1.10.0)
         else()
-            set(GTEST_TAG release-1.11.0)
+            set(GTEST_TAG v1.13.0)
         endif()
     endif()
 
