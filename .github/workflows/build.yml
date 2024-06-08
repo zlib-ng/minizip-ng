@@ -256,6 +256,7 @@ jobs:
       
     - name: Setup python
       uses: actions/setup-python@v5
+      if: always() && matrix.codecov
       with:
         python-version: '3.x'
 
