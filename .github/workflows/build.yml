@@ -209,7 +209,7 @@ jobs:
 
           - name: macOS Xcode OpenSSL
             os: macos-latest
-            cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_OPENSSL=ON -D OPENSSL_ROOT_DIR=/usr/local/opt/openssl -D OPENSSL_INCLUDE_DIRS=/usr/local/opt/openssl/include -D OPENSSL_CRYPTO_LIBRARY=/usr/local/opt/openssl/lib/libcrypto.dylib -D OPENSSL_SSL_LIBRARY=/usr/local/opt/openssl/lib/libssl.dylib
+            cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_OPENSSL=ON
             codecov: macos_xcode_openssl
 
     steps:
