@@ -174,6 +174,10 @@ ZEXPORT void*   zipGetStream_MZ(zipFile file);
 ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level);
+ZEXPORT int     zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+    int zip64);
 ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level,

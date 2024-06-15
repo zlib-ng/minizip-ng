@@ -575,6 +575,14 @@ int zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *
         extrafield_global, size_extrafield_global, comment, compression_method, level, 0);
 }
 
+int zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+    int zip64) {
+    return zipOpenNewFileInZip2_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
+        extrafield_global, size_extrafield_global, comment, compression_method, level, 0, zip64);
+}
+
 int zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
