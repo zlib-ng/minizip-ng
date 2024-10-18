@@ -1753,7 +1753,7 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             if (!zip->crypt_stream)
                 return MZ_MEM_ERROR;
             mz_stream_pkcrypt_set_password(zip->crypt_stream, password);
-            mz_stream_pkcrypt_set_verify(zip->crypt_stream, verify1, verify2);
+            mz_stream_pkcrypt_set_verify(zip->crypt_stream, verify1, verify2, zip->file_info.version_needed);
 #endif
         }
     }
