@@ -105,7 +105,7 @@ static int32_t mz_stream_split_open_disk(void *stream, int32_t number_disk) {
 
     /* If disk part doesn't exist during reading then return MZ_EXIST_ERROR */
     if (disk_part == MZ_OPEN_MODE_READ) {
-        if(strcmp(split->path_disk, split->path_cd) == 0) {
+        if (strcmp(split->path_disk, split->path_cd) == 0) {
             err = MZ_EXIST_ERROR;
         } else {
             err = mz_os_file_exists(split->path_disk);
