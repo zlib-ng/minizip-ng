@@ -227,6 +227,9 @@ int32_t  mz_zip_dosdate_to_tm(uint64_t dos_date, struct tm *ptm);
 time_t   mz_zip_dosdate_to_time_t(uint64_t dos_date);
 /* Convert dos date/time format to time_t */
 
+time_t   mz_zip_tm_to_time_t(struct tm *ptm);
+/* Convert time struct to time_t */
+
 int32_t  mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm);
 /* Convert time_t to time struct */
 
