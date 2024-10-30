@@ -650,7 +650,6 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     int32_t err_attrib = 0;
     int32_t err = MZ_OK;
     int32_t err_cb = MZ_OK;
-    size_t path_length = 0;
     char *pathwfs = NULL;
     char *directory = NULL;
 
@@ -659,22 +658,18 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     if (!reader->file_info || !path)
         return MZ_PARAM_ERROR;
 
-    path_length = strlen(path);
-
     /* Convert to forward slashes for unix which doesn't like backslashes */
-    pathwfs = (char *)calloc(path_length + 1, sizeof(char));
+    pathwfs = (char *)strdup(path);
     if (!pathwfs)
         return MZ_MEM_ERROR;
-    strncat(pathwfs, path, path_length);
     mz_path_convert_slashes(pathwfs, MZ_PATH_SLASH_UNIX);
 
     if (reader->entry_cb)
         reader->entry_cb(handle, reader->entry_userdata, reader->file_info, pathwfs);
 
-    directory = (char *)calloc(path_length + 1, sizeof(char));
+    directory = (char *)strdup(pathwfs);
     if (!directory)
         return MZ_MEM_ERROR;
-    strncat(directory, pathwfs, path_length);
     mz_path_remove_filename(directory);
 
     /* If it is a directory entry then create a directory instead of writing file */
