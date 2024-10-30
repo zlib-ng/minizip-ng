@@ -2693,7 +2693,11 @@ int32_t mz_zip_dosdate_to_tm(uint64_t dos_date, struct tm *ptm) {
 time_t mz_zip_dosdate_to_time_t(uint64_t dos_date) {
     struct tm ptm;
     mz_zip_dosdate_to_raw_tm(dos_date, &ptm);
-    return mktime(&ptm);
+    return mz_zip_tm_to_time_t(&ptm);
+}
+
+time_t mz_zip_tm_to_time_t(struct tm *ptm) {
+    return mktime(ptm);
 }
 
 int32_t mz_zip_time_t_to_tm(time_t unix_time, struct tm *ptm) {

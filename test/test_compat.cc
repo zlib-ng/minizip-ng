@@ -11,7 +11,10 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_zip.h"
-#include "mz_compat.h"
+
+#include "unzip.h"
+#include "zip.h"
+#include "crypt.h"
 
 #include <gtest/gtest.h>
 
