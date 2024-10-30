@@ -111,11 +111,14 @@ typedef struct zlib_filefunc64_def_s
 
 /***************************************************************************/
 
+/* Compatibility layer with the original minizip library (ioapi.h and iowin32.h). */
 ZEXPORT void fill_fopen_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT void fill_fopen64_filefunc(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64(zlib_filefunc64_def *pzlib_filefunc_def);
 ZEXPORT void fill_win32_filefunc64A(zlib_filefunc64_def *pzlib_filefunc_def);
+
+/* Compatibility layer with older minizip-ng (ioapi_mem.h). */
 ZEXPORT void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 
 /***************************************************************************/
@@ -159,26 +162,17 @@ typedef const char *zipcharpc;
 /***************************************************************************/
 /* Writing a zip file  */
 
+/* Compatibility layer with the original minizip library (zip.h). */
 ZEXPORT zipFile zipOpen(const char *path, int append);
 ZEXPORT zipFile zipOpen64(const void *path, int append);
 ZEXPORT zipFile zipOpen2(const char *path, int append, const char **globalcomment,
     zlib_filefunc_def *pzlib_filefunc_def);
-
 ZEXPORT zipFile zipOpen2_64(const void *path, int append, const char **globalcomment,
     zlib_filefunc64_def *pzlib_filefunc_def);
-ZEXPORT zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
-
-ZEXPORT void*   zipGetHandle_MZ(zipFile);
-ZEXPORT void*   zipGetStream_MZ(zipFile file);
-
 ZEXPORT int     zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level);
 ZEXPORT int     zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int zip64);
-ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int zip64);
@@ -210,20 +204,26 @@ ZEXPORT int     zipOpenNewFileInZip4_64(zipFile file, const char *filename, cons
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64);
+ZEXPORT int     zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
+ZEXPORT int     zipCloseFileInZipRaw(zipFile file, unsigned long uncompressed_size, unsigned long crc32);
+ZEXPORT int     zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, unsigned long crc32);
+ZEXPORT int     zipCloseFileInZip(zipFile file);
+ZEXPORT int     zipClose(zipFile file, const char *global_comment);
+
+/* Compatibility layer with older minizip-ng (mz_zip.h). */
+ZEXPORT zipFile zipOpen_MZ(void *stream, int append, const char **globalcomment);
+ZEXPORT void*   zipGetHandle_MZ(zipFile);
+ZEXPORT void*   zipGetStream_MZ(zipFile file);
+ZEXPORT int     zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
+    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
+    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+    int zip64);
 ZEXPORT int     zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
     const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
     uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
     int raw, int windowBits, int memLevel, int strategy, const char *password,
     unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64);
-
-ZEXPORT int     zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len);
-
-ZEXPORT int     zipCloseFileInZipRaw(zipFile file, unsigned long uncompressed_size, unsigned long crc32);
-ZEXPORT int     zipCloseFileInZipRaw64(zipFile file, uint64_t uncompressed_size, unsigned long crc32);
-ZEXPORT int     zipCloseFileInZip(zipFile file);
 ZEXPORT int     zipCloseFileInZip64(zipFile file);
-
-ZEXPORT int     zipClose(zipFile file, const char *global_comment);
 ZEXPORT int     zipClose_64(zipFile file, const char *global_comment);
 ZEXPORT int     zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
         int     zipClose_MZ(zipFile file, const char *global_comment);
@@ -332,36 +332,27 @@ typedef int (*unzIteratorFunction2)(unzFile file, unz_file_info64 *pfile_info, c
 /***************************************************************************/
 /* Reading a zip file */
 
+/* Compatibility layer with the original minizip library (unzip.h). */
 ZEXPORT unzFile unzOpen(const char *path);
 ZEXPORT unzFile unzOpen64(const void *path);
 ZEXPORT unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def);
 ZEXPORT unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def);
-        unzFile unzOpen_MZ(void *stream);
-
 ZEXPORT int     unzClose(unzFile file);
-ZEXPORT int     unzClose_MZ(unzFile file);
-
-ZEXPORT void*   unzGetHandle_MZ(unzFile file);
-ZEXPORT void*   unzGetStream_MZ(zipFile file);
-
 ZEXPORT int     unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32);
 ZEXPORT int     unzGetGlobalInfo64(unzFile file, unz_global_info64 *pglobal_info);
 ZEXPORT int     unzGetGlobalComment(unzFile file, char *comment, unsigned long comment_size);
-
 ZEXPORT int     unzOpenCurrentFile(unzFile file);
 ZEXPORT int     unzOpenCurrentFilePassword(unzFile file, const char *password);
 ZEXPORT int     unzOpenCurrentFile2(unzFile file, int *method, int *level, int raw);
 ZEXPORT int     unzOpenCurrentFile3(unzFile file, int *method, int *level, int raw, const char *password);
 ZEXPORT int     unzReadCurrentFile(unzFile file, void *buf, uint32_t len);
 ZEXPORT int     unzCloseCurrentFile(unzFile file);
-
 ZEXPORT int     unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
     unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
     unsigned long comment_size);
 ZEXPORT int     unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
     unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
     unsigned long comment_size);
-
 ZEXPORT int     unzGoToFirstFile(unzFile file);
 ZEXPORT int     unzGoToNextFile(unzFile file);
 #if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION < 110
@@ -369,8 +360,13 @@ ZEXPORT int     unzLocateFile(unzFile file, const char *filename, unzFileNameCas
 #else
 ZEXPORT int     unzLocateFile(unzFile file, const char* filename, unzFileNameComparer filename_compare_func);
 #endif
-
 ZEXPORT int     unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len);
+
+/* Compatibility layer with older minizip-ng (mz_unzip.h). */
+        unzFile unzOpen_MZ(void *stream);
+ZEXPORT int     unzClose_MZ(unzFile file);
+ZEXPORT void*   unzGetHandle_MZ(unzFile file);
+ZEXPORT void*   unzGetStream_MZ(zipFile file);
 
 /***************************************************************************/
 /* Raw access to zip file */
@@ -380,30 +376,31 @@ typedef struct unz_file_pos_s {
     uint32_t num_of_file;           /* # of file */
 } unz_file_pos;
 
-ZEXPORT int     unzGetFilePos(unzFile file, unz_file_pos *file_pos);
-ZEXPORT int     unzGoToFilePos(unzFile file, unz_file_pos *file_pos);
-
 typedef struct unz64_file_pos_s {
     int64_t  pos_in_zip_directory;   /* offset in zip file directory  */
     uint64_t num_of_file;            /* # of file */
 } unz64_file_pos;
 
+/* Compatibility layer with the original minizip library (unzip.h). */
+ZEXPORT int     unzGetFilePos(unzFile file, unz_file_pos *file_pos);
+ZEXPORT int     unzGoToFilePos(unzFile file, unz_file_pos *file_pos);
 ZEXPORT int     unzGetFilePos64(unzFile file, unz64_file_pos *file_pos);
 ZEXPORT int     unzGoToFilePos64(unzFile file, const unz64_file_pos *file_pos);
-
 ZEXPORT int64_t unzGetOffset64(unzFile file);
 ZEXPORT unsigned long
                 unzGetOffset(unzFile file);
 ZEXPORT int     unzSetOffset64(unzFile file, int64_t pos);
 ZEXPORT int     unzSetOffset(unzFile file, unsigned long pos);
 ZEXPORT int32_t unztell(unzFile file);
-ZEXPORT int32_t unzTell(unzFile file);
 ZEXPORT uint64_t unztell64(unzFile file);
+ZEXPORT int     unzeof(unzFile file);
+
+/* Compatibility layer with older minizip-ng (mz_unzip.h). */
+ZEXPORT int32_t unzTell(unzFile file);
 ZEXPORT uint64_t unzTell64(unzFile file);
 ZEXPORT int     unzSeek(unzFile file, int32_t offset, int origin);
 ZEXPORT int     unzSeek64(unzFile file, int64_t offset, int origin);
 ZEXPORT int     unzEndOfFile(unzFile file);
-ZEXPORT int     unzeof(unzFile file);
 ZEXPORT void*   unzGetStream(unzFile file);
 
 /***************************************************************************/
