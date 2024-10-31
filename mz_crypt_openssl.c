@@ -65,7 +65,7 @@ typedef struct mz_crypt_sha_s {
     EVP_MD_CTX     *ctx;
 #endif
     int32_t        initialized;
-    int32_t        error;
+    unsigned long  error;
     uint16_t       algorithm;
 } mz_crypt_sha;
 
@@ -269,8 +269,8 @@ void mz_crypt_sha_delete(void **handle) {
 /***************************************************************************/
 
 typedef struct mz_crypt_aes_s {
-    int32_t    mode;
-    int32_t    error;
+    int32_t         mode;
+    unsigned long   error;
     EVP_CIPHER_CTX *ctx;
 } mz_crypt_aes;
 
@@ -488,14 +488,14 @@ void mz_crypt_aes_delete(void **handle) {
 
 typedef struct mz_crypt_hmac_s {
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
-    HMAC_CTX    *ctx;
+    HMAC_CTX        *ctx;
 #else
-    EVP_MAC     *mac;
-    EVP_MAC_CTX *ctx;
+    EVP_MAC         *mac;
+    EVP_MAC_CTX     *ctx;
 #endif
-    int32_t     initialized;
-    int32_t     error;
-    uint16_t    algorithm;
+    int32_t         initialized;
+    unsigned long   error;
+    uint16_t        algorithm;
 } mz_crypt_hmac;
 
 /***************************************************************************/
