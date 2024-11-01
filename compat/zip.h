@@ -38,16 +38,6 @@ typedef void *zipFile;
 
 /***************************************************************************/
 
-#ifndef Z_ERRNO
-#define Z_ERRNO                         (-1)
-#endif
-#ifndef Z_DEFLATED
-#define Z_DEFLATED                      (8)
-#endif
-#ifndef Z_BZIP2ED
-#define Z_BZIP2ED                       (12)
-#endif
-
 #define ZIP_OK            (0)
 #define ZIP_EOF           (0)
 #define ZIP_ERRNO         (Z_ERRNO)

@@ -38,18 +38,6 @@ typedef void *unzFile;
 
 /***************************************************************************/
 
-#ifndef Z_ERRNO
-#define Z_ERRNO                         (-1)
-#endif
-#ifndef Z_DEFLATED
-#define Z_DEFLATED                      (8)
-#endif
-#ifndef Z_BZIP2ED
-#define Z_BZIP2ED                       (12)
-#endif
-
-/***************************************************************************/
-
 #define UNZ_OK                  (0)
 #define UNZ_END_OF_LIST_OF_FILE (-100)
 #define UNZ_ERRNO               (Z_ERRNO)
