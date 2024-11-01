@@ -25,17 +25,15 @@
    Encryption is not supported.
 */
 
-#ifndef _ZLIB_H
-#  ifndef ZLIB_VERNUM
+#ifndef ZLIB_VERNUM
 /* No zlib */
 typedef uint32_t z_crc_t;
-#  elif (ZLIB_VERNUM & 0xf != 0xf) && (ZLIB_VERNUM < 0x1270)
+#elif (ZLIB_VERNUM & 0xf != 0xf) && (ZLIB_VERNUM < 0x1270)
 /* Define z_crc_t in zlib 1.2.6 and less */
 typedef unsigned long z_crc_t;
-#  elif (ZLIB_VERNUM & 0xf == 0xf) && (ZLIB_VERNUM < 0x12df)
+#elif (ZLIB_VERNUM & 0xf == 0xf) && (ZLIB_VERNUM < 0x12df)
 /* Define z_crc_t in zlib-ng 2.0.7 and less */
 typedef unsigned int z_crc_t;
-#  endif
 #endif
 
 #define CRC32(c, b) ((*(pcrc_32_tab + (((int)(c) ^ (b)) & 0xff))) ^ ((c) >> 8))
