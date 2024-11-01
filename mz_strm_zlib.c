@@ -365,7 +365,7 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_zlib_create(void) {
-    mz_stream_zlib *zlib = zlib = (mz_stream_zlib *)calloc(1, sizeof(mz_stream_zlib));
+    mz_stream_zlib *zlib = (mz_stream_zlib *)calloc(1, sizeof(mz_stream_zlib));
     if (zlib) {
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
