@@ -1,0 +1,22 @@
+---
+BasedOnStyle: Google
+
+AccessModifierOffset: -2
+AlignArrayOfStructures: Right
+AlignConsecutiveBitFields: AcrossEmptyLines
+AlignConsecutiveMacros: AcrossEmptyLines
+AlignEscapedNewlines: Right
+AlignOperands: DontAlign
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+ColumnLimit: 120
+DerivePointerAlignment: false
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+InsertNewlineAtEOF: true
+PointerAlignment: Right
+PPIndentWidth: 2
+SortIncludes: Never
