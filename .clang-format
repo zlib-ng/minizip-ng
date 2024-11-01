@@ -4,7 +4,6 @@ BasedOnStyle: Google
 AccessModifierOffset: -2
 AlignArrayOfStructures: Right
 AlignConsecutiveBitFields: AcrossEmptyLines
-AlignConsecutiveDeclarations: true
 AlignConsecutiveMacros: AcrossEmptyLines
 AlignEscapedNewlines: Right
 AlignOperands: DontAlign
