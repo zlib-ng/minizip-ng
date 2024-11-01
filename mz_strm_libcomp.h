@@ -31,10 +31,10 @@ int32_t mz_stream_libcomp_error(void *stream);
 int32_t mz_stream_libcomp_get_prop_int64(void *stream, int32_t prop, int64_t *value);
 int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
-void*   mz_stream_libcomp_create(void);
-void    mz_stream_libcomp_delete(void **stream);
+void *mz_stream_libcomp_create(void);
+void mz_stream_libcomp_delete(void **stream);
 
-void*   mz_stream_libcomp_get_interface(void);
+void *mz_stream_libcomp_get_interface(void);
 
 /***************************************************************************/
 

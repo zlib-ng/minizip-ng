@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if _WIN32_WINNT <= _WIN32_WINNT_WINXP
-#include <wincrypt.h>
+#  include <wincrypt.h>
 
 /***************************************************************************/
 
@@ -39,12 +39,12 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 typedef struct mz_crypt_sha_s {
     union {
         struct {
-            HCRYPTPROV  provider;
-            HCRYPTHASH  hash;
+            HCRYPTPROV provider;
+            HCRYPTHASH hash;
         };
     };
-    int32_t             error;
-    uint16_t            algorithm;
+    int32_t error;
+    uint16_t algorithm;
 } mz_crypt_sha;
 
 /***************************************************************************/
@@ -81,7 +81,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
     case MZ_HASH_SHA1:
         alg_id = CALG_SHA1;
         break;
-#if NTDDI_VERSION > NTDDI_WINXPSP2
+#  if NTDDI_VERSION > NTDDI_WINXPSP2
     case MZ_HASH_SHA256:
         alg_id = CALG_SHA_256;
         break;
@@ -91,12 +91,12 @@ int32_t mz_crypt_sha_begin(void *handle) {
     case MZ_HASH_SHA512:
         alg_id = CALG_SHA_512;
         break;
-#else
+#  else
     case MZ_HASH_SHA256:
     case MZ_HASH_SHA384:
     case MZ_HASH_SHA512:
         return MZ_SUPPORT_ERROR;
-#endif
+#  endif
     default:
         return MZ_PARAM_ERROR;
     }
@@ -197,9 +197,9 @@ void mz_crypt_sha_delete(void **handle) {
 
 typedef struct mz_crypt_aes_s {
     HCRYPTPROV provider;
-    HCRYPTKEY  key;
-    int32_t    mode;
-    int32_t    error;
+    HCRYPTKEY key;
+    int32_t mode;
+    int32_t error;
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -253,14 +253,14 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
     return MZ_SUPPORT_ERROR;
 }
 
-static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                    int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     HCRYPTHASH hash = 0;
     ALG_ID alg_id = 0;
     typedef struct key_blob_header_s {
         BLOBHEADER hdr;
-        uint32_t   key_length;
+        uint32_t key_length;
     } key_blob_header_s;
     key_blob_header_s *key_blob_s = NULL;
     uint32_t mode;
@@ -295,7 +295,7 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         return MZ_PARAM_ERROR;
 
     result = CryptAcquireContext(&aes->provider, NULL, MS_ENH_RSA_AES_PROV, PROV_RSA_AES,
-        CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+                                 CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
     if (result) {
         key_blob_size = sizeof(key_blob_header_s) + key_length;
         key_blob = (uint8_t *)malloc(key_blob_size);
@@ -321,7 +321,6 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (result && err == MZ_OK)
         result = CryptSetKeyParam(aes->key, KP_MODE, (const uint8_t *)&mode, 0);
 
-
     if (!result && err == MZ_OK) {
         aes->error = GetLastError();
         err = MZ_CRYPT_ERROR;
@@ -345,13 +344,13 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     return err;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
@@ -382,11 +381,11 @@ void mz_crypt_aes_delete(void **handle) {
 typedef struct mz_crypt_hmac_s {
     HCRYPTPROV provider;
     HCRYPTHASH hash;
-    HCRYPTKEY  key;
-    HMAC_INFO  info;
-    int32_t    mode;
-    int32_t    error;
-    uint16_t   algorithm;
+    HCRYPTKEY key;
+    HMAC_INFO info;
+    int32_t mode;
+    int32_t error;
+    uint16_t algorithm;
 } mz_crypt_hmac;
 
 /***************************************************************************/
@@ -414,7 +413,7 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     ALG_ID alg_id = 0;
     typedef struct key_blob_header_s {
         BLOBHEADER hdr;
-        uint32_t   key_length;
+        uint32_t key_length;
     } key_blob_header_s;
     key_blob_header_s *key_blob_s = NULL;
     uint8_t *key_blob = NULL;
@@ -431,16 +430,16 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
     if (hmac->algorithm == MZ_HASH_SHA1)
         alg_id = CALG_SHA1;
     else
-#ifdef CALG_SHA_256
+#  ifdef CALG_SHA_256
         alg_id = CALG_SHA_256;
-#else
+#  else
         return MZ_SUPPORT_ERROR;
-#endif
+#  endif
 
     hmac->info.HashAlgid = alg_id;
 
-    result = CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL,
-        CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
+    result =
+        CryptAcquireContext(&hmac->provider, NULL, MS_ENHANCED_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_SILENT);
 
     if (!result) {
         hmac->error = GetLastError();

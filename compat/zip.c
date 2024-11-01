@@ -21,8 +21,8 @@
 /***************************************************************************/
 
 typedef struct mz_zip_compat_s {
-    void     *stream;
-    void     *handle;
+    void *stream;
+    void *handle;
 } mz_zip_compat;
 
 /***************************************************************************/
@@ -51,8 +51,7 @@ zipFile zipOpen64(const void *path, int append) {
     return zipOpen2(path, append, NULL, NULL);
 }
 
-zipFile zipOpen2(const char *path, int append, zipcharpc *globalcomment,
-    zlib_filefunc_def *pzlib_filefunc_def) {
+zipFile zipOpen2(const char *path, int append, zipcharpc *globalcomment, zlib_filefunc_def *pzlib_filefunc_def) {
     zipFile zip = NULL;
     int32_t mode = zipConvertAppendToStreamMode(append);
     void *stream = NULL;
@@ -91,8 +90,7 @@ zipFile zipOpen2(const char *path, int append, zipcharpc *globalcomment,
     return zip;
 }
 
-zipFile zipOpen2_64(const void *path, int append, zipcharpc *globalcomment,
-    zlib_filefunc64_def *pzlib_filefunc_def) {
+zipFile zipOpen2_64(const void *path, int append, zipcharpc *globalcomment, zlib_filefunc64_def *pzlib_filefunc_def) {
     zipFile zip = NULL;
     int32_t mode = zipConvertAppendToStreamMode(append);
     void *stream = NULL;
@@ -162,14 +160,14 @@ zipFile zipOpen_MZ(void *stream, int append, zipcharpc *globalcomment) {
     return (zipFile)compat;
 }
 
-void* zipGetHandle_MZ(zipFile file) {
+void *zipGetHandle_MZ(zipFile file) {
     mz_zip_compat *compat = (mz_zip_compat *)file;
     if (!compat)
         return NULL;
     return compat->handle;
 }
 
-void* zipGetStream_MZ(zipFile file) {
+void *zipGetStream_MZ(zipFile file) {
     mz_zip_compat *compat = (mz_zip_compat *)file;
     if (!compat)
         return NULL;
@@ -185,11 +183,11 @@ static time_t zipConvertZipDateToTime(tm_zip tmz_date) {
     return mz_zip_tm_to_time_t(&tm_date);
 }
 
-int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int windowBits, int memLevel, int strategy, const char *password,
-    unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64) {
+int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                         uint16_t size_extrafield_local, const void *extrafield_global, uint16_t size_extrafield_global,
+                         const char *comment, int compression_method, int level, int raw, int windowBits, int memLevel,
+                         int strategy, const char *password, unsigned long crc_for_crypting,
+                         unsigned long version_madeby, unsigned long flag_base, int zip64) {
     mz_zip_compat *compat = (mz_zip_compat *)file;
     mz_zip_file file_info;
 
@@ -247,85 +245,84 @@ int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo 
     return mz_zip_entry_write_open(compat->handle, &file_info, (int16_t)level, (uint8_t)raw, password);
 }
 
-int zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int windowBits, int memLevel,   int strategy, const char *password,
-    unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base, int zip64) {
-    return zipOpenNewFileInZip5(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
-        memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, zip64);
+int zipOpenNewFileInZip4_64(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                            uint16_t size_extrafield_local, const void *extrafield_global,
+                            uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+                            int raw, int windowBits, int memLevel, int strategy, const char *password,
+                            unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base,
+                            int zip64) {
+    return zipOpenNewFileInZip5(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                size_extrafield_global, comment, compression_method, level, raw, windowBits, memLevel,
+                                strategy, password, crc_for_crypting, version_madeby, flag_base, zip64);
 }
 
-int zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int windowBits, int memLevel, int strategy, const char *password,
-    unsigned long crc_for_crypting, unsigned long version_madeby, unsigned long flag_base) {
-    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
-        memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, 0);
+int zipOpenNewFileInZip4(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                         uint16_t size_extrafield_local, const void *extrafield_global, uint16_t size_extrafield_global,
+                         const char *comment, int compression_method, int level, int raw, int windowBits, int memLevel,
+                         int strategy, const char *password, unsigned long crc_for_crypting,
+                         unsigned long version_madeby, unsigned long flag_base) {
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, raw, windowBits,
+                                   memLevel, strategy, password, crc_for_crypting, version_madeby, flag_base, 0);
 }
 
-int zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int windowBits, int memLevel, int strategy, const char *password,
-    unsigned long crc_for_crypting) {
-    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
-        memLevel, strategy, password, crc_for_crypting, 0);
+int zipOpenNewFileInZip3(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                         uint16_t size_extrafield_local, const void *extrafield_global, uint16_t size_extrafield_global,
+                         const char *comment, int compression_method, int level, int raw, int windowBits, int memLevel,
+                         int strategy, const char *password, unsigned long crc_for_crypting) {
+    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, raw, windowBits,
+                                   memLevel, strategy, password, crc_for_crypting, 0);
 }
 
-int zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int windowBits, int memLevel, int strategy, const char *password,
-    unsigned long crc_for_crypting, int zip64) {
-    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, windowBits,
-        memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, zip64);
+int zipOpenNewFileInZip3_64(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                            uint16_t size_extrafield_local, const void *extrafield_global,
+                            uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+                            int raw, int windowBits, int memLevel, int strategy, const char *password,
+                            unsigned long crc_for_crypting, int zip64) {
+    return zipOpenNewFileInZip4_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, raw, windowBits,
+                                   memLevel, strategy, password, crc_for_crypting, MZ_VERSION_MADEBY, 0, zip64);
 }
 
-int zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw) {
-    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw,
-            0, 0, 0, NULL, 0, 0);
+int zipOpenNewFileInZip2(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                         uint16_t size_extrafield_local, const void *extrafield_global, uint16_t size_extrafield_global,
+                         const char *comment, int compression_method, int level, int raw) {
+    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, raw, 0, 0, 0, NULL, 0,
+                                   0);
 }
 
-int zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int raw, int zip64) {
-    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, raw, 0,
-        0, 0, NULL, 0, zip64);
+int zipOpenNewFileInZip2_64(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                            uint16_t size_extrafield_local, const void *extrafield_global,
+                            uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+                            int raw, int zip64) {
+    return zipOpenNewFileInZip3_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, raw, 0, 0, 0, NULL, 0,
+                                   zip64);
 }
 
-int zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level) {
-    return zipOpenNewFileInZip_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, 0);
+int zipOpenNewFileInZip(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                        uint16_t size_extrafield_local, const void *extrafield_global, uint16_t size_extrafield_global,
+                        const char *comment, int compression_method, int level) {
+    return zipOpenNewFileInZip_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                  size_extrafield_global, comment, compression_method, level, 0);
 }
 
-int zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int zip64) {
-    return zipOpenNewFileInZip2_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, 0, zip64);
+int zipOpenNewFileInZip64(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                          uint16_t size_extrafield_local, const void *extrafield_global,
+                          uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+                          int zip64) {
+    return zipOpenNewFileInZip2_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, 0, zip64);
 }
 
-int zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi,
-    const void *extrafield_local, uint16_t size_extrafield_local, const void *extrafield_global,
-    uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
-    int zip64) {
-    return zipOpenNewFileInZip2_64(file, filename, zipfi, extrafield_local, size_extrafield_local,
-        extrafield_global, size_extrafield_global, comment, compression_method, level, 0, zip64);
+int zipOpenNewFileInZip_64(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
+                           uint16_t size_extrafield_local, const void *extrafield_global,
+                           uint16_t size_extrafield_global, const char *comment, int compression_method, int level,
+                           int zip64) {
+    return zipOpenNewFileInZip2_64(file, filename, zipfi, extrafield_local, size_extrafield_local, extrafield_global,
+                                   size_extrafield_global, comment, compression_method, level, 0, zip64);
 }
 
 int zipWriteInFileInZip(zipFile file, const void *buf, uint32_t len) {

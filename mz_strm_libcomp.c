@@ -17,35 +17,25 @@
 /***************************************************************************/
 
 static mz_stream_vtbl mz_stream_libcomp_vtbl = {
-    mz_stream_libcomp_open,
-    mz_stream_libcomp_is_open,
-    mz_stream_libcomp_read,
-    mz_stream_libcomp_write,
-    mz_stream_libcomp_tell,
-    mz_stream_libcomp_seek,
-    mz_stream_libcomp_close,
-    mz_stream_libcomp_error,
-    mz_stream_libcomp_create,
-    mz_stream_libcomp_delete,
-    mz_stream_libcomp_get_prop_int64,
-    mz_stream_libcomp_set_prop_int64
-};
+    mz_stream_libcomp_open,   mz_stream_libcomp_is_open,        mz_stream_libcomp_read,
+    mz_stream_libcomp_write,  mz_stream_libcomp_tell,           mz_stream_libcomp_seek,
+    mz_stream_libcomp_close,  mz_stream_libcomp_error,          mz_stream_libcomp_create,
+    mz_stream_libcomp_delete, mz_stream_libcomp_get_prop_int64, mz_stream_libcomp_set_prop_int64};
 
 /***************************************************************************/
 
 typedef struct mz_stream_libcomp_s {
-    mz_stream   stream;
-    compression_stream
-                cstream;
-    uint8_t     buffer[INT16_MAX];
-    int32_t     buffer_len;
-    int64_t     total_in;
-    int64_t     total_out;
-    int64_t     max_total_in;
-    int8_t      initialized;
-    int32_t     mode;
-    int32_t     error;
-    int16_t     method;
+    mz_stream stream;
+    compression_stream cstream;
+    uint8_t buffer[INT16_MAX];
+    int32_t buffer_len;
+    int64_t total_in;
+    int64_t total_out;
+    int64_t max_total_in;
+    int8_t initialized;
+    int32_t mode;
+    int32_t error;
+    int16_t method;
 } mz_stream_libcomp;
 
 /***************************************************************************/

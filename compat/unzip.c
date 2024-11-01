@@ -23,11 +23,11 @@
 /***************************************************************************/
 
 typedef struct mz_unzip_compat_s {
-    void     *stream;
-    void     *handle;
+    void *stream;
+    void *handle;
     uint64_t entry_index;
-    int64_t  entry_pos;
-    int64_t  total_out;
+    int64_t entry_pos;
+    int64_t total_out;
 } mz_unzip_compat;
 
 /***************************************************************************/
@@ -41,7 +41,7 @@ unzFile unzOpen64(const void *path) {
 }
 
 unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
-   unzFile unz = NULL;
+    unzFile unz = NULL;
     void *stream = NULL;
 
     if (pzlib_filefunc_def) {
@@ -114,14 +114,14 @@ unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def) {
     return unz;
 }
 
-void* unzGetHandle_MZ(unzFile file) {
+void *unzGetHandle_MZ(unzFile file) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     if (!compat)
         return NULL;
     return compat->handle;
 }
 
-void* unzGetStream_MZ(unzFile file) {
+void *unzGetStream_MZ(unzFile file) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     if (!compat)
         return NULL;
@@ -190,7 +190,7 @@ int unzClose_MZ(unzFile file) {
     return err;
 }
 
-int unzGetGlobalInfo(unzFile file, unz_global_info* pglobal_info32) {
+int unzGetGlobalInfo(unzFile file, unz_global_info *pglobal_info32) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     unz_global_info64 global_info64;
     int32_t err = MZ_OK;
@@ -330,9 +330,8 @@ static void unzConvertTimeToUnzTime(time_t time, tm_unz *tmu_date) {
     tmu_date->tm_year += 1900;
 }
 
-int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
-    unsigned long comment_size) {
+int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filename, unsigned long filename_size,
+                          void *extrafield, unsigned long extrafield_size, char *comment, unsigned long comment_size) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     mz_zip_file *file_info = NULL;
     uint16_t bytes_to_copy = 0;
@@ -390,9 +389,9 @@ int unzGetCurrentFileInfo(unzFile file, unz_file_info *pfile_info, char *filenam
     return err;
 }
 
-int unzGetCurrentFileInfo64(unzFile file, unz_file_info64 * pfile_info, char *filename,
-    unsigned long filename_size, void *extrafield, unsigned long extrafield_size, char *comment,
-    unsigned long comment_size) {
+int unzGetCurrentFileInfo64(unzFile file, unz_file_info64 *pfile_info, char *filename, unsigned long filename_size,
+                            void *extrafield, unsigned long extrafield_size, char *comment,
+                            unsigned long comment_size) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     mz_zip_file *file_info = NULL;
     uint16_t bytes_to_copy = 0;
@@ -470,11 +469,11 @@ int unzGoToNextFile(unzFile file) {
 }
 
 #if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION < 110
-#ifdef WIN32
-#  define UNZ_DEFAULT_IGNORE_CASE 1
-#else
-#  define UNZ_DEFAULT_IGNORE_CASE 0
-#endif
+#  ifdef WIN32
+#    define UNZ_DEFAULT_IGNORE_CASE 1
+#  else
+#    define UNZ_DEFAULT_IGNORE_CASE 0
+#  endif
 
 int unzLocateFile(unzFile file, const char *filename, unzFileNameCase filename_case) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
@@ -513,9 +512,9 @@ int unzLocateFile(unzFile file, const char *filename, unzFileNameCase filename_c
     return err;
 }
 #else
-int unzLocateFile(unzFile file, const char* filename, unzFileNameComparer filename_compare_func) {
-    mz_compat* compat = (mz_compat*)file;
-    mz_zip_file* file_info = NULL;
+int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filename_compare_func) {
+    mz_unzip_compat *compat = (mz_unzip_compat *)file;
+    mz_zip_file *file_info = NULL;
     uint64_t preserve_index = 0;
     int32_t err = MZ_OK;
     int32_t result = 0;
@@ -533,8 +532,7 @@ int unzLocateFile(unzFile file, const char* filename, unzFileNameComparer filena
 
         if ((intptr_t)filename_compare_func > 2) {
             result = filename_compare_func(file, filename, file_info->filename);
-        }
-        else {
+        } else {
             int32_t case_sensitive = (int32_t)(intptr_t)filename_compare_func;
             result = mz_path_compare_wc(filename, file_info->filename, !case_sensitive);
         }
@@ -727,7 +725,7 @@ int unzeof(unzFile file) {
     return 0;
 }
 
-void* unzGetStream(unzFile file) {
+void *unzGetStream(unzFile file) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     if (!compat)
         return NULL;

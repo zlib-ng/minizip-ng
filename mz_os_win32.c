@@ -28,10 +28,10 @@
 /***************************************************************************/
 
 typedef struct DIR_int_s {
-    void            *find_handle;
+    void *find_handle;
     WIN32_FIND_DATAW find_data;
-    struct dirent    entry;
-    uint8_t          end;
+    struct dirent entry;
+    uint8_t end;
 } DIR_int;
 
 /***************************************************************************/
@@ -401,7 +401,7 @@ DIR *mz_os_open_dir(const char *path) {
     return (DIR *)dir_int;
 }
 
-struct dirent* mz_os_read_dir(DIR *dir) {
+struct dirent *mz_os_read_dir(DIR *dir) {
     DIR_int *dir_int;
 
     if (!dir)
@@ -411,8 +411,8 @@ struct dirent* mz_os_read_dir(DIR *dir) {
     if (dir_int->end)
         return NULL;
 
-    WideCharToMultiByte(CP_UTF8, 0, dir_int->find_data.cFileName, -1,
-        dir_int->entry.d_name, sizeof(dir_int->entry.d_name), NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, dir_int->find_data.cFileName, -1, dir_int->entry.d_name,
+                        sizeof(dir_int->entry.d_name), NULL, NULL);
 
     if (FindNextFileW(dir_int->find_handle, &dir_int->find_data) == 0) {
         if (GetLastError() != ERROR_NO_MORE_FILES)
@@ -480,7 +480,7 @@ int32_t mz_os_is_symlink(const char *path) {
 }
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {
-    typedef BOOLEAN (WINAPI *LPCREATESYMBOLICLINKW)(LPCWSTR, LPCWSTR, DWORD);
+    typedef BOOLEAN(WINAPI * LPCREATESYMBOLICLINKW)(LPCWSTR, LPCWSTR, DWORD);
     MEMORY_BASIC_INFORMATION mbi;
     LPCREATESYMBOLICLINKW create_symbolic_link_w = NULL;
     HMODULE kernel32_mod = NULL;
@@ -530,7 +530,7 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
 
 int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path) {
     typedef struct _REPARSE_DATA_BUFFER {
-        ULONG  ReparseTag;
+        ULONG ReparseTag;
         USHORT ReparseDataLength;
         USHORT Reserved;
         union {
@@ -539,18 +539,18 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
                 USHORT SubstituteNameLength;
                 USHORT PrintNameOffset;
                 USHORT PrintNameLength;
-                ULONG  Flags;
-                WCHAR  PathBuffer[1];
+                ULONG Flags;
+                WCHAR PathBuffer[1];
             } SymbolicLinkReparseBuffer;
             struct {
                 USHORT SubstituteNameOffset;
                 USHORT SubstituteNameLength;
                 USHORT PrintNameOffset;
                 USHORT PrintNameLength;
-                WCHAR  PathBuffer[1];
+                WCHAR PathBuffer[1];
             } MountPointReparseBuffer;
             struct {
-                UCHAR  DataBuffer[1];
+                UCHAR DataBuffer[1];
             } GenericReparseBuffer;
         };
     } REPARSE_DATA_BUFFER;
@@ -563,7 +563,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     int32_t target_path_len = 0;
     int32_t target_path_idx = 0;
     int32_t err = MZ_OK;
-    char    *target_path_utf8 = NULL;
+    char *target_path_utf8 = NULL;
 
     if (!path)
         return MZ_PARAM_ERROR;
@@ -583,7 +583,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     handle = CreateFile2(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, &extended_params);
 #else
     handle = CreateFileW(path_wide, FILE_READ_EA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-        FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+                         FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
 #endif
 
     if (handle == INVALID_HANDLE_VALUE) {
@@ -593,8 +593,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
 
     if (DeviceIoControl(handle, FSCTL_GET_REPARSE_POINT, NULL, 0, buffer, sizeof(buffer), &length, NULL) == TRUE) {
         reparse_data = (REPARSE_DATA_BUFFER *)buffer;
-        if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) &&
-            (reparse_data->ReparseTag == IO_REPARSE_TAG_SYMLINK)) {
+        if ((IsReparseTagMicrosoft(reparse_data->ReparseTag)) && (reparse_data->ReparseTag == IO_REPARSE_TAG_SYMLINK)) {
             target_path_len = max_target_path * sizeof(wchar_t);
             if (target_path_len > reparse_data->SymbolicLinkReparseBuffer.PrintNameLength)
                 target_path_len = reparse_data->SymbolicLinkReparseBuffer.PrintNameLength;
@@ -603,7 +602,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
             if (target_path_wide) {
                 target_path_idx = reparse_data->SymbolicLinkReparseBuffer.PrintNameOffset / sizeof(wchar_t);
                 memcpy(target_path_wide, &reparse_data->SymbolicLinkReparseBuffer.PathBuffer[target_path_idx],
-                    target_path_len);
+                       target_path_len);
 
                 target_path_wide[target_path_len / sizeof(wchar_t)] = 0;
                 target_path_utf8 = mz_os_utf8_string_create_from_unicode(target_path_wide, MZ_ENCODING_UTF8);

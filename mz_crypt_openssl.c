@@ -59,22 +59,20 @@ typedef struct mz_crypt_sha_s {
     union {
         SHA512_CTX ctx512;
         SHA256_CTX ctx256;
-        SHA_CTX    ctx1;
+        SHA_CTX ctx1;
     };
 #else
-    EVP_MD_CTX     *ctx;
+    EVP_MD_CTX *ctx;
 #endif
-    int32_t        initialized;
-    unsigned long  error;
-    uint16_t       algorithm;
+    int32_t initialized;
+    unsigned long error;
+    uint16_t algorithm;
 } mz_crypt_sha;
 
 /***************************************************************************/
 
 static const uint8_t mz_crypt_sha_digest_size[] = {
-    MZ_HASH_SHA1_SIZE,                     0, MZ_HASH_SHA224_SIZE,
-    MZ_HASH_SHA256_SIZE, MZ_HASH_SHA384_SIZE, MZ_HASH_SHA512_SIZE
-};
+    MZ_HASH_SHA1_SIZE, 0, MZ_HASH_SHA224_SIZE, MZ_HASH_SHA256_SIZE, MZ_HASH_SHA384_SIZE, MZ_HASH_SHA512_SIZE};
 
 /***************************************************************************/
 
@@ -269,8 +267,8 @@ void mz_crypt_sha_delete(void **handle) {
 /***************************************************************************/
 
 typedef struct mz_crypt_aes_s {
-    int32_t         mode;
-    unsigned long   error;
+    int32_t mode;
+    unsigned long error;
     EVP_CIPHER_CTX *ctx;
 } mz_crypt_aes;
 
@@ -382,8 +380,8 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
     return size;
 }
 
-static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length, int32_t encrypt) {
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                    int32_t iv_length, int32_t encrypt) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     const EVP_CIPHER *type = NULL;
 
@@ -430,8 +428,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     return MZ_OK;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
     if (!aes || !key || !key_length)
@@ -446,8 +444,8 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length, 1);
 }
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
 
     if (!aes || !key || !key_length)
@@ -488,19 +486,19 @@ void mz_crypt_aes_delete(void **handle) {
 
 typedef struct mz_crypt_hmac_s {
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
-    HMAC_CTX        *ctx;
+    HMAC_CTX *ctx;
 #else
-    EVP_MAC         *mac;
-    EVP_MAC_CTX     *ctx;
+    EVP_MAC *mac;
+    EVP_MAC_CTX *ctx;
 #endif
-    int32_t         initialized;
-    unsigned long   error;
-    uint16_t        algorithm;
+    int32_t initialized;
+    unsigned long error;
+    uint16_t algorithm;
 } mz_crypt_hmac;
 
 /***************************************************************************/
 
-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || \
+#if (OPENSSL_VERSION_NUMBER < 0x10100000L) ||                                                                          \
     (defined(LIBRESSL_VERSION_NUMBER) && (LIBRESSL_VERSION_NUMBER < 0x2070000fL))
 static HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ctx = OPENSSL_malloc(sizeof(HMAC_CTX));

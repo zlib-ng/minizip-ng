@@ -18,23 +18,23 @@
 #include "mz_zip.h"
 #include "mz_zip_rw.h"
 
-#include <stdio.h>  /* printf */
+#include <stdio.h> /* printf */
 
 /***************************************************************************/
 
 typedef struct minizip_opt_s {
-    uint8_t     include_path;
-    int16_t     compress_level;
-    uint8_t     compress_method;
-    uint8_t     overwrite;
-    uint8_t     append;
-    int64_t     disk_size;
-    uint8_t     follow_links;
-    uint8_t     store_links;
-    uint8_t     zip_cd;
-    int32_t     encoding;
-    uint8_t     verbose;
-    uint8_t     aes;
+    uint8_t include_path;
+    int16_t compress_level;
+    uint8_t compress_method;
+    uint8_t overwrite;
+    uint8_t append;
+    int64_t disk_size;
+    uint8_t follow_links;
+    uint8_t store_links;
+    uint8_t zip_cd;
+    int32_t encoding;
+    uint8_t verbose;
+    uint8_t aes;
 } minizip_opt;
 
 /***************************************************************************/
@@ -52,7 +52,8 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
 int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
 int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position);
 int32_t minizip_extract_overwrite_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path);
-int32_t minizip_extract(const char *path, const char *pattern, const char *destination, const char *password, minizip_opt *options);
+int32_t minizip_extract(const char *path, const char *pattern, const char *destination, const char *password,
+                        minizip_opt *options);
 
 int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg_count, const char **args);
 
@@ -148,14 +149,11 @@ int32_t minizip_list(const char *path) {
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
         /* Print entry information */
-        printf("%12" PRId64 " %12" PRId64 "  %3" PRIu32 "%% %6s%c %8" PRIx32 " %2.2" PRIu32 \
-               "-%2.2" PRIu32 "-%2.2" PRIu32 " %2.2" PRIu32 ":%2.2" PRIu32 " %8.8" PRIx32 "   %s\n",
-               file_info->compressed_size, file_info->uncompressed_size, ratio,
-               method, crypt, file_info->external_fa,
-               (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday,
-               (uint32_t)tmu_date.tm_year % 100,
-               (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min,
-               file_info->crc, file_info->filename);
+        printf("%12" PRId64 " %12" PRId64 "  %3" PRIu32 "%% %6s%c %8" PRIx32 " %2.2" PRIu32 "-%2.2" PRIu32
+               "-%2.2" PRIu32 " %2.2" PRIu32 ":%2.2" PRIu32 " %8.8" PRIx32 "   %s\n",
+               file_info->compressed_size, file_info->uncompressed_size, ratio, method, crypt, file_info->external_fa,
+               (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday, (uint32_t)tmu_date.tm_year % 100,
+               (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min, file_info->crc, file_info->filename);
 
         err = mz_zip_reader_goto_next_entry(reader);
 
@@ -199,9 +197,10 @@ int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
     /* Print the progress of the current compress operation */
-    if (options->verbose)
+    if (options->verbose) {
         printf("%s - %" PRId64 " / %" PRId64 " (%.02f%%)\n", file_info->filename, position,
-            file_info->uncompressed_size, progress);
+               file_info->uncompressed_size, progress);
+    }
     return MZ_OK;
 }
 
@@ -234,7 +233,8 @@ int32_t minizip_add_overwrite_cb(void *handle, void *userdata, const char *path)
     return MZ_OK;
 }
 
-int32_t minizip_add(const char *path, const char *password, minizip_opt *options, int32_t arg_count, const char **args) {
+int32_t minizip_add(const char *path, const char *password, minizip_opt *options, int32_t arg_count,
+                    const char **args) {
     void *writer = NULL;
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
@@ -312,9 +312,10 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
         progress = ((double)position / file_info->uncompressed_size) * 100;
 
     /* Print the progress of the current extraction */
-    if (options->verbose)
+    if (options->verbose) {
         printf("%s - %" PRId64 " / %" PRId64 " (%.02f%%)\n", file_info->filename, position,
-            file_info->uncompressed_size, progress);
+               file_info->uncompressed_size, progress);
+    }
 
     return MZ_OK;
 }
@@ -347,7 +348,8 @@ int32_t minizip_extract_overwrite_cb(void *handle, void *userdata, mz_zip_file *
     return MZ_OK;
 }
 
-int32_t minizip_extract(const char *path, const char *pattern, const char *destination, const char *password, minizip_opt *options) {
+int32_t minizip_extract(const char *path, const char *pattern, const char *destination, const char *password,
+                        minizip_opt *options) {
     void *reader = NULL;
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;

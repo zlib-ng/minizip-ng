@@ -5,9 +5,9 @@
 #include "ioapi.h"
 
 typedef struct mz_stream_ioapi_s {
-    mz_stream           stream;
-    void                *handle;
-    zlib_filefunc_def   filefunc;
+    mz_stream stream;
+    void *handle;
+    zlib_filefunc_def filefunc;
     zlib_filefunc64_def filefunc64;
 } mz_stream_ioapi;
 
@@ -24,20 +24,18 @@ static int32_t mz_stream_ioapi_error(void *stream);
 
 /***************************************************************************/
 
-static mz_stream_vtbl mz_stream_ioapi_vtbl = {
-    mz_stream_ioapi_open,
-    mz_stream_ioapi_is_open,
-    mz_stream_ioapi_read,
-    mz_stream_ioapi_write,
-    mz_stream_ioapi_tell,
-    mz_stream_ioapi_seek,
-    mz_stream_ioapi_close,
-    mz_stream_ioapi_error,
-    mz_stream_ioapi_create,
-    mz_stream_ioapi_delete,
-    NULL,
-    NULL
-};
+static mz_stream_vtbl mz_stream_ioapi_vtbl = {mz_stream_ioapi_open,
+                                              mz_stream_ioapi_is_open,
+                                              mz_stream_ioapi_read,
+                                              mz_stream_ioapi_write,
+                                              mz_stream_ioapi_tell,
+                                              mz_stream_ioapi_seek,
+                                              mz_stream_ioapi_close,
+                                              mz_stream_ioapi_error,
+                                              mz_stream_ioapi_create,
+                                              mz_stream_ioapi_delete,
+                                              NULL,
+                                              NULL};
 
 /***************************************************************************/
 

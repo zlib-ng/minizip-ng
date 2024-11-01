@@ -19,11 +19,11 @@
 #endif
 
 #if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-#include <bcrypt.h>
+#  include <bcrypt.h>
 
 /***************************************************************************/
 
-#define NT_SUCCESS(status) ((status) >= 0)
+#  define NT_SUCCESS(status) ((status) >= 0)
 
 /***************************************************************************/
 
@@ -47,13 +47,13 @@ int32_t mz_crypt_rand(uint8_t *buf, int32_t size) {
 typedef struct mz_crypt_sha_s {
     union {
         struct {
-            BCRYPT_ALG_HANDLE  provider;
+            BCRYPT_ALG_HANDLE provider;
             BCRYPT_HASH_HANDLE hash;
-            uint8_t            *buffer;
+            uint8_t *buffer;
         };
     };
-    int32_t                    error;
-    uint16_t                   algorithm;
+    int32_t error;
+    uint16_t algorithm;
 } mz_crypt_sha;
 
 /***************************************************************************/
@@ -104,8 +104,8 @@ int32_t mz_crypt_sha_begin(void *handle) {
 
     status = BCryptOpenAlgorithmProvider(&sha->provider, alg_id, NULL, 0);
     if (NT_SUCCESS(status)) {
-        status = BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size,
-            &result_size, 0);
+        status =
+            BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
         sha->buffer = malloc(buffer_size);
@@ -134,7 +134,7 @@ int32_t mz_crypt_sha_update(void *handle, const void *buf, int32_t size) {
     if (sha->hash == 0)
         return MZ_PARAM_ERROR;
 
-    status = BCryptHashData(sha->hash, (uint8_t*)buf, size, 0);
+    status = BCryptHashData(sha->hash, (uint8_t *)buf, size, 0);
     if (!NT_SUCCESS(status)) {
         sha->error = status;
         return MZ_HASH_ERROR;
@@ -199,22 +199,22 @@ void mz_crypt_sha_delete(void **handle) {
 
 /***************************************************************************/
 
-#define MZ_AES_MAX_TAG_SIZE     (16)
-#define MZ_AES_MAX_NONCE_SIZE   (12)
+#  define MZ_AES_MAX_TAG_SIZE   (16)
+#  define MZ_AES_MAX_NONCE_SIZE (12)
 
 typedef struct mz_crypt_aes_s {
     BCRYPT_ALG_HANDLE provider;
     BCRYPT_KEY_HANDLE key;
-    uint8_t           *key_buffer;
-    int32_t           mode;
-    int32_t           error;
-    uint8_t           *iv;
-    uint32_t          iv_length;
-    uint8_t           nonce[MZ_AES_MAX_NONCE_SIZE];
-    uint32_t          nonce_length;
-    uint8_t           mac[MZ_AES_MAX_TAG_SIZE];
-    uint8_t           tag[MZ_AES_MAX_TAG_SIZE];
-    uint32_t          tag_size;
+    uint8_t *key_buffer;
+    int32_t mode;
+    int32_t error;
+    uint8_t *iv;
+    uint32_t iv_length;
+    uint8_t nonce[MZ_AES_MAX_NONCE_SIZE];
+    uint32_t nonce_length;
+    uint8_t mac[MZ_AES_MAX_TAG_SIZE];
+    uint8_t tag[MZ_AES_MAX_TAG_SIZE];
+    uint32_t tag_size;
     BCRYPT_AUTHENTICATED_CIPHER_MODE_INFO *auth_info;
 } mz_crypt_aes;
 
@@ -253,12 +253,11 @@ int32_t mz_crypt_aes_encrypt(void *handle, const void *aad, int32_t aad_size, ui
         return MZ_PARAM_ERROR;
 
     if (aad && aes->auth_info && !(aes->auth_info->dwFlags & BCRYPT_AUTH_MODE_IN_PROGRESS_FLAG)) {
-        aes->auth_info->pbAuthData = (uint8_t*)aad;
+        aes->auth_info->pbAuthData = (uint8_t *)aad;
         aes->auth_info->cbAuthData = aad_size;
     }
 
-    status = BCryptEncrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
-        &output_size, 0);
+    status = BCryptEncrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size, &output_size, 0);
 
     if (aad && aes->auth_info) {
         aes->auth_info->pbAuthData = NULL;
@@ -285,8 +284,7 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
 
     aes->auth_info->dwFlags &= ~BCRYPT_AUTH_MODE_CHAIN_CALLS_FLAG;
 
-    status = BCryptEncrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
-        &output_size, 0);
+    status = BCryptEncrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size, &output_size, 0);
 
     if (!NT_SUCCESS(status)) {
         aes->error = status;
@@ -309,12 +307,11 @@ int32_t mz_crypt_aes_decrypt(void *handle, const void *aad, int32_t aad_size, ui
         return MZ_PARAM_ERROR;
 
     if (aad && aes->auth_info && !(aes->auth_info->dwFlags & BCRYPT_AUTH_MODE_IN_PROGRESS_FLAG)) {
-        aes->auth_info->pbAuthData = (uint8_t*)aad;
+        aes->auth_info->pbAuthData = (uint8_t *)aad;
         aes->auth_info->cbAuthData = aad_size;
     }
 
-    status = BCryptDecrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
-        &output_size, 0);
+    status = BCryptDecrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size, &output_size, 0);
 
     if (aad && aes->auth_info) {
         aes->auth_info->pbAuthData = NULL;
@@ -341,8 +338,7 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
 
     aes->auth_info->dwFlags &= ~BCRYPT_AUTH_MODE_CHAIN_CALLS_FLAG;
 
-    status = BCryptDecrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size,
-        &output_size, 0);
+    status = BCryptDecrypt(aes->key, buf, size, aes->auth_info, aes->iv, aes->iv_length, buf, size, &output_size, 0);
 
     if (!NT_SUCCESS(status)) {
         aes->error = status;
@@ -352,8 +348,8 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
     return size;
 }
 
-static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                    int32_t iv_length) {
     mz_crypt_aes *aes = (mz_crypt_aes *)handle;
     BCRYPT_KEY_DATA_BLOB_HEADER *key_blob = NULL;
     int32_t key_blob_size = 0;
@@ -399,8 +395,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
 
     if (NT_SUCCESS(status)) {
         ULONG result_size;
-        status = BCryptGetProperty(aes->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&key_size,
-            sizeof(key_size), &result_size, 0);
+        status = BCryptGetProperty(aes->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&key_size, sizeof(key_size),
+                                   &result_size, 0);
     }
 
     if (NT_SUCCESS(status)) {
@@ -414,10 +410,10 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
             key_blob->dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1;
             key_blob->cbKeyData = key_length;
 
-            memcpy((uint8_t*)key_blob + sizeof(*key_blob), key, key_length);
+            memcpy((uint8_t *)key_blob + sizeof(*key_blob), key, key_length);
 
-            status = BCryptImportKey(aes->provider, NULL, BCRYPT_KEY_DATA_BLOB, &aes->key, aes->key_buffer,
-                key_size, (PUCHAR)key_blob, key_blob_size, 0);
+            status = BCryptImportKey(aes->provider, NULL, BCRYPT_KEY_DATA_BLOB, &aes->key, aes->key_buffer, key_size,
+                                     (PUCHAR)key_blob, key_blob_size, 0);
             SecureZeroMemory(key_blob, key_blob_size);
             free(key_blob);
         }
@@ -436,8 +432,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         if (NT_SUCCESS(status)) {
             BCRYPT_AUTH_TAG_LENGTHS_STRUCT tag_lengths;
 
-            status = BCryptGetProperty(aes->provider, BCRYPT_AUTH_TAG_LENGTH, (PUCHAR)&tag_lengths,
-                sizeof(tag_lengths), &result_size, 0);
+            status = BCryptGetProperty(aes->provider, BCRYPT_AUTH_TAG_LENGTH, (PUCHAR)&tag_lengths, sizeof(tag_lengths),
+                                       &result_size, 0);
 
             if (NT_SUCCESS(status)) {
                 aes->tag_size = tag_lengths.dwMaxLength;
@@ -453,8 +449,8 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
         if (NT_SUCCESS(status)) {
             ULONG block_length;
 
-            status = BCryptGetProperty(aes->provider, BCRYPT_BLOCK_LENGTH, (PUCHAR)&block_length,
-                sizeof(block_length), &result_size, 0);
+            status = BCryptGetProperty(aes->provider, BCRYPT_BLOCK_LENGTH, (PUCHAR)&block_length, sizeof(block_length),
+                                       &result_size, 0);
 
             if (NT_SUCCESS(status) && iv) {
                 if (aes->iv_length > block_length)
@@ -479,13 +475,13 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     return err;
 }
 
-int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
-int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length,
-    const void *iv, int32_t iv_length) {
+int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_length, const void *iv,
+                                     int32_t iv_length) {
     return mz_crypt_aes_set_key(handle, key, key_length, iv, iv_length);
 }
 
@@ -514,12 +510,12 @@ void mz_crypt_aes_delete(void **handle) {
 /***************************************************************************/
 
 typedef struct mz_crypt_hmac_s {
-    BCRYPT_ALG_HANDLE  provider;
-    BCRYPT_KEY_HANDLE  key;
+    BCRYPT_ALG_HANDLE provider;
+    BCRYPT_KEY_HANDLE key;
     BCRYPT_HASH_HANDLE hash;
-    uint8_t            *buffer;
-    int32_t            error;
-    uint16_t           algorithm;
+    uint8_t *buffer;
+    int32_t error;
+    uint16_t algorithm;
 } mz_crypt_hmac;
 
 /***************************************************************************/
@@ -561,8 +557,8 @@ int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length) {
 
     status = BCryptOpenAlgorithmProvider(&hmac->provider, alg_id, NULL, BCRYPT_ALG_HANDLE_HMAC_FLAG);
     if (NT_SUCCESS(status)) {
-        status = BCryptGetProperty(hmac->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size,
-            &result_size, 0);
+        status =
+            BCryptGetProperty(hmac->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
         hmac->buffer = malloc(buffer_size);
@@ -590,7 +586,7 @@ int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size) {
     if (!hmac || !buf || !hmac->hash)
         return MZ_PARAM_ERROR;
 
-    status = BCryptHashData(hmac->hash, (uint8_t*)buf, size, 0);
+    status = BCryptHashData(hmac->hash, (uint8_t *)buf, size, 0);
     if (!NT_SUCCESS(status)) {
         hmac->error = status;
         return MZ_HASH_ERROR;
