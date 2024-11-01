@@ -7,12 +7,6 @@
 #ifndef _ZLIB_H
 #  include "zlib.h"
 #endif
-
-#ifndef Z_ERRNO
-#define Z_ERRNO                         (-1)
-#endif
-#ifndef Z_DEFLATED
-#define Z_DEFLATED                      (8)
 #endif
 
 typedef uint64_t ZPOS64_T;
