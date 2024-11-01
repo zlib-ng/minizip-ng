@@ -26,10 +26,15 @@
 */
 
 #ifndef _ZLIB_H
-#  if (ZLIB_VERNUM < 0x1270)
-    typedef unsigned long z_crc_t;
-#  else
-    typedef uint32_t z_crc_t;
+#  ifndef ZLIB_VERNUM
+/* No zlib */
+typedef uint32_t z_crc_t;
+#  elif (ZLIB_VERNUM & 0xf != 0xf) && (ZLIB_VERNUM < 0x1270)
+/* Define z_crc_t in zlib 1.2.6 and less */
+typedef unsigned long z_crc_t;
+#  elif (ZLIB_VERNUM & 0xf == 0xf) && (ZLIB_VERNUM < 0x12df)
+/* Define z_crc_t in zlib-ng 2.0.7 and less */
+typedef unsigned int z_crc_t;
 #  endif
 #endif
 
