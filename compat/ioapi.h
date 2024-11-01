@@ -5,8 +5,11 @@
 #include <stdint.h>
 
 #ifndef _ZLIB_H
-#  include "zlib.h"
-#endif
+#  if __has_include(<zlib.h>)
+#    include <zlib.h>
+#  elif __has_include(<zlib-ng.h>)
+#    include <zlib-ng.h>
+#  endif
 #endif
 
 typedef uint64_t ZPOS64_T;
