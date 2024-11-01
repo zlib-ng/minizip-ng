@@ -1344,8 +1344,10 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
 #endif
 
     /* Open entry in zip */
-    err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level,
-        writer->raw, password);
+    if (err == MZ_OK) {
+        err = mz_zip_entry_write_open(writer->zip_handle, &writer->file_info, writer->compress_level, writer->raw,
+                                      password);
+    }
 
     return err;
 }
