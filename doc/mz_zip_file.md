@@ -20,7 +20,7 @@ Zip entry information structure. The _mz_zip_file_ structure is populated when r
 |uint32_t|disk_number|Starting disk number|4.4.13|
 |int64_t|disk_offset|Starting disk offset|4.4.16|
 |uint16_t|internal_fa|Internal file attributes|4.4.14|
-|uint16_t|external_fa|External file attributes|4.4.15|
+|uint32_t|external_fa|External file attributes|4.4.15|
 |const char *|filename|Filename UTF-8 null-terminated string|4.4.17|
 |const uint8_t *|extrafield|Extrafield buffer array|4.4.28|
 |const char *|comment|Comment UTF-8 null-terminated string|4.4.18|
