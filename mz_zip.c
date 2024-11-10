@@ -2662,12 +2662,12 @@ static int32_t mz_zip_invalid_date(const struct tm *ptm) {
 static void mz_zip_dosdate_to_raw_tm(uint64_t dos_date, struct tm *ptm) {
     uint64_t date = (uint64_t)(dos_date >> 16);
 
-    ptm->tm_mday = (uint16_t)(date & 0x1f);
-    ptm->tm_mon = (uint16_t)(((date & 0x1E0) / 0x20) - 1);
-    ptm->tm_year = (uint16_t)(((date & 0x0FE00) / 0x0200) + 80);
-    ptm->tm_hour = (uint16_t)((dos_date & 0xF800) / 0x800);
-    ptm->tm_min = (uint16_t)((dos_date & 0x7E0) / 0x20);
-    ptm->tm_sec = (uint16_t)(2 * (dos_date & 0x1f));
+    ptm->tm_mday = (int16_t)(date & 0x1f);
+    ptm->tm_mon = (int16_t)(((date & 0x1E0) / 0x20) - 1);
+    ptm->tm_year = (int16_t)(((date & 0x0FE00) / 0x0200) + 80);
+    ptm->tm_hour = (int16_t)((dos_date & 0xF800) / 0x800);
+    ptm->tm_min = (int16_t)((dos_date & 0x7E0) / 0x20);
+    ptm->tm_sec = (int16_t)(2 * (dos_date & 0x1f));
     ptm->tm_isdst = -1;
 }
 
