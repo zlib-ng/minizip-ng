@@ -1,6 +1,6 @@
-#include "mz.h"
-#include "mz_strm.h"
-#include "mz_strm_mem.h"
+#include "../mz.h"
+#include "../mz_strm.h"
+#include "../mz_strm_mem.h"
 
 #include "ioapi.h"
 
