@@ -20,6 +20,8 @@
 
 #include "unzip.h"
 
+unzFile _unzOpen_stream(const void *path, void *stream);
+
 /***************************************************************************/
 
 typedef struct mz_unzip_compat_s {
@@ -41,7 +43,6 @@ unzFile unzOpen64(const void *path) {
 }
 
 unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
-    unzFile unz = NULL;
     void *stream = NULL;
 
     if (pzlib_filefunc_def) {
@@ -57,28 +58,10 @@ unzFile unzOpen2(const char *path, zlib_filefunc_def *pzlib_filefunc_def) {
         }
     }
 
-    if (!stream) {
-        stream = mz_stream_os_create();
-        if (!stream)
-            return NULL;
-    }
-
-    if (mz_stream_open(stream, path, MZ_OPEN_MODE_READ) != MZ_OK) {
-        mz_stream_delete(&stream);
-        return NULL;
-    }
-
-    unz = unzOpen_MZ(stream);
-    if (!unz) {
-        mz_stream_close(stream);
-        mz_stream_delete(&stream);
-        return NULL;
-    }
-    return unz;
+    return _unzOpen_stream(path, stream);
 }
 
 unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def) {
-    unzFile unz = NULL;
     void *stream = NULL;
 
     if (pzlib_filefunc_def) {
@@ -93,6 +76,12 @@ unzFile unzOpen2_64(const void *path, zlib_filefunc64_def *pzlib_filefunc_def) {
                 return NULL;
         }
     }
+
+    return _unzOpen_stream(path, stream);
+}
+
+unzFile _unzOpen_stream(const void *path, void *stream) {
+    unzFile unz = NULL;
 
     if (!stream) {
         stream = mz_stream_os_create();
