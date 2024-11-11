@@ -69,6 +69,12 @@ typedef struct tm_unz_s {
 
 /***************************************************************************/
 
+#if !defined(MZ_COMPAT_VERSION) || MZ_COMPAT_VERSION <= 110
+#  define mz_dos_date dosDate
+#else
+#  define mz_dos_date dos_date
+#endif
+
 /* Global data about the zip from end of central dir */
 typedef struct unz_global_info64_s {
     uint64_t number_entry;      /* total number of entries in the central dir on this disk */
