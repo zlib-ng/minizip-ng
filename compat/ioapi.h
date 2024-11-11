@@ -7,7 +7,7 @@
 typedef uint64_t ZPOS64_T;
 
 #ifndef ZEXPORT
-#  define ZEXPORT extern
+#  define ZEXPORT
 #endif
 
 #ifdef __cplusplus
