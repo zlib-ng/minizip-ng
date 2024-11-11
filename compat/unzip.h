@@ -19,6 +19,14 @@ extern "C" {
 
 #include <stdint.h>
 
+#if !defined(_ZLIB_H) && !defined(ZLIB_H) && !defined(ZLIB_H_)
+#  if __has_include(<zlib-ng.h>)
+#    include <zlib-ng.h>
+#  elif __has_include(<zlib.h>)
+#    include <zlib.h>
+#  endif
+#endif
+
 #ifndef _ZLIBIOAPI_H
 #  include "ioapi.h"
 #endif

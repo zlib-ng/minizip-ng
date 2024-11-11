@@ -4,14 +4,6 @@
 
 #include <stdint.h>
 
-#if !defined(_ZLIB_H) && !defined(ZLIB_H) && !defined(ZLIB_H_)
-#  if __has_include(<zlib-ng.h>)
-#    include <zlib-ng.h>
-#  elif __has_include(<zlib.h>)
-#    include <zlib.h>
-#  endif
-#endif
-
 typedef uint64_t ZPOS64_T;
 
 #ifndef ZEXPORT
