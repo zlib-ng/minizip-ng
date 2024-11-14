@@ -49,6 +49,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (!handle)
         return 1;
 
+    mz_zip_set_recover(handle, (size & 0xE0) == 0xE0);
     err = mz_zip_open(handle, stream, MZ_OPEN_MODE_READ);
 
     if (err == MZ_OK) {
