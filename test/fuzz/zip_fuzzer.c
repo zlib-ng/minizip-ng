@@ -22,6 +22,7 @@ extern "C" {
 /***************************************************************************/
 
 #define MZ_FUZZ_TEST_FILENAME "foo"
+#define MZ_FUZZ_TEST_PWD      "test123"
 
 /***************************************************************************/
 
@@ -37,6 +38,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     int64_t fuzz_pos = 0;
     int32_t fuzz_length = 0;
     uint8_t *fuzz_buf = NULL;
+    const char *password = NULL;
 
     fuzz_stream = mz_stream_mem_create();
     if (!fuzz_stream)
@@ -77,6 +79,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
         mz_stream_mem_delete(&fuzz_stream);
         return 1;
     }
+
+    err = mz_stream_mem_open(stream, MZ_FUZZ_TEST_FILENAME, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
+    if (err != MZ_OK) {
+        mz_stream_mem_delete(&stream);
+        mz_stream_mem_delete(&fuzz_stream);
+        return 1;
+    }
+
     handle = mz_zip_create();
     if (!handle) {
         mz_stream_mem_delete(&stream);
@@ -86,7 +96,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
     err = mz_zip_open(handle, stream, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_WRITE);
     if (err == MZ_OK) {
-        err = mz_zip_entry_write_open(handle, &file_info, compress_level, 0, NULL);
+        password = file_info.flag & MZ_ZIP_FLAG_ENCRYPTED ? MZ_FUZZ_TEST_PWD : NULL;
+        err = mz_zip_entry_write_open(handle, &file_info, compress_level, 0, password);
         if (err == MZ_OK) {
             mz_stream_mem_get_buffer_at_current(fuzz_stream, (const void **)&fuzz_buf);
             fuzz_pos = mz_stream_tell(fuzz_stream);
