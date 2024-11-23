@@ -787,9 +787,10 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
     }
 
     if (err == MZ_OK) {
-        const char *backslash = NULL;
         const char *next = filename;
         int32_t left = filename_length;
+#if defined(_WIN32)
+        const char *backslash = NULL;
 
         /* Ensure all slashes are written as forward slashes according to 4.4.17.1 */
         while ((err == MZ_OK) && (backslash = strchr(next, '\\'))) {
@@ -801,7 +802,7 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             left -= part_length + 1;
             next = backslash + 1;
         }
-
+#endif
         if (err == MZ_OK && left > 0) {
             if (mz_stream_write(stream, next, left) != left)
                 err = MZ_WRITE_ERROR;
