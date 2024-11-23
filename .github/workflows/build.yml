@@ -218,7 +218,9 @@ jobs:
 
     - name: Install packages (macOS)
       if: runner.os == 'macOS'
-      run: brew install pkgconfig ${{ matrix.packages }}
+      run: |
+        brew uninstall -f pkg-config pkg-config@0.29.2 # https://github.com/actions/runner-images/issues/10984
+        brew install pkgconf ${{ matrix.packages }}
 
     - name: Install packages (Ubuntu)
       if: runner.os == 'Linux' && matrix.packages
