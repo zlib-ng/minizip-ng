@@ -16,7 +16,6 @@
 #include <cstdio>
 
 TEST(os, get_file_date_ads) {
-    
     const std::string main_stream_name = "minizip_ads_test";
     const std::string ads_name = main_stream_name + ":ads";
     const std::string ads_contents = "Alternate Data Stream";
