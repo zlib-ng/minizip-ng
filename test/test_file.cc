@@ -1,4 +1,4 @@
-/* test_path.cc - Test path functionality
+/* test_file.cc - Test file functionality
    part of the minizip-ng project
 
    Copyright (C) Nathan Moinvaziri
