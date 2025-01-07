@@ -17,17 +17,17 @@
 
 TEST(os, get_file_date_ads) {
     
-    const std::string mainStreamName = "minizip_ads_test";
-    const std::string adsName = mainStreamName + ":ads";
-    const std::string adsContents = "Alternate Data Stream";
+    const std::string main_stream_name = "minizip_ads_test";
+    const std::string ads_name = main_stream_name + ":ads";
+    const std::string ads_contents = "Alternate Data Stream";
   
     // Create main stream
-    std::ofstream mainStream(mainStreamName);
-    mainStream.close();
+    std::ofstream main_stream(main_stream_name);
+    main_stream.close();
 
     // Attach ADS
-    std::ofstream ads(adsName);
-    ads << adsContents;
+    std::ofstream ads(ads_name);
+    ads << ads_contents;
     ads.close();
 
     // Get file date
@@ -35,9 +35,9 @@ TEST(os, get_file_date_ads) {
     time_t accessed_date = 0;
     time_t creation_date = 0;
 
-    EXPECT_EQ(MZ_OK, mz_os_get_file_date(adsName.c_str(), &modified_date, &accessed_date, &creation_date));
+    EXPECT_EQ(MZ_OK, mz_os_get_file_date(ads_name.c_str(), &modified_date, &accessed_date, &creation_date));
 
-    std::remove(mainStreamName.c_str());
+    std::remove(main_stream_name.c_str());
 
     ASSERT_GT(modified_date, 0);
     ASSERT_GT(accessed_date, 0);
