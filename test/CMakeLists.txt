@@ -58,6 +58,10 @@ if(NOT MZ_COMPRESS_ONLY AND NOT MZ_DECOMPRESS_ONLY)
     list(APPEND TEST_SRCS test_stream_compress.cc)
 endif()
 
+if(MSVC)
+    list(APPEND TEST_SRCS test_file.cc)
+endif()
+
 add_executable(gtest_minizip test_main.cc ${TEST_SRCS})
 target_compile_definitions(gtest_minizip PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
 target_include_directories(gtest_minizip PRIVATE
