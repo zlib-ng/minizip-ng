@@ -234,8 +234,7 @@ static void mz_os_unix_to_file_time(time_t unix_time, FILETIME *file_time) {
 }
 
 int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *accessed_date, time_t *creation_date) {
-    WIN32_FIND_DATAW ff32;
-    HANDLE handle = NULL;
+    WIN32_FILE_ATTRIBUTE_DATA wfad;
     wchar_t *path_wide = NULL;
     int32_t err = MZ_INTERNAL_ERROR;
 
@@ -245,20 +244,18 @@ int32_t mz_os_get_file_date(const char *path, time_t *modified_date, time_t *acc
     if (!path_wide)
         return MZ_PARAM_ERROR;
 
-    handle = FindFirstFileW(path_wide, &ff32);
-    free(path_wide);
-
-    if (handle != INVALID_HANDLE_VALUE) {
+    if (GetFileAttributesExW(path_wide, GetFileExInfoStandard, &wfad)) {
         if (modified_date)
-            mz_os_file_to_unix_time(ff32.ftLastWriteTime, modified_date);
+            mz_os_file_to_unix_time(wfad.ftLastWriteTime, modified_date);
         if (accessed_date)
-            mz_os_file_to_unix_time(ff32.ftLastAccessTime, accessed_date);
+            mz_os_file_to_unix_time(wfad.ftLastAccessTime, accessed_date);
         if (creation_date)
-            mz_os_file_to_unix_time(ff32.ftCreationTime, creation_date);
+            mz_os_file_to_unix_time(wfad.ftCreationTime, creation_date);
 
-        FindClose(handle);
         err = MZ_OK;
     }
+
+    free(path_wide);
 
     return err;
 }
