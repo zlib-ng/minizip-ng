@@ -66,29 +66,31 @@ int32_t minizip_banner(void) {
 }
 
 int32_t minizip_help(void) {
-    printf("Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m|-t][-k 512][-p pwd][-s] file.zip [files]\n\n" \
-           "  -x  Extract files\n" \
-           "  -l  List files\n" \
-           "  -d  Destination directory\n" \
-           "  -e  Erase files\n" \
-           "  -o  Overwrite existing files\n" \
-           "  -c  File names use cp437 encoding (or specified codepage)\n" \
-           "  -a  Append to existing zip file\n" \
-           "  -i  Include full path of files\n" \
-           "  -f  Follow symbolic links\n" \
-           "  -y  Store symbolic links\n" \
-           "  -v  Verbose info\n" \
-           "  -0  Store only\n" \
-           "  -1  Compress faster\n" \
-           "  -9  Compress better\n" \
-           "  -k  Disk size in KB\n" \
-           "  -z  Zip central directory\n" \
-           "  -p  Encryption password\n" \
-           "  -s  AES encryption\n" \
-           "  -b  BZIP2 compression\n" \
-           "  -m  LZMA compression\n" \
-           "  -n  XZ compression\n" \
-           "  -t  ZSTD compression\n\n");
+    printf(
+        "Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m|-t][-k 512][-p pwd][-s] file.zip "
+        "[files]\n\n"
+        "  -x  Extract files\n"
+        "  -l  List files\n"
+        "  -d  Destination directory\n"
+        "  -e  Erase files\n"
+        "  -o  Overwrite existing files\n"
+        "  -c  File names use cp437 encoding (or specified codepage)\n"
+        "  -a  Append to existing zip file\n"
+        "  -i  Include full path of files\n"
+        "  -f  Follow symbolic links\n"
+        "  -y  Store symbolic links\n"
+        "  -v  Verbose info\n"
+        "  -0  Store only\n"
+        "  -1  Compress faster\n"
+        "  -9  Compress better\n"
+        "  -k  Disk size in KB\n"
+        "  -z  Zip central directory\n"
+        "  -p  Encryption password\n"
+        "  -s  AES encryption\n"
+        "  -b  BZIP2 compression\n"
+        "  -m  LZMA compression\n"
+        "  -n  XZ compression\n"
+        "  -t  ZSTD compression\n\n");
     return MZ_OK;
 }
 
@@ -102,7 +104,6 @@ int32_t minizip_list(const char *path) {
     const char *method = NULL;
     char crypt = ' ';
     void *reader = NULL;
-
 
     reader = mz_zip_reader_create();
     if (!reader)
@@ -240,7 +241,6 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     int32_t err_close = MZ_OK;
     int32_t i = 0;
     const char *filename_in_zip = NULL;
-
 
     printf("Archive %s\n", path);
 
@@ -575,35 +575,35 @@ int main(int argc, const char *argv[]) {
                 if (options.compress_level == 0)
                     options.compress_method = MZ_COMPRESS_METHOD_STORE;
             } else if ((c == 'b') || (c == 'B'))
-#ifdef HAVE_BZIP2
+#  ifdef HAVE_BZIP2
                 options.compress_method = MZ_COMPRESS_METHOD_BZIP2;
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
             else if ((c == 'm') || (c == 'M'))
-#ifdef HAVE_LZMA
+#  ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
             else if ((c == 'n') || (c == 'N'))
-#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
+#  if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
                 options.compress_method = MZ_COMPRESS_METHOD_XZ;
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
             else if ((c == 't') || (c == 'T'))
-#ifdef HAVE_ZSTD
+#  ifdef HAVE_ZSTD
                 options.compress_method = MZ_COMPRESS_METHOD_ZSTD;
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
             else if ((c == 's') || (c == 'S'))
-#ifdef HAVE_WZAES
+#  ifdef HAVE_WZAES
                 options.aes = 1;
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
             else if (((c == 'c') || (c == 'C')) && (i + 1 < argc)) {
                 options.encoding = (int32_t)atoi(argv[i + 1]);
                 i += 1;
@@ -616,12 +616,12 @@ int main(int argc, const char *argv[]) {
                 printf("%s ", argv[i + 1]);
                 i += 1;
             } else if (((c == 'p') || (c == 'P')) && (i + 1 < argc)) {
-#ifndef MZ_ZIP_NO_ENCRYPTION
+#  ifndef MZ_ZIP_NO_ENCRYPTION
                 password = argv[i + 1];
                 printf("*** ");
-#else
+#  else
                 err = MZ_SUPPORT_ERROR;
-#endif
+#  endif
                 i += 1;
             }
         } else if (path_arg == 0)

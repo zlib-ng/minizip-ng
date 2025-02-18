@@ -33,12 +33,13 @@ int32_t minigzip_banner(void) {
 }
 
 int32_t minigzip_help(void) {
-    printf("Usage: minigzip [-x] [-d] [-0 to -9] [files]\n\n" \
-           "  -x  Extract file\n" \
-           "  -d  Destination directory\n" \
-           "  -0  Store only\n" \
-           "  -1  Compress faster\n" \
-           "  -9  Compress better\n\n");
+    printf(
+        "Usage: minigzip [-x] [-d] [-0 to -9] [files]\n\n"
+        "  -x  Extract file\n"
+        "  -d  Destination directory\n"
+        "  -0  Store only\n"
+        "  -1  Compress faster\n"
+        "  -9  Compress better\n\n");
     return MZ_OK;
 }
 

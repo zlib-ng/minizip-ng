@@ -19,7 +19,7 @@ TEST(os, get_file_date_ads) {
     const std::string main_stream_name = "minizip_ads_test";
     const std::string ads_name = main_stream_name + ":ads";
     const std::string ads_contents = "Alternate Data Stream";
-  
+
     // Create main stream
     std::ofstream main_stream(main_stream_name);
     main_stream.close();
