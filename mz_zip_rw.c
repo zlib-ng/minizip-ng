@@ -23,9 +23,9 @@
 
 /***************************************************************************/
 
-#define MZ_DEFAULT_PROGRESS_INTERVAL    (1000u)
+#define MZ_DEFAULT_PROGRESS_INTERVAL (1000u)
 
-#define MZ_ZIP_CD_FILENAME              ("__cdcd__")
+#define MZ_ZIP_CD_FILENAME           ("__cdcd__")
 
 /***************************************************************************/
 
@@ -435,8 +435,8 @@ int32_t mz_zip_reader_entry_close(void *handle) {
         mz_crypt_sha_end(reader->hash, computed_hash, sizeof(computed_hash));
         mz_crypt_sha_delete(&reader->hash);
 
-        err_hash = mz_zip_reader_entry_get_hash(handle, reader->hash_algorithm, expected_hash,
-            reader->hash_digest_size);
+        err_hash =
+            mz_zip_reader_entry_get_hash(handle, reader->hash_algorithm, expected_hash, reader->hash_digest_size);
 
         if (err_hash == MZ_OK) {
             /* Verify expected hash against computed hash */
@@ -754,8 +754,9 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
     if (err == MZ_OK) {
         /* Set file attributes for the correct system */
-        err_attrib = mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby),
-            reader->file_info->external_fa, MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
+        err_attrib =
+            mz_zip_attrib_convert(MZ_HOST_SYSTEM(reader->file_info->version_madeby), reader->file_info->external_fa,
+                                  MZ_VERSION_MADEBY_HOST_SYSTEM, &target_attrib);
 
         if (err_attrib == MZ_OK)
             mz_os_set_file_attribs(pathwfs, target_attrib);
@@ -1400,8 +1401,8 @@ int32_t mz_zip_writer_entry_close(void *handle) {
 
     if (err == MZ_OK) {
         if (writer->raw)
-            err = mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size,
-                writer->file_info.crc);
+            err =
+                mz_zip_entry_close_raw(writer->zip_handle, writer->file_info.uncompressed_size, writer->file_info.crc);
         else
             err = mz_zip_entry_close(writer->zip_handle);
     }
