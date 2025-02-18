@@ -42,7 +42,7 @@ typedef struct minizip_opt_s {
 int32_t minizip_banner(void);
 int32_t minizip_help(void);
 
-int32_t minizip_list(const char *path);
+int32_t minizip_list(const char *path, int32_t encoding);
 
 int32_t minizip_add_entry_cb(void *handle, void *userdata, mz_zip_file *file_info);
 int32_t minizip_add_progress_cb(void *handle, void *userdata, mz_zip_file *file_info, int64_t position);
@@ -94,15 +94,15 @@ int32_t minizip_help(void) {
 
 /***************************************************************************/
 
-int32_t minizip_list(const char *path) {
+int32_t minizip_list(const char *path, int32_t encoding) {
     mz_zip_file *file_info = NULL;
     uint32_t ratio = 0;
     int32_t err = MZ_OK;
     struct tm tmu_date;
     const char *method = NULL;
+    char *utf8_string = NULL;
     char crypt = ' ';
     void *reader = NULL;
-
 
     reader = mz_zip_reader_create();
     if (!reader)
@@ -114,6 +114,8 @@ int32_t minizip_list(const char *path) {
         mz_zip_reader_delete(&reader);
         return err;
     }
+
+    mz_zip_reader_set_encoding(reader, encoding);
 
     err = mz_zip_reader_goto_first_entry(reader);
 
@@ -148,12 +150,25 @@ int32_t minizip_list(const char *path) {
         method = mz_zip_get_compression_method_string(file_info->compression_method);
         mz_zip_time_t_to_tm(file_info->modified_date, &tmu_date);
 
+        if ((encoding > 0) && (file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
+            utf8_string = mz_os_utf8_string_create(file_info->filename, encoding);
+            if (!utf8_string) {
+                err = MZ_MEM_ERROR;
+                printf("Error %" PRId32 " creating UTF-8 string\n", err);
+                break;
+            }
+        }
+
         /* Print entry information */
         printf("%12" PRId64 " %12" PRId64 "  %3" PRIu32 "%% %6s%c %8" PRIx32 " %2.2" PRIu32 "-%2.2" PRIu32
                "-%2.2" PRIu32 " %2.2" PRIu32 ":%2.2" PRIu32 " %8.8" PRIx32 "   %s\n",
                file_info->compressed_size, file_info->uncompressed_size, ratio, method, crypt, file_info->external_fa,
                (uint32_t)tmu_date.tm_mon + 1, (uint32_t)tmu_date.tm_mday, (uint32_t)tmu_date.tm_year % 100,
-               (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min, file_info->crc, file_info->filename);
+               (uint32_t)tmu_date.tm_hour, (uint32_t)tmu_date.tm_min, file_info->crc,
+               utf8_string ? utf8_string : file_info->filename);
+
+        if (utf8_string)
+            mz_os_utf8_string_delete(&utf8_string);
 
         err = mz_zip_reader_goto_next_entry(reader);
 
@@ -241,7 +256,6 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
     int32_t i = 0;
     const char *filename_in_zip = NULL;
 
-
     printf("Archive %s\n", path);
 
     /* Create zip writer */
@@ -288,12 +302,23 @@ int32_t minizip_add(const char *path, const char *password, minizip_opt *options
 /***************************************************************************/
 
 int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file_info, const char *path) {
-    MZ_UNUSED(handle);
-    MZ_UNUSED(userdata);
+    minizip_opt *options = (minizip_opt *)userdata;
+    char *utf8_string = NULL;
+
     MZ_UNUSED(path);
 
+    if ((options->encoding > 0) && (file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
+        utf8_string = mz_os_utf8_string_create(file_info->filename, options->encoding);
+        if (!utf8_string)
+            return MZ_MEM_ERROR;
+    }
+
     /* Print the current entry extracting */
-    printf("Extracting %s\n", file_info->filename);
+    printf("Extracting %s\n", utf8_string ? utf8_string : file_info->filename);
+
+    if (utf8_string)
+        mz_os_utf8_string_delete(&utf8_string);
+
     return MZ_OK;
 }
 
@@ -301,8 +326,6 @@ int32_t minizip_extract_progress_cb(void *handle, void *userdata, mz_zip_file *f
     minizip_opt *options = (minizip_opt *)userdata;
     double progress = 0;
     uint8_t raw = 0;
-
-    MZ_UNUSED(userdata);
 
     mz_zip_reader_get_raw(handle, &raw);
 
@@ -643,7 +666,7 @@ int main(int argc, const char *argv[]) {
 
     if (do_list) {
         /* List archive contents */
-        err = minizip_list(path);
+        err = minizip_list(path, options.encoding);
     } else if (do_extract) {
         if (argc > path_arg + 1)
             filename_to_extract = argv[path_arg + 1];
