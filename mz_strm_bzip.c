@@ -336,8 +336,7 @@ void mz_stream_bzip_delete(void **stream) {
     if (!stream)
         return;
     bzip = (mz_stream_bzip *)*stream;
-    if (bzip)
-        free(bzip);
+    free(bzip);
     *stream = NULL;
 }
 
