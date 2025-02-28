@@ -404,11 +404,8 @@ void mz_stream_split_delete(void **stream) {
         return;
     split = (mz_stream_split *)*stream;
     if (split) {
-        if (split->path_cd)
-            free(split->path_cd);
-        if (split->path_disk)
-            free(split->path_disk);
-
+        free(split->path_cd);
+        free(split->path_disk);
         free(split);
     }
     *stream = NULL;

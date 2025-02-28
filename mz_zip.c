@@ -1416,9 +1416,7 @@ void mz_zip_delete(void **handle) {
     if (!handle)
         return;
     zip = (mz_zip *)*handle;
-    if (zip) {
-        free(zip);
-    }
+    free(zip);
     *handle = NULL;
 }
 
@@ -1560,8 +1558,7 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
     int32_t comment_size = 0;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    if (zip->comment)
-        free(zip->comment);
+    free(zip->comment);
     comment_size = (int32_t)strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
