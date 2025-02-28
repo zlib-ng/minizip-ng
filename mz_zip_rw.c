@@ -825,6 +825,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
     if (err == MZ_END_OF_LIST)
         return err;
 
+    int destination_dir_len = strlen(destination_dir) + 1;
     while (err == MZ_OK) {
         /* Assume 4 bytes per character needed + 1 for terminating null */
         utf8_name_size = reader->file_info->filename_size * 4 + 1;
@@ -832,7 +833,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
 
         if (destination_dir) {
             /* +1 is for the "/" separator */
-            resolved_name_size += (int)strlen(destination_dir) + 1;
+            resolved_name_size += destination_dir_len;
         }
 
         new_alloc = (char *)realloc(path, resolved_name_size);
