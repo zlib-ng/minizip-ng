@@ -64,8 +64,8 @@ typedef struct mz_crypt_sha_s {
 #else
     EVP_MD_CTX *ctx;
 #endif
-    int32_t initialized;
     unsigned long error;
+    int32_t initialized;
     uint16_t algorithm;
 } mz_crypt_sha;
 
@@ -491,8 +491,8 @@ typedef struct mz_crypt_hmac_s {
     EVP_MAC *mac;
     EVP_MAC_CTX *ctx;
 #endif
-    int32_t initialized;
     unsigned long error;
+    int32_t initialized;
     uint16_t algorithm;
 } mz_crypt_hmac;
 
