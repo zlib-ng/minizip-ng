@@ -23,16 +23,16 @@
 /***************************************************************************/
 
 typedef struct minizip_opt_s {
+    int64_t disk_size;
+    int32_t encoding;
     uint8_t include_path;
     int16_t compress_level;
     uint8_t compress_method;
     uint8_t overwrite;
     uint8_t append;
-    int64_t disk_size;
     uint8_t follow_links;
     uint8_t store_links;
     uint8_t zip_cd;
-    int32_t encoding;
     uint8_t verbose;
     uint8_t aes;
 } minizip_opt;
