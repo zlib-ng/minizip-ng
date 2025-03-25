@@ -1,0 +1,32 @@
+name: Lint
+on: [workflow_dispatch, pull_request]
+env:
+  TERM: xterm-256color
+  CLANG_VERSION: 19
+
+jobs:
+  clang-format:
+    name: Clang-Format
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install clang-format
+      run: |
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        UBCN=$(lsb_release --short --codename)
+        sudo add-apt-repository "deb https://apt.llvm.org/${UBCN}/ llvm-toolchain-${UBCN}-${CLANG_VERSION} main"
+        sudo apt update || true
+        sudo apt install -y clang-format-${CLANG_VERSION}
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        lfs: true
+
+    - name: Run clang-format
+      run: |
+        if ! git clang-format-${CLANG_VERSION} --binary=clang-format-${CLANG_VERSION} --diff --commit=origin/dev
+        then
+          echo -e "\033[1;31mCode style does not match clang-format"
+          exit 1
+        fi
