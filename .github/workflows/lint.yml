@@ -25,7 +25,7 @@ jobs:
 
     - name: Run clang-format
       run: |
-        if ! git clang-format-${CLANG_VERSION} --binary=clang-format-${CLANG_VERSION} --diff --commit=origin/dev
+        if ! git clang-format-${CLANG_VERSION} --binary=clang-format-${CLANG_VERSION} --diff --commit=origin/develop
         then
           echo -e "\033[1;31mCode style does not match clang-format"
           exit 1
