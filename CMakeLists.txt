@@ -187,6 +187,10 @@ if(MZ_ZLIB)
 
         set(PC_PRIVATE_DEPS "zlib-ng")
         set(ZLIB_COMPAT OFF)
+    elseif(TARGET zlib)
+        message(STATUS "Using TARGET zlib")
+        set(PC_PRIVATE_DEPS "zlib")
+        list(APPEND MINIZIP_LIB zlib)
     elseif(ZLIB_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZLIB ${ZLIB_VERSION}")
 
