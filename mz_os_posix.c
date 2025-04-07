@@ -289,6 +289,10 @@ int32_t mz_os_close_dir(DIR *dir) {
     return MZ_OK;
 }
 
+int32_t mz_os_is_dir_separator(const char c) {
+    return c == '/';
+}
+
 int32_t mz_os_is_dir(const char *path) {
     struct stat path_stat;
 
