@@ -39,7 +39,7 @@ typedef struct mz_zip_reader_s {
     uint16_t hash_algorithm;
     uint16_t hash_digest_size;
     mz_zip_file *file_info;
-    const char *pattern;
+    char *pattern;
     uint8_t pattern_ignore_case;
     const char *password;
     void *overwrite_userdata;
@@ -228,6 +228,11 @@ int32_t mz_zip_reader_close(void *handle) {
     if (reader->mem_stream) {
         mz_stream_close(reader->mem_stream);
         mz_stream_delete(&reader->mem_stream);
+    }
+
+    if (reader->pattern) {
+        free(reader->pattern);
+        reader->pattern = NULL;
     }
 
     return err;
@@ -905,7 +910,19 @@ save_all_cleanup:
 
 void mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore_case) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
-    reader->pattern = pattern;
+    if(!reader) /* pattern can be NULL */
+        return;
+    free(reader->pattern);
+    reader->pattern = NULL;
+    if(pattern)
+    {
+        int32_t pattern_size = (int32_t)strlen(pattern);
+        reader->pattern = (char *)calloc(pattern_size + 1, sizeof(char));
+        if(!reader->pattern)
+        /* Reference: `mz_zip_set_comment`, should return MZ_MEM_ERROR */
+            return;
+        strncpy(reader->pattern, pattern, pattern_size);
+    }
     reader->pattern_ignore_case = ignore_case;
 }
 
