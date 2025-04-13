@@ -37,6 +37,10 @@
 #  include <stdlib.h> /* arc4random_buf */
 #endif
 
+#ifndef MZ_PRESERVE_NATIVE_STRUCTURE
+#  define MZ_PRESERVE_NATIVE_STRUCTURE 1
+#endif
+
 /***************************************************************************/
 
 #if defined(HAVE_ICONV)
@@ -290,7 +294,15 @@ int32_t mz_os_close_dir(DIR *dir) {
 }
 
 int32_t mz_os_is_dir_separator(const char c) {
+#if MZ_PRESERVE_NATIVE_STRUCTURE
+    // While not strictly adhering to 4.4.17.1,
+    // this preserves UNIX filesystem structure.
     return c == '/';
+#else
+    // While strictly adhering to 4.4.17.1,
+    // this corrupts UNIX filesystem structure (a filename with a '\\' will become a folder + a file).
+    return c == '\\' || c == '/';
+#endif
 }
 
 int32_t mz_os_is_dir(const char *path) {
