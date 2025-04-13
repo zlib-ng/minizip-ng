@@ -57,12 +57,11 @@ TEST_P(path_resolve, os) {
     char output[256];
 
     memset(output, 'z', sizeof(output));
-    // The expectation is that archiving+unarchiving data on a system should preserve its structure.
-    // So on Windows backslash should be preserved, while on UNIX slash should be preserved.
-#ifndef _WIN32
-    std::replace(path.begin(), path.end(), '\\', '/');
-    std::replace(expected_path.begin(), expected_path.end(), '\\', '/');
-#endif
+    // archiving and unarchiving data on a system should preserve its structure
+    if (!mz_os_is_dir_separator('\\')) {
+        std::replace(path.begin(), path.end(), '\\', '/');
+        std::replace(expected_path.begin(), expected_path.end(), '\\', '/');
+    }
     mz_path_resolve(path.c_str(), output, sizeof(output));
     EXPECT_STREQ(output, expected_path.c_str());
 }
