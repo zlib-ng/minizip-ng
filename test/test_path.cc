@@ -11,6 +11,7 @@
 #include "mz.h"
 #include "mz_os.h"
 
+#include <algorithm>
 #include <gtest/gtest.h>
 
 struct resolve_path_param {
@@ -51,9 +52,16 @@ INSTANTIATE_TEST_SUITE_P(os, path_resolve, testing::ValuesIn(resolve_path_tests)
 
 TEST_P(path_resolve, os) {
     const auto &param = GetParam();
+    std::string path = param.path;
+    std::string expected_path = param.expected_path;
     char output[256];
 
     memset(output, 'z', sizeof(output));
-    mz_path_resolve(param.path, output, sizeof(output));
-    EXPECT_STREQ(output, param.expected_path);
+    // archiving and unarchiving data on a system should preserve its structure
+    if (!mz_os_is_dir_separator('\\')) {
+        std::replace(path.begin(), path.end(), '\\', '/');
+        std::replace(expected_path.begin(), expected_path.end(), '\\', '/');
+    }
+    mz_path_resolve(path.c_str(), output, sizeof(output));
+    EXPECT_STREQ(output, expected_path.c_str());
 }

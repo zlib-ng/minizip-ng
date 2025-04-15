@@ -1,3 +1,10 @@
+# builds
+_deps/
 build/
+CMakeFiles/
+lib/
+Testing/
 third_party/
+
+# IDE
 .vscode
