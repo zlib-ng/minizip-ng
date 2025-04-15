@@ -662,8 +662,10 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         reader->entry_cb(handle, reader->entry_userdata, reader->file_info, pathwfs);
 
     directory = (char *)strdup(pathwfs);
-    if (!directory)
-        return MZ_MEM_ERROR;
+    if (!directory) {
+        err = MZ_MEM_ERROR;
+        goto save_cleanup;
+    }
     mz_path_remove_filename(directory);
 
     /* If it is a directory entry then create a directory instead of writing file */
