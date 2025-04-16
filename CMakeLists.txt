@@ -622,6 +622,7 @@ if(MZ_COMPAT)
         compat/unzip.c
         compat/zip.c)
     list(APPEND MINIZIP_HDR 
+        compat/crypt.h
         compat/ioapi.h
         compat/unzip.h
         compat/zip.h)
@@ -711,7 +712,7 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
 
     install(TARGETS ${MINIZIP_TARGET} ${MINIZIP_DEP}
             EXPORT ${MINIZIP_TARGET}
-            INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MINIZIP_TARGET}"
+            INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
