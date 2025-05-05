@@ -919,7 +919,7 @@ void mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore
         int32_t pattern_size = (int32_t)strlen(pattern);
         reader->pattern = (char *)calloc(pattern_size + 1, sizeof(char));
         if (!reader->pattern)
-        /* Reference: `mz_zip_set_comment`, should return MZ_MEM_ERROR */
+            /* Reference: `mz_zip_set_comment`, should return MZ_MEM_ERROR */
             return;
         strncpy(reader->pattern, pattern, pattern_size);
     }
