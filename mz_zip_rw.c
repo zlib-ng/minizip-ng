@@ -230,11 +230,6 @@ int32_t mz_zip_reader_close(void *handle) {
         mz_stream_delete(&reader->mem_stream);
     }
 
-    if (reader->pattern) {
-        free(reader->pattern);
-        reader->pattern = NULL;
-    }
-
     return err;
 }
 
@@ -908,22 +903,22 @@ save_all_cleanup:
 
 /***************************************************************************/
 
-void mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore_case) {
+int32_t mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore_case) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     if (!reader)
-        return;
+        return MZ_PARAM_ERROR;
     free(reader->pattern);
     reader->pattern = NULL;
+    /* pattern can be NULL */
     if (pattern) {
-        /* pattern can be NULL */
         int32_t pattern_size = (int32_t)strlen(pattern);
         reader->pattern = (char *)calloc(pattern_size + 1, sizeof(char));
         if (!reader->pattern)
-            /* Reference: `mz_zip_set_comment`, should return MZ_MEM_ERROR */
-            return;
+            return MZ_MEM_ERROR;
         strncpy(reader->pattern, pattern, pattern_size);
     }
     reader->pattern_ignore_case = ignore_case;
+    return MZ_OK;
 }
 
 void mz_zip_reader_set_password(void *handle, const char *password) {
@@ -1031,6 +1026,7 @@ void mz_zip_reader_delete(void **handle) {
     reader = (mz_zip_reader *)*handle;
     if (reader) {
         mz_zip_reader_close(reader);
+        free(reader->pattern);
         free(reader);
     }
     *handle = NULL;
