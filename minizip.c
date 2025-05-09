@@ -386,7 +386,11 @@ int32_t minizip_extract(const char *path, const char *pattern, const char *desti
     if (!reader)
         return MZ_MEM_ERROR;
 
-    mz_zip_reader_set_pattern(reader, pattern, 1);
+    err = mz_zip_reader_set_pattern(reader, pattern, 1);
+    if (err != MZ_OK) {
+        mz_zip_reader_delete(&reader);
+        return err;
+    }
     mz_zip_reader_set_password(reader, password);
     mz_zip_reader_set_encoding(reader, options->encoding);
     mz_zip_reader_set_entry_cb(reader, options, minizip_extract_entry_cb);
