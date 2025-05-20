@@ -35,16 +35,16 @@ typedef struct mz_stream_lzma_s {
     int32_t mode;
     int32_t error;
     uint8_t buffer[INT16_MAX];
+    int8_t header;
     int32_t buffer_len;
+    int8_t initialized;
+    int16_t method;
     int64_t total_in;
     int64_t total_out;
     int64_t max_total_in;
     int64_t max_total_out;
-    int8_t initialized;
-    int8_t header;
     int32_t header_size;
     uint32_t preset;
-    int16_t method;
 } mz_stream_lzma;
 
 /***************************************************************************/

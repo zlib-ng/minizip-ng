@@ -29,13 +29,13 @@ typedef struct mz_stream_bzip_s {
     int32_t mode;
     int32_t error;
     uint8_t buffer[INT16_MAX];
+    int8_t initialized;
     int32_t buffer_len;
     int16_t stream_end;
+    int16_t level;
     int64_t total_in;
     int64_t total_out;
     int64_t max_total_in;
-    int8_t initialized;
-    int16_t level;
 } mz_stream_bzip;
 
 /***************************************************************************/
