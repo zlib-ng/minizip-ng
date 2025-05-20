@@ -102,7 +102,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir);
 
 /***************************************************************************/
 
-void mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore_case);
+int32_t mz_zip_reader_set_pattern(void *handle, const char *pattern, uint8_t ignore_case);
 /* Sets the match pattern for entries in the zip file, if null all entries are matched */
 
 void mz_zip_reader_set_password(void *handle, const char *password);

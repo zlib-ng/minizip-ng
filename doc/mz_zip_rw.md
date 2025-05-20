@@ -805,13 +805,13 @@ Sets the match pattern for entries in the zip file, if null all entries are matc
 **Return**
 |Type|Description|
 |-|-|
-|void|No return|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
 
 **Example**
 ```
 int32_t matches = 0;
 const char *pattern = "*.txt";
-mz_zip_reader_set_pattern(zip_reader, pattern, 1);
+if (mz_zip_reader_set_pattern(zip_reader, pattern, 1) == MZ_OK)
 if (mz_zip_reader_goto_first_entry(zip_reader) == MZ_OK) {
     do {
         matches += 1;
