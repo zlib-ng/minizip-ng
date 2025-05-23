@@ -307,6 +307,7 @@ int32_t minizip_extract_entry_cb(void *handle, void *userdata, mz_zip_file *file
     minizip_opt *options = (minizip_opt *)userdata;
     char *utf8_string = NULL;
 
+    MZ_UNUSED(handle);
     MZ_UNUSED(path);
 
     if ((options->encoding > 0) && (file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
