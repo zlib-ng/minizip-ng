@@ -110,9 +110,12 @@ int32_t mz_stream_write(void *stream, const void *buf, int32_t size) {
 }
 
 static int32_t mz_stream_write_value(void *stream, uint64_t value, int32_t len) {
+    mz_stream *strm = (mz_stream *)stream;
     uint8_t buf[8];
     int32_t n = 0;
 
+    if (!strm)
+        return MZ_PARAM_ERROR;
     for (n = 0; n < len; n += 1) {
         buf[n] = (uint8_t)(value & 0xff);
         value >>= 8;

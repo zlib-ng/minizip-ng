@@ -1258,7 +1258,9 @@ static int32_t mz_zip_recover_cd(void *handle) {
 
     mz_zip_print("Zip - Recover - Start\n");
 
-    mz_zip_get_cd_mem_stream(handle, &cd_mem_stream);
+    err = mz_zip_get_cd_mem_stream(zip, &cd_mem_stream);
+    if (err != MZ_OK)
+        return err;
 
     /* Determine if we are on a split disk or not */
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, 0);
@@ -2235,8 +2237,11 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 int32_t mz_zip_entry_seek_local_header(void *handle) {
     mz_zip *zip = (mz_zip *)handle;
     int64_t disk_size = 0;
-    uint32_t disk_number = zip->file_info.disk_number;
+    uint32_t disk_number = 0;
 
+    if (!zip)
+        return MZ_PARAM_ERROR;
+    disk_number = zip->file_info.disk_number;
     if (disk_number == zip->disk_number_with_cd) {
         mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_SIZE, &disk_size);
         if ((disk_size == 0) || ((zip->open_mode & MZ_OPEN_MODE_WRITE) == 0))
