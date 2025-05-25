@@ -2099,7 +2099,7 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
 
         err = mz_zip_entry_seek_local_header(handle);
 
-        /* Seek to end of compressed stream since we might have over-read during compression */
+        /* Seek to end of compressed stream since we might have over-read during decompression */
         if (err == MZ_OK) {
             err = mz_stream_seek(zip->stream,
                                  MZ_ZIP_SIZE_LD_ITEM + (int64_t)zip->local_file_info.filename_size +
