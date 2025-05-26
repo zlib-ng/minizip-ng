@@ -216,11 +216,9 @@ void *zip_handle = NULL;
 
 stream = mz_stream_os_create()
 
-/* TODO: open os stream.. */
-
 buf_stream = mz_stream_buffered_create();
-mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ);
-mz_stream_buffered_set_base(buf_stream, stream);
+mz_stream_set_base(buf_stream, stream);
+mz_stream_buffered_open(buf_stream, NULL, MZ_OPEN_MODE_READ); // This will also call mz_stream_os_open
 
 zip_handle = mz_zip_create();
 err = mz_zip_open(zip_handle, buf_stream, MZ_OPEN_MODE_READ);
