@@ -39,6 +39,16 @@ message(STATUS "Using CMake version ${CMAKE_VERSION}")
 option(MZ_COMPAT "Enables compatibility layer" ON)
 # Compression library options
 option(MZ_ZLIB "Enables ZLIB compression" ON)
+
+# Controls to select either zlib-ng or zlib
+set(MZ_ZLIB_FLAVOR "auto" CACHE STRING "Select the preferred zlib flavor - auto searches for zlib-ng then zlib")
+set(MZ_ZLIB_FLAVORS "auto" "zlib-ng" "zlib")
+set_property(CACHE MZ_ZLIB_FLAVOR PROPERTY STRINGS ${MZ_ZLIB_FLAVORS})
+
+if(NOT MZ_ZLIB_FLAVOR IN_LIST MZ_ZLIB_FLAVORS)
+    message(FATAL_ERROR "MZ_ZLIB_FLAVOR must be one of ${MZ_ZLIB_FLAVORS}")
+endif()
+
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
@@ -173,8 +183,12 @@ endif()
 if(MZ_ZLIB)
     # Check if zlib is present
     if(NOT MZ_FORCE_FETCH_LIBS)
-        find_package(ZLIB-NG QUIET)
-        find_package(ZLIB QUIET)
+        if (MZ_ZLIB_FLAVOR STREQUAL "zlib-ng" OR MZ_ZLIB_FLAVOR STREQUAL "auto")
+            find_package(ZLIB-NG QUIET)
+        endif()
+        if (MZ_ZLIB_FLAVOR STREQUAL "zlib" OR MZ_ZLIB_FLAVOR STREQUAL "auto")
+            find_package(ZLIB QUIET)
+        endif()
         set(ZLIB_VERSION ${ZLIB_VERSION_STRING})
     endif()
 
