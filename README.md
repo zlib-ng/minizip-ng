@@ -69,6 +69,7 @@ cmake --build build
 |:--------------------|:---------------------------------------------------------------|:-------------:|
 | MZ_COMPAT           | Enables compatibility layer                                    |      ON       |
 | MZ_ZLIB             | Enables ZLIB compression                                       |      ON       |
+| MZ_ZLIB_FLAVOR      | Select ZLIB implementation (auto, zlib-ng, zlib)               |      auto     |
 | MZ_BZIP2            | Enables BZIP2 compression                                      |      ON       |
 | MZ_LZMA             | Enables LZMA & XZ compression                                  |      ON       |
 | MZ_ZSTD             | Enables ZSTD compression                                       |      ON       |
