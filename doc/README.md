@@ -265,3 +265,4 @@ Some of these may be out of date, but they can also be helpful.
 * [Compressed stream tests](https://github.com/zlib-ng/minizip-ng/blob/master/test/test_stream_compress.cc)
 * [Code to copy raw entries from one zip file to another](https://gist.github.com/chenxiaolong/bcbb0835182ef16a25f09db8d99e0619) by chenxiaolong
 * [Buffered streaming](https://gist.github.com/chenxiaolong/dbab3fbef51b9d0fa969e220dbb85967) by chenxiaolong
+* [A basic minizip-ng example](https://github.com/oajlouni/minizip-ng_example.git) by oajlouni
