@@ -195,9 +195,7 @@ if(MZ_ZLIB)
     if(ZLIB-NG_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZLIB-NG")
 
-        list(APPEND MINIZIP_INC ${ZLIB-NG_INCLUDE_DIRS})
-        list(APPEND MINIZIP_LIB ${ZLIB-NG_LIBRARIES})
-        list(APPEND MINIZIP_LBD ${ZLIB-NG_LIBRARY_DIRS})
+        list(APPEND MINIZIP_LIB zlib-ng::zlib)
 
         set(PC_PRIVATE_DEPS "zlib-ng")
         set(ZLIB_COMPAT OFF)
