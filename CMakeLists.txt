@@ -184,7 +184,7 @@ if(MZ_ZLIB)
     # Check if zlib is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         if (MZ_ZLIB_FLAVOR STREQUAL "zlib-ng" OR MZ_ZLIB_FLAVOR STREQUAL "auto")
-            find_package(ZLIB-NG QUIET)
+            find_package(ZLIB-NG QUIET CONFIG)
         endif()
         if (MZ_ZLIB_FLAVOR STREQUAL "zlib" OR MZ_ZLIB_FLAVOR STREQUAL "auto")
             find_package(ZLIB QUIET)
@@ -215,8 +215,7 @@ if(MZ_ZLIB)
 
         clone_repo(zlib https://github.com/zlib-ng/zlib-ng stable)
 
-        # Don't automatically add all targets to the solution
-        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
+        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR})
 
         list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
         list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
