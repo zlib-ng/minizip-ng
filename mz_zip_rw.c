@@ -185,7 +185,7 @@ int32_t mz_zip_reader_open_file_in_memory(void *handle, const char *path) {
     return err;
 }
 
-int32_t mz_zip_reader_open_buffer(void *handle, uint8_t *buf, int32_t len, uint8_t copy) {
+int32_t mz_zip_reader_open_buffer(void *handle, const uint8_t *buf, int32_t len, uint8_t copy) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
 
@@ -204,7 +204,7 @@ int32_t mz_zip_reader_open_buffer(void *handle, uint8_t *buf, int32_t len, uint8
         mz_stream_mem_seek(reader->mem_stream, 0, MZ_SEEK_SET);
     } else {
         mz_stream_mem_open(reader->mem_stream, NULL, MZ_OPEN_MODE_READ);
-        mz_stream_mem_set_buffer(reader->mem_stream, buf, len);
+        mz_stream_mem_set_buffer(reader->mem_stream, (void *)buf, len);
     }
 
     if (err == MZ_OK)
@@ -1587,7 +1587,7 @@ int32_t mz_zip_writer_add_info(void *handle, void *stream, mz_stream_read_cb rea
     return err;
 }
 
-int32_t mz_zip_writer_add_buffer(void *handle, void *buf, int32_t len, mz_zip_file *file_info) {
+int32_t mz_zip_writer_add_buffer(void *handle, const void *buf, int32_t len, mz_zip_file *file_info) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     void *mem_stream = NULL;
     int32_t err = MZ_OK;
@@ -1602,7 +1602,7 @@ int32_t mz_zip_writer_add_buffer(void *handle, void *buf, int32_t len, mz_zip_fi
     if (!mem_stream)
         return MZ_STREAM_ERROR;
 
-    mz_stream_mem_set_buffer(mem_stream, buf, len);
+    mz_stream_mem_set_buffer(mem_stream, (void *)buf, len);
 
     err = mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
     if (err == MZ_OK)
