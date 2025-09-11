@@ -810,7 +810,7 @@ int32_t mz_zip_reader_entry_save_buffer(void *handle, void *buf, int32_t len) {
 
     mz_stream_mem_set_buffer(mem_stream, buf, len);
 
-    err = mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ);
+    err = mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_WRITE);
     if (err == MZ_OK)
         err = mz_zip_reader_entry_save(reader, mem_stream, mz_stream_mem_write);
 

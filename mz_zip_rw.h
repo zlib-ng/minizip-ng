@@ -66,7 +66,7 @@ int32_t mz_zip_reader_entry_close(void *handle);
 /* Closes an entry */
 
 int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len);
-/* Reads and entry after being opened */
+/* Reads an entry after being opened */
 
 int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *digest, int32_t digest_size);
 /* Gets a hash algorithm from the entry's extra field */
