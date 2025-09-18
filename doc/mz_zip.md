@@ -210,7 +210,7 @@ Gets the zip file's version information.
 |Type|Name|Description|
 |-|-|-|
 |void *|handle|_mz_zip_ instance|
-|uint16_t *|version_madeby|Pointer to version value (See [PKWARE zip app note](zip/appnote.txt) 4.4.2)|
+|uint16_t *|version_madeby|Pointer to version value (See [PKWARE zip app note](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT) 4.4.2)|
 
 **Return**
 |Type|Description|
@@ -235,7 +235,7 @@ Sets the zip file's version information. The application that original wrote the
 |Type|Name|Description|
 |-|-|-|
 |void *|handle|_mz_zip_ instance|
-|uint16_t|version_madeby|Version value (See [PKWARE zip app note](zip/appnote.txt) 4.4.2)|
+|uint16_t|version_madeby|Version value (See [PKWARE zip app note](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT) 4.4.2)|
 
 **Return**
 |Type|Description|

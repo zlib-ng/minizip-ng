@@ -2,7 +2,7 @@
 
 Zip entry information structure. The _mz_zip_file_ structure is populated when reading zip entry information and can be used to populate zip entry information when writing zip entries.
 
-|Type|Name|Description|[PKWARE zip app note](zip/appnote.txt) section|
+|Type|Name|Description|[PKWARE zip app note](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT) section|
 |-|-|-|-|
 |uint16_t|version_madeby|Version made by field|4.4.2|
 |uint16_t|version_needed|Version needed to extract|4.4.3|
