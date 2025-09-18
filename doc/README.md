@@ -140,7 +140,7 @@ At a minimum HAVE_ZLIB and HAVE_PKCRYPT will be necessary to be defined for drop
 
 When compressing an archive with WinZIP AES enabled, by default it uses 256 bit encryption. During decompression whatever bit encryption was specified when the entry was added to the archive will be used.
 
-WinZip AES encryption uses CTR on top of ECB which prevents identical ciphertext blocks that might occur when using ECB by itself. More details about the WinZIP AES format can be found in the [winzip documentation](zip/winzip_aes.md).
+WinZip AES encryption uses CTR on top of ECB which prevents identical ciphertext blocks that might occur when using ECB by itself. More details about the WinZIP AES format can be found in the [winzip documentation](https://www.winzip.com/aes_info.htm).
 
 ### How to Create a Secure Zip <!-- omit in toc -->
 

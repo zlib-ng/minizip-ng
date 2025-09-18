@@ -25,8 +25,8 @@ Zip entry information structure. The _mz_zip_file_ structure is populated when r
 |const uint8_t *|extrafield|Extrafield buffer array|4.4.28|
 |const char *|comment|Comment UTF-8 null-terminated string|4.4.18|
 |uint16_t|zip64|Zip64 extension mode|[MZ_ZIP64](mz_zip64.md)|
-|uint16_t|aes_version|WinZip AES version|[WinZip AES App Note](zip/winzip_aes.md)|
-|uint8_t|aes_strength|WinZip AES encryption strength|[WinZip AES App Note](zip/winzip_aes.md)|
+|uint16_t|aes_version|WinZip AES version|[WinZip AES App Note](https://www.winzip.com/aes_info.htm)|
+|uint8_t|aes_strength|WinZip AES encryption strength|[WinZip AES App Note](https://www.winzip.com/aes_info.htm)|
 
 For more information about each field please consult the referenced app note section.
 
