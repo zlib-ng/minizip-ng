@@ -250,7 +250,7 @@ jobs:
       working-directory: ${{ matrix.build-dir }}
       
     - name: Setup python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       if: always() && matrix.codecov
       with:
         python-version: '3.x'
