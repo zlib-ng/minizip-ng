@@ -434,7 +434,7 @@ int32_t mz_os_close_dir(DIR *dir) {
     return MZ_OK;
 }
 
-int32_t mz_os_is_dir_separator(const char c) {
+int32_t mz_os_is_dir_separator(char c) {
     return c == '\\' || c == '/';
 }
 

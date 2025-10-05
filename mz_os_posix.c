@@ -289,7 +289,7 @@ int32_t mz_os_close_dir(DIR *dir) {
     return MZ_OK;
 }
 
-int32_t mz_os_is_dir_separator(const char c) {
+int32_t mz_os_is_dir_separator(char c) {
 #if MZ_PRESERVE_NATIVE_STRUCTURE
     // While not strictly adhering to 4.4.17.1,
     // this preserves UNIX filesystem structure.
