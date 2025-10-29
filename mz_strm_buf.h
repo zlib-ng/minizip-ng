@@ -13,6 +13,14 @@
 #ifndef MZ_STREAM_BUFFERED_H
 #define MZ_STREAM_BUFFERED_H
 
+#if defined(HAVE_STDINT_H)
+#  include <stdint.h>
+#elif defined(__has_include)
+#  if __has_include(<stdint.h>)
+#    include <stdint.h>
+#  endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
