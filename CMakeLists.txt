@@ -786,12 +786,12 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     endforeach()
 
     install(TARGETS ${MINIZIP_TARGET} ${MINIZIP_DEP_REAL}
-            EXPORT ${MINIZIP_TARGET}
+            EXPORT ${MINIZIP_TARGET}-targets
             INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MINIZIP_TARGET}"
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-    install(EXPORT ${MINIZIP_TARGET}
+    install(EXPORT ${MINIZIP_TARGET}-targets
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${MINIZIP_TARGET}"
             NAMESPACE "MINIZIP::")
 
@@ -806,7 +806,7 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
             string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
         endforeach()
     endif()
-    string(APPEND MINIZIP_CONFIG_CONTENT "include(\"\${CMAKE_CURRENT_LIST_DIR}/${MINIZIP_TARGET}.cmake\")")
+    string(APPEND MINIZIP_CONFIG_CONTENT "include(\"\${CMAKE_CURRENT_LIST_DIR}/${MINIZIP_TARGET}-targets.cmake\")")
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in ${MINIZIP_CONFIG_CONTENT})
 
     # Create config for find_package()
