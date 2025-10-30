@@ -310,7 +310,7 @@ int32_t mz_stream_zstd_set_prop_int64(void *stream, int32_t prop, int64_t value)
         return MZ_OK;
     case MZ_STREAM_PROP_COMPRESS_THREADS:
         if (zstd->zcstream) {
-            size_t rv = ZSTD_CCtx_setParameter(zstd->zcstream, ZSTD_c_nbWorkers, value);
+            size_t rv = ZSTD_CCtx_setParameter(zstd->zcstream, ZSTD_c_nbWorkers, (int)value);
             if (rv == (size_t)value) {
                 return MZ_OK;
             }
