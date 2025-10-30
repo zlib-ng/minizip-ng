@@ -167,6 +167,11 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
         return MZ_SEEK_ERROR;
     }
 
+    // While `malloc` accepts a size_t, mz_stream_mem_s.size only supports an int32_t
+    if (new_pos < 0 || new_pos > INT32_MAX) {
+        return MZ_SEEK_ERROR;
+    }
+
     if (new_pos > mem->size) {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
             return MZ_SEEK_ERROR;
@@ -174,8 +179,6 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
         err = mz_stream_mem_set_size(stream, (int32_t)new_pos);
         if (err != MZ_OK)
             return err;
-    } else if (new_pos < 0) {
-        return MZ_SEEK_ERROR;
     }
 
     mem->position = (int32_t)new_pos;
