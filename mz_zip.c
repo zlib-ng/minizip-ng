@@ -2692,6 +2692,11 @@ int32_t mz_zip_dosdate_to_tm(uint64_t dos_date, struct tm *ptm) {
 time_t mz_zip_dosdate_to_time_t(uint64_t dos_date) {
     struct tm ptm;
     mz_zip_dosdate_to_raw_tm(dos_date, &ptm);
+    /* Check if the date is valid before converting to time_t */
+    if (mz_zip_invalid_date(&ptm)) {
+        /* Return 0 for invalid dates (epoch time) */
+        return 0;
+    }
     return mz_zip_tm_to_time_t(&ptm);
 }
 

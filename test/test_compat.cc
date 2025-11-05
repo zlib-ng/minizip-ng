@@ -289,4 +289,104 @@ TEST(compat, unzip64) {
     test_unzip_compat(unzip);
     unzClose(unzip);
 }
+
+TEST(compat, timestamp_with_tmz_date) {
+    zipFile zip;
+    unzFile unzip;
+    zip_fileinfo file_info;
+    unz_file_info64 unz_info;
+    const char *buffer = "test data for timestamp";
+    char filename[256];
+    int32_t err = ZIP_OK;
+
+    // Create a zip file with tmz_date but mz_dos_date = 0
+    zip = zipOpen64("compat_timestamp.zip", APPEND_STATUS_CREATE);
+    ASSERT_NE(zip, nullptr) << "cannot create test zip file";
+
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.tmz_date.tm_sec = 30;
+    file_info.tmz_date.tm_min = 45;
+    file_info.tmz_date.tm_hour = 14;
+    file_info.tmz_date.tm_mday = 15;
+    file_info.tmz_date.tm_mon = 5;  // June (0-based)
+    file_info.tmz_date.tm_year = 2024;
+    // Leave mz_dos_date as 0 to test the conversion
+
+    EXPECT_EQ(err = zipOpenNewFileInZip(zip, "test_timestamp.txt", &file_info, NULL, 0, NULL, 0, "test comment",
+                                       Z_DEFLATED, 1),
+              ZIP_OK)
+        << "failed to open new file in zip (err: " << err << ")";
+    if (err == ZIP_OK) {
+        EXPECT_EQ(err = zipWriteInFileInZip(zip, buffer, (uint32_t)strlen(buffer)), ZIP_OK)
+            << "failed to write to file in zip (err: " << err << ")";
+        EXPECT_EQ(err = zipCloseFileInZip(zip), ZIP_OK) << "failed to close file in zip (err: " << err << ")";
+    }
+
+    zipClose(zip, NULL);
+
+    // Now read it back and verify the timestamp
+    unzip = unzOpen("compat_timestamp.zip");
+    ASSERT_NE(unzip, nullptr) << "cannot open test zip file";
+
+    EXPECT_EQ(err = unzGoToFirstFile(unzip), UNZ_OK);
+    EXPECT_EQ(err = unzGetCurrentFileInfo64(unzip, &unz_info, filename, sizeof(filename), NULL, 0, NULL, 0), UNZ_OK)
+        << "failed to get file info (err: " << err << ")";
+
+    // Verify the timestamp is correctly preserved
+    EXPECT_EQ(unz_info.tmu_date.tm_year, 2024) << "year mismatch";
+    EXPECT_EQ(unz_info.tmu_date.tm_mon, 5) << "month mismatch";
+    EXPECT_EQ(unz_info.tmu_date.tm_mday, 15) << "day mismatch";
+    EXPECT_EQ(unz_info.tmu_date.tm_hour, 14) << "hour mismatch";
+    EXPECT_EQ(unz_info.tmu_date.tm_min, 45) << "minute mismatch";
+    EXPECT_EQ(unz_info.tmu_date.tm_sec, 30) << "second mismatch";
+
+    unzClose(unzip);
+}
+
+TEST(compat, timestamp_with_zero_values) {
+    zipFile zip;
+    unzFile unzip;
+    zip_fileinfo file_info;
+    unz_file_info64 unz_info;
+    const char *buffer = "test data for zero timestamp";
+    char filename[256];
+    int32_t err = ZIP_OK;
+
+    // Create a zip file with all zero values
+    zip = zipOpen64("compat_zero_timestamp.zip", APPEND_STATUS_CREATE);
+    ASSERT_NE(zip, nullptr) << "cannot create test zip file";
+
+    memset(&file_info, 0, sizeof(file_info));
+    // Both tmz_date and mz_dos_date are 0
+
+    EXPECT_EQ(err = zipOpenNewFileInZip(zip, "test_zero.txt", &file_info, NULL, 0, NULL, 0, "test comment",
+                                       Z_DEFLATED, 1),
+              ZIP_OK)
+        << "failed to open new file in zip (err: " << err << ")";
+    if (err == ZIP_OK) {
+        EXPECT_EQ(err = zipWriteInFileInZip(zip, buffer, (uint32_t)strlen(buffer)), ZIP_OK)
+            << "failed to write to file in zip (err: " << err << ")";
+        EXPECT_EQ(err = zipCloseFileInZip(zip), ZIP_OK) << "failed to close file in zip (err: " << err << ")";
+    }
+
+    zipClose(zip, NULL);
+
+    // Now read it back and verify we get a valid timestamp (should be epoch or current time, not 1980-00-00)
+    unzip = unzOpen("compat_zero_timestamp.zip");
+    ASSERT_NE(unzip, nullptr) << "cannot open test zip file";
+
+    EXPECT_EQ(err = unzGoToFirstFile(unzip), UNZ_OK);
+    EXPECT_EQ(err = unzGetCurrentFileInfo64(unzip, &unz_info, filename, sizeof(filename), NULL, 0, NULL, 0), UNZ_OK)
+        << "failed to get file info (err: " << err << ")";
+
+    // Verify we don't get an invalid timestamp like 1980-00-00
+    // The year should be >= 1970 (epoch) and month should be in valid range 0-11
+    EXPECT_GE(unz_info.tmu_date.tm_year, 1970) << "invalid year";
+    EXPECT_GE(unz_info.tmu_date.tm_mon, 0) << "invalid month (negative)";
+    EXPECT_LE(unz_info.tmu_date.tm_mon, 11) << "invalid month (> 11)";
+    EXPECT_GE(unz_info.tmu_date.tm_mday, 1) << "invalid day (< 1)";
+    EXPECT_LE(unz_info.tmu_date.tm_mday, 31) << "invalid day (> 31)";
+
+    unzClose(unzip);
+}
 #endif
