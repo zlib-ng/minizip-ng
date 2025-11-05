@@ -8,3 +8,4 @@ third_party/
 
 # IDE
 .vscode
+_codeql_*
