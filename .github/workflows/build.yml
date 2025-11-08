@@ -54,12 +54,12 @@ jobs:
             cmake-args: -D MZ_CODE_COVERAGE=ON
             codecov: ubuntu_gcc
 
+          # out-of-source build
           - name: Ubuntu GCC OSB
             os: ubuntu-latest
             compiler: gcc
             cxx-compiler: g++
             build-dir: ../build
-            build-src-dir: ../minizip-ng
 
           - name: Ubuntu Clang
             os: ubuntu-latest
@@ -231,7 +231,7 @@ jobs:
     - name: Generate project files
       shell: bash
       run: |
-        cmake -S ${{ matrix.build-src-dir || '.' }} -B ${{ matrix.build-dir || '.' }} ${{ matrix.cmake-args }} \
+        cmake -S . -B ${{ matrix.build-dir || '.' }} ${{ matrix.cmake-args }} \
           -D MZ_BUILD_TESTS=ON \
           -D MZ_BUILD_UNIT_TESTS=ON \
           -D BUILD_SHARED_LIBS=OFF \
@@ -264,7 +264,7 @@ jobs:
           --exclude-unreachable-branches \
           --gcov-ignore-parse-errors \
           --gcov-executable "${{ matrix.gcov-exec || 'gcov' }}" \
-          --root ${{ matrix.build-src-dir || '.' }} \
+          --root . \
           --xml \
           --output coverage.xml \
           --verbose
@@ -276,7 +276,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: ${{ matrix.codecov }}
         name: ${{ matrix.name }}
-        directory: ${{ matrix.build-src-dir || '.' }}
+        directory: .
         verbose: true
         fail_ci_if_error: true
       env:
