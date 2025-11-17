@@ -162,6 +162,16 @@ check_function_exists(fseeko HAVE_FSEEKO)
 if(NOT HAVE_FSEEKO)
     list(APPEND STDLIB_DEF -DNO_FSEEKO)
 endif()
+# Check for fseeko symlink
+check_function_exists(symlink HAVE_SYMLINK)
+if(NOT HAVE_SYMLINK)
+    list(APPEND STDLIB_DEF -DNO_SYMLINK)
+endif()
+# Check for fseeko readlink
+check_function_exists(readlink HAVE_READLINK)
+if(NOT HAVE_READLINK)
+    list(APPEND STDLIB_DEF -DNO_READLINK)
+endif()
 
 if(MZ_LIBCOMP)
     if(APPLE)
