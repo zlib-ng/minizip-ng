@@ -178,9 +178,7 @@ static time_t zipConvertZipDateToTime(tm_zip tmz_date) {
     struct tm tm_date;
     memset(&tm_date, 0, sizeof(struct tm));
     memcpy(&tm_date, &tmz_date, sizeof(tm_zip));
-    tm_date.tm_year -= 1900;
-    tm_date.tm_isdst = -1;
-    return mz_zip_tm_to_time_t(&tm_date);
+    return mz_zip_dosdate_to_time_t(mz_zip_tm_to_dosdate(&tm_date));
 }
 
 int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_fileinfo *zipfi, const void *extrafield_local,
