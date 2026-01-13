@@ -52,6 +52,7 @@ endif()
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
 option(MZ_ZSTD "Enables ZSTD compression" ON)
+option(MZ_PPMD "Enables PPMD compression" ON)
 cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
 option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ${WIN32})
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
@@ -418,7 +419,26 @@ if(MZ_ZSTD)
     endif()
 endif()
 
-if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZMA)
+if(MZ_PPMD)
+    message(STATUS "Using PPMD")
+    list(APPEND MINIZIP_DEF -DHAVE_PPMD)
+    list(APPEND MINIZIP_SRC
+        mz_strm_ppmd.c
+        ppmd/Ppmd8.c
+        ppmd/Ppmd8Dec.c
+        ppmd/Ppmd8Enc.c)
+    list(APPEND MINIZIP_HDR
+        mz_strm_ppmd.h
+        ppmd/7zTypes.h
+        ppmd/Compiler.h
+        ppmd/CpuArch.h
+        ppmd/Ppmd.h
+        ppmd/Ppmd8.h
+        ppmd/Precomp.h)
+    list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR}/ppmd)
+endif()
+
+if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZMA AND NOT MZ_PPMD)
     message(STATUS "Compression not supported due to missing libraries")
 
     list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_DECOMPRESSION)
@@ -646,11 +666,11 @@ endif()
 if(MZ_COMPAT)
     set(SOVERSION "1")
 
-    list(APPEND MINIZIP_SRC 
+    list(APPEND MINIZIP_SRC
         compat/ioapi.c
         compat/unzip.c
         compat/zip.c)
-    list(APPEND MINIZIP_HDR 
+    list(APPEND MINIZIP_HDR
         compat/ioapi.h
         compat/unzip.h
         compat/zip.h)
@@ -862,6 +882,10 @@ if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
             list(APPEND COMPRESS_METHOD_NAMES "zstd")
             list(APPEND COMPRESS_METHOD_ARGS "-t")
         endif()
+        if(MZ_PPMD)
+            list(APPEND COMPRESS_METHOD_NAMES "ppmd")
+            list(APPEND COMPRESS_METHOD_ARGS "-g")
+        endif()
         list(LENGTH COMPRESS_METHOD_NAMES COMPRESS_METHOD_COUNT)
         math(EXPR COMPRESS_METHOD_COUNT "${COMPRESS_METHOD_COUNT}-1")
         foreach(INDEX RANGE ${COMPRESS_METHOD_COUNT})
@@ -1017,6 +1041,7 @@ add_feature_info(MZ_COMPAT MZ_COMPAT "Enables compatibility layer")
 add_feature_info(MZ_ZLIB MZ_ZLIB "Enables ZLIB compression")
 add_feature_info(MZ_BZIP2 MZ_BZIP2 "Enables BZIP2 compression")
 add_feature_info(MZ_LZMA MZ_LZMA "Enables LZMA & XZ compression")
+add_feature_info(MZ_PPMD MZ_PPMD "Enables PPMD compression")
 add_feature_info(MZ_ZSTD MZ_ZSTD "Enables ZSTD compression")
 add_feature_info(MZ_LIBCOMP MZ_LIBCOMP "Enables Apple compression")
 add_feature_info(MZ_FETCH_LIBS MZ_FETCH_LIBS "Enables fetching third-party libraries if not found")

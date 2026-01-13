@@ -41,7 +41,9 @@
 #ifdef HAVE_ZSTD
 #  include "mz_strm_zstd.h"
 #endif
-
+#ifdef HAVE_ZSTD
+#  include "mz_strm_ppmd.h"
+#endif
 #include "mz_zip.h"
 
 #include <ctype.h> /* tolower */
@@ -715,9 +717,10 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
             if ((file_info->flag & MZ_ZIP_FLAG_ENCRYPTED) && (file_info->aes_version))
                 version_needed = 51;
 #endif
-#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP) || defined(HAVE_PPMD)
             if ((file_info->compression_method == MZ_COMPRESS_METHOD_LZMA) ||
-                (file_info->compression_method == MZ_COMPRESS_METHOD_XZ))
+                (file_info->compression_method == MZ_COMPRESS_METHOD_XZ) ||
+                (file_info->compression_method == MZ_COMPRESS_METHOD_PPMD))
                 version_needed = 63;
 #endif
         }
@@ -1707,6 +1710,9 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_ZSTD
     case MZ_COMPRESS_METHOD_ZSTD:
 #endif
+#ifdef HAVE_PPMD
+    case MZ_COMPRESS_METHOD_PPMD:
+#endif
         err = MZ_OK;
         break;
     default:
@@ -1801,6 +1807,10 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #ifdef HAVE_ZSTD
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_ZSTD)
             zip->compress_stream = mz_stream_zstd_create();
+#endif
+#ifdef HAVE_PPMD
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_PPMD)
+            zip->compress_stream = mz_stream_ppmd_create();
 #endif
         else
             err = MZ_PARAM_ERROR;

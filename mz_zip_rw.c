@@ -1983,6 +1983,8 @@ void *mz_zip_writer_create(void) {
         writer->compress_method = MZ_COMPRESS_METHOD_BZIP2;
 #elif defined(HAVE_LZMA)
         writer->compress_method = MZ_COMPRESS_METHOD_LZMA;
+#elif defined(HAVE_PPMD)
+        writer->compress_method = MZ_COMPRESS_METHOD_PPMD;
 #else
         writer->compress_method = MZ_COMPRESS_METHOD_STORE;
 #endif

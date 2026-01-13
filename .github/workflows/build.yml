@@ -106,6 +106,15 @@ jobs:
             packages: clang-14 llvm-14
             gcov-exec: llvm-cov-14 gcov
 
+          - name: Ubuntu Clang No Ppmd
+            os: ubuntu-latest
+            compiler: clang-14
+            cxx-compiler: clang++-14
+            cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_PPMD=OFF
+            codecov: ubuntu_clang_no_ppmd
+            packages: clang-14 llvm-14
+            gcov-exec: llvm-cov-14 gcov
+
           - name: Ubuntu Clang No Pkcrypt
             os: ubuntu-latest
             compiler: clang-14
@@ -248,7 +257,7 @@ jobs:
     - name: Run test cases
       run: ctest --output-on-failure -C ${{ matrix.build-config || 'Release' }}
       working-directory: ${{ matrix.build-dir }}
-      
+
     - name: Setup python
       uses: actions/setup-python@v6
       if: always() && matrix.codecov

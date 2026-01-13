@@ -27,7 +27,7 @@ extern "C" {
 #  define MZ_VERSION_MADEBY_HOST_SYSTEM (MZ_HOST_SYSTEM_UNIX)
 #endif
 
-#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
+#if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP) || defined(HAVE_PPMD)
 #  define MZ_VERSION_MADEBY_ZIP_VERSION (63)
 #elif defined(HAVE_WZAES)
 #  define MZ_VERSION_MADEBY_ZIP_VERSION (51)

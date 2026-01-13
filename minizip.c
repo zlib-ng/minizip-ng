@@ -67,7 +67,7 @@ int32_t minizip_banner(void) {
 
 int32_t minizip_help(void) {
     printf(
-        "Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m|-t][-k 512][-p pwd][-s] file.zip "
+        "Usage: minizip [-x][-d dir|-l|-e][-o][-f][-y][-c cp][-a][-0 to -9][-b|-m|-t|-g][-k 512][-p pwd][-s] file.zip "
         "[files]\n\n"
         "  -x  Extract files\n"
         "  -l  List files\n"
@@ -90,7 +90,8 @@ int32_t minizip_help(void) {
         "  -b  BZIP2 compression\n"
         "  -m  LZMA compression\n"
         "  -n  XZ compression\n"
-        "  -t  ZSTD compression\n\n");
+        "  -t  ZSTD compression\n"
+        "  -g  PPMD compression\n\n");
     return MZ_OK;
 }
 
@@ -622,6 +623,12 @@ int main(int argc, const char *argv[]) {
             else if ((c == 't') || (c == 'T'))
 #  ifdef HAVE_ZSTD
                 options.compress_method = MZ_COMPRESS_METHOD_ZSTD;
+#  else
+                err = MZ_SUPPORT_ERROR;
+#  endif
+            else if ((c == 'g') || (c == 'G'))
+#  ifdef HAVE_PPMD
+                options.compress_method = MZ_COMPRESS_METHOD_PPMD;
 #  else
                 err = MZ_SUPPORT_ERROR;
 #  endif
