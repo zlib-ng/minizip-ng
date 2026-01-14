@@ -30,7 +30,6 @@
 #  include "mz_strm_zstd.h"
 #endif
 
-
 #include <gtest/gtest.h>
 
 static void test_compare_stream_to_end(void *source1, void *source2) {
@@ -155,4 +154,3 @@ TEST(stream, zstd) {
     return test_compress("zstd", mz_stream_zstd_create);
 }
 #endif
-
