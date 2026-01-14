@@ -16,8 +16,8 @@
 #include "mz_strm.h"
 #include "mz_strm_ppmd.h"
 
-#include "ppmd/Ppmd8.h"
-#include "ppmd/7zTypes.h"
+#include "C/Ppmd8.h"
+#include "C/7zTypes.h"
 
 /***************************************************************************/
 
@@ -32,68 +32,63 @@ static mz_stream_vtbl mz_stream_ppmd_vtbl = {
 
 /***************************************************************************/
 
-typedef struct InBuffer_s {
+typedef struct mz_InBuffer_s {
     const void *src; /**< start of input buffer */
     size_t size;     /**< size of input buffer */
     size_t pos;      /**< position where reading stopped. Will be updated. Necessarily 0 <= pos <= size */
-} InBuffer;
+} mz_InBuffer;
 
-typedef struct OutBuffer_s {
+typedef struct mz_OutBuffer_s {
     void *dst;   /**< start of output buffer */
     size_t size; /**< size of output buffer */
     size_t pos;  /**< position where writing stopped. Will be updated. Necessarily 0 <= pos <= size */
-} OutBuffer;
+} mz_OutBuffer;
 
-typedef struct ppmd_info_s {
+typedef struct mz_ppmd_info_s {
     /* hold CPpmd8 or CPpmd7 struct pointer */
     void *cPpmd;
     void *rc;
-    InBuffer *in;
-    OutBuffer *out;
+    mz_InBuffer *in;
+    mz_OutBuffer *out;
     int max_length;
     int result;
     void *t;
-} ppmd_info;
+} mz_ppmd_info;
 
 typedef struct {
     /* Inherits from IByteIn */
     Byte (*Read)(void *p);
-    InBuffer *inBuffer;
+    mz_InBuffer *inBuffer;
     void *t;
-} BufferReader;
+} mz_BufferReader;
 
 typedef struct {
     /* Inherits from IByteOut */
     void (*Write)(void *p, Byte b);
-    OutBuffer *outBuffer;
-    ppmd_info *t;
-} BufferWriter;
+    mz_OutBuffer *outBuffer;
+    mz_ppmd_info *t;
+} mz_BufferWriter;
 
 typedef struct mz_stream_ppmd_s {
     mz_stream stream;
     CPpmd8 ppmd8;
     uint8_t buffer[INT16_MAX];
-    // int32_t buffer_len;
-    // int32_t buffer_pos;
     int64_t total_in;
     int64_t total_out;
     int64_t max_total_in;
     int32_t mode;
     int32_t error;
     int8_t initialized;
-    IByteIn byte_in;
-    IByteOut byte_out;
-    uint32_t order;
     ISzAlloc allocator;
 
     // Write specific
-    BufferWriter writer;
-    OutBuffer out;
+    mz_BufferWriter writer;
+    mz_OutBuffer out;
     int32_t preset;  // PPMD uses theterm level for this
 
     // Read Specific
-    BufferReader reader;
-    InBuffer in;
+    mz_BufferReader reader;
+    mz_InBuffer in;
     int8_t end_stream;
 
 } mz_stream_ppmd;
@@ -101,13 +96,13 @@ typedef struct mz_stream_ppmd_s {
 /***************************************************************************/
 
 /* malloc wrapper for PPMD library */
-static void *mz_ppmd_alloc_func(void *p, size_t size) {
+static void *mz_ppmd_alloc_func(const ISzAlloc *p, size_t size) {
     MZ_UNUSED(p);
     return malloc(size);
 }
 
 /* free wrapper for PPMD library */
-static void mz_ppmd_free_func(void *p, void *address) {
+static void mz_ppmd_free_func(const ISzAlloc *p, void *address) {
     MZ_UNUSED(p);
     free(address);
 }
@@ -115,10 +110,8 @@ static void mz_ppmd_free_func(void *p, void *address) {
 #ifndef MZ_ZIP_NO_COMPRESSION
 
 static void Writer(const void *p, Byte b) {
-    BufferWriter *bufferWriter = (BufferWriter *)p;
+    mz_BufferWriter *bufferWriter = (mz_BufferWriter *)p;
     if (bufferWriter->outBuffer->size == bufferWriter->outBuffer->pos) {
-        // FIXME: When out buffer is full
-        assert(1);
         return;
     }
     *((Byte *)bufferWriter->outBuffer->dst + bufferWriter->outBuffer->pos++) = b;
@@ -157,7 +150,7 @@ static void mz_setup_buffered_writer(mz_stream_ppmd *ppmd) {
 #ifndef MZ_ZIP_NO_DECOMPRESSION
 
 static Byte Reader(void *p) {
-    BufferReader *bufferReader = (BufferReader *)p;
+    mz_BufferReader *bufferReader = (mz_BufferReader *)p;
     mz_stream_ppmd *ppmd = (mz_stream_ppmd *)bufferReader->t;
     uint8_t b;
     int32_t status;

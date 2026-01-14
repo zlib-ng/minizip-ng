@@ -421,21 +421,35 @@ endif()
 
 if(MZ_PPMD)
     message(STATUS "Using PPMD")
+
+    clone_repo(ppmd https://github.com/7zip-dev/7zip master)
+
+    # The PPMd repository does not support cmake so we have to create
+    # a PPMd library ourselves
+    set(PPMD_SRC
+        ${PPMD_SOURCE_DIR}/C/Ppmd8.c
+        ${PPMD_SOURCE_DIR}/C/Ppmd8Dec.c
+        ${PPMD_SOURCE_DIR}/C/Ppmd8Enc.c)
+
+    set(PPMD_HDR
+        ${PPMD_SOURCE_DIR}/C/7zTypes.h
+        ${PPMD_SOURCE_DIR}/C/Compiler.h
+        ${PPMD_SOURCE_DIR}/C/CpuArch.h
+        ${PPMD_SOURCE_DIR}/C/Ppmd.h
+        ${PPMD_SOURCE_DIR}/C/Ppmd8.h
+        ${PPMD_SOURCE_DIR}/C/Precomp.h)
+
+    add_library(ppmd STATIC ${PPMD_SRC} ${PPMD_HDR})
+
+    list(APPEND MINIZIP_DEP ppmd)
+    list(APPEND MINIZIP_INC ${PPMD_SOURCE_DIR})
+    list(APPEND MINIZIP_INC ${PPMD_INCLUDE_DIRS})
+
+    list(APPEND MINIZIP_DEP_PKG PPMD)
     list(APPEND MINIZIP_DEF -DHAVE_PPMD)
-    list(APPEND MINIZIP_SRC
-        mz_strm_ppmd.c
-        ppmd/Ppmd8.c
-        ppmd/Ppmd8Dec.c
-        ppmd/Ppmd8Enc.c)
-    list(APPEND MINIZIP_HDR
-        mz_strm_ppmd.h
-        ppmd/7zTypes.h
-        ppmd/Compiler.h
-        ppmd/CpuArch.h
-        ppmd/Ppmd.h
-        ppmd/Ppmd8.h
-        ppmd/Precomp.h)
-    list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR}/ppmd)
+    list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
+    list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
+
 endif()
 
 if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZMA AND NOT MZ_PPMD)
