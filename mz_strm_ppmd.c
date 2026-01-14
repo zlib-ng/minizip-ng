@@ -10,7 +10,6 @@
 
 #include <sys/param.h>  // for MIN()
 #include <assert.h>
-#include <stdio.h>  // printf()
 
 #include "mz.h"
 #include "mz_strm.h"
@@ -123,12 +122,6 @@ static int32_t mz_stream_ppmd_flush(void *stream) {
     if (ppmd->out.pos) {
         if (mz_stream_write(ppmd->stream.base, ppmd->out.dst, ppmd->out.pos) != ppmd->out.pos)
             return MZ_WRITE_ERROR;
-
-        // for (int i = 0; i < ppmd->out.pos; i++) {
-        //     printf("%02X ", ((uint8_t *)ppmd->out.dst)[i]);
-        // }
-        //   printf("\n total_out %d %02X\n", levell, ppmd_param_word, order, memSize, restor);
-
         ppmd->total_out += ppmd->out.pos;
         ppmd->out.pos = 0;
     }
@@ -244,13 +237,8 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         /* Form the PPMd properties word.  Put out the bytes. */
         ppmd_param_word = ((order - 1) & 0xf) + ((((memSize >> 20) - 1) & 0xff) << 4) + ((restor & 0xf) << 12);
 
-        //   printf("\n preset %d ppmd_param_word %x order %d memSize %d restor %d \n", ppmd->preset, ppmd_param_word,
-        //   order, memSize, restor);
-
         // write header bytes directly to output buffer, bypassing the compression code
         // These bytes will be included in the compressed size stored in the zip metadata.
-
-        //   printf("\n[0]=%02X  [1]=%02X\n", (Byte)(ppmd_param_word & 0xff), (unsigned char)(ppmd_param_word >> 8));
 
         ((uint8_t *)ppmd->out.dst)[0] = (Byte)(ppmd_param_word & 0xff);
         ((uint8_t *)ppmd->out.dst)[1] = (Byte)(ppmd_param_word >> 8);
@@ -286,9 +274,6 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         unsigned order = (ppmd_prop_word & 0xf) + 1;
         unsigned memSize = ((ppmd_prop_word >> 4) & 0xff) + 1;
         unsigned restor = (ppmd_prop_word >> 12);
-
-        //   printf("\n ppmd_prop_word %04X  order %u memSize %u restor %u \n",  ppmd_prop_word, order, memSize,
-        //   restor);
 
         /* Convert archive MB value into raw byte value. */
         memSize <<= 20;
@@ -330,8 +315,6 @@ int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size) {
     unsigned char *next_out = buf; /* Output buffer pointer. */
     unsigned avail_out = size;     /* Output buffer size. */
 
-    // printf("want %u mz_stream_ppmd_read total in %lu, total_out %lu\n", size, ppmd->total_in, ppmd->total_out) ;
-
     int sym = 0;
     int32_t written = 0;
 
@@ -362,8 +345,6 @@ int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size) {
         /* Invalid end of input data? */
         return ppmd->error;
     }
-
-    // printf("out[put %u\n", written) ;
 
     ppmd->total_out += written;
     return written;

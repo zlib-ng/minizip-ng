@@ -608,6 +608,12 @@ int main(int argc, const char *argv[]) {
 #  else
                 err = MZ_SUPPORT_ERROR;
 #  endif
+            else if ((c == 'g') || (c == 'G'))
+#  ifdef HAVE_PPMD
+                options.compress_method = MZ_COMPRESS_METHOD_PPMD;
+#  else
+                err = MZ_SUPPORT_ERROR;
+#  endif
             else if ((c == 'm') || (c == 'M'))
 #  ifdef HAVE_LZMA
                 options.compress_method = MZ_COMPRESS_METHOD_LZMA;
@@ -623,12 +629,6 @@ int main(int argc, const char *argv[]) {
             else if ((c == 't') || (c == 'T'))
 #  ifdef HAVE_ZSTD
                 options.compress_method = MZ_COMPRESS_METHOD_ZSTD;
-#  else
-                err = MZ_SUPPORT_ERROR;
-#  endif
-            else if ((c == 'g') || (c == 'G'))
-#  ifdef HAVE_PPMD
-                options.compress_method = MZ_COMPRESS_METHOD_PPMD;
 #  else
                 err = MZ_SUPPORT_ERROR;
 #  endif

@@ -51,8 +51,8 @@ endif()
 
 option(MZ_BZIP2 "Enables BZIP2 compression" ON)
 option(MZ_LZMA "Enables LZMA & XZ compression" ON)
-option(MZ_ZSTD "Enables ZSTD compression" ON)
 option(MZ_PPMD "Enables PPMD compression" ON)
+option(MZ_ZSTD "Enables ZSTD compression" ON)
 cmake_dependent_option(MZ_LIBCOMP "Enables Apple compression" ON "APPLE" OFF)
 option(MZ_FETCH_LIBS "Enables fetching third-party libraries if not found" ${WIN32})
 option(MZ_FORCE_FETCH_LIBS "Enables fetching third-party libraries always" OFF)
@@ -364,6 +364,39 @@ if(MZ_LZMA)
     endif()
 endif()
 
+if(MZ_PPMD)
+    message(STATUS "Using PPMD")
+
+    clone_repo(ppmd https://github.com/7zip-dev/7zip master)
+
+    # The PPMd repository does not support cmake so we have to create
+    # a PPMd library ourselves
+    set(PPMD_SRC
+        ${PPMD_SOURCE_DIR}/C/Ppmd8.c
+        ${PPMD_SOURCE_DIR}/C/Ppmd8Dec.c
+        ${PPMD_SOURCE_DIR}/C/Ppmd8Enc.c)
+
+    set(PPMD_HDR
+        ${PPMD_SOURCE_DIR}/C/7zTypes.h
+        ${PPMD_SOURCE_DIR}/C/Compiler.h
+        ${PPMD_SOURCE_DIR}/C/CpuArch.h
+        ${PPMD_SOURCE_DIR}/C/Ppmd.h
+        ${PPMD_SOURCE_DIR}/C/Ppmd8.h
+        ${PPMD_SOURCE_DIR}/C/Precomp.h)
+
+    add_library(ppmd STATIC ${PPMD_SRC} ${PPMD_HDR})
+
+    list(APPEND MINIZIP_DEP ppmd)
+    list(APPEND MINIZIP_INC ${PPMD_SOURCE_DIR})
+    list(APPEND MINIZIP_INC ${PPMD_INCLUDE_DIRS})
+
+    list(APPEND MINIZIP_DEP_PKG PPMD)
+    list(APPEND MINIZIP_DEF -DHAVE_PPMD)
+    list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
+    list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
+
+endif()
+
 if(MZ_ZSTD)
     # Check if zstd is present
     if(NOT MZ_FORCE_FETCH_LIBS)
@@ -417,39 +450,6 @@ if(MZ_ZSTD)
         list(APPEND MINIZIP_SRC mz_strm_zstd.c)
         list(APPEND MINIZIP_HDR mz_strm_zstd.h)
     endif()
-endif()
-
-if(MZ_PPMD)
-    message(STATUS "Using PPMD")
-
-    clone_repo(ppmd https://github.com/7zip-dev/7zip master)
-
-    # The PPMd repository does not support cmake so we have to create
-    # a PPMd library ourselves
-    set(PPMD_SRC
-        ${PPMD_SOURCE_DIR}/C/Ppmd8.c
-        ${PPMD_SOURCE_DIR}/C/Ppmd8Dec.c
-        ${PPMD_SOURCE_DIR}/C/Ppmd8Enc.c)
-
-    set(PPMD_HDR
-        ${PPMD_SOURCE_DIR}/C/7zTypes.h
-        ${PPMD_SOURCE_DIR}/C/Compiler.h
-        ${PPMD_SOURCE_DIR}/C/CpuArch.h
-        ${PPMD_SOURCE_DIR}/C/Ppmd.h
-        ${PPMD_SOURCE_DIR}/C/Ppmd8.h
-        ${PPMD_SOURCE_DIR}/C/Precomp.h)
-
-    add_library(ppmd STATIC ${PPMD_SRC} ${PPMD_HDR})
-
-    list(APPEND MINIZIP_DEP ppmd)
-    list(APPEND MINIZIP_INC ${PPMD_SOURCE_DIR})
-    list(APPEND MINIZIP_INC ${PPMD_INCLUDE_DIRS})
-
-    list(APPEND MINIZIP_DEP_PKG PPMD)
-    list(APPEND MINIZIP_DEF -DHAVE_PPMD)
-    list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
-    list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
-
 endif()
 
 if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZMA AND NOT MZ_PPMD)
@@ -892,13 +892,13 @@ if(MZ_BUILD_TESTS AND MZ_BUILD_UNIT_TESTS)
             list(APPEND COMPRESS_METHOD_NAMES "xz")
             list(APPEND COMPRESS_METHOD_ARGS "-n")
         endif()
-        if(MZ_ZSTD)
-            list(APPEND COMPRESS_METHOD_NAMES "zstd")
-            list(APPEND COMPRESS_METHOD_ARGS "-t")
-        endif()
         if(MZ_PPMD)
             list(APPEND COMPRESS_METHOD_NAMES "ppmd")
             list(APPEND COMPRESS_METHOD_ARGS "-g")
+        endif()
+        if(MZ_ZSTD)
+            list(APPEND COMPRESS_METHOD_NAMES "zstd")
+            list(APPEND COMPRESS_METHOD_ARGS "-t")
         endif()
         list(LENGTH COMPRESS_METHOD_NAMES COMPRESS_METHOD_COUNT)
         math(EXPR COMPRESS_METHOD_COUNT "${COMPRESS_METHOD_COUNT}-1")

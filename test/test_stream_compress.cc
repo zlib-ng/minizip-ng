@@ -20,15 +20,16 @@
 #ifdef HAVE_LZMA
 #  include "mz_strm_lzma.h"
 #endif
+#ifdef HAVE_PPMD
+#  include "mz_strm_ppmd.h"
+#endif
 #ifdef HAVE_ZLIB
 #  include "mz_strm_zlib.h"
 #endif
 #ifdef HAVE_ZSTD
 #  include "mz_strm_zstd.h"
 #endif
-#ifdef HAVE_PPMD
-#  include "mz_strm_ppmd.h"
-#endif
+
 
 #include <gtest/gtest.h>
 
@@ -139,6 +140,11 @@ TEST(stream, lzma) {
     return test_compress("lzma", mz_stream_lzma_create);
 }
 #endif
+#ifdef HAVE_PPMD
+TEST(stream, ppmd) {
+    return test_compress("ppmd", mz_stream_ppmd_create);
+}
+#endif
 #ifdef HAVE_ZLIB
 TEST(stream, zlib) {
     return test_compress("zlib", mz_stream_zlib_create);
@@ -149,8 +155,4 @@ TEST(stream, zstd) {
     return test_compress("zstd", mz_stream_zstd_create);
 }
 #endif
-#ifdef HAVE_PPMD
-TEST(stream, ppmd) {
-    return test_compress("ppmd", mz_stream_ppmd_create);
-}
-#endif
+

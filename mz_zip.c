@@ -32,6 +32,9 @@
 #ifdef HAVE_PKCRYPT
 #  include "mz_strm_pkcrypt.h"
 #endif
+#ifdef HAVE_PPMD
+#  include "mz_strm_ppmd.h"
+#endif
 #ifdef HAVE_WZAES
 #  include "mz_strm_wzaes.h"
 #endif
@@ -40,9 +43,6 @@
 #endif
 #ifdef HAVE_ZSTD
 #  include "mz_strm_zstd.h"
-#endif
-#ifdef HAVE_ZSTD
-#  include "mz_strm_ppmd.h"
 #endif
 #include "mz_zip.h"
 
@@ -719,8 +719,8 @@ static int32_t mz_zip_entry_write_header(void *stream, uint8_t local, mz_zip_fil
 #endif
 #if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP) || defined(HAVE_PPMD)
             if ((file_info->compression_method == MZ_COMPRESS_METHOD_LZMA) ||
-                (file_info->compression_method == MZ_COMPRESS_METHOD_XZ) ||
-                (file_info->compression_method == MZ_COMPRESS_METHOD_PPMD))
+                (file_info->compression_method == MZ_COMPRESS_METHOD_PPMD) ||
+                (file_info->compression_method == MZ_COMPRESS_METHOD_XZ))
                 version_needed = 63;
 #endif
         }
@@ -1707,11 +1707,11 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
 #if defined(HAVE_LZMA) || defined(HAVE_LIBCOMP)
     case MZ_COMPRESS_METHOD_XZ:
 #endif
-#ifdef HAVE_ZSTD
-    case MZ_COMPRESS_METHOD_ZSTD:
-#endif
 #ifdef HAVE_PPMD
     case MZ_COMPRESS_METHOD_PPMD:
+#endif
+#ifdef HAVE_ZSTD
+    case MZ_COMPRESS_METHOD_ZSTD:
 #endif
         err = MZ_OK;
         break;
@@ -1804,13 +1804,13 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             }
         }
 #endif
-#ifdef HAVE_ZSTD
-        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_ZSTD)
-            zip->compress_stream = mz_stream_zstd_create();
-#endif
 #ifdef HAVE_PPMD
         else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_PPMD)
             zip->compress_stream = mz_stream_ppmd_create();
+#endif
+#ifdef HAVE_ZSTD
+        else if (zip->file_info.compression_method == MZ_COMPRESS_METHOD_ZSTD)
+            zip->compress_stream = mz_stream_zstd_create();
 #endif
         else
             err = MZ_PARAM_ERROR;
