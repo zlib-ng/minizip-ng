@@ -367,7 +367,13 @@ endif()
 if(MZ_PPMD)
     message(STATUS "Using PPMD")
 
-    clone_repo(ppmd https://github.com/7zip-dev/7zip master)
+    clone_repo(ppmd https://github.com/ip7z/7zip "25.01")
+
+    # get the 7zip/PPMd version number
+    file(READ "${PPMD_SOURCE_DIR}/C/7zVersion.h" version)
+    string(REGEX MATCH "MY_VERSION_NUMBERS \"([0-9]*\.[0-9]*)\"" _ ${version})
+    set(7ZIP_VERSION_NUMBER ${CMAKE_MATCH_1})
+    message(STATUS "  Found 7Zip/PPMd ${7ZIP_VERSION_NUMBER}")
 
     # The PPMd repository does not support cmake so we have to create
     # a PPMd library ourselves

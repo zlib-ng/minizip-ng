@@ -223,7 +223,7 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
             return MZ_MEM_ERROR;
         }
 
-        Ppmd8_RangeEnc_Init(&ppmd->ppmd8);
+        Ppmd8_Init_RangeEnc(&ppmd->ppmd8);
         Ppmd8_Init(&ppmd->ppmd8, order, restor);
 
         /* wPPMd = (Model order - 1) +
@@ -284,7 +284,7 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         if (!Ppmd8_Alloc(&ppmd->ppmd8, memSize, &ppmd->allocator))
             return MZ_STREAM_ERROR;
 
-        if (!Ppmd8_RangeDec_Init(&ppmd->ppmd8))
+        if (!Ppmd8_Init_RangeDec(&ppmd->ppmd8))
             return MZ_STREAM_ERROR;
 
         Ppmd8_Init(&ppmd->ppmd8, order, restor);
@@ -403,7 +403,7 @@ int32_t mz_stream_ppmd_close(void *stream) {
         /* Encode end marker */
         Ppmd8_EncodeSymbol(&ppmd->ppmd8, -1);
 
-        Ppmd8_RangeEnc_FlushData(&ppmd->ppmd8);
+        Ppmd8_Flush_RangeEnc(&ppmd->ppmd8);
 
         /* Flush any remaining buffered output */
         mz_stream_ppmd_flush(stream);
