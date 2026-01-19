@@ -1,0 +1,34 @@
+# The PPMd sources used in mnizip-ng come from https://github.com/ip7z/7zip
+#
+# This simple depndabot-like script checks if the latest upstream
+# version of PPMd matches the hard-wired version used in minizip-ng.
+
+name: PPMd Dependabot
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 1 * *'  # Monthly on the first day of the month at 2am
+env:
+  TERM: xterm-256color
+
+jobs:
+  check:
+    name: Upstream
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check Upstream PPMd Version
+      run: |
+        # This is the hard-wired PPMd version that minizip-ng is built with.
+        expected_ppmd_version="25.01"
+
+        # get the latest PPMd version from upstream 7zip repo
+        upstream_ppmd_version=$( git ls-remote --tags --sort=-v:refname https://github.com/ip7z/7zip  | head -n 1 | sed -e 's#.*/##' )
+
+        if [ "$upstream_ppmd_version" != "$expected_ppmd_version" ]; then
+            echo "ERROR: PPMd version mismatch!"
+            echo "    Expected PPMd version: '$expected_ppmd_version'"
+            echo "    Upstream PPMd version: '$upstream_ppmd_version'"
+            exit 1
+        else
+            echo "All OK. Upstream PPMd matches expected version: '$expected_ppmd_version'"
+        fi
