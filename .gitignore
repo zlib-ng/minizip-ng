@@ -8,3 +8,9 @@ third_party/
 
 # IDE
 .vscode
+
+# License files
+LICENSE.dec.aes
+LICENSE.dec.pkcrypt
+LICENSE.enc.aes
+LICENSE.enc.pkcrypt
