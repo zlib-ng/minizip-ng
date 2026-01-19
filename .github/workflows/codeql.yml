@@ -2,6 +2,7 @@ name: CodeQL
 on:
   push:
   pull_request:
+  workflow_dispatch:
   schedule:
     - cron: '0 1 * * 4'
 concurrency:
