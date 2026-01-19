@@ -8,8 +8,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 2 1 * *'  # Monthly on the first day of the month at 2am
-env:
-  TERM: xterm-256color
 
 jobs:
   check:
