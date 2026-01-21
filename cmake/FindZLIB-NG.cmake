@@ -13,7 +13,7 @@ if(ZLIB-NG_INCLUDE_DIRS)
     endif()
 endif()
 
-set (LIB_NAMES z-ng libz-ng libz-ng.a)
+set(LIB_NAMES z-ng libz-ng libz-ng.a)
 
 if(BUILD_SHARED_LIBS)
     list(APPEND LIB_NAMES zlib-ng)	
