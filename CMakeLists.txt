@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # Library version
-set(VERSION "4.0.10")
+set(VERSION "4.1.0")
 # API version
 set(SOVERSION "4")
 

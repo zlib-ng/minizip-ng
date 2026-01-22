@@ -441,10 +441,9 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
     char tmp_path[256];
 
     if (!target_path) {
-        /* Construct temporary zip name */
-        strncpy(tmp_path, src_path, sizeof(tmp_path) - 1);
-        tmp_path[sizeof(tmp_path) - 1] = 0;
-        strncat(tmp_path, ".tmp.zip", sizeof(tmp_path) - strlen(tmp_path) - 1);
+        /* Construct temporary zip name with random suffix */
+        if (mz_os_get_temp_path(tmp_path, sizeof(tmp_path), "mz_") != MZ_OK)
+            return MZ_INTERNAL_ERROR;
         target_path_ptr = tmp_path;
     }
 

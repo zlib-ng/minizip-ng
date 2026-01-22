@@ -348,6 +348,33 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
 #endif
 }
 
+int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
+    const char *tmp_dir = NULL;
+    int32_t result = 0;
+
+    if (!path || max_path <= 0)
+        return MZ_PARAM_ERROR;
+
+    tmp_dir = getenv("TMPDIR");
+    if (!tmp_dir)
+        tmp_dir = getenv("TMP");
+    if (!tmp_dir)
+        tmp_dir = getenv("TEMP");
+    if (!tmp_dir)
+        tmp_dir = "/tmp";
+
+    /* Build template path for mktemp: <tmp_dir>/<prefix>XXXXXX */
+    result = snprintf(path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
+    if (result < 0 || result >= max_path)
+        return MZ_BUF_ERROR;
+
+    /* mktemp replaces XXXXXX with unique characters */
+    if (!mktemp(path))
+        return MZ_INTERNAL_ERROR;
+
+    return MZ_OK;
+}
+
 uint64_t mz_os_ms_time(void) {
     struct timespec ts;
 

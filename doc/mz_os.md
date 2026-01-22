@@ -3,43 +3,45 @@
 These functions provide support for handling common file system operations.
 
 - [Path](#path)
-  - [mz_path_combine](#mz_path_combine)
-  - [mz_path_append_slash](#mz_path_append_slash)
-  - [mz_path_remove_slash](#mz_path_remove_slash)
-  - [mz_path_has_slash](#mz_path_has_slash)
-  - [mz_path_convert_slashes](#mz_path_convert_slashes)
-  - [mz_path_compare_wc](#mz_path_compare_wc)
-  - [mz_path_resolve](#mz_path_resolve)
-  - [mz_path_remove_filename](#mz_path_remove_filename)
-  - [mz_path_remove_extension](#mz_path_remove_extension)
-  - [mz_path_get_filename](#mz_path_get_filename)
+  - [mz\_path\_combine](#mz_path_combine)
+  - [mz\_path\_append\_slash](#mz_path_append_slash)
+  - [mz\_path\_remove\_slash](#mz_path_remove_slash)
+  - [mz\_path\_has\_slash](#mz_path_has_slash)
+  - [mz\_path\_convert\_slashes](#mz_path_convert_slashes)
+  - [mz\_path\_compare\_wc](#mz_path_compare_wc)
+  - [mz\_path\_resolve](#mz_path_resolve)
+  - [mz\_path\_remove\_filename](#mz_path_remove_filename)
+  - [mz\_path\_remove\_extension](#mz_path_remove_extension)
+  - [mz\_path\_get\_filename](#mz_path_get_filename)
 - [Directory](#directory)
-  - [mz_dir_make](#mz_dir_make)
+  - [mz\_dir\_has\_unsafe\_symlink](#mz_dir_has_unsafe_symlink)
+  - [mz\_dir\_make](#mz_dir_make)
 - [File](#file)
-  - [mz_file_get_crc](#mz_file_get_crc)
+  - [mz\_file\_get\_crc](#mz_file_get_crc)
 - [Operating System](#operating-system)
-  - [mz_os_unicode_string_create](#mz_os_unicode_string_create)
-  - [mz_os_unicode_string_delete](#mz_os_unicode_string_delete)
-  - [mz_os_utf8_string_create](#mz_os_utf8_string_create)
-  - [mz_os_utf8_string_delete](#mz_os_utf8_string_delete)
-  - [mz_os_rand](#mz_os_rand)
-  - [mz_os_rename](#mz_os_rename)
-  - [mz_os_unlink](#mz_os_unlink)
-  - [mz_os_file_exists](#mz_os_file_exists)
-  - [mz_os_get_file_size](#mz_os_get_file_size)
-  - [mz_os_get_file_date](#mz_os_get_file_date)
-  - [mz_os_set_file_date](#mz_os_set_file_date)
-  - [mz_os_get_file_attribs](#mz_os_get_file_attribs)
-  - [mz_os_set_file_attribs](#mz_os_set_file_attribs)
-  - [mz_os_make_dir](#mz_os_make_dir)
-  - [mz_os_open_dir](#mz_os_open_dir)
-  - [mz_os_read_dir](#mz_os_read_dir)
-  - [mz_os_close_dir](#mz_os_close_dir)
-  - [mz_os_is_dir](#mz_os_is_dir)
-  - [mz_os_is_symlink](#mz_os_is_symlink)
-  - [mz_os_make_symlink](#mz_os_make_symlink)
-  - [mz_os_read_symlink](#mz_os_read_symlink)
-  - [mz_os_ms_time](#mz_os_ms_time)
+  - [mz\_os\_unicode\_string\_create](#mz_os_unicode_string_create)
+  - [mz\_os\_unicode\_string\_delete](#mz_os_unicode_string_delete)
+  - [mz\_os\_utf8\_string\_create](#mz_os_utf8_string_create)
+  - [mz\_os\_utf8\_string\_delete](#mz_os_utf8_string_delete)
+  - [mz\_os\_rand](#mz_os_rand)
+  - [mz\_os\_rename](#mz_os_rename)
+  - [mz\_os\_unlink](#mz_os_unlink)
+  - [mz\_os\_file\_exists](#mz_os_file_exists)
+  - [mz\_os\_get\_file\_size](#mz_os_get_file_size)
+  - [mz\_os\_get\_file\_date](#mz_os_get_file_date)
+  - [mz\_os\_set\_file\_date](#mz_os_set_file_date)
+  - [mz\_os\_get\_file\_attribs](#mz_os_get_file_attribs)
+  - [mz\_os\_set\_file\_attribs](#mz_os_set_file_attribs)
+  - [mz\_os\_get\_temp\_path](#mz_os_get_temp_path)
+  - [mz\_os\_make\_dir](#mz_os_make_dir)
+  - [mz\_os\_open\_dir](#mz_os_open_dir)
+  - [mz\_os\_read\_dir](#mz_os_read_dir)
+  - [mz\_os\_close\_dir](#mz_os_close_dir)
+  - [mz\_os\_is\_dir](#mz_os_is_dir)
+  - [mz\_os\_is\_symlink](#mz_os_is_symlink)
+  - [mz\_os\_make\_symlink](#mz_os_make_symlink)
+  - [mz\_os\_read\_symlink](#mz_os_read_symlink)
+  - [mz\_os\_ms\_time](#mz_os_ms_time)
 
 ## Path
 
@@ -283,6 +285,31 @@ else
 ```
 
 ## Directory
+
+### mz_dir_has_unsafe_symlink
+
+Checks if any existing component of a path is a symbolic link that escapes a base path. This function is used to prevent symlink-based path traversal attacks during archive extraction.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|const char *|path|Path to check|
+|const char *|base_path|Base path that symlinks must not escape|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if path is safe, MZ_EXIST_ERROR if an unsafe symlink is found.|
+
+**Example**
+```
+const char *base_path = "/tmp/extract/";
+const char *file_path = "/tmp/extract/subdir/file.txt";
+if (mz_dir_has_unsafe_symlink(file_path, base_path) == MZ_OK)
+    printf("Path is safe to write\n");
+else
+    printf("Path contains unsafe symlink\n");
+```
 
 ### mz_dir_make
 
@@ -641,6 +668,29 @@ if (mz_os_get_file_attribs(path, &attributes) == MZ_OK) {
         printf("File changed to readonly\n");
     }
 }
+```
+
+### mz_os_get_temp_path
+
+Gets a unique temporary file path.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|char *|path|Buffer to store the temporary path|
+|int32_t|max_path|Maximum size of the path buffer|
+|const char *|prefix|Optional prefix for the temporary filename (can be NULL)|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+char tmp_path[256];
+if (mz_os_get_temp_path(tmp_path, sizeof(tmp_path), "mz_") == MZ_OK)
+    printf("Temporary path: %s\n", tmp_path);
 ```
 
 ### mz_os_make_dir

@@ -59,6 +59,7 @@ typedef struct mz_zip_reader_s {
     uint8_t cd_zipped;
     uint8_t entry_verified;
     uint8_t recover;
+    const char *destination_dir;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -711,6 +712,13 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         mz_path_remove_filename(directory);
     }
 
+    /* Check if path traverses through an existing symlink that escapes destination */
+    if (reader->destination_dir &&
+        mz_dir_has_unsafe_symlink(directory, reader->destination_dir) != MZ_OK) {
+        err = MZ_EXIST_ERROR;
+        goto save_cleanup;
+    }
+
     /* Create the output directory if it doesn't already exist */
     if (mz_os_is_dir(directory) != MZ_OK) {
         err = mz_dir_make(directory);
@@ -749,7 +757,6 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
             mz_stream_mem_delete(&stream);
         }
 
-        /* Don't check return value because we aren't validating symbolic link target */
         goto save_cleanup;
     }
 
@@ -846,6 +853,8 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
 
     if (!reader)
         return MZ_PARAM_ERROR;
+
+    reader->destination_dir = destination_dir;
     err = mz_zip_reader_goto_first_entry(reader);
 
     if (err == MZ_END_OF_LIST)

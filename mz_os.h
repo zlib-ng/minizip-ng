@@ -91,6 +91,9 @@ int32_t mz_path_remove_extension(char *path);
 int32_t mz_path_get_filename(const char *path, const char **filename);
 /* Get the filename from a path */
 
+int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path);
+/* Checks if any existing component of path is a symlink that escapes base path. */
+
 int32_t mz_dir_make(const char *path);
 /* Creates a directory recursively */
 
@@ -138,6 +141,9 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes);
 
 int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes);
 /* Sets a file's attributes */
+
+int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix);
+/* Gets a unique temporary file path */
 
 int32_t mz_os_make_dir(const char *path);
 /* Recursively creates a directory */
