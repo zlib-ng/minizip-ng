@@ -17,10 +17,11 @@
 #include "mz_strm.h"
 #include "mz_strm_os.h"
 
-#include <stdio.h> /* fopen, fread.. */
+#include <stdio.h> /* fopen, fread, ... */
 #include <errno.h>
-#include <unistd.h>  // open, close, ...
-#include <fcntl.h>   // O_NOFOLLOW, ...
+#include <sys/stat.h> /* S_IRUSR, S_IWUSR, ... */
+#include <unistd.h>   /* open, close, ... */
+#include <fcntl.h>    /* O_NOFOLLOW, ... */
 
 /***************************************************************************/
 
