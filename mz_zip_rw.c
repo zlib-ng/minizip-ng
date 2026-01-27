@@ -697,6 +697,13 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         goto save_cleanup;
     }
 
+    /* Check if path traverses through an existing symlink that escapes destination */
+    if (reader->destination_dir &&
+        mz_dir_has_unsafe_symlink(directory, reader->destination_dir) != MZ_OK) {
+        err = MZ_EXIST_ERROR;
+        goto save_cleanup;
+    }
+
     /* Check if file exists and ask if we want to overwrite */
     if (reader->overwrite_cb && mz_os_file_exists(pathwfs) == MZ_OK) {
         err_cb = reader->overwrite_cb(reader, reader->overwrite_userdata, reader->file_info, pathwfs);
@@ -710,13 +717,6 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     if ((mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) && (mz_path_has_slash(pathwfs) == MZ_OK)) {
         mz_path_remove_slash(pathwfs);
         mz_path_remove_filename(directory);
-    }
-
-    /* Check if path traverses through an existing symlink that escapes destination */
-    if (reader->destination_dir &&
-        mz_dir_has_unsafe_symlink(directory, reader->destination_dir) != MZ_OK) {
-        err = MZ_EXIST_ERROR;
-        goto save_cleanup;
     }
 
     /* Create the output directory if it doesn't already exist */

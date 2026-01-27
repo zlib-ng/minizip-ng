@@ -342,6 +342,8 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
     length = (size_t)readlink(path, target_path, max_target_path - 1);
     if (length == (size_t)-1)
         return MZ_EXIST_ERROR;
+    if (length >= (size_t)(max_target_path - 1))
+        return MZ_BUF_ERROR;
 
     target_path[length] = 0;
     return MZ_OK;
