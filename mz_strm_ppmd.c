@@ -208,7 +208,7 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
 
         mz_setup_buffered_writer(ppmd);
 
-        order = ppmd->preset;                      /* 4, 5, 6, ..., 12. */
+        order = ppmd->preset;                       /* 4, 5, 6, ..., 12. */
         mem_size = 1 << (MIN(ppmd->preset, 8) - 1); /* 1MB, 2MB, 4MB, ..., 128MB. */
         restor = (ppmd->preset <= 6 ? 0 : 1);
 
@@ -246,8 +246,8 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         return MZ_SUPPORT_ERROR;
 #else
 
-        uint8_t ppmd_props[2]; /* PPMd properties. */
-        uint16_t ppmd_prop_word;     /* PPMd properties. */
+        uint8_t ppmd_props[2];   /* PPMd properties. */
+        uint16_t ppmd_prop_word; /* PPMd properties. */
 
         /* Initialize the 7-Zip I/O structure. */
         mz_setup_buffered_reader(ppmd);
