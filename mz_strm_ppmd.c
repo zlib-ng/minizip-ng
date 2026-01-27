@@ -27,28 +27,28 @@ static mz_stream_vtbl mz_stream_ppmd_vtbl = {
 
 /***************************************************************************/
 
-#define PPMD_PRESET_DEFAULT 9  // Should match default in7-Zip
+#define PPMD_PRESET_DEFAULT 9  // Should match default in 7-Zip
 
 /***************************************************************************/
 
-typedef struct mz_InBuffer_s {
-    const void *src; /**< start of input buffer */
-    size_t size;     /**< size of input buffer */
-    size_t pos;      /**< position where reading stopped. Will be updated. Necessarily 0 <= pos <= size */
-} mz_InBuffer;
+typedef struct mz_in_buffer_s {
+    const void *src;
+    size_t size;
+    size_t pos;
+} mz_in_buffer;
 
-typedef struct mz_OutBuffer_s {
-    void *dst;   /**< start of output buffer */
-    size_t size; /**< size of output buffer */
-    size_t pos;  /**< position where writing stopped. Will be updated. Necessarily 0 <= pos <= size */
-} mz_OutBuffer;
+typedef struct mz_out_buffer_s {
+    void *dst;
+    size_t size;
+    size_t pos;
+} mz_out_buffer;
 
 typedef struct mz_ppmd_info_s {
     /* hold CPpmd8 or CPpmd7 struct pointer */
     void *cPpmd;
     void *rc;
-    mz_InBuffer *in;
-    mz_OutBuffer *out;
+    mz_in_buffer *in;
+    mz_out_buffer *out;
     int max_length;
     int result;
     void *t;
@@ -56,17 +56,17 @@ typedef struct mz_ppmd_info_s {
 
 typedef struct {
     /* Inherits from IByteIn */
-    Byte (*Read)(void *p);
-    mz_InBuffer *inBuffer;
+    Byte (*read)(void *p);
+    mz_in_buffer *in_buffer;
     void *t;
-} mz_BufferReader;
+} mz_buffer_reader;
 
 typedef struct {
     /* Inherits from IByteOut */
-    void (*Write)(void *p, Byte b);
-    mz_OutBuffer *outBuffer;
+    void (*write)(void *p, Byte b);
+    mz_out_buffer *out_buffer;
     mz_ppmd_info *t;
-} mz_BufferWriter;
+} mz_buffer_writer;
 
 typedef struct mz_stream_ppmd_s {
     mz_stream stream;
@@ -81,15 +81,14 @@ typedef struct mz_stream_ppmd_s {
     ISzAlloc allocator;
 
     // Write specific
-    mz_BufferWriter writer;
-    mz_OutBuffer out;
-    int32_t preset;  // PPMD uses theterm level for this
+    mz_buffer_writer writer;
+    mz_out_buffer out;
+    int32_t preset;  // PPMD uses the term level for this
 
     // Read Specific
-    mz_BufferReader reader;
-    mz_InBuffer in;
+    mz_buffer_reader reader;
+    mz_in_buffer in;
     int8_t end_stream;
-
 } mz_stream_ppmd;
 
 /***************************************************************************/
@@ -108,12 +107,12 @@ static void mz_ppmd_free_func(const ISzAlloc *p, void *address) {
 
 #ifndef MZ_ZIP_NO_COMPRESSION
 
-static void Writer(const void *p, Byte b) {
-    mz_BufferWriter *bufferWriter = (mz_BufferWriter *)p;
-    if (bufferWriter->outBuffer->size == bufferWriter->outBuffer->pos) {
+static void writer(void *p, Byte b) {
+    mz_buffer_writer *buffer_writer = (mz_buffer_writer *)p;
+    if (buffer_writer->out_buffer->size == buffer_writer->out_buffer->pos) {
         return;
     }
-    *((Byte *)bufferWriter->outBuffer->dst + bufferWriter->outBuffer->pos++) = b;
+    *((Byte *)buffer_writer->out_buffer->dst + buffer_writer->out_buffer->pos++) = b;
 }
 
 static int32_t mz_stream_ppmd_flush(void *stream) {
@@ -134,24 +133,21 @@ static void mz_setup_buffered_writer(mz_stream_ppmd *ppmd) {
     ppmd->out.size = sizeof(ppmd->buffer);  // INT16_MAX;
     ppmd->out.pos = 0;
 
-    ppmd->writer.Write = (void (*)(void *, Byte))Writer;
-    ppmd->writer.outBuffer = &ppmd->out;
+    ppmd->writer.write = writer;
+    ppmd->writer.out_buffer = &ppmd->out;
     ppmd->ppmd8.Stream.Out = (IByteOut *)&ppmd->writer;
 }
 #endif
 
 #ifndef MZ_ZIP_NO_DECOMPRESSION
 
-static Byte Reader(void *p) {
-    mz_BufferReader *bufferReader = (mz_BufferReader *)p;
-    mz_stream_ppmd *ppmd = (mz_stream_ppmd *)bufferReader->t;
+static Byte reader(void *p) {
+    mz_buffer_reader *buffer_reader = (mz_buffer_reader *)p;
+    mz_stream_ppmd *ppmd = (mz_stream_ppmd *)buffer_reader->t;
     uint8_t b;
     int32_t status;
 
-    // mz_stream_read_uint8( (mz_stream_ppmd *)ppmd->stream.base, &b));
     if ((status = mz_stream_read_uint8((mz_stream_ppmd *)ppmd->stream.base, &b)) != MZ_OK) {
-        // TODO - don't think this can ever happen?
-
         if (b == -1)  // EOF
             ppmd->end_stream = 1;
         else
@@ -168,8 +164,8 @@ static void mz_setup_buffered_reader(mz_stream_ppmd *ppmd) {
     ppmd->in.size = sizeof(ppmd->buffer);  // INT16_MAX;
     ppmd->in.pos = 0;
 
-    ppmd->reader.Read = Reader;
-    ppmd->reader.inBuffer = &ppmd->in;
+    ppmd->reader.read = reader;
+    ppmd->reader.in_buffer = &ppmd->in;
     ppmd->ppmd8.Stream.In = (IByteIn *)&ppmd->reader;
 
     ppmd->reader.t = ppmd;
@@ -189,7 +185,6 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         MZ_UNUSED(stream);
         return MZ_SUPPORT_ERROR;
 #else
-
         /* PPMD8_MIN_ORDER (= 2) <= order <= PPMD8_MAX_ORDER (= 16)
          * 1MB (= 2* 0) <= memSize <= 256MB (= 2^ 8)   (M = 2^ 20)
          * restor = 0 (PPMD8_RESTORE_METHOD_RESTART),
@@ -204,9 +199,9 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
 
         /* PPMd parameters. */
         unsigned order;
-        unsigned memSize;
+        uint32_t mem_size;
         unsigned restor;
-        unsigned short ppmd_param_word;
+        uint16_t ppmd_param_word;
 
         if (ppmd->preset < PPMD8_MIN_ORDER || ppmd->preset > PPMD8_MAX_ORDER)
             return MZ_OPEN_ERROR;
@@ -214,12 +209,12 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         mz_setup_buffered_writer(ppmd);
 
         order = ppmd->preset;                      /* 4, 5, 6, ..., 12. */
-        memSize = 1 << (MIN(ppmd->preset, 8) - 1); /* 1MB, 2MB, 4MB, ..., 128MB. */
+        mem_size = 1 << (MIN(ppmd->preset, 8) - 1); /* 1MB, 2MB, 4MB, ..., 128MB. */
         restor = (ppmd->preset <= 6 ? 0 : 1);
 
-        memSize <<= 20; /* Convert B to MB. */
+        mem_size <<= 20; /* Convert B to MB. */
 
-        if (!Ppmd8_Alloc(&ppmd->ppmd8, memSize, &ppmd->allocator)) {
+        if (!Ppmd8_Alloc(&ppmd->ppmd8, mem_size, &ppmd->allocator)) {
             return MZ_MEM_ERROR;
         }
 
@@ -235,13 +230,13 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
          */
 
         /* Form the PPMd properties word.  Put out the bytes. */
-        ppmd_param_word = ((order - 1) & 0xf) + ((((memSize >> 20) - 1) & 0xff) << 4) + ((restor & 0xf) << 12);
+        ppmd_param_word = ((order - 1) & 0xf) + ((((mem_size >> 20) - 1) & 0xff) << 4) + ((restor & 0xf) << 12);
 
         // write header bytes directly to output buffer, bypassing the compression code
         // These bytes will be included in the compressed size stored in the zip metadata.
 
-        ((uint8_t *)ppmd->out.dst)[0] = (Byte)(ppmd_param_word & 0xff);
-        ((uint8_t *)ppmd->out.dst)[1] = (Byte)(ppmd_param_word >> 8);
+        ((uint8_t *)ppmd->out.dst)[0] = (uint8_t)(ppmd_param_word & 0xff);
+        ((uint8_t *)ppmd->out.dst)[1] = (uint8_t)(ppmd_param_word >> 8);
         ppmd->out.pos += 2;
         mz_stream_ppmd_flush(ppmd);
 #endif
@@ -251,7 +246,7 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         return MZ_SUPPORT_ERROR;
 #else
 
-        unsigned char ppmd_props[2]; /* PPMd properties. */
+        uint8_t ppmd_props[2]; /* PPMd properties. */
         uint16_t ppmd_prop_word;     /* PPMd properties. */
 
         /* Initialize the 7-Zip I/O structure. */
@@ -272,16 +267,16 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
          *  Mdl_Res_Mth ___Sub-allocator_size-1 Mdl_Order-1
          */
         unsigned order = (ppmd_prop_word & 0xf) + 1;
-        unsigned memSize = ((ppmd_prop_word >> 4) & 0xff) + 1;
+        uint32_t mem_size = ((ppmd_prop_word >> 4) & 0xff) + 1;
         unsigned restor = (ppmd_prop_word >> 12);
 
         /* Convert archive MB value into raw byte value. */
-        memSize <<= 20;
+        mem_size <<= 20;
 
         if ((order < PPMD8_MIN_ORDER) || (order > PPMD8_MAX_ORDER))
             return MZ_STREAM_ERROR;
 
-        if (!Ppmd8_Alloc(&ppmd->ppmd8, memSize, &ppmd->allocator))
+        if (!Ppmd8_Alloc(&ppmd->ppmd8, mem_size, &ppmd->allocator))
             return MZ_STREAM_ERROR;
 
         if (!Ppmd8_Init_RangeDec(&ppmd->ppmd8))
@@ -312,19 +307,21 @@ int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size) {
     return MZ_SUPPORT_ERROR;
 #else
     mz_stream_ppmd *ppmd = (mz_stream_ppmd *)stream;
-    unsigned char *next_out = buf; /* Output buffer pointer. */
-    unsigned avail_out = size;     /* Output buffer size. */
-
+    uint8_t *next_out = buf;
+    int32_t avail_out;
+    int32_t avail_in = sizeof(ppmd->buffer);
     int sym = 0;
     int32_t written = 0;
 
     if (ppmd->end_stream)
         return MZ_OK;
 
+    if (ppmd->max_total_in > 0 && avail_in > (ppmd->max_total_in - ppmd->total_in))
+        avail_in = (int32_t)(ppmd->max_total_in - ppmd->total_in);
+
     /* Decode input to fill the output buffer. */
-    for (avail_out = size; avail_out > 0; avail_out--) {
+    for (avail_out = size; avail_out > 0 && avail_in > 0; avail_out--, avail_in--) {
         sym = Ppmd8_DecodeSymbol(&ppmd->ppmd8);
-        ;
 
         if (sym < 0 || ppmd->end_stream || ppmd->error)
             break;
@@ -337,12 +334,12 @@ int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size) {
         // end_stream
         ppmd->end_stream = 1;
 
-        // Drop through and return ritten bytes
+        // Drop through and return written bytes
     } else if (sym == -2) {
         /* Insufficient input data. */
         return MZ_STREAM_ERROR;
     } else if (ppmd->error) {
-        /* Invalid end of input data? */
+        /* Invalid end of input data */
         return ppmd->error;
     }
 
@@ -445,7 +442,7 @@ int32_t mz_stream_ppmd_set_prop_int64(void *stream, int32_t prop, int64_t value)
 
     switch (prop) {
     case MZ_STREAM_PROP_TOTAL_IN_MAX:
-        ppmd->max_total_in = value;  // TODO -- see what this can get used for in PPMd
+        ppmd->max_total_in = value;
         return MZ_OK;
     case MZ_STREAM_PROP_COMPRESS_LEVEL:
         if (value == MZ_COMPRESS_LEVEL_DEFAULT)

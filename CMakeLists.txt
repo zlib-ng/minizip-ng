@@ -408,7 +408,6 @@ if(MZ_PPMD)
     list(APPEND MINIZIP_DEF -DHAVE_PPMD)
     list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
     list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
-
 endif()
 
 if(MZ_ZSTD)
