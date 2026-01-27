@@ -284,10 +284,9 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     char *resolved = NULL;
     size_t path_len = 0;
     size_t base_len = 0;
-    size_t alloc_size = 0;
+    size_t max_path = 1024;
     size_t parent_len = 0;
     size_t pos = 0;
-    size_t symlink_target_size = 1024;
     int32_t err = MZ_OK;
 
     if (!path || *path == 0 || !base_path)
@@ -300,17 +299,9 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     while (base_len > 0 && mz_os_is_dir_separator(base_path[base_len - 1]))
         base_len--;
 
-    /* Allocate buffers with max size needed: path + symlink target + separator */
-    alloc_size = path_len * 2 + 2;
-
     check_path = (char *)calloc(1, path_len + 1);
-    symlink_target = (char *)calloc(1, symlink_target_size);
-    combined = (char *)calloc(1, alloc_size);
-    resolved = (char *)calloc(1, alloc_size);
-
-    if (!check_path || !symlink_target || !combined || !resolved) {
-        err = MZ_MEM_ERROR;
-    }
+    if (!check_path)
+        return MZ_MEM_ERROR;
 
     /* Walk through each path component */
     while (err == MZ_OK && pos < path_len) {
@@ -330,7 +321,20 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
         /* Check if this existing path component is a symlink */
         if (mz_os_is_symlink(check_path) != MZ_OK)
             continue;
-        if (mz_os_read_symlink(check_path, symlink_target, symlink_target_size) != MZ_OK) {
+
+        /* Allocate symlink buffers on first use */
+        if (!symlink_target) {
+            symlink_target = (char *)calloc(1, max_path);
+            combined = (char *)calloc(1, max_path);
+            resolved = (char *)calloc(1, max_path);
+
+            if (!symlink_target || !combined || !resolved) {
+                err = MZ_MEM_ERROR;
+                break;
+            }
+        }
+
+        if (mz_os_read_symlink(check_path, symlink_target, max_path) != MZ_OK) {
             err = MZ_EXIST_ERROR;
             break;
         }
@@ -353,12 +357,12 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
         if (parent_len > 0) {
             strncpy(combined, check_path, parent_len);
             combined[parent_len] = 0;
-            mz_path_append_slash(combined, (int32_t)alloc_size, MZ_PATH_SLASH_PLATFORM);
+            mz_path_append_slash(combined, (int32_t)max_path, MZ_PATH_SLASH_PLATFORM);
         }
-        strncat(combined, symlink_target, alloc_size - strlen(combined) - 1);
+        strncat(combined, symlink_target, max_path - strlen(combined) - 1);
 
         /* Resolve the combined path to eliminate .. */
-        if (mz_path_resolve(combined, resolved, (int32_t)alloc_size) != MZ_OK) {
+        if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
             err = MZ_EXIST_ERROR;
             break;
         }
