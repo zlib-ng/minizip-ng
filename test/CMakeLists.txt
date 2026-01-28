@@ -35,7 +35,7 @@ if(NOT TARGET GTest::GTest)
         GIT_REPOSITORY ${GTEST_REPOSITORY}
         GIT_TAG ${GTEST_TAG})
 
-    FetchContent_GetProperties(googletest)
+    FetchContent_MakeAvailable(googletest)
     if(NOT googletest_POPULATED)
         FetchContent_Populate(googletest)
         add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)

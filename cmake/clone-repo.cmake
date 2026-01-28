@@ -23,7 +23,7 @@ macro(clone_repo name url tag)
             GIT_TAG ${${name_upper}_TAG}
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/${name_lower})
 
-        FetchContent_GetProperties(${name} POPULATED ${name_lower}_POPULATED)
+        FetchContent_MakeAvailable(${name})
 
         if(NOT ${name_lower}_POPULATED)
             FetchContent_Populate(${name})
