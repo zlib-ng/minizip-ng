@@ -18,7 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_LIBCOMP)
 static void test_zip_compat(zipFile zip, const char *filename, int32_t level) {
     int32_t err = ZIP_OK;
     zip_fileinfo file_info;
