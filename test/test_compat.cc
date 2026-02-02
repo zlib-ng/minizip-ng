@@ -289,4 +289,13 @@ TEST(compat, unzip64) {
     test_unzip_compat(unzip);
     unzClose(unzip);
 }
+
+/*  Keep this dummy test last in this file.
+    It's purpose is to delete "compat.zip" after all other tests have run.
+*/
+
+TEST(compat, final) {
+    if (mz_os_file_exists("compat.zip") != MZ_OK)
+        mz_os_unlink("compat.zip");
+}
 #endif
