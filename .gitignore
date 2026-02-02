@@ -15,5 +15,5 @@ LICENSE.dec.pkcrypt
 LICENSE.enc.aes
 LICENSE.enc.pkcrypt
 
-# test/test_compat.cc can leave compat.zip handing around
+# test/test_compat.cc can leave compat.zip hanging around
 compat.zip
