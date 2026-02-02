@@ -29,6 +29,10 @@ static mz_stream_vtbl mz_stream_ppmd_vtbl = {
 
 #define PPMD_PRESET_DEFAULT 9  // Should match default in 7-Zip
 
+// Return values from Ppmd8_DecodeSymbol
+#define PPMD_RESULT_EOF   (-1)
+#define PPMD_RESULT_ERROR (-2)
+
 /***************************************************************************/
 
 typedef struct mz_in_buffer_s {
@@ -148,10 +152,7 @@ static Byte reader(void *p) {
     int32_t status;
 
     if ((status = mz_stream_read_uint8((mz_stream_ppmd *)ppmd->stream.base, &b)) != MZ_OK) {
-        if (b == -1)  // EOF
-            ppmd->end_stream = 1;
-        else
-            ppmd->error = status;
+        ppmd->error = status;
         b = 0;
     } else
         ++ppmd->total_in;
@@ -323,19 +324,24 @@ int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size) {
     for (avail_out = size; avail_out > 0 && avail_in > 0; avail_out--, avail_in--) {
         sym = Ppmd8_DecodeSymbol(&ppmd->ppmd8);
 
-        if (sym < 0 || ppmd->end_stream || ppmd->error)
+        /* There are two ways to terminate the loop early:
+           1. Ppmd8_DecodeSymbol returns a negative number to flag EOF or stream error.
+           2. ppmd->error gets set to true here when the call to mz_stream_read_uint8
+              in reader() does not return MZ_OK.
+        */
+        if (sym < 0 || ppmd->error)
             break;
 
         *(next_out++) = sym;
         ++written;
     }
 
-    if (sym == -1) {
-        // end_stream
+    // sym contains the return code from  Ppmd8_DecodeSymbol
+    if (sym == PPMD_RESULT_EOF) {
         ppmd->end_stream = 1;
 
         // Drop through and return written bytes
-    } else if (sym == -2) {
+    } else if (sym == PPMD_RESULT_ERROR) {
         /* Insufficient input data. */
         return MZ_STREAM_ERROR;
     } else if (ppmd->error) {
