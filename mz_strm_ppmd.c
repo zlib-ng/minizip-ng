@@ -8,7 +8,6 @@
    See the accompanying LICENSE file for the full text of the license.
 */
 
-#include <sys/param.h>  // for MIN()
 #include <assert.h>
 
 #include "mz.h"
@@ -186,7 +185,7 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
         return MZ_SUPPORT_ERROR;
 #else
         /* PPMD8_MIN_ORDER (= 2) <= order <= PPMD8_MAX_ORDER (= 16)
-         * 1MB (= 2* 0) <= memSize <= 256MB (= 2^ 8)   (M = 2^ 20)
+         * 2MB (= 2^ 1) <= memSize <= 128MB (= 2^ 7)   (M = 2^ 20)
          * restor = 0 (PPMD8_RESTORE_METHOD_RESTART),
          *          1 (PPMD8_RESTORE_METHOD_CUT_OFF)
          *
@@ -198,19 +197,19 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
          */
 
         /* PPMd parameters. */
-        unsigned order;
+        unsigned order = ppmd->preset; /* 2, 3, ..., 16. */
         uint32_t mem_size;
         unsigned restor;
         uint16_t ppmd_param_word;
 
-        if (ppmd->preset < PPMD8_MIN_ORDER || ppmd->preset > PPMD8_MAX_ORDER)
+        if (order < PPMD8_MIN_ORDER || order > PPMD8_MAX_ORDER)
             return MZ_OPEN_ERROR;
 
         mz_setup_buffered_writer(ppmd);
 
-        order = ppmd->preset;                       /* 4, 5, 6, ..., 12. */
-        mem_size = 1 << (MIN(ppmd->preset, 8) - 1); /* 1MB, 2MB, 4MB, ..., 128MB. */
-        restor = (ppmd->preset <= 6 ? 0 : 1);
+        mem_size = 1 << ((order < 8 ? order : 8) - 1); /* 2MB, 4MB, ..., 128MB. */
+
+        restor = (order <= 6 ? 0 : 1);
 
         mem_size <<= 20; /* Convert B to MB. */
 
