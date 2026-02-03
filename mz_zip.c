@@ -2669,8 +2669,10 @@ int32_t mz_zip_extrafield_write(void *stream, uint16_t type, uint16_t length) {
 
 /***************************************************************************/
 
-/// This is mostly validating a given time struct is convertible to and from a valid dos date.
-/// This does not however perform a calendar validation (like February 31).
+/**
+ This is mostly validating a given time struct is convertible to and from a valid dos date.
+ This does not however perform a calendar validation (like February 31).
+ */
 static int32_t mz_zip_invalid_date(const struct tm *ptm) {
 #define datevalue_in_range(min, max, value) ((min) <= (value) && (value) <= (max))
     return (!datevalue_in_range(0, 127 + 80, ptm->tm_year) || /* 1980-based year, allow 80 extra */
@@ -2682,9 +2684,11 @@ static int32_t mz_zip_invalid_date(const struct tm *ptm) {
 #undef datevalue_in_range
 }
 
-/// Returns a year-1900 indexed time struct.
-/// This may produce slightly out-of-range months, hours, minutes, seconds.
-/// This may also produce invalid calendar days (like the 31st of February).
+/**
+ Returns a year-1900 indexed time struct.
+ This may produce slightly out-of-range months, hours, minutes, seconds.
+ This may also produce invalid calendar days (like the 31st of February).
+ */
 static void mz_zip_dosdate_to_raw_tm(uint64_t dos_date, struct tm *ptm) {
     uint64_t date = (uint64_t)(dos_date >> 16);
 
