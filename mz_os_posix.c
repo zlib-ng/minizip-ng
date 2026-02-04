@@ -352,7 +352,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
 
 int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     const char *tmp_dir = NULL;
-    char *temp_path = (char *)calloc(max_path, sizeof(char));
+    char *temp_path;
     int32_t result = 0;
 
     if (!path || max_path <= 0)
@@ -367,6 +367,10 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
         tmp_dir = "/tmp";
 
     /* Build template path for mkdtemp: <tmp_dir>/<prefix>XXXXXX */
+    temp_path = (char *)calloc(max_path, sizeof(char));
+    if (!temp_path)
+        return MZ_MEM_ERROR;
+
     result = snprintf(temp_path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
     if (result < 0 || result >= max_path) {
         free(temp_path);
@@ -385,6 +389,7 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     /* Use current time for the filename                */
     result = snprintf(path, max_path, "%s/%lux", temp_path, time(NULL));
     if (result < 0 || result >= max_path) {
+        rmdir(temp_path);
         free(temp_path);
         return MZ_BUF_ERROR;
     }
