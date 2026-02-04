@@ -326,7 +326,7 @@ int32_t mz_os_is_symlink(const char *path) {
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {
 #if defined(NO_SYMLINK)
     return MZ_SUPPORT_ERROR;
-#else	
+#else
     if (symlink(target_path, path) != 0)
         return MZ_INTERNAL_ERROR;
     return MZ_OK;
@@ -353,6 +353,7 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
 int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     const char *tmp_dir = NULL;
     int32_t result = 0;
+    char temp_path[max_path];
 
     if (!path || max_path <= 0)
         return MZ_PARAM_ERROR;
@@ -365,14 +366,25 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     if (!tmp_dir)
         tmp_dir = "/tmp";
 
-    /* Build template path for mktemp: <tmp_dir>/<prefix>XXXXXX */
-    result = snprintf(path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
+    /* Check for no environment variable set at all */
+    if (!tmp_dir)
+        return MZ_INTERNAL_ERROR;
+
+    /* Build template path for mkdtemp: <tmp_dir>/<prefix>XXXXXX */
+    result = snprintf(temp_path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
     if (result < 0 || result >= max_path)
         return MZ_BUF_ERROR;
 
-    /* mktemp replaces XXXXXX with unique characters */
-    if (!mktemp(path))
+    /* Create a temporary directory.
+       mkdtemp replaces XXXXXX with unique characters
+    */
+    if (!mkdtemp(temp_path))
         return MZ_INTERNAL_ERROR;
+
+    /* Create a filename inside the temporary directory */
+    result = snprintf(path, max_path, "%s/f", temp_path);
+    if (result < 0 || result >= max_path)
+        return MZ_BUF_ERROR;
 
     return MZ_OK;
 }
