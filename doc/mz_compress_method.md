@@ -10,5 +10,6 @@ Compression method enumeration.
 |MZ_COMPRESS_METHOD_LZMA|14|LZMA1 compression|
 |MZ_COMPRESS_METHOD_ZSTD|93|ZSTD compression|
 |MZ_COMPRESS_METHOD_XZ|95|XZ compression|
+|MZ_COMPRESS_METHOD_PPMD|98|PPMD compression|
 
 _MZ_COMPRESS_METHOD_AES_ is only for internal use.

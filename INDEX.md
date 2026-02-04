@@ -14,6 +14,7 @@
 | mz_strm_libcomp.\* | Apple compression stream                        |
 | mz_strm_lzma.\*    | LZMA stream using liblzma                       |
 | mz_strm_mem.\*     | Memory stream                                   |
+| mz_strm_ppmd.\*    | PPMD stream                                     |
 | mz_strm_split.\*   | Disk splitting stream                           |
 | mz_strm_pkcrypt.\* | PKWARE traditional encryption stream            |
 | mz_strm_os\*       | Platform specific file stream                   |
