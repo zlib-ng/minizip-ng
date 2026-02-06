@@ -366,10 +366,6 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     if (!tmp_dir)
         tmp_dir = "/tmp";
 
-    /* Check for no environment variable set at all */
-    if (!tmp_dir)
-        return MZ_INTERNAL_ERROR;
-
     /* Build template path for mkdtemp: <tmp_dir>/<prefix>XXXXXX */
     result = snprintf(temp_path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
     if (result < 0 || result >= max_path)
