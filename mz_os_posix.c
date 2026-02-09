@@ -352,8 +352,8 @@ int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_targ
 
 int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     const char *tmp_dir = NULL;
+    char *temp_path = (char *)calloc(max_path, sizeof(char));
     int32_t result = 0;
-    char temp_path[max_path];
 
     if (!path || max_path <= 0)
         return MZ_PARAM_ERROR;
