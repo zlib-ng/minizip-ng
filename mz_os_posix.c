@@ -378,7 +378,8 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
         return MZ_INTERNAL_ERROR;
 
     /* Create a filename inside the temporary directory */
-    result = snprintf(path, max_path, "%s/f", temp_path);
+    /* Use current time for the filename                */
+    result = snprintf(path, max_path, "%s/%lux", temp_path, time(NULL));
     if (result < 0 || result >= max_path)
         return MZ_BUF_ERROR;
 
