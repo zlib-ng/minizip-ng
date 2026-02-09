@@ -226,9 +226,6 @@ if(MZ_ZLIB)
 
         clone_repo(zlib https://github.com/zlib-ng/zlib-ng stable)
 
-        # Don't automatically add all targets to the solution
-        add_subdirectory(${ZLIB_SOURCE_DIR} ${ZLIB_BINARY_DIR} EXCLUDE_FROM_ALL)
-
         list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
         list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
 
@@ -343,9 +340,6 @@ if(MZ_LZMA)
         set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
 
         clone_repo(liblzma https://github.com/tukaani-project/xz master)
-
-        # Don't automatically add all targets to the solution
-        add_subdirectory(${LIBLZMA_SOURCE_DIR} ${LIBLZMA_BINARY_DIR} EXCLUDE_FROM_ALL)
 
         list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
         list(APPEND MINIZIP_DEP liblzma)
