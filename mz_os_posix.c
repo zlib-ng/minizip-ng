@@ -383,7 +383,7 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     if (result < 0 || result >= max_path)
         return MZ_BUF_ERROR;
 
-    free(temp_path) ;
+    free(temp_path);
     return MZ_OK;
 }
 
