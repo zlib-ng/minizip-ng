@@ -70,8 +70,8 @@ option(MZ_BUILD_UNIT_TESTS "Builds minizip unit test project" OFF)
 option(MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables" OFF)
 option(MZ_CODE_COVERAGE "Builds with code coverage flags" OFF)
 # Multi-choice code sanitizer option
-set(MZ_SANITIZER AUTO CACHE STRING "Enable sanitizer support")
-set_property(CACHE MZ_SANITIZER PROPERTY STRINGS "Memory" "Address" "Undefined" "Thread")
+set(MZ_SANITIZER OFF CACHE STRING "Enable sanitizer support")
+set_property(CACHE MZ_SANITIZER PROPERTY STRINGS "OFF" "memory" "address" "undefined" "thread")
 
 # Backwards compatibility
 if(DEFINED MZ_BUILD_TEST)
@@ -686,15 +686,25 @@ if(MZ_COMPAT)
     endif()
 endif()
 
-# Detect available sanitizers
-if(MZ_SANITIZER STREQUAL "Address")
+#
+# Check whether a sanitizer was requested
+#
+message(STATUS "Checking for sanitizer option")
+
+string(TOLOWER "${MZ_SANITIZER}" MZ_SANITIZER)
+if(NOT MZ_SANITIZER)
+    message(STATUS " sanitizer not enabled")
+elseif(MZ_SANITIZER STREQUAL "address")
     add_address_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "Memory")
+elseif(MZ_SANITIZER STREQUAL "memory")
     add_memory_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "Thread")
+elseif(MZ_SANITIZER STREQUAL "thread")
     add_thread_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "Undefined")
+elseif(MZ_SANITIZER STREQUAL "undefined")
     add_undefined_sanitizer()
+else()
+    message(FATAL_ERROR "Unknown MZ_SANITIZER option: '${MZ_SANITIZER}'\n"
+                        "MZ_SANITIZER must be one of: 'memory', 'address', 'undefined', 'thread'")
 endif()
 
 # Set compiler options
@@ -1079,5 +1089,6 @@ add_feature_info(MZ_BUILD_TESTS MZ_BUILD_TESTS "Builds minizip test executable")
 add_feature_info(MZ_BUILD_UNIT_TESTS MZ_BUILD_UNIT_TESTS "Builds minizip unit test project")
 add_feature_info(MZ_BUILD_FUZZ_TESTS MZ_BUILD_FUZZ_TESTS "Builds minizip fuzzer executables")
 add_feature_info(MZ_CODE_COVERAGE MZ_CODE_COVERAGE "Builds with code coverage flags")
+add_feature_info(MZ_SANITIZER MZ_SANITIZER "Enable sanitizer testing support")
 
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES INCLUDE_QUIET_PACKAGES)

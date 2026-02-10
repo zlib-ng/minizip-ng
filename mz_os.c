@@ -329,6 +329,8 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
             resolved = (char *)calloc(1, max_path);
 
             if (!symlink_target || !combined || !resolved) {
+                printf("Unsafe symlink detected 1: %s \n", check_path);
+                exit(-200);
                 err = MZ_MEM_ERROR;
                 break;
             }
