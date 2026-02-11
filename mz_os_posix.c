@@ -368,20 +368,26 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
 
     /* Build template path for mkdtemp: <tmp_dir>/<prefix>XXXXXX */
     result = snprintf(temp_path, max_path, "%s/%sXXXXXX", tmp_dir, prefix ? prefix : "");
-    if (result < 0 || result >= max_path)
+    if (result < 0 || result >= max_path) {
+        free(temp_path);
         return MZ_BUF_ERROR;
+    }
 
     /* Create a temporary directory.
        mkdtemp replaces XXXXXX with unique characters
     */
-    if (!mkdtemp(temp_path))
+    if (!mkdtemp(temp_path)) {
+        free(temp_path);
         return MZ_INTERNAL_ERROR;
+    }
 
     /* Create a filename inside the temporary directory */
     /* Use current time for the filename                */
     result = snprintf(path, max_path, "%s/%lux", temp_path, time(NULL));
-    if (result < 0 || result >= max_path)
+    if (result < 0 || result >= max_path) {
+        free(temp_path);
         return MZ_BUF_ERROR;
+    }
 
     free(temp_path);
     return MZ_OK;
