@@ -25,14 +25,6 @@ jobs:
             cmake-args: -D MZ_SANITIZER=Undefined
             codecov: ubuntu_gcc_undefined
 
-          # Memory Sanitizer not currenly supported on GitHub
-          # - name: Ubuntu GCC MSAN
-          #   os: ubuntu-latest
-          #   compiler: gcc
-          #   cxx-compiler: g++
-          #   cmake-args: -D MZ_SANITIZER=Memory
-          #   codecov: ubuntu_gcc_msan
-
           # No code coverage on release builds
           - name: Ubuntu 22 Clang
             os: ubuntu-22.04
