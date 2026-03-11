@@ -532,11 +532,15 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
             if (mz_os_file_exists(bak_path) == MZ_OK)
                 mz_os_unlink(bak_path);
 
-            if (mz_os_rename(src_path, bak_path) != MZ_OK)
+            err = MZ_OK;
+
+            if ((err = mz_os_rename(src_path, bak_path)) != MZ_OK)
                 printf("Error backing up archive before replacing %s\n", bak_path);
 
-            if (mz_os_rename(tmp_path, src_path) != MZ_OK)
+            if ((err = mz_os_rename(tmp_path, src_path)) != MZ_OK)
                 printf("Error replacing archive with temp %s\n", tmp_path);
+
+            return err;
         }
 
         return MZ_OK;
