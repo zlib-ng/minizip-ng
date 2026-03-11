@@ -357,7 +357,7 @@ endif()
 if(MZ_PPMD)
     message(STATUS "Using PPMD")
 
-    clone_repo(ppmd https://github.com/ip7z/7zip "25.01")
+    clone_repo(ppmd https://github.com/ip7z/7zip "26.00")
 
     # get the 7zip/PPMd version number
     file(READ "${PPMD_SOURCE_DIR}/C/7zVersion.h" version)

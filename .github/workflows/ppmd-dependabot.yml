@@ -17,7 +17,7 @@ jobs:
     - name: Check Upstream PPMd Version
       run: |
         # This is the hard-wired PPMd version that minizip-ng is built with.
-        expected_ppmd_version="25.01"
+        expected_ppmd_version="26.00"
 
         # get the latest PPMd version from upstream 7zip repo
         upstream_ppmd_version=$( git ls-remote --tags --sort=-v:refname https://github.com/ip7z/7zip  | head -n 1 | sed -e 's#.*/##' )
