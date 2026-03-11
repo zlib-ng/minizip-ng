@@ -134,7 +134,7 @@ int32_t mz_os_rename(const char *source_path, const char *target_path) {
 
     if (err == MZ_OK) {
 #if _WIN32_WINNT >= _WIN32_WINNT_WINXP
-        result = MoveFileExW(source_path_wide, target_path_wide, MOVEFILE_WRITE_THROUGH);
+        result = MoveFileExW(source_path_wide, target_path_wide, MOVEFILE_WRITE_THROUGH|MOVEFILE_COPY_ALLOWED);
 #else
         result = MoveFileW(source_path_wide, target_path_wide);
 #endif
