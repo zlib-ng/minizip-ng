@@ -255,7 +255,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
     int32_t written = 0;
     int32_t bytes_left = size;
     int32_t bytes_to_write = 0;
-    int32_t bytes_avail = 0;
+    int64_t bytes_avail = 0;
     int32_t number_disk = -1;
     int32_t err = MZ_OK;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
@@ -279,7 +279,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
             }
 
             if (split->number_disk != -1) {
-                bytes_avail = (int32_t)(split->disk_size - split->total_out_disk);
+                bytes_avail = split->disk_size - split->total_out_disk;
                 if (bytes_to_write > bytes_avail)
                     bytes_to_write = bytes_avail;
             }
