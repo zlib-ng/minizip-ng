@@ -389,7 +389,7 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     /* Use current time for the filename                */
     result = snprintf(path, max_path, "%s/%lux", temp_path, time(NULL));
     if (result < 0 || result >= max_path) {
-        rmdir(temp_path);
+        rmdir(temp_path);  // clean up the created directory
         free(temp_path);
         return MZ_BUF_ERROR;
     }
