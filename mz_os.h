@@ -49,13 +49,18 @@ extern "C" {
 
 /***************************************************************************/
 
-#if defined(_WIN32)
+#if HAVE_DIRENT_H
+#  include <dirent.h>
+#elif HAVE_SYS_DIRENT_H
+#  include <sys/dirent.h>
+#else
 struct dirent {
     char d_name[256];
 };
-typedef void *DIR;
-#else
-#  include <dirent.h>
+#endif
+
+#if !HAVE_PDIR
+typedef struct DIR DIR;
 #endif
 
 /***************************************************************************/
