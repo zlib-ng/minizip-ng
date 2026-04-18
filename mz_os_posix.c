@@ -9,6 +9,7 @@
 */
 
 #include "mz.h"
+#include "mz_config.h"
 #include "mz_strm.h"
 #include "mz_os.h"
 
@@ -324,7 +325,7 @@ int32_t mz_os_is_symlink(const char *path) {
 }
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {
-#if defined(NO_SYMLINK)
+#if !HAVE_SYMLINK
     return MZ_SUPPORT_ERROR;
 #else
     if (symlink(target_path, path) != 0)
@@ -334,7 +335,7 @@ int32_t mz_os_make_symlink(const char *path, const char *target_path) {
 }
 
 int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path) {
-#if defined(NO_READLINK)
+#if !HAVE_READLINK
     return MZ_SUPPORT_ERROR;
 #else
     size_t length = 0;

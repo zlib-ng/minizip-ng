@@ -1,0 +1,28 @@
+#ifndef MZ_CONFIG_H
+#define MZ_CONFIG_H
+
+// Define to 1 if you have the <dirent.h> header file.
+#cmakedefine01 HAVE_DIRENT_H
+
+// Define to 1 if you have the <sys/dirent.h> header file.
+#cmakedefine01 HAVE_SYS_DIRENT_H
+
+// Define to 1 if you have the <inttypes.h> header file.
+#cmakedefine01 HAVE_INTTYPES_H
+
+// Define to 1 if you have the <stdint.h> header file.
+#cmakedefine01 HAVE_STDINT_H
+
+// Define to 1 if DIR* is defined.
+#cmakedefine01 HAVE_PDIR
+
+// Define to 1 if fseeko() is defined.
+#cmakedefine01 HAVE_FSEEKO
+
+// Define to 1 if symlink() is defined.
+#cmakedefine01 HAVE_SYMLINK
+
+// Define to 1 if readlink() is defined.
+#cmakedefine01 HAVE_READLINK
+
+#endif

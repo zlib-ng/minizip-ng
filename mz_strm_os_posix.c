@@ -14,6 +14,7 @@
 */
 
 #include "mz.h"
+#include "mz_config.h"
 #include "mz_strm.h"
 #include "mz_strm_os.h"
 
@@ -27,7 +28,7 @@
 
 #define fopen64 fopen
 #ifndef MZ_FILE32_API
-#  ifndef NO_FSEEKO
+#  if HAVE_FSEEKO
 #    define ftello64 ftello
 #    define fseeko64 fseeko
 #  elif defined(_MSC_VER) && (_MSC_VER >= 1400)

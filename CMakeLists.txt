@@ -144,19 +144,6 @@ check_include_file(sys/dirent.h HAVE_SYS_DIRENT_H)
 check_include_file(inttypes.h   HAVE_INTTYPES_H)
 check_include_file(stdint.h     HAVE_STDINT_H)
 
-if(HAVE_DIRENT_H)
-    list(APPEND STDLIB_DEF -DHAVE_DIRENT_H)
-endif()
-if(HAVE_SYS_DIRENT_H)
-    list(APPEND STDLIB_DEF -DHAVE_SYS_DIRENT_H)
-endif()
-if(HAVE_INTTYPES_H)
-    list(APPEND STDLIB_DEF -DHAVE_INTTYPES_H)
-endif()
-if(HAVE_STDINT_H)
-    list(APPEND STDLIB_DEF -DHAVE_STDINT_H)
-endif()
-
 # Check DIR* exists
 cmake_push_check_state(RESET)
     if(HAVE_DIRENT_H)
@@ -167,9 +154,6 @@ cmake_push_check_state(RESET)
     endif()
     check_type_size(DIR* PDIR)
 cmake_pop_check_state()
-if(HAVE_PDIR)
-    list(APPEND STDLIB_DEF -DHAVE_PDIR)
-endif()
 
 # Check for large file support
 check_type_size(off64_t OFF64_T)
@@ -179,19 +163,12 @@ if(HAVE_OFF64_T)
 endif()
 # Check for fseeko support
 check_function_exists(fseeko HAVE_FSEEKO)
-if(NOT HAVE_FSEEKO)
-    list(APPEND STDLIB_DEF -DNO_FSEEKO)
-endif()
 # Check for fseeko symlink
 check_function_exists(symlink HAVE_SYMLINK)
-if(NOT HAVE_SYMLINK)
-    list(APPEND STDLIB_DEF -DNO_SYMLINK)
-endif()
 # Check for fseeko readlink
 check_function_exists(readlink HAVE_READLINK)
-if(NOT HAVE_READLINK)
-    list(APPEND STDLIB_DEF -DNO_READLINK)
-endif()
+
+configure_file(mz_config.h.cmakein ${CMAKE_CURRENT_SOURCE_DIR}/mz_config.h @ONLY NEWLINE_STYLE UNIX)
 
 if(MZ_LIBCOMP)
     if(APPLE)

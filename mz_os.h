@@ -11,10 +11,6 @@
 #ifndef MZ_OS_H
 #define MZ_OS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /***************************************************************************/
 
 #if defined(__APPLE__)
@@ -49,6 +45,8 @@ extern "C" {
 
 /***************************************************************************/
 
+#include "mz_config.h"
+
 #if HAVE_DIRENT_H
 #  include <dirent.h>
 #elif HAVE_SYS_DIRENT_H
@@ -61,6 +59,12 @@ struct dirent {
 
 #if !HAVE_PDIR
 typedef struct DIR DIR;
+#endif
+
+/***************************************************************************/
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 /***************************************************************************/
