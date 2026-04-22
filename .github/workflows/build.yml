@@ -29,8 +29,8 @@ jobs:
             os: ubuntu-latest
             compiler: clang-20
             cxx-compiler: clang++-20
-            cmake-args: -GNinja -DWITH_SANITIZER=Memory
-            packages: ninja-build clang-20 llvm-20 libclang-rt-20-dev 
+            cmake-args: -GNinja -DMZ_SANITIZER=Memory
+            packages: ninja-build clang-20 llvm-20 libclang-rt-20-dev
             gcov-exec: llvm-cov-20 gcov
             build-config: Debug
             # https://github.com/llvm/llvm-project/issues/55785
