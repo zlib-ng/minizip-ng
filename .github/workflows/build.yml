@@ -25,6 +25,18 @@ jobs:
             cmake-args: -D MZ_SANITIZER=Undefined
             codecov: ubuntu_gcc_undefined
 
+          - name: Ubuntu Clang MSAN
+            os: ubuntu-latest
+            compiler: clang-20
+            cxx-compiler: clang++-20
+            cmake-args: -GNinja -DWITH_SANITIZER=Memory
+            packages: ninja-build clang-20 llvm-20 libclang-rt-20-dev 
+            gcov-exec: llvm-cov-20 gcov
+            build-config: Debug
+            # https://github.com/llvm/llvm-project/issues/55785
+            msan-options: use_sigaltstack=0
+            # Coverage disabled for clang-20, errors
+
           # No code coverage on release builds
           - name: Ubuntu 22 Clang
             os: ubuntu-22.04
