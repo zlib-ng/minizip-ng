@@ -150,6 +150,11 @@ static Byte reader(void *p) {
     uint8_t b;
     int32_t status;
 
+    if (ppmd->max_total_in > 0 && ppmd->total_in >= ppmd->max_total_in) {
+        ppmd->error = MZ_STREAM_ERROR;
+        return 0;
+    }
+
     if ((status = mz_stream_read_uint8((mz_stream_ppmd *)ppmd->stream.base, &b)) != MZ_OK) {
         ppmd->error = status;
         b = 0;
