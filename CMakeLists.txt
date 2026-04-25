@@ -16,7 +16,7 @@ project(minizip-ng
     VERSION ${VERSION}
     LANGUAGES C
     DESCRIPTION "Zip manipulation library"
-	HOMEPAGE_URL https://github.com/zlib-ng/minizip-ng/)
+    HOMEPAGE_URL https://github.com/zlib-ng/minizip-ng/)
 
 include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
