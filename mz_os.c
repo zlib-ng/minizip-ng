@@ -287,6 +287,7 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     size_t max_path = 1024;
     size_t parent_len = 0;
     size_t pos = 0;
+    size_t cmp_len = 0;
     int32_t err = MZ_OK;
 
     if (!path || *path == 0 || !base_path)
@@ -321,6 +322,16 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
         /* Check if this existing path component is a symlink */
         if (mz_os_is_symlink(check_path) != MZ_OK)
             continue;
+
+        /* Skip components at or above the base dir. */
+        cmp_len = pos;
+        if (mz_path_has_slash(check_path) == MZ_OK)
+            cmp_len--;
+        if (cmp_len <= base_len && strncmp(check_path, base_path, cmp_len) == 0) {
+            /* Verify that the prefix match is on a directory boundary. */
+            if (cmp_len == base_len || mz_os_is_dir_separator(base_path[cmp_len]))
+                continue;
+        }
 
         /* Allocate symlink buffers on first use */
         if (!symlink_target) {
