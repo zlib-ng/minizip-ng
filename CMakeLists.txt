@@ -163,9 +163,9 @@ if(HAVE_OFF64_T)
 endif()
 # Check for fseeko support
 check_function_exists(fseeko HAVE_FSEEKO)
-# Check for fseeko symlink
+# Check for symlink support
 check_function_exists(symlink HAVE_SYMLINK)
-# Check for fseeko readlink
+# Check for readlink support
 check_function_exists(readlink HAVE_READLINK)
 
 configure_file(mz_config.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/mz_config.h @ONLY NEWLINE_STYLE UNIX)
