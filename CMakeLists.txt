@@ -732,8 +732,6 @@ else()
     endif()
 endif()
 
-list(APPEND MINIZIP_INC ${CMAKE_CURRENT_SOURCE_DIR})
-
 set(MINIZIP_TARGET minizip${MZ_LIB_SUFFIX})
 set(MINIZIP_PC ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}.pc)
 configure_file(minizip.pc.cmakein ${MINIZIP_PC} @ONLY)
