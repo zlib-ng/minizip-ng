@@ -752,7 +752,7 @@ set_target_properties(${MINIZIP_TARGET} PROPERTIES
                       DEFINE_SYMBOL "MZ_EXPORTS")
 
 if(MINIZIP_LFG)
-    set_target_properties(${MINIZIP_TARGET} PROPERTIES LINK_FLAGS ${MINIZIP_LFG})
+    target_link_options(${MINIZIP_TARGET} PRIVATE ${MINIZIP_LFG})
 endif()
 if(MZ_LZMA)
     set_target_properties(${MINIZIP_TARGET} PROPERTIES C_STANDARD 99)
