@@ -483,15 +483,9 @@ else()
         else()
             if(APPLE)
                 message(STATUS "Using CoreFoundation Framework")
-                find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-
-                list(APPEND MINIZIP_LIB ${COREFOUNDATION_LIBRARY})
-
                 message(STATUS "Using Security Framework")
-                find_library(SECURITY_LIBRARY Security)
 
-                list(APPEND MINIZIP_LIB ${SECURITY_LIBRARY})
-                list(APPEND MINIZIP_LFG "-Wl,-F/Library/Frameworks")
+                list(APPEND MINIZIP_LIB "-framework CoreFoundation" "-framework Security")
 
                 check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
                 if(COMMONCRYPTO_FOUND)
