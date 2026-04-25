@@ -165,6 +165,15 @@ int32_t mz_os_rename(const char *source_path, const char *target_path) {
     return MZ_OK;
 }
 
+int32_t mz_os_path_same_fs(const char *path_a, const char *path_b) {
+    struct stat sa, sb;
+    if (!path_a || !path_b)
+        return MZ_PARAM_ERROR;
+    if (stat(path_a, &sa) != 0 || stat(path_b, &sb) != 0)
+        return MZ_EXIST_ERROR;
+    return (sa.st_dev == sb.st_dev) ? MZ_OK : MZ_EXIST_ERROR;
+}
+
 int32_t mz_os_unlink(const char *path) {
     if (unlink(path) == -1)
         return MZ_EXIST_ERROR;

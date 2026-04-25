@@ -444,6 +444,28 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
         /* Construct temporary zip name with random suffix */
         if (mz_os_get_temp_path(tmp_path, sizeof(tmp_path), "mz_") != MZ_OK)
             return MZ_INTERNAL_ERROR;
+
+#ifndef _WIN32
+        /* POSIX rename(2) returns EXDEV across mounts; fall back to a same-dir tmp when
+           TMPDIR is on a different filesystem. MoveFileExW absorbs cross-volume natively
+           on Win32, so the check is skipped there. */
+        {
+            char tmp_dir[256];
+
+            strncpy(tmp_dir, tmp_path, sizeof(tmp_dir) - 1);
+            tmp_dir[sizeof(tmp_dir) - 1] = 0;
+            mz_path_remove_filename(tmp_dir);
+
+            if (mz_os_path_same_fs(tmp_dir, src_path) != MZ_OK) {
+                int32_t result = snprintf(tmp_path, sizeof(tmp_path), "%s.mz_tmp.%llu", src_path,
+                                          (unsigned long long)mz_os_ms_time());
+                if (result < 0 || result >= (int32_t)sizeof(tmp_path))
+                    return MZ_BUF_ERROR;
+                if (mz_os_file_exists(tmp_path) == MZ_OK)
+                    return MZ_EXIST_ERROR;
+            }
+        }
+#endif
         target_path_ptr = tmp_path;
     }
 

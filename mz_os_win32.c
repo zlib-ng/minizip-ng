@@ -12,6 +12,9 @@
 #include "mz_os.h"
 #include "mz_strm_os.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <windows.h>
 #include <winioctl.h>
 
@@ -112,6 +115,35 @@ int32_t mz_os_rand(uint8_t *buf, int32_t size) {
     }
 
     return len;
+}
+
+int32_t mz_os_path_same_fs(const char *path_a, const char *path_b) {
+    wchar_t *path_a_wide = NULL;
+    wchar_t *path_b_wide = NULL;
+    struct _stati64 sa;
+    struct _stati64 sb;
+    int32_t err = MZ_OK;
+
+    if (!path_a || !path_b)
+        return MZ_PARAM_ERROR;
+
+    path_a_wide = mz_os_unicode_string_create(path_a, MZ_ENCODING_UTF8);
+    if (!path_a_wide)
+        return MZ_PARAM_ERROR;
+    path_b_wide = mz_os_unicode_string_create(path_b, MZ_ENCODING_UTF8);
+    if (!path_b_wide) {
+        mz_os_unicode_string_delete(&path_a_wide);
+        return MZ_PARAM_ERROR;
+    }
+
+    if (_wstati64(path_a_wide, &sa) != 0 || _wstati64(path_b_wide, &sb) != 0)
+        err = MZ_EXIST_ERROR;
+    else if (sa.st_dev != sb.st_dev)
+        err = MZ_EXIST_ERROR;
+
+    mz_os_unicode_string_delete(&path_a_wide);
+    mz_os_unicode_string_delete(&path_b_wide);
+    return err;
 }
 
 int32_t mz_os_rename(const char *source_path, const char *target_path) {

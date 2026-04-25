@@ -154,6 +154,9 @@ int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes);
 int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix);
 /* Gets a unique temporary file path */
 
+int32_t mz_os_path_same_fs(const char *path_a, const char *path_b);
+/* Checks if both paths are on the same filesystem */
+
 int32_t mz_os_make_dir(const char *path);
 /* Recursively creates a directory */
 
