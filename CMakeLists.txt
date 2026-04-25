@@ -678,6 +678,7 @@ if(MZ_COMPAT)
         compat/unzip.c
         compat/zip.c)
     list(APPEND MINIZIP_HDR
+        compat/crypt.h
         compat/ioapi.h
         compat/unzip.h
         compat/zip.h)
