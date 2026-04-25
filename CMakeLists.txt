@@ -248,8 +248,7 @@ if(MZ_ZLIB)
         if(ZLIB_COMPAT)
             list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
         endif()
-        # zlib is PUBLIC-linked when MZ_COMPAT (compat headers reference its
-        # types/macros), so consumers always need it findable.
+        # MZ_COMPAT exposes zlib in public headers, so register it as PUBLIC.
         if(ZLIB-NG_FOUND)
             if(MZ_COMPAT)
                 list(APPEND MINIZIP_DEP_PKG_PUBLIC ZLIB-NG)
@@ -339,7 +338,7 @@ if(MZ_LZMA)
 
         list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
         list(APPEND MINIZIP_DEP liblzma)
-        # Fetched liblzma's exported target references Threads::Threads
+        # liblzma's exported target references Threads::Threads
         list(APPEND MINIZIP_DEP_PKG Threads)
     else()
         message(STATUS "LibLZMA library not found")
@@ -452,8 +451,7 @@ if(MZ_OPENSSL)
         list(APPEND MINIZIP_SRC mz_crypt_openssl.c)
         list(APPEND MINIZIP_LIB OpenSSL::SSL OpenSSL::Crypto)
 
-        # Delegate library naming to openssl.pc so the pkg-config metadata
-        # works for LibreSSL, MSVC import libs, and custom build suffixes.
+        # Delegate library naming to openssl.pc for portability.
         string(APPEND PC_PRIVATE_DEPS " openssl")
     else()
         message(STATUS "OpenSSL library not found")
@@ -723,8 +721,7 @@ endif()
 
 target_link_libraries(${MINIZIP_TARGET} PRIVATE ${MINIZIP_LIB} ${MINIZIP_DEP})
 if(MZ_COMPAT)
-    # compat/zip.h and compat/unzip.h reference zlib types/macros, so consumers
-    # need zlib's includes when MZ_COMPAT is on.
+    # MZ_COMPAT exposes zlib in public headers.
     target_link_libraries(${MINIZIP_TARGET} PUBLIC ${MINIZIP_PUBLIC_LIB})
 else()
     target_link_libraries(${MINIZIP_TARGET} PRIVATE ${MINIZIP_PUBLIC_LIB})
@@ -775,8 +772,7 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
         foreach(pkg_name ${MINIZIP_DEP_PKG_PUBLIC})
             string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
         endforeach()
-        # PRIVATE-linked deps are encapsulated in the shared library; consumers
-        # of a static minizip still need them to satisfy transitive symbols.
+        # PRIVATE deps only propagate to consumers of a static minizip.
         if(NOT BUILD_SHARED_LIBS)
             foreach(pkg_name ${MINIZIP_DEP_PKG})
                 string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
