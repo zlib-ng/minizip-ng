@@ -258,7 +258,12 @@ TEST(crypt, aes128_gcm) {
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
-    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
+    int32_t set_key_err = mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length);
+    if (set_key_err == MZ_SUPPORT_ERROR) {
+        mz_crypt_aes_delete(&aes);
+        GTEST_SKIP() << "AES-GCM not supported in this build";
+    }
+    EXPECT_EQ(set_key_err, MZ_OK);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, aad, aad_length, buf, test_length), test_length);
     EXPECT_EQ(mz_crypt_aes_encrypt_final(aes, buf + test_length, test_length - 1, tag, sizeof(tag)), test_length - 1);
     mz_crypt_aes_delete(&aes);
