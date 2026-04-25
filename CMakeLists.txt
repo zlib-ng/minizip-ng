@@ -441,7 +441,9 @@ if(MZ_OPENSSL)
         list(APPEND MINIZIP_SRC mz_crypt_openssl.c)
         list(APPEND MINIZIP_LIB OpenSSL::SSL OpenSSL::Crypto)
 
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lssl -lcrypto")
+        # Delegate library naming to openssl.pc so the pkg-config metadata
+        # works for LibreSSL, MSVC import libs, and custom build suffixes.
+        string(APPEND PC_PRIVATE_DEPS " openssl")
     else()
         message(STATUS "OpenSSL library not found")
 
