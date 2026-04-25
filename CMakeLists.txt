@@ -169,6 +169,7 @@ check_function_exists(symlink HAVE_SYMLINK)
 check_function_exists(readlink HAVE_READLINK)
 
 configure_file(mz_config.h.cmakein ${CMAKE_CURRENT_SOURCE_DIR}/mz_config.h @ONLY NEWLINE_STYLE UNIX)
+list(APPEND MINIZIP_HDR mz_config.h)
 
 if(MZ_LIBCOMP)
     if(APPLE)
