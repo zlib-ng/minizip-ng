@@ -629,6 +629,13 @@ int unzSetOffset64(unzFile file, int64_t pos) {
     return (int)mz_zip_goto_entry(compat->handle, pos);
 }
 
+uint64_t unzGetCurrentFileZStreamPos64(unzFile file) {
+    mz_unzip_compat *compat = (mz_unzip_compat *)file;
+    if (!compat || mz_zip_entry_is_open(compat->handle) != MZ_OK)
+        return 0;
+    return (uint64_t)compat->entry_pos;
+}
+
 int unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len) {
     mz_unzip_compat *compat = (mz_unzip_compat *)file;
     mz_zip_file *file_info = NULL;

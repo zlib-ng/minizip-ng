@@ -217,6 +217,7 @@ ZEXPORT int64_t unzGetOffset64(unzFile file);
 ZEXPORT unsigned long unzGetOffset(unzFile file);
 ZEXPORT int unzSetOffset64(unzFile file, int64_t pos);
 ZEXPORT int unzSetOffset(unzFile file, unsigned long pos);
+ZEXPORT uint64_t unzGetCurrentFileZStreamPos64(unzFile file);
 ZEXPORT int32_t unztell(unzFile file);
 ZEXPORT uint64_t unztell64(unzFile file);
 ZEXPORT int unzeof(unzFile file);
