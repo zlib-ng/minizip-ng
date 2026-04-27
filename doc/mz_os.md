@@ -39,6 +39,7 @@ These functions provide support for handling common file system operations.
   - [mz\_os\_close\_dir](#mz_os_close_dir)
   - [mz\_os\_is\_dir](#mz_os_is_dir)
   - [mz\_os\_is\_symlink](#mz_os_is_symlink)
+  - [mz\_os\_get\_link\_attribs](#mz_os_get_link_attribs)
   - [mz\_os\_make\_symlink](#mz_os_make_symlink)
   - [mz\_os\_read\_symlink](#mz_os_read_symlink)
   - [mz\_os\_ms\_time](#mz_os_ms_time)
@@ -621,7 +622,7 @@ if (mz_os_get_file_date(src_path, &modified_date, &accessed_date, &creation_date
 
 ### mz_os_get_file_attribs
 
-Gets a file's attributes.
+Gets a file's attributes, following symbolic links.
 
 **Arguments**
 |Type|Name|Description|
@@ -837,6 +838,29 @@ if (mz_os_is_symlink(path) == MZ_OK)
     printf("Path %s is a symbolic link\n", path);
 else
     printf("Path %s is not a symbolic link\n", path);
+```
+
+### mz_os_get_link_attribs
+
+Gets a symbolic link's attributes.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|const char *|path|File path|
+|uint32_t *|attributes|Pointer to store file attributes value|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if successful|
+
+**Example**
+```
+const char *path = "c:\\test7.txt";
+uint32_t attributes = 0;
+if (mz_os_get_link_attribs(path, &attributes) == MZ_OK)
+    printf("Link %s attributes %08x\n", path, attributes);
 ```
 
 ### mz_os_make_symlink

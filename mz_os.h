@@ -146,7 +146,7 @@ int32_t mz_os_set_file_date(const char *path, time_t modified_date, time_t acces
 /* Sets a file's modified, access, and creation dates if supported */
 
 int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes);
-/* Gets a file's attributes */
+/* Gets a file's attributes, following symbolic links */
 
 int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes);
 /* Sets a file's attributes */
@@ -176,6 +176,9 @@ int32_t mz_os_is_dir(const char *path);
 
 int32_t mz_os_is_symlink(const char *path);
 /* Checks to see if path is a symbolic link */
+
+int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes);
+/* Gets a symbolic link's attributes */
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path);
 /* Creates a symbolic link pointing to a target */

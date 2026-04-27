@@ -336,11 +336,39 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes) {
 
     if (!path || !attributes)
         return MZ_PARAM_ERROR;
+
     path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
     if (!path_wide)
         return MZ_PARAM_ERROR;
 
     *attributes = GetFileAttributesW(path_wide);
+
+    /* If target is a reparse point, open with default flags to get attributes */
+    if (*attributes != INVALID_FILE_ATTRIBUTES && (*attributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+        HANDLE handle = INVALID_HANDLE_VALUE;
+        BY_HANDLE_FILE_INFORMATION info;
+
+#if _WIN32_WINNT >= _WIN32_WINNT_WIN8
+        CREATEFILE2_EXTENDED_PARAMETERS extended_params;
+
+        memset(&extended_params, 0, sizeof(extended_params));
+        extended_params.dwSize = sizeof(extended_params);
+        extended_params.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS;
+
+        handle = CreateFile2(path_wide, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING,
+                             &extended_params);
+#else
+        handle = CreateFileW(path_wide, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING,
+                             FILE_FLAG_BACKUP_SEMANTICS, NULL);
+#endif
+
+        if (handle != INVALID_HANDLE_VALUE) {
+            if (GetFileInformationByHandle(handle, &info))
+                *attributes = info.dwFileAttributes;
+            CloseHandle(handle);
+        }
+    }
+
     mz_os_unicode_string_delete(&path_wide);
 
     if (*attributes == INVALID_FILE_ATTRIBUTES)
@@ -510,6 +538,26 @@ int32_t mz_os_is_symlink(const char *path) {
     }
 
     return MZ_EXIST_ERROR;
+}
+
+int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes) {
+    wchar_t *path_wide = NULL;
+    int32_t err = MZ_OK;
+
+    if (!path || !attributes)
+        return MZ_PARAM_ERROR;
+
+    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
+    if (!path_wide)
+        return MZ_PARAM_ERROR;
+
+    *attributes = GetFileAttributesW(path_wide);
+    mz_os_unicode_string_delete(&path_wide);
+
+    if (*attributes == INVALID_FILE_ATTRIBUTES)
+        err = MZ_INTERNAL_ERROR;
+
+    return err;
 }
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {

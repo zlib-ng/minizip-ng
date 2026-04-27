@@ -1628,6 +1628,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     uint32_t src_attrib = 0;
     int32_t err = MZ_OK;
     uint8_t src_sys = 0;
+    uint8_t is_symlink = 0;
     void *stream = NULL;
     char link_path[1024];
     const char *filename = filename_in_zip;
@@ -1642,6 +1643,12 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         if (err != MZ_OK)
             return err;
     }
+
+    if (mz_os_is_symlink(path) == MZ_OK)
+        is_symlink = 1;
+
+    if (is_symlink && !writer->store_links && !writer->follow_links)
+        return MZ_OK;
 
     memset(&file_info, 0, sizeof(file_info));
 
@@ -1665,7 +1672,11 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         file_info.aes_version = MZ_AES_VERSION;
 
     mz_os_get_file_date(path, &file_info.modified_date, &file_info.accessed_date, &file_info.creation_date);
-    mz_os_get_file_attribs(path, &src_attrib);
+
+    if (is_symlink && writer->store_links)
+        mz_os_get_link_attribs(path, &src_attrib);
+    else
+        mz_os_get_file_attribs(path, &src_attrib);
 
     src_sys = MZ_HOST_SYSTEM(file_info.version_madeby);
 
@@ -1678,7 +1689,7 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
         file_info.external_fa = src_attrib;
     }
 
-    if (writer->store_links && mz_os_is_symlink(path) == MZ_OK) {
+    if (is_symlink && writer->store_links) {
         err = mz_os_read_symlink(path, link_path, sizeof(link_path));
         if (err == MZ_OK)
             file_info.linkname = link_path;

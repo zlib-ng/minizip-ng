@@ -255,7 +255,7 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes) {
     int32_t err = MZ_OK;
 
     memset(&path_stat, 0, sizeof(path_stat));
-    if (lstat(path, &path_stat) == -1)
+    if (stat(path, &path_stat) == -1)
         err = MZ_INTERNAL_ERROR;
     *attributes = path_stat.st_mode;
     return err;
@@ -331,6 +331,17 @@ int32_t mz_os_is_symlink(const char *path) {
         return MZ_OK;
 
     return MZ_EXIST_ERROR;
+}
+
+int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes) {
+    struct stat path_stat;
+    int32_t err = MZ_OK;
+
+    memset(&path_stat, 0, sizeof(path_stat));
+    if (lstat(path, &path_stat) == -1)
+        err = MZ_INTERNAL_ERROR;
+    *attributes = path_stat.st_mode;
+    return err;
 }
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path) {
