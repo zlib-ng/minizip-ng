@@ -384,7 +384,7 @@ jobs:
     if: always() && !cancelled()
     steps:
       - name: Download all reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: Coverage Report - *
           merge-multiple: true
