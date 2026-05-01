@@ -337,7 +337,7 @@ jobs:
           --verbose
 
     - name: Upload coverage report
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       if: always() && matrix.codecov
       with:
         name: Coverage Report - ${{ matrix.name }}
