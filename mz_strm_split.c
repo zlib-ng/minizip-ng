@@ -281,7 +281,7 @@ int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
             if (split->number_disk != -1) {
                 bytes_avail = split->disk_size - split->total_out_disk;
                 if (bytes_to_write > bytes_avail)
-                    bytes_to_write = bytes_avail;
+                    bytes_to_write = (int32_t)bytes_avail;
             }
         }
 
