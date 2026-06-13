@@ -203,7 +203,7 @@ mz_zip_delete(&zip_handle);
 mz_stream_mem_delete(&mem_stream);
 ```
 
-For a complete example, see test_stream_mem() in [test.c](https://github.com/nmoinvaz/minizip/blob/master/test/test.c).
+For examples of memory stream usage, see [test/test_stream.cc](https://github.com/zlib-ng/minizip-ng/blob/develop/test/test_stream.cc).
 
 ### Buffered Stream
 
