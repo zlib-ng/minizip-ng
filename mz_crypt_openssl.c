@@ -26,6 +26,10 @@
 
 /***************************************************************************/
 
+#define MZ_AES_GCM_IV_SIZE (12)
+
+/***************************************************************************/
+
 static void mz_crypt_init(void) {
     static int32_t openssl_initialized = 0;
     if (!openssl_initialized) {
@@ -418,7 +422,20 @@ static int32_t mz_crypt_aes_set_key(void *handle, const void *key, int32_t key_l
     if (!aes->ctx)
         return MZ_MEM_ERROR;
 
-    if (!EVP_CipherInit_ex(aes->ctx, type, NULL, key, iv, encrypt)) {
+    if (!EVP_CipherInit_ex(aes->ctx, type, NULL, NULL, NULL, encrypt)) {
+        aes->error = ERR_get_error();
+        return MZ_INTERNAL_ERROR;
+    }
+
+    if (aes->mode == MZ_AES_MODE_GCM && iv_length > MZ_AES_GCM_IV_SIZE) {
+        /* Init with non default GCM IV length */
+        if (!EVP_CIPHER_CTX_ctrl(aes->ctx, EVP_CTRL_GCM_SET_IVLEN, iv_length, NULL)) {
+            aes->error = ERR_get_error();
+            return MZ_SUPPORT_ERROR;
+        }
+    }
+
+    if (!EVP_CipherInit_ex(aes->ctx, NULL, NULL, key, iv, encrypt)) {
         aes->error = ERR_get_error();
         return MZ_HASH_ERROR;
     }
@@ -436,8 +453,13 @@ int32_t mz_crypt_aes_set_encrypt_key(void *handle, const void *key, int32_t key_
         return MZ_PARAM_ERROR;
     if (key_length != 16 && key_length != 24 && key_length != 32)
         return MZ_PARAM_ERROR;
-    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
-        return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM) {
+        if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+            return MZ_PARAM_ERROR;
+    } else {
+        if (!iv || iv_length < MZ_AES_GCM_IV_SIZE)
+            return MZ_PARAM_ERROR;
+    }
 
     mz_crypt_aes_reset(handle);
 
@@ -452,8 +474,13 @@ int32_t mz_crypt_aes_set_decrypt_key(void *handle, const void *key, int32_t key_
         return MZ_PARAM_ERROR;
     if (key_length != 16 && key_length != 24 && key_length != 32)
         return MZ_PARAM_ERROR;
-    if (iv && iv_length > MZ_AES_BLOCK_SIZE)
-        return MZ_PARAM_ERROR;
+    if (aes->mode != MZ_AES_MODE_GCM) {
+        if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+            return MZ_PARAM_ERROR;
+    } else {
+        if (!iv || iv_length < MZ_AES_GCM_IV_SIZE)
+            return MZ_PARAM_ERROR;
+    }
 
     mz_crypt_aes_reset(handle);
 
