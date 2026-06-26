@@ -76,7 +76,7 @@ target_include_directories(gtest_minizip PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR})
 
-target_link_libraries(gtest_minizip MINIZIP::minizip GTest::GTest)
+target_link_libraries(gtest_minizip MINIZIP::minizip GTest::gtest GTest::gmock)
 
 if(MZ_SANITIZER STREQUAL "memory")
     target_link_directories(gtest_minizip PRIVATE $ENV{LLVM_BUILD_DIR}/lib)

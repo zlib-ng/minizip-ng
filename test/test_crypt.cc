@@ -15,6 +15,7 @@
 #include <string>
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include <stdio.h> /* printf, snprintf */
 
@@ -170,6 +171,9 @@ TEST(crypt, aes128) {
     void *aes = nullptr;
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
+    const uint8_t cipher[] = {
+        0x53, 0x45, 0xa5, 0xdc, 0xc4, 0x02, 0x96, 0xcb, 0xbb, 0x4a, 0xde, 0x25, 0x62, 0xd3, 0x80, 0x38,
+    };
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
@@ -185,7 +189,7 @@ TEST(crypt, aes128) {
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_STRNE((char *)buf, test);
+    EXPECT_THAT(cipher, ::testing::ElementsAreArray(buf, test_length));
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
@@ -201,6 +205,9 @@ TEST(crypt, aes128_cbc) {
     const char *key = "awesomekeythisis";
     const char *test = "youknowitsogrowi";
     const char *iv = "0123456789123456";
+    const uint8_t cipher[] = {
+        0x59, 0x44, 0xbd, 0xf8, 0x54, 0x8c, 0xf9, 0x0a, 0xfa, 0x34, 0x1e, 0xab, 0x42, 0x3d, 0xe1, 0x70,
+    };
     int32_t key_length = 0;
     int32_t test_length = 0;
     int32_t iv_length = 0;
@@ -219,7 +226,7 @@ TEST(crypt, aes128_cbc) {
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_STRNE((char *)buf, test);
+    EXPECT_THAT(cipher, ::testing::ElementsAreArray(buf, test_length));
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
@@ -240,12 +247,30 @@ TEST(crypt, aes128_gcm) {
     const char *test = "youknowitsogrowi";
     const char *iv = "0123456789123456";
     const char *aad = "additional authentication data";
+
+#    if GTEST_OS_WINDOWS
+    // BCryptEncrypt hard-restricts the IV length to exactly 96 bits for AES-GCM.
+    // The actual IV is "012345678912".
+    const uint8_t cipher[] = {
+        0xe1, 0xf1, 0x6a, 0xfc, 0xa8, 0x19, 0xba, 0x64, 0x8b, 0xd5, 0xb4, 0xf5, 0x9a, 0xce, 0xd0, 0x60,
+    };
+    const uint8_t tag[] = {
+        0x9a, 0xa9, 0xc2, 0x30, 0xa5, 0x2f, 0x9c, 0xb6, 0x61, 0xf1, 0x67, 0xcb, 0xf5, 0x6d, 0x97, 0x31,
+    };
+#    else
+    const uint8_t cipher[] = {
+        0x89, 0x2e, 0xfc, 0x80, 0x7e, 0x5b, 0xb1, 0x62, 0x29, 0xb1, 0x1e, 0x5d, 0x37, 0x51, 0x43, 0x34,
+    };
+    const uint8_t tag[] = {
+        0x52, 0x82, 0x9d, 0x91, 0x56, 0x76, 0xc8, 0x8e, 0x1d, 0xd0, 0x89, 0xb6, 0x8e, 0x45, 0x56, 0x27,
+    };
+#    endif
     int32_t key_length = 0;
     int32_t test_length = 0;
     int32_t iv_length = 0;
     int32_t aad_length = 0;
-    uint8_t buf[120];
-    uint8_t tag[MZ_AES_BLOCK_SIZE] = {0};
+    uint8_t buf[120] = {0};
+    uint8_t computed_tag[MZ_AES_BLOCK_SIZE] = {0};
 
     key_length = (int32_t)strlen(key);
     test_length = (int32_t)strlen(test);
@@ -253,40 +278,37 @@ TEST(crypt, aes128_gcm) {
     aad_length = (int32_t)strlen(aad);
 
     strncpy((char *)buf, test, sizeof(buf));
-    strncpy((char *)buf + test_length, test, sizeof(buf) - test_length);
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
-    int32_t set_key_err = mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length);
-    if (set_key_err == MZ_SUPPORT_ERROR) {
-        mz_crypt_aes_delete(&aes);
-        GTEST_SKIP() << "AES-GCM not supported in this build";
-    }
-    EXPECT_EQ(set_key_err, MZ_OK);
+    EXPECT_EQ(mz_crypt_aes_set_encrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, aad, aad_length, buf, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_encrypt_final(aes, buf + test_length, test_length - 1, tag, sizeof(tag)), test_length - 1);
+    EXPECT_EQ(mz_crypt_aes_encrypt_final(aes, nullptr, 0, computed_tag, sizeof(computed_tag)), 0);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_STRNE((char *)buf, test);
+    EXPECT_THAT(cipher, ::testing::ElementsAreArray(buf, test_length));
+    EXPECT_THAT(computed_tag, ::testing::ElementsAreArray(tag));
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
     mz_crypt_aes_set_mode(aes, MZ_AES_MODE_GCM);
     EXPECT_EQ(mz_crypt_aes_set_decrypt_key(aes, key, key_length, iv, iv_length), MZ_OK);
     EXPECT_EQ(mz_crypt_aes_decrypt(aes, aad, aad_length, buf, test_length), test_length);
-    EXPECT_EQ(mz_crypt_aes_decrypt_final(aes, buf + test_length, test_length - 1, tag, sizeof(tag)), test_length - 1);
+    EXPECT_EQ(mz_crypt_aes_decrypt_final(aes, nullptr, 0, tag, sizeof(tag)), 0);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_EQ(memcmp(buf, test, test_length), 0);
-    EXPECT_EQ(memcmp(buf + test_length, test, test_length - 1), 0);
+    EXPECT_STREQ((char *)buf, test);
 #  endif
 }
 
-TEST(crypt, aes194) {
+TEST(crypt, aes192) {
     void *aes = nullptr;
     const char *key = "awesomekeythisisbeefyone";
     const char *test = "youknowitsogrowi";
+    const uint8_t cipher[] = {
+        0x44, 0x49, 0x9e, 0x1b, 0x87, 0x97, 0xa1, 0xd1, 0x5d, 0x89, 0xd9, 0x71, 0xd0, 0xca, 0x08, 0xbc,
+    };
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
@@ -302,7 +324,7 @@ TEST(crypt, aes194) {
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_STRNE((char *)buf, test);
+    EXPECT_THAT(cipher, ::testing::ElementsAreArray(buf, test_length));
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
@@ -317,6 +339,9 @@ TEST(crypt, aes256) {
     void *aes = nullptr;
     const char *key = "awesomekeythisisevenmoresolidone";
     const char *test = "youknowitsogrowi";
+    const uint8_t cipher[] = {
+        0x1a, 0xf0, 0xe4, 0xf3, 0xdf, 0xe3, 0xc2, 0x64, 0x9d, 0x23, 0x52, 0x68, 0x0f, 0x10, 0xc2, 0x7e,
+    };
     int32_t key_length = 0;
     int32_t test_length = 0;
     uint8_t buf[120];
@@ -332,7 +357,7 @@ TEST(crypt, aes256) {
     EXPECT_EQ(mz_crypt_aes_encrypt(aes, nullptr, 0, buf, test_length), test_length);
     mz_crypt_aes_delete(&aes);
 
-    EXPECT_STRNE((char *)buf, test);
+    EXPECT_THAT(cipher, ::testing::ElementsAreArray(buf, test_length));
 
     aes = mz_crypt_aes_create();
     ASSERT_NE(aes, nullptr);
