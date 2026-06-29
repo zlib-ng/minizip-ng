@@ -277,15 +277,75 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
     return MZ_OK;
 }
 
+int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
+    char *combined = NULL;
+    char *resolved = NULL;
+    size_t max_path = 1024;
+    size_t base_len = 0;
+    size_t parent_len = 0;
+    int32_t err = MZ_OK;
+
+    if (!link_path || !target || !base_path)
+        return MZ_PARAM_ERROR;
+
+    /* Absolute symlink targets are not allowed */
+    if (mz_os_is_dir_separator(target[0]))
+        return MZ_EXIST_ERROR;
+
+    base_len = strlen(base_path);
+
+    /* Remove trailing slash from base_path for comparison */
+    while (base_len > 0 && mz_os_is_dir_separator(base_path[base_len - 1]))
+        base_len--;
+
+    combined = (char *)calloc(1, max_path);
+    resolved = (char *)calloc(1, max_path);
+
+    if (!combined || !resolved) {
+        err = MZ_MEM_ERROR;
+        goto target_cleanup;
+    }
+
+    /* Find parent directory length by scanning backwards past filename and trailing slashes */
+    parent_len = strlen(link_path);
+    while (parent_len > 0 && !mz_os_is_dir_separator(link_path[parent_len - 1]))
+        parent_len--;
+    while (parent_len > 0 && mz_os_is_dir_separator(link_path[parent_len - 1]))
+        parent_len--;
+
+    /* Combine parent + target */
+    combined[0] = 0;
+    if (parent_len > 0) {
+        strncpy(combined, link_path, parent_len);
+        combined[parent_len] = 0;
+        mz_path_append_slash(combined, (int32_t)max_path, MZ_PATH_SLASH_PLATFORM);
+    }
+    strncat(combined, target, max_path - strlen(combined) - 1);
+
+    /* Resolve the combined path to eliminate .. */
+    if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
+        err = MZ_EXIST_ERROR;
+        goto target_cleanup;
+    }
+
+    /* Check that resolved path stays within base_path */
+    if (strlen(resolved) < base_len || strncmp(resolved, base_path, base_len) != 0 ||
+        (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))
+        err = MZ_EXIST_ERROR;
+
+target_cleanup:
+    free(combined);
+    free(resolved);
+
+    return err;
+}
+
 int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     char *check_path = NULL;
     char *symlink_target = NULL;
-    char *combined = NULL;
-    char *resolved = NULL;
     size_t path_len = 0;
     size_t base_len = 0;
     size_t max_path = 1024;
-    size_t parent_len = 0;
     size_t pos = 0;
     size_t cmp_len = 0;
     int32_t err = MZ_OK;
@@ -333,13 +393,10 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
                 continue;
         }
 
-        /* Allocate symlink buffers on first use */
+        /* Allocate symlink target buffer on first use */
         if (!symlink_target) {
             symlink_target = (char *)calloc(1, max_path);
-            combined = (char *)calloc(1, max_path);
-            resolved = (char *)calloc(1, max_path);
-
-            if (!symlink_target || !combined || !resolved) {
+            if (!symlink_target) {
                 err = MZ_MEM_ERROR;
                 break;
             }
@@ -350,47 +407,14 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
             break;
         }
 
-        /* Absolute symlink targets are not allowed */
-        if (mz_os_is_dir_separator(symlink_target[0])) {
-            err = MZ_EXIST_ERROR;
+        /* Reject the component if its symlink target escapes the base path */
+        err = mz_path_is_symlink_target_safe(check_path, symlink_target, base_path);
+        if (err != MZ_OK)
             break;
-        }
-
-        /* Find parent directory length by scanning backwards past filename and trailing slashes */
-        parent_len = pos;
-        while (parent_len > 0 && !mz_os_is_dir_separator(check_path[parent_len - 1]))
-            parent_len--;
-        while (parent_len > 0 && mz_os_is_dir_separator(check_path[parent_len - 1]))
-            parent_len--;
-
-        /* Combine parent + symlink_target */
-        combined[0] = 0;
-        if (parent_len > 0) {
-            strncpy(combined, check_path, parent_len);
-            combined[parent_len] = 0;
-            mz_path_append_slash(combined, (int32_t)max_path, MZ_PATH_SLASH_PLATFORM);
-        }
-        strncat(combined, symlink_target, max_path - strlen(combined) - 1);
-
-        /* Resolve the combined path to eliminate .. */
-        if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
-            err = MZ_EXIST_ERROR;
-            break;
-        }
-
-        /* Check that resolved path starts with base_path */
-        if (strlen(resolved) < base_len ||
-            strncmp(resolved, base_path, base_len) != 0 ||
-            (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len]))) {
-            err = MZ_EXIST_ERROR;
-            break;
-        }
     }
 
     free(check_path);
     free(symlink_target);
-    free(combined);
-    free(resolved);
 
     return err;
 }

@@ -100,6 +100,9 @@ int32_t mz_path_remove_extension(char *path);
 int32_t mz_path_get_filename(const char *path, const char **filename);
 /* Get the filename from a path */
 
+int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path);
+/* Checks if a symlink target resolves within base path. */
+
 int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path);
 /* Checks if any existing component of path is a symlink that escapes base path. */
 

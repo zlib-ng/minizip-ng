@@ -13,6 +13,7 @@ These functions provide support for handling common file system operations.
   - [mz\_path\_remove\_filename](#mz_path_remove_filename)
   - [mz\_path\_remove\_extension](#mz_path_remove_extension)
   - [mz\_path\_get\_filename](#mz_path_get_filename)
+  - [mz\_path\_is\_symlink\_target\_safe](#mz_path_is_symlink_target_safe)
 - [Directory](#directory)
   - [mz\_dir\_has\_unsafe\_symlink](#mz_dir_has_unsafe_symlink)
   - [mz\_dir\_make](#mz_dir_make)
@@ -283,6 +284,33 @@ if (mz_path_get_filename(path, &filename) == MZ_OK)
     printf("Filename: %s\n", filename);
 else
     printf("Path has no filename\n");
+```
+
+### mz_path_is_symlink_target_safe
+
+Checks if a symbolic link target resolves within a base path. Used to prevent a malicious archive from creating a symbolic link that points outside the extraction directory.
+
+**Arguments**
+|Type|Name|Description|
+|-|-|-|
+|const char *|link_path|Path of the symbolic link to be created|
+|const char *|target|Symbolic link target|
+|const char *|base_path|Base path that the target must not escape|
+
+**Return**
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if the target is safe, MZ_EXIST_ERROR if it escapes the base path.|
+
+**Example**
+```
+const char *base_path = "/tmp/extract/";
+const char *link_path = "/tmp/extract/link";
+const char *target = "../outside.txt";
+if (mz_path_is_symlink_target_safe(link_path, target, base_path) == MZ_OK)
+    printf("Symlink target is safe to create\n");
+else
+    printf("Symlink target escapes base path\n");
 ```
 
 ## Directory

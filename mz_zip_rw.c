@@ -698,8 +698,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     }
 
     /* Check if path traverses through an existing symlink that escapes destination */
-    if (reader->destination_dir &&
-        mz_dir_has_unsafe_symlink(directory, reader->destination_dir) != MZ_OK) {
+    if (reader->destination_dir && mz_dir_has_unsafe_symlink(directory, reader->destination_dir) != MZ_OK) {
         err = MZ_EXIST_ERROR;
         goto save_cleanup;
     }
@@ -730,7 +729,10 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) {
         if (reader->file_info->linkname && *reader->file_info->linkname != 0) {
             /* Create symbolic link from UNIX1 extrafield */
-            err = mz_os_make_symlink(pathwfs, reader->file_info->linkname);
+            if (mz_path_is_symlink_target_safe(pathwfs, reader->file_info->linkname, reader->destination_dir) != MZ_OK)
+                err = MZ_EXIST_ERROR;
+            else
+                err = mz_os_make_symlink(pathwfs, reader->file_info->linkname);
         } else if (reader->file_info->uncompressed_size < UINT16_MAX) {
             /* Create symbolic link from zip entry contents */
             stream = mz_stream_mem_create();
@@ -749,8 +751,12 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
             if (err == MZ_OK) {
                 const char *linkname = NULL;
-                if (mz_stream_mem_get_buffer(stream, (const void **)&linkname) == MZ_OK)
-                    err = mz_os_make_symlink(pathwfs, linkname);
+                if (mz_stream_mem_get_buffer(stream, (const void **)&linkname) == MZ_OK) {
+                    if (mz_path_is_symlink_target_safe(pathwfs, linkname, reader->destination_dir) != MZ_OK)
+                        err = MZ_EXIST_ERROR;
+                    else
+                        err = mz_os_make_symlink(pathwfs, linkname);
+                }
             }
 
             mz_stream_mem_close(stream);
