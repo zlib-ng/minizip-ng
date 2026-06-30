@@ -41,30 +41,40 @@ typedef struct mz_stream_mem_s {
     mz_stream stream;
     int32_t mode;
     uint8_t *buffer;   /* Memory buffer pointer */
-    int32_t size;      /* Size of the memory buffer */
-    int32_t limit;     /* Furthest we've written */
-    int32_t position;  /* Current position in the memory */
-    int32_t grow_size; /* Size to grow when full */
+    size_t size;      /* Size of the memory buffer */
+    size_t limit;     /* Furthest we've written */
+    size_t position;  /* Current position in the memory */
+    size_t grow_size; /* Size to grow when full */
 } mz_stream_mem;
 
 /***************************************************************************/
 
-static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
+static int32_t mz_stream_mem_set_size(void *stream, size_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    int32_t new_size = size;
     uint8_t *new_buf = NULL;
+    size_t copy_size; 
 
-    new_buf = (uint8_t *)malloc((uint32_t)new_size);
+
+    new_buf = (uint8_t *)malloc(size);
     if (!new_buf)
         return MZ_BUF_ERROR;
 
     if (mem->buffer) {
-        memcpy(new_buf, mem->buffer, mem->size);
+        if (size < mem->limit)
+            copy_size = size;
+        else
+            copy_size = mem->limit;
+
+        memcpy(new_buf, mem->buffer, copy_size);
         free(mem->buffer);
     }
 
     mem->buffer = new_buf;
-    mem->size = new_size;
+    mem->size = size;
+
+    if (mem->limit > size)
+        mem->limit = size;
+
     return MZ_OK;
 }
 
