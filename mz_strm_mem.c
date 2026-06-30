@@ -103,16 +103,20 @@ int32_t mz_stream_mem_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size) {
+int32_t mz_stream_mem_read(void *stream, void *buf, size_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
+
+    if (size == 0)
+        return 0;
+
+    if (mem->size < mem->position)
+        return 0;
 
     if (size > mem->size - mem->position)
         size = mem->size - mem->position;
+
     if (mem->position + size > mem->limit)
         size = mem->limit - mem->position;
-
-    if (size <= 0)
-        return 0;
 
     memcpy(buf, mem->buffer + mem->position, size);
     mem->position += size;
