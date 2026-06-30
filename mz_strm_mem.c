@@ -41,21 +41,26 @@ typedef struct mz_stream_mem_s {
     mz_stream stream;
     int32_t mode;
     uint8_t *buffer;   /* Memory buffer pointer */
-    size_t size;      /* Size of the memory buffer */
-    size_t limit;     /* Furthest we've written */
-    size_t position;  /* Current position in the memory */
-    size_t grow_size; /* Size to grow when full */
+    int64_t size;      /* Size of the memory buffer */
+    int64_t limit;     /* Furthest we've written */
+    int64_t position;  /* Current position in the memory */
+    int64_t grow_size; /* Size to grow when full */
 } mz_stream_mem;
 
 /***************************************************************************/
 
-static int32_t mz_stream_mem_set_size(void *stream, size_t size) {
+static int32_t mz_stream_mem_set_size(void *stream, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     uint8_t *new_buf = NULL;
-    size_t copy_size; 
+    int64_t copy_size; 
 
+    if (size <= 0)
+        return MZ_BUF_ERROR;
 
-    new_buf = (uint8_t *)malloc(size);
+    if (size > SIZE_MAX)
+        return MZ_BUF_ERROR;
+
+    new_buf = (uint8_t *)malloc((size_t) size);
     if (!new_buf)
         return MZ_BUF_ERROR;
 
@@ -103,20 +108,16 @@ int32_t mz_stream_mem_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_mem_read(void *stream, void *buf, size_t size) {
+int32_t mz_stream_mem_read(void *stream, void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-
-    if (size == 0)
-        return 0;
-
-    if (mem->size < mem->position)
-        return 0;
 
     if (size > mem->size - mem->position)
         size = mem->size - mem->position;
-
     if (mem->position + size > mem->limit)
         size = mem->limit - mem->position;
+
+    if (size <= 0)
+        return 0;
 
     memcpy(buf, mem->buffer + mem->position, size);
     mem->position += size;
@@ -124,9 +125,9 @@ int32_t mz_stream_mem_read(void *stream, void *buf, size_t size) {
     return size;
 }
 
-int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size) {
+int32_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    int32_t new_size = 0;
+    size_t new_size = 0;
     int32_t err = MZ_OK;
 
     if (!size)
