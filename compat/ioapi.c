@@ -15,10 +15,10 @@ typedef struct mz_stream_ioapi_s {
 
 static int32_t mz_stream_ioapi_open(void *stream, const char *path, int32_t mode);
 static int32_t mz_stream_ioapi_is_open(void *stream);
-static int32_t mz_stream_ioapi_read(void *stream, void *buf, int32_t size);
-static int32_t mz_stream_ioapi_write(void *stream, const void *buf, int32_t size);
+static int64_t mz_stream_ioapi_read(void *stream, void *buf, int64_t size);
+static int64_t mz_stream_ioapi_write(void *stream, const void *buf, int64_t size);
 static int64_t mz_stream_ioapi_tell(void *stream);
-static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin);
+static int64_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin);
 static int32_t mz_stream_ioapi_close(void *stream);
 static int32_t mz_stream_ioapi_error(void *stream);
 
@@ -70,7 +70,7 @@ static int32_t mz_stream_ioapi_is_open(void *stream) {
     return MZ_OK;
 }
 
-static int32_t mz_stream_ioapi_read(void *stream, void *buf, int32_t size) {
+static int64_t mz_stream_ioapi_read(void *stream, void *buf, int64_t size) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
     read_file_func zread = NULL;
     void *opaque = NULL;
@@ -90,7 +90,7 @@ static int32_t mz_stream_ioapi_read(void *stream, void *buf, int32_t size) {
     return (int32_t)zread(opaque, ioapi->handle, buf, size);
 }
 
-static int32_t mz_stream_ioapi_write(void *stream, const void *buf, int32_t size) {
+static int64_t mz_stream_ioapi_write(void *stream, const void *buf, int64_t size) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
     write_file_func zwrite = NULL;
     int32_t written = 0;
@@ -126,7 +126,7 @@ static int64_t mz_stream_ioapi_tell(void *stream) {
     return MZ_INTERNAL_ERROR;
 }
 
-static int32_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin) {
+static int64_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
 
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)

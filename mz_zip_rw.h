@@ -65,7 +65,7 @@ int32_t mz_zip_reader_entry_open(void *handle);
 int32_t mz_zip_reader_entry_close(void *handle);
 /* Closes an entry */
 
-int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len);
+int64_t mz_zip_reader_entry_read(void *handle, void *buf, int64_t len);
 /* Reads an entry after being opened */
 
 int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *digest, int32_t digest_size);
@@ -183,7 +183,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info);
 int32_t mz_zip_writer_entry_close(void *handle);
 /* Closes entry in zip file */
 
-int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len);
+int64_t mz_zip_writer_entry_write(void *handle, const void *buf, int64_t len);
 /* Writes data into entry for zip */
 
 /***************************************************************************/

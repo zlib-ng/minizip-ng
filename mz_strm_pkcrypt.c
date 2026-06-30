@@ -174,7 +174,7 @@ int32_t mz_stream_pkcrypt_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_pkcrypt_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_pkcrypt_read(void *stream, void *buf, int64_t size) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
     int32_t bytes_to_read = size;
@@ -195,7 +195,7 @@ int32_t mz_stream_pkcrypt_read(void *stream, void *buf, int32_t size) {
     return read;
 }
 
-int32_t mz_stream_pkcrypt_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_pkcrypt_write(void *stream, const void *buf, int64_t size) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
     int32_t bytes_to_write = sizeof(pkcrypt->buffer);
@@ -232,7 +232,7 @@ int64_t mz_stream_pkcrypt_tell(void *stream) {
     return mz_stream_tell(pkcrypt->stream.base);
 }
 
-int32_t mz_stream_pkcrypt_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_pkcrypt_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     return mz_stream_seek(pkcrypt->stream.base, offset, origin);
 }

@@ -115,7 +115,7 @@ int32_t mz_zip_entry_is_open(void *handle);
 int32_t mz_zip_entry_read_open(void *handle, uint8_t raw, const char *password);
 /* Open for reading the current file in the zip file */
 
-int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len);
+int64_t mz_zip_entry_read(void *handle, void *buf, int64_t len);
 /* Read bytes from the current file in the zip file */
 
 int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compressed_size, int64_t *uncompressed_size);

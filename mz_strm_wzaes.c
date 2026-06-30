@@ -175,7 +175,7 @@ static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t s
     return err;
 }
 
-int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_wzaes_read(void *stream, void *buf, int64_t size) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     int64_t max_total_in = 0;
     int32_t bytes_to_read = size;
@@ -197,7 +197,7 @@ int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size) {
     return read;
 }
 
-int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_wzaes_write(void *stream, const void *buf, int64_t size) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
     int32_t bytes_to_write = sizeof(wzaes->buffer);
@@ -233,7 +233,7 @@ int64_t mz_stream_wzaes_tell(void *stream) {
     return mz_stream_tell(wzaes->stream.base);
 }
 
-int32_t mz_stream_wzaes_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_wzaes_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     return mz_stream_seek(wzaes->stream.base, offset, origin);
 }

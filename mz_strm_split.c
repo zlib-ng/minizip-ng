@@ -211,7 +211,7 @@ int32_t mz_stream_split_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_split_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_split_read(void *stream, void *buf, int64_t size) {
     mz_stream_split *split = (mz_stream_split *)stream;
     int32_t bytes_left = size;
     int32_t read = 0;
@@ -249,7 +249,7 @@ int32_t mz_stream_split_read(void *stream, void *buf, int32_t size) {
     return size - bytes_left;
 }
 
-int32_t mz_stream_split_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_split_write(void *stream, const void *buf, int64_t size) {
     mz_stream_split *split = (mz_stream_split *)stream;
     int64_t position = 0;
     int32_t written = 0;
@@ -314,7 +314,7 @@ int64_t mz_stream_split_tell(void *stream) {
     return mz_stream_tell(split->stream.base);
 }
 
-int32_t mz_stream_split_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_split_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_split *split = (mz_stream_split *)stream;
     int64_t disk_left = 0;
     int64_t position = 0;

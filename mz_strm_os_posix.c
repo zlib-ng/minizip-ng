@@ -116,7 +116,7 @@ int32_t mz_stream_os_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_os_read(void *stream, void *buf, int64_t size) {
     mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t read = (int32_t)fread(buf, 1, (size_t)size, posix->handle);
     if (read < size && ferror(posix->handle)) {
@@ -126,7 +126,7 @@ int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
     return read;
 }
 
-int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_os_write(void *stream, const void *buf, int64_t size) {
     mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t written = (int32_t)fwrite(buf, 1, (size_t)size, posix->handle);
     if (written < size && ferror(posix->handle)) {
@@ -146,7 +146,7 @@ int64_t mz_stream_os_tell(void *stream) {
     return position;
 }
 
-int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_posix *posix = (mz_stream_posix *)stream;
     int32_t fseek_origin = 0;
 

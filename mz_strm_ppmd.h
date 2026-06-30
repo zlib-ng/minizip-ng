@@ -19,10 +19,10 @@ extern "C" {
 
 int32_t mz_stream_ppmd_open(void *stream, const char *filename, int32_t mode);
 int32_t mz_stream_ppmd_is_open(void *stream);
-int32_t mz_stream_ppmd_read(void *stream, void *buf, int32_t size);
-int32_t mz_stream_ppmd_write(void *stream, const void *buf, int32_t size);
+int64_t mz_stream_ppmd_read(void *stream, void *buf, int64_t size);
+int64_t mz_stream_ppmd_write(void *stream, const void *buf, int64_t size);
 int64_t mz_stream_ppmd_tell(void *stream);
-int32_t mz_stream_ppmd_seek(void *stream, int64_t offset, int32_t origin);
+int64_t mz_stream_ppmd_seek(void *stream, int64_t offset, int32_t origin);
 int32_t mz_stream_ppmd_close(void *stream);
 int32_t mz_stream_ppmd_error(void *stream);
 

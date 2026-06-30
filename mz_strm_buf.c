@@ -114,7 +114,7 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written) {
     return MZ_OK;
 }
 
-int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_buffered_read(void *stream, void *buf, int64_t size) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t buf_len = 0;
     int32_t bytes_to_read = 0;
@@ -182,7 +182,7 @@ int32_t mz_stream_buffered_read(void *stream, void *buf, int32_t size) {
     return size - bytes_left_to_read;
 }
 
-int32_t mz_stream_buffered_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_buffered_write(void *stream, const void *buf, int64_t size) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t bytes_to_write = size;
     int32_t bytes_left_to_write = size;
@@ -260,7 +260,7 @@ int64_t mz_stream_buffered_tell(void *stream) {
     return position;
 }
 
-int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t bytes_flushed = 0;
     int32_t err = MZ_OK;

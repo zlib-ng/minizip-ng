@@ -126,7 +126,7 @@ int32_t mz_stream_os_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_os_read(void *stream, void *buf, int64_t size) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t read = 0;
 
@@ -144,7 +144,7 @@ int32_t mz_stream_os_read(void *stream, void *buf, int32_t size) {
     return read;
 }
 
-int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_os_write(void *stream, const void *buf, int64_t size) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     int32_t written = 0;
 
@@ -207,7 +207,7 @@ int64_t mz_stream_os_tell(void *stream) {
     return large_pos.QuadPart;
 }
 
-int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
     uint32_t move_method = 0xFFFFFFFF;
     int32_t err = MZ_OK;

@@ -2045,7 +2045,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     return err;
 }
 
-int32_t mz_zip_entry_read(void *handle, void *buf, int32_t len) {
+int64_t mz_zip_entry_read(void *handle, void *buf, int64_t len) {
     mz_zip *zip = (mz_zip *)handle;
     int32_t read = 0;
 

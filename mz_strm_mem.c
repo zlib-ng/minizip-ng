@@ -108,7 +108,7 @@ int32_t mz_stream_mem_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_mem_read(void *stream, void *buf, int64_t size) {
+int64_t mz_stream_mem_read(void *stream, void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
 
     if (size > mem->size - mem->position)
@@ -125,13 +125,13 @@ int32_t mz_stream_mem_read(void *stream, void *buf, int64_t size) {
     return size;
 }
 
-int32_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
+int64_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
-    size_t new_size = 0;
+    int64_t new_size = 0;
     int32_t err = MZ_OK;
 
-    if (!size)
-        return size;
+    if (size <= 0)
+        return 0;
 
     if (size > mem->size - mem->position) {
         if (mem->mode & MZ_OPEN_MODE_CREATE) {
@@ -149,7 +149,10 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
         }
     }
 
-    memcpy(mem->buffer + mem->position, buf, size);
+    if (size <= 0)
+        return 0;
+
+    memcpy(mem->buffer + mem->position, buf, (size_t)size);
 
     mem->position += size;
     if (mem->position > mem->limit)
@@ -163,7 +166,7 @@ int64_t mz_stream_mem_tell(void *stream) {
     return mem->position;
 }
 
-int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int64_t new_pos = 0;
     int32_t err = MZ_OK;
@@ -182,8 +185,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
         return MZ_SEEK_ERROR;
     }
 
-    // While `malloc` accepts a size_t, mz_stream_mem_s.size only supports an int32_t
-    if (new_pos < 0 || new_pos > INT32_MAX) {
+    if (new_pos < 0) {
         return MZ_SEEK_ERROR;
     }
 
@@ -191,12 +193,12 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
             return MZ_SEEK_ERROR;
 
-        err = mz_stream_mem_set_size(stream, (int32_t)new_pos);
+        err = mz_stream_mem_set_size(stream, new_pos);
         if (err != MZ_OK)
             return err;
     }
 
-    mem->position = (int32_t)new_pos;
+    mem->position = new_pos;
     return MZ_OK;
 }
 
@@ -214,7 +216,7 @@ int32_t mz_stream_mem_error(void *stream) {
     return MZ_OK;
 }
 
-void mz_stream_mem_set_buffer(void *stream, void *buf, int32_t size) {
+void mz_stream_mem_set_buffer(void *stream, void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->buffer = (uint8_t *)buf;
     mem->size = size;
@@ -238,12 +240,12 @@ int32_t mz_stream_mem_get_buffer_at_current(void *stream, const void **buf) {
     return mz_stream_mem_get_buffer_at(stream, mem->position, buf);
 }
 
-void mz_stream_mem_get_buffer_length(void *stream, int32_t *length) {
+void mz_stream_mem_get_buffer_length(void *stream, int64_t *length) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     *length = mem->limit;
 }
 
-void mz_stream_mem_set_buffer_limit(void *stream, int32_t limit) {
+void mz_stream_mem_set_buffer_limit(void *stream, int64_t limit) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     mem->limit = limit;
 }

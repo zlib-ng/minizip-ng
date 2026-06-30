@@ -92,7 +92,7 @@ int32_t mz_stream_bzip_is_open(void *stream) {
     return MZ_OK;
 }
 
-int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_bzip_read(void *stream, void *buf, int64_t size) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
     MZ_UNUSED(stream);
     MZ_UNUSED(buf);
@@ -216,7 +216,7 @@ static int32_t mz_stream_bzip_compress(void *stream, int flush) {
 }
 #endif
 
-int32_t mz_stream_bzip_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_bzip_write(void *stream, const void *buf, int64_t size) {
 #ifdef MZ_ZIP_NO_COMPRESSION
     MZ_UNUSED(stream);
     MZ_UNUSED(buf);
@@ -245,7 +245,7 @@ int64_t mz_stream_bzip_tell(void *stream) {
     return MZ_TELL_ERROR;
 }
 
-int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin) {
     MZ_UNUSED(stream);
     MZ_UNUSED(offset);
     MZ_UNUSED(origin);

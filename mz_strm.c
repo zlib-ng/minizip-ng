@@ -31,7 +31,7 @@ int32_t mz_stream_is_open(void *stream) {
     return strm->vtbl->is_open(strm);
 }
 
-int32_t mz_stream_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_read(void *stream, void *buf, int64_t size) {
     mz_stream *strm = (mz_stream *)stream;
     if (!strm || !strm->vtbl || !strm->vtbl->read)
         return MZ_PARAM_ERROR;
@@ -98,7 +98,7 @@ int32_t mz_stream_read_uint64(void *stream, uint64_t *value) {
     return mz_stream_read_value(stream, value, sizeof(uint64_t));
 }
 
-int32_t mz_stream_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_write(void *stream, const void *buf, int64_t size) {
     mz_stream *strm = (mz_stream *)stream;
     if (size == 0)
         return size;
@@ -442,14 +442,14 @@ int32_t mz_stream_raw_is_open(void *stream) {
     return mz_stream_is_open(raw->stream.base);
 }
 
-int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size) {
+int64_t mz_stream_raw_read(void *stream, void *buf, int64_t size) {
     mz_stream_raw *raw = (mz_stream_raw *)stream;
-    int32_t bytes_to_read = size;
-    int32_t read = 0;
+    int64_t bytes_to_read = size;
+    int64_t read = 0;
 
     if (raw->max_total_in > 0) {
         if ((int64_t)bytes_to_read > (raw->max_total_in - raw->total_in))
-            bytes_to_read = (int32_t)(raw->max_total_in - raw->total_in);
+            bytes_to_read = (int64_t)(raw->max_total_in - raw->total_in);
     }
 
     read = mz_stream_read(raw->stream.base, buf, bytes_to_read);
@@ -462,9 +462,9 @@ int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size) {
     return read;
 }
 
-int32_t mz_stream_raw_write(void *stream, const void *buf, int32_t size) {
+int64_t mz_stream_raw_write(void *stream, const void *buf, int64_t size) {
     mz_stream_raw *raw = (mz_stream_raw *)stream;
-    int32_t written = 0;
+    int64_t written = 0;
 
     written = mz_stream_write(raw->stream.base, buf, size);
 
@@ -481,7 +481,7 @@ int64_t mz_stream_raw_tell(void *stream) {
     return mz_stream_tell(raw->stream.base);
 }
 
-int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin) {
+int64_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_raw *raw = (mz_stream_raw *)stream;
     return mz_stream_seek(raw->stream.base, offset, origin);
 }
