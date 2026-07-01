@@ -143,7 +143,7 @@ static int64_t mz_stream_ioapi_write(void *stream, const void *buf, int64_t size
     //Need to clamp existed data and feed it in chuncks
     while (total_written < size)
     {
-        to_write = (size - total_written > ULONG_MAX) ? ULONG_MAX : (unsigned long) (size - to_write);
+        to_write = (size - total_written > ULONG_MAX) ? ULONG_MAX : (unsigned long) (size - total_written);
         bytes_written = zwrite(opaque, ioapi->handle, (const uint8_t *)buf + total_written, to_write);
 
         if (bytes_written <= 0)
