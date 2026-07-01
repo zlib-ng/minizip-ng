@@ -128,42 +128,93 @@ int32_t mz_stream_os_is_open(void *stream) {
 
 int64_t mz_stream_os_read(void *stream, void *buf, int64_t size) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
-    uint32_t read = 0;
+    int64_t total_read = 0;
+    DWORD read_chunk;
+    DWORD bytes_read;
+    uint8_t *buf_ptr = (uint8_t *)buf;
+    
+    if (size == 0)
+        return 0;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
 
     if (mz_stream_os_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
 
-    if (!ReadFile(win32->handle, buf, size, (DWORD *)&read, NULL)) {
-        win32->error = GetLastError();
-        if (win32->error == ERROR_HANDLE_EOF)
-            win32->error = 0;
+    while(total_read < size)
+    {
+        read_chunk = (size > UINT32_MAX) ? UINT32_MAX : (size - total_read);
+
+
+        if (!ReadFile(win32->handle, buf_ptr + total_read, read_chunk, &bytes_read, NULL)) {
+            win32->error = GetLastError();
+            if (win32->error == ERROR_HANDLE_EOF)
+            {
+                win32->error = 0;
+                break;
+            }
+            return win32->error;
+        }
+
+        total_read += read_chunk;
+
+        if (bytes_read == 0)
+            break;
+        if (bytes_read < read_chunk)
+            break;
     }
+    mz_stream_os_print("Win32 - Read - %" PRId64 "\n", total_read);
 
-    mz_stream_os_print("Win32 - Read - %" PRId32 "\n", read);
-
-    return read;
+    return total_read;
 }
 
 int64_t mz_stream_os_write(void *stream, const void *buf, int64_t size) {
     mz_stream_win32 *win32 = (mz_stream_win32 *)stream;
-    int32_t written = 0;
+    int64_t total_written = 0;
+    const uint8_t *buf_ptr = (const uint8_t *)buf;
+    DWORD write_chunk = 0;
+    DWORD bytes_written = 0;
 
-    if (mz_stream_os_is_open(stream) != MZ_OK)
-        return MZ_OPEN_ERROR;
+    if (size == 0)
+        return 0;
 
-    if (!WriteFile(win32->handle, buf, size, (DWORD *)&written, NULL)) {
-        win32->error = GetLastError();
-        if (win32->error == ERROR_HANDLE_EOF)
-            win32->error = 0;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
+    while(total_written < size)
+    {
+        write_chunk = (size > UINT32_MAX) ? UINT32_MAX : (size - total_written);
+
+        if (mz_stream_os_is_open(stream) != MZ_OK)
+            return MZ_OPEN_ERROR;
+
+        if (!WriteFile(win32->handle, buf_ptr + total_written, write_chunk, &bytes_written, NULL)) {
+            win32->error = GetLastError();
+            if (win32->error == ERROR_HANDLE_EOF)
+            {
+                win32->error = 0;
+                break;
+            }
+
+            return win32->error;
+        }
+
+        total_written += read_chunk;
+
+        if (bytes_written == 0)
+            break;
+        if (bytes_written < write_chunk)
+            break;
+
     }
-
     mz_stream_os_print("Win32 - Write - %" PRId32 "\n", written);
 
     return written;
 }
 
 static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos,
-                                         uint32_t move_method) {
+        uint32_t move_method) {
 #if _WIN32_WINNT >= _WIN32_WINNT_WINXP
     BOOL success = FALSE;
     success = SetFilePointerEx(handle, large_pos, new_pos, move_method);

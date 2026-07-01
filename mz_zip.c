@@ -2045,15 +2045,22 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
     return err;
 }
 
+//TODO issue744 zip->entry_crc32 and mz_crypt_crc32_update for now left 32bit
 int64_t mz_zip_entry_read(void *handle, void *buf, int64_t len) {
     mz_zip *zip = (mz_zip *)handle;
-    int32_t read = 0;
+    int64_t read = 0;
+    int64_t total_read = 0;
+    uint32_t read_chunk = 0;
+    uint8_t *buf_ptr = buf;
+
+    if (len > INT32_MAX)
+        return MZ_PARAM_ERROR;
 
     if (!zip || mz_zip_entry_is_open(zip) != MZ_OK)
         return MZ_PARAM_ERROR;
     if (UINT_MAX == UINT16_MAX && len > UINT16_MAX) /* zlib limitation */
         return MZ_PARAM_ERROR;
-    if (len == 0)
+    if (len <= 0)
         return MZ_PARAM_ERROR;
 
     if (zip->file_info.compressed_size == 0)
@@ -2063,24 +2070,43 @@ int64_t mz_zip_entry_read(void *handle, void *buf, int64_t len) {
     /* aes encryption validation will fail if compressed_size > 0 */
     read = mz_stream_read(zip->compress_stream, buf, len);
     if (read > 0)
-        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, read);
+    {
+        while(total_read < read)
+        {
+            read_chunk = (len > UINT32_MAX) ? UINT32_MAX : (uint32_t)(read - total_read);
+            zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf_ptr, read_chunk);
+            buf_ptr += read_chunk;
+            total_read += read_chunk;
+        }
+    }
 
-    mz_zip_print("Zip - Entry - Read - %" PRId32 " (max %" PRId32 ")\n", read, len);
+    mz_zip_print("Zip - Entry - Read - %" PRId64 " (max %" PRId64 ")\n", read, len);
 
     return read;
 }
 
-int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len) {
+int64_t mz_zip_entry_write(void *handle, const void *buf, int64_t len) {
     mz_zip *zip = (mz_zip *)handle;
-    int32_t written = 0;
+    int64_t written = 0;
+    int64_t total_written = 0;
+    uint32_t write_chunk = 0;
+    const uint8_t *buf_ptr = buf;
 
     if (!zip || mz_zip_entry_is_open(zip) != MZ_OK)
         return MZ_PARAM_ERROR;
     written = mz_stream_write(zip->compress_stream, buf, len);
     if (written > 0)
-        zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
+    {
+        while(total_written < written)
+        {
+            write_chunk = (len > UINT32_MAX) ? UINT32_MAX : (uint32_t)(written - total_written);
+            zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
+            buf_ptr += write_chunk;
+            total_written += write_chunk;
+        }
+    }
 
-    mz_zip_print("Zip - Entry - Write - %" PRId32 " (max %" PRId32 ")\n", written, len);
+    mz_zip_print("Zip - Entry - Write - %" PRId64 " (max %" PRId64 ")\n", written, len);
     return written;
 }
 

@@ -125,7 +125,7 @@ int32_t mz_zip_entry_write_open(void *handle, const mz_zip_file *file_info, int1
                                 const char *password);
 /* Open for writing the current file in the zip file */
 
-int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len);
+int64_t mz_zip_entry_write(void *handle, const void *buf, int64_t len);
 /* Write bytes from the current file in the zip file */
 
 int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compressed_size, int64_t uncompressed_size);

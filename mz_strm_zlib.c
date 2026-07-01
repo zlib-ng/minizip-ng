@@ -126,68 +126,85 @@ int64_t mz_stream_zlib_read(void *stream, void *buf, int64_t size) {
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     uint32_t total_in = 0;
-    uint32_t total_out = 0;
+    int64_t total_out = 0;
     uint32_t in_bytes = 0;
     uint32_t out_bytes = 0;
     int32_t bytes_to_read = sizeof(zlib->buffer);
     int32_t read = 0;
     int32_t err = Z_OK;
+    unsigned int read_chunk;
+    uint8_t eof = 0;
 
-    zlib->zstream.next_out = (Bytef *)buf;
-    zlib->zstream.avail_out = (uInt)size;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+    if (size == 0)
+        return 0;
 
-    do {
-        if (zlib->zstream.avail_in == 0) {
-            if (zlib->max_total_in > 0) {
-                if ((int64_t)bytes_to_read > (zlib->max_total_in - zlib->total_in))
-                    bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
+    while (total_out < size) {
+        read_chunk = (size - total_out > UINT_MAX) ? UINT_MAX : (unsigned int)(size - total_out);
+        zlib->zstream.next_out = (Bytef *)buf + total_out;
+        zlib->zstream.avail_out = read_chunk;
+
+        do {
+            if (zlib->zstream.avail_in == 0 && !eof) {
+                if (zlib->max_total_in > 0) {
+                    if ((int64_t)bytes_to_read > (zlib->max_total_in - zlib->total_in))
+                        bytes_to_read = (int32_t)(zlib->max_total_in - zlib->total_in);
+                }
+                read = mz_stream_read(zlib->stream.base, zlib->buffer, bytes_to_read);
+                if (read < 0)
+                    return read;
+                if (read == 0) {
+                    eof = 1;
+                } else {
+                    zlib->zstream.next_in = zlib->buffer;
+                    zlib->zstream.avail_in = read;
+                }
             }
 
-            read = mz_stream_read(zlib->stream.base, zlib->buffer, bytes_to_read);
+            total_in_before = zlib->zstream.avail_in;
+            total_out_before = zlib->zstream.total_out;
+            err = ZLIB_PREFIX(inflate)(&zlib->zstream, eof ? Z_FINISH : Z_SYNC_FLUSH);
+            if ((err >= Z_OK) && (zlib->zstream.msg)) {
+                zlib->error = Z_DATA_ERROR;
+                break;
+            }
+            total_in_after = zlib->zstream.avail_in;
+            total_out_after = zlib->zstream.total_out;
+            in_bytes = (uint32_t)(total_in_before - total_in_after);
+            out_bytes = (uint32_t)(total_out_after - total_out_before);
+            total_in += in_bytes;
+            total_out += out_bytes;
+            zlib->total_in += in_bytes;
+            zlib->total_out += out_bytes;
 
-            if (read < 0)
-                return read;
+            if (err == Z_STREAM_END)
+                break;
+            if (err != Z_OK) {
+                if (eof && in_bytes == 0 && out_bytes == 0) {
+                    zlib->error = err;
+                    break;
+                }
+                if (!eof) {
+                    zlib->error = err;
+                    break;
+                }
+            }
+            if (eof && zlib->zstream.avail_in == 0 && in_bytes == 0 && out_bytes == 0)
+                break; 
+        } while (zlib->zstream.avail_out > 0);
 
-            zlib->zstream.next_in = zlib->buffer;
-            zlib->zstream.avail_in = read;
-        }
-
-        total_in_before = zlib->zstream.avail_in;
-        total_out_before = zlib->zstream.total_out;
-
-        err = ZLIB_PREFIX(inflate)(&zlib->zstream, Z_SYNC_FLUSH);
-        if ((err >= Z_OK) && (zlib->zstream.msg)) {
-            zlib->error = Z_DATA_ERROR;
+        if (err == Z_STREAM_END || zlib->error != 0)
+            break; 
+        if (eof && zlib->zstream.avail_in == 0)
             break;
-        }
-
-        total_in_after = zlib->zstream.avail_in;
-        total_out_after = zlib->zstream.total_out;
-
-        in_bytes = (uint32_t)(total_in_before - total_in_after);
-        out_bytes = (uint32_t)(total_out_after - total_out_before);
-
-        total_in += in_bytes;
-        total_out += out_bytes;
-
-        zlib->total_in += in_bytes;
-        zlib->total_out += out_bytes;
-
-        if (err == Z_STREAM_END)
-            break;
-        if (err != Z_OK) {
-            zlib->error = err;
-            break;
-        }
-    } while (zlib->zstream.avail_out > 0);
+    }
 
     MZ_UNUSED(total_in);
-
     if (zlib->error != 0) {
         /* Zlib errors are compatible with MZ */
         return zlib->error;
     }
-
     return total_out;
 #endif
 }

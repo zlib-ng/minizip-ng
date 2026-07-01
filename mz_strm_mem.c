@@ -137,7 +137,11 @@ int64_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
         if (mem->mode & MZ_OPEN_MODE_CREATE) {
             new_size = mem->size;
             if (size < mem->grow_size)
+            {
+                if (new_size > INT32_MAX - mem->grow_size)
+                    return MZ_BUF_ERROR;
                 new_size += mem->grow_size;
+            }
             else
                 new_size += size;
 
@@ -145,7 +149,9 @@ int64_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
             if (err != MZ_OK)
                 return err;
         } else {
-            size = mem->size - mem->position;
+            if (new_size > INT32_MAX - size)
+                return MZ_BUF_ERROR;
+            new_size += size;
         }
     }
 
@@ -173,9 +179,17 @@ int64_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
 
     switch (origin) {
     case MZ_SEEK_CUR:
+        if (offset > 0 && mem->position > INT64_MAX - offset)
+            return MZ_SEEK_ERROR;
+        if (offset < 0 && mem->position < INT64_MIN - offset)
+            return MZ_SEEK_ERROR;
         new_pos = mem->position + offset;
         break;
     case MZ_SEEK_END:
+        if (offset > 0 && mem->limit > INT64_MAX - offset)
+            return MZ_SEEK_ERROR;
+        if (offset < 0 && mem->limit < INT64_MIN - offset)
+            return MZ_SEEK_ERROR;
         new_pos = mem->limit + offset;
         break;
     case MZ_SEEK_SET:
@@ -218,6 +232,8 @@ int32_t mz_stream_mem_error(void *stream) {
 
 void mz_stream_mem_set_buffer(void *stream, void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
+    if (size < 0)
+        size = 0;
     mem->buffer = (uint8_t *)buf;
     mem->size = size;
     mem->limit = size;
@@ -247,6 +263,12 @@ void mz_stream_mem_get_buffer_length(void *stream, int64_t *length) {
 
 void mz_stream_mem_set_buffer_limit(void *stream, int64_t limit) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
+
+    if (limit < 0)
+        limit = 0;
+    if (limit > mem->size)
+        limit = mem->size;
+
     mem->limit = limit;
 }
 

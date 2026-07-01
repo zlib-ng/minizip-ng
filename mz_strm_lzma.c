@@ -157,93 +157,97 @@ int64_t mz_stream_lzma_read(void *stream, void *buf, int64_t size) {
     uint64_t total_in_after = 0;
     uint64_t total_out_after = 0;
     int32_t total_in = 0;
-    int32_t total_out = 0;
+    int64_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
     int32_t bytes_to_read = sizeof(lzma->buffer);
     int32_t read = 0;
     int32_t err = LZMA_OK;
+    size_t read_chunk;
+    uint8_t eof = 0;
 
-    lzma->lstream.next_out = (uint8_t *)buf;
-    lzma->lstream.avail_out = (size_t)size;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+    if (size == 0)
+        return 0;
 
-    do {
-        if (lzma->lstream.avail_in == 0) {
-            if (lzma->max_total_in > 0) {
-                if ((int64_t)bytes_to_read > (lzma->max_total_in - lzma->total_in))
-                    bytes_to_read = (int32_t)(lzma->max_total_in - lzma->total_in);
-            }
+    while (total_out < size) {
+        read_chunk = (size > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_out);
+        lzma->lstream.next_out = (uint8_t *)buf + total_out;
+        lzma->lstream.avail_out = (size_t)read_chunk;
 
-            if (lzma->header) {
-                bytes_to_read = MZ_LZMA_ZIP_HEADER_SIZE - lzma->header_size;
-            }
-
-            read = mz_stream_read(lzma->stream.base, lzma->buffer, bytes_to_read);
-
-            if (read < 0)
-                return read;
-
-            /* Write uncompressed size for lzma alone header not in zip format */
-            if (lzma->header) {
-                lzma->header_size += read;
-
-                if (lzma->header_size == MZ_LZMA_ZIP_HEADER_SIZE) {
-                    uint64_t uncompressed_size = UINT64_MAX;
-
-                    memcpy(lzma->buffer + MZ_LZMA_ZIP_HEADER_SIZE, &uncompressed_size, sizeof(uncompressed_size));
-
-                    read += sizeof(uncompressed_size);
-                    bytes_to_read = sizeof(lzma->buffer);
-
-                    lzma->total_in -= sizeof(uncompressed_size);
-                    lzma->header = 0;
+        do {
+            if (lzma->lstream.avail_in == 0) {
+                if (lzma->max_total_in > 0) {
+                    if ((int64_t)bytes_to_read > (lzma->max_total_in - lzma->total_in))
+                        bytes_to_read = (int32_t)(lzma->max_total_in - lzma->total_in);
                 }
+                if (lzma->header) {
+                    bytes_to_read = MZ_LZMA_ZIP_HEADER_SIZE - lzma->header_size;
+                }
+                read = mz_stream_read(lzma->stream.base, lzma->buffer, bytes_to_read);
+                if (read < 0)
+                    return read;
+                if (read == 0) {
+                    eof = 1;
+                    break; 
+                }
+                if (lzma->header) {
+                    lzma->header_size += read;
+                    if (lzma->header_size == MZ_LZMA_ZIP_HEADER_SIZE) {
+                        uint64_t uncompressed_size = UINT64_MAX;
+                        memcpy(lzma->buffer + MZ_LZMA_ZIP_HEADER_SIZE, &uncompressed_size, sizeof(uncompressed_size));
+                        read += sizeof(uncompressed_size);
+                        bytes_to_read = sizeof(lzma->buffer);
+                        lzma->total_in -= sizeof(uncompressed_size);
+                        lzma->header = 0;
+                    }
+                }
+                lzma->lstream.next_in = lzma->buffer;
+                lzma->lstream.avail_in = (size_t)read;
             }
 
-            lzma->lstream.next_in = lzma->buffer;
-            lzma->lstream.avail_in = (size_t)read;
-        }
+            total_in_before = lzma->lstream.avail_in;
+            total_out_before = lzma->lstream.total_out;
+            err = lzma_code(&lzma->lstream, eof ? LZMA_FINISH : LZMA_RUN);
+            total_in_after = lzma->lstream.avail_in;
+            total_out_after = lzma->lstream.total_out;
+            if ((lzma->max_total_out != -1) && (int64_t)total_out_after > lzma->max_total_out)
+                total_out_after = (uint64_t)lzma->max_total_out;
+            in_bytes = (int32_t)(total_in_before - total_in_after);
+            out_bytes = (int32_t)(total_out_after - total_out_before);
+            total_in += in_bytes;
+            total_out += out_bytes;
+            lzma->total_in += in_bytes;
+            lzma->total_out += out_bytes;
 
-        total_in_before = lzma->lstream.avail_in;
-        total_out_before = lzma->lstream.total_out;
+            if (err == LZMA_STREAM_END)
+                return total_out;
+            if (err != LZMA_OK) {
+                lzma->error = err;
+                return MZ_DATA_ERROR;
+            }
 
-        err = lzma_code(&lzma->lstream, LZMA_RUN);
+            if (eof && in_bytes == 0 && out_bytes == 0) {
+                lzma->error = LZMA_DATA_ERROR;
+                return MZ_DATA_ERROR;
+            }
+        } while (lzma->lstream.avail_out > 0 && !(eof && lzma->lstream.avail_in == 0 && in_bytes == 0 && out_bytes == 0));
 
-        total_in_after = lzma->lstream.avail_in;
-        total_out_after = lzma->lstream.total_out;
-        if ((lzma->max_total_out != -1) && (int64_t)total_out_after > lzma->max_total_out)
-            total_out_after = (uint64_t)lzma->max_total_out;
-
-        in_bytes = (int32_t)(total_in_before - total_in_after);
-        out_bytes = (int32_t)(total_out_after - total_out_before);
-
-        total_in += in_bytes;
-        total_out += out_bytes;
-
-        lzma->total_in += in_bytes;
-        lzma->total_out += out_bytes;
-
-        if (err == LZMA_STREAM_END)
-            break;
-        if (err != LZMA_OK) {
-            lzma->error = err;
-            break;
-        }
-    } while (lzma->lstream.avail_out > 0);
+        if (eof && lzma->lstream.avail_in == 0)
+            break; 
+    }
 
     MZ_UNUSED(total_in);
-
     if (lzma->error != 0)
         return MZ_DATA_ERROR;
-
     return total_out;
 #endif
 }
-
 #ifndef MZ_ZIP_NO_COMPRESSION
 static int32_t mz_stream_lzma_flush(void *stream) {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
-    int32_t buffer_len = lzma->buffer_len;
+        int32_t buffer_len = lzma->buffer_len;
     uint8_t *buffer = lzma->buffer;
 
     /* Skip writing lzma_alone header uncompressed size for zip format */
@@ -317,17 +321,33 @@ int64_t mz_stream_lzma_write(void *stream, const void *buf, int64_t size) {
 #else
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
     int32_t err = MZ_OK;
+    int64_t total_written = 0;
+    size_t write_chunk;
+    size_t bytes_written;
 
-    lzma->lstream.next_in = (uint8_t *)(intptr_t)buf;
-    lzma->lstream.avail_in = (size_t)size;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
 
-    err = mz_stream_lzma_code(stream, LZMA_RUN);
-    if (err != MZ_OK) {
-        return err;
+    while(total_written < size)
+    {
+        write_chunk = (size > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_written);
+
+        lzma->lstream.next_in = (uint8_t *)(intptr_t)buf + total_written;
+        lzma->lstream.avail_in = write_chunk;
+
+        err = mz_stream_lzma_code(stream, LZMA_RUN);
+        if (err != MZ_OK) {
+            return err;
+        }
+
+        bytes_written = write_chunk - lzma->lstream.avail_in;
+        lzma->total_in += bytes_written;
+        total_written += bytes_written;
+        
+        if (bytes_written == 0)
+            break;
     }
-
-    lzma->total_in += size;
-    return size;
+        return total_written;
 #endif
 }
 

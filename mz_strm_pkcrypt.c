@@ -177,12 +177,12 @@ int32_t mz_stream_pkcrypt_is_open(void *stream) {
 int64_t mz_stream_pkcrypt_read(void *stream, void *buf, int64_t size) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     uint8_t *buf_ptr = (uint8_t *)buf;
-    int32_t bytes_to_read = size;
-    int32_t read = 0;
+    int64_t bytes_to_read = size;
+    int64_t read = 0;
     int32_t i = 0;
 
     if ((int64_t)bytes_to_read > (pkcrypt->max_total_in - pkcrypt->total_in))
-        bytes_to_read = (int32_t)(pkcrypt->max_total_in - pkcrypt->total_in);
+        bytes_to_read = pkcrypt->max_total_in - pkcrypt->total_in;
 
     read = mz_stream_read(pkcrypt->stream.base, buf, bytes_to_read);
 
@@ -198,9 +198,9 @@ int64_t mz_stream_pkcrypt_read(void *stream, void *buf, int64_t size) {
 int64_t mz_stream_pkcrypt_write(void *stream, const void *buf, int64_t size) {
     mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
-    int32_t bytes_to_write = sizeof(pkcrypt->buffer);
-    int32_t total_written = 0;
-    int32_t written = 0;
+    int64_t bytes_to_write = sizeof(pkcrypt->buffer);
+    int64_t total_written = 0;
+    int64_t written = 0;
     int32_t i = 0;
     uint16_t t = 0;
 
@@ -219,6 +219,10 @@ int64_t mz_stream_pkcrypt_write(void *stream, const void *buf, int64_t size) {
         written = mz_stream_write(pkcrypt->stream.base, pkcrypt->buffer, bytes_to_write);
         if (written < 0)
             return written;
+
+        //Deny pertial writes; Write must success fully, or fail
+        if (written != bytes_to_write)
+            return MZ_WRITE_ERROR;
 
         total_written += written;
     } while (total_written < size && written > 0);

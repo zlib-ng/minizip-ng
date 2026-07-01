@@ -1117,7 +1117,7 @@ int32_t mz_zip_writer_zip_cd(void *handle) {
     uint64_t number_entry = 0;
     int64_t cd_mem_length = 0;
     int32_t err = MZ_OK;
-    int32_t extrafield_size = 0;
+    int64_t extrafield_size = 0;
     void *file_extra_stream = NULL;
     void *cd_mem_stream = NULL;
 
@@ -1150,7 +1150,7 @@ int32_t mz_zip_writer_zip_cd(void *handle) {
     mz_stream_write_uint64(file_extra_stream, number_entry);
 
     mz_stream_mem_get_buffer(file_extra_stream, (const void **)&cd_file.extrafield);
-    mz_stream_mem_get_buffer_length(file_extra_stream, (int64_t *)&extrafield_size);
+    mz_stream_mem_get_buffer_length(file_extra_stream, &extrafield_size);
     cd_file.extrafield_size = (uint16_t)extrafield_size;
 
     err = mz_zip_writer_entry_open(writer, &cd_file);
@@ -1418,7 +1418,7 @@ int32_t mz_zip_writer_entry_close(void *handle) {
     int32_t err = MZ_OK;
 #ifndef MZ_ZIP_NO_CRYPTO
     const uint8_t *extrafield = NULL;
-    int32_t extrafield_size = 0;
+    int64_t extrafield_size = 0;
     int16_t field_length_hash = 0;
     uint8_t hash_digest[MZ_HASH_MAX_SIZE];
 #endif
@@ -1469,7 +1469,7 @@ int32_t mz_zip_writer_entry_close(void *handle) {
 
         /* Update extra field for central directory after adding extra fields */
         mz_stream_mem_get_buffer(writer->file_extra_stream, (const void **)&extrafield);
-        mz_stream_mem_get_buffer_length(writer->file_extra_stream, (int64_t *)&extrafield_size);
+        mz_stream_mem_get_buffer_length(writer->file_extra_stream, &extrafield_size);
 
         mz_zip_entry_set_extrafield(writer->zip_handle, extrafield, (uint16_t)extrafield_size);
     }

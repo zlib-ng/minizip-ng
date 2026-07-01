@@ -74,6 +74,15 @@ static int64_t mz_stream_ioapi_read(void *stream, void *buf, int64_t size) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
     read_file_func zread = NULL;
     void *opaque = NULL;
+    unsigned long to_read;
+    unsigned long bytes_read;
+    int64_t total_read = 0;
+    
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
+    if (size == 0)
+        return 0;
 
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
@@ -87,14 +96,36 @@ static int64_t mz_stream_ioapi_read(void *stream, void *buf, int64_t size) {
     } else
         return MZ_PARAM_ERROR;
 
-    return (int32_t)zread(opaque, ioapi->handle, buf, size);
+    //Because zread expects unsigned long in size which differs on different system
+    //Need to clamp existed data and feed it in chuncks
+    while (total_read < size)
+    {
+        to_read = (size - total_read > ULONG_MAX) ? ULONG_MAX : (unsigned long) (size - total_read);
+        bytes_read = zread(opaque, ioapi->handle, (uint8_t *)buf + total_read, to_read);
+
+        if (bytes_read <= 0)
+            break;
+
+        total_read += bytes_read;
+
+    }
+
+    return total_read;
 }
 
 static int64_t mz_stream_ioapi_write(void *stream, const void *buf, int64_t size) {
     mz_stream_ioapi *ioapi = (mz_stream_ioapi *)stream;
     write_file_func zwrite = NULL;
-    int32_t written = 0;
     void *opaque = NULL;
+    int64_t total_written = 0;
+    unsigned long to_write;
+    unsigned long bytes_written;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
+    if (size == 0)
+        return 0;
 
     if (mz_stream_ioapi_is_open(stream) != MZ_OK)
         return MZ_OPEN_ERROR;
@@ -108,8 +139,21 @@ static int64_t mz_stream_ioapi_write(void *stream, const void *buf, int64_t size
     } else
         return MZ_PARAM_ERROR;
 
-    written = (int32_t)zwrite(opaque, ioapi->handle, buf, size);
-    return written;
+    //Because zwrite expects unsigned long in size which differs on different system
+    //Need to clamp existed data and feed it in chuncks
+    while (total_written < size)
+    {
+        to_write = (size - total_written > ULONG_MAX) ? ULONG_MAX : (unsigned long) (size - to_write);
+        bytes_written = zwrite(opaque, ioapi->handle, (const uint8_t *)buf + total_written, to_write);
+
+        if (bytes_written <= 0)
+            break;
+
+        total_written += bytes_written;
+
+    }
+
+    return total_written;
 }
 
 static int64_t mz_stream_ioapi_tell(void *stream) {
@@ -136,6 +180,8 @@ static int64_t mz_stream_ioapi_seek(void *stream, int64_t offset, int32_t origin
         if (ioapi->filefunc64.zseek64_file(ioapi->filefunc64.opaque, ioapi->handle, offset, origin) != 0)
             return MZ_INTERNAL_ERROR;
     } else if (ioapi->filefunc.zseek_file) {
+        if (offset < INT32_MIN || offset > INT32_MAX)
+            return MZ_PARAM_ERROR;
         if (ioapi->filefunc.zseek_file(ioapi->filefunc.opaque, ioapi->handle, (int32_t)offset, origin) != 0)
             return MZ_INTERNAL_ERROR;
     } else

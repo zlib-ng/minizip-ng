@@ -116,22 +116,27 @@ static int32_t mz_stream_buffered_flush(void *stream, int32_t *written) {
 
 int64_t mz_stream_buffered_read(void *stream, void *buf, int64_t size) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
-    int32_t buf_len = 0;
+    int64_t buf_len = 0;
     int32_t bytes_to_read = 0;
     int32_t bytes_to_copy = 0;
-    int32_t bytes_left_to_read = size;
+    int64_t bytes_left_to_read = size;
     int32_t bytes_read = 0;
     int32_t bytes_flushed = 0;
+    int32_t err = MZ_OK;
 
-    mz_stream_buffered_print("Buffered - Read (size %" PRId32 " pos %" PRId64 ")\n", size, buffered->position);
+    mz_stream_buffered_print("Buffered - Read (size %" PRId64 " pos %" PRId64 ")\n", size, buffered->position);
 
     if (buffered->writebuf_len > 0) {
         int64_t position = buffered->position + buffered->writebuf_pos;
 
         mz_stream_buffered_print("Buffered - Switch from write to read, flushing (pos %" PRId64 ")\n", position);
 
-        mz_stream_buffered_flush(stream, &bytes_flushed);
-        mz_stream_buffered_seek(stream, position, MZ_SEEK_SET);
+        err = mz_stream_buffered_flush(stream, &bytes_flushed);
+        if (err != MZ_OK)
+            return err;
+        err = mz_stream_buffered_seek(stream, position, MZ_SEEK_SET);
+        if (err != MZ_OK)
+            return err;
     }
 
     while (bytes_left_to_read > 0) {
@@ -172,7 +177,7 @@ int64_t mz_stream_buffered_read(void *stream, void *buf, int64_t size) {
             buffered->readbuf_hits += 1;
             buffered->readbuf_pos += bytes_to_copy;
 
-            mz_stream_buffered_print("Buffered - Emptied (copied %" PRId32 " remaining %" PRId32 " buf %" PRId32
+            mz_stream_buffered_print("Buffered - Emptied (copied %" PRId32 " remaining %" PRId64 " buf %" PRId32
                                      ":%" PRId32 " pos %" PRId64 ")\n",
                                      bytes_to_copy, bytes_left_to_read, buffered->readbuf_pos, buffered->readbuf_len,
                                      buffered->position);
@@ -269,7 +274,7 @@ int64_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
                              offset, buffered->position);
 
     switch (origin) {
-    case MZ_SEEK_SET:
+    case MZ_SEEK_SET: 
 
         if ((buffered->readbuf_len > 0) && (offset < buffered->position) &&
             (offset >= buffered->position - buffered->readbuf_len)) {
@@ -293,7 +298,8 @@ int64_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
     case MZ_SEEK_CUR:
 
         if (buffered->readbuf_len > 0) {
-            if (offset <= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos)) {
+            if ((offset >= -((int64_t)buffered->writebuf_pos)) &&
+                (offset <= ((int64_t)buffered->writebuf_len - buffered->writebuf_pos))) {           
                 buffered->readbuf_pos += (uint32_t)offset;
                 return MZ_OK;
             }
@@ -301,7 +307,8 @@ int64_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
             buffered->position += offset;
         }
         if (buffered->writebuf_len > 0) {
-            if (offset <= ((int64_t)buffered->writebuf_len - buffered->writebuf_pos)) {
+            if ((offset >= -((int64_t)buffered->writebuf_pos)) &&
+                (offset <= ((int64_t)buffered->writebuf_len - buffered->writebuf_pos))) {
                 buffered->writebuf_pos += (uint32_t)offset;
                 return MZ_OK;
             }

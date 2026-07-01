@@ -178,12 +178,12 @@ static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t s
 int64_t mz_stream_wzaes_read(void *stream, void *buf, int64_t size) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     int64_t max_total_in = 0;
-    int32_t bytes_to_read = size;
-    int32_t read = 0;
+    int64_t bytes_to_read = size;
+    int64_t read = 0;
 
     max_total_in = wzaes->max_total_in - MZ_AES_FOOTER_SIZE;
-    if ((int64_t)bytes_to_read > (max_total_in - wzaes->total_in))
-        bytes_to_read = (int32_t)(max_total_in - wzaes->total_in);
+    if (bytes_to_read > max_total_in - wzaes->total_in)
+        bytes_to_read = max_total_in - wzaes->total_in;
 
     read = mz_stream_read(wzaes->stream.base, buf, bytes_to_read);
 
@@ -200,9 +200,9 @@ int64_t mz_stream_wzaes_read(void *stream, void *buf, int64_t size) {
 int64_t mz_stream_wzaes_write(void *stream, const void *buf, int64_t size) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
-    int32_t bytes_to_write = sizeof(wzaes->buffer);
-    int32_t total_written = 0;
-    int32_t written = 0;
+    int64_t bytes_to_write = sizeof(wzaes->buffer);
+    int64_t total_written = 0;
+    int64_t written = 0;
 
     if (size < 0)
         return MZ_PARAM_ERROR;
@@ -220,6 +220,10 @@ int64_t mz_stream_wzaes_write(void *stream, const void *buf, int64_t size) {
         written = mz_stream_write(wzaes->stream.base, wzaes->buffer, bytes_to_write);
         if (written < 0)
             return written;
+
+        //Deny pertial writes; Write must success fully, or fail
+        if (written != bytes_to_write)  
+            return MZ_WRITE_ERROR;
 
         total_written += written;
     } while (total_written < size && written > 0);

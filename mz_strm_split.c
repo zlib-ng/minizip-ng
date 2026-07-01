@@ -213,8 +213,8 @@ int32_t mz_stream_split_is_open(void *stream) {
 
 int64_t mz_stream_split_read(void *stream, void *buf, int64_t size) {
     mz_stream_split *split = (mz_stream_split *)stream;
-    int32_t bytes_left = size;
-    int32_t read = 0;
+    int64_t bytes_left = size;
+    int64_t read = 0;
     int32_t err = MZ_OK;
     uint8_t *buf_ptr = (uint8_t *)buf;
 
@@ -252,9 +252,9 @@ int64_t mz_stream_split_read(void *stream, void *buf, int64_t size) {
 int64_t mz_stream_split_write(void *stream, const void *buf, int64_t size) {
     mz_stream_split *split = (mz_stream_split *)stream;
     int64_t position = 0;
-    int32_t written = 0;
-    int32_t bytes_left = size;
-    int32_t bytes_to_write = 0;
+    int64_t written = 0;
+    int64_t bytes_left = size;
+    int64_t bytes_to_write = 0;
     int64_t bytes_avail = 0;
     int32_t number_disk = -1;
     int32_t err = MZ_OK;
@@ -281,7 +281,7 @@ int64_t mz_stream_split_write(void *stream, const void *buf, int64_t size) {
             if (split->number_disk != -1) {
                 bytes_avail = split->disk_size - split->total_out_disk;
                 if (bytes_to_write > bytes_avail)
-                    bytes_to_write = (int32_t)bytes_avail;
+                    bytes_to_write = bytes_avail;
             }
         }
 

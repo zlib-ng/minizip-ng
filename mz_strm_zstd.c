@@ -97,58 +97,94 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
     uint64_t total_in_after = 0;
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
-    int32_t total_out = 0;
+    int64_t total_out = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
     int32_t bytes_to_read = sizeof(zstd->buffer);
     int32_t read = 0;
     size_t result = 0;
+    size_t chunk_size = 0;
+    uint8_t eof = 0;
+    uint8_t frame_done = 0;
 
-    zstd->out.dst = (void *)buf;
-    zstd->out.size = (size_t)size;
-    zstd->out.pos = 0;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+    if (size == 0)
+        return 0;
 
-    do {
-        if (zstd->in.pos == zstd->in.size) {
-            if (zstd->max_total_in > 0) {
-                if ((int64_t)bytes_to_read > (zstd->max_total_in - zstd->total_in))
-                    bytes_to_read = (int32_t)(zstd->max_total_in - zstd->total_in);
+    while (total_out < size) {
+        chunk_size = ((size - total_out) > (int64_t)SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_out);
+        zstd->out.dst = (void *)((uint8_t *)buf + total_out);
+        zstd->out.size = chunk_size;
+        zstd->out.pos = 0;
+
+        do {
+            if (zstd->in.pos == zstd->in.size && !eof) {
+                if (zstd->max_total_in > 0) {
+                    if ((int64_t)bytes_to_read > (zstd->max_total_in - zstd->total_in))
+                        bytes_to_read = (int32_t)(zstd->max_total_in - zstd->total_in);
+                }
+                read = mz_stream_read(zstd->stream.base, zstd->buffer, bytes_to_read);
+                if (read < 0)
+                    return read;
+                if (read == 0) {
+                    eof = 1;
+                } else {
+                    zstd->in.src = (const void *)zstd->buffer;
+                    zstd->in.pos = 0;
+                    zstd->in.size = (size_t)read;
+                }
             }
 
-            read = mz_stream_read(zstd->stream.base, zstd->buffer, bytes_to_read);
+            if (zstd->in.pos == zstd->in.size && eof) {
+                /* No more input available at all. If we haven't finished a
+                   frame yet, this is truncated/corrupt data. */
+                if (!frame_done && total_out < size && zstd->out.pos == 0) {
+                    /* No progress possible; break out without spinning. */
+                }
+                break;
+            }
 
-            if (read < 0)
-                return read;
+            total_in_before = zstd->in.pos;
+            total_out_before = zstd->out.pos;
+            result = ZSTD_decompressStream(zstd->zdstream, &zstd->out, &zstd->in);
+            if (ZSTD_isError(result)) {
+                zstd->error = (int32_t)result;
+                return MZ_DATA_ERROR;
+            }
+            if (result == 0)
+                frame_done = 1; /* ZSTD_decompressStream signals frame completion */
 
-            zstd->in.src = (const void *)zstd->buffer;
-            zstd->in.pos = 0;
-            zstd->in.size = (size_t)read;
-        }
+            total_in_after = zstd->in.pos;
+            total_out_after = zstd->out.pos;
+            if ((zstd->max_total_out != -1) && (int64_t)total_out_after + total_out > zstd->max_total_out)
+                break;
+            in_bytes = (int32_t)(total_in_after - total_in_before);
+            out_bytes = (int32_t)(total_out_after - total_out_before);
+            total_out += out_bytes;
+            zstd->total_in += in_bytes;
+            zstd->total_out += out_bytes;
 
-        total_in_before = zstd->in.pos;
-        total_out_before = zstd->out.pos;
+            if (frame_done)
+                break;
 
-        result = ZSTD_decompressStream(zstd->zdstream, &zstd->out, &zstd->in);
+            /* No progress at all and no more input coming: stop instead of spinning. */
+            if (eof && in_bytes == 0 && out_bytes == 0)
+                break;
+        } while ((zstd->in.size > 0 || out_bytes > 0) && (zstd->out.pos < zstd->out.size));
 
-        if (ZSTD_isError(result)) {
-            zstd->error = (int32_t)result;
-            return MZ_DATA_ERROR;
-        }
+        if (frame_done)
+            break; /* stop the outer loop too once the frame is fully decoded */
+        if (eof && zstd->in.pos == zstd->in.size)
+            break; /* input exhausted, nothing more we can do */
+    }
 
-        total_in_after = zstd->in.pos;
-        total_out_after = zstd->out.pos;
-        if ((zstd->max_total_out != -1) && (int64_t)total_out_after > zstd->max_total_out)
-            total_out_after = (uint64_t)zstd->max_total_out;
-
-        in_bytes = (int32_t)(total_in_after - total_in_before);
-        out_bytes = (int32_t)(total_out_after - total_out_before);
-
-        total_out += out_bytes;
-
-        zstd->total_in += in_bytes;
-        zstd->total_out += out_bytes;
-
-    } while ((zstd->in.size > 0 || out_bytes > 0) && (zstd->out.pos < zstd->out.size));
+    if (!frame_done && eof && total_out < size) {
+        /* Ran out of input before completing the frame and before
+           satisfying the requested size: truncated/corrupt stream. */
+        zstd->error = 1;
+        return MZ_DATA_ERROR;
+    }
 
     return total_out;
 #endif
@@ -213,21 +249,35 @@ int64_t mz_stream_zstd_write(void *stream, const void *buf, int64_t size) {
 #else
     mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
     int32_t err = MZ_OK;
+    int64_t total_written = 0;
+    size_t write_chunk = 0;
 
-    zstd->in.src = buf;
-    zstd->in.pos = 0;
-    zstd->in.size = size;
+    if (size < 0)
+        return MZ_PARAM_ERROR;
 
-    err = mz_stream_zstd_compress(stream, ZSTD_e_continue);
-    if (err != MZ_OK) {
-        return err;
+    if (size == 0)
+        return 0;
+
+    while (total_written < size)
+    {
+        write_chunk = (size - total_written > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_written);
+        zstd->in.src = (uint8_t *)buf + total_written;
+        zstd->in.pos = 0;
+        zstd->in.size = write_chunk;
+
+        err = mz_stream_zstd_compress(stream, ZSTD_e_continue);
+        if (err != MZ_OK) {
+            return err;
+        }
+
+        total_written += write_chunk;
+        zstd->total_in += write_chunk;
     }
 
-    zstd->total_in += size;
-    return size;
-#endif
+    return total_written;
 }
 
+#endif
 int64_t mz_stream_zstd_tell(void *stream) {
     MZ_UNUSED(stream);
 

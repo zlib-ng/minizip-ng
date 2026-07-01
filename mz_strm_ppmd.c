@@ -313,11 +313,17 @@ int64_t mz_stream_ppmd_read(void *stream, void *buf, int64_t size) {
 #else
     mz_stream_ppmd *ppmd = (mz_stream_ppmd *)stream;
     uint8_t *next_out = buf;
-    int32_t avail_out;
+    int64_t avail_out;
     int64_t start_in = ppmd->total_in;
     int64_t avail_in = (ppmd->max_total_in > 0 ? ppmd->max_total_in : INT64_MAX) - start_in;
     int sym = 0;
-    int32_t written = 0;
+    int64_t written = 0;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
+    if (size == 0)
+        return 0;
 
     if (ppmd->end_stream)
         return MZ_OK;
@@ -365,7 +371,7 @@ int64_t mz_stream_ppmd_write(void *stream, const void *buf, int64_t size) {
 #else
     mz_stream_ppmd *ppmd = (mz_stream_ppmd *)stream;
     const uint8_t *buf_ptr = (const uint8_t *)buf;
-    int32_t bytes_written = 0;
+    int64_t bytes_written = 0;
 
     mz_setup_buffered_writer(ppmd);
     for (bytes_written = 0; bytes_written < size; bytes_written++) {

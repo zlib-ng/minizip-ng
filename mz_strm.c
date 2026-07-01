@@ -33,6 +33,10 @@ int32_t mz_stream_is_open(void *stream) {
 
 int64_t mz_stream_read(void *stream, void *buf, int64_t size) {
     mz_stream *strm = (mz_stream *)stream;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
     if (!strm || !strm->vtbl || !strm->vtbl->read)
         return MZ_PARAM_ERROR;
     if (mz_stream_is_open(strm) != MZ_OK)
@@ -100,8 +104,13 @@ int32_t mz_stream_read_uint64(void *stream, uint64_t *value) {
 
 int64_t mz_stream_write(void *stream, const void *buf, int64_t size) {
     mz_stream *strm = (mz_stream *)stream;
+
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
     if (size == 0)
         return size;
+
     if (!strm || !strm->vtbl || !strm->vtbl->write)
         return MZ_PARAM_ERROR;
     if (mz_stream_is_open(strm) != MZ_OK)
@@ -447,6 +456,9 @@ int64_t mz_stream_raw_read(void *stream, void *buf, int64_t size) {
     int64_t bytes_to_read = size;
     int64_t read = 0;
 
+    if (size < 0)
+        return MZ_PARAM_ERROR;
+
     if (raw->max_total_in > 0) {
         if ((int64_t)bytes_to_read > (raw->max_total_in - raw->total_in))
             bytes_to_read = (int64_t)(raw->max_total_in - raw->total_in);
@@ -465,6 +477,9 @@ int64_t mz_stream_raw_read(void *stream, void *buf, int64_t size) {
 int64_t mz_stream_raw_write(void *stream, const void *buf, int64_t size) {
     mz_stream_raw *raw = (mz_stream_raw *)stream;
     int64_t written = 0;
+    
+    if (size < 0)
+        return MZ_PARAM_ERROR;
 
     written = mz_stream_write(raw->stream.base, buf, size);
 
