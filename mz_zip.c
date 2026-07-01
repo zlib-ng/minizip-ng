@@ -2100,7 +2100,7 @@ int64_t mz_zip_entry_write(void *handle, const void *buf, int64_t len) {
         while(total_written < written)
         {
             write_chunk = (len > UINT32_MAX) ? UINT32_MAX : (uint32_t)(written - total_written);
-            zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf, written);
+            zip->entry_crc32 = mz_crypt_crc32_update(zip->entry_crc32, buf_ptr, write_chunk);
             buf_ptr += write_chunk;
             total_written += write_chunk;
         }

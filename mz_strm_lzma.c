@@ -172,7 +172,7 @@ int64_t mz_stream_lzma_read(void *stream, void *buf, int64_t size) {
         return 0;
 
     while (total_out < size) {
-        read_chunk = (size > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_out);
+        read_chunk = ((size - total_out) > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_out);
         lzma->lstream.next_out = (uint8_t *)buf + total_out;
         lzma->lstream.avail_out = (size_t)read_chunk;
 
@@ -330,7 +330,7 @@ int64_t mz_stream_lzma_write(void *stream, const void *buf, int64_t size) {
 
     while(total_written < size)
     {
-        write_chunk = (size > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_written);
+        write_chunk = ((size - total_written) > SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_written);
 
         lzma->lstream.next_in = (uint8_t *)(intptr_t)buf + total_written;
         lzma->lstream.avail_in = write_chunk;

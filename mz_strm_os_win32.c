@@ -200,7 +200,7 @@ int64_t mz_stream_os_write(void *stream, const void *buf, int64_t size) {
             return win32->error;
         }
 
-        total_written += read_chunk;
+        total_written += write_chunk;
 
         if (bytes_written == 0)
             break;
@@ -208,9 +208,9 @@ int64_t mz_stream_os_write(void *stream, const void *buf, int64_t size) {
             break;
 
     }
-    mz_stream_os_print("Win32 - Write - %" PRId32 "\n", written);
+    mz_stream_os_print("Win32 - Write - %" PRId64 "\n", written);
 
-    return written;
+    return total_written;
 }
 
 static int32_t mz_stream_os_seekinternal(HANDLE handle, LARGE_INTEGER large_pos, LARGE_INTEGER *new_pos,

@@ -148,11 +148,10 @@ int32_t mz_stream_wzaes_is_open(void *stream) {
     return MZ_OK;
 }
 
-static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t size) {
+static int64_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int64_t size) {
     mz_stream_wzaes *wzaes = (mz_stream_wzaes *)stream;
-    uint32_t pos = wzaes->crypt_pos;
-    uint32_t i = 0;
-    int32_t err = MZ_OK;
+    int64_t pos = wzaes->crypt_pos;
+    int64_t i = 0;
 
     while (i < (uint32_t)size) {
         if (pos == MZ_AES_BLOCK_SIZE) {
@@ -172,7 +171,7 @@ static int32_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int32_t s
     }
 
     wzaes->crypt_pos = pos;
-    return err;
+    return size;
 }
 
 int64_t mz_stream_wzaes_read(void *stream, void *buf, int64_t size) {

@@ -41,6 +41,7 @@ typedef struct mz_stream_zstd_s {
     int64_t max_total_out;
     int8_t initialized;
     int32_t preset;
+    int8_t stream_end;
 } mz_stream_zstd;
 
 /***************************************************************************/
@@ -98,6 +99,7 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
     uint64_t total_out_before = 0;
     uint64_t total_out_after = 0;
     int64_t total_out = 0;
+    int64_t out_limit = 0;
     int32_t in_bytes = 0;
     int32_t out_bytes = 0;
     int32_t bytes_to_read = sizeof(zstd->buffer);
@@ -114,6 +116,15 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
 
     while (total_out < size) {
         chunk_size = ((size - total_out) > (int64_t)SIZE_MAX) ? SIZE_MAX : (size_t)(size - total_out);
+
+        if (zstd->max_total_out != -1) {
+            out_limit = zstd->max_total_out - zstd->total_out;
+            if (out_limit <= 0)
+                break;
+            if ((int64_t)chunk_size > out_limit)
+                chunk_size = (size_t)out_limit;
+        }
+
         zstd->out.dst = (void *)((uint8_t *)buf + total_out);
         zstd->out.size = chunk_size;
         zstd->out.pos = 0;
@@ -153,7 +164,7 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
                 return MZ_DATA_ERROR;
             }
             if (result == 0)
-                frame_done = 1; /* ZSTD_decompressStream signals frame completion */
+                zstd->stream_end = 1;
 
             total_in_after = zstd->in.pos;
             total_out_after = zstd->out.pos;
@@ -165,7 +176,7 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
             zstd->total_in += in_bytes;
             zstd->total_out += out_bytes;
 
-            if (frame_done)
+            if (zstd->stream_end)
                 break;
 
             /* No progress at all and no more input coming: stop instead of spinning. */

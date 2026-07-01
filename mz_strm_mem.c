@@ -128,30 +128,40 @@ int64_t mz_stream_mem_read(void *stream, void *buf, int64_t size) {
 int64_t mz_stream_mem_write(void *stream, const void *buf, int64_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int64_t new_size = 0;
+    int64_t required_size;
+    int64_t grow_size;
     int32_t err = MZ_OK;
 
-    if (size <= 0)
+    if (size == 0)
         return 0;
 
-    if (size > mem->size - mem->position) {
+    if (size <= 0)
+        return MZ_PARAM_ERROR;
+
+    if (size > INT64_MAX - mem->position) 
+        return MZ_BUF_ERROR;
+
+    if (mem->position + size > mem->size)
+    {
         if (mem->mode & MZ_OPEN_MODE_CREATE) {
             new_size = mem->size;
-            if (size < mem->grow_size)
-            {
-                if (new_size > INT32_MAX - mem->grow_size)
-                    return MZ_BUF_ERROR;
-                new_size += mem->grow_size;
-            }
-            else
-                new_size += size;
+            required_size = mem->position + size;
+            grow_size = mem->grow_size;
+
+            if (grow_size <= 0 || grow_size < required_size - new_size)
+                grow_size = required_size - new_size;
+            if (new_size > INT64_MAX - grow_size)
+                return MZ_BUF_ERROR;
+
+            new_size += grow_size;
 
             err = mz_stream_mem_set_size(stream, new_size);
             if (err != MZ_OK)
                 return err;
         } else {
-            if (new_size > INT32_MAX - size)
-                return MZ_BUF_ERROR;
-            new_size += size;
+            size = mem->size - mem->position;
+            if (size <=0)
+                return 0;
         }
     }
 

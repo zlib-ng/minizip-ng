@@ -120,7 +120,7 @@ int64_t mz_stream_bzip_read(void *stream, void *buf, int64_t size) {
 
     while (total_out < size)
     {
-        avail_out_chunk = (size > UINT_MAX) ? UINT_MAX : (unsigned int)(size - total_out);
+        avail_out_chunk = ((size - total_out) > UINT_MAX) ? UINT_MAX : (unsigned int)(size - total_out);
 
         bzip->bzstream.next_out = (char *)buf + total_out;
         bzip->bzstream.avail_out = avail_out_chunk;

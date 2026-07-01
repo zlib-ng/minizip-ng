@@ -179,7 +179,7 @@ int64_t mz_stream_pkcrypt_read(void *stream, void *buf, int64_t size) {
     uint8_t *buf_ptr = (uint8_t *)buf;
     int64_t bytes_to_read = size;
     int64_t read = 0;
-    int32_t i = 0;
+    int64_t i = 0;
 
     if ((int64_t)bytes_to_read > (pkcrypt->max_total_in - pkcrypt->total_in))
         bytes_to_read = pkcrypt->max_total_in - pkcrypt->total_in;
