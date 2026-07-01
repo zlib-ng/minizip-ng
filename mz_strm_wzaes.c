@@ -153,7 +153,7 @@ static int64_t mz_stream_wzaes_ctr_encrypt(void *stream, uint8_t *buf, int64_t s
     int64_t pos = wzaes->crypt_pos;
     int64_t i = 0;
 
-    while (i < (uint32_t)size) {
+    while (i < size) {
         if (pos == MZ_AES_BLOCK_SIZE) {
             uint32_t j = 0;
 

@@ -164,7 +164,10 @@ int64_t mz_stream_zstd_read(void *stream, void *buf, int64_t size) {
                 return MZ_DATA_ERROR;
             }
             if (result == 0)
+            {
+                frame_done = 1;
                 zstd->stream_end = 1;
+            }
 
             total_in_after = zstd->in.pos;
             total_out_after = zstd->out.pos;

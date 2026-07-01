@@ -154,7 +154,7 @@ int64_t mz_stream_os_read(void *stream, void *buf, int64_t size) {
                 win32->error = 0;
                 break;
             }
-            return win32->error;
+            return MZ_READ_ERROR;
         }
 
         total_read += read_chunk;
