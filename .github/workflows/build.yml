@@ -263,7 +263,7 @@ jobs:
     - name: Cache LLVM C++ libraries (MSAN)
       if: contains(matrix.name, 'MSAN') && startsWith(matrix.compiler, 'clang')
       id: cache-llvm
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: |
           ${{ env.LLVM_BUILD_DIR }}/lib
