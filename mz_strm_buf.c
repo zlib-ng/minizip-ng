@@ -298,9 +298,9 @@ int64_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
     case MZ_SEEK_CUR:
 
         if (buffered->readbuf_len > 0) {
-            if ((offset >= -((int64_t)buffered->writebuf_pos)) &&
-                (offset <= ((int64_t)buffered->writebuf_len - buffered->writebuf_pos))) {           
-                buffered->readbuf_pos += (uint32_t)offset;
+            if ((offset >= -((int64_t)buffered->readbuf_pos)) &&
+                (offset <= ((int64_t)buffered->readbuf_len - buffered->writebuf_pos))) {           
+                buffered->readbuf_pos += (int32_t)offset;
                 return MZ_OK;
             }
             offset -= ((int64_t)buffered->readbuf_len - buffered->readbuf_pos);

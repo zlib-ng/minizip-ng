@@ -130,6 +130,8 @@ int64_t mz_stream_bzip_read(void *stream, void *buf, int64_t size) {
                 if (bzip->max_total_in > 0) {
                     if ((int64_t)bytes_to_read > (bzip->max_total_in - bzip->total_in))
                         bytes_to_read = (int32_t)(bzip->max_total_in - bzip->total_in);
+                    if (bytes_to_read <= 0)
+                        return total_out;
                 }
 
                 read = mz_stream_read(bzip->stream.base, bzip->buffer, bytes_to_read);

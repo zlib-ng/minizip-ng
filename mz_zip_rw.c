@@ -1491,7 +1491,7 @@ int32_t mz_zip_writer_entry_close(void *handle) {
 
 int64_t mz_zip_writer_entry_write(void *handle, const void *buf, int64_t len) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
-    int32_t written = 0;
+    int64_t written = 0;
     if (!writer)
         return MZ_PARAM_ERROR;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
