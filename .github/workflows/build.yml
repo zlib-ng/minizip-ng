@@ -403,7 +403,7 @@ jobs:
           echo "COVERAGE_REPORTS=${files[*]}" >> $GITHUB_ENV
 
       - name: Publish coverage reports
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         if: env.COVERAGE_REPORTS != '' && env.CODECOV_TOKEN != ''
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
