@@ -1057,7 +1057,8 @@ static int32_t mz_zip_read_cd(void *handle) {
                 }
             } else if ((zip->number_entry == UINT16_MAX) || (number_entry_cd != zip->number_entry) ||
                        (zip->cd_size == UINT16_MAX) || (zip->cd_offset == UINT32_MAX)) {
-                err = MZ_FORMAT_ERROR;
+                if (!zip->recover)
+                    err = MZ_FORMAT_ERROR;
             }
         }
     }
@@ -1267,11 +1268,13 @@ static int32_t mz_zip_recover_cd(void *handle) {
 
     /* Determine if we are on a split disk or not */
     mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, 0);
-    if (mz_stream_tell(zip->stream) < 0) {
+    if (mz_stream_tell(zip->stream) < 0)
         mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, -1);
-        mz_stream_seek(zip->stream, 0, MZ_SEEK_SET);
-    } else
+    else
         disk_number_with_cd = 1;
+
+    /* Always seek to start of stream for recovery scanning */
+    mz_stream_seek(zip->stream, 0, MZ_SEEK_SET);
 
     local_file_info_stream = mz_stream_mem_create();
     if (!local_file_info_stream)
