@@ -153,7 +153,7 @@ int32_t mz_stream_write_uint64(void *stream, uint64_t value) {
     return mz_stream_write_value(stream, value, sizeof(uint64_t));
 }
 
-int32_t mz_stream_copy(void *target, void *source, int32_t len) {
+int32_t mz_stream_copy(void *target, void *source, int64_t len) {
     return mz_stream_copy_stream(target, NULL, source, NULL, len);
 }
 
@@ -162,9 +162,9 @@ int32_t mz_stream_copy_to_end(void *target, void *source) {
 }
 
 int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb,
-                              int32_t len) {
+                              int64_t len) {
     uint8_t buf[16384];
-    int32_t bytes_to_copy = 0;
+    int64_t bytes_to_copy = 0;
     int32_t read = 0;
     int32_t written = 0;
 
@@ -175,9 +175,9 @@ int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *s
 
     while (len > 0) {
         bytes_to_copy = len;
-        if (bytes_to_copy > (int32_t)sizeof(buf))
+        if (bytes_to_copy > (int64_t)sizeof(buf))
             bytes_to_copy = sizeof(buf);
-        read = read_cb(source, buf, bytes_to_copy);
+        read = read_cb(source, buf, (int32_t)bytes_to_copy);
         if (read <= 0)
             return MZ_STREAM_ERROR;
         written = write_cb(target, buf, read);

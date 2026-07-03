@@ -1400,7 +1400,7 @@ static int32_t mz_zip_recover_cd(void *handle) {
 
     /* Set new upper seek boundary for central dir mem stream */
     disk_offset = mz_stream_tell(cd_mem_stream);
-    mz_stream_mem_set_buffer_limit(cd_mem_stream, (int32_t)disk_offset);
+    mz_stream_mem_set_buffer_limit(cd_mem_stream, disk_offset);
 
     /* Set new central directory info */
     mz_zip_set_cd_stream(zip, 0, cd_mem_stream);

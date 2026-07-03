@@ -36,14 +36,14 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     uint8_t value8 = 0;
     int16_t compress_level = 0;
     int64_t fuzz_pos = 0;
-    int32_t fuzz_length = 0;
+    int64_t fuzz_length = 0;
     uint8_t *fuzz_buf = NULL;
     const char *password = NULL;
 
     fuzz_stream = mz_stream_mem_create();
     if (!fuzz_stream)
         return 1;
-    mz_stream_mem_set_buffer(fuzz_stream, (void *)data, (int32_t)size);
+    mz_stream_mem_set_buffer(fuzz_stream, (void *)data, (int64_t)size);
 
     memset(&file_info, 0, sizeof(file_info));
 
@@ -103,7 +103,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
             fuzz_pos = mz_stream_tell(fuzz_stream);
             mz_stream_mem_get_buffer_length(fuzz_stream, &fuzz_length);
 
-            err = mz_zip_entry_write(handle, fuzz_buf, (fuzz_length - (int32_t)fuzz_pos));
+            err = mz_zip_entry_write(handle, fuzz_buf, (int32_t)(fuzz_length - fuzz_pos));
 
             mz_zip_entry_close(handle);
         }
