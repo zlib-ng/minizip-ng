@@ -190,7 +190,7 @@ ZEXPORT int unzLocateFile(unzFile file, const char *filename, unzFileNameCompare
 ZEXPORT int unzGetLocalExtrafield(unzFile file, void *buf, unsigned int len);
 
 /* Compatibility layer with older minizip-ng (mz_unzip.h). */
-unzFile unzOpen_MZ(void *stream);
+ZEXPORT unzFile unzOpen_MZ(void *stream);
 ZEXPORT int unzClose_MZ(unzFile file);
 ZEXPORT void *unzGetHandle_MZ(unzFile file);
 ZEXPORT void *unzGetStream_MZ(unzFile file);

@@ -715,7 +715,8 @@ set_target_properties(${MINIZIP_TARGET} PROPERTIES
                       VERSION ${VERSION}
                       SOVERSION ${SOVERSION}
                       LINKER_LANGUAGE C
-                      DEFINE_SYMBOL "MZ_EXPORTS")
+                      DEFINE_SYMBOL "MZ_EXPORTS"
+                      C_VISIBILITY_PRESET hidden)
 
 if(MINIZIP_LFG)
     target_link_options(${MINIZIP_TARGET} PRIVATE ${MINIZIP_LFG})

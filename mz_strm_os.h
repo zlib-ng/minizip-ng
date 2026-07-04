@@ -16,20 +16,19 @@ extern "C" {
 #endif
 
 /***************************************************************************/
+MZ_EXPORT int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode);
+MZ_EXPORT int32_t mz_stream_os_is_open(void *stream);
+MZ_EXPORT int32_t mz_stream_os_read(void *stream, void *buf, int32_t size);
+MZ_EXPORT int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size);
+MZ_EXPORT int64_t mz_stream_os_tell(void *stream);
+MZ_EXPORT int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin);
+MZ_EXPORT int32_t mz_stream_os_close(void *stream);
+MZ_EXPORT int32_t mz_stream_os_error(void *stream);
 
-int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode);
-int32_t mz_stream_os_is_open(void *stream);
-int32_t mz_stream_os_read(void *stream, void *buf, int32_t size);
-int32_t mz_stream_os_write(void *stream, const void *buf, int32_t size);
-int64_t mz_stream_os_tell(void *stream);
-int32_t mz_stream_os_seek(void *stream, int64_t offset, int32_t origin);
-int32_t mz_stream_os_close(void *stream);
-int32_t mz_stream_os_error(void *stream);
+MZ_EXPORT void *mz_stream_os_create(void);
+MZ_EXPORT void mz_stream_os_delete(void **stream);
 
-void *mz_stream_os_create(void);
-void mz_stream_os_delete(void **stream);
-
-void *mz_stream_os_get_interface(void);
+MZ_EXPORT void *mz_stream_os_get_interface(void);
 
 /***************************************************************************/
 

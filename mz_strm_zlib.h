@@ -16,23 +16,22 @@ extern "C" {
 #endif
 
 /***************************************************************************/
+MZ_EXPORT int32_t mz_stream_zlib_open(void *stream, const char *filename, int32_t mode);
+MZ_EXPORT int32_t mz_stream_zlib_is_open(void *stream);
+MZ_EXPORT int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size);
+MZ_EXPORT int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size);
+MZ_EXPORT int64_t mz_stream_zlib_tell(void *stream);
+MZ_EXPORT int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin);
+MZ_EXPORT int32_t mz_stream_zlib_close(void *stream);
+MZ_EXPORT int32_t mz_stream_zlib_error(void *stream);
 
-int32_t mz_stream_zlib_open(void *stream, const char *filename, int32_t mode);
-int32_t mz_stream_zlib_is_open(void *stream);
-int32_t mz_stream_zlib_read(void *stream, void *buf, int32_t size);
-int32_t mz_stream_zlib_write(void *stream, const void *buf, int32_t size);
-int64_t mz_stream_zlib_tell(void *stream);
-int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin);
-int32_t mz_stream_zlib_close(void *stream);
-int32_t mz_stream_zlib_error(void *stream);
+MZ_EXPORT int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+MZ_EXPORT int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
-int32_t mz_stream_zlib_get_prop_int64(void *stream, int32_t prop, int64_t *value);
-int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value);
+MZ_EXPORT void *mz_stream_zlib_create(void);
+MZ_EXPORT void mz_stream_zlib_delete(void **stream);
 
-void *mz_stream_zlib_create(void);
-void mz_stream_zlib_delete(void **stream);
-
-void *mz_stream_zlib_get_interface(void);
+MZ_EXPORT void *mz_stream_zlib_get_interface(void);
 
 /***************************************************************************/
 
