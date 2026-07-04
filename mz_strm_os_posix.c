@@ -203,7 +203,7 @@ void mz_stream_os_delete(void **stream) {
     if (!stream)
         return;
     posix = (mz_stream_posix *)*stream;
-    free(posix);
+    MZ_FREE((mz_stream *)posix, posix);
     *stream = NULL;
 }
 

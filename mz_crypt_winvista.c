@@ -54,6 +54,11 @@ typedef struct mz_crypt_sha_s {
     };
     int32_t error;
     uint16_t algorithm;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_crypt_sha;
 
 /***************************************************************************/
@@ -66,7 +71,7 @@ static void mz_crypt_sha_free(void *handle) {
     if (sha->provider)
         BCryptCloseAlgorithmProvider(sha->provider, 0);
     sha->provider = NULL;
-    free(sha->buffer);
+    MZ_FREE(sha, sha->buffer);
     sha->buffer = NULL;
 }
 
@@ -108,7 +113,7 @@ int32_t mz_crypt_sha_begin(void *handle) {
             BCryptGetProperty(sha->provider, BCRYPT_OBJECT_LENGTH, (PUCHAR)&buffer_size, result_size, &result_size, 0);
     }
     if (NT_SUCCESS(status)) {
-        sha->buffer = malloc(buffer_size);
+        sha->buffer = MZ_ALLOC(sha, 1, (uint32_t)buffer_size);
         if (!sha->buffer)
             return MZ_MEM_ERROR;
         status = BCryptCreateHash(sha->provider, &sha->hash, sha->buffer, buffer_size, NULL, 0, 0);
@@ -192,7 +197,7 @@ void mz_crypt_sha_delete(void **handle) {
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
         mz_crypt_sha_free(*handle);
-        free(sha);
+        MZ_FREE(sha, sha);
     }
     *handle = NULL;
 }

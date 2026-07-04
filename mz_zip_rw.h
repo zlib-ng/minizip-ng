@@ -150,6 +150,10 @@ void *mz_zip_reader_create(void);
 void mz_zip_reader_delete(void **handle);
 /* Delete instance of zip reader */
 
+void mz_zip_reader_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                   mz_strdup_func strdup_fn, void *opaque);
+/* Set custom allocator functions for zip reader */
+
 /***************************************************************************/
 
 typedef int32_t (*mz_zip_writer_overwrite_cb)(void *handle, void *userdata, const char *path);
@@ -271,6 +275,10 @@ void *mz_zip_writer_create(void);
 
 void mz_zip_writer_delete(void **handle);
 /* Delete instance of zip writer */
+
+void mz_zip_writer_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                   mz_strdup_func strdup_fn, void *opaque);
+/* Set custom allocator functions for zip writer */
 
 /***************************************************************************/
 

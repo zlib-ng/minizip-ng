@@ -335,7 +335,7 @@ void mz_stream_zstd_delete(void **stream) {
     if (!stream)
         return;
     zstd = (mz_stream_zstd *)*stream;
-    free(zstd);
+    MZ_FREE((mz_stream *)zstd, zstd);
     *stream = NULL;
 }
 

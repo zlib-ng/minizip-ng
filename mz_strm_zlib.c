@@ -62,17 +62,28 @@ typedef struct mz_stream_zlib_s {
 
 /***************************************************************************/
 
+static void mz_stream_zlib_set_alloc_funcs(void *stream, zlib_stream *zstream) {
+    mz_stream *strm = (mz_stream *)stream;
+    zstream->zalloc = Z_NULL;
+    zstream->zfree = Z_NULL;
+    zstream->opaque = Z_NULL;
+    if (strm->alloc_cb) {
+        zstream->zalloc = (alloc_func)strm->alloc_cb;
+        zstream->zfree = (free_func)strm->free_cb;
+        zstream->opaque = strm->opaque;
+    }
+}
+
 int32_t mz_stream_zlib_open(void *stream, const char *path, int32_t mode) {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
 
     MZ_UNUSED(path);
 
     zlib->zstream.data_type = Z_BINARY;
-    zlib->zstream.zalloc = Z_NULL;
-    zlib->zstream.zfree = Z_NULL;
-    zlib->zstream.opaque = Z_NULL;
     zlib->zstream.total_in = 0;
     zlib->zstream.total_out = 0;
+
+    mz_stream_zlib_set_alloc_funcs(stream, &zlib->zstream);
 
     zlib->total_in = 0;
     zlib->total_out = 0;
@@ -369,7 +380,7 @@ void mz_stream_zlib_delete(void **stream) {
     if (!stream)
         return;
     zlib = (mz_stream_zlib *)*stream;
-    free(zlib);
+    MZ_FREE((mz_stream *)zlib, zlib);
     *stream = NULL;
 }
 

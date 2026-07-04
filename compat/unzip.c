@@ -28,6 +28,11 @@ typedef struct mz_unzip_compat_s {
     uint64_t entry_index;
     int64_t entry_pos;
     int64_t total_out;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_unzip_compat;
 
 /***************************************************************************/
@@ -173,7 +178,7 @@ int unzClose(unzFile file) {
         mz_stream_delete(&compat->stream);
     }
 
-    free(compat);
+    MZ_FREE(compat, compat);
 
     return err;
 }

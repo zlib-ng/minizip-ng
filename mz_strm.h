@@ -70,6 +70,11 @@ typedef struct mz_stream_vtbl_s {
 typedef struct mz_stream_s {
     mz_stream_vtbl *vtbl;
     struct mz_stream_s *base;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_stream;
 
 /***************************************************************************/
@@ -108,6 +113,8 @@ int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value);
 
 void *mz_stream_create(mz_stream_vtbl *vtbl);
 void mz_stream_delete(void **stream);
+void mz_stream_set_alloc_funcs(void *stream, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                               mz_strdup_func strdup_fn, void *opaque);
 
 /***************************************************************************/
 

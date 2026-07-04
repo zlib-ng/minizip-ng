@@ -324,13 +324,13 @@ void *mz_stream_wzaes_create(void) {
 
         wzaes->hmac = mz_crypt_hmac_create();
         if (!wzaes->hmac) {
-            free(wzaes);
+            MZ_FREE((mz_stream *)wzaes, wzaes);
             return NULL;
         }
         wzaes->aes = mz_crypt_aes_create();
         if (!wzaes->aes) {
             mz_crypt_hmac_delete(&wzaes->hmac);
-            free(wzaes);
+            MZ_FREE((mz_stream *)wzaes, wzaes);
             return NULL;
         }
     }
@@ -345,7 +345,7 @@ void mz_stream_wzaes_delete(void **stream) {
     if (wzaes) {
         mz_crypt_aes_delete(&wzaes->aes);
         mz_crypt_hmac_delete(&wzaes->hmac);
-        free(wzaes);
+        MZ_FREE((mz_stream *)wzaes, wzaes);
     }
     *stream = NULL;
 }

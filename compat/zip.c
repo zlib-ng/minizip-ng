@@ -23,6 +23,11 @@
 typedef struct mz_zip_compat_s {
     void *stream;
     void *handle;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_zip_compat;
 
 /***************************************************************************/
@@ -376,7 +381,7 @@ int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_made
         mz_stream_delete(&compat->stream);
     }
 
-    free(compat);
+    MZ_FREE(compat, compat);
 
     return err;
 }

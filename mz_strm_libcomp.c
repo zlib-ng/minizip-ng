@@ -329,6 +329,6 @@ void mz_stream_libcomp_delete(void **stream) {
         return;
     libcomp = (mz_stream_libcomp *)*stream;
     if (libcomp)
-        free(libcomp);
+        MZ_FREE((mz_stream *)libcomp, libcomp);
     *stream = NULL;
 }

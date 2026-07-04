@@ -443,7 +443,7 @@ void mz_stream_lzma_delete(void **stream) {
     if (!stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
-    free(lzma);
+    MZ_FREE((mz_stream *)lzma, lzma);
     *stream = NULL;
 }
 

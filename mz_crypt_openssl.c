@@ -71,6 +71,11 @@ typedef struct mz_crypt_sha_s {
     unsigned long error;
     int32_t initialized;
     uint16_t algorithm;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_crypt_sha;
 
 /***************************************************************************/
@@ -263,7 +268,7 @@ void mz_crypt_sha_delete(void **handle) {
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
         mz_crypt_sha_free(*handle);
-        free(sha);
+        MZ_FREE(sha, sha);
     }
     *handle = NULL;
 }
@@ -274,6 +279,11 @@ typedef struct mz_crypt_aes_s {
     int32_t mode;
     unsigned long error;
     EVP_CIPHER_CTX *ctx;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_crypt_aes;
 
 /***************************************************************************/
@@ -504,7 +514,7 @@ void mz_crypt_aes_delete(void **handle) {
     aes = (mz_crypt_aes *)*handle;
     if (aes) {
         mz_crypt_aes_free(*handle);
-        free(aes);
+        MZ_FREE(aes, aes);
     }
     *handle = NULL;
 }
@@ -521,6 +531,11 @@ typedef struct mz_crypt_hmac_s {
     unsigned long error;
     int32_t initialized;
     uint16_t algorithm;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_crypt_hmac;
 
 /***************************************************************************/
@@ -719,7 +734,7 @@ void mz_crypt_hmac_delete(void **handle) {
     hmac = (mz_crypt_hmac *)*handle;
     if (hmac) {
         mz_crypt_hmac_free(*handle);
-        free(hmac);
+        MZ_FREE(hmac, hmac);
     }
     *handle = NULL;
 }

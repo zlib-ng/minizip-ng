@@ -107,6 +107,10 @@ int32_t mz_zip_set_disk_number_with_cd(void *handle, uint32_t disk_number_with_c
 int32_t mz_zip_get_disk_number_with_cd(void *handle, uint32_t *disk_number_with_cd);
 /* Get the disk number containing the central directory record */
 
+void mz_zip_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                            mz_strdup_func strdup_fn, void *opaque);
+/* Set custom allocator functions for the zip handle */
+
 /***************************************************************************/
 
 int32_t mz_zip_entry_is_open(void *handle);

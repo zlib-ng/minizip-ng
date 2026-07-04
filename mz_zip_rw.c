@@ -60,6 +60,11 @@ typedef struct mz_zip_reader_s {
     uint8_t entry_verified;
     uint8_t recover;
     const char *destination_dir;
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_zip_reader;
 
 /***************************************************************************/
@@ -677,14 +682,14 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     if (!reader->file_info || !path)
         return MZ_PARAM_ERROR;
 
-    pathwfs = (char *)strdup(path);
+    pathwfs = MZ_STRDUP(reader, path);
     if (!pathwfs)
         return MZ_MEM_ERROR;
 
     if (reader->entry_cb)
         reader->entry_cb(reader, reader->entry_userdata, reader->file_info, pathwfs);
 
-    directory = (char *)strdup(pathwfs);
+    directory = MZ_STRDUP(reader, pathwfs);
     if (!directory) {
         err = MZ_MEM_ERROR;
         goto save_cleanup;
@@ -798,8 +803,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
     }
 
 save_cleanup:
-    free(pathwfs);
-    free(directory);
+    MZ_FREE(reader, pathwfs);
+    MZ_FREE(reader, directory);
 
     return err;
 }
@@ -879,19 +884,19 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
             resolved_name_size += destination_dir_len;
         }
 
-        new_alloc = (char *)realloc(path, resolved_name_size);
+        new_alloc = (char *)MZ_REALLOC(reader, path, 1, (uint32_t)resolved_name_size);
         if (!new_alloc) {
             err = MZ_MEM_ERROR;
             goto save_all_cleanup;
         }
         path = new_alloc;
-        new_alloc = (char *)realloc(utf8_name, utf8_name_size);
+        new_alloc = (char *)MZ_REALLOC(reader, utf8_name, 1, (uint32_t)utf8_name_size);
         if (!new_alloc) {
             err = MZ_MEM_ERROR;
             goto save_all_cleanup;
         }
         utf8_name = new_alloc;
-        new_alloc = (char *)realloc(resolved_name, resolved_name_size);
+        new_alloc = (char *)MZ_REALLOC(reader, resolved_name, 1, (uint32_t)resolved_name_size);
         if (!new_alloc) {
             err = MZ_MEM_ERROR;
             goto save_all_cleanup;
@@ -933,9 +938,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         err = MZ_OK;
 
 save_all_cleanup:
-    free(path);
-    free(utf8_name);
-    free(resolved_name);
+    MZ_FREE(reader, path);
+    MZ_FREE(reader, utf8_name);
+    MZ_FREE(reader, resolved_name);
 
     return err;
 }
@@ -1071,7 +1076,7 @@ void mz_zip_reader_delete(void **handle) {
     reader = (mz_zip_reader *)*handle;
     if (reader) {
         mz_zip_reader_close(reader);
-        free(reader);
+        MZ_FREE(reader, reader);
     }
     *handle = NULL;
 }
@@ -1107,6 +1112,11 @@ typedef struct mz_zip_writer_s {
     uint8_t aes;
     uint8_t raw;
     uint8_t buffer[UINT16_MAX];
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_zip_writer;
 
 /***************************************************************************/
@@ -2027,9 +2037,35 @@ void mz_zip_writer_delete(void **handle) {
     writer = (mz_zip_writer *)*handle;
     if (writer) {
         mz_zip_writer_close(writer);
-        free(writer);
+        MZ_FREE(writer, writer);
     }
     *handle = NULL;
+}
+
+/***************************************************************************/
+
+void mz_zip_reader_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                   mz_strdup_func strdup_fn, void *opaque) {
+    mz_zip_reader *reader = (mz_zip_reader *)handle;
+    if (!reader)
+        return;
+    reader->alloc_cb = alloc;
+    reader->free_cb = free_fn;
+    reader->realloc_cb = realloc_fn;
+    reader->strdup_cb = strdup_fn;
+    reader->opaque = opaque;
+}
+
+void mz_zip_writer_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                   mz_strdup_func strdup_fn, void *opaque) {
+    mz_zip_writer *writer = (mz_zip_writer *)handle;
+    if (!writer)
+        return;
+    writer->alloc_cb = alloc;
+    writer->free_cb = free_fn;
+    writer->realloc_cb = realloc_fn;
+    writer->strdup_cb = strdup_fn;
+    writer->opaque = opaque;
 }
 
 /***************************************************************************/

@@ -211,7 +211,7 @@ void mz_stream_ioapi_delete(void **stream) {
     if (!stream)
         return;
     ioapi = (mz_stream_ioapi *)*stream;
-    free(ioapi);
+    MZ_FREE((mz_stream *)ioapi, ioapi);
     *stream = NULL;
 }
 

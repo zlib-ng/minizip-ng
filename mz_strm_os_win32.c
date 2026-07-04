@@ -271,7 +271,7 @@ void mz_stream_os_delete(void **stream) {
         return;
     win32 = (mz_stream_win32 *)*stream;
     if (win32)
-        free(win32);
+        MZ_FREE((mz_stream *)win32, win32);
     *stream = NULL;
 }
 

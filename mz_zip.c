@@ -117,6 +117,12 @@ typedef struct mz_zip_s {
 
     uint16_t version_madeby;
     char *comment;
+
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
 } mz_zip;
 
 /***************************************************************************/
@@ -395,7 +401,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
                    terminated string */
                 linkname_size = field_length - 12;
                 if ((err == MZ_OK) && (linkname_size > 0)) {
-                    linkname = (char *)malloc(linkname_size);
+                    linkname = (char *)MZ_ALLOC((mz_stream *)file_extra_stream, 1, (uint32_t)linkname_size);
                     if (linkname) {
                         if (mz_stream_read(file_extra_stream, linkname, linkname_size) != linkname_size)
                             err = MZ_READ_ERROR;
@@ -408,7 +414,7 @@ static int32_t mz_zip_entry_read_header(void *stream, uint8_t local, mz_zip_file
 
                             mz_stream_seek(file_extra_stream, saved_pos, MZ_SEEK_SET);
                         }
-                        free(linkname);
+                        MZ_FREE((mz_stream *)file_extra_stream, linkname);
                     }
                 }
             }
@@ -1001,7 +1007,7 @@ static int32_t mz_zip_read_cd(void *handle) {
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &comment_size);
         if ((err == MZ_OK) && (comment_size > 0)) {
-            zip->comment = (char *)malloc(comment_size + 1);
+            zip->comment = (char *)MZ_ALLOC(zip, 1, (uint32_t)(comment_size + 1));
             if (zip->comment) {
                 comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
                 /* Don't fail if incorrect comment length read, not critical */
@@ -1422,7 +1428,7 @@ void mz_zip_delete(void **handle) {
     if (!handle)
         return;
     zip = (mz_zip *)*handle;
-    free(zip);
+    MZ_FREE(zip, zip);
     *handle = NULL;
 }
 
@@ -1539,7 +1545,7 @@ int32_t mz_zip_close(void *handle) {
     }
 
     if (zip->comment) {
-        free(zip->comment);
+        MZ_FREE(zip, zip->comment);
         zip->comment = NULL;
     }
 
@@ -1564,11 +1570,11 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
     int32_t comment_size = 0;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    free(zip->comment);
+    MZ_FREE(zip, zip->comment);
     comment_size = (int32_t)strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
-    zip->comment = (char *)calloc(comment_size + 1, sizeof(char));
+    zip->comment = (char *)MZ_ALLOC(zip, (uint32_t)(comment_size + 1), sizeof(char));
     if (!zip->comment)
         return MZ_MEM_ERROR;
     strncpy(zip->comment, comment, comment_size);
@@ -2829,6 +2835,18 @@ const char *mz_zip_get_compression_method_string(int32_t compression_method) {
         break;
     }
     return method;
+}
+
+void mz_zip_set_alloc_funcs(void *handle, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                            mz_strdup_func strdup_fn, void *opaque) {
+    mz_zip *zip = (mz_zip *)handle;
+    if (!zip)
+        return;
+    zip->alloc_cb = alloc;
+    zip->free_cb = free_fn;
+    zip->realloc_cb = realloc_fn;
+    zip->strdup_cb = strdup_fn;
+    zip->opaque = opaque;
 }
 
 /***************************************************************************/

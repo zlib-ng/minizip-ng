@@ -156,7 +156,7 @@
 
 /***************************************************************************/
 
-#include <stdlib.h> /* size_t, NULL, malloc */
+#include <stdlib.h> /* size_t, NULL, malloc, calloc, free, realloc */
 #include <time.h>   /* time_t, time() */
 #include <string.h> /* memset, strncpy, strlen */
 #include <limits.h>
@@ -271,6 +271,62 @@ typedef unsigned long long uint64_t;
 #ifndef UINT64_MAX
 #  define UINT64_MAX 18446744073709551615ULL
 #endif
+
+/***************************************************************************/
+
+typedef void *(*mz_alloc_func)(void *opaque, uint32_t items, uint32_t size);
+typedef void (*mz_free_func)(void *opaque, void *address);
+typedef void *(*mz_realloc_func)(void *opaque, void *address, uint32_t items, uint32_t size);
+typedef char *(*mz_strdup_func)(void *opaque, const char *str);
+
+static inline void *mz_default_alloc(void *opaque, uint32_t items, uint32_t size) {
+    MZ_UNUSED(opaque);
+    return calloc(items, (size_t)size);
+}
+
+static inline void mz_default_free(void *opaque, void *address) {
+    MZ_UNUSED(opaque);
+    free(address);
+}
+
+static inline void *mz_default_realloc(void *opaque, void *address, uint32_t items, uint32_t size) {
+    MZ_UNUSED(opaque);
+    return realloc(address, (size_t)items * (size_t)size);
+}
+
+static inline char *mz_default_strdup(void *opaque, const char *str) {
+    size_t len;
+    char *copy;
+    MZ_UNUSED(opaque);
+    if (!str)
+        return NULL;
+    len = strlen(str);
+    copy = (char *)malloc(len + 1);
+    if (copy)
+        memcpy(copy, str, len + 1);
+    return copy;
+}
+
+#define MZ_ALLOC(handle, items, size)                                                                                  \
+    ((handle)->alloc_cb ? (handle)->alloc_cb((handle)->opaque, items, size)                                            \
+                        : mz_default_alloc((handle)->opaque, items, size))
+
+#define MZ_FREE(handle, address)                                                                                       \
+    do {                                                                                                               \
+        if (address) {                                                                                                 \
+            if ((handle)->free_cb)                                                                                     \
+                (handle)->free_cb((handle)->opaque, (address));                                                        \
+            else                                                                                                       \
+                mz_default_free(NULL, (address));                                                                      \
+        }                                                                                                              \
+    } while (0)
+
+#define MZ_REALLOC(handle, address, items, size)                                                                       \
+    ((handle)->realloc_cb ? (handle)->realloc_cb((handle)->opaque, address, items, size)                               \
+                          : mz_default_realloc((handle)->opaque, address, items, size))
+
+#define MZ_STRDUP(handle, str)                                                                                         \
+    ((handle)->strdup_cb ? (handle)->strdup_cb((handle)->opaque, str) : mz_default_strdup((handle)->opaque, str))
 
 /***************************************************************************/
 

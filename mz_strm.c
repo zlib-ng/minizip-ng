@@ -418,6 +418,18 @@ void mz_stream_delete(void **stream) {
     *stream = NULL;
 }
 
+void mz_stream_set_alloc_funcs(void *stream, mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                               mz_strdup_func strdup_fn, void *opaque) {
+    mz_stream *strm = (mz_stream *)stream;
+    if (!strm)
+        return;
+    strm->alloc_cb = alloc;
+    strm->free_cb = free_fn;
+    strm->realloc_cb = realloc_fn;
+    strm->strdup_cb = strdup_fn;
+    strm->opaque = opaque;
+}
+
 /***************************************************************************/
 
 typedef struct mz_stream_raw_s {
@@ -530,8 +542,9 @@ static mz_stream_vtbl mz_stream_raw_vtbl = {
 
 void *mz_stream_raw_create(void) {
     mz_stream_raw *raw = (mz_stream_raw *)calloc(1, sizeof(mz_stream_raw));
-    if (raw)
+    if (raw) {
         raw->stream.vtbl = &mz_stream_raw_vtbl;
+    }
     return raw;
 }
 

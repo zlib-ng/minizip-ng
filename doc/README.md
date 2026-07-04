@@ -14,6 +14,7 @@
   - [Buffered Stream](#buffered-stream)
   - [Disk Splitting Stream](#disk-splitting-stream)
   - [Additional Code Examples](#additional-code-examples)
+- [Custom Memory Allocation](#custom-memory-allocation)
 
 ## API
 
@@ -265,3 +266,56 @@ Some of these may be out of date, but they can also be helpful.
 * [Compressed stream tests](https://github.com/zlib-ng/minizip-ng/blob/master/test/test_stream_compress.cc)
 * [Code to copy raw entries from one zip file to another](https://gist.github.com/chenxiaolong/bcbb0835182ef16a25f09db8d99e0619) by chenxiaolong
 * [Buffered streaming](https://gist.github.com/chenxiaolong/dbab3fbef51b9d0fa969e220dbb85967) by chenxiaolong
+
+## Custom Memory Allocation
+
+Custom memory allocation functions can be set on stream and zip objects, similar to zlib-ng's `zalloc`/`zfree` mechanism. If not set, the default C standard library allocators (`calloc`, `free`, `realloc`, `malloc`-based `strdup`) are used.
+
+### Types
+
+```c
+typedef void *(*mz_alloc_func)(void *opaque, uint32_t items, uint32_t size);
+typedef void  (*mz_free_func)(void *opaque, void *address);
+typedef void *(*mz_realloc_func)(void *opaque, void *address, uint32_t items, uint32_t size);
+typedef char *(*mz_strdup_func)(void *opaque, const char *str);
+```
+
+### Stream allocators
+
+```c
+void *mem_stream = mz_stream_mem_create();
+mz_stream_set_alloc_funcs(mem_stream, my_alloc, my_free, NULL, NULL, &my_data);
+/* All subsequent allocations in this stream use the custom allocators */
+```
+
+### Zip handle allocators
+
+```c
+void *zip_handle = mz_zip_create();
+mz_zip_set_alloc_funcs(zip_handle, my_alloc, my_free, NULL, NULL, &my_data);
+```
+
+### Zip reader/writer allocators
+
+```c
+mz_zip_reader_set_alloc_funcs(reader, my_alloc, my_free, my_realloc, my_strdup, &my_data);
+mz_zip_writer_set_alloc_funcs(writer, my_alloc, my_free, my_realloc, my_strdup, &my_data);
+```
+
+### Example
+
+```c
+void *my_alloc(void *opaque, uint32_t items, uint32_t size) {
+    return calloc(items, size);
+}
+
+void my_free(void *opaque, void *ptr) {
+    free(ptr);
+}
+
+void *zip = mz_zip_create();
+mz_zip_set_alloc_funcs(zip, my_alloc, my_free, NULL, NULL, NULL);
+
+void *stream = mz_stream_zlib_create();
+mz_stream_set_alloc_funcs(stream, my_alloc, my_free, NULL, NULL, NULL);
+```

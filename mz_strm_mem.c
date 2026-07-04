@@ -54,7 +54,7 @@ static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
     int32_t new_size = size;
     uint8_t *new_buf = NULL;
 
-    new_buf = (uint8_t *)malloc((uint32_t)new_size);
+    new_buf = (uint8_t *)MZ_ALLOC((mz_stream *)stream, 1, (uint32_t)new_size);
     if (!new_buf)
         return MZ_BUF_ERROR;
 
@@ -254,8 +254,8 @@ void mz_stream_mem_delete(void **stream) {
     mem = (mz_stream_mem *)*stream;
     if (mem) {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer))
-            free(mem->buffer);
-        free(mem);
+            MZ_FREE((mz_stream *)mem, mem->buffer);
+        MZ_FREE((mz_stream *)mem, mem);
     }
     *stream = NULL;
 }

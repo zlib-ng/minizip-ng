@@ -479,7 +479,7 @@ void mz_stream_ppmd_delete(void **stream) {
     if (!stream)
         return;
     ppmd = (mz_stream_ppmd *)*stream;
-    free(ppmd);
+    MZ_FREE((mz_stream *)ppmd, ppmd);
     *stream = NULL;
 }
 
