@@ -15,6 +15,17 @@
 
 #define MZ_STREAM_FIND_SIZE (1024)
 
+mz_calloc mz_global_calloc = {NULL, NULL, NULL, NULL, NULL};
+
+void mz_set_default_alloc_funcs(mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                mz_strdup_func strdup_fn, void *opaque) {
+    mz_global_calloc.alloc_cb = alloc;
+    mz_global_calloc.free_cb = free_fn;
+    mz_global_calloc.realloc_cb = realloc_fn;
+    mz_global_calloc.strdup_cb = strdup_fn;
+    mz_global_calloc.opaque = opaque;
+}
+
 /***************************************************************************/
 
 int32_t mz_stream_open(void *stream, const char *path, int32_t mode) {
@@ -541,7 +552,7 @@ static mz_stream_vtbl mz_stream_raw_vtbl = {
 /***************************************************************************/
 
 void *mz_stream_raw_create(void) {
-    mz_stream_raw *raw = (mz_stream_raw *)calloc(1, sizeof(mz_stream_raw));
+    mz_stream_raw *raw = (mz_stream_raw *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_raw));
     if (raw) {
         raw->stream.vtbl = &mz_stream_raw_vtbl;
     }
@@ -553,6 +564,6 @@ void mz_stream_raw_delete(void **stream) {
     if (!stream)
         return;
     raw = (mz_stream_raw *)*stream;
-    free(raw);
+    MZ_FREE(&mz_global_calloc, raw);
     *stream = NULL;
 }

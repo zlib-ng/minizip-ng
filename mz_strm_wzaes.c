@@ -317,20 +317,20 @@ int32_t mz_stream_wzaes_set_prop_int64(void *stream, int32_t prop, int64_t value
 }
 
 void *mz_stream_wzaes_create(void) {
-    mz_stream_wzaes *wzaes = (mz_stream_wzaes *)calloc(1, sizeof(mz_stream_wzaes));
+    mz_stream_wzaes *wzaes = (mz_stream_wzaes *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_wzaes));
     if (wzaes) {
         wzaes->stream.vtbl = &mz_stream_wzaes_vtbl;
         wzaes->strength = MZ_AES_STRENGTH_256;
 
         wzaes->hmac = mz_crypt_hmac_create();
         if (!wzaes->hmac) {
-            MZ_FREE((mz_stream *)wzaes, wzaes);
+            MZ_FREE(&mz_global_calloc, wzaes);
             return NULL;
         }
         wzaes->aes = mz_crypt_aes_create();
         if (!wzaes->aes) {
             mz_crypt_hmac_delete(&wzaes->hmac);
-            MZ_FREE((mz_stream *)wzaes, wzaes);
+            MZ_FREE(&mz_global_calloc, wzaes);
             return NULL;
         }
     }
@@ -345,7 +345,7 @@ void mz_stream_wzaes_delete(void **stream) {
     if (wzaes) {
         mz_crypt_aes_delete(&wzaes->aes);
         mz_crypt_hmac_delete(&wzaes->hmac);
-        MZ_FREE((mz_stream *)wzaes, wzaes);
+        MZ_FREE(&mz_global_calloc, wzaes);
     }
     *stream = NULL;
 }

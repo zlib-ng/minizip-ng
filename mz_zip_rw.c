@@ -1061,7 +1061,7 @@ int32_t mz_zip_reader_get_zip_handle(void *handle, void **zip_handle) {
 /***************************************************************************/
 
 void *mz_zip_reader_create(void) {
-    mz_zip_reader *reader = (mz_zip_reader *)calloc(1, sizeof(mz_zip_reader));
+    mz_zip_reader *reader = (mz_zip_reader *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_zip_reader));
     if (reader) {
         reader->recover = 1;
         reader->progress_cb_interval_ms = MZ_DEFAULT_PROGRESS_INTERVAL;
@@ -1076,7 +1076,7 @@ void mz_zip_reader_delete(void **handle) {
     reader = (mz_zip_reader *)*handle;
     if (reader) {
         mz_zip_reader_close(reader);
-        MZ_FREE(reader, reader);
+        MZ_FREE(&mz_global_calloc, reader);
     }
     *handle = NULL;
 }
@@ -2008,7 +2008,7 @@ int32_t mz_zip_writer_get_zip_handle(void *handle, void **zip_handle) {
 /***************************************************************************/
 
 void *mz_zip_writer_create(void) {
-    mz_zip_writer *writer = (mz_zip_writer *)calloc(1, sizeof(mz_zip_writer));
+    mz_zip_writer *writer = (mz_zip_writer *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_zip_writer));
     if (writer) {
 #if defined(HAVE_WZAES)
         writer->aes = 1;
@@ -2037,7 +2037,7 @@ void mz_zip_writer_delete(void **handle) {
     writer = (mz_zip_writer *)*handle;
     if (writer) {
         mz_zip_writer_close(writer);
-        MZ_FREE(writer, writer);
+        MZ_FREE(&mz_global_calloc, writer);
     }
     *handle = NULL;
 }

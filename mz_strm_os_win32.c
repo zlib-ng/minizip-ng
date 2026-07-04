@@ -259,7 +259,7 @@ int32_t mz_stream_os_error(void *stream) {
 }
 
 void *mz_stream_os_create(void) {
-    mz_stream_win32 *win32 = (mz_stream_win32 *)calloc(1, sizeof(mz_stream_win32));
+    mz_stream_win32 *win32 = (mz_stream_win32 *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_win32));
     if (win32)
         win32->stream.vtbl = &mz_stream_os_vtbl;
     return win32;
@@ -271,7 +271,7 @@ void mz_stream_os_delete(void **stream) {
         return;
     win32 = (mz_stream_win32 *)*stream;
     if (win32)
-        MZ_FREE((mz_stream *)win32, win32);
+        MZ_FREE(&mz_global_calloc, win32);
     *stream = NULL;
 }
 

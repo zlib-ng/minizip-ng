@@ -154,10 +154,15 @@ zipFile zipOpen_MZ(void *stream, int append, zipcharpc *globalcomment) {
     if (globalcomment)
         mz_zip_get_comment(handle, globalcomment);
 
-    compat = (mz_zip_compat *)calloc(1, sizeof(mz_zip_compat));
+    compat = (mz_zip_compat *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_zip_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;
+        compat->alloc_cb = NULL;
+        compat->free_cb = NULL;
+        compat->realloc_cb = NULL;
+        compat->strdup_cb = NULL;
+        compat->opaque = NULL;
     } else {
         mz_zip_delete(&handle);
     }
@@ -381,7 +386,7 @@ int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_made
         mz_stream_delete(&compat->stream);
     }
 
-    MZ_FREE(compat, compat);
+    MZ_FREE(&mz_global_calloc, compat);
 
     return err;
 }

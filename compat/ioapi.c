@@ -200,7 +200,7 @@ int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def *filefu
 }
 
 void *mz_stream_ioapi_create(void) {
-    mz_stream_ioapi *ioapi = (mz_stream_ioapi *)calloc(1, sizeof(mz_stream_ioapi));
+    mz_stream_ioapi *ioapi = (mz_stream_ioapi *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_ioapi));
     if (ioapi)
         ioapi->stream.vtbl = &mz_stream_ioapi_vtbl;
     return ioapi;
@@ -211,7 +211,7 @@ void mz_stream_ioapi_delete(void **stream) {
     if (!stream)
         return;
     ioapi = (mz_stream_ioapi *)*stream;
-    MZ_FREE((mz_stream *)ioapi, ioapi);
+    MZ_FREE(&mz_global_calloc, ioapi);
     *stream = NULL;
 }
 

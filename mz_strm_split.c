@@ -392,7 +392,7 @@ int32_t mz_stream_split_set_prop_int64(void *stream, int32_t prop, int64_t value
 }
 
 void *mz_stream_split_create(void) {
-    mz_stream_split *split = (mz_stream_split *)calloc(1, sizeof(mz_stream_split));
+    mz_stream_split *split = (mz_stream_split *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_split));
     if (split)
         split->stream.vtbl = &mz_stream_split_vtbl;
     return split;
@@ -406,7 +406,7 @@ void mz_stream_split_delete(void **stream) {
     if (split) {
         MZ_FREE((mz_stream *)split, split->path_cd);
         MZ_FREE((mz_stream *)split, split->path_disk);
-        MZ_FREE((mz_stream *)split, split);
+        MZ_FREE(&mz_global_calloc, split);
     }
     *stream = NULL;
 }

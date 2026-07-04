@@ -1417,7 +1417,7 @@ static int32_t mz_zip_recover_cd(void *handle) {
 }
 
 void *mz_zip_create(void) {
-    mz_zip *zip = (mz_zip *)calloc(1, sizeof(mz_zip));
+    mz_zip *zip = (mz_zip *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_zip));
     if (zip)
         zip->data_descriptor = 1;
     return zip;
@@ -1428,7 +1428,7 @@ void mz_zip_delete(void **handle) {
     if (!handle)
         return;
     zip = (mz_zip *)*handle;
-    MZ_FREE(zip, zip);
+    MZ_FREE(&mz_global_calloc, zip);
     *handle = NULL;
 }
 
@@ -1570,10 +1570,10 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
     int32_t comment_size = 0;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    MZ_FREE(zip, zip->comment);
     comment_size = (int32_t)strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
+    MZ_FREE(zip, zip->comment);
     zip->comment = (char *)MZ_ALLOC(zip, (uint32_t)(comment_size + 1), sizeof(char));
     if (!zip->comment)
         return MZ_MEM_ERROR;

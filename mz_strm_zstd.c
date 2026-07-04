@@ -321,7 +321,7 @@ int32_t mz_stream_zstd_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_zstd_create(void) {
-    mz_stream_zstd *zstd = (mz_stream_zstd *)calloc(1, sizeof(mz_stream_zstd));
+    mz_stream_zstd *zstd = (mz_stream_zstd *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_zstd));
     if (zstd) {
         zstd->stream.vtbl = &mz_stream_zstd_vtbl;
         zstd->max_total_out = -1;
@@ -335,7 +335,7 @@ void mz_stream_zstd_delete(void **stream) {
     if (!stream)
         return;
     zstd = (mz_stream_zstd *)*stream;
-    MZ_FREE((mz_stream *)zstd, zstd);
+    MZ_FREE(&mz_global_calloc, zstd);
     *stream = NULL;
 }
 

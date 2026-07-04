@@ -60,7 +60,7 @@ static int32_t mz_stream_mem_set_size(void *stream, int32_t size) {
 
     if (mem->buffer) {
         memcpy(new_buf, mem->buffer, mem->size);
-        free(mem->buffer);
+        MZ_FREE((mz_stream *)stream, mem->buffer);
     }
 
     mem->buffer = new_buf;
@@ -239,7 +239,7 @@ void mz_stream_mem_set_grow_size(void *stream, int32_t grow_size) {
 }
 
 void *mz_stream_mem_create(void) {
-    mz_stream_mem *mem = (mz_stream_mem *)calloc(1, sizeof(mz_stream_mem));
+    mz_stream_mem *mem = (mz_stream_mem *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_mem));
     if (mem) {
         mem->stream.vtbl = &mz_stream_mem_vtbl;
         mem->grow_size = 4096;
@@ -255,7 +255,7 @@ void mz_stream_mem_delete(void **stream) {
     if (mem) {
         if ((mem->mode & MZ_OPEN_MODE_CREATE) && (mem->buffer))
             MZ_FREE((mz_stream *)mem, mem->buffer);
-        MZ_FREE((mz_stream *)mem, mem);
+        MZ_FREE(&mz_global_calloc, mem);
     }
     *stream = NULL;
 }

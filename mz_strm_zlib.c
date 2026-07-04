@@ -366,7 +366,7 @@ int32_t mz_stream_zlib_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_zlib_create(void) {
-    mz_stream_zlib *zlib = (mz_stream_zlib *)calloc(1, sizeof(mz_stream_zlib));
+    mz_stream_zlib *zlib = (mz_stream_zlib *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_zlib));
     if (zlib) {
         zlib->stream.vtbl = &mz_stream_zlib_vtbl;
         zlib->level = Z_DEFAULT_COMPRESSION;
@@ -380,7 +380,7 @@ void mz_stream_zlib_delete(void **stream) {
     if (!stream)
         return;
     zlib = (mz_stream_zlib *)*stream;
-    MZ_FREE((mz_stream *)zlib, zlib);
+    MZ_FREE(&mz_global_calloc, zlib);
     *stream = NULL;
 }
 

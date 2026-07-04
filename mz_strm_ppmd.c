@@ -464,7 +464,7 @@ int32_t mz_stream_ppmd_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_ppmd_create(void) {
-    mz_stream_ppmd *ppmd = (mz_stream_ppmd *)calloc(1, sizeof(mz_stream_ppmd));
+    mz_stream_ppmd *ppmd = (mz_stream_ppmd *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_ppmd));
     if (ppmd) {
         ppmd->stream.vtbl = &mz_stream_ppmd_vtbl;
         ppmd->allocator.Alloc = mz_ppmd_alloc_func;
@@ -479,7 +479,7 @@ void mz_stream_ppmd_delete(void **stream) {
     if (!stream)
         return;
     ppmd = (mz_stream_ppmd *)*stream;
-    MZ_FREE((mz_stream *)ppmd, ppmd);
+    MZ_FREE(&mz_global_calloc, ppmd);
     *stream = NULL;
 }
 

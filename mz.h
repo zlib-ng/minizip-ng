@@ -317,7 +317,7 @@ static inline char *mz_default_strdup(void *opaque, const char *str) {
             if ((handle)->free_cb)                                                                                     \
                 (handle)->free_cb((handle)->opaque, (address));                                                        \
             else                                                                                                       \
-                mz_default_free(NULL, (address));                                                                      \
+                mz_default_free((handle)->opaque, (address));                                                          \
         }                                                                                                              \
     } while (0)
 
@@ -327,6 +327,21 @@ static inline char *mz_default_strdup(void *opaque, const char *str) {
 
 #define MZ_STRDUP(handle, str)                                                                                         \
     ((handle)->strdup_cb ? (handle)->strdup_cb((handle)->opaque, str) : mz_default_strdup((handle)->opaque, str))
+
+/***************************************************************************/
+
+typedef struct mz_calloc_s {
+    mz_alloc_func alloc_cb;
+    mz_free_func free_cb;
+    mz_realloc_func realloc_cb;
+    mz_strdup_func strdup_cb;
+    void *opaque;
+} mz_calloc;
+
+extern mz_calloc mz_global_calloc;
+
+void mz_set_default_alloc_funcs(mz_alloc_func alloc, mz_free_func free_fn, mz_realloc_func realloc_fn,
+                                mz_strdup_func strdup_fn, void *opaque);
 
 /***************************************************************************/
 

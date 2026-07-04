@@ -323,7 +323,7 @@ int32_t mz_stream_bzip_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_bzip_create(void) {
-    mz_stream_bzip *bzip = (mz_stream_bzip *)calloc(1, sizeof(mz_stream_bzip));
+    mz_stream_bzip *bzip = (mz_stream_bzip *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_bzip));
     if (bzip) {
         bzip->stream.vtbl = &mz_stream_bzip_vtbl;
         bzip->level = 6;
@@ -336,7 +336,7 @@ void mz_stream_bzip_delete(void **stream) {
     if (!stream)
         return;
     bzip = (mz_stream_bzip *)*stream;
-    MZ_FREE((mz_stream *)bzip, bzip);
+    MZ_FREE(&mz_global_calloc, bzip);
     *stream = NULL;
 }
 

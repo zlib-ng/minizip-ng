@@ -361,7 +361,8 @@ int32_t mz_stream_buffered_error(void *stream) {
 }
 
 void *mz_stream_buffered_create(void) {
-    mz_stream_buffered *buffered = (mz_stream_buffered *)calloc(1, sizeof(mz_stream_buffered));
+    mz_stream_buffered *buffered =
+        (mz_stream_buffered *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_buffered));
     if (buffered)
         buffered->stream.vtbl = &mz_stream_buffered_vtbl;
     return buffered;
@@ -372,7 +373,7 @@ void mz_stream_buffered_delete(void **stream) {
     if (!stream)
         return;
     buffered = (mz_stream_buffered *)*stream;
-    MZ_FREE((mz_stream *)buffered, buffered);
+    MZ_FREE(&mz_global_calloc, buffered);
     *stream = NULL;
 }
 

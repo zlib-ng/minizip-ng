@@ -428,7 +428,7 @@ int32_t mz_stream_lzma_set_prop_int64(void *stream, int32_t prop, int64_t value)
 }
 
 void *mz_stream_lzma_create(void) {
-    mz_stream_lzma *lzma = (mz_stream_lzma *)calloc(1, sizeof(mz_stream_lzma));
+    mz_stream_lzma *lzma = (mz_stream_lzma *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_lzma));
     if (lzma) {
         lzma->stream.vtbl = &mz_stream_lzma_vtbl;
         lzma->method = MZ_COMPRESS_METHOD_LZMA;
@@ -443,7 +443,7 @@ void mz_stream_lzma_delete(void **stream) {
     if (!stream)
         return;
     lzma = (mz_stream_lzma *)*stream;
-    MZ_FREE((mz_stream *)lzma, lzma);
+    MZ_FREE(&mz_global_calloc, lzma);
     *stream = NULL;
 }
 

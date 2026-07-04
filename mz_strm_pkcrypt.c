@@ -304,7 +304,8 @@ int32_t mz_stream_pkcrypt_set_prop_int64(void *stream, int32_t prop, int64_t val
 }
 
 void *mz_stream_pkcrypt_create(void) {
-    mz_stream_pkcrypt *pkcrypt = (mz_stream_pkcrypt *)calloc(1, sizeof(mz_stream_pkcrypt));
+    mz_stream_pkcrypt *pkcrypt =
+        (mz_stream_pkcrypt *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_pkcrypt));
     if (pkcrypt)
         pkcrypt->stream.vtbl = &mz_stream_pkcrypt_vtbl;
     return pkcrypt;
@@ -315,7 +316,7 @@ void mz_stream_pkcrypt_delete(void **stream) {
     if (!stream)
         return;
     pkcrypt = (mz_stream_pkcrypt *)*stream;
-    MZ_FREE((mz_stream *)pkcrypt, pkcrypt);
+    MZ_FREE(&mz_global_calloc, pkcrypt);
     *stream = NULL;
 }
 

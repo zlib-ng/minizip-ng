@@ -317,7 +317,8 @@ int32_t mz_stream_libcomp_set_prop_int64(void *stream, int32_t prop, int64_t val
 }
 
 void *mz_stream_libcomp_create(void) {
-    mz_stream_libcomp *libcomp = (mz_stream_libcomp *)calloc(1, sizeof(mz_stream_libcomp));
+    mz_stream_libcomp *libcomp =
+        (mz_stream_libcomp *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_libcomp));
     if (libcomp)
         libcomp->stream.vtbl = &mz_stream_libcomp_vtbl;
     return libcomp;
@@ -329,6 +330,6 @@ void mz_stream_libcomp_delete(void **stream) {
         return;
     libcomp = (mz_stream_libcomp *)*stream;
     if (libcomp)
-        MZ_FREE((mz_stream *)libcomp, libcomp);
+        MZ_FREE(&mz_global_calloc, libcomp);
     *stream = NULL;
 }

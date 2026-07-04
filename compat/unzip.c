@@ -150,10 +150,15 @@ unzFile unzOpen_MZ(void *stream) {
         return NULL;
     }
 
-    compat = (mz_unzip_compat *)calloc(1, sizeof(mz_unzip_compat));
+    compat = (mz_unzip_compat *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_unzip_compat));
     if (compat) {
         compat->handle = handle;
         compat->stream = stream;
+        compat->alloc_cb = NULL;
+        compat->free_cb = NULL;
+        compat->realloc_cb = NULL;
+        compat->strdup_cb = NULL;
+        compat->opaque = NULL;
 
         mz_zip_goto_first_entry(compat->handle);
     } else {
@@ -178,7 +183,7 @@ int unzClose(unzFile file) {
         mz_stream_delete(&compat->stream);
     }
 
-    MZ_FREE(compat, compat);
+    MZ_FREE(&mz_global_calloc, compat);
 
     return err;
 }

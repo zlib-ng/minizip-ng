@@ -184,7 +184,7 @@ int32_t mz_crypt_sha_set_algorithm(void *handle, uint16_t algorithm) {
 }
 
 void *mz_crypt_sha_create(void) {
-    mz_crypt_sha *sha = (mz_crypt_sha *)calloc(1, sizeof(mz_crypt_sha));
+    mz_crypt_sha *sha = (mz_crypt_sha *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_crypt_sha));
     if (sha)
         sha->algorithm = MZ_HASH_SHA256;
     return sha;
@@ -197,7 +197,7 @@ void mz_crypt_sha_delete(void **handle) {
     sha = (mz_crypt_sha *)*handle;
     if (sha) {
         mz_crypt_sha_free(*handle);
-        MZ_FREE(sha, sha);
+        MZ_FREE(&mz_global_calloc, sha);
     }
     *handle = NULL;
 }
@@ -496,7 +496,7 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode) {
 }
 
 void *mz_crypt_aes_create(void) {
-    mz_crypt_aes *aes = (mz_crypt_aes *)calloc(1, sizeof(mz_crypt_aes));
+    mz_crypt_aes *aes = (mz_crypt_aes *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_crypt_aes));
     return aes;
 }
 
@@ -507,7 +507,7 @@ void mz_crypt_aes_delete(void **handle) {
     aes = (mz_crypt_aes *)*handle;
     if (aes) {
         mz_crypt_aes_free(*handle);
-        free(aes);
+        MZ_FREE(&mz_global_calloc, aes);
     }
     *handle = NULL;
 }
@@ -646,7 +646,7 @@ int32_t mz_crypt_hmac_copy(void *src_handle, void *target_handle) {
 }
 
 void *mz_crypt_hmac_create(void) {
-    mz_crypt_hmac *hmac = (mz_crypt_hmac *)calloc(1, sizeof(mz_crypt_hmac));
+    mz_crypt_hmac *hmac = (mz_crypt_hmac *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_crypt_hmac));
     if (hmac)
         hmac->algorithm = MZ_HASH_SHA256;
     return hmac;
@@ -659,7 +659,7 @@ void mz_crypt_hmac_delete(void **handle) {
     hmac = (mz_crypt_hmac *)*handle;
     if (hmac) {
         mz_crypt_hmac_free(*handle);
-        free(hmac);
+        MZ_FREE(&mz_global_calloc, hmac);
     }
     *handle = NULL;
 }

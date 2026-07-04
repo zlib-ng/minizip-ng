@@ -192,7 +192,7 @@ int32_t mz_stream_os_error(void *stream) {
 }
 
 void *mz_stream_os_create(void) {
-    mz_stream_posix *posix = (mz_stream_posix *)calloc(1, sizeof(mz_stream_posix));
+    mz_stream_posix *posix = (mz_stream_posix *)MZ_ALLOC(&mz_global_calloc, 1, (uint32_t)sizeof(mz_stream_posix));
     if (posix)
         posix->stream.vtbl = &mz_stream_os_vtbl;
     return posix;
@@ -203,7 +203,7 @@ void mz_stream_os_delete(void **stream) {
     if (!stream)
         return;
     posix = (mz_stream_posix *)*stream;
-    MZ_FREE((mz_stream *)posix, posix);
+    MZ_FREE(&mz_global_calloc, posix);
     *stream = NULL;
 }
 
