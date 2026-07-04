@@ -82,6 +82,7 @@ cmake --build build
 | MZ_OPENSSL          | Enables OpenSSL encryption                                     |     UNIX      |
 | MZ_LIBBSD           | Builds with libbsd crypto random                               |     UNIX      |
 | MZ_ICONV            | Enables iconv encoding conversion                              |      ON       |
+| MZ_ICU              | Enables ICU encoding conversion                                |      OFF      |
 | MZ_COMPRESS_ONLY    | Only support compression                                       |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                                     |      OFF      |
 | MZ_FILE32_API       | Builds using posix 32-bit file api                             |      OFF      |

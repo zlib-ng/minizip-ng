@@ -176,6 +176,15 @@ jobs:
             packages: clang-14 llvm-14
             gcov-exec: llvm-cov-14 gcov
 
+          - name: Ubuntu Clang ICU
+            os: ubuntu-latest
+            compiler: clang-14
+            cxx-compiler: clang++-14
+            cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_ICU=ON -D MZ_ICONV=OFF
+            codecov: ubuntu_clang_icu
+            packages: clang-14 llvm-14 libicu-dev
+            gcov-exec: llvm-cov-14 gcov
+
           # No code coverage supported
           - name: Windows MSVC
             os: windows-latest

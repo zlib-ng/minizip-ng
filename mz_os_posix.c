@@ -18,6 +18,9 @@
 #if defined(HAVE_ICONV)
 #  include <iconv.h>
 #endif
+#if defined(HAVE_ICU)
+#  include <unicode/ucnv.h>
+#endif
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -82,6 +85,50 @@ char *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     iconv_close(cd);
 
     if (result == (size_t)-1) {
+        free(string_utf8);
+        string_utf8 = NULL;
+    }
+
+    return string_utf8;
+}
+#elif defined(HAVE_ICU)
+char *mz_os_utf8_string_create(const char *string, int32_t encoding) {
+    char string_encoding[16];
+    const char *from_encoding = NULL;
+    int32_t string_length = 0;
+    int32_t string_utf8_size = 0;
+    char *string_utf8 = NULL;
+    int32_t result = 0;
+    UErrorCode status = U_ZERO_ERROR;
+
+    if (!string || encoding <= 0)
+        return NULL;
+
+    if (encoding == MZ_ENCODING_UTF8)
+        from_encoding = "UTF-8";
+    else if (encoding == MZ_ENCODING_CODEPAGE_437)
+        from_encoding = "ibm-437";
+    else if (encoding == MZ_ENCODING_CODEPAGE_932)
+        from_encoding = "windows-932-2000";
+    else if (encoding == MZ_ENCODING_CODEPAGE_936)
+        from_encoding = "windows-936-2000";
+    else if (encoding == MZ_ENCODING_CODEPAGE_950)
+        from_encoding = "windows-950-2000";
+    else {
+        snprintf(string_encoding, sizeof(string_encoding), "windows-%" PRId32 "-2000", encoding);
+        from_encoding = string_encoding;
+    }
+
+    string_length = (int32_t)strlen(string);
+    string_utf8_size = string_length * 4 + 1;
+    string_utf8 = (char *)calloc(string_utf8_size, sizeof(char));
+
+    if (!string_utf8)
+        return NULL;
+
+    result = ucnv_convert("UTF-8", from_encoding, string_utf8, string_utf8_size, string, string_length, &status);
+
+    if (U_FAILURE(status) || result < 0) {
         free(string_utf8);
         string_utf8 = NULL;
     }
