@@ -1491,14 +1491,16 @@ int32_t mz_zip_open(void *handle, void *stream, int32_t mode) {
 
     /* Memory streams used to store variable length file info data */
     zip->file_info_stream = mz_stream_mem_create();
-    if (!zip->file_info_stream)
+    if (!zip->file_info_stream) {
+        mz_zip_close(zip);
         return MZ_MEM_ERROR;
+    }
 
     mz_stream_mem_open(zip->file_info_stream, NULL, MZ_OPEN_MODE_CREATE);
 
     zip->local_file_info_stream = mz_stream_mem_create();
     if (!zip->local_file_info_stream) {
-        mz_stream_delete(&zip->file_info_stream);
+        mz_zip_close(zip);
         return MZ_MEM_ERROR;
     }
 
