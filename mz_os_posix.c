@@ -453,7 +453,7 @@ int32_t mz_os_get_temp_path(char *path, int32_t max_path, const char *prefix) {
     }
 
     /* Create a filename inside the temporary directory using current time */
-    result = snprintf(path, max_path, "%s/%lux", temp_path, time(NULL));
+    result = snprintf(path, max_path, "%s/%" PRIdMAX "x", temp_path, (intmax_t)time(NULL));
     if (result < 0 || result >= max_path) {
         rmdir(temp_path);
         free(temp_path);
