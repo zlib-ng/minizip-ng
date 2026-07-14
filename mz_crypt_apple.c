@@ -259,13 +259,17 @@ int32_t mz_crypt_aes_encrypt_final(void *handle, uint8_t *buf, int32_t size, uin
 
     if (!aes || !tag || !tag_size || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
+    if (size < 0 || (!buf && size > 0))
+        return MZ_PARAM_ERROR;
 
 #if MZ_TARGET_APPSTORE
     return MZ_SUPPORT_ERROR;
 #else
-    aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
-    if (aes->error != kCCSuccess)
-        return MZ_CRYPT_ERROR;
+    if (size > 0) {
+        aes->error = CCCryptorGCMEncrypt(aes->crypt, buf, size, buf);
+        if (aes->error != kCCSuccess)
+            return MZ_CRYPT_ERROR;
+    }
 
     aes->error = CCCryptorGCMFinal(aes->crypt, tag, &tag_outsize);
 
@@ -318,13 +322,17 @@ int32_t mz_crypt_aes_decrypt_final(void *handle, uint8_t *buf, int32_t size, con
 
     if (!aes || !tag || !tag_length || !aes->crypt || aes->mode != MZ_AES_MODE_GCM)
         return MZ_PARAM_ERROR;
+    if (size < 0 || (!buf && size > 0))
+        return MZ_PARAM_ERROR;
 
 #if MZ_TARGET_APPSTORE
     return MZ_SUPPORT_ERROR;
 #else
-    aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
-    if (aes->error != kCCSuccess)
-        return MZ_CRYPT_ERROR;
+    if (size > 0) {
+        aes->error = CCCryptorGCMDecrypt(aes->crypt, buf, size, buf);
+        if (aes->error != kCCSuccess)
+            return MZ_CRYPT_ERROR;
+    }
 
     /* CCCryptorGCMFinal does not verify tag */
     aes->error = CCCryptorGCMFinal(aes->crypt, tag_actual, &tag_actual_len);
