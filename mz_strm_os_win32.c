@@ -100,6 +100,15 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     if (!path_wide)
         return MZ_PARAM_ERROR;
 
+    /* Reject an existing reparse point when extraction requests no-follow. */
+    if (mode & MZ_OPEN_MODE_NOFOLLOW) {
+        DWORD attributes = GetFileAttributesW(path_wide);
+        if (attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+            mz_os_unicode_string_delete(&path_wide);
+            return MZ_OPEN_ERROR;
+        }
+    }
+
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN8
     win32->handle = CreateFile2(path_wide, desired_access, share_mode, creation_disposition, NULL);
 #else

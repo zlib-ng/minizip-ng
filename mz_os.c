@@ -280,10 +280,13 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
+    char *base_resolved = NULL;
+    const char *base_compare = base_path;
     size_t max_path = 1024;
     size_t base_len = 0;
     size_t parent_len = 0;
     int32_t err = MZ_OK;
+    int32_t real_err = MZ_OK;
 
     if (!link_path || !target || !base_path)
         return MZ_PARAM_ERROR;
@@ -300,9 +303,19 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
 
     combined = (char *)calloc(1, max_path);
     resolved = (char *)calloc(1, max_path);
+    base_resolved = (char *)calloc(1, max_path);
 
-    if (!combined || !resolved) {
+    if (!combined || !resolved || !base_resolved) {
         err = MZ_MEM_ERROR;
+        goto target_cleanup;
+    }
+
+    real_err = mz_os_get_real_path(base_path, base_resolved, (int32_t)max_path);
+    if (real_err == MZ_OK) {
+        base_compare = base_resolved;
+        base_len = strlen(base_compare);
+    } else if (real_err != MZ_EXIST_ERROR) {
+        err = real_err;
         goto target_cleanup;
     }
 
@@ -328,14 +341,29 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
         goto target_cleanup;
     }
 
+    /*
+     * If the target already exists, resolve it through the filesystem as
+     * well.  The lexical check above is still required for new targets, but
+     * it cannot detect a chain such as dest/link -> redirect -> outside.
+     */
+    real_err = mz_os_get_real_path(resolved, combined, (int32_t)max_path);
+    if (real_err == MZ_OK) {
+        strncpy(resolved, combined, max_path - 1);
+        resolved[max_path - 1] = 0;
+    } else if (real_err != MZ_EXIST_ERROR) {
+        err = real_err;
+        goto target_cleanup;
+    }
+
     /* Check that resolved path stays within base_path */
-    if (strlen(resolved) < base_len || strncmp(resolved, base_path, base_len) != 0 ||
+    if (strlen(resolved) < base_len || strncmp(resolved, base_compare, base_len) != 0 ||
         (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))
         err = MZ_EXIST_ERROR;
 
 target_cleanup:
     free(combined);
     free(resolved);
+    free(base_resolved);
 
     return err;
 }

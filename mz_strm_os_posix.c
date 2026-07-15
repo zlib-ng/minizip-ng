@@ -24,6 +24,13 @@
 #include <unistd.h>   /* open, close, ... */
 #include <fcntl.h>    /* O_NOFOLLOW, ... */
 
+#ifndef O_DIRECTORY
+#  define O_DIRECTORY 0
+#endif
+#ifndef O_CLOEXEC
+#  define O_CLOEXEC 0
+#endif
+
 /***************************************************************************/
 
 #define fopen64 fopen
@@ -68,6 +75,80 @@ typedef struct mz_stream_posix_s {
 
 /***************************************************************************/
 
+static int mz_stream_open_parent_nofollow(const char *path) {
+    char *parent = NULL;
+    char *component = NULL;
+    char *saveptr = NULL;
+    char *slash = NULL;
+    int current_fd = -1;
+    int next_fd = -1;
+
+    parent = strdup(path);
+    if (!parent)
+        return -1;
+
+    slash = strrchr(parent, '/');
+    if (slash) {
+        *slash = 0;
+        if (parent[0] == 0)
+            strcpy(parent, "/");
+    } else {
+        strcpy(parent, ".");
+    }
+
+    current_fd = open(parent[0] == '/' ? "/" : ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (current_fd == -1) {
+        free(parent);
+        return -1;
+    }
+
+    component = strtok_r(parent + (parent[0] == '/'), "/", &saveptr);
+    while (component) {
+        if (strcmp(component, ".") == 0 || component[0] == 0) {
+            component = strtok_r(NULL, "/", &saveptr);
+            continue;
+        }
+        if (strcmp(component, "..") == 0) {
+            close(current_fd);
+            free(parent);
+            return -1;
+        }
+        next_fd = openat(current_fd, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        if (next_fd == -1) {
+            close(current_fd);
+            free(parent);
+            return -1;
+        }
+        close(current_fd);
+        current_fd = next_fd;
+        component = strtok_r(NULL, "/", &saveptr);
+    }
+
+    free(parent);
+    return current_fd;
+}
+
+static int mz_stream_open_nofollow(const char *path, int flags, mode_t mode) {
+    char *filename = NULL;
+    char *slash = NULL;
+    int parent_fd = -1;
+    int fd = -1;
+
+    filename = strdup(path);
+    if (!filename)
+        return -1;
+    slash = strrchr(filename, '/');
+    if (slash)
+        *slash = 0;
+    parent_fd = mz_stream_open_parent_nofollow(path);
+    if (parent_fd != -1) {
+        fd = openat(parent_fd, slash ? slash + 1 : filename, flags | O_NOFOLLOW, mode);
+        close(parent_fd);
+    }
+    free(filename);
+    return fd;
+}
+
 int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     mz_stream_posix *posix = (mz_stream_posix *)stream;
     const char *mode_fopen = NULL;
@@ -92,7 +173,11 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     if (mode & MZ_OPEN_MODE_NOFOLLOW)
         mode_open |= O_NOFOLLOW;
 
-    fd = open(path, mode_open, S_IRUSR | S_IWUSR | S_IRGRP);
+    if ((mode & (MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_NOFOLLOW)) ==
+        (MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_NOFOLLOW))
+        fd = mz_stream_open_nofollow(path, mode_open, S_IRUSR | S_IWUSR | S_IRGRP);
+    else
+        fd = open(path, mode_open, S_IRUSR | S_IWUSR | S_IRGRP);
     if (fd != -1) {
         posix->handle = fdopen(fd, mode_fopen);
         if (!posix->handle)

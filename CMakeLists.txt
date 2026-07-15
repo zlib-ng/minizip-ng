@@ -167,6 +167,8 @@ endif()
 check_function_exists(fseeko HAVE_FSEEKO)
 # Check for symlink support
 check_function_exists(symlink HAVE_SYMLINK)
+# Check for descriptor-relative symlink support
+check_function_exists(symlinkat HAVE_SYMLINKAT)
 # Check for readlink support
 check_function_exists(readlink HAVE_READLINK)
 

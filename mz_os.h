@@ -91,6 +91,9 @@ int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignor
 int32_t mz_path_resolve(const char *path, char *target, int32_t max_target);
 /* Resolves path */
 
+int32_t mz_os_get_real_path(const char *path, char *target, int32_t max_target);
+/* Resolves an existing path through filesystem links where supported. */
+
 int32_t mz_path_remove_filename(char *path);
 /* Remove the filename from a path */
 
@@ -104,7 +107,7 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
 /* Checks if a symlink target resolves within base path. */
 
 int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path);
-/* Checks if any existing component of path is a symlink that escapes base path. */
+/* Checks if any existing component of path is a symlink that escapes base path, including nested links. */
 
 int32_t mz_dir_make(const char *path);
 /* Creates a directory recursively */
@@ -163,6 +166,9 @@ int32_t mz_os_path_same_fs(const char *path_a, const char *path_b);
 int32_t mz_os_make_dir(const char *path);
 /* Recursively creates a directory */
 
+int32_t mz_os_make_dir_safe(const char *path);
+/* Recursively creates a directory without following existing path links where supported. */
+
 DIR *mz_os_open_dir(const char *path);
 /* Opens a directory for listing */
 struct dirent *mz_os_read_dir(DIR *dir);
@@ -185,6 +191,9 @@ int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes);
 
 int32_t mz_os_make_symlink(const char *path, const char *target_path);
 /* Creates a symbolic link pointing to a target */
+
+int32_t mz_os_make_symlink_safe(const char *path, const char *target_path);
+/* Creates a symbolic link without following existing parent links where supported */
 
 int32_t mz_os_read_symlink(const char *path, char *target_path, int32_t max_target_path);
 /* Gets the target path for a symbolic link */

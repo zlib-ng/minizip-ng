@@ -14,6 +14,11 @@
 #include <algorithm>
 #include <gtest/gtest.h>
 
+#if !defined(_WIN32) && defined(HAVE_SYMLINK)
+#  include <sys/stat.h>
+#  include <unistd.h>
+#endif
+
 struct resolve_path_param {
     const char *path;
     const char *expected_path;
@@ -113,3 +118,49 @@ TEST_P(symlink_target_base, os) {
     else
         EXPECT_NE(err, MZ_OK);
 }
+
+#if !defined(_WIN32) && defined(HAVE_SYMLINK)
+TEST(path_security, rejects_nested_existing_symlink_escape) {
+    char temp_path[] = "/tmp/minizip-symlink-test-XXXXXX";
+    char *root = mkdtemp(temp_path);
+    ASSERT_NE(root, nullptr);
+
+    std::string base = std::string(root) + "/extract";
+    std::string outside = std::string(root) + "/outside";
+    std::string redirect = base + "/redirect";
+    std::string link = base + "/link";
+
+    ASSERT_EQ(mkdir(base.c_str(), 0755), 0);
+    ASSERT_EQ(mkdir(outside.c_str(), 0755), 0);
+    ASSERT_EQ(symlink("../outside", redirect.c_str()), 0);
+
+    EXPECT_NE(mz_path_is_symlink_target_safe(link.c_str(), "redirect", base.c_str()), MZ_OK);
+
+    unlink(redirect.c_str());
+    rmdir(outside.c_str());
+    rmdir(base.c_str());
+    rmdir(root);
+}
+
+TEST(path_security, rejects_existing_symlink_component_escape) {
+    char temp_path[] = "/tmp/minizip-symlink-test-XXXXXX";
+    char *root = mkdtemp(temp_path);
+    ASSERT_NE(root, nullptr);
+
+    std::string base = std::string(root) + "/extract";
+    std::string outside = std::string(root) + "/outside";
+    std::string redirect = base + "/redirect";
+    std::string victim = redirect + "/victim";
+
+    ASSERT_EQ(mkdir(base.c_str(), 0755), 0);
+    ASSERT_EQ(mkdir(outside.c_str(), 0755), 0);
+    ASSERT_EQ(symlink("../outside", redirect.c_str()), 0);
+
+    EXPECT_NE(mz_dir_has_unsafe_symlink(victim.c_str(), base.c_str()), MZ_OK);
+
+    unlink(redirect.c_str());
+    rmdir(outside.c_str());
+    rmdir(base.c_str());
+    rmdir(root);
+}
+#endif

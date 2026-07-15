@@ -15,6 +15,15 @@
 
 #include <stdio.h> /* rename */
 #include <errno.h>
+#include <stdlib.h>
+#include <fcntl.h>
+
+#ifndef O_DIRECTORY
+#  define O_DIRECTORY 0
+#endif
+#ifndef O_CLOEXEC
+#  define O_CLOEXEC 0
+#endif
 #if defined(HAVE_ICONV)
 #  include <iconv.h>
 #endif
@@ -328,6 +337,128 @@ int32_t mz_os_make_dir(const char *path) {
     return MZ_OK;
 }
 
+static int32_t mz_os_open_dir_path(const char *path, uint8_t create, int *result_fd) {
+    char *path_copy = NULL;
+    char *component = NULL;
+    char *saveptr = NULL;
+    int current_fd = -1;
+    int next_fd = -1;
+    int32_t err = MZ_OK;
+
+    if (!path || !result_fd)
+        return MZ_PARAM_ERROR;
+
+    path_copy = strdup(path);
+    if (!path_copy)
+        return MZ_MEM_ERROR;
+
+    current_fd = open(path[0] == '/' ? "/" : ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (current_fd == -1) {
+        free(path_copy);
+        return MZ_OPEN_ERROR;
+    }
+
+    component = strtok_r(path_copy + (path[0] == '/'), "/", &saveptr);
+    while (component) {
+        if (strcmp(component, ".") == 0 || component[0] == 0) {
+            component = strtok_r(NULL, "/", &saveptr);
+            continue;
+        }
+        if (strcmp(component, "..") == 0) {
+            err = MZ_EXIST_ERROR;
+            break;
+        }
+
+        next_fd = openat(current_fd, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        if (next_fd == -1 && create && errno == ENOENT) {
+            if (mkdirat(current_fd, component, 0755) == -1 && errno != EEXIST) {
+                err = MZ_INTERNAL_ERROR;
+                break;
+            }
+            next_fd = openat(current_fd, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        }
+        if (next_fd == -1) {
+            err = MZ_EXIST_ERROR;
+            break;
+        }
+
+        close(current_fd);
+        current_fd = next_fd;
+        next_fd = -1;
+        component = strtok_r(NULL, "/", &saveptr);
+    }
+
+    free(path_copy);
+    if (next_fd != -1)
+        close(next_fd);
+    if (err != MZ_OK) {
+        close(current_fd);
+        return err;
+    }
+
+    *result_fd = current_fd;
+    return MZ_OK;
+}
+
+int32_t mz_os_make_dir_safe(const char *path) {
+    int directory_fd = -1;
+    int32_t err = mz_os_open_dir_path(path, 1, &directory_fd);
+    if (err == MZ_OK)
+        close(directory_fd);
+    return err;
+}
+
+int32_t mz_os_make_symlink_safe(const char *path, const char *target_path) {
+#if !HAVE_SYMLINK
+    MZ_UNUSED(path);
+    MZ_UNUSED(target_path);
+    return MZ_SUPPORT_ERROR;
+#elif !HAVE_SYMLINKAT
+    return mz_os_make_symlink(path, target_path);
+#else
+    char *parent = NULL;
+    char *filename = NULL;
+    char *slash = NULL;
+    int parent_fd = -1;
+    int32_t err = MZ_OK;
+
+    if (!path || !target_path)
+        return MZ_PARAM_ERROR;
+
+    parent = strdup(path);
+    filename = strdup(path);
+    if (!parent || !filename) {
+        free(parent);
+        free(filename);
+        return MZ_MEM_ERROR;
+    }
+
+    slash = strrchr(parent, '/');
+    if (slash) {
+        *slash = 0;
+        if (parent[0] == 0)
+            strcpy(parent, "/");
+    } else {
+        strcpy(parent, ".");
+    }
+
+    slash = strrchr(filename, '/');
+    if (slash)
+        memmove(filename, slash + 1, strlen(slash + 1) + 1);
+
+    err = mz_os_open_dir_path(parent, 0, &parent_fd);
+    if (err == MZ_OK) {
+        if (symlinkat(target_path, parent_fd, filename) != 0)
+            err = MZ_INTERNAL_ERROR;
+        close(parent_fd);
+    }
+
+    free(parent);
+    free(filename);
+    return err;
+#endif
+}
+
 DIR *mz_os_open_dir(const char *path) {
     return opendir(path);
 }
@@ -378,6 +509,28 @@ int32_t mz_os_is_symlink(const char *path) {
         return MZ_OK;
 
     return MZ_EXIST_ERROR;
+}
+
+int32_t mz_os_get_real_path(const char *path, char *target, int32_t max_target) {
+    char *resolved = NULL;
+    size_t length = 0;
+
+    if (!path || !target || max_target <= 0)
+        return MZ_PARAM_ERROR;
+
+    resolved = realpath(path, NULL);
+    if (!resolved)
+        return MZ_EXIST_ERROR;
+
+    length = strlen(resolved);
+    if (length >= (size_t)max_target) {
+        free(resolved);
+        return MZ_BUF_ERROR;
+    }
+
+    memcpy(target, resolved, length + 1);
+    free(resolved);
+    return MZ_OK;
 }
 
 int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes) {
