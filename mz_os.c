@@ -286,7 +286,7 @@ static int32_t mz_path_get_real_path_partial(const char *path, char *target, int
     size_t prefix_len = 0;
     int32_t err = MZ_OK;
 
-    if (!path || !target || max_target <= 0)
+    if (!path || *path == 0 || !target || max_target <= 0)
         return MZ_PARAM_ERROR;
 
     candidate = strdup(path);
@@ -308,6 +308,10 @@ static int32_t mz_path_get_real_path_partial(const char *path, char *target, int
             candidate_len--;
 
         if (candidate_len == 0) {
+            if (strcmp(candidate, ".") == 0) {
+                err = MZ_EXIST_ERROR;
+                break;
+            }
             strcpy(candidate, ".");
             prefix_len = 0;
         } else if (candidate_len == 1 && mz_os_is_dir_separator(candidate[0])) {
