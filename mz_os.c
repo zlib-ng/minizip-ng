@@ -357,6 +357,8 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     size_t max_path = 1024;
     size_t base_len = 0;
     size_t parent_len = 0;
+    size_t link_len = 0;
+    size_t target_len = 0;
     int32_t err = MZ_OK;
     int32_t real_err = MZ_OK;
 
@@ -382,10 +384,19 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
         goto target_cleanup;
     }
 
+    link_len = strlen(link_path);
+    target_len = strlen(target);
+    if (link_len >= max_path || target_len >= max_path || link_len + target_len >= max_path - 1) {
+        err = MZ_BUF_ERROR;
+        goto target_cleanup;
+    }
+
     real_err = mz_os_get_real_path(base_path, base_resolved, (int32_t)max_path);
     if (real_err == MZ_OK) {
         base_compare = base_resolved;
         base_len = strlen(base_compare);
+        while (base_len > 1 && mz_os_is_dir_separator(base_compare[base_len - 1]))
+            base_len--;
     } else if (real_err != MZ_EXIST_ERROR) {
         err = real_err;
         goto target_cleanup;
@@ -428,8 +439,9 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     }
 
     /* Check that resolved path stays within base_path */
-    if (strlen(resolved) < base_len || strncmp(resolved, base_compare, base_len) != 0 ||
-        (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))
+    if ((base_len > 1 && (strlen(resolved) < base_len || strncmp(resolved, base_compare, base_len) != 0 ||
+                          (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))) ||
+        (base_len == 1 && mz_os_is_dir_separator(base_compare[0]) && !mz_os_is_dir_separator(resolved[0])))
         err = MZ_EXIST_ERROR;
 
 target_cleanup:

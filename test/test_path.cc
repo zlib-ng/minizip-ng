@@ -164,4 +164,13 @@ TEST(path_security, rejects_existing_symlink_component_escape) {
     rmdir(base.c_str());
     rmdir(root);
 }
+
+TEST(path_security, accepts_filesystem_root_as_containment_base) {
+    EXPECT_EQ(mz_path_is_symlink_target_safe("/link", "tmp/target", "/"), MZ_OK);
+}
+
+TEST(path_security, rejects_overlong_symlink_path) {
+    std::string long_path(1100, 'a');
+    EXPECT_EQ(mz_path_is_symlink_target_safe(long_path.c_str(), "target", "."), MZ_BUF_ERROR);
+}
 #endif
