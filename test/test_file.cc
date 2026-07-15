@@ -75,4 +75,11 @@ TEST(path_security, rejects_final_symlink_on_safe_open) {
     rmdir(destination.c_str());
     rmdir(root);
 }
+
+TEST(path_security, rejects_empty_safe_open_path) {
+    void *stream = mz_stream_os_create();
+    ASSERT_NE(stream, nullptr);
+    EXPECT_EQ(mz_stream_os_open(stream, "", MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_NOFOLLOW), MZ_PARAM_ERROR);
+    mz_stream_os_delete(&stream);
+}
 #endif

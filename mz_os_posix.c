@@ -414,7 +414,9 @@ int32_t mz_os_make_symlink_safe(const char *path, const char *target_path) {
     MZ_UNUSED(target_path);
     return MZ_SUPPORT_ERROR;
 #elif !HAVE_SYMLINKAT
-    return mz_os_make_symlink(path, target_path);
+    MZ_UNUSED(path);
+    MZ_UNUSED(target_path);
+    return MZ_SUPPORT_ERROR;
 #else
     char *parent = NULL;
     char *filename = NULL;

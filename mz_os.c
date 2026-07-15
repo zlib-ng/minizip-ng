@@ -277,6 +277,74 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
     return MZ_OK;
 }
 
+static int32_t mz_path_get_real_path_partial(const char *path, char *target, int32_t max_target) {
+    char *candidate = NULL;
+    const char *suffix = NULL;
+    size_t candidate_len = 0;
+    size_t suffix_len = 0;
+    size_t target_len = 0;
+    size_t prefix_len = 0;
+    int32_t err = MZ_OK;
+
+    if (!path || !target || max_target <= 0)
+        return MZ_PARAM_ERROR;
+
+    candidate = strdup(path);
+    if (!candidate)
+        return MZ_MEM_ERROR;
+
+    prefix_len = strlen(candidate);
+    while (1) {
+        err = mz_os_get_real_path(candidate, target, max_target);
+        if (err == MZ_OK)
+            break;
+        if (err != MZ_EXIST_ERROR)
+            goto partial_cleanup;
+
+        candidate_len = strlen(candidate);
+        while (candidate_len > 0 && mz_os_is_dir_separator(candidate[candidate_len - 1]))
+            candidate_len--;
+        while (candidate_len > 0 && !mz_os_is_dir_separator(candidate[candidate_len - 1]))
+            candidate_len--;
+
+        if (candidate_len == 0) {
+            strcpy(candidate, ".");
+            prefix_len = 0;
+        } else if (candidate_len == 1 && mz_os_is_dir_separator(candidate[0])) {
+            candidate[1] = 0;
+            prefix_len = 1;
+        } else {
+            candidate[candidate_len - 1] = 0;
+            prefix_len = candidate_len - 1;
+        }
+    }
+
+    suffix = path + prefix_len;
+    while (mz_os_is_dir_separator(*suffix))
+        suffix++;
+    suffix_len = strlen(suffix);
+    if (suffix_len > 0) {
+        target_len = strlen(target);
+        if (target_len > 0 && !mz_os_is_dir_separator(target[target_len - 1])) {
+            if (target_len + 1 >= (size_t)max_target) {
+                err = MZ_BUF_ERROR;
+                goto partial_cleanup;
+            }
+            target[target_len++] = MZ_PATH_SLASH_PLATFORM;
+            target[target_len] = 0;
+        }
+        if (target_len + suffix_len >= (size_t)max_target) {
+            err = MZ_BUF_ERROR;
+            goto partial_cleanup;
+        }
+        memcpy(target + target_len, suffix, suffix_len + 1);
+    }
+
+partial_cleanup:
+    free(candidate);
+    return err;
+}
+
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
@@ -346,7 +414,7 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
      * well.  The lexical check above is still required for new targets, but
      * it cannot detect a chain such as dest/link -> redirect -> outside.
      */
-    real_err = mz_os_get_real_path(resolved, combined, (int32_t)max_path);
+    real_err = mz_path_get_real_path_partial(resolved, combined, (int32_t)max_path);
     if (real_err == MZ_OK) {
         strncpy(resolved, combined, max_path - 1);
         resolved[max_path - 1] = 0;

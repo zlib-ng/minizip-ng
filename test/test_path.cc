@@ -135,6 +135,7 @@ TEST(path_security, rejects_nested_existing_symlink_escape) {
     ASSERT_EQ(symlink("../outside", redirect.c_str()), 0);
 
     EXPECT_NE(mz_path_is_symlink_target_safe(link.c_str(), "redirect", base.c_str()), MZ_OK);
+    EXPECT_NE(mz_path_is_symlink_target_safe(link.c_str(), "redirect/missing", base.c_str()), MZ_OK);
 
     unlink(redirect.c_str());
     rmdir(outside.c_str());

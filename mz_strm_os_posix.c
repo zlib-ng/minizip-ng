@@ -83,6 +83,9 @@ static int mz_stream_open_parent_nofollow(const char *path) {
     int current_fd = -1;
     int next_fd = -1;
 
+    if (!path || *path == 0)
+        return -1;
+
     parent = strdup(path);
     if (!parent)
         return -1;
@@ -155,7 +158,7 @@ int32_t mz_stream_os_open(void *stream, const char *path, int32_t mode) {
     int mode_open = 0;
     int fd;
 
-    if (!path)
+    if (!path || *path == 0)
         return MZ_PARAM_ERROR;
 
     if ((mode & MZ_OPEN_MODE_READWRITE) == MZ_OPEN_MODE_READ) {
