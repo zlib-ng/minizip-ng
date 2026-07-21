@@ -22,9 +22,6 @@
 // Define to 1 if symlink() is defined.
 #cmakedefine01 HAVE_SYMLINK
 
-// Define to 1 if symlinkat() is defined.
-#cmakedefine01 HAVE_SYMLINKAT
-
 // Define to 1 if readlink() is defined.
 #cmakedefine01 HAVE_READLINK
 

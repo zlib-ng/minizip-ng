@@ -277,90 +277,13 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
     return MZ_OK;
 }
 
-static int32_t mz_path_get_real_path_partial(const char *path, char *target, int32_t max_target) {
-    char *candidate = NULL;
-    const char *suffix = NULL;
-    size_t candidate_len = 0;
-    size_t suffix_len = 0;
-    size_t target_len = 0;
-    size_t prefix_len = 0;
-    int32_t err = MZ_OK;
-
-    if (!path || *path == 0 || !target || max_target <= 0)
-        return MZ_PARAM_ERROR;
-
-    candidate = strdup(path);
-    if (!candidate)
-        return MZ_MEM_ERROR;
-
-    prefix_len = strlen(candidate);
-    while (1) {
-        err = mz_os_get_real_path(candidate, target, max_target);
-        if (err == MZ_OK)
-            break;
-        if (err != MZ_EXIST_ERROR)
-            goto partial_cleanup;
-
-        candidate_len = strlen(candidate);
-        while (candidate_len > 0 && mz_os_is_dir_separator(candidate[candidate_len - 1]))
-            candidate_len--;
-        while (candidate_len > 0 && !mz_os_is_dir_separator(candidate[candidate_len - 1]))
-            candidate_len--;
-
-        if (candidate_len == 0) {
-            if (strcmp(candidate, ".") == 0) {
-                err = MZ_EXIST_ERROR;
-                break;
-            }
-            strcpy(candidate, ".");
-            prefix_len = 0;
-        } else if (candidate_len == 1 && mz_os_is_dir_separator(candidate[0])) {
-            candidate[1] = 0;
-            prefix_len = 1;
-        } else {
-            candidate[candidate_len - 1] = 0;
-            prefix_len = candidate_len - 1;
-        }
-    }
-
-    suffix = path + prefix_len;
-    while (mz_os_is_dir_separator(*suffix))
-        suffix++;
-    suffix_len = strlen(suffix);
-    if (suffix_len > 0) {
-        target_len = strlen(target);
-        if (target_len > 0 && !mz_os_is_dir_separator(target[target_len - 1])) {
-            if (target_len + 1 >= (size_t)max_target) {
-                err = MZ_BUF_ERROR;
-                goto partial_cleanup;
-            }
-            target[target_len++] = MZ_PATH_SLASH_PLATFORM;
-            target[target_len] = 0;
-        }
-        if (target_len + suffix_len >= (size_t)max_target) {
-            err = MZ_BUF_ERROR;
-            goto partial_cleanup;
-        }
-        memcpy(target + target_len, suffix, suffix_len + 1);
-    }
-
-partial_cleanup:
-    free(candidate);
-    return err;
-}
-
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
-    char *base_resolved = NULL;
-    const char *base_compare = base_path;
     size_t max_path = 1024;
     size_t base_len = 0;
     size_t parent_len = 0;
-    size_t link_len = 0;
-    size_t target_len = 0;
     int32_t err = MZ_OK;
-    int32_t real_err = MZ_OK;
 
     if (!link_path || !target || !base_path)
         return MZ_PARAM_ERROR;
@@ -377,28 +300,9 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
 
     combined = (char *)calloc(1, max_path);
     resolved = (char *)calloc(1, max_path);
-    base_resolved = (char *)calloc(1, max_path);
 
-    if (!combined || !resolved || !base_resolved) {
+    if (!combined || !resolved) {
         err = MZ_MEM_ERROR;
-        goto target_cleanup;
-    }
-
-    link_len = strlen(link_path);
-    target_len = strlen(target);
-    if (link_len >= max_path || target_len >= max_path || link_len + target_len >= max_path - 1) {
-        err = MZ_BUF_ERROR;
-        goto target_cleanup;
-    }
-
-    real_err = mz_os_get_real_path(base_path, base_resolved, (int32_t)max_path);
-    if (real_err == MZ_OK) {
-        base_compare = base_resolved;
-        base_len = strlen(base_compare);
-        while (base_len > 1 && mz_os_is_dir_separator(base_compare[base_len - 1]))
-            base_len--;
-    } else if (real_err != MZ_EXIST_ERROR) {
-        err = real_err;
         goto target_cleanup;
     }
 
@@ -424,30 +328,14 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
         goto target_cleanup;
     }
 
-    /*
-     * If the target already exists, resolve it through the filesystem as
-     * well.  The lexical check above is still required for new targets, but
-     * it cannot detect a chain such as dest/link -> redirect -> outside.
-     */
-    real_err = mz_path_get_real_path_partial(resolved, combined, (int32_t)max_path);
-    if (real_err == MZ_OK) {
-        strncpy(resolved, combined, max_path - 1);
-        resolved[max_path - 1] = 0;
-    } else if (real_err != MZ_EXIST_ERROR) {
-        err = real_err;
-        goto target_cleanup;
-    }
-
     /* Check that resolved path stays within base_path */
-    if ((base_len > 1 && (strlen(resolved) < base_len || strncmp(resolved, base_compare, base_len) != 0 ||
-                          (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))) ||
-        (base_len == 1 && mz_os_is_dir_separator(base_compare[0]) && !mz_os_is_dir_separator(resolved[0])))
+    if (strlen(resolved) < base_len || strncmp(resolved, base_path, base_len) != 0 ||
+        (resolved[base_len] != 0 && !mz_os_is_dir_separator(resolved[base_len])))
         err = MZ_EXIST_ERROR;
 
 target_cleanup:
     free(combined);
     free(resolved);
-    free(base_resolved);
 
     return err;
 }

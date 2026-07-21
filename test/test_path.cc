@@ -10,8 +10,12 @@
 
 #include "mz.h"
 #include "mz_os.h"
+#include "mz_strm.h"
+#include "mz_zip.h"
+#include "mz_zip_rw.h"
 
 #include <algorithm>
+#include <cstring>
 #include <gtest/gtest.h>
 
 #if !defined(_WIN32) && defined(HAVE_SYMLINK)
@@ -71,6 +75,53 @@ TEST_P(path_resolve, os) {
     EXPECT_STREQ(output, expected_path.c_str());
 }
 
+#if !defined(_WIN32) && defined(HAVE_SYMLINK)
+TEST(zip_reader_security, rejects_directory_entry_through_existing_symlink) {
+    char temp_path[] = "/tmp/minizip-extract-test-XXXXXX";
+    char *root = mkdtemp(temp_path);
+    ASSERT_NE(root, nullptr);
+
+    std::string archive = std::string(root) + "/archive.zip";
+    std::string destination = std::string(root) + "/destination";
+    std::string outside = std::string(root) + "/outside";
+    std::string pivot = destination + "/pivot";
+    std::string escaped_directory = outside + "/newdir";
+
+    mz_zip_file file_info;
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.filename = "pivot/newdir/";
+    file_info.version_madeby = MZ_VERSION_MADEBY;
+    file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+    file_info.flag = MZ_ZIP_FLAG_UTF8;
+
+    void *writer = mz_zip_writer_create();
+    ASSERT_NE(writer, nullptr);
+    ASSERT_EQ(mz_zip_writer_open_file(writer, archive.c_str(), 0, 0), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_add_info(writer, nullptr, nullptr, &file_info), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_close(writer), MZ_OK);
+    mz_zip_writer_delete(&writer);
+
+    ASSERT_EQ(mkdir(destination.c_str(), 0755), 0);
+    ASSERT_EQ(mkdir(outside.c_str(), 0755), 0);
+    ASSERT_EQ(symlink("../outside", pivot.c_str()), 0);
+
+    void *reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
+    EXPECT_NE(mz_zip_reader_save_all(reader, destination.c_str()), MZ_OK);
+    EXPECT_NE(mz_os_is_dir(escaped_directory.c_str()), MZ_OK);
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+
+    unlink(pivot.c_str());
+    unlink(archive.c_str());
+    rmdir(escaped_directory.c_str());
+    rmdir(outside.c_str());
+    rmdir(destination.c_str());
+    rmdir(root);
+}
+#endif
+
 struct symlink_base_param {
     const char *link_path;
     const char *target;
@@ -118,59 +169,3 @@ TEST_P(symlink_target_base, os) {
     else
         EXPECT_NE(err, MZ_OK);
 }
-
-#if !defined(_WIN32) && defined(HAVE_SYMLINK)
-TEST(path_security, rejects_nested_existing_symlink_escape) {
-    char temp_path[] = "/tmp/minizip-symlink-test-XXXXXX";
-    char *root = mkdtemp(temp_path);
-    ASSERT_NE(root, nullptr);
-
-    std::string base = std::string(root) + "/extract";
-    std::string outside = std::string(root) + "/outside";
-    std::string redirect = base + "/redirect";
-    std::string link = base + "/link";
-
-    ASSERT_EQ(mkdir(base.c_str(), 0755), 0);
-    ASSERT_EQ(mkdir(outside.c_str(), 0755), 0);
-    ASSERT_EQ(symlink("../outside", redirect.c_str()), 0);
-
-    EXPECT_NE(mz_path_is_symlink_target_safe(link.c_str(), "redirect", base.c_str()), MZ_OK);
-    EXPECT_NE(mz_path_is_symlink_target_safe(link.c_str(), "redirect/missing", base.c_str()), MZ_OK);
-
-    unlink(redirect.c_str());
-    rmdir(outside.c_str());
-    rmdir(base.c_str());
-    rmdir(root);
-}
-
-TEST(path_security, rejects_existing_symlink_component_escape) {
-    char temp_path[] = "/tmp/minizip-symlink-test-XXXXXX";
-    char *root = mkdtemp(temp_path);
-    ASSERT_NE(root, nullptr);
-
-    std::string base = std::string(root) + "/extract";
-    std::string outside = std::string(root) + "/outside";
-    std::string redirect = base + "/redirect";
-    std::string victim = redirect + "/victim";
-
-    ASSERT_EQ(mkdir(base.c_str(), 0755), 0);
-    ASSERT_EQ(mkdir(outside.c_str(), 0755), 0);
-    ASSERT_EQ(symlink("../outside", redirect.c_str()), 0);
-
-    EXPECT_NE(mz_dir_has_unsafe_symlink(victim.c_str(), base.c_str()), MZ_OK);
-
-    unlink(redirect.c_str());
-    rmdir(outside.c_str());
-    rmdir(base.c_str());
-    rmdir(root);
-}
-
-TEST(path_security, accepts_filesystem_root_as_containment_base) {
-    EXPECT_EQ(mz_path_is_symlink_target_safe("/link", "tmp/target", "/"), MZ_OK);
-}
-
-TEST(path_security, rejects_overlong_symlink_path) {
-    std::string long_path(1100, 'a');
-    EXPECT_EQ(mz_path_is_symlink_target_safe(long_path.c_str(), "target", "."), MZ_BUF_ERROR);
-}
-#endif

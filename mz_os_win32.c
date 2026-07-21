@@ -419,16 +419,6 @@ int32_t mz_os_make_dir(const char *path) {
     return err;
 }
 
-int32_t mz_os_make_dir_safe(const char *path) {
-    /* Reparse-point checks are performed by the extraction caller. */
-    return mz_dir_make(path);
-}
-
-int32_t mz_os_make_symlink_safe(const char *path, const char *target_path) {
-    /* Reparse-point checks are performed by the extraction caller. */
-    return mz_os_make_symlink(path, target_path);
-}
-
 DIR *mz_os_open_dir(const char *path) {
     WIN32_FIND_DATAW find_data;
     DIR_int *dir_int = NULL;
@@ -548,49 +538,6 @@ int32_t mz_os_is_symlink(const char *path) {
     }
 
     return MZ_EXIST_ERROR;
-}
-
-int32_t mz_os_get_real_path(const char *path, char *target, int32_t max_target) {
-    wchar_t *path_wide = NULL;
-    wchar_t resolved_wide[32768];
-    DWORD resolved_size = 0;
-    char *resolved = NULL;
-    int32_t err = MZ_OK;
-
-    if (!path || !target || max_target <= 0)
-        return MZ_PARAM_ERROR;
-
-    path_wide = mz_os_unicode_string_create(path, MZ_ENCODING_UTF8);
-    if (!path_wide)
-        return MZ_PARAM_ERROR;
-
-    {
-        HANDLE handle = CreateFileW(path_wide, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
-                                    OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-        if (handle == INVALID_HANDLE_VALUE) {
-            err = MZ_EXIST_ERROR;
-        } else {
-            resolved_size = GetFinalPathNameByHandleW(handle, resolved_wide, (DWORD)(sizeof(resolved_wide) / sizeof(wchar_t)),
-                                                       FILE_NAME_NORMALIZED);
-            if (resolved_size == 0 || resolved_size >= (DWORD)(sizeof(resolved_wide) / sizeof(wchar_t))) {
-                err = MZ_EXIST_ERROR;
-            } else {
-                resolved = mz_os_utf8_string_create_from_unicode(resolved_wide, MZ_ENCODING_UTF8);
-                if (!resolved)
-                    err = MZ_MEM_ERROR;
-                else if ((int32_t)strlen(resolved) >= max_target)
-                    err = MZ_BUF_ERROR;
-                else
-                    strcpy(target, resolved);
-            }
-            CloseHandle(handle);
-        }
-    }
-
-    if (resolved)
-        free(resolved);
-    mz_os_unicode_string_delete(&path_wide);
-    return err;
 }
 
 int32_t mz_os_get_link_attribs(const char *path, uint32_t *attributes) {

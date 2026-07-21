@@ -317,7 +317,7 @@ else
 
 ### mz_dir_has_unsafe_symlink
 
-Checks if any existing component of a path is a symbolic link that escapes a base path. Existing targets are also resolved through the filesystem where supported, so nested links such as `link -> redirect -> outside` are rejected. This function is used to prevent symlink-based path traversal attacks during archive extraction.
+Checks if any existing component of a path is a symbolic link that escapes a base path. This function is used to prevent symlink-based path traversal attacks during archive extraction.
 
 **Arguments**
 |Type|Name|Description|
@@ -343,8 +343,6 @@ else
 ### mz_dir_make
 
 Creates a directory recursively.
-
-Archive extraction uses the platform-specific safe variant internally. On POSIX systems it traverses existing components with descriptor-relative `openat`/`mkdirat` operations and `O_NOFOLLOW`; on Windows reparse-point checks are applied before the normal directory API.
 
 **Arguments**
 |Type|Name|Description|
