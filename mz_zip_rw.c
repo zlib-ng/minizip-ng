@@ -311,11 +311,38 @@ int32_t mz_zip_reader_unzip_cd(void *handle) {
 
 /***************************************************************************/
 
+static int32_t mz_zip_reader_get_entry_encoding(mz_zip_reader *reader, mz_zip_file *file_info) {
+    int32_t encoding = reader->encoding;
+
+    if ((encoding <= 0) && (file_info->flag & MZ_ZIP_FLAG_UTF8) == 0 &&
+        mz_os_utf8_string_is_valid(file_info->filename) != MZ_OK) {
+        encoding = mz_os_get_default_encoding();
+    }
+
+    return encoding;
+}
+
 static int32_t mz_zip_reader_locate_entry_cb(void *handle, void *userdata, mz_zip_file *file_info) {
     mz_zip_reader *reader = (mz_zip_reader *)userdata;
+    const char *filename = file_info->filename;
+    char *utf8_string = NULL;
+    int32_t entry_encoding = 0;
     int32_t result = 0;
+
     MZ_UNUSED(handle);
-    result = mz_path_compare_wc(file_info->filename, reader->pattern, reader->pattern_ignore_case);
+
+    entry_encoding = mz_zip_reader_get_entry_encoding(reader, file_info);
+    if ((entry_encoding > 0) && (file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
+        utf8_string = mz_os_utf8_string_create(file_info->filename, entry_encoding);
+        if (utf8_string)
+            filename = utf8_string;
+    }
+
+    result = mz_path_compare_wc(filename, reader->pattern, reader->pattern_ignore_case);
+
+    if (utf8_string)
+        mz_os_utf8_string_delete(&utf8_string);
+
     return result;
 }
 
@@ -851,6 +878,7 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
     int32_t utf8_name_size = 0;
     int32_t resolved_name_size = 0;
     int32_t destination_dir_len = 0;
+    int32_t entry_encoding = 0;
     char *utf8_string = NULL;
     char *path = NULL;
     char *utf8_name = NULL;
@@ -904,8 +932,9 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         strncpy(utf8_name, reader->file_info->filename, utf8_name_size - 1);
         utf8_name[utf8_name_size - 1] = 0;
 
-        if ((reader->encoding > 0) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
-            utf8_string = mz_os_utf8_string_create(reader->file_info->filename, reader->encoding);
+        entry_encoding = mz_zip_reader_get_entry_encoding(reader, reader->file_info);
+        if ((entry_encoding > 0) && (reader->file_info->flag & MZ_ZIP_FLAG_UTF8) == 0) {
+            utf8_string = mz_os_utf8_string_create(reader->file_info->filename, entry_encoding);
             if (utf8_string) {
                 strncpy(utf8_name, utf8_string, utf8_name_size - 1);
                 utf8_name[utf8_name_size - 1] = 0;
