@@ -148,6 +148,11 @@ void mz_os_utf8_string_delete(char **string) {
     }
 }
 
+int32_t mz_os_get_default_encoding(void) {
+    /* No system ANSI code page concept on posix platforms */
+    return 0;
+}
+
 /***************************************************************************/
 
 #if defined(HAVE_GETRANDOM)

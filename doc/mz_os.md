@@ -23,7 +23,9 @@ These functions provide support for handling common file system operations.
   - [mz\_os\_unicode\_string\_create](#mz_os_unicode_string_create)
   - [mz\_os\_unicode\_string\_delete](#mz_os_unicode_string_delete)
   - [mz\_os\_utf8\_string\_create](#mz_os_utf8_string_create)
+  - [mz\_os\_utf8\_string\_is\_valid](#mz_os_utf8_string_is_valid)
   - [mz\_os\_utf8\_string\_delete](#mz_os_utf8_string_delete)
+  - [mz\_os\_get\_default\_encoding](#mz_os_get_default_encoding)
   - [mz\_os\_rand](#mz_os_rand)
   - [mz\_os\_rename](#mz_os_rename)
   - [mz\_os\_unlink](#mz_os_unlink)
@@ -463,6 +465,30 @@ if (test_utf8) {
 }
 ```
 
+### mz_os_utf8_string_is_valid
+
+Checks if a string contains a valid UTF-8 byte sequence.
+
+**Arguments**
+
+|Type|Name|Description|
+|-|-|-|
+|const char *|string|String to check|
+
+**Return**
+
+|Type|Description|
+|-|-|
+|int32_t|[MZ_ERROR](mz_error.md) code, MZ_OK if the string is valid UTF-8|
+
+**Example**
+
+```c
+const char *string = "test";
+if (mz_os_utf8_string_is_valid(string) == MZ_OK)
+    printf("String is valid UTF-8\n");
+```
+
 ### mz_os_utf8_string_delete
 
 Delete a utf8 string that was created with _mz_os_utf8_string_create_.
@@ -480,6 +506,24 @@ if (test_utf8) {
     printf("UTF-8 test string created\n");
     mz_os_utf8_string_delete(&test_utf8);
 }
+```
+
+### mz_os_get_default_encoding
+
+Gets the system default ANSI code page for legacy string conversion.
+
+**Return**
+
+|Type|Description|
+|-|-|
+|int32_t|System default ANSI code page, or 0 if one is not available|
+
+**Example**
+
+```c
+int32_t encoding = mz_os_get_default_encoding();
+if (encoding > 0)
+    printf("System default encoding: %d\n", encoding);
 ```
 
 ### mz_os_rand
