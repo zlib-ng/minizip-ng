@@ -102,6 +102,7 @@ void mz_os_utf8_string_delete(char **string) {
     }
 }
 
+/* Gets the system default ANSI code page used for legacy string conversion */
 int32_t mz_os_get_default_encoding(void) {
     return (int32_t)GetACP();
 }
