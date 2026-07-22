@@ -102,6 +102,10 @@ void mz_os_utf8_string_delete(char **string) {
     }
 }
 
+int32_t mz_os_get_default_encoding(void) {
+    return (int32_t)GetACP();
+}
+
 /***************************************************************************/
 
 int32_t mz_os_rand(uint8_t *buf, int32_t size) {

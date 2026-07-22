@@ -492,4 +492,54 @@ int32_t mz_file_get_crc(const char *path, uint32_t *result_crc) {
     return err;
 }
 
+/* Checks that a string is a valid utf8 byte sequence; rejects invalid lead and
+   continuation bytes, overlong encodings, surrogates, and code points beyond
+   U+10FFFF. */
+int32_t mz_os_utf8_string_is_valid(const char *string) {
+    const uint8_t *s = (const uint8_t *)string;
+    uint32_t cp = 0;
+    uint32_t min_cp = 0;
+    int32_t trail = 0;
+    uint8_t c = 0;
+
+    if (!string)
+        return MZ_PARAM_ERROR;
+
+    while (*s != 0) {
+        c = *s++;
+
+        if (c < 0x80)
+            continue;
+        if ((c & 0xe0) == 0xc0) {
+            cp = c & 0x1f;
+            trail = 1;
+            min_cp = 0x80;
+        } else if ((c & 0xf0) == 0xe0) {
+            cp = c & 0x0f;
+            trail = 2;
+            min_cp = 0x800;
+        } else if ((c & 0xf8) == 0xf0) {
+            cp = c & 0x07;
+            trail = 3;
+            min_cp = 0x10000;
+        } else {
+            /* Invalid lead byte (0x80-0xbf continuation or 0xf8-0xff) */
+            return MZ_DATA_ERROR;
+        }
+
+        while (trail-- > 0) {
+            c = *s++;
+            if ((c & 0xc0) != 0x80)
+                return MZ_DATA_ERROR;
+            cp = (cp << 6) | (c & 0x3f);
+        }
+
+        /* Reject overlong encodings, surrogates, and out of range code points */
+        if (cp < min_cp || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff))
+            return MZ_DATA_ERROR;
+    }
+
+    return MZ_OK;
+}
+
 /***************************************************************************/

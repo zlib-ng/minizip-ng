@@ -112,6 +112,9 @@ int32_t mz_dir_make(const char *path);
 int32_t mz_file_get_crc(const char *path, uint32_t *result_crc);
 /* Gets the crc32 hash of a file */
 
+int32_t mz_os_utf8_string_is_valid(const char *string);
+/* Checks if the string is a valid utf8 byte sequence */
+
 /***************************************************************************/
 /* Platform specific functions */
 
@@ -126,6 +129,9 @@ char *mz_os_utf8_string_create(const char *string, int32_t encoding);
 
 void mz_os_utf8_string_delete(char **string);
 /* Delete a utf8 string that was created */
+
+int32_t mz_os_get_default_encoding(void);
+/* Gets the system default ANSI code page for legacy string conversion */
 
 int32_t mz_os_rand(uint8_t *buf, int32_t size);
 /* Random number generator (not cryptographically secure) */
