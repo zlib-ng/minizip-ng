@@ -148,8 +148,9 @@ void mz_os_utf8_string_delete(char **string) {
     }
 }
 
+/* Gets the system default encoding; returns 0 because there is no system
+   ANSI code page concept on posix platforms */
 int32_t mz_os_get_default_encoding(void) {
-    /* No system ANSI code page concept on posix platforms */
     return 0;
 }
 
