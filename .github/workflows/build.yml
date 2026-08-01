@@ -326,7 +326,7 @@ jobs:
         MSAN_OPTIONS: ${{ matrix.msan-options || 'verbosity=0' }}
 
     - name: Setup python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       if: always() && matrix.codecov
       with:
         python-version: '3.x'
