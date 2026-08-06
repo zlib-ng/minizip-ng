@@ -285,9 +285,9 @@ int32_t mz_stream_ppmd_open(void *stream, const char *path, int32_t mode) {
             return MZ_STREAM_ERROR;
 
         if (!Ppmd8_Init_RangeDec(&ppmd->ppmd8)) {
-	    Ppmd8_Free(&ppmd->ppmd8, &ppmd->allocator);
+            Ppmd8_Free(&ppmd->ppmd8, &ppmd->allocator);
             return MZ_STREAM_ERROR;
-	}
+        }
 
         Ppmd8_Init(&ppmd->ppmd8, order, restor);
 #endif
