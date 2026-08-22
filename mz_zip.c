@@ -1010,6 +1010,11 @@ static int32_t mz_zip_read_cd(void *handle) {
                     comment_read = 0;
                 zip->comment[comment_read] = 0;
             }
+        } else if (err == MZ_OK) {
+            /* No comment in this archive; clear any stale comment from a
+               previous mz_zip_read_cd() call on the same handle */
+            free(zip->comment);
+            zip->comment = NULL;
         }
 
         if ((err == MZ_OK) && ((number_entry_cd == UINT16_MAX) || (zip->cd_offset == UINT32_MAX))) {
