@@ -1564,24 +1564,15 @@ int32_t mz_zip_get_comment(void *handle, const char **comment) {
     return MZ_OK;
 }
 
-/* Sets the archive-level comment. On success, any pointer previously
-   returned by mz_zip_get_comment() for this handle is invalidated, as the
-   underlying buffer is freed and replaced. */
 int32_t mz_zip_set_comment(void *handle, const char *comment) {
     mz_zip *zip = (mz_zip *)handle;
     size_t comment_size = 0;
     char *new_comment = NULL;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    /* Validate the length as size_t before narrowing, so an excessively
-       long input cannot slip past the UINT16_MAX check via truncation. */
     comment_size = strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
-    /* Allocate and populate the replacement before releasing the existing
-       comment, so a getter that already holds zip->comment is never left
-       with a dangling pointer, and an allocation failure leaves the
-       existing comment intact instead of losing it. */
     new_comment = (char *)calloc(comment_size + 1, sizeof(char));
     if (!new_comment)
         return MZ_MEM_ERROR;
