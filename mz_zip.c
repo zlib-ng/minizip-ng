@@ -1569,10 +1569,10 @@ int32_t mz_zip_set_comment(void *handle, const char *comment) {
     int32_t comment_size = 0;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    free(zip->comment);
     comment_size = (int32_t)strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
+    free(zip->comment);
     zip->comment = (char *)calloc(comment_size + 1, sizeof(char));
     if (!zip->comment)
         return MZ_MEM_ERROR;
