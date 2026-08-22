@@ -1011,8 +1011,6 @@ static int32_t mz_zip_read_cd(void *handle) {
                 zip->comment[comment_read] = 0;
             }
         } else if (err == MZ_OK) {
-            /* No comment in this archive; clear any stale comment from a
-               previous mz_zip_read_cd() call on the same handle */
             free(zip->comment);
             zip->comment = NULL;
         }
