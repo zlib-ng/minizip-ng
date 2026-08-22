@@ -1001,6 +1001,7 @@ static int32_t mz_zip_read_cd(void *handle) {
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &comment_size);
         if ((err == MZ_OK) && (comment_size > 0)) {
+            free(zip->comment);
             zip->comment = (char *)malloc(comment_size + 1);
             if (zip->comment) {
                 comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
