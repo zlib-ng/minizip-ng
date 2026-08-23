@@ -22,7 +22,6 @@
 
 #if defined(_WIN32)
 #  include <windows.h>
-#  include <shellapi.h> /* CommandLineToArgvW */
 #endif
 
 /***************************************************************************/
@@ -588,45 +587,36 @@ int32_t minizip_erase(const char *src_path, const char *target_path, int32_t arg
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_MAIN)
-#if defined(_WIN32)
-/* Command line arguments are supplied to main in the ANSI code page which
-   corrupts non-ASCII characters; minizip expects all strings to be UTF-8.
-   Re-fetch the command line as Unicode and convert each argument to UTF-8. */
-static const char **minizip_utf8_argv_create(int32_t *argc) {
+#  if defined(_WIN32)
+/* Converts the Unicode command line arguments supplied to wmain to UTF-8. */
+static const char **minizip_utf8_argv_create(int32_t argc, wchar_t *argv_wide[]) {
     const char **argv_utf8 = NULL;
-    wchar_t **argv_wide = NULL;
-    int32_t argc_wide = 0;
-    int32_t arg_utf8_size = 0;
     int32_t i = 0;
 
-    argv_wide = CommandLineToArgvW(GetCommandLineW(), &argc_wide);
-    if (!argv_wide)
-        return NULL;
-    argv_utf8 = (const char **)calloc(argc_wide + 1, sizeof(char *));
+    argv_utf8 = (const char **)calloc(argc + 1, sizeof(char *));
     if (argv_utf8) {
-        for (i = 0; i < argc_wide; i += 1) {
-            arg_utf8_size = WideCharToMultiByte(CP_UTF8, 0, argv_wide[i], -1, NULL, 0, NULL, NULL);
-            if (arg_utf8_size == 0)
-                break;
-            argv_utf8[i] = (const char *)calloc(arg_utf8_size, sizeof(char));
+        for (i = 0; i < argc; i += 1) {
+            argv_utf8[i] = mz_os_utf8_string_create_from_unicode(argv_wide[i], MZ_ENCODING_UTF8);
             if (!argv_utf8[i])
                 break;
-            if (WideCharToMultiByte(CP_UTF8, 0, argv_wide[i], -1, (char *)argv_utf8[i], arg_utf8_size, NULL, NULL) ==
-                0)
-                break;
         }
-        if (i != argc_wide) {
+        if (i != argc) {
             /* Array is zero-initialized so unassigned slots are NULL */
-            for (i = 0; i < argc_wide; i += 1)
+            for (i = 0; i < argc; i += 1)
                 free((void *)argv_utf8[i]);
             free((void *)argv_utf8);
             argv_utf8 = NULL;
-        } else {
-            *argc = argc_wide;
         }
     }
-    LocalFree(argv_wide);
     return argv_utf8;
+}
+
+static void minizip_utf8_argv_delete(int32_t argc, const char **argv) {
+    int32_t i = 0;
+
+    for (i = 0; i < argc; i += 1)
+        free((void *)argv[i]);
+    free((void *)argv);
 }
 
 static UINT minizip_original_console_cp = 0;
@@ -636,9 +626,9 @@ static void minizip_restore_console_cp(void) {
     if (minizip_original_console_cp != 0)
         SetConsoleOutputCP(minizip_original_console_cp);
 }
-#endif
+#  endif
 
-int main(int argc, const char *argv[]) {
+static int minizip_main(int argc, const char *argv[]) {
     minizip_opt options;
     int32_t path_arg = 0;
     int32_t err = 0;
@@ -650,21 +640,6 @@ int main(int argc, const char *argv[]) {
     const char *password = NULL;
     const char *destination = NULL;
     const char *filename_to_extract = NULL;
-
-#if defined(_WIN32)
-    /* The console code page is usually not UTF-8 so UTF-8 filenames
-       would display incorrectly; save the original code page and
-       restore it on exit */
-    minizip_original_console_cp = GetConsoleOutputCP();
-    atexit(minizip_restore_console_cp);
-    SetConsoleOutputCP(CP_UTF8);
-
-    argv = minizip_utf8_argv_create(&argc);
-    if (!argv) {
-        printf("Error converting command line to utf-8\n");
-        return 1;
-    }
-#endif
 
     minizip_banner();
     if (argc == 1) {
@@ -798,4 +773,32 @@ int main(int argc, const char *argv[]) {
 
     return err;
 }
+
+#  if defined(_WIN32)
+int wmain(int argc, wchar_t *argv[]) {
+    const char **argv_utf8 = NULL;
+    int32_t err = 0;
+
+    /* The console code page is usually not UTF-8 so UTF-8 filenames
+       would display incorrectly; save the original code page and
+       restore it on exit */
+    minizip_original_console_cp = GetConsoleOutputCP();
+    atexit(minizip_restore_console_cp);
+    SetConsoleOutputCP(CP_UTF8);
+
+    argv_utf8 = minizip_utf8_argv_create(argc, argv);
+    if (!argv_utf8) {
+        printf("Error converting command line to utf-8\n");
+        return 1;
+    }
+
+    err = minizip_main(argc, argv_utf8);
+    minizip_utf8_argv_delete(argc, argv_utf8);
+    return err;
+}
+#  else
+int main(int argc, const char *argv[]) {
+    return minizip_main(argc, argv);
+}
+#  endif
 #endif

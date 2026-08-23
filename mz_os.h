@@ -127,6 +127,11 @@ void mz_os_unicode_string_delete(wchar_t **string);
 char *mz_os_utf8_string_create(const char *string, int32_t encoding);
 /* Create a utf8 string from a string with another encoding */
 
+#if defined(_WIN32)
+char *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t encoding);
+/* Create a utf8 string from a unicode string */
+#endif
+
 void mz_os_utf8_string_delete(char **string);
 /* Delete a utf8 string that was created */
 

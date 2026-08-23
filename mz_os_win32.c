@@ -64,16 +64,10 @@ void mz_os_unicode_string_delete(wchar_t **string) {
 char *mz_os_utf8_string_create(const char *string, int32_t encoding) {
     wchar_t *string_wide = NULL;
     char *string_utf8 = NULL;
-    uint32_t string_utf8_size = 0;
 
     string_wide = mz_os_unicode_string_create(string, encoding);
     if (string_wide) {
-        string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, NULL, 0, NULL, NULL);
-        string_utf8 = (char *)calloc(string_utf8_size + 1, sizeof(char));
-
-        if (string_utf8)
-            WideCharToMultiByte(CP_UTF8, 0, string_wide, -1, string_utf8, string_utf8_size, NULL, NULL);
-
+        string_utf8 = mz_os_utf8_string_create_from_unicode(string_wide, MZ_ENCODING_UTF8);
         mz_os_unicode_string_delete(&string_wide);
     }
 
@@ -87,10 +81,14 @@ char *mz_os_utf8_string_create_from_unicode(const wchar_t *string, int32_t encod
     MZ_UNUSED(encoding);
 
     string_utf8_size = WideCharToMultiByte(CP_UTF8, 0, string, -1, NULL, 0, NULL, NULL);
-    string_utf8 = (char *)calloc(string_utf8_size + 1, sizeof(char));
+    if (string_utf8_size == 0)
+        return NULL;
+    string_utf8 = (char *)calloc(string_utf8_size, sizeof(char));
 
-    if (string_utf8)
-        WideCharToMultiByte(CP_UTF8, 0, string, -1, string_utf8, string_utf8_size, NULL, NULL);
+    if (string_utf8 && WideCharToMultiByte(CP_UTF8, 0, string, -1, string_utf8, string_utf8_size, NULL, NULL) == 0) {
+        free(string_utf8);
+        string_utf8 = NULL;
+    }
 
     return string_utf8;
 }
