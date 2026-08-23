@@ -1571,17 +1571,19 @@ int32_t mz_zip_get_comment(void *handle, const char **comment) {
 
 int32_t mz_zip_set_comment(void *handle, const char *comment) {
     mz_zip *zip = (mz_zip *)handle;
-    int32_t comment_size = 0;
+    size_t comment_size = 0;
+    char *new_comment = NULL;
     if (!zip || !comment)
         return MZ_PARAM_ERROR;
-    free(zip->comment);
-    comment_size = (int32_t)strlen(comment);
+    comment_size = strlen(comment);
     if (comment_size > UINT16_MAX)
         return MZ_PARAM_ERROR;
-    zip->comment = (char *)calloc(comment_size + 1, sizeof(char));
-    if (!zip->comment)
+    new_comment = (char *)calloc(comment_size + 1, sizeof(char));
+    if (!new_comment)
         return MZ_MEM_ERROR;
-    strncpy(zip->comment, comment, comment_size);
+    strncpy(new_comment, comment, comment_size);
+    free(zip->comment);
+    zip->comment = new_comment;
     return MZ_OK;
 }
 
