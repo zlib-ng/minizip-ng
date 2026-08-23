@@ -1001,6 +1001,7 @@ static int32_t mz_zip_read_cd(void *handle) {
         if (err == MZ_OK)
             err = mz_stream_read_uint16(zip->stream, &comment_size);
         if ((err == MZ_OK) && (comment_size > 0)) {
+            free(zip->comment);
             zip->comment = (char *)malloc(comment_size + 1);
             if (zip->comment) {
                 comment_read = mz_stream_read(zip->stream, zip->comment, comment_size);
@@ -1009,6 +1010,9 @@ static int32_t mz_zip_read_cd(void *handle) {
                     comment_read = 0;
                 zip->comment[comment_read] = 0;
             }
+        } else if (err == MZ_OK) {
+            free(zip->comment);
+            zip->comment = NULL;
         }
 
         if ((err == MZ_OK) && ((number_entry_cd == UINT16_MAX) || (zip->cd_offset == UINT32_MAX))) {
