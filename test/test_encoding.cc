@@ -30,12 +30,14 @@ TEST(os, utf8_unicode_string) {
 }
 
 TEST(os, utf8_string_validation) {
-    const char legacy_filename[] = "final_report_realfinal_"
-                                   "\xc1\xf8\xc2\xa5\xc3\xd6\xc1\xbe"
-                                   ".docx";
-    const char utf8_filename[] = "final_report_realfinal_"
-                                 "\xec\xa7\x84\xec\xa7\x9c\xec\xb5\x9c\xec\xa2\x85"
-                                 ".docx";
+    const char legacy_filename[] =
+        "final_report_realfinal_"
+        "\xc1\xf8\xc2\xa5\xc3\xd6\xc1\xbe"
+        ".docx";
+    const char utf8_filename[] =
+        "final_report_realfinal_"
+        "\xec\xa7\x84\xec\xa7\x9c\xec\xb5\x9c\xec\xa2\x85"
+        ".docx";
 
     EXPECT_EQ(MZ_DATA_ERROR, mz_os_utf8_string_is_valid(legacy_filename));
     EXPECT_EQ(MZ_OK, mz_os_utf8_string_is_valid(utf8_filename));
@@ -43,12 +45,14 @@ TEST(os, utf8_string_validation) {
 
 #if GTEST_OS_WINDOWS
 TEST(zip_reader, pattern_matches_legacy_encoded_filename) {
-    const char legacy_filename[] = "final_report_realfinal_"
-                                   "\xc1\xf8\xc2\xa5\xc3\xd6\xc1\xbe"
-                                   ".docx";
-    const char utf8_filename[] = "final_report_realfinal_"
-                                 "\xec\xa7\x84\xec\xa7\x9c\xec\xb5\x9c\xec\xa2\x85"
-                                 ".docx";
+    const char legacy_filename[] =
+        "final_report_realfinal_"
+        "\xc1\xf8\xc2\xa5\xc3\xd6\xc1\xbe"
+        ".docx";
+    const char utf8_filename[] =
+        "final_report_realfinal_"
+        "\xec\xa7\x84\xec\xa7\x9c\xec\xb5\x9c\xec\xa2\x85"
+        ".docx";
     const char contents[] = "test";
     const void *zip_buffer = NULL;
     void *mem_stream = mz_stream_mem_create();
