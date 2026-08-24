@@ -170,8 +170,8 @@ ZEXPORT int zipOpenNewFileInZip5(zipFile file, const char *filename, const zip_f
 ZEXPORT int zipCloseFileInZip64(zipFile file);
 ZEXPORT int zipClose_64(zipFile file, const char *global_comment);
 ZEXPORT int zipClose2_64(zipFile file, const char *global_comment, uint16_t version_madeby);
-int zipClose_MZ(zipFile file, const char *global_comment);
-int zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
+ZEXPORT int zipClose_MZ(zipFile file, const char *global_comment);
+ZEXPORT int zipClose2_MZ(zipFile file, const char *global_comment, uint16_t version_madeby);
 
 #ifdef __cplusplus
 }

@@ -7,7 +7,15 @@
 typedef uint64_t ZPOS64_T;
 
 #ifndef ZEXPORT
-#  define ZEXPORT
+#  if defined(MZ_EXPORTS)
+#    if defined(_WIN32)
+#      define ZEXPORT __declspec(dllexport)
+#    else
+#      define ZEXPORT __attribute__((visibility("default")))
+#    endif
+#  else
+#    define ZEXPORT
+#  endif
 #endif
 
 #ifdef __cplusplus
@@ -82,11 +90,11 @@ ZEXPORT void fill_memory_filefunc(zlib_filefunc_def *pzlib_filefunc_def);
 
 /***************************************************************************/
 
-int32_t mz_stream_ioapi_set_filefunc(void *stream, zlib_filefunc_def *filefunc);
-int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def *filefunc);
+ZEXPORT int32_t mz_stream_ioapi_set_filefunc(void *stream, zlib_filefunc_def *filefunc);
+ZEXPORT int32_t mz_stream_ioapi_set_filefunc64(void *stream, zlib_filefunc64_def *filefunc);
 
-void *mz_stream_ioapi_create(void);
-void mz_stream_ioapi_delete(void **stream);
+ZEXPORT void *mz_stream_ioapi_create(void);
+ZEXPORT void mz_stream_ioapi_delete(void **stream);
 
 /***************************************************************************/
 

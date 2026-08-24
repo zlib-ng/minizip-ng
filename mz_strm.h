@@ -73,58 +73,54 @@ typedef struct mz_stream_s {
 } mz_stream;
 
 /***************************************************************************/
-
-int32_t mz_stream_open(void *stream, const char *path, int32_t mode);
-int32_t mz_stream_is_open(void *stream);
-int32_t mz_stream_read(void *stream, void *buf, int32_t size);
-int32_t mz_stream_read_uint8(void *stream, uint8_t *value);
-int32_t mz_stream_read_uint16(void *stream, uint16_t *value);
-int32_t mz_stream_read_uint32(void *stream, uint32_t *value);
-int32_t mz_stream_read_int64(void *stream, int64_t *value);
-int32_t mz_stream_read_uint64(void *stream, uint64_t *value);
-int32_t mz_stream_write(void *stream, const void *buf, int32_t size);
-int32_t mz_stream_write_uint8(void *stream, uint8_t value);
-int32_t mz_stream_write_uint16(void *stream, uint16_t value);
-int32_t mz_stream_write_uint32(void *stream, uint32_t value);
-int32_t mz_stream_write_int64(void *stream, int64_t value);
-int32_t mz_stream_write_uint64(void *stream, uint64_t value);
-int32_t mz_stream_copy(void *target, void *source, int32_t len);
-int32_t mz_stream_copy_to_end(void *target, void *source);
-int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb,
-                              int32_t len);
-int32_t mz_stream_copy_stream_to_end(void *target, mz_stream_write_cb write_cb, void *source,
-                                     mz_stream_read_cb read_cb);
-int64_t mz_stream_tell(void *stream);
-int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin);
-int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position);
-int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size, int64_t max_seek, int64_t *position);
-int32_t mz_stream_close(void *stream);
-int32_t mz_stream_error(void *stream);
-
-int32_t mz_stream_set_base(void *stream, void *base);
-void *mz_stream_get_interface(void *stream);
-int32_t mz_stream_get_prop_int64(void *stream, int32_t prop, int64_t *value);
-int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value);
-
-void *mz_stream_create(mz_stream_vtbl *vtbl);
-void mz_stream_delete(void **stream);
+MZ_EXPORT int32_t mz_stream_open(void *stream, const char *path, int32_t mode);
+MZ_EXPORT int32_t mz_stream_is_open(void *stream);
+MZ_EXPORT int32_t mz_stream_read(void *stream, void *buf, int32_t size);
+MZ_EXPORT int32_t mz_stream_read_uint8(void *stream, uint8_t *value);
+MZ_EXPORT int32_t mz_stream_read_uint16(void *stream, uint16_t *value);
+MZ_EXPORT int32_t mz_stream_read_uint32(void *stream, uint32_t *value);
+MZ_EXPORT int32_t mz_stream_read_int64(void *stream, int64_t *value);
+MZ_EXPORT int32_t mz_stream_read_uint64(void *stream, uint64_t *value);
+MZ_EXPORT int32_t mz_stream_write(void *stream, const void *buf, int32_t size);
+MZ_EXPORT int32_t mz_stream_write_uint8(void *stream, uint8_t value);
+MZ_EXPORT int32_t mz_stream_write_uint16(void *stream, uint16_t value);
+MZ_EXPORT int32_t mz_stream_write_uint32(void *stream, uint32_t value);
+MZ_EXPORT int32_t mz_stream_write_int64(void *stream, int64_t value);
+MZ_EXPORT int32_t mz_stream_write_uint64(void *stream, uint64_t value);
+MZ_EXPORT int32_t mz_stream_copy(void *target, void *source, int32_t len);
+MZ_EXPORT int32_t mz_stream_copy_to_end(void *target, void *source);
+MZ_EXPORT int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source,
+                                        mz_stream_read_cb read_cb, int32_t len);
+MZ_EXPORT int32_t mz_stream_copy_stream_to_end(void *target, mz_stream_write_cb write_cb, void *source,
+                                               mz_stream_read_cb read_cb);
+MZ_EXPORT int64_t mz_stream_tell(void *stream);
+MZ_EXPORT int32_t mz_stream_seek(void *stream, int64_t offset, int32_t origin);
+MZ_EXPORT int32_t mz_stream_find(void *stream, const void *find, int32_t find_size, int64_t max_seek,
+                                 int64_t *position);
+MZ_EXPORT int32_t mz_stream_find_reverse(void *stream, const void *find, int32_t find_size, int64_t max_seek,
+                                         int64_t *position);
+MZ_EXPORT int32_t mz_stream_close(void *stream);
+MZ_EXPORT int32_t mz_stream_error(void *stream);
+MZ_EXPORT int32_t mz_stream_set_base(void *stream, void *base);
+MZ_EXPORT void *mz_stream_get_interface(void *stream);
+MZ_EXPORT int32_t mz_stream_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+MZ_EXPORT int32_t mz_stream_set_prop_int64(void *stream, int32_t prop, int64_t value);
+MZ_EXPORT void *mz_stream_create(mz_stream_vtbl *vtbl);
+MZ_EXPORT void mz_stream_delete(void **stream);
 
 /***************************************************************************/
-
-int32_t mz_stream_raw_open(void *stream, const char *filename, int32_t mode);
-int32_t mz_stream_raw_is_open(void *stream);
-int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size);
-int32_t mz_stream_raw_write(void *stream, const void *buf, int32_t size);
-int64_t mz_stream_raw_tell(void *stream);
-int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin);
-int32_t mz_stream_raw_close(void *stream);
-int32_t mz_stream_raw_error(void *stream);
-
-int32_t mz_stream_raw_get_prop_int64(void *stream, int32_t prop, int64_t *value);
-int32_t mz_stream_raw_set_prop_int64(void *stream, int32_t prop, int64_t value);
-
-void *mz_stream_raw_create(void);
-void mz_stream_raw_delete(void **stream);
+MZ_EXPORT int32_t mz_stream_raw_open(void *stream, const char *filename, int32_t mode);
+MZ_EXPORT int32_t mz_stream_raw_is_open(void *stream);
+MZ_EXPORT int32_t mz_stream_raw_read(void *stream, void *buf, int32_t size);
+MZ_EXPORT int32_t mz_stream_raw_write(void *stream, const void *buf, int32_t size);
+MZ_EXPORT int64_t mz_stream_raw_tell(void *stream);
+MZ_EXPORT int32_t mz_stream_raw_seek(void *stream, int64_t offset, int32_t origin);
+MZ_EXPORT int32_t mz_stream_raw_close(void *stream);
+MZ_EXPORT int32_t mz_stream_raw_error(void *stream);
+MZ_EXPORT int32_t mz_stream_raw_get_prop_int64(void *stream, int32_t prop, int64_t *value);
+MZ_EXPORT int32_t mz_stream_raw_set_prop_int64(void *stream, int32_t prop, int64_t value);
+MZ_EXPORT void *mz_stream_raw_create(void);
+MZ_EXPORT void mz_stream_raw_delete(void **stream);
 
 /***************************************************************************/
 
