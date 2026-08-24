@@ -170,10 +170,10 @@ int32_t mz_zip_reader_open_file_in_memory(void *handle, const char *path) {
         return MZ_MEM_ERROR;
     }
 
-    mz_stream_mem_set_grow_size(reader->mem_stream, (int32_t)file_size);
+    mz_stream_mem_set_grow_size(reader->mem_stream, file_size);
     mz_stream_mem_open(reader->mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-    err = mz_stream_copy(reader->mem_stream, file_stream, (int32_t)file_size);
+    err = mz_stream_copy(reader->mem_stream, file_stream, file_size);
 
     mz_stream_os_close(file_stream);
     mz_stream_os_delete(&file_stream);
@@ -290,8 +290,7 @@ int32_t mz_zip_reader_unzip_cd(void *handle) {
 
     err = mz_stream_seek(cd_mem_stream, 0, MZ_SEEK_SET);
     if (err == MZ_OK) {
-        err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read,
-                                    (int32_t)cd_info->uncompressed_size);
+        err = mz_stream_copy_stream(cd_mem_stream, NULL, handle, mz_zip_reader_entry_read, cd_info->uncompressed_size);
     }
 
     if (err == MZ_OK) {
@@ -1117,7 +1116,7 @@ int32_t mz_zip_writer_zip_cd(void *handle) {
     uint64_t number_entry = 0;
     int64_t cd_mem_length = 0;
     int32_t err = MZ_OK;
-    int32_t extrafield_size = 0;
+    int64_t extrafield_size = 0;
     void *file_extra_stream = NULL;
     void *cd_mem_stream = NULL;
 
@@ -1155,7 +1154,7 @@ int32_t mz_zip_writer_zip_cd(void *handle) {
 
     err = mz_zip_writer_entry_open(writer, &cd_file);
     if (err == MZ_OK) {
-        mz_stream_copy_stream(writer, mz_zip_writer_entry_write, cd_mem_stream, NULL, (int32_t)cd_mem_length);
+        mz_stream_copy_stream(writer, mz_zip_writer_entry_write, cd_mem_stream, NULL, cd_mem_length);
 
         mz_stream_seek(cd_mem_stream, 0, MZ_SEEK_SET);
         mz_stream_mem_set_buffer_limit(cd_mem_stream, 0);
@@ -1311,10 +1310,10 @@ int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path) {
         return MZ_MEM_ERROR;
     }
 
-    mz_stream_mem_set_grow_size(writer->mem_stream, (int32_t)file_size);
+    mz_stream_mem_set_grow_size(writer->mem_stream, file_size);
     mz_stream_mem_open(writer->mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 
-    err = mz_stream_copy(writer->mem_stream, file_stream, (int32_t)file_size);
+    err = mz_stream_copy(writer->mem_stream, file_stream, file_size);
 
     mz_stream_os_close(file_stream);
     mz_stream_os_delete(&file_stream);
@@ -1418,7 +1417,7 @@ int32_t mz_zip_writer_entry_close(void *handle) {
     int32_t err = MZ_OK;
 #ifndef MZ_ZIP_NO_CRYPTO
     const uint8_t *extrafield = NULL;
-    int32_t extrafield_size = 0;
+    int64_t extrafield_size = 0;
     int16_t field_length_hash = 0;
     uint8_t hash_digest[MZ_HASH_MAX_SIZE];
 #endif

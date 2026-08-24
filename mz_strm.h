@@ -88,10 +88,10 @@ int32_t mz_stream_write_uint16(void *stream, uint16_t value);
 int32_t mz_stream_write_uint32(void *stream, uint32_t value);
 int32_t mz_stream_write_int64(void *stream, int64_t value);
 int32_t mz_stream_write_uint64(void *stream, uint64_t value);
-int32_t mz_stream_copy(void *target, void *source, int32_t len);
+int32_t mz_stream_copy(void *target, void *source, int64_t len);
 int32_t mz_stream_copy_to_end(void *target, void *source);
 int32_t mz_stream_copy_stream(void *target, mz_stream_write_cb write_cb, void *source, mz_stream_read_cb read_cb,
-                              int32_t len);
+                              int64_t len);
 int32_t mz_stream_copy_stream_to_end(void *target, mz_stream_write_cb write_cb, void *source,
                                      mz_stream_read_cb read_cb);
 int64_t mz_stream_tell(void *stream);
