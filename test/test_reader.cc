@@ -11,6 +11,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_strm_mem.h"
 #include "mz_zip.h"
 #include "mz_zip_rw.h"
 
@@ -19,6 +20,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #if !defined(_WIN32)
 #  include <sys/stat.h>
@@ -244,5 +246,107 @@ TEST(zip_reader_attribs, strips_setuid_bits) {
     unlink(extracted.c_str());
     unlink(archive.c_str());
     rmdir(destination);
+}
+#endif
+
+#if defined(HAVE_WZAES) || defined(HAVE_PKCRYPT)
+
+/* Build a single-entry, encrypted, stored zip in memory, pkcrypt when aes_version is zero */
+static void test_build_crypt_zip(std::vector<uint8_t> &zip_buf, const uint8_t *data, int32_t size,
+                                 uint16_t aes_version) {
+    void *mem_stream = NULL;
+    void *writer = NULL;
+    const void *buf = NULL;
+    int32_t buf_len = 0;
+    mz_zip_file file_info;
+
+    mem_stream = mz_stream_mem_create();
+    ASSERT_NE(mem_stream, nullptr);
+    mz_stream_mem_set_grow_size(mem_stream, 128 * 1024);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
+
+    writer = mz_zip_writer_create();
+    ASSERT_NE(writer, nullptr);
+    mz_zip_writer_set_password(writer, "hello");
+    ASSERT_EQ(mz_zip_writer_open(writer, mem_stream, 0), MZ_OK);
+
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.filename = "test.bin";
+    file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+    file_info.flag = MZ_ZIP_FLAG_UTF8;
+    file_info.zip64 = MZ_ZIP64_DISABLE;
+    file_info.aes_version = aes_version;
+    file_info.aes_strength = MZ_AES_STRENGTH_256;
+    file_info.modified_date = 1000000000;
+
+    ASSERT_EQ(mz_zip_writer_entry_open(writer, &file_info), MZ_OK);
+    EXPECT_EQ(mz_zip_writer_entry_write(writer, data, size), size);
+    EXPECT_EQ(mz_zip_writer_close(writer), MZ_OK);
+    mz_zip_writer_delete(&writer);
+
+    ASSERT_EQ(mz_stream_mem_get_buffer(mem_stream, &buf), MZ_OK);
+    mz_stream_mem_get_buffer_length(mem_stream, &buf_len);
+    ASSERT_GT(buf_len, 0);
+    zip_buf.assign((const uint8_t *)buf, (const uint8_t *)buf + buf_len);
+
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+}
+
+/* Overwrite the compressed size in both the local header and the central directory */
+static void test_set_compressed_size(std::vector<uint8_t> &zip_buf, uint32_t value) {
+    for (size_t i = 0; i + 4 < zip_buf.size(); i += 1) {
+        size_t offset = 0;
+        if (memcmp(&zip_buf[i], "PK\x03\x04", 4) == 0)
+            offset = i + 18;
+        else if (memcmp(&zip_buf[i], "PK\x01\x02", 4) == 0)
+            offset = i + 20;
+        else
+            continue;
+        ASSERT_LT(offset + 4, zip_buf.size());
+        for (int32_t b = 0; b < 4; b += 1)
+            zip_buf[offset + b] = (uint8_t)((value >> (8 * b)) & 0xff);
+    }
+}
+
+/* An entry that cannot hold the encryption header and footer must be rejected as malformed */
+static void test_undersized_compressed_size(uint16_t aes_version) {
+    std::vector<uint8_t> zip_buf;
+    std::vector<uint8_t> data(100000, 'A');
+    void *mem_stream = NULL;
+    void *reader = NULL;
+
+    ASSERT_NO_FATAL_FAILURE(test_build_crypt_zip(zip_buf, data.data(), (int32_t)data.size(), aes_version));
+    ASSERT_NO_FATAL_FAILURE(test_set_compressed_size(zip_buf, 5));
+
+    mem_stream = mz_stream_mem_create();
+    ASSERT_NE(mem_stream, nullptr);
+    mz_stream_mem_set_buffer(mem_stream, zip_buf.data(), (int32_t)zip_buf.size());
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_READ), MZ_OK);
+
+    reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    mz_zip_reader_set_password(reader, "hello");
+    ASSERT_EQ(mz_zip_reader_open(reader, mem_stream), MZ_OK);
+    EXPECT_EQ(mz_zip_reader_goto_first_entry(reader), MZ_OK);
+    EXPECT_EQ(mz_zip_reader_entry_open(reader), MZ_FORMAT_ERROR);
+
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+}
+
+#endif
+
+#ifdef HAVE_WZAES
+TEST(zip_reader_crypt, aes_undersized_compressed_size) {
+    test_undersized_compressed_size(MZ_AES_VERSION);
+}
+#endif
+
+#ifdef HAVE_PKCRYPT
+TEST(zip_reader_crypt, pkcrypt_undersized_compressed_size) {
+    test_undersized_compressed_size(0);
 }
 #endif

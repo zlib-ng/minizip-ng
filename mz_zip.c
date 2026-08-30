@@ -1855,7 +1855,11 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
                     max_total_in -= footer_size;
 
-                mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
+                /* Reject an entry whose compressed size cannot hold the encryption header and footer */
+                if (max_total_in < 0)
+                    err = MZ_FORMAT_ERROR;
+                else
+                    mz_stream_set_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN_MAX, max_total_in);
             }
 
             switch (zip->file_info.compression_method) {
@@ -1876,9 +1880,11 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
             }
         }
 
-        mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
+        if (err == MZ_OK) {
+            mz_stream_set_base(zip->compress_stream, zip->crypt_stream);
 
-        err = mz_stream_open(zip->compress_stream, NULL, zip->open_mode);
+            err = mz_stream_open(zip->compress_stream, NULL, zip->open_mode);
+        }
     }
 
     if (err == MZ_OK) {
