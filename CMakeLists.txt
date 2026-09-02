@@ -494,8 +494,13 @@ if(WIN32)
     set(MZ_LIBBSD OFF)
     set(MZ_ICONV OFF)
 else()
-    list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE)
+    list(APPEND STDLIB_DEF -D_BSD_SOURCE -D_DEFAULT_SOURCE)
     list(APPEND MINIZIP_SRC mz_os_posix.c mz_strm_os_posix.c)
+
+    check_symbol_exists(_POSIX_C_SOURCE "features.h" HAVE_POSIX_C_SOURCE)
+    if (NOT HAVE_POSIX_C_SOURCE)
+        list(APPEND STDLIB_DEF -D_POSIX_C_SOURCE=200809L)
+    endif()
 
     if(APPLE)
         # Despite being part of POSIX 2008, macOS thinks that O_NOFOLLOW is still a non-standard extension
