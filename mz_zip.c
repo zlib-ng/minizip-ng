@@ -2098,6 +2098,8 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len) {
 
 int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compressed_size, int64_t *uncompressed_size) {
     mz_zip *zip = (mz_zip *)handle;
+    int64_t end_pos = 0;
+    int64_t end_disk_number = 0;
     int64_t total_in = 0;
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
@@ -2120,6 +2122,10 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
 
     if ((zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) &&
         ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0) && (crc32 || compressed_size || uncompressed_size)) {
+        /* Save the disk number and position we are to seek back after reading data descriptor */
+        end_pos = mz_stream_tell(zip->stream);
+        mz_stream_get_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, &end_disk_number);
+
         /* Check to see if data descriptor is zip64 bit format or not */
         if (mz_zip_extrafield_contains(zip->local_file_info.extrafield, zip->local_file_info.extrafield_size,
                                        MZ_ZIP_EXTENSION_ZIP64, NULL) == MZ_OK) {
@@ -2139,6 +2145,10 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
         /* Read data descriptor */
         if (err == MZ_OK)
             err = mz_zip_entry_read_descriptor(zip->stream, zip64, crc32, compressed_size, uncompressed_size);
+
+        /* Restore disk number and position */
+        mz_stream_set_prop_int64(zip->stream, MZ_STREAM_PROP_DISK_NUMBER, end_disk_number);
+        mz_stream_seek(zip->stream, end_pos, MZ_SEEK_SET);
     }
 
     /* If entire entry was not read verification will fail */
