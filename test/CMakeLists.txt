@@ -61,6 +61,7 @@ set(TEST_SRCS
     test_encoding.cc
     test_file.cc
     test_path.cc
+    test_reader.cc
     test_stream.cc
     test_stream_compress.cc
     test_stream_crypt.cc

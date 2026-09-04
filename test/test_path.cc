@@ -12,6 +12,8 @@
 #include "mz_os.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <cstring>
 #include <gtest/gtest.h>
 
 struct resolve_path_param {
