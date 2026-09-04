@@ -168,3 +168,13 @@ TEST_P(symlink_target_base, os) {
     else
         EXPECT_NE(err, MZ_OK);
 }
+
+/* An overlong target must be validated in full rather than truncated to a safe prefix. The
+   traversal is placed past 1024 bytes so a fixed-size buffer would drop it and pass the check. */
+TEST(symlink_target_base, rejects_overlong_escaping_target) {
+    std::string target(1100, 'a');
+    target += "/../../outside/escaped.txt";
+
+    int32_t err = mz_path_is_symlink_target_safe("base/link", target.c_str(), "base");
+    EXPECT_NE(err, MZ_OK);
+}

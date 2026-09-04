@@ -296,7 +296,7 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
-    size_t max_path = 1024;
+    size_t max_path = 0;
     size_t base_len = 0;
     size_t parent_len = 0;
     int32_t err = MZ_OK;
@@ -313,6 +313,8 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     /* Remove trailing slash from base_path for comparison */
     while (base_len > 0 && mz_os_is_dir_separator(base_path[base_len - 1]))
         base_len--;
+
+    max_path = strlen(link_path) + strlen(target) + 2;
 
     combined = (char *)calloc(1, max_path);
     resolved = (char *)calloc(1, max_path);
