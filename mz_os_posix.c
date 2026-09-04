@@ -317,7 +317,10 @@ int32_t mz_os_get_file_attribs(const char *path, uint32_t *attributes) {
 int32_t mz_os_set_file_attribs(const char *path, uint32_t attributes) {
     int32_t err = MZ_OK;
 
-    if (chmod(path, (mode_t)attributes) == -1)
+    /* Strip setuid, setgid, and sticky bits so a crafted archive cannot create a setuid file */
+    mode_t mode = (mode_t)attributes & ~(mode_t)(S_ISUID | S_ISGID | S_ISVTX);
+
+    if (chmod(path, mode) == -1)
         err = MZ_INTERNAL_ERROR;
 
     return err;

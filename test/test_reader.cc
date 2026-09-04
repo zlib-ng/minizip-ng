@@ -16,11 +16,15 @@
 
 #include <gtest/gtest.h>
 
+#include <cstring>
 #include <string>
 
-#if !defined(_WIN32) && defined(HAVE_SYMLINK)
+#if !defined(_WIN32)
 #  include <sys/stat.h>
 #  include <unistd.h>
+#endif
+
+#if !defined(_WIN32) && defined(HAVE_SYMLINK)
 
 class zip_reader_symlink_test : public ::testing::Test {
   protected:
@@ -110,5 +114,50 @@ TEST_F(zip_reader_symlink_test, rejects_directory_entry_without_destination) {
 
     EXPECT_NE(mz_zip_reader_save_all(reader, nullptr), MZ_OK);
     EXPECT_NE(mz_os_is_dir(escaped_directory.c_str()), MZ_OK);
+}
+#endif
+
+#if !defined(_WIN32)
+/* A crafted archive must not produce a setuid file on extraction */
+TEST(zip_reader_attribs, strips_setuid_bits) {
+    char destination[] = "/tmp/minizip-attribs-test-XXXXXX";
+    ASSERT_NE(mkdtemp(destination), nullptr);
+
+    std::string archive = std::string(destination) + "/archive.zip";
+    std::string extracted = std::string(destination) + "/setuid_entry";
+
+    mz_zip_file file_info;
+    memset(&file_info, 0, sizeof(file_info));
+    file_info.filename = "setuid_entry";
+    file_info.version_madeby = (MZ_HOST_SYSTEM_UNIX << 8) | MZ_VERSION_MADEBY_ZIP_VERSION;
+    file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+    file_info.flag = MZ_ZIP_FLAG_UTF8;
+    file_info.external_fa = (uint32_t)((S_ISUID | S_ISGID | S_ISVTX | 0755) << 16);
+
+    void *writer = mz_zip_writer_create();
+    ASSERT_NE(writer, nullptr);
+    ASSERT_EQ(mz_zip_writer_open_file(writer, archive.c_str(), 0, 0), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_add_buffer(writer, (void *)"data", 4, &file_info), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_close(writer), MZ_OK);
+    mz_zip_writer_delete(&writer);
+
+    void *reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
+    EXPECT_EQ(mz_zip_reader_save_all(reader, destination), MZ_OK);
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+
+    struct stat entry_stat;
+    memset(&entry_stat, 0, sizeof(entry_stat));
+    ASSERT_EQ(stat(extracted.c_str(), &entry_stat), 0);
+
+    /* The special bits are stripped while the ordinary permission bits are kept */
+    EXPECT_EQ(entry_stat.st_mode & (S_ISUID | S_ISGID | S_ISVTX), 0u);
+    EXPECT_EQ(entry_stat.st_mode & 0777, 0755u);
+
+    unlink(extracted.c_str());
+    unlink(archive.c_str());
+    rmdir(destination);
 }
 #endif
