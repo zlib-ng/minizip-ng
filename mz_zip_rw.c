@@ -538,8 +538,8 @@ int32_t mz_zip_reader_entry_get_hash(void *handle, uint16_t algorithm, uint8_t *
             err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
         if ((err == MZ_OK) && (cur_algorithm == algorithm) && (cur_digest_size <= digest_size) &&
             (cur_digest_size <= MZ_HASH_MAX_SIZE)) {
-            /* Read hash digest */
-            if (mz_stream_read(file_extra_stream, digest, digest_size) == cur_digest_size)
+            /* Read only this record's validated digest size, not the caller-supplied length */
+            if (mz_stream_read(file_extra_stream, digest, cur_digest_size) == cur_digest_size)
                 return_err = MZ_OK;
             break;
         } else {
