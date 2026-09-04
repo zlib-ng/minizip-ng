@@ -950,7 +950,10 @@ int32_t mz_zip_reader_save_all(void *handle, const char *destination_dir) {
         if (destination_dir)
             mz_path_combine(path, destination_dir, resolved_name_size);
 
-        mz_path_combine(path, resolved_name, resolved_name_size);
+        /* Force the entry name to stay under the destination so an absolute path cannot escape */
+        err = mz_path_combine_safe(path, resolved_name, resolved_name_size);
+        if (err != MZ_OK)
+            break;
 
         /* Save file to disk */
         err = mz_zip_reader_entry_save_file(reader, path);
