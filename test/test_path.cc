@@ -68,6 +68,59 @@ TEST_P(path_resolve, os) {
     EXPECT_STREQ(output, expected_path.c_str());
 }
 
+struct combine_safe_param {
+    const char *base;
+    const char *join;
+    const char *expected_path; /* nullptr when the join is expected to be rejected */
+
+    friend std::ostream &operator<<(std::ostream &os, const combine_safe_param &param) {
+        return os << "base: " << param.base << " join: " << param.join;
+    }
+};
+
+constexpr combine_safe_param combine_safe_tests[] = {
+    /* Relative joins are combined unchanged */
+    {"dest",     "sub\\file",   "dest\\sub\\file"},
+    /* Leading separators and drive letters are stripped so the join stays relative */
+    {"dest", "\\etc\\passwd", "dest\\etc\\passwd"},
+    {"dest",       "\\\\\\a",           "dest\\a"},
+    {"dest",      "c:\\evil",        "dest\\evil"},
+    /* An empty base keeps the stripped join */
+    {    "",      "\\abs\\f",            "abs\\f"},
+    /* A join that strips down to nothing is rejected */
+    {"dest",            "\\",             nullptr},
+    {"dest",              "",             nullptr},
+};
+
+class path_combine_safe : public ::testing::TestWithParam<combine_safe_param> {};
+
+INSTANTIATE_TEST_SUITE_P(os, path_combine_safe, testing::ValuesIn(combine_safe_tests));
+
+TEST_P(path_combine_safe, os) {
+    const auto &param = GetParam();
+    std::string base = param.base;
+    std::string join = param.join;
+    std::string expected_path = param.expected_path ? param.expected_path : "";
+
+    if (!mz_os_is_dir_separator('\\')) {
+        std::replace(base.begin(), base.end(), '\\', '/');
+        std::replace(join.begin(), join.end(), '\\', '/');
+        std::replace(expected_path.begin(), expected_path.end(), '\\', '/');
+    }
+
+    char output[256];
+    memset(output, 0, sizeof(output));
+    strncpy(output, base.c_str(), sizeof(output) - 1);
+
+    int32_t err = mz_path_combine_safe(output, join.c_str(), sizeof(output));
+    if (param.expected_path) {
+        EXPECT_EQ(err, MZ_OK);
+        EXPECT_STREQ(output, expected_path.c_str());
+    } else {
+        EXPECT_NE(err, MZ_OK);
+    }
+}
+
 struct symlink_base_param {
     const char *link_path;
     const char *target;

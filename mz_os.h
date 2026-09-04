@@ -73,6 +73,9 @@ extern "C" {
 int32_t mz_path_combine(char *path, const char *join, int32_t max_path);
 /* Combines two paths */
 
+int32_t mz_path_combine_safe(char *path, const char *join, int32_t max_path);
+/* Combines two paths, forcing join to stay relative so it cannot escape path */
+
 int32_t mz_path_append_slash(char *path, int32_t max_path, char slash);
 /* Appends a path slash on to the end of the path */
 
