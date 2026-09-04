@@ -733,8 +733,9 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         goto save_cleanup;
     }
 
-    /* Check if file exists and ask if we want to overwrite */
-    if (reader->overwrite_cb && mz_os_file_exists(pathwfs) == MZ_OK) {
+    /* Check if a file or symlink exists and ask if we want to overwrite. A dangling symlink is
+       reported absent by stat, so check for the link itself as well. */
+    if (reader->overwrite_cb && (mz_os_file_exists(pathwfs) == MZ_OK || mz_os_is_symlink(pathwfs) == MZ_OK)) {
         err_cb = reader->overwrite_cb(reader, reader->overwrite_userdata, reader->file_info, pathwfs);
         if (err_cb != MZ_OK)
             goto save_cleanup;
@@ -794,6 +795,14 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         goto save_cleanup;
     }
 
+    /* Remove any symlink still at the output path so file creation writes a new file rather
+       than following the link to a location outside the destination */
+    if (mz_os_is_symlink(pathwfs) == MZ_OK) {
+        err = mz_os_unlink(pathwfs);
+        if (err != MZ_OK)
+            goto save_cleanup;
+    }
+
     /* Create the file on disk so we can save to it */
     stream = mz_stream_os_create();
     if (!stream) {
@@ -801,7 +810,8 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         goto save_cleanup;
     }
 
-    err = mz_stream_os_open(stream, pathwfs, MZ_OPEN_MODE_CREATE);
+    /* Refuse to follow a symlink planted at the path after the check above */
+    err = mz_stream_os_open(stream, pathwfs, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_NOFOLLOW);
 
     if (err == MZ_OK)
         err = mz_zip_reader_entry_save(reader, stream, mz_stream_write);
