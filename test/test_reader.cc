@@ -281,6 +281,7 @@ static void test_build_crypt_zip(std::vector<uint8_t> &zip_buf, const uint8_t *d
 
     ASSERT_EQ(mz_zip_writer_entry_open(writer, &file_info), MZ_OK);
     EXPECT_EQ(mz_zip_writer_entry_write(writer, data, size), size);
+    EXPECT_EQ(mz_zip_writer_entry_close(writer), MZ_OK);
     EXPECT_EQ(mz_zip_writer_close(writer), MZ_OK);
     mz_zip_writer_delete(&writer);
 
