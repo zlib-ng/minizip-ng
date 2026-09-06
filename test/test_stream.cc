@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
+
 typedef void (*stream_test_cb)(const char *name, int32_t count, const uint8_t *find, int32_t find_size,
                                mz_stream_find_cb find_cb);
 
@@ -230,4 +232,20 @@ TEST_P(stream_find, find) {
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
         param.test_cb(param.name, 2096, (const uint8_t *)find, c, param.find_cb);
+}
+
+/* A negative read length sign-extends to a huge length in the OS backends, so reject it outright */
+TEST(stream, read_negative_size) {
+    void *mem_stream = mz_stream_mem_create();
+    uint8_t buf[16];
+
+    ASSERT_NE(mem_stream, nullptr);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
+
+    EXPECT_EQ(mz_stream_read(mem_stream, buf, -1), MZ_PARAM_ERROR);
+    EXPECT_EQ(mz_stream_read(mem_stream, buf, INT32_MIN), MZ_PARAM_ERROR);
+    EXPECT_EQ(mz_stream_read(mem_stream, buf, 0), 0);
+
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
 }
