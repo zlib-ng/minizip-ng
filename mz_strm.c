@@ -33,10 +33,7 @@ int32_t mz_stream_is_open(void *stream) {
 
 int32_t mz_stream_read(void *stream, void *buf, int32_t size) {
     mz_stream *strm = (mz_stream *)stream;
-    if (!strm || !strm->vtbl || !strm->vtbl->read)
-        return MZ_PARAM_ERROR;
-    /* A negative size sign-extends to a huge length in fread/ReadFile and overflows the caller's buffer */
-    if (size < 0)
+    if (!strm || !strm->vtbl || !strm->vtbl->read || size < 0)
         return MZ_PARAM_ERROR;
     if (mz_stream_is_open(strm) != MZ_OK)
         return MZ_STREAM_ERROR;

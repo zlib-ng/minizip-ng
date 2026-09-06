@@ -1855,7 +1855,6 @@ static int32_t mz_zip_entry_open_int(void *handle, uint8_t raw, int16_t compress
                 if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
                     max_total_in -= footer_size;
 
-                /* Reject an entry whose compressed size cannot hold the encryption header and footer */
                 if (max_total_in < 0)
                     err = MZ_FORMAT_ERROR;
                 else
