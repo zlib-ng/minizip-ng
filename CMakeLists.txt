@@ -173,6 +173,27 @@ check_function_exists(readlink HAVE_READLINK)
 configure_file(mz_config.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/mz_config.h @ONLY NEWLINE_STYLE UNIX)
 list(APPEND MINIZIP_HDR ${CMAKE_CURRENT_BINARY_DIR}/mz_config.h)
 
+#
+# Check whether a sanitizer was requested
+#
+message(STATUS "Checking for sanitizer option")
+
+string(TOLOWER "${MZ_SANITIZER}" MZ_SANITIZER)
+if(NOT MZ_SANITIZER)
+    message(STATUS " sanitizer not enabled")
+elseif(MZ_SANITIZER STREQUAL "address")
+    add_address_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "memory")
+    add_memory_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "thread")
+    add_thread_sanitizer()
+elseif(MZ_SANITIZER STREQUAL "undefined")
+    add_undefined_sanitizer()
+else()
+    message(FATAL_ERROR "Unknown MZ_SANITIZER option: '${MZ_SANITIZER}'\n"
+                        "MZ_SANITIZER must be one of: 'memory', 'address', 'undefined', 'thread'")
+endif()
+
 if(MZ_LIBCOMP)
     if(APPLE)
         # Use Apple libcompression
@@ -191,6 +212,9 @@ if(MZ_LIBCOMP)
 endif()
 
 if(MZ_ZLIB)
+    set(_zlib_local_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib")
+    set(_zlib_source_build OFF)
+
     # Check if zlib is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         if (MZ_ZLIB_FLAVOR STREQUAL "zlib-ng" OR MZ_ZLIB_FLAVOR STREQUAL "auto")
@@ -219,11 +243,29 @@ if(MZ_ZLIB)
 
         set(PC_PRIVATE_DEPS "zlib")
         set(ZLIB_COMPAT ON)
-    elseif(MZ_FETCH_LIBS)
+    elseif(EXISTS "${_zlib_local_source_dir}/CMakeLists.txt" AND
+           NOT (MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS))
+        message(STATUS "Using bundled ZLIB from ${_zlib_local_source_dir}")
+
+        set(BUILD_TESTING OFF CACHE BOOL "Build zlib-ng tests" FORCE)
+        set(ZLIB_SOURCE_DIR "${_zlib_local_source_dir}")
+        set(ZLIB_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/zlib-build")
+
+        add_subdirectory("${ZLIB_SOURCE_DIR}" "${ZLIB_BINARY_DIR}" EXCLUDE_FROM_ALL)
+        set(_zlib_source_build ON)
+    elseif(MZ_FETCH_LIBS OR MZ_FORCE_FETCH_LIBS)
         set(BUILD_TESTING OFF CACHE BOOL "Build zlib-ng tests" FORCE)
 
         clone_repo(zlib https://github.com/zlib-ng/zlib-ng stable)
 
+        set(_zlib_source_build ON)
+    else()
+        message(STATUS "ZLIB library not found")
+
+        set(MZ_ZLIB OFF)
+    endif()
+
+    if(_zlib_source_build)
         list(APPEND MINIZIP_INC ${ZLIB_SOURCE_DIR})
         list(APPEND MINIZIP_INC ${ZLIB_BINARY_DIR})
 
@@ -242,10 +284,6 @@ if(MZ_ZLIB)
             list(APPEND MINIZIP_DEP zlib)
             list(APPEND MINIZIP_LIB_PUBLIC zlib)
         endif()
-    else()
-        message(STATUS "ZLIB library not found")
-
-        set(MZ_ZLIB OFF)
     endif()
 
     if(MZ_ZLIB)
@@ -273,6 +311,9 @@ if(MZ_ZLIB)
 endif()
 
 if(MZ_BZIP2)
+    set(_bzip2_local_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/third_party/bzip2")
+    set(_bzip2_source_build OFF)
+
     # Check if bzip2 is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(BZip2 QUIET)
@@ -284,9 +325,22 @@ if(MZ_BZIP2)
         list(APPEND MINIZIP_LIB BZip2::BZip2)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lbz2")
-    elseif(MZ_FETCH_LIBS)
+    elseif(EXISTS "${_bzip2_local_source_dir}/bzlib.h" AND
+           NOT (MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS))
+        message(STATUS "Using bundled BZIP2 from ${_bzip2_local_source_dir}")
+        set(BZIP2_SOURCE_DIR "${_bzip2_local_source_dir}")
+        set(_bzip2_source_build ON)
+    elseif(MZ_FETCH_LIBS OR MZ_FORCE_FETCH_LIBS)
         clone_repo(bzip2 https://sourceware.org/git/bzip2.git master)
 
+        set(_bzip2_source_build ON)
+    else()
+        message(STATUS "BZip2 library not found")
+
+        set(MZ_BZIP2 OFF)
+    endif()
+
+    if(_bzip2_source_build)
         # BZip2 repository does not support cmake so we have to create
         # the bzip2 library ourselves
         set(BZIP2_SRC
@@ -308,10 +362,6 @@ if(MZ_BZIP2)
 
         list(APPEND MINIZIP_DEP bzip2)
         list(APPEND MINIZIP_INC ${BZIP2_SOURCE_DIR})
-    else()
-        message(STATUS "BZip2 library not found")
-
-        set(MZ_BZIP2 OFF)
     endif()
 
     if(MZ_BZIP2)
@@ -325,6 +375,9 @@ if(MZ_BZIP2)
 endif()
 
 if(MZ_LZMA)
+    set(_liblzma_local_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/third_party/liblzma")
+    set(_liblzma_source_build OFF)
+
     # Check if liblzma is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(LibLZMA QUIET)
@@ -336,19 +389,33 @@ if(MZ_LZMA)
         list(APPEND MINIZIP_LIB LibLZMA::LibLZMA)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -llzma")
-    elseif(MZ_FETCH_LIBS)
+    elseif(EXISTS "${_liblzma_local_source_dir}/CMakeLists.txt" AND
+           NOT (MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS))
+        message(STATUS "Using bundled LZMA from ${_liblzma_local_source_dir}")
+
+        set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
+        set(LIBLZMA_SOURCE_DIR "${_liblzma_local_source_dir}")
+        set(LIBLZMA_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/_deps/liblzma-build")
+
+        add_subdirectory("${LIBLZMA_SOURCE_DIR}" "${LIBLZMA_BINARY_DIR}" EXCLUDE_FROM_ALL)
+        set(_liblzma_source_build ON)
+    elseif(MZ_FETCH_LIBS OR MZ_FORCE_FETCH_LIBS)
         set(BUILD_TESTING OFF CACHE BOOL "Build lzma tests" FORCE)
 
         clone_repo(liblzma https://github.com/tukaani-project/xz master)
 
-        list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
-        list(APPEND MINIZIP_DEP liblzma)
-        # liblzma's exported target references Threads::Threads
-        list(APPEND MINIZIP_DEP_PKG Threads)
+        set(_liblzma_source_build ON)
     else()
         message(STATUS "LibLZMA library not found")
 
         set(MZ_LZMA OFF)
+    endif()
+
+    if(_liblzma_source_build)
+        list(APPEND MINIZIP_INC ${LIBLZMA_SOURCE_DIR}/src/liblzma/api)
+        list(APPEND MINIZIP_DEP liblzma)
+        # liblzma's exported target references Threads::Threads
+        list(APPEND MINIZIP_DEP_PKG Threads)
     endif()
 
     if(MZ_LZMA)
@@ -362,43 +429,56 @@ if(MZ_LZMA)
 endif()
 
 if(MZ_PPMD)
-    message(STATUS "Using PPMD")
+    set(_ppmd_local_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/third_party/ppmd")
 
-    # PPMd version number below should match value in ppmd-dependabot.yml
-    clone_repo(ppmd https://github.com/ip7z/7zip "26.02")
+    if(EXISTS "${_ppmd_local_source_dir}/C/7zVersion.h" AND
+       NOT (MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS))
+        message(STATUS "Using bundled PPMD from ${_ppmd_local_source_dir}")
+        set(PPMD_SOURCE_DIR "${_ppmd_local_source_dir}")
+    elseif(MZ_FETCH_LIBS OR MZ_FORCE_FETCH_LIBS)
+        # PPMd version number below should match value in ppmd-dependabot.yml
+        clone_repo(ppmd https://github.com/ip7z/7zip "26.02")
+    else()
+        message(STATUS "PPMD source not found")
+        set(MZ_PPMD OFF)
+    endif()
 
-    # get the 7zip/PPMd version number
-    file(READ "${PPMD_SOURCE_DIR}/C/7zVersion.h" version)
-    string(REGEX MATCH "MY_VERSION_NUMBERS \"([0-9]*\.[0-9]*)\"" _ ${version})
-    set(7ZIP_VERSION_NUMBER ${CMAKE_MATCH_1})
-    message(STATUS "  Found 7Zip/PPMd ${7ZIP_VERSION_NUMBER}")
+    if(MZ_PPMD)
+        # get the 7zip/PPMd version number
+        file(READ "${PPMD_SOURCE_DIR}/C/7zVersion.h" version)
+        string(REGEX MATCH "MY_VERSION_NUMBERS \"([0-9]*\.[0-9]*)\"" _ ${version})
+        set(7ZIP_VERSION_NUMBER ${CMAKE_MATCH_1})
+        message(STATUS "  Found 7Zip/PPMd ${7ZIP_VERSION_NUMBER}")
 
-    # The PPMd repository does not support cmake so we have to create
-    # a PPMd library ourselves
-    set(PPMD_SRC
-        ${PPMD_SOURCE_DIR}/C/Ppmd8.c
-        ${PPMD_SOURCE_DIR}/C/Ppmd8Dec.c
-        ${PPMD_SOURCE_DIR}/C/Ppmd8Enc.c)
+        # The PPMd repository does not support cmake so we have to create
+        # a PPMd library ourselves
+        set(PPMD_SRC
+            ${PPMD_SOURCE_DIR}/C/Ppmd8.c
+            ${PPMD_SOURCE_DIR}/C/Ppmd8Dec.c
+            ${PPMD_SOURCE_DIR}/C/Ppmd8Enc.c)
 
-    set(PPMD_HDR
-        ${PPMD_SOURCE_DIR}/C/7zTypes.h
-        ${PPMD_SOURCE_DIR}/C/Compiler.h
-        ${PPMD_SOURCE_DIR}/C/CpuArch.h
-        ${PPMD_SOURCE_DIR}/C/Ppmd.h
-        ${PPMD_SOURCE_DIR}/C/Ppmd8.h
-        ${PPMD_SOURCE_DIR}/C/Precomp.h)
+        set(PPMD_HDR
+            ${PPMD_SOURCE_DIR}/C/7zTypes.h
+            ${PPMD_SOURCE_DIR}/C/Compiler.h
+            ${PPMD_SOURCE_DIR}/C/CpuArch.h
+            ${PPMD_SOURCE_DIR}/C/Ppmd.h
+            ${PPMD_SOURCE_DIR}/C/Ppmd8.h
+            ${PPMD_SOURCE_DIR}/C/Precomp.h)
 
-    add_library(ppmd STATIC ${PPMD_SRC} ${PPMD_HDR})
+        add_library(ppmd STATIC ${PPMD_SRC} ${PPMD_HDR})
 
-    list(APPEND MINIZIP_DEP ppmd)
-    list(APPEND MINIZIP_INC ${PPMD_SOURCE_DIR})
+        list(APPEND MINIZIP_DEP ppmd)
+        list(APPEND MINIZIP_INC ${PPMD_SOURCE_DIR})
 
-    list(APPEND MINIZIP_DEF -DHAVE_PPMD)
-    list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
-    list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
+        list(APPEND MINIZIP_DEF -DHAVE_PPMD)
+        list(APPEND MINIZIP_SRC mz_strm_ppmd.c)
+        list(APPEND MINIZIP_HDR mz_strm_ppmd.h)
+    endif()
 endif()
 
 if(MZ_ZSTD)
+    set(_zstd_local_source_dir "${CMAKE_CURRENT_SOURCE_DIR}/third_party/zstd")
+
     # Check if zstd is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(zstd QUIET CONFIG)
@@ -414,7 +494,23 @@ if(MZ_ZSTD)
         endif()
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
-    elseif(MZ_FETCH_LIBS)
+    elseif(EXISTS "${_zstd_local_source_dir}/build/cmake/CMakeLists.txt" AND
+           NOT (MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS))
+        message(STATUS "Using bundled ZSTD from ${_zstd_local_source_dir}")
+
+        set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "Build zstd programs")
+        set(ZSTD_SOURCE_DIR "${_zstd_local_source_dir}")
+
+        add_subdirectory("${ZSTD_SOURCE_DIR}/build/cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/_deps/zstd-build" EXCLUDE_FROM_ALL)
+
+        list(APPEND MINIZIP_INC ${ZSTD_SOURCE_DIR}/lib)
+        if(NOT DEFINED BUILD_SHARED_LIBS OR NOT ${BUILD_SHARED_LIBS})
+            list(APPEND MINIZIP_DEP libzstd_static)
+        else()
+            list(APPEND MINIZIP_DEP libzstd_shared)
+        endif()
+    elseif(MZ_FETCH_LIBS OR MZ_FORCE_FETCH_LIBS)
         set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "Build zstd programs")
 
         clone_repo(zstd https://github.com/facebook/zstd release build/cmake)
@@ -683,27 +779,6 @@ if(MZ_COMPAT)
     if(MZ_COMPAT_VERSION)
         list(APPEND MINIZIP_DEF -DMZ_COMPAT_VERSION=${MZ_COMPAT_VERSION})
     endif()
-endif()
-
-#
-# Check whether a sanitizer was requested
-#
-message(STATUS "Checking for sanitizer option")
-
-string(TOLOWER "${MZ_SANITIZER}" MZ_SANITIZER)
-if(NOT MZ_SANITIZER)
-    message(STATUS " sanitizer not enabled")
-elseif(MZ_SANITIZER STREQUAL "address")
-    add_address_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "memory")
-    add_memory_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "thread")
-    add_thread_sanitizer()
-elseif(MZ_SANITIZER STREQUAL "undefined")
-    add_undefined_sanitizer()
-else()
-    message(FATAL_ERROR "Unknown MZ_SANITIZER option: '${MZ_SANITIZER}'\n"
-                        "MZ_SANITIZER must be one of: 'memory', 'address', 'undefined', 'thread'")
 endif()
 
 # Set compiler options
