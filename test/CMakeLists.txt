@@ -65,6 +65,7 @@ set(TEST_SRCS
     test_stream.cc
     test_stream_compress.cc
     test_stream_crypt.cc
+    test_writer.cc
     )
 
 if(MZ_COMPAT)

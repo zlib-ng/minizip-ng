@@ -1122,6 +1122,7 @@ void mz_zip_reader_delete(void **handle) {
 
 typedef struct mz_zip_writer_s {
     void *zip_handle;
+    char *path;
     void *file_stream;
     void *buffered_stream;
     void *split_stream;
@@ -1258,10 +1259,19 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     int32_t err = MZ_OK;
     int32_t err_cb = 0;
     char directory[320];
+    char resolved_path[1024];
 
-    if (!writer)
+    if (!writer || !path)
         return MZ_PARAM_ERROR;
     mz_zip_writer_close(writer);
+
+    err = mz_path_resolve(path, resolved_path, sizeof(resolved_path));
+    if (err != MZ_OK)
+        return err;
+
+    writer->path = strdup(resolved_path);
+    if (!writer->path)
+        return MZ_MEM_ERROR;
 
     if (mz_os_file_exists(path) != MZ_OK) {
         /* If the file doesn't exist, we don't append file */
@@ -1401,6 +1411,9 @@ int32_t mz_zip_writer_close(void *handle) {
         mz_stream_mem_close(writer->mem_stream);
         mz_stream_mem_delete(&writer->mem_stream);
     }
+
+    free(writer->path);
+    writer->path = NULL;
 
     return err;
 }
@@ -1679,12 +1692,19 @@ int32_t mz_zip_writer_add_file(void *handle, const char *path, const char *filen
     uint8_t is_symlink = 0;
     void *stream = NULL;
     char link_path[1024];
+    char resolved_path[1024];
     const char *filename = filename_in_zip;
 
     if (mz_zip_writer_is_open(writer) != MZ_OK)
         return MZ_PARAM_ERROR;
     if (!path)
         return MZ_PARAM_ERROR;
+
+    if (writer->path && mz_path_resolve(path, resolved_path, sizeof(resolved_path)) == MZ_OK) {
+        /* Adding the archive to itself would grow it indefinitely */
+        if (mz_path_compare_wc(resolved_path, writer->path, 0) == MZ_OK)
+            return MZ_OK;
+    }
 
     if (!filename) {
         err = mz_path_get_filename(path, &filename);
