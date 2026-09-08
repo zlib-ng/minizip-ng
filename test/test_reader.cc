@@ -19,6 +19,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <tuple>
 
 #if !defined(_WIN32)
 #  include <sys/stat.h>
@@ -153,7 +154,8 @@ class zip_reader_confinement_test : public ::testing::Test {
     }
 
     /* Write a single stored entry with the given name and contents */
-    void write_entry(const char *filename, const char *contents) {
+    void write_entry(const char *filename, const char *contents, uint32_t external_fa = 0,
+                     const char *linkname = nullptr) {
         mz_zip_file file_info;
         void *writer = mz_zip_writer_create();
         ASSERT_NE(writer, nullptr);
@@ -163,6 +165,8 @@ class zip_reader_confinement_test : public ::testing::Test {
         file_info.version_madeby = MZ_VERSION_MADEBY;
         file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
         file_info.flag = MZ_ZIP_FLAG_UTF8;
+        file_info.external_fa = external_fa;
+        file_info.linkname = linkname;
 
         ASSERT_EQ(mz_zip_writer_open_file(writer, archive.c_str(), 0, 0), MZ_OK);
         ASSERT_EQ(mz_zip_writer_add_buffer(writer, (void *)contents, (int32_t)strlen(contents), &file_info), MZ_OK);
@@ -199,6 +203,53 @@ TEST_F(zip_reader_confinement_test, does_not_write_through_dangling_symlink) {
 
     unlink(planted.c_str());
     unlink(archive.c_str());
+}
+
+class zip_reader_symlink_option_test : public zip_reader_confinement_test,
+                                       public ::testing::WithParamInterface<std::tuple<bool, bool>> {};
+
+INSTANTIATE_TEST_SUITE_P(reader, zip_reader_symlink_option_test, testing::Combine(testing::Bool(), testing::Bool()));
+
+TEST_P(zip_reader_symlink_option_test, honors_build_option) {
+    bool from_extrafield = std::get<0>(GetParam());
+    bool overwrite = std::get<1>(GetParam());
+    bool overwrite_called = false;
+    std::string parent = destination + "/sub";
+    std::string extracted = parent + "/link";
+
+    write_entry("sub/link", "target", (uint32_t)(S_IFLNK | 0777) << 16, from_extrafield ? "target" : nullptr);
+    if (overwrite) {
+        ASSERT_EQ(mkdir(parent.c_str(), 0755), 0);
+        ASSERT_EQ(symlink("original", extracted.c_str()), 0);
+    }
+
+    reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
+    mz_zip_reader_set_overwrite_cb(reader, &overwrite_called, [](void *, void *userdata, mz_zip_file *, const char *) {
+        *static_cast<bool *>(userdata) = true;
+        return MZ_OK;
+    });
+
+#  ifdef MZ_ZIP_NO_SYMLINK
+    EXPECT_EQ(mz_zip_reader_save_all(reader, destination.c_str()), MZ_SUPPORT_ERROR);
+    EXPECT_FALSE(overwrite_called);
+    if (!overwrite) {
+        EXPECT_NE(mz_os_is_dir(parent.c_str()), MZ_OK);
+        EXPECT_NE(mz_os_is_symlink(extracted.c_str()), MZ_OK);
+        return;
+    }
+    const char *expected_target = "original";
+#  else
+    EXPECT_EQ(mz_zip_reader_save_all(reader, destination.c_str()), MZ_OK);
+    EXPECT_EQ(overwrite_called, overwrite);
+    const char *expected_target = "target";
+#  endif
+
+    char target[32];
+    EXPECT_EQ(mz_os_is_symlink(extracted.c_str()), MZ_OK);
+    ASSERT_EQ(mz_os_read_symlink(extracted.c_str(), target, sizeof(target)), MZ_OK);
+    EXPECT_STREQ(target, expected_target);
 }
 #endif
 
