@@ -244,13 +244,15 @@ int32_t mz_stream_zstd_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_zstd_close(void *stream) {
     mz_stream_zstd *zstd = (mz_stream_zstd *)stream;
+    int32_t err = MZ_OK;
 
     if (zstd->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_zstd_compress(stream, ZSTD_e_end);
-        mz_stream_zstd_flush(stream);
+        err = mz_stream_zstd_compress(stream, ZSTD_e_end);
+        if (err == MZ_OK)
+            err = mz_stream_zstd_flush(stream);
 
         ZSTD_freeCStream(zstd->zcstream);
         zstd->zcstream = NULL;
@@ -264,7 +266,7 @@ int32_t mz_stream_zstd_close(void *stream) {
 #endif
     }
     zstd->initialized = 0;
-    return MZ_OK;
+    return err;
 }
 
 int32_t mz_stream_zstd_error(void *stream) {

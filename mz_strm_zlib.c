@@ -279,13 +279,15 @@ int32_t mz_stream_zlib_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_zlib_close(void *stream) {
     mz_stream_zlib *zlib = (mz_stream_zlib *)stream;
+    int32_t err = MZ_OK;
 
     if (zlib->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_zlib_deflate(stream, Z_FINISH);
-        mz_stream_zlib_flush(stream);
+        err = mz_stream_zlib_deflate(stream, Z_FINISH);
+        if (err == MZ_OK)
+            err = mz_stream_zlib_flush(stream);
 
         ZLIB_PREFIX(deflateEnd)(&zlib->zstream);
 #endif
@@ -299,6 +301,8 @@ int32_t mz_stream_zlib_close(void *stream) {
 
     zlib->initialized = 0;
 
+    if (err != MZ_OK)
+        return err;
     if (zlib->error != Z_OK)
         return MZ_CLOSE_ERROR;
     return MZ_OK;

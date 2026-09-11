@@ -404,6 +404,7 @@ int32_t mz_stream_ppmd_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_ppmd_close(void *stream) {
     mz_stream_ppmd *ppmd = (mz_stream_ppmd *)stream;
+    int32_t err = MZ_OK;
 
 #ifndef MZ_ZIP_NO_COMPRESSION
     if (ppmd->mode & MZ_OPEN_MODE_WRITE) {
@@ -415,7 +416,7 @@ int32_t mz_stream_ppmd_close(void *stream) {
         Ppmd8_Flush_RangeEnc(&ppmd->ppmd8);
 
         /* Flush any remaining buffered output */
-        mz_stream_ppmd_flush(stream);
+        err = mz_stream_ppmd_flush(stream);
     }
 #endif
 
@@ -423,7 +424,7 @@ int32_t mz_stream_ppmd_close(void *stream) {
 
     ppmd->initialized = 0;
 
-    return MZ_OK;
+    return err;
 }
 
 int32_t mz_stream_ppmd_error(void *stream) {

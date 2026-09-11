@@ -252,13 +252,15 @@ int32_t mz_stream_libcomp_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_libcomp_close(void *stream) {
     mz_stream_libcomp *libcomp = (mz_stream_libcomp *)stream;
+    int32_t err = MZ_OK;
 
     if (libcomp->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_libcomp_deflate(stream, COMPRESSION_STREAM_FINALIZE);
-        mz_stream_libcomp_flush(stream);
+        err = mz_stream_libcomp_deflate(stream, COMPRESSION_STREAM_FINALIZE);
+        if (err == MZ_OK)
+            err = mz_stream_libcomp_flush(stream);
 #endif
     } else if (libcomp->mode & MZ_OPEN_MODE_READ) {
 #ifdef MZ_ZIP_NO_DECOMPRESSION
@@ -270,6 +272,8 @@ int32_t mz_stream_libcomp_close(void *stream) {
 
     libcomp->initialized = 0;
 
+    if (err != MZ_OK)
+        return err;
     if (libcomp->error != MZ_OK)
         return MZ_CLOSE_ERROR;
     return MZ_OK;

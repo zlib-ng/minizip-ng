@@ -347,13 +347,15 @@ int32_t mz_stream_lzma_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_lzma_close(void *stream) {
     mz_stream_lzma *lzma = (mz_stream_lzma *)stream;
+    int32_t err = MZ_OK;
 
     if (lzma->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_lzma_code(stream, LZMA_FINISH);
-        mz_stream_lzma_flush(stream);
+        err = mz_stream_lzma_code(stream, LZMA_FINISH);
+        if (err == MZ_OK)
+            err = mz_stream_lzma_flush(stream);
 
         lzma_end(&lzma->lstream);
 #endif
@@ -367,6 +369,8 @@ int32_t mz_stream_lzma_close(void *stream) {
 
     lzma->initialized = 0;
 
+    if (err != MZ_OK)
+        return err;
     if (lzma->error != LZMA_OK)
         return MZ_CLOSE_ERROR;
     return MZ_OK;

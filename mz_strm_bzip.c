@@ -255,13 +255,15 @@ int32_t mz_stream_bzip_seek(void *stream, int64_t offset, int32_t origin) {
 
 int32_t mz_stream_bzip_close(void *stream) {
     mz_stream_bzip *bzip = (mz_stream_bzip *)stream;
+    int32_t err = MZ_OK;
 
     if (bzip->mode & MZ_OPEN_MODE_WRITE) {
 #ifdef MZ_ZIP_NO_COMPRESSION
         return MZ_SUPPORT_ERROR;
 #else
-        mz_stream_bzip_compress(stream, BZ_FINISH);
-        mz_stream_bzip_flush(stream);
+        err = mz_stream_bzip_compress(stream, BZ_FINISH);
+        if (err == MZ_OK)
+            err = mz_stream_bzip_flush(stream);
 
         BZ2_bzCompressEnd(&bzip->bzstream);
 #endif
@@ -275,6 +277,8 @@ int32_t mz_stream_bzip_close(void *stream) {
 
     bzip->initialized = 0;
 
+    if (err != MZ_OK)
+        return err;
     if (bzip->error != BZ_OK)
         return MZ_CLOSE_ERROR;
     return MZ_OK;

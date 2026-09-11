@@ -60,6 +60,7 @@ set(TEST_SRCS
     test_crypt.cc
     test_encoding.cc
     test_file.cc
+    test_finalization.cc
     test_path.cc
     test_reader.cc
     test_stream.cc

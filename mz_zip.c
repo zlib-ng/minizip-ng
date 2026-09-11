@@ -2171,12 +2171,13 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
     mz_zip *zip = (mz_zip *)handle;
     int64_t end_disk_number = 0;
     int32_t err = MZ_OK;
+    int32_t close_err = MZ_OK;
     uint8_t zip64 = 0;
 
     if (!zip || mz_zip_entry_is_open(zip) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    mz_stream_close(zip->compress_stream);
+    err = mz_stream_close(zip->compress_stream);
 
     if (!zip->entry_raw)
         crc32 = zip->entry_crc32;
@@ -2192,7 +2193,9 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
     if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) {
         mz_stream_set_base(zip->crypt_stream, zip->stream);
-        err = mz_stream_close(zip->crypt_stream);
+        close_err = mz_stream_close(zip->crypt_stream);
+        if (err == MZ_OK)
+            err = close_err;
 
         mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_OUT, &compressed_size);
     }
