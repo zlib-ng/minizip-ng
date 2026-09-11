@@ -90,7 +90,7 @@ int32_t mz_zip_get_stream(void *handle, void **stream);
 /* Get a pointer to the stream used to open */
 
 int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream);
-/* Sets the stream to use for reading the central dir */
+/* Sets the stream to use for reading the central dir from cd_start_pos to the end of the stream */
 
 int32_t mz_zip_get_cd_mem_stream(void *handle, void **cd_mem_stream);
 /* Get a pointer to the stream used to store the central dir in memory */
