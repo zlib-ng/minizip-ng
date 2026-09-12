@@ -95,7 +95,8 @@ int32_t mz_stream_wzaes_open(void *stream, const char *path, int32_t mode) {
                     2 * key_length + MZ_AES_PW_VERIFY_SIZE);
 
     /* Initialize for encryption using key 1, WinZip AES starts its counter at one */
-    mz_crypt_aes_ctr_set_key(wzaes->ctr, kbuf, key_length, nonce, sizeof(nonce));
+    if (mz_crypt_aes_ctr_set_key(wzaes->ctr, kbuf, key_length, nonce, sizeof(nonce)) != MZ_OK)
+        return MZ_CRYPT_ERROR;
 
     /* Initialize for authentication using key 2 */
     mz_crypt_hmac_reset(wzaes->hmac);
@@ -153,7 +154,8 @@ int32_t mz_stream_wzaes_read(void *stream, void *buf, int32_t size) {
 
     if (read > 0) {
         mz_crypt_hmac_update(wzaes->hmac, (uint8_t *)buf, read);
-        mz_crypt_aes_ctr_encrypt(wzaes->ctr, (uint8_t *)buf, read);
+        if (mz_crypt_aes_ctr_encrypt(wzaes->ctr, (uint8_t *)buf, read) != MZ_OK)
+            return MZ_CRYPT_ERROR;
 
         wzaes->total_in += read;
     }
@@ -178,7 +180,9 @@ int32_t mz_stream_wzaes_write(void *stream, const void *buf, int32_t size) {
         memcpy(wzaes->buffer, buf_ptr, bytes_to_write);
         buf_ptr += bytes_to_write;
 
-        mz_crypt_aes_ctr_encrypt(wzaes->ctr, (uint8_t *)wzaes->buffer, bytes_to_write);
+        if (mz_crypt_aes_ctr_encrypt(wzaes->ctr, (uint8_t *)wzaes->buffer, bytes_to_write) != MZ_OK)
+            return MZ_CRYPT_ERROR;
+
         mz_crypt_hmac_update(wzaes->hmac, wzaes->buffer, bytes_to_write);
 
         written = mz_stream_write(wzaes->stream.base, wzaes->buffer, bytes_to_write);

@@ -221,7 +221,8 @@ static void mz_crypt_aes_ctr_increment(mz_crypt_aes_ctr *ctr) {
         i -= 1;
 }
 
-static void mz_crypt_aes_ctr_keystream(mz_crypt_aes_ctr *ctr, uint8_t *block, int32_t count) {
+static int32_t mz_crypt_aes_ctr_keystream(mz_crypt_aes_ctr *ctr, uint8_t *block, int32_t count) {
+    int32_t size = count * MZ_AES_BLOCK_SIZE;
     int32_t i = 0;
 
     for (i = 0; i < count; i += 1) {
@@ -230,7 +231,10 @@ static void mz_crypt_aes_ctr_keystream(mz_crypt_aes_ctr *ctr, uint8_t *block, in
     }
 
     /* Encrypt the counter blocks using ECB mode to form the next xor buffer */
-    mz_crypt_aes_encrypt(ctr->aes, NULL, 0, block, count * MZ_AES_BLOCK_SIZE);
+    if (mz_crypt_aes_encrypt(ctr->aes, NULL, 0, block, size) != size)
+        return MZ_CRYPT_ERROR;
+
+    return MZ_OK;
 }
 
 static void mz_crypt_aes_ctr_xor(uint8_t *dst, const uint8_t *src, int32_t size) {
@@ -256,6 +260,7 @@ int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
     uint8_t keystream[MZ_AES_CTR_BATCH * MZ_AES_BLOCK_SIZE];
     uint32_t pos = 0;
+    int32_t err = MZ_OK;
     int32_t i = 0;
 
     if (!ctr || !buf || size < 0)
@@ -276,7 +281,9 @@ int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
 
         blocks = (bytes + MZ_AES_BLOCK_SIZE - 1) / MZ_AES_BLOCK_SIZE;
 
-        mz_crypt_aes_ctr_keystream(ctr, keystream, blocks);
+        err = mz_crypt_aes_ctr_keystream(ctr, keystream, blocks);
+        if (err != MZ_OK)
+            break;
 
         mz_crypt_aes_ctr_xor(buf + i, keystream, bytes);
         i += bytes;
@@ -290,7 +297,7 @@ int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
     }
 
     ctr->pos = pos;
-    return MZ_OK;
+    return err;
 }
 
 int32_t mz_crypt_aes_ctr_set_key(void *handle, const void *key, int32_t key_length, const void *iv, int32_t iv_length) {
