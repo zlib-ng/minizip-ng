@@ -161,7 +161,7 @@ All input/output operations are done through the use of streams.
 To unzip from a zip file in memory pass the memory stream to the open function.
 ```c
 uint8_t *zip_buffer = NULL;
-int32_t zip_buffer_size = 0;
+int64_t zip_buffer_size = 0;
 void *mem_stream = NULL;
 void *zip_handle = NULL;
 
