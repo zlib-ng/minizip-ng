@@ -402,6 +402,16 @@ if(MZ_ZSTD)
     # Check if zstd is present
     if(NOT MZ_FORCE_FETCH_LIBS)
         find_package(zstd QUIET CONFIG)
+
+        # zstd has no CMake find module, and not every distribution installs
+        # its CMake package configuration, so fall back to pkg-config.
+        if(NOT zstd_FOUND)
+            find_package(PkgConfig QUIET)
+
+            if(PKG_CONFIG_FOUND)
+                pkg_check_modules(PC_ZSTD IMPORTED_TARGET GLOBAL libzstd)
+            endif()
+        endif()
     endif()
 
     if(zstd_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
@@ -412,6 +422,12 @@ if(MZ_ZSTD)
         else()
             list(APPEND MINIZIP_LIB zstd::libzstd_static)
         endif()
+
+        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
+    elseif(PC_ZSTD_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
+        message(STATUS "Using ZSTD ${PC_ZSTD_VERSION}")
+
+        list(APPEND MINIZIP_LIB PkgConfig::PC_ZSTD)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     elseif(MZ_FETCH_LIBS)
