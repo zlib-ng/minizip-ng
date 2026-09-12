@@ -439,7 +439,7 @@ int32_t mz_zip_reader_entry_open(void *handle) {
     }
 
     err = mz_zip_entry_read_open(reader->zip_handle, reader->raw, password);
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (err != MZ_OK)
         return err;
 
@@ -468,7 +468,7 @@ int32_t mz_zip_reader_entry_close(void *handle) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
     int32_t err_close = MZ_OK;
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     int32_t err_hash = MZ_OK;
     uint8_t computed_hash[MZ_HASH_MAX_SIZE];
     uint8_t expected_hash[MZ_HASH_MAX_SIZE];
@@ -476,7 +476,7 @@ int32_t mz_zip_reader_entry_close(void *handle) {
 
     if (!reader)
         return MZ_PARAM_ERROR;
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (reader->hash) {
         mz_crypt_sha_end(reader->hash, computed_hash, sizeof(computed_hash));
         mz_crypt_sha_delete(&reader->hash);
@@ -504,7 +504,7 @@ int32_t mz_zip_reader_entry_read(void *handle, void *buf, int32_t len) {
     if (!reader)
         return MZ_PARAM_ERROR;
     read = mz_zip_entry_read(reader->zip_handle, buf, len);
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (read > 0 && reader->hash)
         mz_crypt_sha_update(reader->hash, buf, read);
 #endif
@@ -1430,7 +1430,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
         password = password_buf;
     }
 
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK) {
         /* Start calculating hash */
         writer->hash = mz_crypt_sha_create();
@@ -1459,7 +1459,7 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
 int32_t mz_zip_writer_entry_close(void *handle) {
     mz_zip_writer *writer = (mz_zip_writer *)handle;
     int32_t err = MZ_OK;
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     const uint8_t *extrafield = NULL;
     int32_t extrafield_size = 0;
     int16_t field_length_hash = 0;
@@ -1468,7 +1468,7 @@ int32_t mz_zip_writer_entry_close(void *handle) {
 
     if (!writer)
         return MZ_PARAM_ERROR;
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (writer->hash) {
         uint16_t hash_digest_size = 0;
 
@@ -1538,7 +1538,7 @@ int32_t mz_zip_writer_entry_write(void *handle, const void *buf, int32_t len) {
     if (!writer)
         return MZ_PARAM_ERROR;
     written = mz_zip_entry_write(writer->zip_handle, buf, len);
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
     if (written > 0 && writer->hash)
         mz_crypt_sha_update(writer->hash, buf, written);
 #endif
@@ -1898,7 +1898,7 @@ int32_t mz_zip_writer_copy_from_reader(void *handle, void *reader) {
         if (mz_zip_entry_is_open(writer_zip_handle) == MZ_OK)
             mz_zip_entry_close(writer_zip_handle);
 
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
         mz_crypt_sha_delete(&writer->hash);
 #endif
 

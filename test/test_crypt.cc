@@ -23,7 +23,7 @@
 #  include <sdkddkver.h> /* _WIN32_WINNT defines */
 #endif
 
-#ifndef MZ_ZIP_NO_CRYPTO
+#ifndef MZ_ZIP_NO_CRYPT_BACKEND
 static const char *hash_test_string = "the quick and lazy fox did his thang";
 
 static void convert_buffer_to_hex_string(uint8_t *buf, int32_t buf_size, char *hex_string, int32_t max_hex_string) {
