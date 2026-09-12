@@ -182,6 +182,9 @@ pbkdf2_cleanup:
 /***************************************************************************/
 
 #if !defined(MZ_ZIP_NO_CRYPTO)
+/* Counter blocks generated per cipher call, enough to keep the AES pipeline busy */
+#  define MZ_AES_CTR_BATCH (8)
+
 /* Counter mode layered over the block cipher forward function */
 typedef struct mz_crypt_aes_ctr_s {
     void *aes;
@@ -218,8 +221,40 @@ static void mz_crypt_aes_ctr_increment(mz_crypt_aes_ctr *ctr) {
         i -= 1;
 }
 
+static void mz_crypt_aes_ctr_keystream(mz_crypt_aes_ctr *ctr, uint8_t *block, int32_t count) {
+    int32_t i = 0;
+
+    for (i = 0; i < count; i += 1) {
+        memcpy(block + i * MZ_AES_BLOCK_SIZE, ctr->nonce, MZ_AES_BLOCK_SIZE);
+        mz_crypt_aes_ctr_increment(ctr);
+    }
+
+    /* Encrypt the counter blocks using ECB mode to form the next xor buffer */
+    mz_crypt_aes_encrypt(ctr->aes, NULL, 0, block, count * MZ_AES_BLOCK_SIZE);
+}
+
+static void mz_crypt_aes_ctr_xor(uint8_t *dst, const uint8_t *src, int32_t size) {
+    int32_t i = 0;
+
+    for (; i + (int32_t)sizeof(uint64_t) <= size; i += sizeof(uint64_t)) {
+        uint64_t a = 0;
+        uint64_t b = 0;
+
+        memcpy(&a, dst + i, sizeof(a));
+        memcpy(&b, src + i, sizeof(b));
+
+        a ^= b;
+
+        memcpy(dst + i, &a, sizeof(a));
+    }
+
+    for (; i < size; i += 1)
+        dst[i] ^= src[i];
+}
+
 int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
     mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
+    uint8_t keystream[MZ_AES_CTR_BATCH * MZ_AES_BLOCK_SIZE];
     uint32_t pos = 0;
     int32_t i = 0;
 
@@ -228,18 +263,32 @@ int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
 
     pos = ctr->pos;
 
+    /* Consume whatever the previous call left of its final block */
+    for (; i < size && pos < MZ_AES_BLOCK_SIZE; i += 1, pos += 1)
+        buf[i] ^= ctr->block[pos];
+
     while (i < size) {
-        if (pos == MZ_AES_BLOCK_SIZE) {
-            /* Encrypt the counter block using ECB mode to form next xor buffer */
-            memcpy(ctr->block, ctr->nonce, MZ_AES_BLOCK_SIZE);
-            mz_crypt_aes_encrypt(ctr->aes, NULL, 0, ctr->block, sizeof(ctr->block));
+        int32_t blocks = (size - i + MZ_AES_BLOCK_SIZE - 1) / MZ_AES_BLOCK_SIZE;
+        int32_t bytes = 0;
 
-            mz_crypt_aes_ctr_increment(ctr);
+        if (blocks > MZ_AES_CTR_BATCH)
+            blocks = MZ_AES_CTR_BATCH;
 
-            pos = 0;
-        }
+        mz_crypt_aes_ctr_keystream(ctr, keystream, blocks);
 
-        buf[i++] ^= ctr->block[pos++];
+        bytes = blocks * MZ_AES_BLOCK_SIZE;
+        if (bytes > size - i)
+            bytes = size - i;
+
+        mz_crypt_aes_ctr_xor(buf + i, keystream, bytes);
+        i += bytes;
+
+        /* Save the keystream left over from the final block for the next call */
+        pos = bytes % MZ_AES_BLOCK_SIZE;
+        if (pos)
+            memcpy(ctr->block, keystream + bytes - pos, MZ_AES_BLOCK_SIZE);
+        else
+            pos = MZ_AES_BLOCK_SIZE;
     }
 
     ctr->pos = pos;
