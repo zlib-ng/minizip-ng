@@ -428,6 +428,7 @@ if(MZ_ZSTD)
         message(STATUS "Using ZSTD ${PC_ZSTD_VERSION}")
 
         list(APPEND MINIZIP_LIB PkgConfig::PC_ZSTD)
+        set(MINIZIP_ZSTD_PKGCONFIG TRUE)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     elseif(MZ_FETCH_LIBS)
@@ -818,7 +819,7 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config-version.cmake
         COMPATIBILITY SameMajorVersion)
     set(MINIZIP_CONFIG_CONTENT "@PACKAGE_INIT@\n")
-    if(MINIZIP_DEP_PKG_PUBLIC OR (MINIZIP_DEP_PKG AND NOT BUILD_SHARED_LIBS))
+    if(MINIZIP_DEP_PKG_PUBLIC OR ((MINIZIP_DEP_PKG OR MINIZIP_ZSTD_PKGCONFIG) AND NOT BUILD_SHARED_LIBS))
         string(APPEND MINIZIP_CONFIG_CONTENT "include(CMakeFindDependencyMacro)\n")
         foreach(pkg_name ${MINIZIP_DEP_PKG_PUBLIC})
             string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
@@ -829,6 +830,14 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
             foreach(pkg_name ${MINIZIP_DEP_PKG})
                 string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
             endforeach()
+            # zstd found through pkg-config is linked as the imported target
+            # PkgConfig::PC_ZSTD, which the exported targets file references but
+            # cannot define; recreate it before those targets are loaded.
+            if(MINIZIP_ZSTD_PKGCONFIG)
+                string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(PkgConfig)\n")
+                string(APPEND MINIZIP_CONFIG_CONTENT
+                    "pkg_check_modules(PC_ZSTD IMPORTED_TARGET GLOBAL libzstd)\n")
+            endif()
         endif()
     endif()
     string(APPEND MINIZIP_CONFIG_CONTENT "include(\"\${CMAKE_CURRENT_LIST_DIR}/${MINIZIP_TARGET}-targets.cmake\")")
