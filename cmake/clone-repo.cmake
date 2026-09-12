@@ -12,6 +12,12 @@ macro(clone_repo name url tag)
 
     set(_clone_repo_cmake_subdir ${ARGN})
 
+    set(_clone_repo_source_dir_args
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/${name_lower})
+    if(MZ_FORCE_FETCH_LIBS OR MZ_FETCH_LIBS)
+        set(_clone_repo_source_dir_args)
+    endif()
+
     message(STATUS "Fetching ${name} ${${name_upper}_REPOSITORY} ${${name_upper}_TAG}")
 
     # Check for FetchContent cmake support
@@ -27,7 +33,7 @@ macro(clone_repo name url tag)
             FetchContent_Declare(${name}
                 GIT_REPOSITORY ${${name_upper}_REPOSITORY}
                 GIT_TAG ${${name_upper}_TAG}
-                SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/${name_lower})
+                ${_clone_repo_source_dir_args})
 
             FetchContent_GetProperties(${name})
             if(NOT ${name_lower}_POPULATED)
@@ -38,14 +44,14 @@ macro(clone_repo name url tag)
                 FetchContent_Declare(${name}
                     GIT_REPOSITORY ${${name_upper}_REPOSITORY}
                     GIT_TAG ${${name_upper}_TAG}
-                    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/${name_lower}
+                    ${_clone_repo_source_dir_args}
                     SOURCE_SUBDIR ${_clone_repo_cmake_subdir}
                     EXCLUDE_FROM_ALL)
             else()
                 FetchContent_Declare(${name}
                     GIT_REPOSITORY ${${name_upper}_REPOSITORY}
                     GIT_TAG ${${name_upper}_TAG}
-                    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/${name_lower}
+                    ${_clone_repo_source_dir_args}
                     EXCLUDE_FROM_ALL)
             endif()
 
