@@ -705,6 +705,10 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
         return MZ_PARAM_ERROR;
     if (!reader->file_info || !path)
         return MZ_PARAM_ERROR;
+#ifdef MZ_ZIP_NO_SYMLINK
+    if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK)
+        return MZ_SUPPORT_ERROR;
+#endif
 
     pathwfs = (char *)strdup(path);
     if (!pathwfs)
@@ -756,6 +760,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
             goto save_cleanup;
     }
 
+#ifndef MZ_ZIP_NO_SYMLINK
     /* If it is a symbolic link then create symbolic link instead of writing file */
     if (mz_zip_entry_is_symlink(reader->zip_handle) == MZ_OK) {
         if (reader->file_info->linkname && *reader->file_info->linkname != 0) {
@@ -794,6 +799,7 @@ int32_t mz_zip_reader_entry_save_file(void *handle, const char *path) {
 
         goto save_cleanup;
     }
+#endif
 
     /* Remove any symlink still at the output path so file creation writes a new file rather
        than following the link to a location outside the destination */

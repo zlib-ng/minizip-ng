@@ -149,6 +149,13 @@ jobs:
             packages: clang-14 llvm-14
             gcov-exec: llvm-cov-14 gcov
 
+          - name: Ubuntu Clang No Symlink
+            os: ubuntu-latest
+            compiler: clang-14
+            cxx-compiler: clang++-14
+            cmake-args: -D MZ_SYMLINK=OFF
+            packages: clang-14 llvm-14
+
           - name: Ubuntu Clang Compress Only
             os: ubuntu-latest
             compiler: clang-14

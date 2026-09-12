@@ -86,12 +86,17 @@ cmake --build build
 | MZ_COMPRESS_ONLY    | Only support compression                                       |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                                     |      OFF      |
 | MZ_FILE32_API       | Builds using posix 32-bit file api                             |      OFF      |
+| MZ_SYMLINK          | Enables symbolic link extraction                              |      ON       |
 | MZ_BUILD_TESTS      | Builds minizip test executable                                 |      OFF      |
 | MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                               |      OFF      |
 | MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                                |      OFF      |
 | MZ_CODE_COVERAGE    | Build with code coverage flags                                 |      OFF      |
 | MZ_SANITIZER        | Build with code sanitizer (Memory, Thread, Address, Undefined) |      OFF      |
 | MZ_LIB_SUFFIX       | Library name suffix for packaging                              |               |
+
+With `MZ_SYMLINK=OFF`, extracting a symbolic-link entry returns `MZ_SUPPORT_ERROR`
+before creating directories or overwriting its destination. Checks for existing
+filesystem symlinks remain enabled.
 
 ## Third-Party Libraries
 
