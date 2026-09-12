@@ -47,6 +47,13 @@ void mz_crypt_aes_set_mode(void *handle, int32_t mode);
 void *mz_crypt_aes_create(void);
 void mz_crypt_aes_delete(void **handle);
 
+void mz_crypt_aes_ctr_reset(void *handle);
+int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size);
+int32_t mz_crypt_aes_ctr_set_key(void *handle, const void *key, int32_t key_length, const void *iv, int32_t iv_length);
+void mz_crypt_aes_ctr_set_counter(void *handle, int32_t counter);
+void *mz_crypt_aes_ctr_create(void);
+void mz_crypt_aes_ctr_delete(void **handle);
+
 void mz_crypt_hmac_reset(void *handle);
 int32_t mz_crypt_hmac_init(void *handle, const void *key, int32_t key_length);
 int32_t mz_crypt_hmac_update(void *handle, const void *buf, int32_t size);

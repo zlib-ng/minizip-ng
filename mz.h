@@ -116,6 +116,8 @@
 #define MZ_AES_MODE_ECB       (0)
 #define MZ_AES_MODE_CBC       (1)
 #define MZ_AES_MODE_GCM       (2)
+#define MZ_AES_CTR_BE         (0)
+#define MZ_AES_CTR_LE8        (1)
 #define MZ_AES_STRENGTH_128   (1)
 #define MZ_AES_STRENGTH_192   (2)
 #define MZ_AES_STRENGTH_256   (3)

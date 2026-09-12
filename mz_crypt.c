@@ -180,3 +180,127 @@ pbkdf2_cleanup:
 #endif
 
 /***************************************************************************/
+
+#if !defined(MZ_ZIP_NO_CRYPTO)
+/* Counter mode layered over the block cipher forward function */
+typedef struct mz_crypt_aes_ctr_s {
+    void *aes;
+    int32_t counter;
+    uint32_t pos;
+    uint8_t block[MZ_AES_BLOCK_SIZE];
+    uint8_t nonce[MZ_AES_BLOCK_SIZE];
+} mz_crypt_aes_ctr;
+
+void mz_crypt_aes_ctr_reset(void *handle) {
+    mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
+
+    mz_crypt_aes_reset(ctr->aes);
+
+    memset(ctr->nonce, 0, sizeof(ctr->nonce));
+    memset(ctr->block, 0, sizeof(ctr->block));
+
+    ctr->pos = MZ_AES_BLOCK_SIZE;
+}
+
+static void mz_crypt_aes_ctr_increment(mz_crypt_aes_ctr *ctr) {
+    uint32_t i = 0;
+
+    /* WinZip AES counts little endian across the low 8 bytes */
+    if (ctr->counter == MZ_AES_CTR_LE8) {
+        while (i < 8 && !++ctr->nonce[i])
+            i += 1;
+        return;
+    }
+
+    /* NIST SP 800-38A counts big endian across the whole block */
+    i = MZ_AES_BLOCK_SIZE;
+    while (i > 0 && !++ctr->nonce[i - 1])
+        i -= 1;
+}
+
+int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
+    mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
+    uint32_t pos = 0;
+    int32_t i = 0;
+
+    if (!ctr || !buf || size < 0)
+        return MZ_PARAM_ERROR;
+
+    pos = ctr->pos;
+
+    while (i < size) {
+        if (pos == MZ_AES_BLOCK_SIZE) {
+            /* Encrypt the counter block using ECB mode to form next xor buffer */
+            memcpy(ctr->block, ctr->nonce, MZ_AES_BLOCK_SIZE);
+            mz_crypt_aes_encrypt(ctr->aes, NULL, 0, ctr->block, sizeof(ctr->block));
+
+            mz_crypt_aes_ctr_increment(ctr);
+
+            pos = 0;
+        }
+
+        buf[i++] ^= ctr->block[pos++];
+    }
+
+    ctr->pos = pos;
+    return MZ_OK;
+}
+
+int32_t mz_crypt_aes_ctr_set_key(void *handle, const void *key, int32_t key_length, const void *iv, int32_t iv_length) {
+    mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
+
+    if (!ctr || !key || !key_length)
+        return MZ_PARAM_ERROR;
+    if (iv && iv_length != MZ_AES_BLOCK_SIZE)
+        return MZ_PARAM_ERROR;
+
+    mz_crypt_aes_ctr_reset(handle);
+
+    if (iv)
+        memcpy(ctr->nonce, iv, MZ_AES_BLOCK_SIZE);
+
+    mz_crypt_aes_set_mode(ctr->aes, MZ_AES_MODE_ECB);
+
+    return mz_crypt_aes_set_encrypt_key(ctr->aes, key, key_length, NULL, 0);
+}
+
+void mz_crypt_aes_ctr_set_counter(void *handle, int32_t counter) {
+    mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)handle;
+
+    ctr->counter = counter;
+}
+
+void *mz_crypt_aes_ctr_create(void) {
+    mz_crypt_aes_ctr *ctr = (mz_crypt_aes_ctr *)calloc(1, sizeof(mz_crypt_aes_ctr));
+
+    if (ctr) {
+        ctr->aes = mz_crypt_aes_create();
+        if (!ctr->aes) {
+            free(ctr);
+            return NULL;
+        }
+
+        ctr->counter = MZ_AES_CTR_BE;
+        ctr->pos = MZ_AES_BLOCK_SIZE;
+    }
+
+    return ctr;
+}
+
+void mz_crypt_aes_ctr_delete(void **handle) {
+    mz_crypt_aes_ctr *ctr = NULL;
+
+    if (!handle)
+        return;
+
+    ctr = (mz_crypt_aes_ctr *)*handle;
+    if (ctr) {
+        mz_crypt_aes_delete(&ctr->aes);
+        free(ctr);
+    }
+
+    *handle = NULL;
+}
+#endif
+
+/***************************************************************************/
