@@ -268,17 +268,15 @@ int32_t mz_crypt_aes_ctr_encrypt(void *handle, uint8_t *buf, int32_t size) {
         buf[i] ^= ctr->block[pos];
 
     while (i < size) {
-        int32_t blocks = (size - i + MZ_AES_BLOCK_SIZE - 1) / MZ_AES_BLOCK_SIZE;
-        int32_t bytes = 0;
+        int32_t bytes = size - i;
+        int32_t blocks = 0;
 
-        if (blocks > MZ_AES_CTR_BATCH)
-            blocks = MZ_AES_CTR_BATCH;
+        if (bytes > MZ_AES_CTR_BATCH * MZ_AES_BLOCK_SIZE)
+            bytes = MZ_AES_CTR_BATCH * MZ_AES_BLOCK_SIZE;
+
+        blocks = (bytes + MZ_AES_BLOCK_SIZE - 1) / MZ_AES_BLOCK_SIZE;
 
         mz_crypt_aes_ctr_keystream(ctr, keystream, blocks);
-
-        bytes = blocks * MZ_AES_BLOCK_SIZE;
-        if (bytes > size - i)
-            bytes = size - i;
 
         mz_crypt_aes_ctr_xor(buf + i, keystream, bytes);
         i += bytes;
