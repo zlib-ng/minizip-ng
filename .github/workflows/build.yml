@@ -386,6 +386,52 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+  install:
+    name: Install ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 22 pkg-config zstd and libbsd
+            os: ubuntu-22.04
+            cmake-args: -D MZ_OPENSSL=OFF
+            expect: zstd LibBSD
+
+          - name: Ubuntu zstd CMake config
+            os: ubuntu-latest
+            expect: zstd
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Install packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install libzstd-dev libbsd-dev pkg-config
+
+    - name: Build and install minizip
+      run: |
+        cmake -S . -B build ${{ matrix.cmake-args }} \
+          -D BUILD_SHARED_LIBS=OFF \
+          -D CMAKE_BUILD_TYPE=Release \
+          -D CMAKE_INSTALL_PREFIX="$PWD/prefix"
+        cmake --build build
+        cmake --install build
+
+    - name: Check package dependencies
+      run: |
+        for dep in ${{ matrix.expect }}; do
+          grep "find_dependency($dep)" prefix/lib/cmake/minizip/minizip-config.cmake
+        done
+
+    - name: Build and run consumer
+      run: |
+        cmake -S test/install -B consumer -D CMAKE_PREFIX_PATH="$PWD/prefix"
+        cmake --build consumer
+        ./consumer/consumer
+
   coverage:
     name: Upload Coverage Reports
     runs-on: ubuntu-latest
