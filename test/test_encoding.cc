@@ -59,7 +59,7 @@ TEST(zip_reader, pattern_matches_legacy_encoded_filename) {
     void *writer = mz_zip_writer_create();
     void *reader = mz_zip_reader_create();
     mz_zip_file file_info = {};
-    int32_t zip_buffer_length = 0;
+    int64_t zip_buffer_length = 0;
 
     ASSERT_NE(nullptr, mem_stream);
     ASSERT_NE(nullptr, writer);
@@ -79,7 +79,7 @@ TEST(zip_reader, pattern_matches_legacy_encoded_filename) {
     ASSERT_GT(zip_buffer_length, 0);
 
     mz_zip_reader_set_encoding(reader, MZ_ENCODING_CODEPAGE_949);
-    ASSERT_EQ(MZ_OK, mz_zip_reader_open_buffer(reader, (const uint8_t *)zip_buffer, zip_buffer_length, 1));
+    ASSERT_EQ(MZ_OK, mz_zip_reader_open_buffer(reader, (const uint8_t *)zip_buffer, (int32_t)zip_buffer_length, 1));
     mz_zip_reader_set_pattern(reader, utf8_filename, 1);
     EXPECT_EQ(MZ_OK, mz_zip_reader_goto_first_entry(reader));
 
