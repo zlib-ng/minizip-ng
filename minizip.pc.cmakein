@@ -11,4 +11,4 @@ Version: @VERSION@
 Requires.private: @PC_PRIVATE_DEPS@
 Libs: -L${libdir} -L${sharedlibdir} -l@MINIZIP_TARGET@
 Libs.private:@PC_PRIVATE_LIBS@
-Cflags: -I${includedir}
+Cflags: -I${includedir}@PC_PUBLIC_CFLAGS@

@@ -19,8 +19,10 @@ extern "C" {
 
 #include <stdint.h>
 
-#if !defined(_ZLIB_H) && !defined(ZLIB_H) && !defined(ZLIB_H_)
-#  if defined(__has_include)
+#if !defined(_ZLIB_H) && !defined(ZLIB_H) && !defined(ZLIB_H_) && !defined(ZNGLIB_H_)
+#  if defined(ZLIB_COMPAT)
+#    include <zlib.h>
+#  elif defined(__has_include)
 #    if __has_include(<zlib-ng.h>)
 #      include <zlib-ng.h>
 #    elif __has_include(<zlib.h>)
