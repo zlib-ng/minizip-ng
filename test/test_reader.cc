@@ -29,8 +29,8 @@
 #ifndef MZ_ZIP_NO_CRYPTO
 TEST(zip_reader_hash, rejects_oversized_digest) {
     const uint8_t hash_extrafield[] = {
-        0x51, 0x1a, 0x04, 0x00, /* Hash extra-field header and payload size. */
-        MZ_HASH_SHA1, 0x00, 0x01, 0x01 /* SHA-1 with a claimed 257-byte digest. */
+        0x51,         0x1a, 0x04, 0x00, /* Hash extra-field header and payload size. */
+        MZ_HASH_SHA1, 0x00, 0x01, 0x01  /* SHA-1 with a claimed 257-byte digest. */
     };
     const void *zip_buffer = nullptr;
     void *mem_stream = mz_stream_mem_create();
