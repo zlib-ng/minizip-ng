@@ -401,34 +401,19 @@ endif()
 if(MZ_ZSTD)
     # Check if zstd is present
     if(NOT MZ_FORCE_FETCH_LIBS)
-        find_package(zstd QUIET CONFIG)
-
-        # zstd has no CMake find module, and not every distribution installs
-        # its CMake package configuration, so fall back to pkg-config.
-        if(NOT zstd_FOUND)
-            find_package(PkgConfig QUIET)
-
-            if(PKG_CONFIG_FOUND)
-                pkg_check_modules(PC_ZSTD IMPORTED_TARGET GLOBAL libzstd)
-            endif()
-        endif()
+        find_package(zstd QUIET)
     endif()
 
     if(zstd_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
         message(STATUS "Using ZSTD ${zstd_VERSION}")
 
-        if(BUILD_SHARED_LIBS)
+        if(BUILD_SHARED_LIBS AND TARGET zstd::libzstd_shared)
             list(APPEND MINIZIP_LIB zstd::libzstd_shared)
-        else()
+        elseif(NOT BUILD_SHARED_LIBS AND TARGET zstd::libzstd_static)
             list(APPEND MINIZIP_LIB zstd::libzstd_static)
+        else()
+            list(APPEND MINIZIP_LIB zstd::libzstd)
         endif()
-
-        set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
-    elseif(PC_ZSTD_FOUND AND NOT MZ_FORCE_FETCH_LIBS)
-        message(STATUS "Using ZSTD ${PC_ZSTD_VERSION}")
-
-        list(APPEND MINIZIP_LIB PkgConfig::PC_ZSTD)
-        set(MINIZIP_ZSTD_PKGCONFIG TRUE)
 
         set(PC_PRIVATE_LIBS "${PC_PRIVATE_LIBS} -lzstd")
     elseif(MZ_FETCH_LIBS)
@@ -819,8 +804,11 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config-version.cmake
         COMPATIBILITY SameMajorVersion)
     set(MINIZIP_CONFIG_CONTENT "@PACKAGE_INIT@\n")
-    if(MINIZIP_DEP_PKG_PUBLIC OR ((MINIZIP_DEP_PKG OR MINIZIP_ZSTD_PKGCONFIG) AND NOT BUILD_SHARED_LIBS))
+    if(MINIZIP_DEP_PKG_PUBLIC OR (MINIZIP_DEP_PKG AND NOT BUILD_SHARED_LIBS))
         string(APPEND MINIZIP_CONFIG_CONTENT "include(CMakeFindDependencyMacro)\n")
+        string(APPEND MINIZIP_CONFIG_CONTENT "set(_minizip_module_path \"\${CMAKE_MODULE_PATH}\")\n")
+        string(APPEND MINIZIP_CONFIG_CONTENT
+            "list(INSERT CMAKE_MODULE_PATH 0 \"\${CMAKE_CURRENT_LIST_DIR}/modules\")\n")
         foreach(pkg_name ${MINIZIP_DEP_PKG_PUBLIC})
             string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
         endforeach()
@@ -830,15 +818,9 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
             foreach(pkg_name ${MINIZIP_DEP_PKG})
                 string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(${pkg_name})\n")
             endforeach()
-            # zstd found through pkg-config is linked as the imported target
-            # PkgConfig::PC_ZSTD, which the exported targets file references but
-            # cannot define; recreate it before those targets are loaded.
-            if(MINIZIP_ZSTD_PKGCONFIG)
-                string(APPEND MINIZIP_CONFIG_CONTENT "find_dependency(PkgConfig)\n")
-                string(APPEND MINIZIP_CONFIG_CONTENT
-                    "pkg_check_modules(PC_ZSTD IMPORTED_TARGET GLOBAL libzstd)\n")
-            endif()
         endif()
+        string(APPEND MINIZIP_CONFIG_CONTENT "set(CMAKE_MODULE_PATH \"\${_minizip_module_path}\")\n")
+        string(APPEND MINIZIP_CONFIG_CONTENT "unset(_minizip_module_path)\n")
     endif()
     string(APPEND MINIZIP_CONFIG_CONTENT "include(\"\${CMAKE_CURRENT_LIST_DIR}/${MINIZIP_TARGET}-targets.cmake\")")
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/minizip-config.cmake.in ${MINIZIP_CONFIG_CONTENT})
@@ -852,6 +834,8 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config-version.cmake
                   ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config.cmake
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${MINIZIP_TARGET}")
+    install(FILES cmake/Findzstd.cmake
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${MINIZIP_TARGET}/modules")
 endif()
 if(NOT SKIP_INSTALL_HDR AND NOT SKIP_INSTALL_ALL)
     install(FILES ${MINIZIP_HDR} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${MINIZIP_TARGET}")
