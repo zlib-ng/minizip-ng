@@ -1469,7 +1469,8 @@ Writes all data to the currently open entry in the zip.
 **Example**
 ```
 void *mem_stream = mz_stream_mem_create();
-mz_stream_mem_set_grow(mem_stream, 1);
+mz_stream_mem_set_grow_size(mem_stream, 1);
+mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 mz_stream_mem_write(mem_stream, "test", 4);
 mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
 
@@ -1531,7 +1532,8 @@ Adds an entry to the zip based on the info.
 **Example**
 ```
 void *mem_stream = mz_stream_mem_create();
-mz_stream_mem_set_grow(mem_stream, 1);
+mz_stream_mem_set_grow_size(mem_stream, 1);
+mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE);
 mz_stream_mem_write(mem_stream, "test", 4);
 mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET);
 
