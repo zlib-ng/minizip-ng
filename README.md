@@ -93,6 +93,24 @@ cmake --build build
 | MZ_SANITIZER        | Build with code sanitizer (Memory, Thread, Address, Undefined) |      OFF      |
 | MZ_LIB_SUFFIX       | Library name suffix for packaging                              |               |
 
+## Test
+
+Unit tests are written in C++ with [Google Test](https://github.com/google/googletest).
+
+```sh
+cmake -S . -B build -D MZ_BUILD_TESTS=ON -D MZ_BUILD_UNIT_TESTS=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+## Lint
+
+Pull requests are checked with clang-format 19 using the rules in `.clang-format`.
+
+```sh
+git clang-format --diff --commit=origin/develop
+```
+
 ## Third-Party Libraries
 
 Third-party libraries may be required based on the CMake options selected. If the system already has the library
