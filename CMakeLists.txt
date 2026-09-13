@@ -474,6 +474,8 @@ if(WIN32)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
 
     if(MZ_PKCRYPT OR MZ_WZAES)
+        list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
+
         if(MZ_OPENSSL)
             list(APPEND MINIZIP_DEP_PKG OpenSSL)
         else()
@@ -489,8 +491,6 @@ if(WIN32)
             list(APPEND MINIZIP_SRC mz_crypt_winxp.c)
             list(APPEND MINIZIP_LIB crypt32.lib)
         endif()
-    else()
-        list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPT_BACKEND)
     endif()
 
     set(MZ_LIBBSD OFF)
@@ -511,6 +511,7 @@ else()
 
     if(MZ_PKCRYPT OR MZ_WZAES)
         if(MZ_OPENSSL)
+            list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
             list(APPEND MINIZIP_DEP_PKG OpenSSL)
         else()
             if(APPLE)
@@ -523,13 +524,12 @@ else()
                 if(COMMONCRYPTO_FOUND)
                     message(STATUS "Using CommonCrypto")
 
+                    list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
                     list(APPEND MINIZIP_SRC mz_crypt_apple.c)
 
                     set(MZ_LIBBSD OFF)
                 else()
                     message(STATUS "CommonCrypto library not found")
-
-                    list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPT_BACKEND)
 
                     if(MZ_WZAES)
                         message(STATUS "WinZIP AES support requires CommonCrypto or OpenSSL")
@@ -538,8 +538,6 @@ else()
                     endif()
                 endif()
             else()
-                list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPT_BACKEND)
-
                 if(MZ_WZAES)
                     message(STATUS "WinZIP AES support requires OpenSSL")
 
@@ -591,8 +589,6 @@ else()
                 message(WARNING "Low quality entropy function used for encryption")
             endif()
         endif()
-    else()
-        list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_CRYPT_BACKEND)
     endif()
 
     # Iconv and ICU are mutually exclusive; ICU takes precedence

@@ -125,6 +125,7 @@ instance, some #defines will have to be set as they have changed.
 |HAVE_APPLE_COMPRESSION|HAVE_LIBCOMP|Compile using Apple Compression library.|
 |HAVE_AES|HAVE_WZAES|Compile using AES encryption support.|
 ||HAVE_PKCRYPT|Compile using PKWARE traditional encryption support. Previously this was automatically assumed.|
+||HAVE_CRYPT_BACKEND|Compile using an OpenSSL, CommonCrypto, or Windows crypto backend. Required by HAVE_WZAES.|
 |NOUNCRYPT|Nearest to MZ_ZIP_NO_ENCRYPTION|Previously turn off all decryption support.|
 |NOCRYPT|Nearest to MZ_ZIP_NO_ENCRYPTION|Previously turned off all encryption support.|
 ||MZ_ZIP_NO_ENCRYPTION|Turns off all encryption/decryption support.|
