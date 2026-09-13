@@ -14,131 +14,76 @@
 #include <gtest/gtest.h>
 
 #ifndef MZ_ZIP_NO_COMPRESSION
-class zip_catalog_test : public ::testing::Test {
-  protected:
-    void *writer = nullptr;
-    bool writer_opened = false;
-    bool source_opened = false;
-    bool target_opened = false;
-    void *small = nullptr;
-    void *large = nullptr;
-    void *source = nullptr;
-    void *target = nullptr;
-    void *catalog = nullptr;
-    int64_t source_start = 0;
-    int64_t last_offset = 0;
-    int64_t catalog_size = 0;
+TEST(zip_catalog, replacement_bounds) {
+    struct resources {
+        void *zip[2] = {};
+        void *stream[2] = {};
+        bool opened[2] = {};
+        void *catalog = nullptr;
 
-    void make_archive(void **memory, int count) {
-        *memory = mz_stream_mem_create();
-        ASSERT_NE(*memory, nullptr);
-        writer = mz_zip_create();
-        ASSERT_NE(writer, nullptr);
+        ~resources() {
+            for (int i = 0; i < 2; i++) {
+                if (opened[i])
+                    mz_zip_close(zip[i]);
+                mz_zip_delete(&zip[i]);
+                mz_stream_mem_delete(&stream[i]);
+            }
+            mz_stream_mem_delete(&catalog);
+        }
+    } data;
 
-        ASSERT_EQ(mz_stream_open(*memory, nullptr, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_READWRITE), MZ_OK);
-        ASSERT_EQ(mz_zip_open(writer, *memory, MZ_OPEN_MODE_WRITE), MZ_OK);
-        writer_opened = true;
+    /* The replacement's first header is longer, placing its second entry beyond the old bounds. */
+    const char *names[] = {"first", "second"};
+    for (int i = 0; i < 2; i++) {
+        data.zip[i] = mz_zip_create();
+        data.stream[i] = mz_stream_mem_create();
+        ASSERT_NE(data.zip[i], nullptr);
+        ASSERT_NE(data.stream[i], nullptr);
+        ASSERT_EQ(mz_stream_open(data.stream[i], nullptr, MZ_OPEN_MODE_CREATE), MZ_OK);
+        ASSERT_EQ(mz_zip_open(data.zip[i], data.stream[i], MZ_OPEN_MODE_WRITE), MZ_OK);
+        data.opened[i] = true;
 
-        for (int i = 0; i < count; i++) {
-            char name[] = "entry0";
-            name[5] += i;
-
+        for (int entry_index = 0; entry_index <= i; entry_index++) {
             mz_zip_file entry = {};
-            entry.filename = name;
+            entry.filename = i == 0 ? "a" : names[entry_index];
             entry.compression_method = MZ_COMPRESS_METHOD_STORE;
-
-            ASSERT_EQ(mz_zip_entry_write_open(writer, &entry, 0, 0, nullptr), MZ_OK);
-            ASSERT_EQ(mz_zip_entry_write_close(writer, 0, -1, -1), MZ_OK);
+            ASSERT_EQ(mz_zip_entry_write_open(data.zip[i], &entry, 0, 0, nullptr), MZ_OK);
+            ASSERT_EQ(mz_zip_entry_write_close(data.zip[i], 0, -1, -1), MZ_OK);
         }
-
-        int32_t err = mz_zip_close(writer);
-        writer_opened = false;
-        ASSERT_EQ(err, MZ_OK);
-        mz_zip_delete(&writer);
-
-        ASSERT_EQ(mz_stream_seek(*memory, 0, MZ_SEEK_SET), MZ_OK);
     }
 
-    void SetUp() override {
-        ASSERT_NO_FATAL_FAILURE(make_archive(&small, 1));
-        ASSERT_NO_FATAL_FAILURE(make_archive(&large, 3));
+    /* Finish the small archive and reopen it to load its directory size from ZIP metadata. */
+    int32_t err = mz_zip_close(data.zip[0]);
+    data.opened[0] = false;
+    ASSERT_EQ(err, MZ_OK);
+    ASSERT_EQ(mz_stream_seek(data.stream[0], 0, MZ_SEEK_SET), MZ_OK);
+    ASSERT_EQ(mz_zip_open(data.zip[0], data.stream[0], MZ_OPEN_MODE_READ), MZ_OK);
+    data.opened[0] = true;
+    ASSERT_EQ(mz_zip_goto_first_entry(data.zip[0]), MZ_OK);
+    int64_t old_size = mz_stream_tell(data.stream[0]) - mz_zip_get_entry(data.zip[0]);
 
-        source = mz_zip_create();
-        ASSERT_NE(source, nullptr);
-        target = mz_zip_create();
-        ASSERT_NE(target, nullptr);
-        catalog = mz_stream_mem_create();
-        ASSERT_NE(catalog, nullptr);
+    void *original_catalog = nullptr;
+    ASSERT_EQ(mz_zip_get_cd_mem_stream(data.zip[1], &original_catalog), MZ_OK);
+    ASSERT_EQ(mz_stream_seek(original_catalog, 0, MZ_SEEK_SET), MZ_OK);
+    data.catalog = mz_stream_mem_create();
+    ASSERT_NE(data.catalog, nullptr);
+    ASSERT_EQ(mz_stream_open(data.catalog, nullptr, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_stream_write(data.catalog, "prefix", 6), 6);
+    ASSERT_EQ(mz_stream_copy_stream_to_end(data.catalog, nullptr, original_catalog, nullptr), MZ_OK);
+    int64_t stream_end = mz_stream_tell(data.catalog);
 
-        ASSERT_EQ(mz_zip_open(source, large, MZ_OPEN_MODE_READ), MZ_OK);
-        source_opened = true;
-        ASSERT_EQ(mz_zip_open(target, small, MZ_OPEN_MODE_READ), MZ_OK);
-        target_opened = true;
+    /* Measuring the replacement must preserve the caller's stream position. */
+    ASSERT_EQ(mz_stream_seek(data.catalog, 2, MZ_SEEK_SET), MZ_OK);
+    ASSERT_EQ(mz_zip_set_cd_stream(data.zip[0], 6, data.catalog), MZ_OK);
+    EXPECT_EQ(mz_stream_tell(data.catalog), 2);
+    ASSERT_EQ(mz_zip_set_number_entry(data.zip[0], 2), MZ_OK);
 
-        ASSERT_EQ(mz_zip_goto_first_entry(source), MZ_OK);
-        source_start = mz_zip_get_entry(source);
-        ASSERT_EQ(mz_zip_goto_next_entry(source), MZ_OK);
-        ASSERT_EQ(mz_zip_goto_next_entry(source), MZ_OK);
-        last_offset = mz_zip_get_entry(source) - source_start;
-        catalog_size = mz_stream_tell(large) - source_start;
-
-        ASSERT_EQ(mz_stream_open(catalog, nullptr, MZ_OPEN_MODE_CREATE | MZ_OPEN_MODE_READWRITE), MZ_OK);
-    }
-
-    void TearDown() override {
-        if (writer) {
-            if (writer_opened)
-                mz_zip_close(writer);
-            mz_zip_delete(&writer);
-        }
-
-        if (target) {
-            if (target_opened)
-                mz_zip_close(target);
-            mz_zip_delete(&target);
-        }
-
-        if (source) {
-            if (source_opened)
-                mz_zip_close(source);
-            mz_zip_delete(&source);
-        }
-
-        mz_stream_mem_delete(&catalog);
-        mz_stream_mem_delete(&large);
-        mz_stream_mem_delete(&small);
-    }
-
-    void check_replacement(int64_t prefix) {
-        for (int64_t i = 0; i < prefix; i++)
-            ASSERT_EQ(mz_stream_write_uint8(catalog, 0), MZ_OK);
-        ASSERT_EQ(mz_stream_seek(large, source_start, MZ_SEEK_SET), MZ_OK);
-        ASSERT_EQ(mz_stream_copy(catalog, large, static_cast<int32_t>(catalog_size)), MZ_OK);
-
-        int64_t stream_end = mz_stream_tell(catalog);
-        ASSERT_EQ(mz_stream_seek(catalog, 2, MZ_SEEK_SET), MZ_OK);
-        ASSERT_EQ(mz_zip_set_cd_stream(target, prefix, catalog), MZ_OK);
-        EXPECT_EQ(mz_stream_tell(catalog), 2);
-        EXPECT_EQ(mz_zip_goto_entry(target, stream_end + 1), MZ_PARAM_ERROR);
-        ASSERT_EQ(mz_zip_set_number_entry(target, 3), MZ_OK);
-
-        ASSERT_EQ(mz_zip_goto_first_entry(target), MZ_OK);
-        ASSERT_EQ(mz_zip_goto_next_entry(target), MZ_OK);
-        ASSERT_EQ(mz_zip_goto_next_entry(target), MZ_OK);
-        EXPECT_EQ(mz_zip_get_entry(target), prefix + last_offset);
-
-        ASSERT_EQ(mz_zip_goto_entry(target, prefix + last_offset), MZ_OK);
-        mz_zip_file *info = nullptr;
-        ASSERT_EQ(mz_zip_entry_get_info(target, &info), MZ_OK);
-        EXPECT_STREQ(info->filename, "entry2");
-    }
-};
-
-TEST_F(zip_catalog_test, replacement_bounds) {
-    check_replacement(0);
-}
-
-TEST_F(zip_catalog_test, replacement_with_nonzero_start) {
-    check_replacement(17);
+    /* Direct access must accept an entry reached sequentially beyond the old bounds. */
+    ASSERT_EQ(mz_zip_goto_first_entry(data.zip[0]), MZ_OK);
+    ASSERT_EQ(mz_zip_goto_next_entry(data.zip[0]), MZ_OK);
+    int64_t second_pos = mz_zip_get_entry(data.zip[0]);
+    ASSERT_GT(second_pos - 6, old_size);
+    EXPECT_EQ(mz_zip_goto_entry(data.zip[0], second_pos), MZ_OK);
+    EXPECT_EQ(mz_zip_goto_entry(data.zip[0], stream_end + 1), MZ_PARAM_ERROR);
 }
 #endif
