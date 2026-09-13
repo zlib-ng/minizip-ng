@@ -200,6 +200,22 @@ TEST_F(zip_reader_confinement_test, does_not_write_through_dangling_symlink) {
     unlink(planted.c_str());
     unlink(archive.c_str());
 }
+
+/* A drive-letter-shaped prefix combined with doubled separators must not
+   escape the destination either (#1044) */
+TEST_F(zip_reader_confinement_test, rejects_doubled_separator_drive_escape) {
+    write_entry("//:/../pwned.txt", "escape");
+
+    reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
+    EXPECT_EQ(mz_zip_reader_save_all(reader, destination.c_str()), MZ_OK);
+
+    std::string escaped = outside + "/pwned.txt";
+    EXPECT_NE(mz_os_file_exists(escaped.c_str()), MZ_OK);
+
+    unlink(archive.c_str());
+}
 #endif
 
 #if !defined(_WIN32)

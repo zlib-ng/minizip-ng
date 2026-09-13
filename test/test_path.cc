@@ -81,10 +81,18 @@ struct combine_safe_param {
 constexpr combine_safe_param combine_safe_tests[] = {
     /* Relative joins are combined unchanged */
     {"dest",     "sub\\file",   "dest\\sub\\file"},
-    /* Leading separators and drive letters are stripped so the join stays relative */
+    /* Leading separators are stripped so the join stays relative */
     {"dest", "\\etc\\passwd", "dest\\etc\\passwd"},
     {"dest",       "\\\\\\a",           "dest\\a"},
+#if defined(_WIN32)
+    /* Drive letters are a Windows-only filesystem convention; only strip them there (#1044) */
     {"dest",      "c:\\evil",        "dest\\evil"},
+#else
+    /* On POSIX, "X:" is an ordinary filename, not a drive letter, and must be preserved
+       rather than stripped -- stripping it turned into a path-traversal primitive (#1044) */
+    {"dest",       "c:\\evil",     "dest\\c:\\evil"},
+    {"dest",      "W:\\..\\evil",    "dest\\W:\\..\\evil"},
+#endif
     /* An empty base keeps the stripped join */
     {    "",      "\\abs\\f",            "abs\\f"},
     /* A join that strips down to nothing is rejected */
