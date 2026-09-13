@@ -450,21 +450,100 @@ if(NOT MZ_LIBCOMP AND NOT MZ_ZLIB AND NOT MZ_ZSTD AND NOT MZ_BZIP2 AND NOT MZ_LZ
     list(APPEND MINIZIP_DEF -DMZ_ZIP_NO_COMPRESSION)
 endif()
 
-if(MZ_OPENSSL)
-    find_package(OpenSSL QUIET)
+# Crypto backend
+if(MZ_PKCRYPT OR MZ_WZAES)
+    if(MZ_OPENSSL)
+        find_package(OpenSSL QUIET)
 
-    if(OPENSSL_FOUND)
+        if(NOT OPENSSL_FOUND)
+            message(STATUS "OpenSSL library not found")
+
+            set(MZ_OPENSSL OFF)
+        endif()
+    endif()
+
+    if(NOT WIN32 AND NOT MZ_OPENSSL)
+        if(APPLE)
+            check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
+        endif()
+
+        # Check to see which random generation functions we have
+        check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
+        if(HAVE_GETRANDOM)
+            list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
+        endif()
+        check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
+        if(HAVE_ARC4RANDOM_BUF)
+            list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
+        else()
+            check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
+            if(HAVE_ARC4RANDOM)
+                list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
+            endif()
+        endif()
+
+        if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
+            find_package(PkgConfig REQUIRED)
+
+            find_package(LibBSD)
+            if(LibBSD_FOUND)
+                check_library_exists("${LibBSD_LIBRARIES}" "arc4random_buf"
+                    "${LibBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
+
+                if(HAVE_LIBBSD_ARC4RANDOM_BUF)
+                    list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
+                    list(APPEND MINIZIP_LIB LibBSD::LibBSD)
+                    list(APPEND MINIZIP_DEP_PKG LibBSD)
+                endif()
+            else()
+                set(MZ_LIBBSD OFF)
+            endif()
+        else()
+            set(MZ_LIBBSD OFF)
+        endif()
+    endif()
+
+    if(MZ_OPENSSL)
         message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
 
+        list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
         list(APPEND MINIZIP_SRC mz_crypt_openssl.c)
         list(APPEND MINIZIP_LIB OpenSSL::SSL OpenSSL::Crypto)
+        list(APPEND MINIZIP_DEP_PKG OpenSSL)
 
         # Delegate library naming to openssl.pc for portability.
         string(APPEND PC_PRIVATE_DEPS " openssl")
-    else()
-        message(STATUS "OpenSSL library not found")
+    elseif(WIN32)
+        list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
 
-        set(MZ_OPENSSL OFF)
+        # Check for existence of BCrypt API
+        set(CMAKE_REQUIRED_LIBRARIES bcrypt.lib ncrypt.lib crypt32.lib)
+        check_symbol_exists(BCryptGenRandom "windows.h;bcrypt.h" HAVE_BCRYPT)
+        set(CMAKE_REQUIRED_LIBRARIES)
+        if (HAVE_BCRYPT)
+            list(APPEND MINIZIP_SRC mz_crypt_winvista.c)
+            list(APPEND MINIZIP_LIB bcrypt.lib ncrypt.lib)
+        endif()
+
+        list(APPEND MINIZIP_SRC mz_crypt_winxp.c)
+        list(APPEND MINIZIP_LIB crypt32.lib)
+    elseif(APPLE AND COMMONCRYPTO_FOUND)
+        message(STATUS "Using CommonCrypto")
+
+        list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
+        list(APPEND MINIZIP_SRC mz_crypt_apple.c)
+        list(APPEND MINIZIP_LIB "-framework CoreFoundation" "-framework Security")
+    else()
+        if(MZ_WZAES)
+            message(STATUS "WinZIP AES support requires a crypto backend")
+
+            set(MZ_WZAES OFF)
+        endif()
+
+        if(MZ_PKCRYPT AND NOT MZ_LIBBSD AND NOT HAVE_GETRANDOM AND NOT HAVE_ARC4RANDOM_BUF
+           AND NOT HAVE_ARC4RANDOM)
+            message(WARNING "Low quality entropy function used for encryption")
+        endif()
     endif()
 endif()
 
@@ -472,26 +551,6 @@ endif()
 if(WIN32)
     list(APPEND MINIZIP_DEF -D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
     list(APPEND MINIZIP_SRC mz_os_win32.c mz_strm_os_win32.c)
-
-    if(MZ_PKCRYPT OR MZ_WZAES)
-        list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
-
-        if(MZ_OPENSSL)
-            list(APPEND MINIZIP_DEP_PKG OpenSSL)
-        else()
-            # Check for existence of BCrypt API
-            set(CMAKE_REQUIRED_LIBRARIES bcrypt.lib ncrypt.lib crypt32.lib)
-            check_symbol_exists(BCryptGenRandom "windows.h;bcrypt.h" HAVE_BCRYPT)
-            set(CMAKE_REQUIRED_LIBRARIES)
-            if (HAVE_BCRYPT)
-                list(APPEND MINIZIP_SRC mz_crypt_winvista.c)
-                list(APPEND MINIZIP_LIB bcrypt.lib ncrypt.lib)
-            endif()
-
-            list(APPEND MINIZIP_SRC mz_crypt_winxp.c)
-            list(APPEND MINIZIP_LIB crypt32.lib)
-        endif()
-    endif()
 
     set(MZ_LIBBSD OFF)
     set(MZ_ICONV OFF)
@@ -507,88 +566,6 @@ else()
     if(APPLE)
         # Despite being part of POSIX 2008, macOS thinks that O_NOFOLLOW is still a non-standard extension
         list(APPEND STDLIB_DEF -D_DARWIN_C_SOURCE)
-    endif()
-
-    if(MZ_PKCRYPT OR MZ_WZAES)
-        if(MZ_OPENSSL)
-            list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
-            list(APPEND MINIZIP_DEP_PKG OpenSSL)
-        else()
-            if(APPLE)
-                message(STATUS "Using CoreFoundation Framework")
-                message(STATUS "Using Security Framework")
-
-                list(APPEND MINIZIP_LIB "-framework CoreFoundation" "-framework Security")
-
-                check_include_file(CommonCrypto/CommonCrypto.h COMMONCRYPTO_FOUND)
-                if(COMMONCRYPTO_FOUND)
-                    message(STATUS "Using CommonCrypto")
-
-                    list(APPEND MINIZIP_DEF -DHAVE_CRYPT_BACKEND)
-                    list(APPEND MINIZIP_SRC mz_crypt_apple.c)
-
-                    set(MZ_LIBBSD OFF)
-                else()
-                    message(STATUS "CommonCrypto library not found")
-
-                    if(MZ_WZAES)
-                        message(STATUS "WinZIP AES support requires CommonCrypto or OpenSSL")
-
-                        set(MZ_WZAES OFF)
-                    endif()
-                endif()
-            else()
-                if(MZ_WZAES)
-                    message(STATUS "WinZIP AES support requires OpenSSL")
-
-                    set(MZ_WZAES OFF)
-                endif()
-            endif()
-
-            # Check to see which random generation functions we have
-            check_symbol_exists("getrandom" "sys/random.h" HAVE_GETRANDOM)
-            if(HAVE_GETRANDOM)
-                list(APPEND MINIZIP_DEF -DHAVE_GETRANDOM)
-            endif()
-            check_symbol_exists("arc4random_buf" "stdlib.h" HAVE_ARC4RANDOM_BUF)
-            if(HAVE_ARC4RANDOM_BUF)
-                list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM_BUF)
-            else()
-                check_symbol_exists("arc4random" "stdlib.h" HAVE_ARC4RANDOM)
-                if(HAVE_ARC4RANDOM)
-                    list(APPEND MINIZIP_DEF -DHAVE_ARC4RANDOM)
-                endif()
-            endif()
-
-            if(APPLE)
-                # Requires _DARWIN_C_SOURCE for arcrandom functions
-                list(APPEND MINIZIP_DEF -D_DARWIN_C_SOURCE)
-            endif()
-
-            if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
-                find_package(PkgConfig REQUIRED)
-
-                find_package(LibBSD)
-                if(LibBSD_FOUND)
-                    check_library_exists("${LibBSD_LIBRARIES}" "arc4random_buf"
-                        "${LibBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
-
-                    if(HAVE_LIBBSD_ARC4RANDOM_BUF)
-                        list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
-                        list(APPEND MINIZIP_LIB LibBSD::LibBSD)
-                        list(APPEND MINIZIP_DEP_PKG LibBSD)
-                    endif()
-                else()
-                    set(MZ_LIBBSD OFF)
-                endif()
-            else()
-                set(MZ_LIBBSD OFF)
-            endif()
-
-            if(NOT MZ_LIBBSD AND NOT HAVE_GETRANDOM AND NOT HAVE_ARC4RANDOM_BUF AND NOT HAVE_ARC4RANDOM)
-                message(WARNING "Low quality entropy function used for encryption")
-            endif()
-        endif()
     endif()
 
     # Iconv and ICU are mutually exclusive; ICU takes precedence
