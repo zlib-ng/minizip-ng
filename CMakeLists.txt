@@ -570,14 +570,15 @@ else()
             if(MZ_LIBBSD AND NOT HAVE_ARC4RANDOM_BUF)
                 find_package(PkgConfig REQUIRED)
 
-                pkg_check_modules(LIBBSD IMPORTED_TARGET GLOBAL libbsd-overlay)
-                if(LIBBSD_FOUND)
-                    check_library_exists("${LIBBSD_LIBRARIES}" "arc4random_buf"
-                        "${LIBBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
+                find_package(LibBSD)
+                if(LibBSD_FOUND)
+                    check_library_exists("${LibBSD_LIBRARIES}" "arc4random_buf"
+                        "${LibBSD_LIBRARY_DIRS}" HAVE_LIBBSD_ARC4RANDOM_BUF)
 
                     if(HAVE_LIBBSD_ARC4RANDOM_BUF)
                         list(APPEND MINIZIP_DEF -DHAVE_LIBBSD -DHAVE_ARC4RANDOM_BUF)
-                        list(APPEND MINIZIP_LIB PkgConfig::LIBBSD)
+                        list(APPEND MINIZIP_LIB LibBSD::LibBSD)
+                        list(APPEND MINIZIP_DEP_PKG LibBSD)
                     endif()
                 else()
                     set(MZ_LIBBSD OFF)
@@ -834,7 +835,7 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config-version.cmake
                   ${CMAKE_CURRENT_BINARY_DIR}/${MINIZIP_TARGET}-config.cmake
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${MINIZIP_TARGET}")
-    install(FILES cmake/Findzstd.cmake
+    install(FILES cmake/Findzstd.cmake cmake/FindLibBSD.cmake
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${MINIZIP_TARGET}/modules")
 endif()
 if(NOT SKIP_INSTALL_HDR AND NOT SKIP_INSTALL_ALL)
