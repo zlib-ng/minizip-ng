@@ -79,6 +79,7 @@ class zip_writer_test : public ::testing::Test {
 TEST_F(zip_writer_test, skips_archive_stored_in_added_directory) {
     writer = mz_zip_writer_create();
     ASSERT_NE(writer, nullptr);
+    mz_zip_writer_set_compress_method(writer, MZ_COMPRESS_METHOD_STORE);
     ASSERT_EQ(mz_zip_writer_open_file(writer, archive_path.c_str(), 0, 0), MZ_OK);
 
     /* Walk the directory as "." does, so the archive is reached by a different path */
@@ -92,6 +93,7 @@ TEST_F(zip_writer_test, skips_archive_stored_in_added_directory) {
 TEST_F(zip_writer_test, skips_archive_added_by_file) {
     writer = mz_zip_writer_create();
     ASSERT_NE(writer, nullptr);
+    mz_zip_writer_set_compress_method(writer, MZ_COMPRESS_METHOD_STORE);
     ASSERT_EQ(mz_zip_writer_open_file(writer, archive_path.c_str(), 0, 0), MZ_OK);
 
     EXPECT_EQ(mz_zip_writer_add_file(writer, archive_path.c_str(), "archive.zip"), MZ_OK);
