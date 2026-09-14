@@ -45,8 +45,10 @@ int32_t mz_path_combine_safe(char *path, const char *join, int32_t max_path) {
         return MZ_PARAM_ERROR;
 
     /* Drop a drive letter and any leading separators so an absolute join stays under path */
-    if (*join != 0 && join[1] == ':')
+#if defined(_WIN32)
+    if (*join != 0 && join[1] == ':' && isalpha((unsigned char)*join))
         join += 2;
+#endif
     while (mz_os_is_dir_separator(*join))
         join += 1;
 
