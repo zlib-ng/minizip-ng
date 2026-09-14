@@ -88,12 +88,12 @@ constexpr combine_safe_param combine_safe_tests[] = {
     /* Drive letters are a Windows-only filesystem convention; only strip them there (#1044) */
     {"dest",      "c:\\evil",        "dest\\evil"},
     /* Only an alphabetic prefix is a drive letter; "1:" must be preserved (#1044) */
-    {"dest",      "1:\\evil",     "dest\\1:\\evil"},
+    {"dest",      "1:\\evil",    "dest\\1:\\evil"},
 #else
     /* On POSIX, "X:" is an ordinary filename, not a drive letter, and must be preserved
        rather than stripped -- stripping it turned into a path-traversal primitive (#1044) */
-    {"dest",       "c:\\evil",     "dest\\c:\\evil"},
-    {"dest",      "W:\\..\\evil",    "dest\\W:\\..\\evil"},
+    {"dest", "c:\\evil", "dest\\c:\\evil"},
+    {"dest", "W:\\..\\evil", "dest\\W:\\..\\evil"},
 #endif
     /* An empty base keeps the stripped join */
     {    "",      "\\abs\\f",            "abs\\f"},

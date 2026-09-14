@@ -210,15 +210,12 @@ TEST_F(zip_reader_confinement_test, rejects_doubled_separator_drive_escape) {
     ASSERT_NE(reader, nullptr);
     ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
     EXPECT_EQ(mz_zip_reader_save_all(reader, destination.c_str()), MZ_OK);
-
     std::string escaped = outside + "/pwned.txt";
     EXPECT_NE(mz_os_file_exists(escaped.c_str()), MZ_OK);
-    
     /* Confirm the entry actually resolved inside the destination, not just
        that it avoided the specific escape path above */
     std::string expected = destination + "/pwned.txt";
     EXPECT_EQ(mz_os_file_exists(expected.c_str()), MZ_OK);
-
     unlink(expected.c_str());
     unlink(archive.c_str());
 }
