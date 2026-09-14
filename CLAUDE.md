@@ -48,5 +48,7 @@ These rules apply to comments, documentation, commit messages, and pull request 
 * Use the same title format as commits.
 * State how you are using the project and how the problem was encountered, provide sources.
 * Prove who you are.
+* Use trees to represent callstacks
+* Use tables when reporting results
 * Don't add a test plan or a TL;DR.
 * Close related issues with `Closes #123`.
