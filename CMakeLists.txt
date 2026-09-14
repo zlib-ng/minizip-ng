@@ -105,6 +105,7 @@ include(cmake/clone-repo.cmake)
 
 set(STDLIB_DEF)
 set(MINIZIP_DEF)
+set(MINIZIP_DEF_PUBLIC)
 set(MINIZIP_INC)
 set(MINIZIP_LIB)
 set(MINIZIP_LIB_PUBLIC)
@@ -139,6 +140,7 @@ set(MINIZIP_HDR
 
 set(PC_PRIVATE_LIBS)
 set(PC_PRIVATE_DEPS)
+set(PC_PUBLIC_CFLAGS)
 
 # Check for system includes
 check_include_file(dirent.h     HAVE_DIRENT_H)
@@ -252,6 +254,11 @@ if(MZ_ZLIB)
         list(APPEND MINIZIP_DEF -DHAVE_ZLIB)
         if(ZLIB_COMPAT)
             list(APPEND MINIZIP_DEF -DZLIB_COMPAT)
+            # The compat headers use it to pick zlib.h over zlib-ng.h.
+            if(MZ_COMPAT)
+                list(APPEND MINIZIP_DEF_PUBLIC -DZLIB_COMPAT)
+                set(PC_PUBLIC_CFLAGS " -DZLIB_COMPAT")
+            endif()
         endif()
         # MZ_COMPAT exposes zlib in public headers, so register it as PUBLIC.
         if(ZLIB-NG_FOUND)
@@ -765,6 +772,7 @@ else()
     target_link_libraries(${MINIZIP_TARGET} PRIVATE ${MINIZIP_LIB_PUBLIC})
 endif()
 target_compile_definitions(${MINIZIP_TARGET} PRIVATE ${STDLIB_DEF} ${MINIZIP_DEF})
+target_compile_definitions(${MINIZIP_TARGET} PUBLIC ${MINIZIP_DEF_PUBLIC})
 target_include_directories(${MINIZIP_TARGET} PRIVATE ${MINIZIP_INC})
 target_include_directories(${MINIZIP_TARGET} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
