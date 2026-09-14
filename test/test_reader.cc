@@ -213,7 +213,13 @@ TEST_F(zip_reader_confinement_test, rejects_doubled_separator_drive_escape) {
 
     std::string escaped = outside + "/pwned.txt";
     EXPECT_NE(mz_os_file_exists(escaped.c_str()), MZ_OK);
+    
+    /* Confirm the entry actually resolved inside the destination, not just
+       that it avoided the specific escape path above */
+    std::string expected = destination + "/pwned.txt";
+    EXPECT_EQ(mz_os_file_exists(expected.c_str()), MZ_OK);
 
+    unlink(expected.c_str());
     unlink(archive.c_str());
 }
 #endif

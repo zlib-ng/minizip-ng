@@ -87,6 +87,8 @@ constexpr combine_safe_param combine_safe_tests[] = {
 #if defined(_WIN32)
     /* Drive letters are a Windows-only filesystem convention; only strip them there (#1044) */
     {"dest",      "c:\\evil",        "dest\\evil"},
+    /* Only an alphabetic prefix is a drive letter; "1:" must be preserved (#1044) */
+    {"dest",      "1:\\evil",     "dest\\1:\\evil"},
 #else
     /* On POSIX, "X:" is an ordinary filename, not a drive letter, and must be preserved
        rather than stripped -- stripping it turned into a path-traversal primitive (#1044) */
