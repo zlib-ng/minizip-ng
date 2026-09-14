@@ -46,6 +46,6 @@ These rules apply to comments, documentation, commit messages, and pull request 
 ## Pull Requests
 
 * Use the same title format as commits.
-* Explain the problem and the fix without hard line wraps.
+* State how you are using the project and how the problem was encountered, provide sources.
 * Don't add a test plan or a TL;DR.
 * Close related issues with `Closes #123`.
