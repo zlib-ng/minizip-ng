@@ -1631,11 +1631,37 @@ int32_t mz_zip_get_stream(void *handle, void **stream) {
 
 int32_t mz_zip_set_cd_stream(void *handle, int64_t cd_start_pos, void *cd_stream) {
     mz_zip *zip = (mz_zip *)handle;
-    if (!zip || !cd_stream)
+    int64_t saved_pos = 0;
+    int64_t stream_end = 0;
+    int32_t err = MZ_OK;
+    int32_t restore_err = MZ_OK;
+
+    if (!zip || !cd_stream || cd_start_pos < 0)
         return MZ_PARAM_ERROR;
+
+    saved_pos = mz_stream_tell(cd_stream);
+    if (saved_pos < 0)
+        return (int32_t)saved_pos;
+
+    err = mz_stream_seek(cd_stream, 0, MZ_SEEK_END);
+    if (err == MZ_OK) {
+        stream_end = mz_stream_tell(cd_stream);
+        if (stream_end < 0)
+            err = (int32_t)stream_end;
+    }
+
+    restore_err = mz_stream_seek(cd_stream, saved_pos, MZ_SEEK_SET);
+    if (err != MZ_OK)
+        return err;
+    if (restore_err != MZ_OK)
+        return restore_err;
+    if (stream_end < cd_start_pos)
+        return MZ_PARAM_ERROR;
+
     zip->cd_offset = 0;
     zip->cd_stream = cd_stream;
     zip->cd_start_pos = cd_start_pos;
+    zip->cd_size = stream_end - cd_start_pos;
     return MZ_OK;
 }
 
