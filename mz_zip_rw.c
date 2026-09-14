@@ -1270,10 +1270,6 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     if (err != MZ_OK)
         return err;
 
-    writer->path = strdup(resolved_path);
-    if (!writer->path)
-        return MZ_MEM_ERROR;
-
     if (mz_os_file_exists(path) != MZ_OK) {
         /* If the file doesn't exist, we don't append file */
         mode |= MZ_OPEN_MODE_CREATE;
@@ -1324,8 +1320,16 @@ int32_t mz_zip_writer_open_file(void *handle, const char *path, int64_t disk_siz
     err = mz_stream_open(writer->split_stream, path, mode);
     if (err == MZ_OK)
         err = mz_zip_writer_open_int(writer, writer->split_stream, mode);
+    if (err != MZ_OK)
+        return err;
 
-    return err;
+    writer->path = strdup(resolved_path);
+    if (!writer->path) {
+        mz_zip_writer_close(writer);
+        return MZ_MEM_ERROR;
+    }
+
+    return MZ_OK;
 }
 
 int32_t mz_zip_writer_open_file_in_memory(void *handle, const char *path) {
