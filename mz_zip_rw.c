@@ -54,10 +54,7 @@ typedef struct mz_zip_reader_s {
     uint8_t raw;
     uint8_t buffer[UINT16_MAX];
     int32_t encoding;
-    uint8_t sign_required;
-    uint8_t cd_verified;
     uint8_t cd_zipped;
-    uint8_t entry_verified;
     uint8_t recover;
     const char *destination_dir;
 } mz_zip_reader;
@@ -79,7 +76,6 @@ int32_t mz_zip_reader_open(void *handle, void *stream) {
 
     if (!reader)
         return MZ_PARAM_ERROR;
-    reader->cd_verified = 0;
     reader->cd_zipped = 0;
 
     reader->zip_handle = mz_zip_create();
@@ -302,8 +298,6 @@ int32_t mz_zip_reader_unzip_cd(void *handle) {
         err = mz_zip_reader_goto_first_entry(reader);
     }
 
-    reader->cd_verified = reader->entry_verified;
-
     mz_stream_mem_delete(&new_cd_stream);
     return err;
 }
@@ -417,7 +411,6 @@ int32_t mz_zip_reader_entry_open(void *handle) {
 
     if (!reader)
         return MZ_PARAM_ERROR;
-    reader->entry_verified = 0;
 
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
@@ -456,8 +449,7 @@ int32_t mz_zip_reader_entry_open(void *handle) {
 
         if (err == MZ_OK)
             mz_crypt_sha_begin(reader->hash);
-    } else if (reader->sign_required && !reader->cd_verified)
-        err = MZ_SIGN_ERROR;
+    }
 #endif
 
     return err;
