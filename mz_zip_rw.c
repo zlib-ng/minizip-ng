@@ -406,6 +406,9 @@ int32_t mz_zip_reader_locate_entry(void *handle, const char *filename, uint8_t i
 int32_t mz_zip_reader_entry_open(void *handle) {
     mz_zip_reader *reader = (mz_zip_reader *)handle;
     int32_t err = MZ_OK;
+#ifdef HAVE_CRYPT_BACKEND
+    int32_t err_hash = MZ_OK;
+#endif
     const char *password = NULL;
     char password_buf[120];
 
@@ -435,7 +438,8 @@ int32_t mz_zip_reader_entry_open(void *handle) {
     if (err != MZ_OK)
         return err;
 
-    if (mz_zip_reader_entry_get_first_hash(reader, &reader->hash_algorithm, &reader->hash_digest_size) == MZ_OK) {
+    err_hash = mz_zip_reader_entry_get_first_hash(reader, &reader->hash_algorithm, &reader->hash_digest_size);
+    if (err_hash == MZ_OK) {
         reader->hash = mz_crypt_sha_create();
         if (!reader->hash)
             return MZ_MEM_ERROR;
@@ -446,9 +450,11 @@ int32_t mz_zip_reader_entry_open(void *handle) {
             err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
         else
             err = MZ_SUPPORT_ERROR;
-
         if (err == MZ_OK)
             mz_crypt_sha_begin(reader->hash);
+    } else if (err_hash != MZ_EXIST_ERROR) {
+        mz_zip_entry_close(reader->zip_handle);
+        err = err_hash;
     }
 #endif
 
@@ -566,9 +572,12 @@ int32_t mz_zip_reader_entry_get_first_hash(void *handle, uint16_t *algorithm, ui
     if (err == MZ_OK)
         err = mz_stream_read_uint16(file_extra_stream, &cur_digest_size);
 
-    if (algorithm)
+    if ((err == MZ_OK) && (cur_digest_size > MZ_HASH_MAX_SIZE))
+        err = MZ_FORMAT_ERROR;
+
+    if ((err == MZ_OK) && algorithm)
         *algorithm = cur_algorithm;
-    if (digest_size)
+    if ((err == MZ_OK) && digest_size)
         *digest_size = cur_digest_size;
 
     mz_stream_mem_delete(&file_extra_stream);
