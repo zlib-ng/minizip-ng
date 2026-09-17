@@ -408,6 +408,7 @@ int32_t mz_zip_reader_entry_open(void *handle) {
     int32_t err = MZ_OK;
 #ifdef HAVE_CRYPT_BACKEND
     int32_t err_hash = MZ_OK;
+    uint16_t digest_size = 0;
 #endif
     const char *password = NULL;
     char password_buf[120];
@@ -440,15 +441,23 @@ int32_t mz_zip_reader_entry_open(void *handle) {
 
     err_hash = mz_zip_reader_entry_get_first_hash(reader, &reader->hash_algorithm, &reader->hash_digest_size);
     if (err_hash == MZ_OK) {
-        reader->hash = mz_crypt_sha_create();
-        if (!reader->hash)
-            err = MZ_MEM_ERROR;
-        else if (reader->hash_algorithm == MZ_HASH_SHA1)
-            err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA1);
+        if (reader->hash_algorithm == MZ_HASH_SHA1)
+            digest_size = MZ_HASH_SHA1_SIZE;
         else if (reader->hash_algorithm == MZ_HASH_SHA256)
-            err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
+            digest_size = MZ_HASH_SHA256_SIZE;
         else
             err = MZ_SUPPORT_ERROR;
+
+        if ((err == MZ_OK) && (reader->hash_digest_size != digest_size))
+            err = MZ_FORMAT_ERROR;
+
+        if (err == MZ_OK) {
+            reader->hash = mz_crypt_sha_create();
+            if (!reader->hash)
+                err = MZ_MEM_ERROR;
+            else
+                err = mz_crypt_sha_set_algorithm(reader->hash, reader->hash_algorithm);
+        }
 
         if (err == MZ_OK)
             mz_crypt_sha_begin(reader->hash);
