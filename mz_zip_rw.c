@@ -442,19 +442,23 @@ int32_t mz_zip_reader_entry_open(void *handle) {
     if (err_hash == MZ_OK) {
         reader->hash = mz_crypt_sha_create();
         if (!reader->hash)
-            return MZ_MEM_ERROR;
-
-        if (reader->hash_algorithm == MZ_HASH_SHA1)
+            err = MZ_MEM_ERROR;
+        else if (reader->hash_algorithm == MZ_HASH_SHA1)
             err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA1);
         else if (reader->hash_algorithm == MZ_HASH_SHA256)
             err = mz_crypt_sha_set_algorithm(reader->hash, MZ_HASH_SHA256);
         else
             err = MZ_SUPPORT_ERROR;
+
         if (err == MZ_OK)
             mz_crypt_sha_begin(reader->hash);
     } else if (err_hash != MZ_EXIST_ERROR) {
-        mz_zip_entry_close(reader->zip_handle);
         err = err_hash;
+    }
+
+    if (err != MZ_OK) {
+        mz_crypt_sha_delete(&reader->hash);
+        mz_zip_entry_close(reader->zip_handle);
     }
 #endif
 
