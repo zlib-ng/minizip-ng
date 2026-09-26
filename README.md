@@ -94,10 +94,6 @@ cmake --build build
 | MZ_SANITIZER        | Build with code sanitizer (Memory, Thread, Address, Undefined) |      OFF      |
 | MZ_LIB_SUFFIX       | Library name suffix for packaging                              |               |
 
-With `MZ_SYMLINK=OFF`, extracting a symbolic-link entry returns `MZ_SUPPORT_ERROR`
-before creating directories or overwriting its destination. Checks for existing
-filesystem symlinks remain enabled.
-
 ## Third-Party Libraries
 
 Third-party libraries may be required based on the CMake options selected. If the system already has the library
