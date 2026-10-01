@@ -372,7 +372,7 @@ if(MZ_PPMD)
     message(STATUS "Using PPMD")
 
     # PPMd version number below should match value in ppmd-dependabot.yml
-    clone_repo(ppmd https://github.com/ip7z/7zip "26.02")
+    clone_repo(ppmd https://github.com/ip7z/7zip "26.03")
 
     # get the 7zip/PPMd version number
     file(READ "${PPMD_SOURCE_DIR}/C/7zVersion.h" version)
