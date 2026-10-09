@@ -2130,13 +2130,21 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len) {
 int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compressed_size, int64_t *uncompressed_size) {
     mz_zip *zip = (mz_zip *)handle;
     int64_t total_in = 0;
+    int64_t stream_total_in = 0;
     int32_t err = MZ_OK;
+    int32_t close_err = MZ_OK;
     uint8_t zip64 = 0;
 
     if (!zip || mz_zip_entry_is_open(zip) != MZ_OK)
         return MZ_PARAM_ERROR;
 
     mz_stream_close(zip->compress_stream);
+
+    if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) {
+        close_err = mz_stream_close(zip->crypt_stream);
+        if (err == MZ_OK)
+            err = close_err;
+    }
 
     mz_zip_print("Zip - Entry - Read Close\n");
 
@@ -2148,8 +2156,13 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
         *uncompressed_size = zip->file_info.uncompressed_size;
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
+    stream_total_in = total_in;
+    if (zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) {
+        /* The encryption stream also consumes the header and authentication code. */
+        mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_TOTAL_IN, &stream_total_in);
+    }
 
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) &&
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) &&
         ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0) && (crc32 || compressed_size || uncompressed_size)) {
         /* Check to see if data descriptor is zip64 bit format or not */
         if (mz_zip_extrafield_contains(zip->local_file_info.extrafield, zip->local_file_info.extrafield_size,
@@ -2163,7 +2176,7 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
         if (err == MZ_OK) {
             err = mz_stream_seek(zip->stream,
                                  MZ_ZIP_SIZE_LD_ITEM + (int64_t)zip->local_file_info.filename_size +
-                                     (int64_t)zip->local_file_info.extrafield_size + total_in,
+                                     (int64_t)zip->local_file_info.extrafield_size + stream_total_in,
                                  MZ_SEEK_CUR);
         }
 
