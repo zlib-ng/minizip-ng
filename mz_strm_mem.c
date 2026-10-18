@@ -54,6 +54,11 @@ static int32_t mz_stream_mem_set_size(void *stream, int64_t size) {
     int64_t new_size = size;
     uint8_t *new_buf = NULL;
 
+    /* new_size is int64 but malloc takes size_t, so reject sizes that would truncate on a 32-bit
+       target where size_t is narrower, otherwise the allocation could be smaller than requested. */
+    if ((uint64_t)new_size > (uint64_t)SIZE_MAX)
+        return MZ_MEM_ERROR;
+
     new_buf = (uint8_t *)malloc((size_t)new_size);
     if (!new_buf)
         return MZ_BUF_ERROR;
@@ -95,14 +100,20 @@ int32_t mz_stream_mem_is_open(void *stream) {
 
 int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
+    int64_t readable_end = 0;
+    int64_t bytes_left = 0;
 
-    if (size > mem->size - mem->position)
-        size = (int32_t)(mem->size - mem->position);
-    if (mem->position + size > mem->limit)
-        size = (int32_t)(mem->limit - mem->position);
-
-    if (size <= 0)
+    /* mem->position can sit past the readable end after a seek, and mem->limit can be set above
+       mem->size, so bound the readable end to the allocation and compute the remaining count in
+       64-bit. A 32-bit difference here would wrap a negative result into a large positive length. */
+    readable_end = mem->limit;
+    if (readable_end > mem->size)
+        readable_end = mem->size;
+    bytes_left = readable_end - mem->position;
+    if (bytes_left <= 0 || size <= 0)
         return 0;
+    if (bytes_left < size)
+        size = (int32_t)bytes_left;
 
     memcpy(buf, mem->buffer + mem->position, (size_t)size);
     mem->position += size;
@@ -118,13 +129,16 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size) {
     if (!size)
         return size;
 
-    if (size > mem->size - mem->position) {
+    /* A prior seek may have moved the position far past the end, so guard the 64-bit endpoint
+       and the grow step against overflow before using them to size the buffer. */
+    if (mem->position > INT64_MAX - size)
+        return MZ_MEM_ERROR;
+
+    if (mem->position + size > mem->size) {
         if (mem->mode & MZ_OPEN_MODE_CREATE) {
-            new_size = mem->size;
-            if (size < mem->grow_size)
-                new_size += mem->grow_size;
-            else
-                new_size += size;
+            new_size = mem->position + size;
+            if (mem->size <= INT64_MAX - mem->grow_size && new_size < mem->size + mem->grow_size)
+                new_size = mem->size + mem->grow_size;
 
             err = mz_stream_mem_set_size(stream, new_size);
             if (err != MZ_OK)
@@ -151,7 +165,6 @@ int64_t mz_stream_mem_tell(void *stream) {
 int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int64_t new_pos = 0;
-    int32_t err = MZ_OK;
 
     switch (origin) {
     case MZ_SEEK_CUR:
@@ -170,14 +183,10 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     if (new_pos < 0)
         return MZ_SEEK_ERROR;
 
-    if (new_pos > mem->size) {
-        if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
-            return MZ_SEEK_ERROR;
-
-        err = mz_stream_mem_set_size(stream, new_pos);
-        if (err != MZ_OK)
-            return err;
-    }
+    /* A read-only stream cannot seek past its data. A create-mode stream can, but the buffer is
+       grown lazily by the next write rather than here, so a seek alone never allocates. */
+    if (new_pos > mem->size && (mem->mode & MZ_OPEN_MODE_CREATE) == 0)
+        return MZ_SEEK_ERROR;
 
     mem->position = new_pos;
     return MZ_OK;
