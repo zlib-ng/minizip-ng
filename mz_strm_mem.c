@@ -54,8 +54,7 @@ static int32_t mz_stream_mem_set_size(void *stream, int64_t size) {
     int64_t new_size = size;
     uint8_t *new_buf = NULL;
 
-    /* new_size is int64 but malloc takes size_t, so reject sizes that would truncate on a 32-bit
-       target where size_t is narrower, otherwise the allocation could be smaller than requested. */
+    /* reject sizes that would truncate the size_t malloc cast on 32-bit */
     if ((uint64_t)new_size > (uint64_t)SIZE_MAX)
         return MZ_MEM_ERROR;
 
@@ -103,9 +102,8 @@ int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size) {
     int64_t readable_end = 0;
     int64_t bytes_left = 0;
 
-    /* mem->position can sit past the readable end after a seek, and mem->limit can be set above
-       mem->size, so bound the readable end to the allocation and compute the remaining count in
-       64-bit. A 32-bit difference here would wrap a negative result into a large positive length. */
+    /* position may be past the end after a seek, and limit may exceed size; bound to the
+       allocation and subtract in 64-bit so the result cannot wrap negative into a large length */
     readable_end = mem->limit;
     if (readable_end > mem->size)
         readable_end = mem->size;
@@ -129,8 +127,7 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size) {
     if (!size)
         return size;
 
-    /* A prior seek may have moved the position far past the end, so guard the 64-bit endpoint
-       and the grow step against overflow before using them to size the buffer. */
+    /* position may be far past the end after a seek; guard the endpoint against int64 overflow */
     if (mem->position > INT64_MAX - size)
         return MZ_MEM_ERROR;
 
@@ -183,8 +180,7 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     if (new_pos < 0)
         return MZ_SEEK_ERROR;
 
-    /* A read-only stream cannot seek past its data. A create-mode stream can, but the buffer is
-       grown lazily by the next write rather than here, so a seek alone never allocates. */
+    /* create-mode may seek past the end; the buffer grows lazily on the next write, not here */
     if (new_pos > mem->size && (mem->mode & MZ_OPEN_MODE_CREATE) == 0)
         return MZ_SEEK_ERROR;
 

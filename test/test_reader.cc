@@ -27,9 +27,8 @@
 #endif
 
 TEST(zip_reader, rejects_out_of_bounds_eocd_offset) {
-    /* The end of central directory record names a central directory offset far past the 22 byte
-       input. Opening with copy=1 reads through a create-mode memory stream, so the read must stop
-       at the written limit and report end of stream rather than running past the buffer. */
+    /* EOCD names a central directory offset far past the 22 byte input; the copy=1 read must stop
+       at the written limit and report end of stream instead of running past the buffer */
     const uint8_t zip_buffer[] = {0x50, 0x4b, 0x05, 0x06, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                   0x00, 0xe8, 0xff, 0xff, 0xff, 0x00, 0x80, 0xff, 0xff, 0x00, 0x00};
     void *reader = mz_zip_reader_create();
