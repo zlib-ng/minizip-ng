@@ -26,6 +26,20 @@
 #  include <unistd.h>
 #endif
 
+TEST(zip_reader, rejects_out_of_bounds_eocd_offset) {
+    /* EOCD names a central directory offset far past the 22 byte input; the copy=1 read must stop
+       at the written limit and report end of stream instead of running past the buffer */
+    const uint8_t zip_buffer[] = {0x50, 0x4b, 0x05, 0x06, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                  0x00, 0xe8, 0xff, 0xff, 0xff, 0x00, 0x80, 0xff, 0xff, 0x00, 0x00};
+    void *reader = mz_zip_reader_create();
+
+    ASSERT_NE(reader, nullptr);
+    EXPECT_EQ(mz_zip_reader_open_buffer(reader, zip_buffer, (int32_t)sizeof(zip_buffer), 1), MZ_END_OF_STREAM);
+
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+}
+
 #ifdef HAVE_CRYPT_BACKEND
 TEST(zip_reader_hash, rejects_oversized_digest) {
     const uint8_t hash_extrafield[] = {
