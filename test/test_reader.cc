@@ -20,6 +20,175 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <vector>
+
+#ifdef HAVE_WZAES
+static int32_t read_aes_entry(const std::vector<uint8_t> &archive, std::string *contents, int32_t read_limit = 0) {
+    void *reader = mz_zip_reader_create();
+    char buffer[64];
+    int32_t err = MZ_OK;
+    int32_t read = 0;
+
+    if (!reader)
+        return MZ_MEM_ERROR;
+
+    err = mz_zip_reader_open_buffer(reader, archive.data(), (int32_t)archive.size(), 1);
+    if (err == MZ_OK)
+        err = mz_zip_reader_goto_first_entry(reader);
+    if (err == MZ_OK) {
+        mz_zip_reader_set_password(reader, "password");
+        err = mz_zip_reader_entry_open(reader);
+    }
+
+    if (err == MZ_OK) {
+        do {
+            read = mz_zip_reader_entry_read(reader, buffer, read_limit ? read_limit : (int32_t)sizeof(buffer));
+            if (read > 0)
+                contents->append(buffer, read);
+        } while (read > 0 && !read_limit);
+
+        if (read < 0)
+            err = read;
+        else
+            err = mz_zip_reader_entry_close(reader);
+    }
+
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+    return err;
+}
+
+static int32_t read_aes_entry_with_descriptor(const std::vector<uint8_t> &archive) {
+    void *mem_stream = mz_stream_mem_create();
+    void *zip = mz_zip_create();
+    char buffer[64];
+    uint32_t crc32 = 0;
+    int32_t err = MZ_OK;
+    int32_t read = 0;
+
+    if (!mem_stream || !zip) {
+        mz_zip_delete(&zip);
+        mz_stream_mem_delete(&mem_stream);
+        return MZ_MEM_ERROR;
+    }
+
+    mz_stream_mem_set_buffer(mem_stream, (void *)archive.data(), (int32_t)archive.size());
+    err = mz_stream_mem_open(mem_stream, nullptr, MZ_OPEN_MODE_READ);
+    if (err == MZ_OK)
+        err = mz_zip_open(zip, mem_stream, MZ_OPEN_MODE_READ);
+    if (err == MZ_OK)
+        err = mz_zip_goto_first_entry(zip);
+    if (err == MZ_OK)
+        err = mz_zip_entry_read_open(zip, 0, "password");
+
+    if (err == MZ_OK) {
+        do {
+            read = mz_zip_entry_read(zip, buffer, sizeof(buffer));
+        } while (read > 0);
+
+        if (read < 0)
+            err = read;
+        else
+            err = mz_zip_entry_read_close(zip, &crc32, nullptr, nullptr);
+    }
+
+    mz_zip_close(zip);
+    mz_zip_delete(&zip);
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+    return err;
+}
+
+TEST(zip_reader_aes, verifies_authentication_on_close) {
+    const char plaintext[] = "authenticated contents";
+    const void *zip_buffer = nullptr;
+    void *mem_stream = mz_stream_mem_create();
+    void *zip = mz_zip_create();
+    void *reader = mz_zip_reader_create();
+    mz_zip_file file_info = {};
+    mz_zip_file *read_info = nullptr;
+    int64_t zip_buffer_length = 0;
+    size_t data_offset = 0;
+    size_t tag_offset = 0;
+    std::vector<uint8_t> archive;
+    std::string contents;
+
+    ASSERT_NE(mem_stream, nullptr);
+    ASSERT_NE(zip, nullptr);
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, nullptr, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_zip_open(zip, mem_stream, MZ_OPEN_MODE_WRITE), MZ_OK);
+
+    file_info.filename = "contents.txt";
+    file_info.version_madeby = MZ_VERSION_MADEBY;
+    file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+    file_info.aes_version = 2;
+    ASSERT_EQ(mz_zip_entry_write_open(zip, &file_info, 0, 0, "password"), MZ_OK);
+    ASSERT_EQ(mz_zip_entry_write(zip, plaintext, sizeof(plaintext) - 1), (int32_t)sizeof(plaintext) - 1);
+    ASSERT_EQ(mz_zip_entry_close(zip), MZ_OK);
+    ASSERT_EQ(mz_zip_close(zip), MZ_OK);
+    mz_zip_delete(&zip);
+
+    mz_stream_mem_get_buffer(mem_stream, &zip_buffer);
+    mz_stream_mem_get_buffer_length(mem_stream, &zip_buffer_length);
+    archive.assign((const uint8_t *)zip_buffer, (const uint8_t *)zip_buffer + zip_buffer_length);
+    ASSERT_EQ(mz_zip_reader_open_buffer(reader, archive.data(), (int32_t)archive.size(), 1), MZ_OK);
+    ASSERT_EQ(mz_zip_reader_goto_first_entry(reader), MZ_OK);
+    ASSERT_EQ(mz_zip_reader_entry_get_info(reader, &read_info), MZ_OK);
+    ASSERT_EQ(read_info->aes_version, 2);
+    ASSERT_NE(read_info->flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR, 0);
+    ASSERT_GE(read_info->compressed_size, 10);
+
+    ASSERT_GE(archive.size(), 30);
+    data_offset = 30 + archive[26] + (archive[27] << 8) + archive[28] + (archive[29] << 8);
+    tag_offset = data_offset + (size_t)read_info->compressed_size - 10;
+    ASSERT_LT(data_offset + 18, archive.size());
+    ASSERT_LT(tag_offset + 3, archive.size());
+
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+
+    EXPECT_EQ(read_aes_entry(archive, &contents), MZ_OK);
+    EXPECT_EQ(contents, plaintext);
+    EXPECT_EQ(read_aes_entry_with_descriptor(archive), MZ_OK);
+
+    contents.clear();
+    std::vector<uint8_t> tampered_tag = archive;
+    tampered_tag[tag_offset] ^= 1;
+    EXPECT_EQ(read_aes_entry(tampered_tag, &contents), MZ_CRC_ERROR);
+    EXPECT_EQ(contents, plaintext);
+
+    tampered_tag[tag_offset] = 'P';
+    tampered_tag[tag_offset + 1] = 'K';
+    tampered_tag[tag_offset + 2] = 7;
+    tampered_tag[tag_offset + 3] = 8;
+    EXPECT_EQ(read_aes_entry_with_descriptor(tampered_tag), MZ_CRC_ERROR);
+
+    contents.clear();
+    std::vector<uint8_t> tampered_ciphertext = archive;
+    tampered_ciphertext[data_offset + 18] ^= 1;
+    EXPECT_EQ(read_aes_entry(tampered_ciphertext, &contents), MZ_CRC_ERROR);
+    EXPECT_NE(contents, plaintext);
+
+    contents.clear();
+    EXPECT_EQ(read_aes_entry(archive, &contents, 1), MZ_CRC_ERROR);
+    EXPECT_EQ(contents.size(), 1);
+
+    reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_buffer(reader, archive.data(), (int32_t)archive.size(), 1), MZ_OK);
+    ASSERT_EQ(mz_zip_reader_goto_first_entry(reader), MZ_OK);
+    mz_zip_reader_set_password(reader, "password");
+    ASSERT_EQ(mz_zip_reader_entry_open(reader), MZ_OK);
+    char first_byte = 0;
+    ASSERT_EQ(mz_zip_reader_entry_read(reader, &first_byte, 1), 1);
+    EXPECT_EQ(mz_zip_reader_goto_next_entry(reader), MZ_CRC_ERROR);
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+}
+#endif
 
 #if !defined(_WIN32)
 #  include <sys/stat.h>

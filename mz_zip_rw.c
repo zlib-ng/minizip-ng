@@ -346,8 +346,11 @@ int32_t mz_zip_reader_goto_first_entry(void *handle) {
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK)
-        mz_zip_reader_entry_close(reader);
+    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK) {
+        err = mz_zip_reader_entry_close(reader);
+        if (err != MZ_OK)
+            return err;
+    }
 
     if (!reader->pattern)
         err = mz_zip_goto_first_entry(reader->zip_handle);
@@ -368,8 +371,11 @@ int32_t mz_zip_reader_goto_next_entry(void *handle) {
     if (mz_zip_reader_is_open(reader) != MZ_OK)
         return MZ_PARAM_ERROR;
 
-    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK)
-        mz_zip_reader_entry_close(reader);
+    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK) {
+        err = mz_zip_reader_entry_close(reader);
+        if (err != MZ_OK)
+            return err;
+    }
 
     if (!reader->pattern)
         err = mz_zip_goto_next_entry(reader->zip_handle);
@@ -389,8 +395,11 @@ int32_t mz_zip_reader_locate_entry(void *handle, const char *filename, uint8_t i
 
     if (!reader)
         return MZ_PARAM_ERROR;
-    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK)
-        mz_zip_reader_entry_close(reader);
+    if (mz_zip_entry_is_open(reader->zip_handle) == MZ_OK) {
+        err = mz_zip_reader_entry_close(reader);
+        if (err != MZ_OK)
+            return err;
+    }
 
     err = mz_zip_locate_entry(reader->zip_handle, filename, ignore_case);
 

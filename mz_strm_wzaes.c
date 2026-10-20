@@ -219,6 +219,9 @@ int32_t mz_stream_wzaes_close(void *stream) {
 
         wzaes->total_out += MZ_AES_AUTHCODE_SIZE;
     } else if (wzaes->mode & MZ_OPEN_MODE_READ) {
+        if (wzaes->total_in != wzaes->max_total_in - MZ_AES_AUTHCODE_SIZE)
+            return MZ_CRC_ERROR;
+
         if (mz_stream_read(wzaes->stream.base, expected_hash, MZ_AES_AUTHCODE_SIZE) != MZ_AES_AUTHCODE_SIZE)
             return MZ_READ_ERROR;
 
