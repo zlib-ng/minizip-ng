@@ -334,8 +334,10 @@ int32_t mz_stream_buffered_seek(void *stream, int64_t offset, int32_t origin) {
 int32_t mz_stream_buffered_close(void *stream) {
     mz_stream_buffered *buffered = (mz_stream_buffered *)stream;
     int32_t bytes_flushed = 0;
+    int32_t err = MZ_OK;
+    int32_t close_err = MZ_OK;
 
-    mz_stream_buffered_flush(stream, &bytes_flushed);
+    err = mz_stream_buffered_flush(stream, &bytes_flushed);
     mz_stream_buffered_print("Buffered - Close (flushed %" PRId32 ")\n", bytes_flushed);
 
     if (buffered->readbuf_hits + buffered->readbuf_misses > 0) {
@@ -352,7 +354,10 @@ int32_t mz_stream_buffered_close(void *stream) {
 
     mz_stream_buffered_reset(buffered);
 
-    return mz_stream_close(buffered->stream.base);
+    close_err = mz_stream_close(buffered->stream.base);
+    if (err == MZ_OK)
+        err = close_err;
+    return err;
 }
 
 int32_t mz_stream_buffered_error(void *stream) {
