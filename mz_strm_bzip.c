@@ -157,7 +157,6 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
             bzip->error = err;
             break;
         }
-        /* BZ2_bzDecompress returns BZ_OK with no progress once the input ends mid-stream */
         if (in_bytes == 0 && out_bytes == 0 && bzip->bzstream.avail_out > 0) {
             bzip->error = BZ_UNEXPECTED_EOF;
             break;
