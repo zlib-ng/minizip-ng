@@ -157,6 +157,10 @@ int32_t mz_stream_bzip_read(void *stream, void *buf, int32_t size) {
             bzip->error = err;
             break;
         }
+        if (in_bytes == 0 && out_bytes == 0 && bzip->bzstream.avail_out > 0) {
+            bzip->error = BZ_UNEXPECTED_EOF;
+            break;
+        }
     } while (bzip->bzstream.avail_out > 0);
 
     if (bzip->error != 0)
