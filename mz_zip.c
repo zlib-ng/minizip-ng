@@ -2215,8 +2215,14 @@ int32_t mz_zip_entry_write_close(void *handle, uint32_t crc32, int64_t compresse
 
     err = mz_stream_close(zip->compress_stream);
 
-    if (!zip->entry_raw)
+    if (!zip->entry_raw) {
         crc32 = zip->entry_crc32;
+#ifdef HAVE_WZAES
+        /* AE-2 stores a zero CRC because the CRC reveals the contents of small entries */
+        if ((zip->file_info.flag & MZ_ZIP_FLAG_ENCRYPTED) && (zip->file_info.aes_version >= 0x0002))
+            crc32 = 0;
+#endif
+    }
 
     mz_zip_print("Zip - Entry - Write Close (crc 0x%08" PRIx32 " cs %" PRId64 " ucs %" PRId64 ")\n", crc32,
                  compressed_size, uncompressed_size);

@@ -11,6 +11,7 @@
 #include "mz.h"
 #include "mz_os.h"
 #include "mz_strm.h"
+#include "mz_strm_mem.h"
 #include "mz_zip.h"
 #include "mz_zip_rw.h"
 
@@ -103,3 +104,41 @@ TEST_F(zip_writer_test, skips_archive_added_by_file) {
 
     EXPECT_EQ(read_entry_names(), std::vector<std::string>{"entry.txt"});
 }
+
+#if defined(HAVE_CRYPT_BACKEND) && defined(HAVE_WZAES)
+TEST(zip_writer_hash, skips_encrypted_entries) {
+    const char contents[] = "contents";
+    const void *zip_buffer = nullptr;
+    void *mem_stream = mz_stream_mem_create();
+    void *writer = mz_zip_writer_create();
+    void *reader = mz_zip_reader_create();
+    mz_zip_file file_info = {};
+    int64_t zip_buffer_length = 0;
+    uint16_t algorithm = 0;
+    uint16_t digest_size = 0;
+
+    ASSERT_NE(mem_stream, nullptr);
+    ASSERT_NE(writer, nullptr);
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, nullptr, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_open(writer, mem_stream, 0), MZ_OK);
+
+    mz_zip_writer_set_password(writer, "password");
+    file_info.filename = "encrypted.txt";
+    file_info.aes_version = MZ_AES_VERSION;
+    ASSERT_EQ(mz_zip_writer_add_buffer(writer, contents, sizeof(contents), &file_info), MZ_OK);
+    ASSERT_EQ(mz_zip_writer_close(writer), MZ_OK);
+
+    mz_stream_mem_get_buffer(mem_stream, &zip_buffer);
+    mz_stream_mem_get_buffer_length(mem_stream, &zip_buffer_length);
+    ASSERT_EQ(mz_zip_reader_open_buffer(reader, (const uint8_t *)zip_buffer, zip_buffer_length, 0), MZ_OK);
+    ASSERT_EQ(mz_zip_reader_goto_first_entry(reader), MZ_OK);
+    EXPECT_EQ(mz_zip_reader_entry_get_first_hash(reader, &algorithm, &digest_size), MZ_EXIST_ERROR);
+
+    mz_zip_reader_close(reader);
+    mz_zip_reader_delete(&reader);
+    mz_zip_writer_delete(&writer);
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+}
+#endif
