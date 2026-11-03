@@ -1,7 +1,8 @@
 # The PPMd sources used in mnizip-ng come from https://github.com/ip7z/7zip
 #
 # This simple depndabot-like script checks if the latest upstream
-# version of PPMd matches the hard-wired version used in minizip-ng.
+# version of PPMd matches the hard-wired version used in minizip-ng,
+# and opens a pull request to update it when it does not.
 
 name: PPMd Dependabot
 on:
@@ -14,20 +15,38 @@ jobs:
     name: Upstream
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+      with:
+        token: ${{ secrets.PPMD_BOT_TOKEN }}
+
     - name: Check Upstream PPMd Version
+      env:
+        GH_TOKEN: ${{ secrets.PPMD_BOT_TOKEN }}
       run: |
         # This is the hard-wired PPMd version that minizip-ng is built with.
-        # The version number here should match the value used in the call to 'clone_repo' in CMakeLists.txt
-        expected_ppmd_version="26.05"
+        expected_ppmd_version=$( sed -n 's/^ *clone_repo(ppmd .* "\(.*\)")$/\1/p' CMakeLists.txt )
 
         # get the latest PPMd version from upstream 7zip repo
         upstream_ppmd_version=$( git ls-remote --tags --sort=-v:refname https://github.com/ip7z/7zip  | head -n 1 | sed -e 's#.*/##' )
 
-        if [ "$upstream_ppmd_version" != "$expected_ppmd_version" ]; then
-            echo "ERROR: PPMd version mismatch!"
-            echo "    Expected PPMd version: '$expected_ppmd_version'"
-            echo "    Upstream PPMd version: '$upstream_ppmd_version'"
-            exit 1
-        else
+        if [ "$upstream_ppmd_version" = "$expected_ppmd_version" ]; then
             echo "All OK. Upstream PPMd matches expected version: '$expected_ppmd_version'"
+            exit 0
         fi
+
+        branch="ppmd/$upstream_ppmd_version"
+        if git ls-remote --exit-code --heads origin "$branch"; then
+            echo "Update branch '$branch' already exists"
+            exit 0
+        fi
+
+        title="ppmd: update to use 7zip $upstream_ppmd_version"
+        sed -i "s|^\( *clone_repo(ppmd .* \)\"$expected_ppmd_version\")\$|\1\"$upstream_ppmd_version\")|" CMakeLists.txt
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git switch -c "$branch"
+        git commit -am "$title"
+        git push origin "$branch"
+        gh pr create --base develop --head "$branch" --title "$title" --body "Updates PPMd to 7zip $upstream_ppmd_version."
