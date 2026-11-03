@@ -2140,6 +2140,8 @@ int32_t mz_zip_entry_write(void *handle, const void *buf, int32_t len) {
 int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compressed_size, int64_t *uncompressed_size) {
     mz_zip *zip = (mz_zip *)handle;
     int64_t total_in = 0;
+    int64_t header_size = 0;
+    int64_t footer_size = 0;
     int32_t err = MZ_OK;
     uint8_t zip64 = 0;
 
@@ -2159,7 +2161,17 @@ int32_t mz_zip_entry_read_close(void *handle, uint32_t *crc32, int64_t *compress
 
     mz_stream_get_prop_int64(zip->compress_stream, MZ_STREAM_PROP_TOTAL_IN, &total_in);
 
-    if ((zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) &&
+    /* The compressed size includes the encryption header and footer */
+    if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_HEADER_SIZE, &header_size) == MZ_OK)
+        total_in += header_size;
+    if (mz_stream_get_prop_int64(zip->crypt_stream, MZ_STREAM_PROP_FOOTER_SIZE, &footer_size) == MZ_OK)
+        total_in += footer_size;
+
+    /* Closing the WinZip AES stream compares the authentication code */
+    if (total_in == zip->file_info.compressed_size)
+        err = mz_stream_close(zip->crypt_stream);
+
+    if ((err == MZ_OK) && (zip->file_info.flag & MZ_ZIP_FLAG_DATA_DESCRIPTOR) &&
         ((zip->file_info.flag & MZ_ZIP_FLAG_MASK_LOCAL_INFO) == 0) && (crc32 || compressed_size || uncompressed_size)) {
         /* Check to see if data descriptor is zip64 bit format or not */
         if (mz_zip_extrafield_contains(zip->local_file_info.extrafield, zip->local_file_info.extrafield_size,
