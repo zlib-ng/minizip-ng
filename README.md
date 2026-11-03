@@ -86,6 +86,7 @@ cmake --build build
 | MZ_COMPRESS_ONLY    | Only support compression                                       |      OFF      |
 | MZ_DECOMPRESS_ONLY  | Only support decompression                                     |      OFF      |
 | MZ_FILE32_API       | Builds using posix 32-bit file api                             |      OFF      |
+| MZ_SYMLINK          | Enables symbolic link extraction                              |      ON       |
 | MZ_BUILD_TESTS      | Builds minizip test executable                                 |      OFF      |
 | MZ_BUILD_UNIT_TESTS | Builds minizip unit test project                               |      OFF      |
 | MZ_BUILD_FUZZ_TESTS | Builds minizip fuzz executables                                |      OFF      |
