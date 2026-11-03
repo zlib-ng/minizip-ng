@@ -7,7 +7,7 @@ env:
 jobs:
   clang-format:
     name: Clang-Format
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Install clang-format
       run: |
