@@ -69,7 +69,7 @@ jobs:
             build-dir: ../build
 
           - name: Ubuntu Clang
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON
@@ -78,7 +78,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Zlib
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_ZLIB=OFF
@@ -87,7 +87,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Bzip2
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON  -D MZ_BZIP=OFF
@@ -96,7 +96,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No LZMA
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_LZMA=OFF
@@ -105,7 +105,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Zstd
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_ZSTD=OFF
@@ -114,7 +114,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Ppmd
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_PPMD=OFF
@@ -123,7 +123,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Pkcrypt
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_PKCRYPT=OFF
@@ -132,7 +132,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Winzip AES
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_WZAES=OFF
@@ -141,7 +141,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang No Encryption
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_PKCRYPT=OFF -D MZ_WZAES=OFF
@@ -150,7 +150,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang Compress Only
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_COMPRESS_ONLY=ON
@@ -159,7 +159,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang Decompress Only
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_DECOMPRESS_ONLY=ON
@@ -168,7 +168,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang OpenSSL
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_OPENSSL=ON
@@ -177,7 +177,7 @@ jobs:
             gcov-exec: llvm-cov-14 gcov
 
           - name: Ubuntu Clang ICU
-            os: ubuntu-latest
+            os: ubuntu-24.04
             compiler: clang-14
             cxx-compiler: clang++-14
             cmake-args: -D MZ_CODE_COVERAGE=ON -D MZ_ICU=ON -D MZ_ICONV=OFF
