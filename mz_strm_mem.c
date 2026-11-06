@@ -54,6 +54,10 @@ static int32_t mz_stream_mem_set_size(void *stream, int64_t size) {
     int64_t new_size = size;
     uint8_t *new_buf = NULL;
 
+    /* reject sizes that would truncate the size_t malloc cast on 32-bit */
+    if ((uint64_t)new_size > (uint64_t)SIZE_MAX)
+        return MZ_MEM_ERROR;
+
     new_buf = (uint8_t *)malloc((size_t)new_size);
     if (!new_buf)
         return MZ_BUF_ERROR;
@@ -95,14 +99,19 @@ int32_t mz_stream_mem_is_open(void *stream) {
 
 int32_t mz_stream_mem_read(void *stream, void *buf, int32_t size) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
+    int64_t readable_end = 0;
+    int64_t bytes_left = 0;
 
-    if (size > mem->size - mem->position)
-        size = (int32_t)(mem->size - mem->position);
-    if (mem->position + size > mem->limit)
-        size = (int32_t)(mem->limit - mem->position);
-
-    if (size <= 0)
+    /* position may be past the end after a seek, and limit may exceed size; bound to the
+       allocation and subtract in 64-bit so the result cannot wrap negative into a large length */
+    readable_end = mem->limit;
+    if (readable_end > mem->size)
+        readable_end = mem->size;
+    bytes_left = readable_end - mem->position;
+    if (bytes_left <= 0 || size <= 0)
         return 0;
+    if (bytes_left < size)
+        size = (int32_t)bytes_left;
 
     memcpy(buf, mem->buffer + mem->position, (size_t)size);
     mem->position += size;
@@ -118,13 +127,15 @@ int32_t mz_stream_mem_write(void *stream, const void *buf, int32_t size) {
     if (!size)
         return size;
 
-    if (size > mem->size - mem->position) {
+    /* position may be far past the end after a seek; guard the endpoint against int64 overflow */
+    if (mem->position > INT64_MAX - size)
+        return MZ_MEM_ERROR;
+
+    if (mem->position + size > mem->size) {
         if (mem->mode & MZ_OPEN_MODE_CREATE) {
-            new_size = mem->size;
-            if (size < mem->grow_size)
-                new_size += mem->grow_size;
-            else
-                new_size += size;
+            new_size = mem->position + size;
+            if (mem->size <= INT64_MAX - mem->grow_size && new_size < mem->size + mem->grow_size)
+                new_size = mem->size + mem->grow_size;
 
             err = mz_stream_mem_set_size(stream, new_size);
             if (err != MZ_OK)
@@ -151,7 +162,6 @@ int64_t mz_stream_mem_tell(void *stream) {
 int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     mz_stream_mem *mem = (mz_stream_mem *)stream;
     int64_t new_pos = 0;
-    int32_t err = MZ_OK;
 
     switch (origin) {
     case MZ_SEEK_CUR:
@@ -170,14 +180,9 @@ int32_t mz_stream_mem_seek(void *stream, int64_t offset, int32_t origin) {
     if (new_pos < 0)
         return MZ_SEEK_ERROR;
 
-    if (new_pos > mem->size) {
-        if ((mem->mode & MZ_OPEN_MODE_CREATE) == 0)
-            return MZ_SEEK_ERROR;
-
-        err = mz_stream_mem_set_size(stream, new_pos);
-        if (err != MZ_OK)
-            return err;
-    }
+    /* create-mode may seek past the end; the buffer grows lazily on the next write, not here */
+    if (new_pos > mem->size && (mem->mode & MZ_OPEN_MODE_CREATE) == 0)
+        return MZ_SEEK_ERROR;
 
     mem->position = new_pos;
     return MZ_OK;
