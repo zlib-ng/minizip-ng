@@ -12,6 +12,8 @@
 #include "mz_strm.h"
 #include "mz_strm_mem.h"
 
+#include <cstring>
+
 #include <gtest/gtest.h>
 
 typedef void (*stream_test_cb)(const char *name, int32_t count, const uint8_t *find, int32_t find_size,
@@ -230,4 +232,68 @@ TEST_P(stream_find, find) {
 
     for (c = 1; c < (int32_t)strlen(find); c += 1)
         param.test_cb(param.name, 2096, (const uint8_t *)find, c, param.find_cb);
+}
+
+class stream_mem : public ::testing::Test {
+  protected:
+    void *mem_stream = NULL;
+
+    void SetUp() override {
+        mem_stream = mz_stream_mem_create();
+        ASSERT_NE(mem_stream, nullptr);
+    }
+
+    void TearDown() override {
+        mz_stream_mem_delete(&mem_stream);
+    }
+};
+
+TEST_F(stream_mem, reopen_smaller) {
+    uint8_t input[64];
+    uint8_t output[16] = {0};
+    int64_t length = -1;
+
+    memset(input, 0x5a, sizeof(input));
+    mz_stream_mem_set_grow_size(mem_stream, sizeof(input));
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_stream_mem_write(mem_stream, input, sizeof(input)), sizeof(input));
+    ASSERT_EQ(mz_stream_mem_close(mem_stream), MZ_OK);
+
+    mz_stream_mem_set_grow_size(mem_stream, sizeof(output));
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
+    mz_stream_mem_get_buffer_length(mem_stream, &length);
+    EXPECT_EQ(length, 0);
+    ASSERT_EQ(mz_stream_mem_write(mem_stream, input, sizeof(output)), sizeof(output));
+    ASSERT_EQ(mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET), MZ_OK);
+    ASSERT_EQ(mz_stream_mem_read(mem_stream, output, sizeof(output)), sizeof(output));
+    EXPECT_EQ(memcmp(input, output, sizeof(output)), 0);
+}
+
+TEST_F(stream_mem, grow_preserves_data) {
+    uint8_t input[80];
+    uint8_t output[80] = {0};
+
+    for (size_t i = 0; i < sizeof(input); i++)
+        input[i] = (uint8_t)i;
+
+    mz_stream_mem_set_grow_size(mem_stream, 64);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_stream_mem_write(mem_stream, input, 64), 64);
+    ASSERT_EQ(mz_stream_mem_write(mem_stream, input + 64, 16), 16);
+    ASSERT_EQ(mz_stream_mem_seek(mem_stream, 0, MZ_SEEK_SET), MZ_OK);
+    ASSERT_EQ(mz_stream_mem_read(mem_stream, output, sizeof(output)), sizeof(output));
+    EXPECT_EQ(memcmp(input, output, sizeof(output)), 0);
+}
+
+TEST_F(stream_mem, reject_invalid_capacity) {
+    mz_stream_mem_set_grow_size(mem_stream, -1);
+    EXPECT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_PARAM_ERROR);
+
+#if SIZE_MAX < INT64_MAX
+    mz_stream_mem_set_grow_size(mem_stream, (int64_t)SIZE_MAX + 1);
+    EXPECT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_PARAM_ERROR);
+#endif
+
+    mz_stream_mem_set_grow_size(mem_stream, 16);
+    EXPECT_EQ(mz_stream_mem_open(mem_stream, NULL, MZ_OPEN_MODE_CREATE), MZ_OK);
 }
