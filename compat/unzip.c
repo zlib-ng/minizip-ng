@@ -502,7 +502,7 @@ int unzLocateFile(unzFile file, const char *filename, unzFileNameCase filename_c
         if (err != MZ_OK)
             break;
 
-        result = mz_path_compare_wc(filename, file_info->filename, !ignore_case);
+        result = mz_zip_path_compare(file_info->filename, filename, !ignore_case);
 
         if (result == 0)
             return MZ_OK;
@@ -536,7 +536,7 @@ int unzLocateFile(unzFile file, const char *filename, unzFileNameComparer filena
             result = filename_compare_func(file, filename, file_info->filename);
         } else {
             int32_t case_sensitive = (int32_t)(intptr_t)filename_compare_func;
-            result = mz_path_compare_wc(filename, file_info->filename, !case_sensitive);
+            result = mz_zip_path_compare(file_info->filename, filename, !case_sensitive);
         }
 
         if (result == 0)
