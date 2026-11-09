@@ -54,12 +54,16 @@ static int32_t mz_stream_mem_set_size(void *stream, int64_t size) {
     int64_t new_size = size;
     uint8_t *new_buf = NULL;
 
+    if (new_size < 0 || mem->size < 0 || (uint64_t)new_size > (uint64_t)SIZE_MAX)
+        return MZ_PARAM_ERROR;
+
     new_buf = (uint8_t *)malloc((size_t)new_size);
     if (!new_buf)
         return MZ_BUF_ERROR;
 
     if (mem->buffer) {
-        memcpy(new_buf, mem->buffer, (size_t)mem->size);
+        int64_t copy_size = mem->size < new_size ? mem->size : new_size;
+        memcpy(new_buf, mem->buffer, (size_t)copy_size);
         free(mem->buffer);
     }
 
