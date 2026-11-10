@@ -19,6 +19,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <string>
 
 #if !defined(_WIN32)
@@ -66,6 +67,66 @@ TEST(zip_reader_hash, rejects_oversized_digest) {
     mz_zip_writer_delete(&writer);
     mz_stream_mem_close(mem_stream);
     mz_stream_mem_delete(&mem_stream);
+}
+#endif
+
+#if defined(HAVE_PKCRYPT) || defined(HAVE_WZAES)
+static void test_altered_encrypted_entry(uint16_t aes_version) {
+    const char contents[] = "contents that must not change";
+    char buf[sizeof(contents)];
+    const void *zip_buffer = nullptr;
+    void *mem_stream = mz_stream_mem_create();
+    void *zip = mz_zip_create();
+    mz_zip_file file_info = {};
+    int64_t zip_buffer_length = 0;
+    int64_t data_offset = 0;
+
+    ASSERT_NE(mem_stream, nullptr);
+    ASSERT_NE(zip, nullptr);
+    ASSERT_EQ(mz_stream_mem_open(mem_stream, nullptr, MZ_OPEN_MODE_CREATE), MZ_OK);
+    ASSERT_EQ(mz_zip_open(zip, mem_stream, MZ_OPEN_MODE_WRITE), MZ_OK);
+
+    file_info.filename = "contents.txt";
+    file_info.modified_date = time(nullptr);
+    file_info.compression_method = MZ_COMPRESS_METHOD_STORE;
+    file_info.aes_version = aes_version;
+    ASSERT_EQ(mz_zip_entry_write_open(zip, &file_info, 0, 0, "password"), MZ_OK);
+    data_offset = mz_stream_tell(mem_stream);
+    ASSERT_EQ(mz_zip_entry_write(zip, contents, sizeof(contents)), (int32_t)sizeof(contents));
+    ASSERT_EQ(mz_zip_entry_close(zip), MZ_OK);
+    ASSERT_EQ(mz_zip_close(zip), MZ_OK);
+
+    mz_stream_mem_get_buffer(mem_stream, &zip_buffer);
+    mz_stream_mem_get_buffer_length(mem_stream, &zip_buffer_length);
+    ASSERT_LT(data_offset, zip_buffer_length);
+    ((uint8_t *)zip_buffer)[data_offset] ^= 1;
+
+    ASSERT_EQ(mz_zip_open(zip, mem_stream, MZ_OPEN_MODE_READ), MZ_OK);
+    ASSERT_EQ(mz_zip_goto_first_entry(zip), MZ_OK);
+    ASSERT_EQ(mz_zip_entry_read_open(zip, 0, "password"), MZ_OK);
+    EXPECT_EQ(mz_zip_entry_read(zip, buf, sizeof(buf)), (int32_t)sizeof(buf));
+    EXPECT_EQ(mz_zip_entry_close(zip), MZ_CRC_ERROR);
+
+    mz_zip_close(zip);
+    mz_zip_delete(&zip);
+    mz_stream_mem_close(mem_stream);
+    mz_stream_mem_delete(&mem_stream);
+}
+#endif
+
+#ifdef HAVE_PKCRYPT
+TEST(zip_entry_crypt, rejects_altered_pkcrypt_data) {
+    test_altered_encrypted_entry(0);
+}
+#endif
+
+#ifdef HAVE_WZAES
+TEST(zip_entry_crypt, rejects_altered_aes1_data) {
+    test_altered_encrypted_entry(1);
+}
+
+TEST(zip_entry_crypt, rejects_altered_aes2_data) {
+    test_altered_encrypted_entry(2);
 }
 #endif
 
