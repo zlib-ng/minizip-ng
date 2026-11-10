@@ -1461,7 +1461,8 @@ int32_t mz_zip_writer_entry_open(void *handle, mz_zip_file *file_info) {
     }
 
 #ifdef HAVE_CRYPT_BACKEND
-    if (mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK) {
+    /* Extra fields aren't encrypted, so a digest of an encrypted entry would reveal its contents */
+    if (!password && mz_zip_attrib_is_dir(writer->file_info.external_fa, writer->file_info.version_madeby) != MZ_OK) {
         /* Start calculating hash */
         writer->hash = mz_crypt_sha_create();
         writer->hash_algorithm = MZ_HASH_SHA256;
