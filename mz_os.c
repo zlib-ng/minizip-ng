@@ -307,6 +307,11 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     /* Absolute symlink targets are not allowed */
     if (mz_os_is_dir_separator(target[0]))
         return MZ_EXIST_ERROR;
+#if defined(_WIN32)
+    /* A drive letter makes the target absolute or relative to that drive's current directory */
+    if (*target != 0 && target[1] == ':' && isalpha((unsigned char)*target))
+        return MZ_EXIST_ERROR;
+#endif
 
     base_len = strlen(base_path);
 

@@ -152,6 +152,11 @@ constexpr symlink_base_param symlink_base_tests[] = {
     {"base\\a\\b\\link", "..\\..\\..\\out.txt", "base", false},
     /* Absolute targets are rejected */
     {      "base\\link",       "\\etc\\passwd", "base", false},
+#if defined(_WIN32)
+    /* Drive letter targets are absolute or relative to another drive */
+    {      "base\\link",         "c:\\windows", "base", false},
+    {      "base\\link",           "c:out.txt", "base", false},
+#endif
     /* A sibling directory sharing the base name prefix is not in base */
     {      "base\\link",    "..\\base_evil\\x", "base", false},
 };
