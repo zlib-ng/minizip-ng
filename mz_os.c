@@ -296,9 +296,13 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
+    const char *part = NULL;
+    const char *next = NULL;
     size_t max_path = 0;
     size_t base_len = 0;
     size_t parent_len = 0;
+    size_t depth = 0;
+    int32_t is_relative = 0;
     int32_t err = MZ_OK;
 
     if (!link_path || !target || !base_path)
@@ -339,6 +343,31 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
         mz_path_append_slash(combined, (int32_t)max_path, MZ_PATH_SLASH_PLATFORM);
     }
     strncat(combined, target, max_path - strlen(combined) - 1);
+
+    /* A relative path must not climb above the current directory. */
+    is_relative = !mz_os_is_dir_separator(combined[0]);
+#if defined(_WIN32)
+    if (isalpha((unsigned char)combined[0]) && combined[1] == ':' && mz_os_is_dir_separator(combined[2]))
+        is_relative = 0;
+#endif
+    if (is_relative) {
+        for (part = combined; *part; part = next) {
+            next = part;
+            while (*next && !mz_os_is_dir_separator(*next))
+                next++;
+            if (next - part == 2 && part[0] == '.' && part[1] == '.') {
+                if (depth == 0) {
+                    err = MZ_EXIST_ERROR;
+                    goto target_cleanup;
+                }
+                depth--;
+            } else if (next > part && !(next - part == 1 && part[0] == '.')) {
+                depth++;
+            }
+            if (*next)
+                next++;
+        }
+    }
 
     /* Resolve the combined path to eliminate .. */
     if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
