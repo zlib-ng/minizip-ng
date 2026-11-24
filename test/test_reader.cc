@@ -245,6 +245,19 @@ TEST_F(zip_reader_confinement_test, does_not_write_through_dangling_symlink) {
     unlink(archive.c_str());
 }
 
+TEST_F(zip_reader_confinement_test, rejects_symlink_chain_outside_destination) {
+    ASSERT_EQ(symlink(".", (destination + "/a").c_str()), 0);
+    ASSERT_EQ(symlink("a/../.", (destination + "/b").c_str()), 0);
+    write_entry("b/escaped.txt", "escape");
+
+    reader = mz_zip_reader_create();
+    ASSERT_NE(reader, nullptr);
+    ASSERT_EQ(mz_zip_reader_open_file(reader, archive.c_str()), MZ_OK);
+    ASSERT_EQ(chdir(destination.c_str()), 0);
+    EXPECT_NE(mz_zip_reader_save_all(reader, "."), MZ_OK);
+    EXPECT_NE(mz_os_file_exists((root_path + "/escaped.txt").c_str()), MZ_OK);
+}
+
 /* A drive-letter-shaped prefix combined with doubled separators must not
    escape the destination either (#1044) */
 TEST_F(zip_reader_confinement_test, rejects_doubled_separator_drive_escape) {

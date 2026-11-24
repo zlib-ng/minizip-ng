@@ -390,6 +390,10 @@ target_cleanup:
 int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     char *check_path = NULL;
     char *symlink_target = NULL;
+#if !defined(_WIN32)
+    char *resolved_base = NULL;
+    char *resolved_path = NULL;
+#endif
     size_t path_len = 0;
     size_t base_len = 0;
     int32_t max_path = 1024;
@@ -440,6 +444,21 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
                 continue;
         }
 
+#if !defined(_WIN32)
+        /* Resolve the whole chain before trusting this path component. */
+        if (!resolved_base)
+            resolved_base = realpath(base_path, NULL);
+        resolved_path = realpath(check_path, NULL);
+        if (!resolved_base || !resolved_path || strncmp(resolved_path, resolved_base, strlen(resolved_base)) != 0 ||
+            (resolved_base[1] != 0 && resolved_path[strlen(resolved_base)] != 0 &&
+             resolved_path[strlen(resolved_base)] != '/')) {
+            err = MZ_EXIST_ERROR;
+            break;
+        }
+        free(resolved_path);
+        resolved_path = NULL;
+#endif
+
         /* Allocate symlink target buffer on first use */
         if (!symlink_target) {
             symlink_target = (char *)calloc(1, max_path);
@@ -462,6 +481,10 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
 
     free(check_path);
     free(symlink_target);
+#if !defined(_WIN32)
+    free(resolved_base);
+    free(resolved_path);
+#endif
 
     return err;
 }
