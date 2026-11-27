@@ -142,13 +142,20 @@ int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignor
     return MZ_OK;
 }
 
-int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
+static int32_t mz_path_resolve_internal(const char *path, char *output, int32_t max_output, int32_t reject_escape) {
     const char *source = path;
     const char *check = output;
     char *target = output;
 
     if (max_output <= 0)
         return MZ_PARAM_ERROR;
+
+    if (mz_os_is_dir_separator(path[0]))
+        reject_escape = 0;
+#if defined(_WIN32)
+    if (isalpha((unsigned char)path[0]) && path[1] == ':' && mz_os_is_dir_separator(path[2]))
+        reject_escape = 0;
+#endif
 
     while (*source != 0 && max_output > 1) {
         check = source;
@@ -197,6 +204,9 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
                                 target -= 1;
                                 max_output += 1;
                             } while (target > output);
+                        } else if (reject_escape) {
+                            /* No component remains to absorb this parent traversal. */
+                            return MZ_EXIST_ERROR;
                         }
 
                         if ((target == output) && *source != 0)
@@ -224,6 +234,10 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
         return MZ_INTERNAL_ERROR;
 
     return MZ_OK;
+}
+
+int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
+    return mz_path_resolve_internal(path, output, max_output, 0);
 }
 
 int32_t mz_path_remove_filename(char *path) {
@@ -296,13 +310,9 @@ int32_t mz_path_get_filename(const char *path, const char **filename) {
 int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target, const char *base_path) {
     char *combined = NULL;
     char *resolved = NULL;
-    const char *part = NULL;
-    const char *next = NULL;
     size_t max_path = 0;
     size_t base_len = 0;
     size_t parent_len = 0;
-    size_t depth = 0;
-    int32_t is_relative = 0;
     int32_t err = MZ_OK;
 
     if (!link_path || !target || !base_path)
@@ -344,33 +354,8 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     }
     strncat(combined, target, max_path - strlen(combined) - 1);
 
-    /* A relative path must not climb above the current directory. */
-    is_relative = !mz_os_is_dir_separator(combined[0]);
-#if defined(_WIN32)
-    if (isalpha((unsigned char)combined[0]) && combined[1] == ':' && mz_os_is_dir_separator(combined[2]))
-        is_relative = 0;
-#endif
-    if (is_relative) {
-        for (part = combined; *part; part = next) {
-            next = part;
-            while (*next && !mz_os_is_dir_separator(*next))
-                next++;
-            if (next - part == 2 && part[0] == '.' && part[1] == '.') {
-                if (depth == 0) {
-                    err = MZ_EXIST_ERROR;
-                    goto target_cleanup;
-                }
-                depth--;
-            } else if (next > part && !(next - part == 1 && part[0] == '.')) {
-                depth++;
-            }
-            if (*next)
-                next++;
-        }
-    }
-
-    /* Resolve the combined path to eliminate .. */
-    if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
+    /* Resolve the combined path and reject relative targets that climb above the current directory. */
+    if (mz_path_resolve_internal(combined, resolved, (int32_t)max_path, 1) != MZ_OK) {
         err = MZ_EXIST_ERROR;
         goto target_cleanup;
     }
