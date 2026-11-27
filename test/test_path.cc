@@ -150,6 +150,8 @@ constexpr symlink_base_param symlink_base_tests[] = {
     /* Targets that resolve outside the base are rejected */
     {      "base\\link",         "..\\out.txt", "base", false},
     {"base\\a\\b\\link", "..\\..\\..\\out.txt", "base", false},
+    {         ".\\link",               "..\\.",    ".", false},
+    {      "base\\link",        "..\\..\\base", "base", false},
     /* Absolute targets are rejected */
     {      "base\\link",       "\\etc\\passwd", "base", false},
     /* A sibling directory sharing the base name prefix is not in base */

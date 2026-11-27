@@ -142,13 +142,20 @@ int32_t mz_path_compare_wc(const char *path, const char *wildcard, uint8_t ignor
     return MZ_OK;
 }
 
-int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
+static int32_t mz_path_resolve_internal(const char *path, char *output, int32_t max_output, int32_t reject_escape) {
     const char *source = path;
     const char *check = output;
     char *target = output;
 
     if (max_output <= 0)
         return MZ_PARAM_ERROR;
+
+    if (mz_os_is_dir_separator(path[0]))
+        reject_escape = 0;
+#if defined(_WIN32)
+    if (isalpha((unsigned char)path[0]) && path[1] == ':' && mz_os_is_dir_separator(path[2]))
+        reject_escape = 0;
+#endif
 
     while (*source != 0 && max_output > 1) {
         check = source;
@@ -197,6 +204,9 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
                                 target -= 1;
                                 max_output += 1;
                             } while (target > output);
+                        } else if (reject_escape) {
+                            /* No component remains to absorb this parent traversal. */
+                            return MZ_EXIST_ERROR;
                         }
 
                         if ((target == output) && *source != 0)
@@ -224,6 +234,10 @@ int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
         return MZ_INTERNAL_ERROR;
 
     return MZ_OK;
+}
+
+int32_t mz_path_resolve(const char *path, char *output, int32_t max_output) {
+    return mz_path_resolve_internal(path, output, max_output, 0);
 }
 
 int32_t mz_path_remove_filename(char *path) {
@@ -340,8 +354,8 @@ int32_t mz_path_is_symlink_target_safe(const char *link_path, const char *target
     }
     strncat(combined, target, max_path - strlen(combined) - 1);
 
-    /* Resolve the combined path to eliminate .. */
-    if (mz_path_resolve(combined, resolved, (int32_t)max_path) != MZ_OK) {
+    /* Resolve the combined path and reject relative targets that climb above the current directory. */
+    if (mz_path_resolve_internal(combined, resolved, (int32_t)max_path, 1) != MZ_OK) {
         err = MZ_EXIST_ERROR;
         goto target_cleanup;
     }
@@ -361,6 +375,10 @@ target_cleanup:
 int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
     char *check_path = NULL;
     char *symlink_target = NULL;
+#if !defined(_WIN32)
+    char *resolved_base = NULL;
+    char *resolved_path = NULL;
+#endif
     size_t path_len = 0;
     size_t base_len = 0;
     int32_t max_path = 1024;
@@ -411,6 +429,21 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
                 continue;
         }
 
+#if !defined(_WIN32)
+        /* Resolve the whole chain before trusting this path component. */
+        if (!resolved_base)
+            resolved_base = realpath(base_path, NULL);
+        resolved_path = realpath(check_path, NULL);
+        if (!resolved_base || !resolved_path || strncmp(resolved_path, resolved_base, strlen(resolved_base)) != 0 ||
+            (resolved_base[1] != 0 && resolved_path[strlen(resolved_base)] != 0 &&
+             resolved_path[strlen(resolved_base)] != '/')) {
+            err = MZ_EXIST_ERROR;
+            break;
+        }
+        free(resolved_path);
+        resolved_path = NULL;
+#endif
+
         /* Allocate symlink target buffer on first use */
         if (!symlink_target) {
             symlink_target = (char *)calloc(1, max_path);
@@ -433,6 +466,10 @@ int32_t mz_dir_has_unsafe_symlink(const char *path, const char *base_path) {
 
     free(check_path);
     free(symlink_target);
+#if !defined(_WIN32)
+    free(resolved_base);
+    free(resolved_path);
+#endif
 
     return err;
 }
